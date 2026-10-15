@@ -1,0 +1,133 @@
+module Narrador
+{
+    imports
+    {
+        Base
+    }
+
+    model NarradorBotiquinSous
+    {
+        mesh = Narrador/BotiquinSous,
+        texture = Narrador/BotiquinSous,
+        scale = 1.0,
+    }
+
+    model NarradorAntibioticos
+    {
+        mesh = Narrador/Antibioticos,
+        texture = Narrador/Antibioticos,
+        scale = 1.0,
+    }
+
+    model NarradorPaqueteMisionero
+    {
+        mesh = Narrador/PaqueteMisionero,
+        texture = Narrador/PaqueteMisionero,
+        scale = 1.0,
+    }
+
+    model NarradorPlanosPueblo
+    {
+        mesh = Narrador/PlanosPueblo,
+        texture = Narrador/PlanosPueblo,
+        scale = 1.0,
+    }
+
+    model NarradorDiarioMaulen
+    {
+        mesh = Narrador/DiarioMaulen,
+        texture = Narrador/DiarioMaulen,
+        scale = 1.0,
+    }
+
+    model NarradorMuestrasHospital
+    {
+        mesh = Narrador/MuestrasHospital,
+        texture = Narrador/MuestrasHospital,
+        scale = 1.0,
+    }
+
+    model NarradorMaletinMilitar
+    {
+        mesh = Narrador/MaletinMilitar,
+        texture = Narrador/MaletinMilitar,
+        scale = 1.0,
+    }
+
+    model NarradorLlavesBoveda
+    {
+        mesh = Narrador/LlavesBoveda,
+        texture = Narrador/LlavesBoveda,
+        scale = 1.0,
+    }
+
+    model NarradorExpedienteSellado
+    {
+        mesh = Narrador/ExpedienteSellado,
+        texture = Narrador/ExpedienteSellado,
+        scale = 1.0,
+    }
+
+    model NarradorCajaArsenal
+    {
+        mesh = Narrador/CajaArsenal,
+        texture = Narrador/CajaArsenal,
+        scale = 1.0,
+    }
+
+    model NarradorPelotaAkagami
+    {
+        mesh = Narrador/PelotaAkagami,
+        texture = Narrador/PelotaAkagami,
+        scale = 1.0,
+    }
+
+    model NarradorFotoSous
+    {
+        mesh = Narrador/FotoSous,
+        texture = Narrador/FotoSous,
+        scale = 1.0,
+    }
+
+    model NarradorCollarTati
+    {
+        mesh = Narrador/CollarTati,
+        texture = Narrador/CollarTati,
+        scale = 1.0,
+    }
+
+    model NarradorTalladoWalita
+    {
+        mesh = Narrador/TalladoWalita,
+        texture = Narrador/TalladoWalita,
+        scale = 1.0,
+    }
+
+    model NarradorAntiparrasCristonks
+    {
+        mesh = Narrador/AntiparrasCristonks,
+        texture = Narrador/AntiparrasCristonks,
+        scale = 1.0,
+    }
+
+    model NarradorLibroCuentasHasag
+    {
+        mesh = Narrador/LibroCuentasHasag,
+        texture = Narrador/LibroCuentasHasag,
+        scale = 1.0,
+    }
+
+    model NarradorCamisetaBicho
+    {
+        mesh = Narrador/CamisetaBicho,
+        texture = Narrador/CamisetaBicho,
+        scale = 1.0,
+    }
+
+    model NarradorPosterSous
+    {
+        mesh = Narrador/PosterSous,
+        texture = Narrador/PosterSous,
+        scale = 1.0,
+    }
+}

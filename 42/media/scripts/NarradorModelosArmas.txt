@@ -1,0 +1,141 @@
+module Base
+{
+    /* Modelos de las 9 armas de Sous. Van en module Base porque el juego busca el
+       WeaponSprite de las armas en Base: si quedan en module Narrador el server avisa que
+       no encuentra el modelo. Los items siguen siendo Narrador.<Arma>. */
+
+    model NarradorMataPerrasMatric
+    {
+        mesh = weapons/2handed/Katana,
+        texture = Narrador/Armas/MataPerras,
+        attachment world
+        {
+            offset = 0.0155 0.2859 0.015,
+            rotate = -180.0 0.0 177.566,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.013 0.0001 0.0025,
+            rotate = -23.8537 -86.6222 -22.0887,
+        }
+    }
+
+    model NarradorSarcasmoZent
+    {
+        mesh = weapons/1handed/HuntingKnife,
+        texture = Narrador/Armas/SarcasmoZent,
+        attachment world
+        {
+            offset = 0.0022 0.115 -0.0089,
+            rotate = 180.0 0.0 180.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.0166 -0.0017 0.0064,
+            rotate = 0.0 -82.5857 2.9014,
+        }
+    }
+
+    model NarradorBarraAkagami
+    {
+        mesh = weapons/1handed/LeadPipe,
+        texture = Narrador/Armas/BarraAkagami,
+        attachment world
+        {
+            offset = -0.0142 0.153 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.0167 -0.022 0.0015,
+            rotate = -7.1601 -77.2061 -6.9841,
+        }
+    }
+
+    model NarradorMarcoTeoricoShinbo
+    {
+        mesh = weapons/2handed/SledgeHammer,
+        attachment world
+        {
+            offset = -0.0274 0.297 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+
+    model NarradorFachaTati
+    {
+        mesh = weapons/1handed/Machete,
+        texture = Narrador/Armas/FachaTati,
+        attachment world
+        {
+            offset = 0.0061 0.1401 0.0,
+            rotate = -180.0 0.0 179.1843,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.0228 -0.0018 0.0048,
+            rotate = -36.0446 -81.1798 -34.2812,
+        }
+    }
+
+    model NarradorHachaWalita
+    {
+        mesh = weapons/2handed/FireAxe,
+        attachment world
+        {
+            offset = 0.0179 0.173 -0.007,
+            rotate = 180.0 -21.0 180.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 180.0 -86.0322 180.0,
+        }
+    }
+
+    model NarradorPicotaCristonks
+    {
+        mesh = weapons/2handed/PickAxe_Hand,
+        texture = Narrador/Armas/PicotaCristonks,
+        attachment world
+        {
+            offset = -0.0186 0.24 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.008 0.008 0.0002,
+            rotate = 121.5758 87.4217 -121.6017,
+        }
+    }
+
+    model NarradorBalanceHasag
+    {
+        mesh = weapons/2handed/Baseballbat,
+        attachment world
+        {
+            offset = -0.0285 0.2419 -0.0,
+            rotate = -0.0 0.0 0.1866,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.0067 -0.0091 -0.0022,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+
+    model NarradorPalaWertres
+    {
+        mesh = weapons/2handed/Shovel,
+        attachment world
+        {
+            offset = -0.0009 0.2369 -0.0152,
+            rotate = 0.0 -90.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 -73.0526 0.0,
+        }
+    }
+}

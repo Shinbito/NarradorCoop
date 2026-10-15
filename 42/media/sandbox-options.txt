@@ -1,0 +1,109 @@
+VERSION = 1,
+
+option Narrador.Activado = {
+    type = boolean, default = true,
+    page = Narrador, translation = Narrador.Activado,
+    _tooltip = Narrador.Activado_tooltip,
+}
+
+option Narrador.DiaInicio = {
+    type = integer, min = 0, max = 60, default = 1,
+    page = Narrador, translation = Narrador.DiaInicio,
+    _tooltip = Narrador.DiaInicio_tooltip,
+}
+
+option Narrador.HorasEntreEventos = {
+    type = integer, min = 2, max = 240, default = 20,
+    page = Narrador, translation = Narrador.HorasEntreEventos,
+    _tooltip = Narrador.HorasEntreEventos_tooltip,
+}
+
+option Narrador.MaxActivos = {
+    type = integer, min = 1, max = 5, default = 2,
+    page = Narrador, translation = Narrador.MaxActivos,
+    _tooltip = Narrador.MaxActivos_tooltip,
+}
+
+option Narrador.MultiplicadorZombis = {
+    type = integer, min = 25, max = 300, default = 100,
+    page = Narrador, translation = Narrador.MultiplicadorZombis,
+    _tooltip = Narrador.MultiplicadorZombis_tooltip,
+}
+
+option Narrador.Conversaciones = {
+    type = boolean, default = true,
+    page = Narrador, translation = Narrador.Conversaciones,
+    _tooltip = Narrador.Conversaciones_tooltip,
+}
+
+option Narrador.Reputacion = {
+    type = boolean, default = true,
+    page = Narrador, translation = Narrador.Reputacion,
+    _tooltip = Narrador.Reputacion_tooltip,
+}
+
+option Narrador.ReputacionBloqueaUltra = {
+    type = boolean, default = false,
+    page = Narrador, translation = Narrador.ReputacionBloqueaUltra,
+    _tooltip = Narrador.ReputacionBloqueaUltra_tooltip,
+}
+
+option Narrador.Encuentros = {
+    type = enum, numValues = 4, default = 3,
+    page = Narrador, translation = Narrador.Encuentros,
+    _tooltip = Narrador.Encuentros_tooltip,
+}
+
+option Narrador.Indicadores = {
+    type = enum, numValues = 3, default = 1,
+    page = Narrador, translation = Narrador.Indicadores,
+    _tooltip = Narrador.Indicadores_tooltip,
+}
+
+option Narrador.EstiloNarrador = {
+    type = enum, numValues = 4, default = 2,
+    page = Narrador, translation = Narrador.EstiloNarrador,
+    _tooltip = Narrador.EstiloNarrador_tooltip,
+}
+
+option Narrador.Dificultad = {
+    type = enum, numValues = 4, default = 2,
+    page = Narrador, translation = Narrador.Dificultad,
+    _tooltip = Narrador.Dificultad_tooltip,
+}
+
+option Narrador.Amenazas = {
+    type = boolean, default = true,
+    page = Narrador, translation = Narrador.Amenazas,
+    _tooltip = Narrador.Amenazas_tooltip,
+}
+
+option Narrador.HorasEntreAmenazas = {
+    type = integer, min = 6, max = 240, default = 36,
+    page = Narrador, translation = Narrador.HorasEntreAmenazas,
+    _tooltip = Narrador.HorasEntreAmenazas_tooltip,
+}
+
+option Narrador.Escalado = {
+    type = boolean, default = true,
+    page = Narrador, translation = Narrador.Escalado,
+    _tooltip = Narrador.Escalado_tooltip,
+}
+
+option Narrador.Rumores = {
+    type = boolean, default = true,
+    page = Narrador, translation = Narrador.Rumores,
+    _tooltip = Narrador.Rumores_tooltip,
+}
+
+option Narrador.EventosEstacion = {
+    type = boolean, default = true,
+    page = Narrador, translation = Narrador.EventosEstacion,
+    _tooltip = Narrador.EventosEstacion_tooltip,
+}
+
+option Narrador.Ocupaciones = {
+    type = boolean, default = true,
+    page = Narrador, translation = Narrador.Ocupaciones,
+    _tooltip = Narrador.Ocupaciones_tooltip,
+}

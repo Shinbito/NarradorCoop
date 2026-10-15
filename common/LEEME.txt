@@ -1,0 +1,148 @@
+Narrador Co-op v0.9.0 (Build 42) - necesita Project A-Life (ProjectALifeNPCs) para las historias con NPCs.
+
+El contenido del mod esta en la carpeta 42.
+
+Que trae:
+- Historia principal: Cap. 1 Los Bell -> Cap. 2 Sous y Maulen Callupan -> Cap. 3 La guerra con Sous
+  (solo si quedan enemigos) -> Cap. 4 El arsenal (premio legendario a eleccion).
+- 7 historias cortas que llegan por mensajero (nada por radio).
+- Misioneros en Muldraugh (Cabo Ramiro Mandados), West Point (Tia Chela Recados), Riverside (Padre Nacho
+  Pegas) y Rosewood (Misia Rosa Bencina): encargos infinitos facil / medio / dificil / ULTRA (Louisville,
+  premio legendario: arma, traje o auto). Un encargo a la vez por faccion. Al tomarlo te llega un mapa con la zona marcada.
+
+- Cada mision que te manda a un edificio te da un mapa con la ZONA donde esta (un circulo),
+  y la marca en el mapa del mundo.
+- Los personajes del Narrador solo dicen lo que escribe el Narrador (A-Life no les pone frases).
+
+- Diario de vida: el icono del libro en pantalla (se arrastra para moverlo) abre el diario del
+  personaje, con tres cintas: Historia (capitulos principales), Secundarias (historias cortas y el
+  encargo de tu grupo) y Notas (misioneros y registro). Cuando hay algo nuevo, el libro salta y
+  muestra un sello rojo. Tambien se abre con clic derecho -> Narrador -> Ver diario.
+
+Los admins tienen el menu "Admin (pruebas)", con el registro en texto plano.
+- Los dialogos no se repiten: cada personaje dice todas sus frases (en orden al azar) antes de volver a empezar.
+
+- Objetos propios con modelo 3D: botiquin de Sous, diario de Maulen, paquetes, planos, antibioticos,
+  muestras del hospital, maletin militar, llaves de la boveda, expediente sellado y caja del arsenal.
+- Favores de Sous (si Sous queda aliado): clic derecho cerca de cada uno en la base -> "Preguntarle si
+  necesita algo". Perdieron algo (la katana de Matric, el cuchillo de Zent, la pelota de Akagami, la foto
+  de Shinbo, el collar de Tati, el tallado de Walita, las antiparras de Cristonks, el libro de Hasag, la
+  camiseta de Wertres). Si se lo devuelves te regalan su arma legendaria. Se reparan con cinta,
+  pegamento o epoxi.
+- Mapas del Narrador: muestran justo la zona del encargo, con sus marcas. Los de Sous llevan el fenix.
+- Poster de Sous en una pared de la base (se puede tomar y volver a poner).
+
+- Conversaciones (0.6.0): clic derecho cerca de un personaje -> "Hablar con <nombre>". Se abre una
+  ventana abajo al centro con lo que se dicen y tus respuestas numeradas (las opciones de la historia,
+  "Cuentame algo de ti", el favor de Sous si tiene uno, "Y, como va todo?" y "Nos vemos").
+  Con los misioneros: "Tienes pega para mi?" muestra cada dificultad con su distancia, peligro, plazo y
+  pago antes de aceptar. Si hay que decidir algo en un lugar sin nadie, sale "[Historia] Que hacer aqui".
+  Si te alejas, las respuestas se apagan hasta que vuelvas.
+- Misiones: pestana "Misiones" de la ventana (o clic derecho -> Narrador -> Misiones) con la historia,
+  tu encargo, las secundarias y la gente de Sous que necesita algo. "Seguir" deja esa mision fija en
+  pantalla (el rastreador se arrastra para moverlo; clic lo abre, la x lo esconde).
+
+Novedades 0.7.0:
+- Conversaciones entre personajes: los NPCs del Narrador conversan entre ellos (escenas de varios
+  turnos) cuando hay alguien cerca. Sous aliado tiene tallas, discusiones, duelos y recuerdos de
+  Maulen; los Bell conversan en tu refugio; los misioneros con sus vecinos. Si llegan zombis, se
+  corta. A veces te piden opinion: clic derecho -> "[Conversa] ...". Tu respuesta se recuerda.
+- Confianza con los misioneros (0 a 100 por grupo): sube cumpliendo encargos, baja si los dejas
+  vencer o los abandonas. Cada misionero tiene sus rangos (Recluta, Mijito, Monaguillo, Vecino...).
+  Con mas confianza: mapas mas exactos, dos o tres ofertas para elegir, mas chance de arma
+  chetada y, al maximo, un favor por semana. Pagina "Libreta de contactos" en el diario (Notas).
+- Encargos generados: cada encargo se arma al azar (cliente con nombre y oficio, tipo, lugar,
+  objetivo, condicion, complicacion, giro y pago). 13 tipos: buscar, recuerdo, recolectar,
+  entregar, rescate, investigar, alijo, contrarreloj, limpieza, reconocimiento, defensa, posta e
+  instalar. Los tipos pesan segun lo que necesita cada pueblo. Antes de aceptar ves la oferta en
+  la ventana del misionero; "Tienes otra cosa?" pide otra (cuesta una lata). Los clientes que
+  vuelven tres veces se vienen a vivir al lado del misionero.
+- Encuentros al explorar: al entrar a zonas nuevas puedes escuchar a alguien pidiendo ayuda
+  (cartel con direccion y distancia, zona en el mapa). La persona es inmortal hasta que llegas;
+  al llegar tienes unos segundos de gracia. Si no vas, se va... y a veces aparece despues.
+- Flecha y brujula: flecha en vista isometrica, brujula si juegas en primera persona con Project
+  Viewpoint. Apuntan a tu encuentro y a la mision que sigues en el rastreador. Clic derecho ->
+  Narrador -> Indicador para elegir (automatico, flecha, brujula, solo mapa o nada).
+- Opciones nuevas de sandbox: Conversaciones, Confianza, ULTRA piden confianza, Encuentros y
+  Flecha y brujula.
+- Admins: Narrador -> Pruebas 0.7 (encuentros, encargos generados, confianza y conversaciones).
+
+Novedades 0.8.0:
+- Tipo de narrador (sandbox "Estilo del narrador"): Pausado, Equilibrado, Implacable o Volado. El
+  narrador lleva una tension (0 a 100): sube con cada historia o amenaza y baja con el tiempo;
+  con tension alta prefiere historias tranquilas y con tension baja busca lo fuerte.
+- Dificultad de los eventos (Facil, Normal, Dificil, Brutal). Todo escala con los dias, con las
+  habilidades de los jugadores (punteria, mejor arma cuerpo a cuerpo, fuerza y estado fisico) y
+  con cuantos son.
+- Amenazas: cada cierto tiempo llega una horda, un ataque de bandidos, corredores o una mezcla.
+  Primero un aviso con la direccion ("vienen del norte") y al rato llegan. Si los jugadores estan
+  a menos de 150 casillas comparten la amenaza (mas dura); si estan lejos, cada uno tiene la suya
+  (mas facil). Sandbox: Amenazas y Horas entre amenazas.
+- Rumores: los misioneros, los vecinos y la gente de Sous cuentan cosas que van a pasar. Si vas a
+  mirar antes, la historia te pilla con ventaja. Algunos rumores son falsos. Pagina "Lo que se dice
+  por ahi" en el diario.
+- Fama y huellas: lo que haces queda anotado (salvaste, cumpliste, mentiste, traicionaste,
+  cobraste...). Con el tiempo te ganas un titulo: El samaritano, El de palabra, El temido, El
+  mercenario o El mentiroso. Algunas decisiones tienen ecos dias despues (un regalo, un aviso, una
+  historia nueva). Pagina "Lo que hice" en el diario.
+- Calendario y clima: fondas el 18 de septiembre (asado con Sous), amigo secreto en navidad,
+  noche de brujas, ultima noche del ano, corte de luz, tormentas, niebla y calor. Sandbox:
+  Eventos de temporada.
+- La mision de la cura: solo te la da un misionero (en su ventana: "Tienes algo especial?").
+  Ultra dificil: hospital, laboratorio o base militar de Louisville, llenos de muertos, corredores
+  y saqueadores. Sale una vez cada 20 dias para todo el servidor: si un misionero te la da, los
+  demas no la tienen hasta que pasen los 20 dias.
+- Pastillas K-93: donde esta la cura (y en el laboratorio de los Bell) hay varias pastillas
+  iguales y solo una es la verdadera. La verdadera cura la mordida; las falsas solo dan dolor de
+  estomago. Con Medicina 4 o mas puedes examinarlas (clic derecho -> Examinar la pastilla); si no,
+  toca probarlas todas o entregar una al azar.
+- Puedes quedarte con la verdadera y entregar una falsa. A los Bell tambien: nunca lo van a saber.
+  Te van a seguir dando las gracias por haberlo intentado.
+- Admins: Narrador -> Pruebas del narrador (estado, amenaza, rumor, eco, cura, fechas y tension).
+
+Novedades 0.8.1:
+- Arreglo: las 9 armas de Sous ya no avisan que no encuentran su modelo (sus modelos pasan a
+  media/scripts/NarradorModelosArmas.txt, en module Base).
+
+Novedades 0.8.2:
+- Arreglo: la flecha y la brujula no aparecian nunca (el juego no actualiza paneles ocultos;
+  ahora se actualizan en cada tick).
+
+Novedades 0.8.3:
+- Arreglo: el servidor no tiene next() y el narrador se caia en tres partes (charla de los NPC,
+  vecinos de Sous y pastillas). Por eso los misioneros no hablaban ni limpiaban sus zombis.
+- Los misioneros se cuidan mejor: se les reponen las banderas cada 10 minutos, se les saca la
+  infeccion y se limpian los zombis que sobran a su alrededor aunque haya jugadores (solo los
+  que nadie esta viendo).
+- Si un misionero muere igual, no se levanta como zombi, su cuerpo se retira y vuelve a
+  aparecer en su edificio cuando alguien pase cerca. Los encargos siguen valiendo.
+- El encargo ULTRA del mall ahora apunta al mall grande de Louisville (el grupo de tiendas mas
+  grande), no a cualquier tienda. Si ya tenias ese encargo y no habias llegado, el misionero
+  te avisa y te deja un mapa nuevo.
+
+Novedades 0.8.4:
+- La flecha y la brujula llevan hasta el edificio mismo cuando la mision nombra un edificio
+  (o al misionero). Se llega al entrar al edificio o al pararse en la puerta; si la sala esta
+  en otro piso, avisa a que piso subir. Las misiones de "anda a tal zona" siguen marcando la zona.
+- Arreglo de la pastilla K-93 verdadera: ahora tambien baja la fiebre zombi, cierra la mordida,
+  limpia la infeccion de cada parte del cuerpo y le avisa al cliente (antes el servidor volvia a
+  contagiar y la fiebre mataba igual). Durante 2 horas despues de tomarla se repasa la cura.
+
+
+Novedades 0.8.5:
+- El encargo ULTRA del mall apunta a un mall de Louisville de verdad (dato de la comunidad): el
+  grande en 13538,1273 o el mas chico en 13380,3053, al azar.
+- El encargo ULTRA del puesto militar y la mision de la cura en la base militar ahora van al
+  campamento militar al sur de Louisville (12540,4250). Antes nunca lo encontraban y caian en una
+  comisaria o una armeria.
+- La pastilla K-93 ya no tira errores rojos (se sacaron dos llamadas que no existen en Build 42).
+
+Novedades 0.9.0:
+- Lugares ocupados: si alguien saca aunque sea un objeto de una comisaria, armeria, base militar,
+  hospital, farmacia, supermercado o mall, 3 dias despues (cuando alguien vuelva a acercarse) hay
+  una faccion de bandidos viviendo ahi. La zona queda sin zombis, con autos quemados o chocados,
+  cuerpos, basura y grafitis en las paredes. Los bandidos llevan botin segun el lugar (armas en la
+  comisaria y la armeria, remedios en el hospital y la farmacia, comida en el supermercado).
+  Si los matas a todos el lugar queda libre, y 20 dias despues llegan otros.
+- Opcion de sandbox "Lugares ocupados" para apagarlo. Admin: "Ocupar el lugar emblematico" y
+  "Estado de los lugares emblematicos" en las pruebas del narrador.
