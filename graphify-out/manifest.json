@@ -48,9 +48,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorContactos.lua": {
-    "mtime": 1792111528.6170506,
-    "seen": 1792111538.9979389,
-    "ast_hash": "3730978b1518b10ae7f38fdd17cfbf01",
+    "mtime": 1792111581.4960766,
+    "seen": 1792111587.3442314,
+    "ast_hash": "c9a06e3905bf5702d27830492550da62",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorConversacionServer.lua": {

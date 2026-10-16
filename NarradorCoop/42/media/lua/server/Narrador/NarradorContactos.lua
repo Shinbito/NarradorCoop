@@ -193,6 +193,137 @@ function C.limpiar(x, y)
     Mundo.limpiarZona(x, y, 35, 3, 15)
 end
 
+-- ---------------------------------------------------------------------------
+-- Edificio del misionero: puertas y ventanas que no se rompen
+-- ---------------------------------------------------------------------------
+-- La primera vez que el edificio esta cargado se anotan sus puertas (sprite y lado). Despues:
+--   * cada minuto con alguien cerca, las puertas vuelven a la vida completa (asi los zombis
+--     no alcanzan a romperlas: en la practica son inmortales);
+--   * si una puerta igual desaparecio o una ventana quedo rota, se repone, pero solo cuando
+--     nadie esta mirando (ningun jugador a menos de 25 casillas), para que no aparezca en la cara.
+
+C.PISOS_EDIFICIO = 3
+
+local function esDe(objeto, clase)
+    if objeto == nil or instanceof == nil then return false end
+    local ok, si = pcall(instanceof, objeto, clase)
+    return ok and si == true
+end
+
+-- Contorno del edificio donde esta el misionero (o nil si no esta cargado).
+function C.cajaEdificio(e)
+    local sq = Mundo.cargado(e.x, e.y, e.z or 0)
+    if sq == nil then return nil end
+    local caja
+    pcall(function()
+        local b = sq:getBuilding()
+        local def = b ~= nil and b:getDef() or nil
+        if def ~= nil then caja = { def:getX(), def:getY(), def:getX() + def:getW(), def:getY() + def:getH() } end
+    end)
+    return caja
+end
+
+-- Recorre las casillas cargadas del edificio y llama f(sq, x, y, z).
+function C.recorrerEdificio(e, f)
+    local caja = C.cajaEdificio(e)
+    if caja == nil then return false end
+    for z = 0, C.PISOS_EDIFICIO - 1 do
+        for x = caja[1] - 1, caja[3] do
+            for y = caja[2] - 1, caja[4] do
+                local sq = Mundo.cargado(x, y, z)
+                if sq ~= nil then pcall(f, sq, x, y, z) end
+            end
+        end
+    end
+    return true
+end
+
+local function puertasDe(sq)
+    local lista = {}
+    pcall(function()
+        local objs = sq:getSpecialObjects()
+        for i = 0, objs:size() - 1 do
+            local o = objs:get(i)
+            if esDe(o, "IsoDoor") then lista[#lista + 1] = o end
+        end
+    end)
+    return lista
+end
+
+local function nombreSprite(o)
+    local ok, n = pcall(function() return o:getSprite():getName() end)
+    return ok and n or nil
+end
+
+-- Anota las puertas del edificio (una vez por partida y por misionero).
+function C.anotarPuertas(e)
+    if e.puertas ~= nil then return end
+    local lista = {}
+    local ok = C.recorrerEdificio(e, function(sq, x, y, z)
+        for _, d in ipairs(puertasDe(sq)) do
+            local sprite = nombreSprite(d)
+            local norte = false
+            pcall(function() norte = d:getNorth() == true end)
+            if sprite ~= nil then lista[#lista + 1] = { x = x, y = y, z = z, s = sprite, n = norte } end
+        end
+    end)
+    if ok then e.puertas = lista end
+end
+
+-- Puertas a la vida completa.
+function C.curarPuertas(e)
+    C.recorrerEdificio(e, function(sq)
+        for _, d in ipairs(puertasDe(sq)) do
+            pcall(function()
+                local maximo = d.getMaxHealth ~= nil and d:getMaxHealth() or nil
+                if maximo ~= nil and d:getHealth() < maximo then d:setHealth(maximo) end
+            end)
+        end
+    end)
+end
+
+-- Repone las puertas que faltan y arregla las ventanas rotas (sin nadie mirando).
+function C.reponerEdificio(e)
+    if Mundo.jugadorCerca(e.x, e.y, 25) ~= nil then return end
+    for _, p in ipairs(e.puertas or {}) do
+        local sq = Mundo.cargado(p.x, p.y, p.z)
+        if sq ~= nil then
+            local hay = false
+            for _, d in ipairs(puertasDe(sq)) do if nombreSprite(d) == p.s then hay = true end end
+            if not hay then
+                pcall(function()
+                    local puerta = IsoDoor.new(getCell(), sq, getSprite(p.s), p.n == true)
+                    sq:AddSpecialObject(puerta)
+                    if puerta.transmitCompleteItemToClients ~= nil then puerta:transmitCompleteItemToClients() end
+                    Mundo.log("se repuso una puerta del edificio del misionero en " .. p.x .. "," .. p.y .. "," .. p.z)
+                end)
+            end
+        end
+    end
+    C.recorrerEdificio(e, function(sq)
+        local objs = sq:getObjects()
+        for i = 0, objs:size() - 1 do
+            local w = objs:get(i)
+            if esDe(w, "IsoWindow") then
+                pcall(function()
+                    if w:isSmashed() or (w.isGlassRemoved ~= nil and w:isGlassRemoved()) then
+                        w:setSmashed(false)
+                        if w.setGlassRemoved ~= nil then w:setGlassRemoved(false) end
+                        if w.sync ~= nil then w:sync() end
+                    end
+                end)
+            end
+        end
+    end)
+end
+
+function C.cuidarEdificio(e)
+    if e.x == nil then return end
+    pcall(C.anotarPuertas, e)
+    pcall(C.curarPuertas, e)
+    pcall(C.reponerEdificio, e)
+end
+
 -- Saca la infeccion de un misionero. A-Life mata a los NPC infectados para transformarlos,
 -- aunque sean invulnerables.
 function C.curar(uid)
@@ -364,6 +495,8 @@ function C.tick()
                     pcall(C.zonaSegura, e)
                 end
             end
+            -- Puertas y ventanas: cada 10 minutos aunque no haya nadie cerca (si esta cargado).
+            if Mundo.jugadorCerca(e.x, e.y, 70) == nil then pcall(C.cuidarEdificio, e) end
             if e.uid == nil then pcall(C.reponer, c, e) end
         end
     end
@@ -399,6 +532,7 @@ end
 -- recargar el cuerpo cuando alguien llega), reponer si murio y pedirlo si falta.
 function C.vigilar(c, e)
     if e.x == nil or Mundo.jugadorCerca(e.x, e.y, 70) == nil then return end
+    pcall(C.cuidarEdificio, e)
     if e.uid ~= nil then
         local actor = Mundo.actor(e.uid)
         if (actor ~= nil and actor.lifecycle == "dead") or C.cuerpoMuerto(e.uid) then
