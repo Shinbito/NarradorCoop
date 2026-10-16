@@ -107,9 +107,54 @@ function KX.enganchar()
     end
 end
 
--- Los encargos cumplidos ya dejan la huella "cumpliste" (NarradorHuellas), asi que suman solos.
+-- Encargos y misiones cumplidos: segun su dificultad (facil 4, medio 6, dificil 10, ultra 15).
+Motor.alTerminar[#Motor.alTerminar + 1] = function(inst, def, final)
+    local nivel = inst.vars ~= nil and inst.vars.nivel or nil
+    local n = nivel ~= nil and KD.DIFICULTAD[tostring(nivel)] or nil
+    if n == nil then return end
+    local R = Narrador.Reputacion
+    local exito = (R ~= nil and R.EXITOS ~= nil and R.EXITOS[final]) or string.sub(tostring(final), 1, 14) == "final_cumplido"
+    if not exito then return end
+    for _, g in ipairs(KX.gruposDeFin(inst)) do pcall(KX.sumar, g, n, "encargo " .. tostring(nivel)) end
+end
+
+-- Matar a un NPC fuera de las historias: -5. Los que son parte de una historia (o bandidos
+-- hostiles) no cuentan: pueden ser accidentes o defensa propia.
+function KX.npcEnHistoria(uid)
+    local st = Motor.estado()
+    for _, id in ipairs(st.orden or {}) do
+        local inst = st.arcos[id]
+        for _, g in pairs(inst ~= nil and inst.grupos or {}) do
+            if g.miembros ~= nil and g.miembros[uid] ~= nil then return true end
+        end
+    end
+    local C = Narrador.Contactos
+    if C ~= nil and C.inmunes ~= nil and C.inmunes()[tostring(uid)] ~= nil then return true end
+    return false
+end
+
+function KX.esHostil(uid)
+    local actor = Mundo.actor(uid)
+    local m = actor ~= nil and actor.memory or nil
+    if type(m) ~= "table" then return false end
+    local faccion = tostring(m.factionId or m.faction or "")
+    for _, f in ipairs(Motor.FACCIONES_BANDIDAS or {}) do if faccion == f then return true end end
+    return m.hostile == true or m.hostileOverride == true
+end
+
+function KX.alMorirNpc(cuerpo, uid, asesino)
+    if uid == nil or asesino == nil or not Mundo.esJugador(asesino) then return end
+    if KX.npcEnHistoria(uid) or KX.esHostil(uid) then return end
+    KX.sumar(Mundo.grupoDe(asesino), KD.MATAR, "mataste a un npc")
+end
 
 -- Grupos de un arco (los del dueno o los conectados).
+function KX.gruposDeFin(inst)
+    local H = Narrador.Huellas
+    if H ~= nil and H.gruposDe ~= nil then return H.gruposDe(inst) end
+    return {}
+end
+
 local function gruposDe(inst)
     local H = Narrador.Huellas
     if H ~= nil and H.gruposDe ~= nil then return H.gruposDe(inst) end
@@ -166,6 +211,15 @@ if Events ~= nil and not KX._eventos then
     KX._eventos = true
     if Events.OnGameStart ~= nil then Events.OnGameStart.Add(KX.enganchar) end
     if Events.OnServerStarted ~= nil then Events.OnServerStarted.Add(KX.enganchar) end
+    -- El evento de muertes de A-Life puede existir recien al arrancar la partida.
+    local function muertes()
+        if KX._muertes or Events.ProjectALife_NpcDied == nil or Events.ProjectALife_NpcDied.Add == nil then return end
+        Events.ProjectALife_NpcDied.Add(function(...) pcall(KX.alMorirNpc, ...) end)
+        KX._muertes = true
+    end
+    if Events.OnGameStart ~= nil then Events.OnGameStart.Add(muertes) end
+    if Events.OnServerStarted ~= nil then Events.OnServerStarted.Add(muertes) end
+    muertes()
 end
 
 -- Lugar tomado por bandidos que queda limpio: cuenta como acabar con bandidos.

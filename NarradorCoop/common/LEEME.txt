@@ -165,8 +165,11 @@ Novedades 0.10.0:
   El heroe de Knox) y 5 malos (Poco confiable, Rumores negativos, La nube negra, El destripador,
   El demonio de Knox), segun como te portas con la gente. La gente te habla distinto: con mala
   fama te insultan y te temen; con buena te quieren y saben de tus hazanas. Desde El
-  destripador los misioneros ya no te dan trabajo y los comerciantes no te hacen descuento.
-  Con mala fama solo se sube salvando gente o acabando con bandidos.
+  destripador los misioneros ya no te dan trabajo y los comerciantes no te venden nada, pero
+  siempre tienen un recado para que la gente vuelva a confiar en ti. Puntos: ayudar a alguien
+  +4, recado +5, encargos y misiones segun dificultad (+4 / +6 / +10 / +15), matar a alguien
+  fuera de una mision -5. Con mala fama solo se sube salvando gente, acabando con bandidos o
+  haciendo recados.
 - Diario: letra manuscrita en lapiz pasta azul, titulos subrayados y menos texto. La
   descripcion de cada misionero aparece al conocerlo y crece con su confianza (cinco capas).
 - Eduardo Giovanns, el hijo de la Tia Chela: una leyenda que anda ayudando gente por Knox. La

@@ -142,20 +142,27 @@
   la Misia Rosa.
 
 ### Reputación global de Knox (hecho, falta probar)
-- Un eje por grupo, de -300 a 300 (`shared/Narrador/NarradorKnoxDefs.lua`,
-  `server/Narrador/NarradorKnox.lua`). Se alimenta solo de las huellas: salvaste/protegiste +5,
-  compartiste +3, cumpliste (encargo) +2, lo dejaste -4, mataste -15, traicionaste -12, etc.
-- Positivo: 1 Desconocido, 2 Mensajero (20), 3 La nueva esperanza (60), 4 El guerrero (120),
-  5 El héroe de Knox (200).
-- Negativo: 1 Poco confiable (-10), 2 Rumores negativos (-40), 3 La nube negra (-90),
-  4 El destripador (-150), 5 El demonio de Knox (-220).
+- Un eje por grupo, de -200 a 200 (`shared/Narrador/NarradorKnoxDefs.lua`,
+  `server/Narrador/NarradorKnox.lua`).
+- Puntos: ayudar a un NPC +4; recado a un comerciante +5; encargos y misiones según
+  dificultad (fácil +4, medio +6, difícil +10, ultra +15); matar a un NPC fuera de una misión
+  -5 (las muertes dentro de una misión no cuentan, pueden ser accidentes; los bandidos hostiles
+  tampoco); cada misión para los bandidos -15 (`KD.BANDIDOS_MISION`); limpiar un lugar tomado
+  por bandidos +15.
+- Positivo: 1 Desconocido (0 a 20), 2 Mensajero (20 a 45), 3 La nueva esperanza (45 a 90),
+  4 El guerrero (90 a 150), 5 El héroe de Knox (150 o más).
+- Negativo, igual: 1 Poco confiable (bajo 0), 2 Rumores negativos (-20), 3 La nube negra
+  (-45), 4 El destripador (-90), 5 El demonio de Knox (-150).
 - Aviso y entrada en el diario al cambiar de nivel; el diario (Notas -> Lo que hice) muestra
   el título. Admin: Pruebas -> "Reputacion de Knox +30 / -30".
 - Con nivel -4 o peor (El destripador, El demonio de Knox): los misioneros no te dan encargos
-  ni capítulos ("ya no eres bienvenido por el daño que has hecho") y los comerciantes no hacen
-  descuento y te venden de mala gana.
-- Con la reputación en negativo solo se sube salvando gente (salvaste/protegiste) o acabando
-  con bandidos (limpiar un lugar tomado: +15).
+  ni capítulos ("ya no eres bienvenido por el daño que has hecho") y los comerciantes no te
+  venden nada.
+- Los comerciantes siempre tienen un recado ("Quieres que la gente confíe en ti? Ayúdame con
+  esto"): traer algo de su oficio, uno cada 12 horas por grupo. Da +5 en Knox y +2 de
+  confianza con el misionero, también con mala fama.
+- Con la reputación en negativo solo se sube salvando gente, acabando con bandidos o
+  haciendo recados.
 - La gente habla distinto según tu fama: los misioneros (`C.FRASES_KNOX`) y los NPCs de los
   encuentros te insultan y te temen con mala fama, y con buena te quieren y saben de tus hazañas.
 - Ganchos para las historias: acción `{ "knox", cantidad = n }`, acción
@@ -179,13 +186,13 @@
   cuartel de la Chela (ya hecho, `C.REGRESOS` y arco `tomas_vuelve`).
 
 ### B. El camino del bandido (Knox negativo)
-- Al llegar a nivel negativo 2 (Rumores negativos; memoria `knox_bandido_<grupo>` = "listo")
+- Al llegar a nivel negativo 2 (Rumores negativos, -20; memoria `knox_bandido_<grupo>` = "listo")
   un bandido se contacta contigo y te ofrece trabajo sucio.
 - Primera misión: matar a un traidor. Después te lleva a su campamento, ya establecido en un
   pueblo que no sea de los 4 principales (Brandenburg, Echo Creek, Ekron, Irvington, March
   Ridge, Fallas Lake o Valley Station). El campamento se te marca con un mapa de papel.
-- Ahí empieza un modo historia nuevo de 5 misiones. Cada una baja mucho la reputación de Knox
-  (por ejemplo -30). Ideas que dio el usuario: robarle a los campamentos de los misioneros
+- Ahí empieza un modo historia nuevo de 5 misiones. Cada una baja -15 la reputación de Knox
+  (`{ "knox", cantidad = -15 }`, "estás colaborando con los malos"). Ideas que dio el usuario: robarle a los campamentos de los misioneros
   (y bajar la confianza con ese misionero), ir a una casa y matar a una familia, robarle la
   comida a gente que intenta sobrevivir.
 - Misión 5: decidir.

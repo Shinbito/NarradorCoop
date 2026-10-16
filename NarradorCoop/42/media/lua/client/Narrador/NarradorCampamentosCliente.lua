@@ -28,6 +28,15 @@ function KC.miConfianza(estado, contactoId)
     return tonumber(r ~= nil and r.nivel or 1) or 1
 end
 
+-- Con fama de El destripador o peor no te venden.
+function KC.despreciado(estado)
+    local C = Narrador.Cliente
+    local grupo = C ~= nil and C.miGrupo() or nil
+    local kx = estado.knox ~= nil and grupo ~= nil and estado.knox[grupo] or nil
+    local KD = Narrador.KnoxDefs
+    return kx ~= nil and KD ~= nil and (tonumber(kx.nivel) or 1) <= KD.DESPRECIO
+end
+
 function KC.menu(numJugador, context, worldobjects, test)
     if test then return end
     local C = Narrador.Cliente
@@ -40,32 +49,51 @@ function KC.menu(numJugador, context, worldobjects, test)
             if cuerpo ~= nil and math.sqrt((cuerpo:getX() - jugador:getX()) ^ 2 + (cuerpo:getY() - jugador:getY()) ^ 2) <= 5 then
                 local def = K.OFICIOS[o.oficio]
                 local nivel = KC.miConfianza(estado, contactoId)
-                local raiz = context:addOption("[" .. tostring(o.titulo) .. "] Comerciar con " .. tostring(o.nombre), nil, nil)
-                local sub = ISContextMenu:getNew(context)
-                context:addSubMenu(raiz, sub)
-                for i, art in ipairs(def ~= nil and def.catalogo or {}) do
-                    local bloqueado = art.confianza ~= nil and nivel < art.confianza
-                    local precios = {}
-                    for _, m in ipairs(K.ORDEN_MONEDAS) do precios[m] = K.precio(art, contactoId, m, nivel) end
-                    local partes = {}
-                    for _, m in ipairs(K.ORDEN_MONEDAS) do partes[#partes + 1] = precios[m] .. " " .. m end
-                    local texto = art.texto .. "  (" .. table.concat(partes, " / ") .. ")"
-                    if bloqueado then texto = art.texto .. "  (pide confianza " .. art.confianza .. ")" end
-                    local op = sub:addOption(texto, nil, nil)
-                    if bloqueado then
-                        op.notAvailable = true
-                    else
-                        local pagar = ISContextMenu:getNew(sub)
-                        sub:addSubMenu(op, pagar)
-                        local idx, oficio = i, o.oficio
-                        for _, m in ipairs(K.ORDEN_MONEDAS) do
-                            local moneda = m
-                            pagar:addOption("Pagar con " .. moneda .. " (" .. precios[moneda] .. ")", nil, function()
-                                C.enviar("comprar", { contacto = contactoId, oficio = oficio, i = idx, moneda = moneda })
-                            end)
-                        end
-                    end
+                -- Recado: siempre, aunque tengas mala fama.
+                if o.recado ~= nil then
+                    local oficioR = o.oficio
+                    context:addOption("[" .. tostring(o.titulo) .. "] " .. K.RECADO_PEDIDO .. tostring(o.recado), nil, function()
+                        C.enviar("recadoComerciante", { contacto = contactoId, oficio = oficioR })
+                    end)
                 end
+                if KC.despreciado(estado) then
+                    local no = context:addOption("[" .. tostring(o.titulo) .. "] " .. tostring(o.nombre) .. " no te vende nada", nil, nil)
+                    no.notAvailable = true
+                else
+                    KC.menuCatalogo(context, o, def, contactoId, nivel)
+                end
+            end
+        end
+    end
+end
+
+-- Lista de cosas que vende y como pagar cada una.
+function KC.menuCatalogo(context, o, def, contactoId, nivel)
+    local C = Narrador.Cliente
+    local raiz = context:addOption("[" .. tostring(o.titulo) .. "] Comerciar con " .. tostring(o.nombre), nil, nil)
+    local sub = ISContextMenu:getNew(context)
+    context:addSubMenu(raiz, sub)
+    for i, art in ipairs(def ~= nil and def.catalogo or {}) do
+        local bloqueado = art.confianza ~= nil and nivel < art.confianza
+        local precios, partes = {}, {}
+        for _, m in ipairs(K.ORDEN_MONEDAS) do
+            precios[m] = K.precio(art, contactoId, m, nivel)
+            partes[#partes + 1] = precios[m] .. " " .. m
+        end
+        local texto = art.texto .. "  (" .. table.concat(partes, " / ") .. ")"
+        if bloqueado then texto = art.texto .. "  (pide confianza " .. art.confianza .. ")" end
+        local op = sub:addOption(texto, nil, nil)
+        if bloqueado then
+            op.notAvailable = true
+        else
+            local pagar = ISContextMenu:getNew(sub)
+            sub:addSubMenu(op, pagar)
+            local idx, oficio = i, o.oficio
+            for _, m in ipairs(K.ORDEN_MONEDAS) do
+                local moneda = m
+                pagar:addOption("Pagar con " .. moneda .. " (" .. precios[moneda] .. ")", nil, function()
+                    C.enviar("comprar", { contacto = contactoId, oficio = oficio, i = idx, moneda = moneda })
+                end)
             end
         end
     end

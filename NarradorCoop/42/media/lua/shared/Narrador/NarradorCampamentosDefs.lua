@@ -122,6 +122,32 @@ K.OFICIOS = {
     },
 }
 
+-- Recados: cada comerciante siempre tiene algo en que ayudarlo, aunque tengas mala fama
+-- ("Quieres que la gente confie en ti? Ayudame con esto."). Dan reputacion de Knox
+-- (KnoxDefs.RECADO) y un poco de confianza con el misionero. Uno cada 12 horas por grupo.
+-- Con fama de El destripador o peor no te venden nada, pero los recados siguen.
+K.RECADO_CADA = 12
+K.RECADO_CONFIANZA = 2
+K.RECADOS = {
+    carpintero = {
+        { texto = "Traeme 3 troncos o tablas, que la madera se acaba.", pide = { "Base.Log", "Base.Plank" }, n = 3 },
+        { texto = "Me faltan clavos. Una caja, o lo que encuentres.", pide = { "Base.NailsBox", "Base.Nails" }, n = 1 },
+    },
+    herrero = {
+        { texto = "Necesito chatarra para fundir: 2 piezas de metal.", pide = { "Base.ScrapMetal", "Base.SheetMetal", "Base.MetalBar", "Base.MetalPipe" }, n = 2 },
+        { texto = "Se me rompio la lima. Traeme una, o un destornillador que sirva.", pide = { "Base.File", "Base.Screwdriver" }, n = 1 },
+    },
+    mecanico = {
+        { texto = "Traeme un bidon, aunque sea vacio. Sin bidon no hay bencina.", pide = { "Base.EmptyPetrolCan", "Base.PetrolCan", "Base.JerryCan" }, n = 1 },
+        { texto = "Perdi la llave inglesa. Una llave o un destornillador, lo que sea.", pide = { "Base.Wrench", "Base.Screwdriver" }, n = 1 },
+    },
+    curandero = {
+        { texto = "Traeme 4 tiras de sabana limpias para hacer vendas.", pide = { "Base.RippedSheets", "Base.Bandage" }, n = 4 },
+        { texto = "Necesito agua limpia: 2 botellas llenas.", pide = { "Base.WaterBottleFull", "Base.PopBottle" }, n = 2 },
+    },
+}
+K.RECADO_PEDIDO = "Quieres que la gente confie en ti? Ayudame con esto: "
+
 -- Quien es el del oficio en un campamento (perfil, nombre, texto de llegada).
 function K.persona(oficio, contactoId)
     local o = K.OFICIOS[oficio]

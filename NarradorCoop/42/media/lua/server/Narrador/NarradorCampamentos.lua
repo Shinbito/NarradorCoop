@@ -300,6 +300,13 @@ function S.comprar(jugador, args)
     if x == nil or px == nil or math.sqrt((x - px) ^ 2 + (y - py) ^ 2) > 6 then Motor.responder(jugador, "Estas muy lejos."); return end
     local art = K.OFICIOS[oficio].catalogo[tonumber(args.i) or 0]
     if art == nil then return end
+    -- Con fama de El destripador o peor no te venden nada (los recados siguen, ver S.recado).
+    local KX = Narrador.Knox
+    if KX ~= nil and KX.despreciadoJugador(jugador) then
+        local quien = K.persona(oficio, c.id)
+        Motor.responder(jugador, quien.nombre[1] .. ": A ti no te vendo nada. Pero si quieres que la gente confie en ti, tengo un recado.")
+        return
+    end
     local nivel = S.nivelConfianza(jugador, c.id)
     if art.confianza ~= nil and nivel < art.confianza then
         Motor.responder(jugador, "Eso no te lo vendo todavia. Primero que " .. c.nombre .. " te tenga mas confianza.")
@@ -325,9 +332,61 @@ function S.comprar(jugador, args)
         local item = Mundo.crearItem(tipos)
         if item ~= nil then Mundo.darItem(jugador, item) end
     end
-    local KX = Narrador.Knox
-    local como = (KX ~= nil and KX.despreciadoJugador(jugador)) and " te vende de mala gana, sin mirarte: " or " te vende: "
-    Motor.enviar(jugador, "aviso", { texto = p.nombre[1] .. como .. art.texto .. " (" .. precio .. " de " .. moneda .. ")." })
+    Motor.enviar(jugador, "aviso", { texto = p.nombre[1] .. " te vende: " .. art.texto .. " (" .. precio .. " de " .. moneda .. ")." })
+end
+
+-- ---------------------------------------------------------------------------
+-- Recados de los comerciantes
+-- ---------------------------------------------------------------------------
+
+-- El recado que tiene ahora un comerciante (rota al cumplirse).
+function S.recadoActual(o, oficio)
+    local lista = K.RECADOS[oficio] or {}
+    if #lista == 0 then return nil, nil end
+    local i = ((tonumber(o.recado) or 1) - 1) % #lista + 1
+    return lista[i], i
+end
+
+-- Comando publico: { contacto, oficio }
+function S.recado(jugador, args)
+    local c = C.def(tostring(args.contacto))
+    local oficio = tostring(args.oficio)
+    if c == nil or K.OFICIOS[oficio] == nil then return end
+    local k = S.estado(c.id)
+    local o = k.oficios[oficio]
+    if o == nil or o.uid == nil then return end
+    local x, y = Mundo.posicionActor(o.uid)
+    local px, py = Mundo.posicion(jugador)
+    if x == nil or px == nil or math.sqrt((x - px) ^ 2 + (y - py) ^ 2) > 6 then Motor.responder(jugador, "Estas muy lejos."); return end
+    local p = K.persona(oficio, c.id)
+    local grupo = Mundo.grupoDe(jugador)
+    o.hechos = o.hechos or {}
+    local ultimo = o.hechos[grupo]
+    if ultimo ~= nil and Mundo.horas() - ultimo < K.RECADO_CADA then
+        Motor.responder(jugador, p.nombre[1] .. ": Ya me ayudaste hoy. Vuelve manana, que siempre sale algo.")
+        return
+    end
+    local r = S.recadoActual(o, oficio)
+    if r == nil then return end
+    local tipos = {}
+    for _, t in ipairs(r.pide) do tipos[t] = true end
+    local items = Mundo.buscarItems(jugador, function(it)
+        local ok, t = pcall(function() return it:getFullType() end)
+        return ok and tipos[t] == true
+    end, r.n)
+    if #items < r.n then
+        Motor.responder(jugador, p.nombre[1] .. ": " .. r.texto .. " (llevas " .. #items .. " de " .. r.n .. ")")
+        return
+    end
+    for _, par in ipairs(items) do Mundo.quitarItem(par[2], par[1]) end
+    o.hechos[grupo] = Mundo.horas()
+    o.recado = (tonumber(o.recado) or 1) + 1
+    local KX, KD, R = Narrador.Knox, Narrador.KnoxDefs, Narrador.Reputacion
+    if KX ~= nil and KD ~= nil then KX.sumar(grupo, KD.RECADO, "recado") end
+    if R ~= nil and R.activa() then R.sumar(grupo, c.id, K.RECADO_CONFIANZA, "recado de " .. string.lower(p.titulo), true) end
+    Motor.enviar(jugador, "aviso", { texto = p.nombre[1] .. ": Gracias. Esto se sabe, ah? La gente se entera de estas cosas."
+        .. (KD ~= nil and (" (+" .. KD.RECADO .. " de reputacion en Knox)") or "") })
+    Motor.publicar()
 end
 
 -- ---------------------------------------------------------------------------
@@ -343,7 +402,9 @@ function S.vista(v)
             local oficios = {}
             for oficio, o in pairs(k.oficios or {}) do
                 local p = K.persona(oficio, c.id)
-                oficios[#oficios + 1] = { oficio = oficio, uid = o.uid, titulo = p.titulo, nombre = p.nombre[1] .. " " .. p.nombre[2] }
+                local r = S.recadoActual(o, oficio)
+                oficios[#oficios + 1] = { oficio = oficio, uid = o.uid, titulo = p.titulo, nombre = p.nombre[1] .. " " .. p.nombre[2],
+                    recado = r ~= nil and r.texto or nil }
             end
             local falta = S.falta(c)
             lista[c.id] = { nivel = k.nivel or 0, salvados = k.salvados or 0, oficios = oficios, falta = falta,
@@ -355,6 +416,7 @@ end
 
 Motor.vistaExtra[#Motor.vistaExtra + 1] = S.vista
 Motor.comandosPublicos.comprar = S.comprar
+Motor.comandosPublicos.recadoComerciante = S.recado
 
 if Events ~= nil and not S._enganchado then
     S._enganchado = true
