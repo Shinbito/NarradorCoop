@@ -100,6 +100,17 @@
   de la Chela aparece vivo ("uff, pense que la palmaba"). Siempre se salva por las minimas.
 - El Cabo Ramiro le tiene mala: dice que es un engreido (es envidia).
 
+### Campamentos con niveles y comerciantes (hecho, falta probar)
+- Archivos: `shared/Narrador/NarradorCampamentosDefs.lua` (niveles, oficios, catalogos,
+  precios), `server/Narrador/NarradorCampamentos.lua`, `client/Narrador/NarradorCampamentosCliente.lua`.
+- Nivel 1 carpintero (2 salvados) / 2 herrero (4 + cap. 1 + confianza 2) / 3 mecanico (6 +
+  cap. 2 + confianza 3) / 4 curandero (8 + confianza 4; con la Chela, su cap. 3 y el curandero
+  es el doctor Hartmann). Un capitulo que no esta escrito no se pide.
+- Se paga con comida, municion (caja o 10 balas sueltas), abrigo (ropa que no llevas puesta;
+  cada prenda vale 1 a 5 segun el promedio de sus stats y su estado) o medicina (cada una vale
+  segun lo que es: botiquin 4, antibioticos 3, venda 1...). El precio depende de lo que valora
+  cada campamento y de la confianza con el misionero.
+
 ### Modo historia de cada misionero
 - Cada misionero tiene sus capitulos. Capitulo 1 = su desbloqueo (fundar el campamento).
   Los siguientes salen entre sus ofertas cuando el anterior ya se hizo (`G.ESPECIALES` en

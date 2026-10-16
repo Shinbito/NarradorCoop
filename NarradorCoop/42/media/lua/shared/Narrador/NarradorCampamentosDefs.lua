@@ -1,6 +1,7 @@
 -- Narrador Co-op: campamentos de los misioneros (datos compartidos por servidor y cliente).
 -- Cada misionero, una vez desbloqueado, tiene un campamento que sube de nivel. En cada nivel
--- llega alguien con un oficio que vende cosas a cambio de comida o municion:
+-- llega alguien con un oficio que vende cosas a cambio de comida, municion, abrigo (ropa) o
+-- medicina:
 --   nivel 1: carpintero  (2 personas salvadas y llevadas al campamento)
 --   nivel 2: herrero     (4 salvadas + capitulo 1 de la historia del misionero + confianza 2)
 --   nivel 3: mecanico    (6 salvadas + capitulo 2 + confianza 3)
@@ -24,10 +25,10 @@ K.NIVELES = {
 -- Lo que valora cada campamento: multiplica el precio si pagas con eso (menos de 1 = barato,
 -- porque es lo que quieren juntar; mas de 1 = caro, porque ya les sobra).
 K.GUSTOS = {
-    muldraugh = { municion = 0.6, comida = 1.3 },  -- el Cabo: militar, quiere balas
-    westpoint = { municion = 1.1, comida = 0.8 },  -- la Chela: cocina para todos
-    riverside = { municion = 1.2, comida = 0.7 },  -- el Padre Nacho: muchas bocas
-    rosewood = { municion = 0.9, comida = 0.9 },   -- la Misia Rosa: compra de todo
+    muldraugh = { municion = 0.6, comida = 1.3, abrigo = 1.0, medicina = 0.9 },  -- el Cabo: militar, quiere balas
+    westpoint = { municion = 1.1, comida = 0.8, abrigo = 1.0, medicina = 1.0 },  -- la Chela: cocina para todos
+    riverside = { municion = 1.2, comida = 0.8, abrigo = 0.7, medicina = 0.7 },  -- el Padre Nacho: enfermos y frio
+    rosewood = { municion = 0.9, comida = 0.9, abrigo = 1.1, medicina = 1.0 },   -- la Misia Rosa: compra de todo
 }
 
 -- Descuento por confianza con el misionero (nivel 1..5).
@@ -36,7 +37,39 @@ K.DESCUENTO = { 1, 1, 0.9, 0.8, 0.65 }
 K.MONEDAS = {
     comida = "comida",
     municion = "municion (cajas, o 10 balas sueltas)",
+    abrigo = "abrigo (ropa que no llevas puesta)",
+    medicina = "medicina",
 }
+K.ORDEN_MONEDAS = { "comida", "municion", "abrigo", "medicina" }
+
+-- Cuanto vale cada medicina (por parte del nombre del tipo; la primera que calce). Lo que no
+-- esta en la lista no sirve como pago (las pastillas K-93 y los objetos de las historias, no).
+K.MEDICINAS = {
+    { "FirstAidKit", 4 }, { "Antibiotics", 3 }, { "Antibioticos", 3 }, { "SutureNeedleHolder", 2 },
+    { "Disinfectant", 2 }, { "PillsAntiDep", 2 }, { "PillsBeta", 2 }, { "PillsSleepingTablets", 2 }, { "PillsVitamins", 1 },
+    { "Pills", 2 }, { "AlcoholBandage", 2 }, { "SutureNeedle", 1 }, { "Splint", 1 }, { "Bandage", 1 },
+    { "AlcoholWipes", 1 }, { "CottonBalls", 1 },
+}
+
+function K.valorMedicina(tipo)
+    tipo = tostring(tipo or "")
+    if string.find(tipo, "CuraZ", 1, true) ~= nil then return 0 end
+    for _, m in ipairs(K.MEDICINAS) do
+        if string.find(tipo, m[1], 1, true) ~= nil then return m[2] end
+    end
+    return 0
+end
+
+-- Cuanto vale una prenda (1 a 5): el promedio de sus stats (abrigo, viento, agua, defensa
+-- contra mordidas y rasgunos), por su estado. Una polera rota vale 1; una parka militar
+-- entera, 4 o 5. stats = { aislacion, viento, agua (0..1), mordida, rasguno (0..100), estado (0..1) }
+function K.valorPrenda(stats)
+    local s = stats or {}
+    local prom = ((tonumber(s.aislacion) or 0) + (tonumber(s.viento) or 0) + (tonumber(s.agua) or 0)
+        + (tonumber(s.mordida) or 0) / 100 + (tonumber(s.rasguno) or 0) / 100) / 5
+    prom = prom * math.max(0, math.min(1, tonumber(s.estado) or 1))
+    return math.max(1, math.min(5, 1 + math.floor(prom * 8)))
+end
 
 -- Oficios: quien llega, con que perfil de A-Life, y que vende. Cada articulo: texto, items
 -- (alternativas por si un tipo no existe), precio base y, si pide, confianza minima.

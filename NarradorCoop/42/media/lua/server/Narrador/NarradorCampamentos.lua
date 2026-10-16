@@ -188,8 +188,63 @@ local function esCaja(it)
     return ok and t ~= nil and string.find(t, "Box", 1, true) ~= nil
 end
 
+-- Stats de una prenda para K.valorPrenda (con pcall: no todas las versiones tienen todo).
+function S.statsPrenda(it)
+    local function num(m)
+        local ok, v = pcall(function() return it[m](it) end)
+        return ok and tonumber(v) or 0
+    end
+    local estado = 1
+    local max = num("getConditionMax")
+    if max > 0 then estado = num("getCondition") / max end
+    return { aislacion = num("getInsulation"), viento = num("getWindresistance"), agua = num("getWaterResistance"),
+        mordida = num("getBiteDefense"), rasguno = num("getScratchDefense"), estado = estado }
+end
+
+local function esRopaSuelta(jugador, it)
+    local ok, sirve = pcall(function()
+        if not instanceof(it, "Clothing") then return false end
+        if it:isEquipped() then return false end
+        if jugador:isEquipped(it) then return false end
+        return true
+    end)
+    return ok and sirve == true
+end
+
+-- Junta items con valor (de menor a mayor) hasta pagar n. lista = { { par, valor } }
+local function porValor(lista, n)
+    table.sort(lista, function(a, b) return a.valor < b.valor end)
+    local total, sacar, juntado = 0, {}, 0
+    for _, p in ipairs(lista) do total = total + p.valor end
+    for _, p in ipairs(lista) do
+        if juntado >= n then break end
+        sacar[#sacar + 1] = p.par
+        juntado = juntado + p.valor
+    end
+    return total, sacar
+end
+
 -- Cuantas unidades de la moneda lleva el jugador y que items se sacarian para pagar n.
 function S.juntar(jugador, moneda, n)
+    if moneda == "medicina" then
+        local lista = {}
+        for _, par in ipairs(Mundo.buscarItems(jugador, function(it)
+            local ok, t = pcall(function() return it:getFullType() end)
+            return ok and K.valorMedicina(t) > 0
+        end)) do
+            local ok, t = pcall(function() return par[1]:getFullType() end)
+            lista[#lista + 1] = { par = par, valor = K.valorMedicina(ok and t or "") }
+        end
+        return porValor(lista, n)
+    end
+    if moneda == "abrigo" then
+        local prendas = {}
+        for _, par in ipairs(Mundo.buscarItems(jugador, function(it) return esRopaSuelta(jugador, it) end)) do
+            prendas[#prendas + 1] = { par = par, valor = K.valorPrenda(S.statsPrenda(par[1])) }
+        end
+        -- Primero las que menos valen, hasta juntar lo que cuesta.
+        return porValor(prendas, n)
+    end
     if moneda == "comida" then
         local lista = Mundo.buscarItems(jugador, function(it) return Mundo.esComida(it) end, n)
         return #lista, lista
@@ -232,7 +287,7 @@ end
 function S.comprar(jugador, args)
     local c = C.def(tostring(args.contacto))
     local oficio = tostring(args.oficio)
-    local moneda = args.moneda == "municion" and "municion" or "comida"
+    local moneda = K.MONEDAS[tostring(args.moneda)] ~= nil and tostring(args.moneda) or "comida"
     if c == nil or K.OFICIOS[oficio] == nil then return end
     local k = S.estado(c.id)
     local o = k.oficios[oficio]

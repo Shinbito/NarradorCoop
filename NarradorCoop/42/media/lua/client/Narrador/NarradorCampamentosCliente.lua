@@ -1,6 +1,6 @@
 -- Narrador Co-op (cliente): comerciar con la gente de los campamentos.
 -- Clic derecho cerca del carpintero, el herrero, el mecanico o el curandero de un campamento:
--- "Comerciar" con su lista de cosas y el precio en comida o en municion (segun lo que valora
+-- "Comerciar" con su lista de cosas y el precio en comida, municion, abrigo o medicina (segun lo que valora
 -- ese campamento y la confianza que te tiene el misionero).
 -- Textos sin tildes a proposito.
 
@@ -40,9 +40,11 @@ function KC.menu(numJugador, context, worldobjects, test)
                 context:addSubMenu(raiz, sub)
                 for i, art in ipairs(def ~= nil and def.catalogo or {}) do
                     local bloqueado = art.confianza ~= nil and nivel < art.confianza
-                    local pc = K.precio(art, contactoId, "comida", nivel)
-                    local pm = K.precio(art, contactoId, "municion", nivel)
-                    local texto = art.texto .. "  (" .. pc .. " comida / " .. pm .. " municion)"
+                    local precios = {}
+                    for _, m in ipairs(K.ORDEN_MONEDAS) do precios[m] = K.precio(art, contactoId, m, nivel) end
+                    local partes = {}
+                    for _, m in ipairs(K.ORDEN_MONEDAS) do partes[#partes + 1] = precios[m] .. " " .. m end
+                    local texto = art.texto .. "  (" .. table.concat(partes, " / ") .. ")"
                     if bloqueado then texto = art.texto .. "  (pide confianza " .. art.confianza .. ")" end
                     local op = sub:addOption(texto, nil, nil)
                     if bloqueado then
@@ -51,12 +53,12 @@ function KC.menu(numJugador, context, worldobjects, test)
                         local pagar = ISContextMenu:getNew(sub)
                         sub:addSubMenu(op, pagar)
                         local idx, oficio = i, o.oficio
-                        pagar:addOption("Pagar con comida (" .. pc .. ")", nil, function()
-                            C.enviar("comprar", { contacto = contactoId, oficio = oficio, i = idx, moneda = "comida" })
-                        end)
-                        pagar:addOption("Pagar con municion (" .. pm .. ")", nil, function()
-                            C.enviar("comprar", { contacto = contactoId, oficio = oficio, i = idx, moneda = "municion" })
-                        end)
+                        for _, m in ipairs(K.ORDEN_MONEDAS) do
+                            local moneda = m
+                            pagar:addOption("Pagar con " .. moneda .. " (" .. precios[moneda] .. ")", nil, function()
+                                C.enviar("comprar", { contacto = contactoId, oficio = oficio, i = idx, moneda = moneda })
+                            end)
+                        end
                     end
                 end
             end
