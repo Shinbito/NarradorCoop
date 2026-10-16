@@ -57,11 +57,12 @@ KD.REDIMEN = { salvaste = true, protegiste = true, bandidos = true, recado = tru
 -- Lo que da limpiar un lugar tomado por bandidos.
 KD.BANDIDOS = 15
 
--- Tono de la gente segun el nivel: "odio" (-5..-3), "desconfianza" (-2..-1), "aprecio" (2..3),
+-- Tono de la gente segun el nivel: "odio" (-5..-4, muy mala fama), "desconfianza" (-3..-1),
+-- "aprecio" (2..3),
 -- "amor" (4..5). Nivel 1 (Desconocido): nada especial.
 function KD.tono(nivel)
     nivel = tonumber(nivel) or 1
-    if nivel <= -3 then return "odio" end
+    if nivel <= KD.DESPRECIO then return "odio" end
     if nivel < 0 then return "desconfianza" end
     if nivel >= 4 then return "amor" end
     if nivel >= 2 then return "aprecio" end
