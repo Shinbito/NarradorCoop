@@ -159,8 +159,10 @@
   ni capítulos ("ya no eres bienvenido por el daño que has hecho") y los comerciantes no te
   venden nada.
 - Los comerciantes siempre tienen un recado ("Quieres que la gente confíe en ti? Ayúdame con
-  esto"): traer algo de su oficio, uno cada 12 horas por grupo. Da +5 en Knox y +2 de
-  confianza con el misionero, también con mala fama.
+  esto"): una misión chica que te marca un lugar en un mapa ("ayúdame a buscar los clavos,
+  estoy seguro de que en el garage de esa casa hay"), buscas la cosa ahí y se la llevas
+  (`shared/Narrador/Arcos/Recados.lua`, pedidos en `K.RECADOS`). Uno a la vez y uno cada 12
+  horas por grupo. Da +5 en Knox y +2 de confianza con el misionero, también con mala fama.
 - Con la reputación en negativo solo se sube salvando gente, acabando con bandidos o
   haciendo recados.
 - La gente habla distinto según tu fama: los misioneros (`C.FRASES_KNOX`) y los NPCs de los

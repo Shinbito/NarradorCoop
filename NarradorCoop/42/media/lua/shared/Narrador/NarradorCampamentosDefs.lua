@@ -122,28 +122,55 @@ K.OFICIOS = {
     },
 }
 
--- Recados: cada comerciante siempre tiene algo en que ayudarlo, aunque tengas mala fama
--- ("Quieres que la gente confie en ti? Ayudame con esto."). Dan reputacion de Knox
--- (KnoxDefs.RECADO) y un poco de confianza con el misionero. Uno cada 12 horas por grupo.
+-- Recados: cada comerciante siempre tiene una mision chica para ti, aunque tengas mala fama
+-- ("Quieres que la gente confie en ti? Ayudame con esto."). Te marca un lugar en un mapa,
+-- buscas la cosa ahi y se la llevas (shared/Narrador/Arcos/Recados.lua). Dan reputacion de
+-- Knox (KnoxDefs.RECADO) y un poco de confianza con el misionero. Uno cada 12 horas por grupo.
 -- Con fama de El destripador o peor no te venden nada, pero los recados siguen.
 K.RECADO_CADA = 12
 K.RECADO_CONFIANZA = 2
+-- Cada recado: corto (para el menu), pedido (lo que dice), salas donde buscar (y respaldo),
+-- objeto (alternativas) y su nombre.
 K.RECADOS = {
     carpintero = {
-        { texto = "Traeme 3 troncos o tablas, que la madera se acaba.", pide = { "Base.Log", "Base.Plank" }, n = 3 },
-        { texto = "Me faltan clavos. Una caja, o lo que encuentres.", pide = { "Base.NailsBox", "Base.Nails" }, n = 1 },
+        { corto = "buscar clavos en un garage",
+          pedido = "Ayudame a buscar clavos. Estoy seguro de que en el garage de esa casa hay. Te marque donde.",
+          salas = { "garage", "garagestorage" }, respaldo = { "shed", "storageunit" },
+          objeto = { "Base.NailsBox", "Base.Nails" }, nombre = "Caja de clavos" },
+        { corto = "recuperar su serrucho de un galpon",
+          pedido = "Se me quedo el serrucho en un galpon cuando arrancamos. Si me lo traes, te debo una.",
+          salas = { "shed", "garagestorage" }, respaldo = { "garage", "storageunit" },
+          objeto = { "Base.Saw", "Base.GardenSaw" }, nombre = "Serrucho del carpintero" },
     },
     herrero = {
-        { texto = "Necesito chatarra para fundir: 2 piezas de metal.", pide = { "Base.ScrapMetal", "Base.SheetMetal", "Base.MetalBar", "Base.MetalPipe" }, n = 2 },
-        { texto = "Se me rompio la lima. Traeme una, o un destornillador que sirva.", pide = { "Base.File", "Base.Screwdriver" }, n = 1 },
+        { corto = "buscar barras de metal en un taller",
+          pedido = "Necesito metal para fundir. En ese taller tiene que haber barras. Te marque la zona.",
+          salas = { "mechanic", "garagestorage", "warehouse" }, respaldo = { "garage", "storageunit" },
+          objeto = { "Base.MetalBar", "Base.SheetMetal", "Base.ScrapMetal" }, nombre = "Barras de metal" },
+        { corto = "traer la caja de herramientas de su hermano",
+          pedido = "Mi hermano tenia su caja de herramientas en esa casa. El ya no la va a usar. Traemela.",
+          salas = { "garage", "bedroom", "livingroom" }, respaldo = { "kitchen", "shed" },
+          objeto = { "Base.Toolbox", "Base.Hammer" }, nombre = "Caja de herramientas del hermano" },
     },
     mecanico = {
-        { texto = "Traeme un bidon, aunque sea vacio. Sin bidon no hay bencina.", pide = { "Base.EmptyPetrolCan", "Base.PetrolCan", "Base.JerryCan" }, n = 1 },
-        { texto = "Perdi la llave inglesa. Una llave o un destornillador, lo que sea.", pide = { "Base.Wrench", "Base.Screwdriver" }, n = 1 },
+        { corto = "sacar una bateria de un garage",
+          pedido = "En el garage de esa casa hay un auto con una bateria buena. Sacala y traemela.",
+          salas = { "garage", "garagestorage" }, respaldo = { "mechanic", "shed" },
+          objeto = { "Base.CarBattery1", "Base.CarBattery2", "Base.CarBattery3" }, nombre = "Bateria buena" },
+        { corto = "buscar su llave inglesa",
+          pedido = "Perdi mi llave inglesa en ese taller cuando nos atacaron. Es de la suerte. Traemela, porfa.",
+          salas = { "mechanic", "garagestorage" }, respaldo = { "garage", "warehouse" },
+          objeto = { "Base.Wrench", "Base.Screwdriver" }, nombre = "Llave inglesa de la suerte" },
     },
     curandero = {
-        { texto = "Traeme 4 tiras de sabana limpias para hacer vendas.", pide = { "Base.RippedSheets", "Base.Bandage" }, n = 4 },
-        { texto = "Necesito agua limpia: 2 botellas llenas.", pide = { "Base.WaterBottleFull", "Base.PopBottle" }, n = 2 },
+        { corto = "buscar remedios en una farmacia",
+          pedido = "En esa farmacia tienen que quedar pastillas. Nadie se acuerda de los remedios hasta que los necesita.",
+          salas = { "pharmacy", "pharmacystorage" }, respaldo = { "medicaloffice", "bathroom" },
+          objeto = { "Base.Pills", "Base.PillsVitamins" }, nombre = "Frasco de pastillas" },
+        { corto = "traer un botiquin de una casa",
+          pedido = "En el bano de esa casa habia un botiquin. Lo vi cuando pasamos. Traelo, que hace falta.",
+          salas = { "bathroom" }, respaldo = { "kitchen", "bedroom" },
+          objeto = { "Base.FirstAidKit", "Base.Bandage" }, nombre = "Botiquin de la casa" },
     },
 }
 K.RECADO_PEDIDO = "Quieres que la gente confie en ti? Ayudame con esto: "

@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/Arcos/Encuentros.lua": {
-    "mtime": 1792115061.5061266,
-    "seen": 1792115148.9928973,
-    "ast_hash": "726928bdcf7a66bdedadd0ce04054a81",
+    "mtime": 1792115197.9672732,
+    "seen": 1792115347.2171168,
+    "ast_hash": "dbe1b7c1ef8dd8d3248601b686ac5d51",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/Arcos/EventosCortos.lua": {
@@ -318,9 +318,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/common/LEEME.txt": {
-    "mtime": 1792115146.8403885,
-    "seen": 1792115148.9929368,
-    "ast_hash": "348971ddcb68e042c6c2302e2372cb17",
+    "mtime": 1792115345.067971,
+    "seen": 1792115347.2171655,
+    "ast_hash": "cae99c1544acfdfbb3fa6ed2bbd4c112",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/textures/Item_NarradorAntibioticos.png": {
@@ -696,9 +696,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/ROADMAP.md": {
-    "mtime": 1792115146.840207,
-    "seen": 1792115148.9929357,
-    "ast_hash": "cb2f4f0bc7207b0f549648b8a020a8b4",
+    "mtime": 1792115345.0675383,
+    "seen": 1792115347.217164,
+    "ast_hash": "8b8509b71ffd792c47715dbf38f925ee",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/Arcos/Desbloqueos.lua": {
@@ -732,15 +732,15 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorCampamentos.lua": {
-    "mtime": 1792115108.9419017,
-    "seen": 1792115148.9928713,
-    "ast_hash": "3036e27777a0e11c7521e22f25885b37",
+    "mtime": 1792115333.0794668,
+    "seen": 1792115347.2170858,
+    "ast_hash": "5392ee691ad793319d286640f3155272",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/NarradorCampamentosDefs.lua": {
-    "mtime": 1792115108.9407463,
-    "seen": 1792115148.9929085,
-    "ast_hash": "87dc5c8f22442081a2d9fb5b022d29c1",
+    "mtime": 1792115333.0789747,
+    "seen": 1792115347.2171335,
+    "ast_hash": "ff214768dc8e1f3f611d366d30137015",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorKnox.lua": {
@@ -750,9 +750,15 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/NarradorKnoxDefs.lua": {
-    "mtime": 1792115043.5622957,
-    "seen": 1792115148.9929156,
-    "ast_hash": "c7997bcdcd87356978d050cf1f3def61",
+    "mtime": 1792115197.966837,
+    "seen": 1792115347.2171412,
+    "ast_hash": "cf4e163d0507614f71bcd3b5dfc06ed1",
+    "semantic_hash": ""
+  },
+  "NarradorCoop/42/media/lua/shared/Narrador/Arcos/Recados.lua": {
+    "mtime": 1792115300.8211432,
+    "seen": 1792115347.2171276,
+    "ast_hash": "8d2d03840793217003e5b637bb2389f1",
     "semantic_hash": ""
   }
 }
