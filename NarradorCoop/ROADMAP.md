@@ -163,7 +163,10 @@
 - Los comerciantes siempre tienen un recado ("Quieres que la gente confíe en ti? Ayúdame con
   esto"): una misión chica que te marca un lugar en un mapa ("ayúdame a buscar los clavos,
   estoy seguro de que en el garage de esa casa hay"), buscas la cosa ahí y se la llevas
-  (`shared/Narrador/Arcos/Recados.lua`, pedidos en `K.RECADOS`). Uno a la vez y uno cada 12
+  (`shared/Narrador/Arcos/Recados.lua`). Se arman al azar: una de las 8 cosas de su oficio
+  (`K.RECADOS_OBJETOS`), uno de los lugares donde podría estar y una de sus 3 formas de pedirlo.
+- El edificio de un misionero nunca queda como "lugar ocupado" por bandidos (ni al sacar el
+  botín en su desbloqueo). Uno a la vez y uno cada 12
   horas por grupo. Da +5 en Knox y +2 de confianza con el misionero, también con mala fama.
 - Con la reputación en negativo solo se sube salvando gente, acabando con bandidos o
   haciendo recados.

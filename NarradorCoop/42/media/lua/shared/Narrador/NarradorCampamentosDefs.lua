@@ -129,50 +129,99 @@ K.OFICIOS = {
 -- Con fama de El destripador o peor no te venden nada, pero los recados siguen.
 K.RECADO_CADA = 12
 K.RECADO_CONFIANZA = 2
--- Cada recado: corto (para el menu), pedido (lo que dice), salas donde buscar (y respaldo),
--- objeto (alternativas) y su nombre.
-K.RECADOS = {
+-- Los recados se arman al azar: una cosa del oficio (de su lista), uno de los lugares donde
+-- podria estar y una de sus formas de pedirlo. Cada cosa: tipos (alternativas; la ultima es
+-- un objeto del juego base que existe seguro), nombre y salas donde buscar.
+K.RECADOS_OBJETOS = {
     carpintero = {
-        { corto = "buscar clavos en un garage",
-          pedido = "Ayudame a buscar clavos. Estoy seguro de que en el garage de esa casa hay. Te marque donde.",
-          salas = { "garage", "garagestorage" }, respaldo = { "shed", "storageunit" },
-          objeto = { "Base.NailsBox", "Base.Nails" }, nombre = "Caja de clavos" },
-        { corto = "recuperar su serrucho de un galpon",
-          pedido = "Se me quedo el serrucho en un galpon cuando arrancamos. Si me lo traes, te debo una.",
-          salas = { "shed", "garagestorage" }, respaldo = { "garage", "storageunit" },
-          objeto = { "Base.Saw", "Base.GardenSaw" }, nombre = "Serrucho del carpintero" },
+        { tipos = { "Base.NailsBox", "Base.Nails" }, nombre = "una caja de clavos", salas = { "garage", "garagestorage", "shed", "toolstore" } },
+        { tipos = { "Base.ScrewsBox", "Base.Screws", "Base.Nails" }, nombre = "tornillos", salas = { "garage", "toolstore", "shed" } },
+        { tipos = { "Base.Hammer" }, nombre = "un martillo", salas = { "garage", "shed", "toolstore", "garagestorage" } },
+        { tipos = { "Base.Saw", "Base.GardenSaw" }, nombre = "un serrucho", salas = { "shed", "garage", "toolstore" } },
+        { tipos = { "Base.Woodglue", "Base.Glue" }, nombre = "pegamento para madera", salas = { "toolstore", "garage", "kitchen" } },
+        { tipos = { "Base.Plank" }, nombre = "tablas buenas", salas = { "garage", "shed", "warehouse", "storageunit" } },
+        { tipos = { "Base.Paintbrush", "Base.Hammer" }, nombre = "una brocha", salas = { "garage", "toolstore", "shed" } },
+        { tipos = { "Base.Screwdriver" }, nombre = "un destornillador", salas = { "kitchen", "garage", "toolstore" } },
     },
     herrero = {
-        { corto = "buscar barras de metal en un taller",
-          pedido = "Necesito metal para fundir. En ese taller tiene que haber barras. Te marque la zona.",
-          salas = { "mechanic", "garagestorage", "warehouse" }, respaldo = { "garage", "storageunit" },
-          objeto = { "Base.MetalBar", "Base.SheetMetal", "Base.ScrapMetal" }, nombre = "Barras de metal" },
-        { corto = "traer la caja de herramientas de su hermano",
-          pedido = "Mi hermano tenia su caja de herramientas en esa casa. El ya no la va a usar. Traemela.",
-          salas = { "garage", "bedroom", "livingroom" }, respaldo = { "kitchen", "shed" },
-          objeto = { "Base.Toolbox", "Base.Hammer" }, nombre = "Caja de herramientas del hermano" },
+        { tipos = { "Base.MetalBar", "Base.MetalPipe" }, nombre = "barras de metal", salas = { "warehouse", "garagestorage", "garage", "storageunit" } },
+        { tipos = { "Base.SheetMetal", "Base.SmallSheetMetal" }, nombre = "una plancha de metal", salas = { "warehouse", "garage", "shed" } },
+        { tipos = { "Base.ScrapMetal", "Base.MetalPipe" }, nombre = "chatarra", salas = { "garage", "shed", "warehouse", "storageunit" } },
+        { tipos = { "Base.BlowTorch", "Base.Hammer" }, nombre = "un soplete", salas = { "garage", "toolstore", "warehouse" } },
+        { tipos = { "Base.WeldingMask", "Base.Hammer" }, nombre = "una mascara de soldar", salas = { "garage", "toolstore", "warehouse" } },
+        { tipos = { "Base.Crowbar" }, nombre = "una palanca", salas = { "garage", "shed", "toolstore" } },
+        { tipos = { "Base.LeadPipe", "Base.MetalPipe" }, nombre = "un tubo de plomo", salas = { "garage", "bathroom", "shed" } },
+        { tipos = { "Base.Toolbox", "Base.Hammer" }, nombre = "una caja de herramientas", salas = { "garage", "garagestorage", "shed" } },
     },
     mecanico = {
-        { corto = "sacar una bateria de un garage",
-          pedido = "En el garage de esa casa hay un auto con una bateria buena. Sacala y traemela.",
-          salas = { "garage", "garagestorage" }, respaldo = { "mechanic", "shed" },
-          objeto = { "Base.CarBattery1", "Base.CarBattery2", "Base.CarBattery3" }, nombre = "Bateria buena" },
-        { corto = "buscar su llave inglesa",
-          pedido = "Perdi mi llave inglesa en ese taller cuando nos atacaron. Es de la suerte. Traemela, porfa.",
-          salas = { "mechanic", "garagestorage" }, respaldo = { "garage", "warehouse" },
-          objeto = { "Base.Wrench", "Base.Screwdriver" }, nombre = "Llave inglesa de la suerte" },
+        { tipos = { "Base.CarBattery1", "Base.CarBattery2", "Base.CarBattery3" }, nombre = "una bateria de auto", salas = { "garage", "garagestorage", "gasstore" } },
+        { tipos = { "Base.Wrench" }, nombre = "una llave inglesa", salas = { "garage", "toolstore", "shed" } },
+        { tipos = { "Base.Jack" }, nombre = "una gata", salas = { "garage", "garagestorage" } },
+        { tipos = { "Base.LugWrench" }, nombre = "una llave de ruedas", salas = { "garage", "garagestorage", "gasstore" } },
+        { tipos = { "Base.TirePump", "Base.Wrench" }, nombre = "un inflador", salas = { "garage", "gasstore", "shed" } },
+        { tipos = { "Base.EmptyPetrolCan", "Base.PetrolCan" }, nombre = "un bidon", salas = { "garage", "shed", "gasstore" } },
+        { tipos = { "Base.EngineParts", "Base.Screwdriver" }, nombre = "repuestos de motor", salas = { "garage", "garagestorage", "warehouse" } },
+        { tipos = { "Base.Screwdriver" }, nombre = "un destornillador", salas = { "garage", "kitchen", "toolstore" } },
     },
     curandero = {
-        { corto = "buscar remedios en una farmacia",
-          pedido = "En esa farmacia tienen que quedar pastillas. Nadie se acuerda de los remedios hasta que los necesita.",
-          salas = { "pharmacy", "pharmacystorage" }, respaldo = { "medicaloffice", "bathroom" },
-          objeto = { "Base.Pills", "Base.PillsVitamins" }, nombre = "Frasco de pastillas" },
-        { corto = "traer un botiquin de una casa",
-          pedido = "En el bano de esa casa habia un botiquin. Lo vi cuando pasamos. Traelo, que hace falta.",
-          salas = { "bathroom" }, respaldo = { "kitchen", "bedroom" },
-          objeto = { "Base.FirstAidKit", "Base.Bandage" }, nombre = "Botiquin de la casa" },
+        { tipos = { "Base.Pills" }, nombre = "pastillas para el dolor", salas = { "pharmacy", "bathroom", "pharmacystorage" } },
+        { tipos = { "Base.PillsVitamins", "Base.Pills" }, nombre = "vitaminas", salas = { "pharmacy", "kitchen", "grocery" } },
+        { tipos = { "Base.Antibiotics", "Base.Pills" }, nombre = "antibioticos", salas = { "pharmacy", "pharmacystorage", "medicaloffice" } },
+        { tipos = { "Base.Disinfectant", "Base.Bandage" }, nombre = "desinfectante", salas = { "bathroom", "pharmacy", "medicaloffice" } },
+        { tipos = { "Base.Bandage" }, nombre = "vendas", salas = { "bathroom", "pharmacy", "medicaloffice" } },
+        { tipos = { "Base.SutureNeedle", "Base.Bandage" }, nombre = "una aguja de sutura", salas = { "medicaloffice", "pharmacy", "bathroom" } },
+        { tipos = { "Base.Tweezers", "Base.Bandage" }, nombre = "unas pinzas", salas = { "bathroom", "medicaloffice", "pharmacy" } },
+        { tipos = { "Base.FirstAidKit", "Base.Bandage" }, nombre = "un botiquin", salas = { "bathroom", "kitchen", "medicaloffice" } },
     },
 }
+
+-- Como se nombra cada sala en el pedido.
+K.RECADOS_LUGARES = {
+    garage = "el garage de esa casa", garagestorage = "esa bodega del garage", shed = "ese galpon",
+    toolstore = "esa ferreteria", warehouse = "esa bodega", storageunit = "esa bodega de alquiler",
+    kitchen = "la cocina de esa casa", bathroom = "el bano de esa casa", bedroom = "esa pieza",
+    livingroom = "el living de esa casa", pharmacy = "esa farmacia", pharmacystorage = "la bodega de esa farmacia",
+    medicaloffice = "esa consulta", gasstore = "esa bencinera", grocery = "ese almacen",
+}
+K.RECADOS_RESPALDO = { "garage", "kitchen", "shed", "storageunit" }
+
+-- Formas de pedirlo, con la voz de cada oficio. {cosa} y {lugar} se rellenan.
+K.RECADOS_FRASES = {
+    carpintero = {
+        "Ayudame a buscar {cosa}. Estoy seguro de que en {lugar} hay. Te marque donde.",
+        "Ando buscando {cosa}. Cuando pasamos por {lugar} me parecio ver. Trae lo que encuentres y quedamos a mano.",
+        "Sin {cosa} no puedo terminar las paredes. Revisa {lugar}, que ahi tiene que haber.",
+    },
+    herrero = {
+        "El fuego no espera. Necesito {cosa}: en {lugar} tiene que haber. Te marque la zona.",
+        "Traeme {cosa}. Revisa {lugar}, la gente guardaba de todo ahi.",
+        "Con {cosa} te hago maravillas. Busca en {lugar}.",
+    },
+    mecanico = {
+        "Para que ande el motor me falta {cosa}. En {lugar} tiene que haber, estoy casi seguro.",
+        "Si me traes {cosa}, el auto arranca. Busca en {lugar}. Te marque donde.",
+        "Revisa {lugar}: ahi tiene que haber {cosa}. Sin eso no hago nada.",
+    },
+    curandero = {
+        "Necesito {cosa} para los enfermos. En {lugar} quedaba algo, lo se.",
+        "Nadie se acuerda de {cosa} hasta que le hace falta. Busca en {lugar}, por favor.",
+        "Traeme {cosa}. Revisa {lugar}. Hay gente que depende de eso.",
+    },
+}
+
+-- Arma un recado al azar. azar(n) devuelve 1..n.
+function K.generarRecado(oficio, azar)
+    local objetos = K.RECADOS_OBJETOS[oficio]
+    local frases = K.RECADOS_FRASES[oficio]
+    if objetos == nil or frases == nil or #objetos == 0 then return nil end
+    local o = objetos[azar(#objetos)]
+    local sala = o.salas[azar(#o.salas)]
+    local lugar = K.RECADOS_LUGARES[sala] or "ese lugar"
+    local frase = frases[azar(#frases)]
+    local pedido = string.gsub(string.gsub(frase, "{cosa}", o.nombre), "{lugar}", lugar)
+    return { corto = "buscar " .. o.nombre .. " en " .. lugar, pedido = pedido, salas = { sala },
+        respaldo = K.RECADOS_RESPALDO, objeto = o.tipos, nombre = o.nombre }
+end
 K.RECADO_PEDIDO = "Quieres que la gente confie en ti? Ayudame con esto: "
 
 -- Quien es el del oficio en un campamento (perfil, nombre, texto de llegada).

@@ -134,6 +134,20 @@ function O.registro(def, tipo)
     return e, k
 end
 
+-- El edificio de un misionero (su campamento) nunca se ocupa: ni al sacar el botin de su
+-- mision de desbloqueo ni despues.
+function O.deMisionero(e)
+    local C = Narrador.Contactos
+    if C == nil or e == nil then return false end
+    for _, c in ipairs(C.LISTA or {}) do
+        local m = C.estado(c.id)
+        if m.x ~= nil and m.x >= e.x - 5 and m.x <= e.x + e.w + 5 and m.y >= e.y - 5 and m.y <= e.y + e.h + 5 then
+            return true
+        end
+    end
+    return false
+end
+
 -- Cada minuto: los jugadores que estan dentro de un lugar emblematico. Si el lugar tiene menos
 -- objetos que el maximo que se le vio, alguien saco algo: queda saqueado.
 function O.revisarJugadores()
@@ -152,7 +166,7 @@ function O.revisarJugadores()
                     if t == nil then O.descartados[k] = true; return end
                     e = O.registro(def, t)
                 end
-                if e.estado == "ocupado" then return end
+                if e.estado == "ocupado" or O.deMisionero(e) then return end
                 local n = O.contar(def)
                 if n == nil then return end
                 if n > e.base then e.base = n end
@@ -361,7 +375,9 @@ function O.tick()
     if not O.activo() or not Mundo.hayALife() then return end
     O.revisarJugadores()
     for k, e in pairs(O.st()) do
-        if e.estado == "ocupado" then
+        if e.estado ~= "ocupado" and O.deMisionero(e) then
+            e.saqueado = nil
+        elseif e.estado == "ocupado" then
             pcall(O.revisarOcupado, e, k)
         elseif O.listoParaOcupar(e) then
             local j, d = Mundo.jugadorCerca(e.cx, e.cy, O.CERCA_MAX)

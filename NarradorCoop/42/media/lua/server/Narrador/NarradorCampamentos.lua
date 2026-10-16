@@ -339,12 +339,10 @@ end
 -- Recados de los comerciantes
 -- ---------------------------------------------------------------------------
 
--- El recado que tiene ahora un comerciante (rota al cumplirse).
+-- El recado que tiene ahora un comerciante: se arma al azar y se cambia al cumplirse.
 function S.recadoActual(o, oficio)
-    local lista = K.RECADOS[oficio] or {}
-    if #lista == 0 then return nil, nil end
-    local i = ((tonumber(o.recado) or 1) - 1) % #lista + 1
-    return lista[i], i
+    if o.recadoGen == nil then o.recadoGen = K.generarRecado(oficio, Mundo.azar) end
+    return o.recadoGen
 end
 
 -- Recado en curso de un grupo (o nil).
@@ -408,7 +406,7 @@ Motor.inmediatas.recado_hecho = function(inst, a)
     if o ~= nil then
         o.hechos = o.hechos or {}
         o.hechos[grupo] = Mundo.horas()
-        o.recado = (tonumber(o.recado) or 1) + 1
+        o.recadoGen = nil
     end
     local KX, KD, R = Narrador.Knox, Narrador.KnoxDefs, Narrador.Reputacion
     if KX ~= nil and KD ~= nil then KX.sumar(grupo, KD.RECADO, "recado") end
