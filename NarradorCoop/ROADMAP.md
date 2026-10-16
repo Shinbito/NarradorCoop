@@ -209,20 +209,50 @@
   cuartel de la Chela (ya hecho, `C.REGRESOS` y arco `tomas_vuelve`).
 
 ### B. El camino del bandido (Knox negativo)
-- Al llegar por primera vez a -5 de Knox o menos (`KD.BANDIDO_UMBRAL`; memoria `knox_bandido_<grupo>` = "listo")
-  un bandido se contacta contigo y te ofrece trabajo sucio.
-- Primera misión: matar a un traidor. Después te lleva a su campamento, ya establecido en un
-  pueblo que no sea de los 4 principales (Brandenburg, Echo Creek, Ekron, Irvington, March
-  Ridge, Fallas Lake o Valley Station). El campamento se te marca con un mapa de papel.
-- Ahí empieza un modo historia nuevo de 5 misiones. Cada una baja -15 la reputación de Knox
-  (`{ "knox", cantidad = -15 }`, "estás colaborando con los malos"). Ideas que dio el usuario: robarle a los campamentos de los misioneros
-  (y bajar la confianza con ese misionero), ir a una casa y matar a una familia, robarle la
-  comida a gente que intenta sobrevivir.
-- Misión 5: decidir.
-  - Quedarte como la mano derecha del líder.
-  - Acabar con todos los bandidos y redimirte: la reputación de Knox vuelve a 0
-    (`knox_reiniciar`) con el texto: "La gente perdonará tus pecados del pasado, pero en tu
-    mente sigue existiendo cada acto malvado que hiciste."
+
+#### Fase 1: Pereira (hecho, falta probar en el juego)
+- Archivos: `shared/Narrador/Arcos/Bandido.lua`, `server/Narrador/NarradorBandido.lua` (lanza los
+  capitulos) y `shared/Narrador/NarradorLoreBandido.lua` (diario).
+- Se abre la primera vez que el grupo llega a -5 de Knox (`KD.BANDIDO_UMBRAL`): una nota en tu
+  casa firmada "P." y un mapa al patio de trenes al oeste de Muldraugh. Del capitulo 2 en
+  adelante se piden volviendo al patio (12 horas entre uno y otro).
+- La Sargento Pereira mandaba el cordon de la Guardia en Muldraugh: ordeno cerrar la comisaria
+  con la gente adentro y el Cabo Ramiro la desobedecio y saco a once. Se odian.
+- Cap. 1 El traidor: matar a Julio Cardenas, o dejarlo ir con su hija Marisol y llevarle su
+  placa (memoria `julio_vivo`). Si rechazas el trabajo, la puerta queda abierta (vuelve al patio).
+- Cap. 2 La comisaria: robarle las reservas al Cabo de noche (-30 a cada reserva, -40 de
+  confianza), o avisarle y llevar una caja con piedras. Espera a que el Cabo tenga campamento.
+- Cap. 3 La familia: matar a los Salinas, o dejarlos huir con el anillo de Arturo como prueba.
+- Cap. 4 Las latas: quitarle la comida al grupo de Ramon Quispe, o llevarse la mitad.
+- Cada mision cumplida: -15 de Knox. Cada sabotaje suma sospecha (`bandido_sospecha`): al volver
+  al patio hay 30% por sabotaje de que Pereira lo descubra y mande cazadores (`bandido_castigo`).
+- Cap. 5 La decision:
+  - A su derecha: memoria `bandido` = "pereira" (sigue en la fase 2).
+  - Redimirte: asalto al patio. Ayudan los misioneros con confianza 4 (mandan dos guardias
+    cada uno), Eduardo si lo conociste y Julio si lo perdonaste. Al matar a Pereira: Knox a 0
+    con "La gente perdonara tus pecados del pasado, pero en tu mente sigue existiendo cada acto
+    malvado que hiciste", un arma legendaria y memoria `bandido` = "redimido".
+- PENDIENTE: confirmar en el juego las coordenadas del patio de trenes
+  (`Narrador.BandidoPatio.cerca_de` en `Bandido.lua`, hoy 10330,9760, provisorio).
+
+#### Fase 2: la conquista de Knox (por escribir)
+- Asalto a la comisaria con Pereira: el Cabo Ramiro muere de verdad y los bandidos ocupan la
+  comisaria.
+- Despues, un capitulo por misionero (Chela, Nacho, Rosa) para matarlo, en el orden que quieras.
+- Cada campamento conquistado pasa a ser un campamento de bandidos: los mismos comerciantes y un
+  capitan nuevo en vez del misionero (uno distinto por ciudad, contraparte oscura del
+  misionero). Sus encargos son todos inmorales.
+
+#### Fase 3: Eduardo (por escribir)
+- Con Knox conquistado, Eduardo Giovanns intenta matarte 3 veces (eventos de lore). En el
+  tercero te tiene en el suelo y no dispara ("mi mama decia que todos merecen una segunda
+  oportunidad") y te deja una nota para ir a su base: las casas abandonadas al lado del campo
+  de Fallas Lake.
+- Si vas armado: la mision final del juego, matar a Eduardo.
+- Si vas a hablar: la reconquista. Con Eduardo matas a los bandidos ciudad por ciudad. Vuelven
+  misioneros nuevos (nombres nuevos) y en West Point la Tia Chela es reemplazada por su hijo
+  Eduardo. Te tienen toda la confianza por haber traido la paz a Knox, y Knox vuelve a ser luz
+  de esperanza.
 
 ### C. Modo historia de los misioneros
 - Capítulos 1 y 2 de los cuatro (son requisito de los niveles 2 y 3 del campamento) y del 3 en
