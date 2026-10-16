@@ -3,10 +3,12 @@
 Generado por `NarradorCoop/herramientas/mapa_historias.py` a partir de los arcos. No editar a mano:
 se vuelve a generar con `python3 NarradorCoop/herramientas/mapa_historias.py` (necesita `pip install lupa`).
 Los lanzadores del servidor estan en la lista `LANZADORES` del script; si se agrega uno, se agrega ahi.
+Nota: en el codigo, Eduardo Giovanns todavia se llama `tomas` (su nombre viejo) en ids y memorias.
 
 ## Diagrama
 
-Cada flecha dice que memoria deja una historia para que se abra la siguiente.
+Cada flecha sale del final que la provoca y dice que memoria deja. Los nodos redondeados son desenlaces:
+decisiones que cierran una linea en vez de abrir otra historia.
 
 ```mermaid
 flowchart LR
@@ -26,20 +28,20 @@ flowchart LR
   cap_rosa_2["La ruta 31"]
   cap_rosa_3["El estanque"]
   conquista_sous["La conquista: la base de Sous"]
-  conquista_muldraugh["La conquista: la comisaria del Cabo Ramiro"]
-  conquista_rosewood["La conquista: la bencinera de la Misia Rosa"]
-  conquista_westpoint["La conquista: el cuartel de la Tia Chela"]
   conquista_riverside["La conquista: la iglesia del Padre Nacho"]
+  conquista_rosewood["La conquista: la bencinera de la Misia Rosa"]
+  conquista_muldraugh["La conquista: la comisaria del Cabo Ramiro"]
+  conquista_westpoint["La conquista: el cuartel de la Tia Chela"]
   desbloqueo_muldraugh["Cabo Ramiro quiere un campamento"]
   desbloqueo_westpoint["Tia Chela quiere un campamento"]
   desbloqueo_riverside["Padre Nacho quiere un campamento"]
   desbloqueo_rosewood["Misia Rosa quiere un campamento"]
   eduardo_atentado["Eduardo viene por ti"]
   eduardo_fallas["Fallas Lake"]
-  reconquista_muldraugh["La reconquista: la comisaria de Muldraugh"]
-  reconquista_rosewood["La reconquista: la bencinera de Rosewood"]
-  reconquista_westpoint["La reconquista: el cuartel de West Point"]
   reconquista_riverside["La reconquista: la iglesia de Riverside"]
+  reconquista_rosewood["La reconquista: la bencinera de Rosewood"]
+  reconquista_muldraugh["La reconquista: la comisaria de Muldraugh"]
+  reconquista_westpoint["La reconquista: el cuartel de West Point"]
   reconquista_patio["La reconquista: el patio de trenes"]
   eduardo_evento["Eduardo, corriendo"]
   familia_infectada["Los Bell"]
@@ -58,60 +60,436 @@ flowchart LR
   hija_cabo["Valentina"]
   leyenda_tomas["Un cientifico que dice tener la cura"]
   tomas_vuelve["Eduardo, otra vez"]
-  bandido_1 -->|bandido_cap = 1| bandido_2
-  bandido_2 -->|bandido_cap = 2| bandido_3
-  bandido_2 -->|bandido_sospecha| bandido_castigo
-  bandido_3 -->|bandido_cap = 3| bandido_4
-  bandido_3 -->|bandido_sospecha| bandido_castigo
-  bandido_4 -->|bandido_cap = 4| bandido_5
-  bandido_4 -->|bandido_sospecha| bandido_castigo
-  bandido_5 -->|bandido = pereira| conquista_muldraugh
-  bandido_5 -->|bandido = pereira| conquista_sous
-  cap_cabo_2 -->|historia_muldraugh_2| hija_cabo
-  cap_chela_2 -->|historia_westpoint_2| leyenda_tomas
-  cap_nacho_2 -->|historia_riverside_2| cap_nacho_3
-  cap_rosa_2 -->|historia_rosewood_2| cap_rosa_3
-  conquista_muldraugh -->|conquista_muldraugh| conquista_riverside
-  conquista_muldraugh -->|conquista_muldraugh| conquista_rosewood
-  conquista_muldraugh -->|conquista_muldraugh| conquista_westpoint
+  fin_bandido_pereira_escapo(["El jefe del patio escapa"])
+  fin_bandido_rechazado(["Rechaza a la banda (la puerta queda abierta)"])
+  fin_bandido_redimido(["Redencion: Knox vuelve a 0"])
+  fin_estanque_rosewood_defendido(["El estanque queda a salvo"])
+  fin_fin_eduardo_muerto(["FIN: Eduardo muerto, Knox es de la banda"])
+  fin_fin_reconquista(["FIN: Knox vuelve a ser luz de esperanza"])
+  fin_hija_cabo_muerta(["Valentina muere"])
+  fin_hija_cabo_salvada(["Valentina vuelve con el Cabo"])
+  fin_lucia_en_riverside(["Lucia vuelve a Riverside"])
+  fin_sous_caidos(["Sous cae en su base"])
+  fin_sous_conquistada(["La base de Sous es de Maulen"])
+  fin_sous_eliminado(["Sous eliminado"])
+  fin_sous_maulen_escapa(["Maulen escapa con todo"])
+  fin_sous_negado(["Le dices que no a Sous"])
+  bandido_1 -->|final_cumplido, final_perdonado: bandido_cap = 1| bandido_2
+  bandido_2 -->|final_cumplido, final_saboteado: bandido_cap = 2| bandido_3
+  bandido_2 -->|final_saboteado: bandido_sospecha| bandido_castigo
+  bandido_3 -->|final_cumplido, final_saboteado: bandido_cap = 3| bandido_4
+  bandido_3 -->|final_saboteado: bandido_sospecha| bandido_castigo
+  bandido_4 -->|final_cumplido, final_saboteado: bandido_cap = 4| bandido_5
+  bandido_4 -->|final_saboteado: bandido_sospecha| bandido_castigo
+  bandido_5 -->|final_con_pereira: bandido = pereira| conquista_muldraugh
+  bandido_5 -->|final_con_pereira: bandido = pereira| conquista_sous
+  cap_cabo_2 -->|final_cumplido, final_muerta: historia_muldraugh_2| hija_cabo
+  cap_chela_2 -->|final_cumplido: historia_westpoint_2| leyenda_tomas
+  cap_nacho_2 -->|final_cumplido: historia_riverside_2| cap_nacho_3
+  cap_rosa_2 -->|final_cumplido, final_muerto: historia_rosewood_2| cap_rosa_3
+  conquista_muldraugh -->|final_conquistado: conquista_muldraugh| conquista_riverside
+  conquista_muldraugh -->|final_conquistado: conquista_muldraugh| conquista_rosewood
+  conquista_muldraugh -->|final_conquistado: conquista_muldraugh| conquista_westpoint
   conquista_riverside -->|knox_conquistado| eduardo_atentado
   conquista_rosewood -->|knox_conquistado| eduardo_atentado
   conquista_westpoint -->|knox_conquistado| eduardo_atentado
-  desbloqueo_muldraugh -->|historia_muldraugh_1| cap_cabo_2
-  desbloqueo_riverside -->|historia_riverside_1| cap_nacho_2
-  desbloqueo_rosewood -->|historia_rosewood_1| cap_rosa_2
-  desbloqueo_westpoint -->|historia_westpoint_1| cap_chela_2
-  eduardo_atentado -->|eduardo_nota = true| eduardo_fallas
+  desbloqueo_muldraugh -->|final_campamento: historia_muldraugh_1| cap_cabo_2
+  desbloqueo_riverside -->|final_campamento: historia_riverside_1| cap_nacho_2
+  desbloqueo_rosewood -->|final_campamento: historia_rosewood_1| cap_rosa_2
+  desbloqueo_westpoint -->|final_campamento: historia_westpoint_1| cap_chela_2
+  eduardo_atentado -->|nota: eduardo_nota = true| eduardo_fallas
   eduardo_evento -->|caido_tomas| tomas_vuelve
-  eduardo_fallas -->|reconquista = true| reconquista_muldraugh
-  eduardo_fallas -->|reconquista = true| reconquista_riverside
-  eduardo_fallas -->|reconquista = true| reconquista_rosewood
-  eduardo_fallas -->|reconquista = true| reconquista_westpoint
-  familia_infectada -->|abre| sous
-  leyenda_tomas -->|tomas_conocido| eduardo_evento
+  eduardo_fallas -->|final_reconquista: reconquista = true| reconquista_muldraugh
+  eduardo_fallas -->|final_reconquista: reconquista = true| reconquista_riverside
+  eduardo_fallas -->|final_reconquista: reconquista = true| reconquista_rosewood
+  eduardo_fallas -->|final_reconquista: reconquista = true| reconquista_westpoint
+  familia_infectada -->|final_abandonados: abre| sous
+  familia_infectada -->|final_engano: abre| sous
+  familia_infectada -->|final_era_gripe: abre| sous
+  familia_infectada -->|final_falso_remedio: abre| sous
+  familia_infectada -->|final_masacre: abre| sous
+  familia_infectada -->|final_muertos: abre| sous
+  familia_infectada -->|final_olvidados: abre| sous
+  familia_infectada -->|final_salvados: abre| sous
+  familia_infectada -->|final_se_curo_solo: abre| sous
+  familia_infectada -->|final_transformado: abre| sous
+  leyenda_tomas -->|caido, despedida: tomas_conocido| eduardo_evento
   leyenda_tomas -->|caido_tomas| tomas_vuelve
-  reconquista_muldraugh -->|reconquista_muldraugh| reconquista_patio
-  reconquista_riverside -->|reconquista_riverside| reconquista_patio
-  reconquista_rosewood -->|reconquista_rosewood| reconquista_patio
-  reconquista_westpoint -->|reconquista_westpoint| reconquista_patio
-  sous -->|maulen_salvado| bandido_maulen
-  sous -->|sous = aliados| cal_amigo_secreto
-  sous -->|sous = aliados| cal_fonda
-  sous -->|maulen_salvado| conquista_sous
-  sous -->|sous = aliados| conquista_sous
-  sous -->|sous = aliados| favor_bastian
-  sous -->|sous = aliados| favor_benjamin
-  sous -->|sous = aliados| favor_cristian
-  sous -->|sous = aliados| favor_cristobal
-  sous -->|sous = aliados| favor_david
-  sous -->|sous = aliados| favor_hanz
-  sous -->|sous = aliados| favor_jorge
-  sous -->|sous = aliados| favor_martin_a
-  sous -->|sous = aliados| favor_martin_z
-  sous -->|abre| sous_arsenal
-  sous -->|abre| sous_guerra
-  sous_guerra -->|abre| sous_arsenal
+  reconquista_muldraugh -->|final_reconquistado: reconquista_muldraugh| reconquista_patio
+  reconquista_riverside -->|final_reconquistado: reconquista_riverside| reconquista_patio
+  reconquista_rosewood -->|final_reconquistado: reconquista_rosewood| reconquista_patio
+  reconquista_westpoint -->|final_reconquistado: reconquista_westpoint| reconquista_patio
+  sous -->|perdonado: maulen_salvado| bandido_maulen
+  sous -->|final_aliados, final_mentira: sous = aliados| cal_amigo_secreto
+  sous -->|final_aliados, final_mentira: sous = aliados| cal_fonda
+  sous -->|final_aliados, final_mentira: sous = aliados| conquista_sous
+  sous -->|perdonado: maulen_salvado| conquista_sous
+  sous -->|final_aliados, final_mentira: sous = aliados| favor_bastian
+  sous -->|final_aliados, final_mentira: sous = aliados| favor_benjamin
+  sous -->|final_aliados, final_mentira: sous = aliados| favor_cristian
+  sous -->|final_aliados, final_mentira: sous = aliados| favor_cristobal
+  sous -->|final_aliados, final_mentira: sous = aliados| favor_david
+  sous -->|final_aliados, final_mentira: sous = aliados| favor_hanz
+  sous -->|final_aliados, final_mentira: sous = aliados| favor_jorge
+  sous -->|final_aliados, final_mentira: sous = aliados| favor_martin_a
+  sous -->|final_aliados, final_mentira: sous = aliados| favor_martin_z
+  sous -->|final_aliados: abre| sous_arsenal
+  sous -->|final_mentira: abre| sous_arsenal
+  sous -->|final_te_quedaste: abre| sous_guerra
+  sous -->|final_traicion: abre| sous_guerra
+  sous_guerra -->|final_sous_eliminado: abre| sous_arsenal
+  bandido_1 -.->|final_rechazo| fin_bandido_rechazado
+  bandido_5 -.->|final_escapo| fin_bandido_pereira_escapo
+  bandido_5 -.->|final_redencion| fin_bandido_redimido
+  bandido_maulen -.->|final_rechazo| fin_bandido_rechazado
+  cap_nacho_3 -.->|final_cumplido| fin_lucia_en_riverside
+  cap_rosa_3 -.->|final_cumplido| fin_estanque_rosewood_defendido
+  conquista_sous -.->|final_conquistado| fin_sous_conquistada
+  eduardo_fallas -.->|final_eduardo_muerto| fin_fin_eduardo_muerto
+  hija_cabo -.->|final_perdida| fin_hija_cabo_muerta
+  hija_cabo -.->|final_reencuentro| fin_hija_cabo_salvada
+  reconquista_patio -.->|final_luz| fin_fin_reconquista
+  sous -.->|final_sous_caidos| fin_sous_caidos
+  sous -.->|final_maulen_escapa| fin_sous_maulen_escapa
+  sous -.->|final_negado| fin_sous_negado
+  sous_guerra -.->|final_sous_eliminado| fin_sous_eliminado
 ```
+
+## Decisiones
+
+Las historias con mas de un final: que eleccion lleva a cada uno y que deja.
+
+### El alijo (`alijo_custodiado`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_encontrado` | (sin eleccion: pasa solo) | `alijo` = encontrado | - |
+| `final_perdido` | (sin eleccion: pasa solo) | - | - |
+
+### Asalto al refugio (`asalto_nocturno`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_rechazado` | (sin eleccion: pasa solo) | `asalto` = rechazado | - |
+| `final_se_retiraron` | (sin eleccion: pasa solo) | - | - |
+
+### El camino del bandido: el traidor (`bandido_1`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | "Que necesitas?" | `bandido_ultimo` = abandonado | - |
+| `final_cumplido` | "Dejarlo ir. Pedirle su placa como prueba" | `bandido_cap` = 1, `bandido_ultimo` = hecho | bandido_2 |
+| `final_perdonado` | "Dejarlo ir. Pedirle su placa como prueba" | `bandido_cap` = 1, `bandido_ultimo` = hecho | bandido_2 |
+| `final_rechazo` | "No trabajo para nadie" | `bandido` = rechazado | Rechaza a la banda (la puerta queda abierta) |
+
+### El camino del bandido: la comisaria (`bandido_2`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | "Voy esta noche" | `bandido_ultimo` = abandonado | - |
+| `final_cumplido` | "Avisarle al Cabo lo que quiere {jefe_corto}" | `bandido_cap` = 2, `bandido_ultimo` = hecho | bandido_3 |
+| `final_saboteado` | "Avisarle al Cabo lo que quiere {jefe_corto}" | `bandido_cap` = 2, `bandido_sospecha` = ?, `bandido_ultimo` = hecho | bandido_3, bandido_castigo |
+
+### El camino del bandido: la familia (`bandido_3`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | "Entendido" | `bandido_ultimo` = abandonado | - |
+| `final_cumplido` | "Decirles que huyan esta noche. Pedirles algo para enganar a {jefe_corto}" | `bandido_cap` = 3, `bandido_ultimo` = hecho | bandido_4 |
+| `final_saboteado` | "Decirles que huyan esta noche. Pedirles algo para enganar a {jefe_corto}" | `bandido_cap` = 3, `bandido_sospecha` = ?, `bandido_ultimo` = hecho | bandido_4, bandido_castigo |
+
+### El camino del bandido: las latas (`bandido_4`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | "Todas" | `bandido_ultimo` = abandonado | - |
+| `final_cumplido` | "Llevarte la mitad y decirles que escondan el resto"<br>"Quitarles todo" | `bandido_cap` = 4, `bandido_ultimo` = hecho | bandido_5 |
+| `final_saboteado` | "Llevarte la mitad y decirles que escondan el resto"<br>"Quitarles todo" | `bandido_cap` = 4, `bandido_sospecha` = ?, `bandido_ultimo` = hecho | bandido_5, bandido_castigo |
+
+### El camino del bandido: la decision (`bandido_5`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | "Irte en silencio. Esto se termina, pero no como ella quiere" | `bandido_ultimo` = abandonado | - |
+| `final_con_pereira` | "A tu derecha, {jefe_corto}" | `bandido_cap` = 5, `bandido_ultimo` = hecho, `bandido` = pereira | conquista_muldraugh, conquista_sous |
+| `final_escapo` | "Irte en silencio. Esto se termina, pero no como ella quiere" | `bandido_cap` = 5, `bandido_ultimo` = hecho, `bandido` = pereira_escapo | El jefe del patio escapa |
+| `final_redencion` | "Irte en silencio. Esto se termina, pero no como ella quiere" | `bandido_cap` = 5, `bandido_ultimo` = hecho, `bandido` = redimido | Redencion: Knox vuelve a 0 |
+
+### El camino del bandido: Maulen (`bandido_maulen`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | (sin eleccion: pasa solo) | `bandido_ultimo` = abandonado | - |
+| `final_rechazo` | "Te deje vivir. No te debo nada mas" | `bandido` = rechazado | Rechaza a la banda (la puerta queda abierta) |
+| `final_unido` | "Que necesitas, Maulen?" | `bandido_ultimo` = hecho | - |
+
+### El amigo secreto de Sous (`cal_amigo_secreto`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_regalo` | "Darle el regalo a {amigo_nombre}" | - | - |
+| `final_sin_regalo` | (sin eleccion: pasa solo) | - | - |
+
+### La fonda de Sous (`cal_fonda`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_fonda` | "Entregar la carne y el carbon para la fonda" | `cal.fonda` = hecha | - |
+| `final_sin_fonda` | (sin eleccion: pasa solo) | `cal.fonda` = sin | - |
+
+### La puerta de atras (`cap_cabo_2`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_cumplido` | "Llevarla donde el Cabo" | `historia_muldraugh_2` = true | hija_cabo |
+| `final_muerta` | "Llevarla donde el Cabo" | `historia_muldraugh_2` = fallido | hija_cabo |
+
+### La muchacha que esperaba (`cap_nacho_3`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_cumplido` | "Decirle que el Padre la espera y que ya no se va" | `historia_riverside_3` = true, `lucia` = en_riverside | Lucia vuelve a Riverside |
+| `final_muerta` | "Decirle que el Padre la espera y que ya no se va" | `historia_riverside_3` = fallido, `lucia` = muerta | - |
+
+### La ruta 31 (`cap_rosa_2`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_cumplido` | "Entregarle la carga del Gordo Earl" | `historia_rosewood_2` = true | cap_rosa_3 |
+| `final_muerto` | (sin eleccion: pasa solo) | `historia_rosewood_2` = fallido | cap_rosa_3 |
+
+### La conquista: la comisaria del Cabo Ramiro (`conquista_muldraugh`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | (sin eleccion: pasa solo) | - | - |
+| `final_conquistado` | (sin eleccion: pasa solo) | `conquista_muldraugh` = true | conquista_riverside, conquista_rosewood, conquista_westpoint |
+
+### La conquista: la iglesia del Padre Nacho (`conquista_riverside`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | (sin eleccion: pasa solo) | - | - |
+| `final_conquistado` | (sin eleccion: pasa solo) | `conquista_riverside` = true | - |
+
+### La conquista: la bencinera de la Misia Rosa (`conquista_rosewood`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | (sin eleccion: pasa solo) | - | - |
+| `final_conquistado` | (sin eleccion: pasa solo) | `conquista_rosewood` = true | - |
+
+### La conquista: la base de Sous (`conquista_sous`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | (sin eleccion: pasa solo) | - | - |
+| `final_conquistado` | (sin eleccion: pasa solo) | `conquista_sous` = true, `sous` = conquistada | La base de Sous es de Maulen |
+
+### La conquista: el cuartel de la Tia Chela (`conquista_westpoint`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | (sin eleccion: pasa solo) | - | - |
+| `final_conquistado` | (sin eleccion: pasa solo) | `conquista_westpoint` = true | - |
+
+### Eduardo, corriendo (`eduardo_evento`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | "Esconderte y dejar que el se encargue"<br>"Pelear junto a Eduardo" | - | - |
+| `final_cayo` | "Esconderte y dejar que el se encargue"<br>"Pelear junto a Eduardo" | - | - |
+| `final_escondido` | "Esconderte y dejar que el se encargue" | - | - |
+| `final_ganado` | "Pelear junto a Eduardo" | - | - |
+| `final_nada` | (sin eleccion: pasa solo) | - | - |
+
+### Fallas Lake (`eduardo_fallas`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_eduardo_muerto` | "Vengo a terminar esto" | `fin` = eduardo_muerto, `tomas_muerto` = true | FIN: Eduardo muerto, Knox es de la banda |
+| `final_reconquista` | "Vengo a hablar. Quiero devolverle Knox a la gente" | `reconquista` = true | reconquista_muldraugh, reconquista_riverside, reconquista_rosewood, reconquista_westpoint |
+
+### El desertor (`el_desertor`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_capturado` | "Esconderlo en el refugio" | `desertor` = muerto | - |
+| `final_echado` | "Decirle que se vaya" | `desertor` = echado | - |
+| `final_entregado` | "Entregarlo a los soldados" | `desertor` = entregado | - |
+| `final_lo_mataste` | "Esconderlo en el refugio" | `desertor` = asesinado | - |
+| `final_protegido` | "Esconderlo en el refugio" | `desertor` = protegido | - |
+| `final_se_rindieron` | "Esconderlo en el refugio" | `desertor` = protegido | - |
+| `final_siguio_de_largo` | (sin eleccion: pasa solo) | - | - |
+
+### Los Bell (`familia_infectada`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonados` | "Decirles que se vayan" | `bell` = abandonados | sous |
+| `final_engano` | "Darles la pastilla verdadera (Medicina 4+)"<br>"Darles una de las pastillas K-93 (cualquiera)"<br>"Darles una falsa y quedarte con la verdadera (Medicina 4+)"<br>"Dejarlos quedarse en el refugio" | `bell_culpa` = true, `bell` = enganados | sous |
+| `final_era_gripe` | "Darles la pastilla verdadera (Medicina 4+)"<br>"Darles una de las pastillas K-93 (cualquiera)"<br>"Darles una falsa y quedarte con la verdadera (Medicina 4+)"<br>"Dejarlos quedarse en el refugio" | `bell` = era_gripe | sous |
+| `final_falso_remedio` | "Darles la pastilla verdadera (Medicina 4+)"<br>"Darles una de las pastillas K-93 (cualquiera)"<br>"Darles una falsa y quedarte con la verdadera (Medicina 4+)"<br>"Dejarlos quedarse en el refugio" | `bell` = falso_remedio, `curandero_falso` = true | sous |
+| `final_masacre` | "Dejarlos quedarse en el refugio" | `bell` = masacre | sous |
+| `final_muertos` | "Dejarlos quedarse en el refugio" | `bell` = muertos | sous |
+| `final_olvidados` | (sin eleccion: pasa solo) | `bell` = olvidados | sous |
+| `final_salvados` | "Darles la pastilla verdadera (Medicina 4+)"<br>"Darles una de las pastillas K-93 (cualquiera)"<br>"Darles una falsa y quedarte con la verdadera (Medicina 4+)"<br>"Dejarlos quedarse en el refugio" | `bell` = salvados | sous |
+| `final_se_curo_solo` | "Dejarlos quedarse en el refugio" | `bell` = se_curo_solo | sous |
+| `final_transformado` | "Dejarlos quedarse en el refugio" | `bell` = transformado | sous |
+
+### Favor de Tati (`favor_bastian`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_hecho` | "Devolverle el collar de plata a Tati" | `favor_bastian` = hecho | - |
+| `final_murio` | (sin eleccion: pasa solo) | `favor_bastian` = murio | - |
+
+### Favor de Matric (`favor_benjamin`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_hecho` | "Mostrarle a Matric que encontraste la Mata Perras" | `favor_benjamin` = hecho | - |
+| `final_murio` | (sin eleccion: pasa solo) | `favor_benjamin` = murio | - |
+
+### Favor de Cristonks (`favor_cristian`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_hecho` | "Devolverle las antiparras a Cristonks" | `favor_cristian` = hecho | - |
+| `final_murio` | (sin eleccion: pasa solo) | `favor_cristian` = murio | - |
+
+### Favor de Wertres (`favor_cristobal`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_hecho` | "Devolverle la camiseta del Bicho a Wertres" | `favor_cristobal` = hecho | - |
+| `final_murio` | (sin eleccion: pasa solo) | `favor_cristobal` = murio | - |
+
+### Favor de Shinbo (`favor_david`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_hecho` | "Devolverle la foto de Sous a Shinbo" | `favor_david` = hecho | - |
+| `final_murio` | (sin eleccion: pasa solo) | `favor_david` = murio | - |
+
+### Favor de Walita (`favor_hanz`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_hecho` | "Devolverle el tallado a Walita" | `favor_hanz` = hecho | - |
+| `final_murio` | (sin eleccion: pasa solo) | `favor_hanz` = murio | - |
+
+### Favor de Hasag (`favor_jorge`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_hecho` | "Devolverle el libro de cuentas a Hasag" | `favor_jorge` = hecho | - |
+| `final_murio` | (sin eleccion: pasa solo) | `favor_jorge` = murio | - |
+
+### Favor de Akagami (`favor_martin_a`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_hecho` | "Devolverle la pelota firmada a Akagami" | `favor_martin_a` = hecho | - |
+| `final_murio` | (sin eleccion: pasa solo) | `favor_martin_a` = murio | - |
+
+### Favor de Zent (`favor_martin_z`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_hecho` | "Mostrarle a Zent que encontraste su cuchillo" | `favor_martin_z` = hecho | - |
+| `final_murio` | (sin eleccion: pasa solo) | `favor_martin_z` = murio | - |
+
+### Valentina (`hija_cabo`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_perdida` | "Te manda tu papa. El Cabo Ramiro esta vivo." | `hija_cabo` = muerta, `historia_muldraugh_3` = fallido | Valentina muere |
+| `final_reencuentro` | "Te manda tu papa. El Cabo Ramiro esta vivo." | `hija_cabo` = salvada, `historia_muldraugh_3` = true | Valentina vuelve con el Cabo |
+
+### El hijo perdido (`hijo_perdido`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_lo_encontraste_tarde` | (sin eleccion: pasa solo) | `lucas` = transformado | - |
+| `final_lo_perdiste` | (sin eleccion: pasa solo) | `lucas` = muerto | - |
+| `final_reunidos` | (sin eleccion: pasa solo) | `lucas` = rescatado | - |
+| `final_tarde` | (sin eleccion: pasa solo) | - | - |
+| `final_tragedia` | (sin eleccion: pasa solo) | `lucas` = asesinado | - |
+
+### Un cientifico que dice tener la cura (`leyenda_tomas`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_cumplido` | "Giovanns... Eduardo? Tu mama, la Tia Chela, te espera en el cuartel de West Point."<br>"No decirle nada" | `cientifico_hartmann` = en_west_point, `historia_westpoint_3` = true | - |
+| `final_muerto` | "Giovanns... Eduardo? Tu mama, la Tia Chela, te espera en el cuartel de West Point."<br>"No decirle nada" | `cientifico_hartmann` = muerto, `historia_westpoint_3` = true | - |
+
+### La reconquista: la comisaria de Muldraugh (`reconquista_muldraugh`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | (sin eleccion: pasa solo) | - | - |
+| `final_reconquistado` | (sin eleccion: pasa solo) | `reconquista_muldraugh` = true | reconquista_patio |
+
+### La reconquista: la iglesia de Riverside (`reconquista_riverside`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | (sin eleccion: pasa solo) | - | - |
+| `final_reconquistado` | (sin eleccion: pasa solo) | `reconquista_riverside` = true | reconquista_patio |
+
+### La reconquista: la bencinera de Rosewood (`reconquista_rosewood`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | (sin eleccion: pasa solo) | - | - |
+| `final_reconquistado` | (sin eleccion: pasa solo) | `reconquista_rosewood` = true | reconquista_patio |
+
+### La reconquista: el cuartel de West Point (`reconquista_westpoint`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | (sin eleccion: pasa solo) | - | - |
+| `final_reconquistado` | (sin eleccion: pasa solo) | `reconquista_westpoint` = true | reconquista_patio |
+
+### Gritos de auxilio (`sobreviviente_acorralada`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_muerta` | (sin eleccion: pasa solo) | `denise` = muerta | - |
+| `final_rescatada` | (sin eleccion: pasa solo) | `denise` = rescatada | - |
+| `final_tarde` | (sin eleccion: pasa solo) | - | - |
+| `final_traicion` | (sin eleccion: pasa solo) | `denise` = asesinada | - |
+
+### Sous (`sous`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_aliados` | "Decidir devolverle las cosas a Sous"<br>"Dejarlo ir. Sous va a creer que se escapo"<br>"Entregar los suministros a Sous" | `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal |
+| `final_maulen_escapa` | "Ir con Akagami, Zent y Walita"<br>"Ir con Matric, Tati y David Shinbo"<br>"Ir con Tati, Shinbo y Zent"<br>"Ir con Wertres y David Shinbo"<br>"Ir con todo Sous"<br>"Mejor ir solo"<br>"Revisar el deposito saqueado" | `sous` = maulen_escapa | Maulen escapa con todo |
+| `final_mentira` | "Dejarlo ir. Sous va a creer que se escapo"<br>"Ir con Akagami, Zent y Walita"<br>"Ir con Matric, Tati y David Shinbo"<br>"Ir con Tati, Shinbo y Zent"<br>"Ir con Wertres y David Shinbo"<br>"Ir con todo Sous"<br>"Mejor ir solo"<br>"Quedarte con todo lo que robo Maulen" | `sous_mentira` = true, `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal |
+| `final_negado` | "Decir que no es tu problema"<br>"Entregar la medicina"<br>"Ofrecer tu ayuda a Sous" | `sous` = negado | Le dices que no a Sous |
+| `final_nunca_fuiste` | (sin eleccion: pasa solo) | `sous` = ignorados | - |
+| `final_sous_caidos` | "Entregar las armas" | `sous` = caidos | Sous cae en su base |
+| `final_te_quedaste` | "Decidir devolverle las cosas a Sous"<br>"Dejarlo ir. Sous va a creer que se escapo"<br>"Ir con Akagami, Zent y Walita"<br>"Ir con Matric, Tati y David Shinbo"<br>"Ir con Tati, Shinbo y Zent"<br>"Ir con Wertres y David Shinbo"<br>"Ir con todo Sous"<br>"Mejor ir solo"<br>"Quedarte con todo lo que robo Maulen" | `sous` = enemigos | sous_guerra |
+| `final_traicion` | "Decidir devolverle las cosas a Sous"<br>"Dejarlo ir. Sous va a creer que se escapo"<br>"Entregar la medicina"<br>"Entregar las armas"<br>"Ir con Akagami, Zent y Walita"<br>"Ir con Matric, Tati y David Shinbo"<br>"Ir con Tati, Shinbo y Zent"<br>"Ir con Wertres y David Shinbo"<br>"Ir con todo Sous"<br>"Mejor ir solo"<br>"Ofrecer tu ayuda a Sous" | `sous` = enemigos | sous_guerra |
+
+### El arsenal (`sous_arsenal`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_arma` | "Sacar el arma legendaria" | `arsenal` = arma | - |
+| `final_auto` | "Quedarte con las llaves del auto legendario" | `arsenal` = auto | - |
+| `final_saqueado` | (sin eleccion: pasa solo) | - | - |
+| `final_traje` | "Sacar el traje legendario" | `arsenal` = traje | - |
+
+### El trueque (`trueque_trampa`)
+
+| Final | Se llega eligiendo | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_escapaste` | (sin eleccion: pasa solo) | - | - |
+| `final_ganada` | (sin eleccion: pasa solo) | `trueque` = ganado | - |
+| `final_ignorado` | (sin eleccion: pasa solo) | - | - |
 
 ## Historias
 
