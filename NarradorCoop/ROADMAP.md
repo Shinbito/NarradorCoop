@@ -44,31 +44,7 @@
   (`Lore.PERFILES`). Los cuatro tienen sus 5 capas.
 - Mandar a alguien de un encuentro al campamento sube la confianza (+3, con aviso).
 
-## Ideas futuras: campamentos de supervivientes
-
-### Fase 1: el campamento existe y crece
-- Los próximos capítulos de la historia mandan al campamento de los misioneros.
-- Cada NPC salvado en un evento aleatorio suma al campamento. 3 salvados = nivel 1.
-- Los salvados rondan el campamento como guardias y dan misiones secundarias.
-- Cada nivel desbloquea capítulos de la historia con NPCs clave (definidos, no generados).
-
-### Fase 2: reservas y trueque
-- El campamento tiene reservas: munición, comida/agua y ropa/abrigo.
-- El precio de cada cosa depende de cuánto tienen: si sobra munición, pagar con munición rinde
-  poco; si falta comida, pagar con comida rinde mucho.
-- La reputación con el campamento mejora los trueques y abre el acceso a armas.
-- Cada campamento tiene una prioridad. El del Cabo Ramiro es militar: quiere armas y balas,
-  así que comerciarlas con ellos sale a cuenta, y con buena reputación vende armas más baratas.
-
-### Fase 3: oficios
-- Mecánico: vende partes de auto; con suficientes misiones o una misión excelente, un auto.
-- Carpintero: mangos de armas legendarios, muebles.
-- Herrero: hojas, mejora y fabrica armas (necesita los mangos del carpintero).
-- Cada oficio tiene sus propias misiones secundarias.
-
-### Fase 4: historia propia del campamento
-- El Cabo Ramiro tiene una historia principal propia cuando se crea su campamento, aparte de
-  los encargos.
+## Detalle de lo hecho y de lo que viene
 
 ### Misión: la hija del Cabo Ramiro (programada, DESACTIVADA)
 - Archivo: `shared/Narrador/Arcos/HijaCabo.lua` (`automatico = false`: nada la lanza sola; un
@@ -92,8 +68,8 @@
   te tiene confianza 3+. Al llegar, Eduardo ya esta peleando solo contra una horda (30 +15 por
   jugador, sin corredores). Pelean juntos, se presenta, puedes contarle de su mama, te deja un
   arma legendaria ("vas por el mismo camino que yo") y se va. Hay que llevar al doctor
-  Hartmann vivo donde la Chela: era un charlatan, pero se queda en el cuartel y cada 48 horas
-  deja medicina (antibioticos, pastillas, vendas, desinfectante). Archivo:
+  Hartmann vivo donde la Chela: era un charlatan, pero sabe hacer remedios y, cuando el
+  campamento de la Chela llega a nivel 4, es su curandero (vende medicina). Archivo:
   `shared/Narrador/Arcos/LeyendaTomas.lua`.
 - Eduardo: heroe de pelicula, honorable y humilde. Inmune a la zombificacion, 400 de vida, mucho
   dano y un arma legendaria. Si cae, nunca se levanta: la proxima vez que pasas por el cuartel
@@ -132,12 +108,13 @@
   el noble, legendaria (machete, hacha, katana, lanza o hacha de mano).
 
 ### Modo historia de cada misionero
-- Cada misionero tiene sus capitulos. Capitulo 1 = su desbloqueo (fundar el campamento).
-  Los siguientes salen entre sus ofertas cuando el anterior ya se hizo (`G.ESPECIALES` en
+- Cada misionero tiene sus capitulos, despues de su desbloqueo (fundar el campamento, que va
+  aparte). Salen entre sus ofertas cuando el anterior ya se hizo (`G.ESPECIALES` en
   `server/Narrador/NarradorGenerador.lua`; cada capitulo deja la memoria `historia_<id>_<n>`).
-- Hecho: Chela cap. 1 (desbloqueo) y cap. 3 (el cientifico). Por escribir: Chela cap. 2 (sin
-  el, el 3 no sale) y los capitulos 2+ del Cabo, el Padre Nacho y la Misia Rosa. La hija del
-  Cabo (Valentina) puede ser uno de sus capitulos.
+  Un capitulo anterior que todavia no esta escrito no se pide.
+- Hecho: Chela cap. 3 (el cientifico). Por escribir: los capitulos 1 y 2 de los cuatro y del 3
+  en adelante del Cabo, el Padre Nacho y la Misia Rosa. La hija del Cabo (Valentina) puede ser
+  uno de sus capitulos.
 - Falta revisar en el juego los perfiles de Eduardo (`k93_stockyard_05`) y del doctor
   (`k93_red_cross_02`), y si A-Life le deja el arma en la mano.
 
