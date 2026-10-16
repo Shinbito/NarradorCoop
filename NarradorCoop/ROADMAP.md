@@ -87,14 +87,26 @@
   Despues de conocerlo te dicen que peleas como el.
 - Rumores con sus pasos: lugares donde estuvo, con una nota firmada "T.R." y algo para el que
   viene detras (tu vas siguiendo su camino).
-- Encargo especial de la Chela, "Un cientifico que dice tener la cura": a veces sale entre
-  sus ofertas dificiles con confianza 3+. Al llegar, Tomas ya esta peleando solo contra una
-  horda (30 +15 por jugador, sin corredores). Pelean juntos, se presenta, puedes contarle de
-  su mama, te deja un arma legendaria ("vas por el mismo camino que yo") y se va. Hay que
-  llevar al doctor Hartmann vivo donde la Chela; si llega, se queda a vivir en el cuartel
-  (gancho para la cura). Archivo: `shared/Narrador/Arcos/LeyendaTomas.lua`.
-- Tomas: inmune a la zombificacion (se le saca la infeccion cada minuto), 400 de vida, mucho
-  dano y un arma legendaria en la mano. Puede morir.
+- Historia de la Chela, capitulo 3, "Un cientifico que dice tener la cura" (no tiene nada que
+  ver con la mision de la cura K-93). Sale entre sus ofertas cuando su capitulo 2 ya se hizo y
+  te tiene confianza 3+. Al llegar, Tomas ya esta peleando solo contra una horda (30 +15 por
+  jugador, sin corredores). Pelean juntos, se presenta, puedes contarle de su mama, te deja un
+  arma legendaria ("vas por el mismo camino que yo") y se va. Hay que llevar al doctor
+  Hartmann vivo donde la Chela: era un charlatan, pero se queda en el cuartel y cada 48 horas
+  deja medicina (antibioticos, pastillas, vendas, desinfectante). Archivo:
+  `shared/Narrador/Arcos/LeyendaTomas.lua`.
+- Tomas: heroe de pelicula, honorable y humilde. Inmune a la zombificacion, 400 de vida, mucho
+  dano y un arma legendaria. Si cae, nunca se levanta: la proxima vez que pasas por el cuartel
+  de la Chela aparece vivo ("uff, pense que la palmaba"). Siempre se salva por las minimas.
+- El Cabo Ramiro le tiene mala: dice que es un engreido (es envidia).
+
+### Modo historia de cada misionero
+- Cada misionero tiene sus capitulos. Capitulo 1 = su desbloqueo (fundar el campamento).
+  Los siguientes salen entre sus ofertas cuando el anterior ya se hizo (`G.ESPECIALES` en
+  `server/Narrador/NarradorGenerador.lua`; cada capitulo deja la memoria `historia_<id>_<n>`).
+- Hecho: Chela cap. 1 (desbloqueo) y cap. 3 (el cientifico). Por escribir: Chela cap. 2 (sin
+  el, el 3 no sale) y los capitulos 2+ del Cabo, el Padre Nacho y la Misia Rosa. La hija del
+  Cabo (Valentina) puede ser uno de sus capitulos.
 - Falta revisar en el juego los perfiles de Tomas (`k93_stockyard_05`) y del doctor
   (`k93_red_cross_02`), y si A-Life le deja el arma en la mano.
 

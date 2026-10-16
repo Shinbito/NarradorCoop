@@ -163,6 +163,8 @@ for _, c in ipairs(LISTA) do
                     { "aviso", texto = "{lugar:contacto} quedo limpio. Lo que hay adentro es tuyo. " .. quien .. " ya viene a instalarse." },
                     { "diario", texto = "Limpie " .. c.edificio .. " con " .. quien .. ". Ahora es un campamento y ahi da encargos." },
                     { "memoria", clave = "campamento_" .. c.id, valor = "fundado" },
+                    -- Capitulo 1 de su modo historia (los siguientes: G.ESPECIALES en NarradorGenerador).
+                    { "memoria", clave = "historia_" .. c.id .. "_1", valor = true },
                 },
             },
         },

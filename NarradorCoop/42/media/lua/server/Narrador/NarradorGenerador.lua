@@ -661,24 +661,30 @@ function G.verOfertas(jugador, args)
     G.enviarOfertas(jugador, grupo)
 end
 
--- Encargos especiales de un misionero (arcos fijos que aparecen a veces entre las ofertas).
--- Cada uno: contacto, nivel, confianza minima (nivel 1..5), chance (1 en n) y la memoria que
--- dice que ya se hizo.
+-- Modo historia de cada misionero: sus capitulos salen entre las ofertas (en cualquier
+-- nivel) cuando el capitulo anterior ya se hizo. Cada uno: contacto, capitulo, memoria que
+-- pide (requiere) y la que deja al terminar (hecho), confianza minima (nivel 1..5), nivel del
+-- pago y chance (1 en n; 1 = siempre). El capitulo 1 de cada uno es su desbloqueo
+-- (shared/Narrador/Arcos/Desbloqueos.lua).
 G.ESPECIALES = {
-    { def = "leyenda_tomas", contacto = "westpoint", nivel = "dificil", confianza = 3, chance = 3, hecho = "tomas_conocido",
+    -- Tia Chela, capitulo 3. Falta escribir su capitulo 2 (deja "historia_westpoint_2").
+    { def = "leyenda_tomas", contacto = "westpoint", capitulo = 3, requiere = "historia_westpoint_2",
+      hecho = "historia_westpoint_3", confianza = 3, pago = "dificil", chance = 1,
       titulo = "Un cientifico que dice tener la cura",
-      resumen = { "Dificil: rescate", "Para: un cientifico que pide ayuda por la radio", "Donde: un hospital o laboratorio",
-                  "Pago: botin dificil + lo que tenga el cientifico", "Ojo: hay una horda" } },
+      resumen = { "Historia de la Tia Chela, cap. 3", "Para: un cientifico que pide ayuda por la radio",
+                  "Donde: un hospital o laboratorio", "Pago: botin dificil", "Ojo: hay una horda" } },
 }
 
 function G.ofertaEspecial(contactoId, nivel, grupo)
     local st = Motor.estado()
     for _, e in ipairs(G.ESPECIALES) do
-        if e.contacto == contactoId and e.nivel == nivel and Defs.get(e.def) ~= nil and Motor.activos(e.def) == 0
-                and st.memoria[e.hecho] == nil and R.nivel(R.valor(grupo, contactoId)) >= e.confianza
-                and Mundo.azar(e.chance) == 1 then
-            return { def = e.def, vars = {}, lugares = { contacto = C.lugar(contactoId) }, titulo = e.titulo,
-                resumen = e.resumen, tipo = nil }
+        if e.contacto == contactoId and (e.nivel == nil or e.nivel == nivel) and Defs.get(e.def) ~= nil
+                and Motor.activos(e.def) == 0 and st.memoria[e.hecho] == nil
+                and (e.requiere == nil or st.memoria[e.requiere] ~= nil)
+                and R.nivel(R.valor(grupo, contactoId)) >= (e.confianza or 1) and Mundo.azar(e.chance or 1) == 1 then
+            local titulo = e.capitulo ~= nil and ("Historia, cap. " .. e.capitulo .. ": " .. e.titulo) or e.titulo
+            return { def = e.def, vars = { nivel = e.pago or nivel }, lugares = { contacto = C.lugar(contactoId) },
+                titulo = titulo, resumen = e.resumen, tipo = nil }
         end
     end
     return nil

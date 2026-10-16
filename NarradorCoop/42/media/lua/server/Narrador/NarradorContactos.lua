@@ -30,6 +30,14 @@ C.LISTA = {
           "Tengo pega pa usted. Siempre tengo pega. Es lo unico que sobra en este pueblo.",
           "No me diga Cabo. Bueno, si, digame Cabo. Me gusta.",
           "Si vuelve con las manos vacias, no se preocupe: el castigo es otro encargo.",
+      },
+      -- Le tiene mala a Tomas Recados: dice que es un engreido. Es envidia.
+      frases_tomas = {
+          "Tomas, Tomas, todos hablan de Tomas. Yo saque a once personas de esta comisaria y nadie me hace canciones.",
+          "Ese Tomas es un engreido. Anda salvando gente sin llenar ni un formulario.",
+          "Humilde, dicen que es. El que es humilde no anda con un arma que brilla.",
+          "Si ve al tal Tomas, digale que aca hay orden. Que no se le ocurra venir a salvar a nadie a mi comisaria.",
+          "Leyenda. Leyenda! Veintidos anos de servicio y la leyenda es el.",
       } },
     { id = "westpoint", rol = "chela", ciudad = "West Point", nombre = "Tia Chela", apellido = "Recados",
       perfil = "k93_vfd_04", oficio = "bombera voluntaria",
@@ -362,13 +370,82 @@ function C.inmunes()
     return st.inmunes
 end
 
--- {"inmune", grupo = "tomas", rol = "tomas"}
+-- {"inmune", grupo = "tomas", rol = "tomas", quien = "tomas"}. Con "quien", si muere queda
+-- anotado para que vuelva (ver C.REGRESOS).
 Motor.inmediatas.inmune = function(inst, a)
     local g = inst.grupos[a.grupo]
     for rol, uid in pairs(g ~= nil and g.roles or {}) do
-        if a.rol == nil or rol == a.rol then C.inmunes()[tostring(uid)] = uid end
+        if a.rol == nil or rol == a.rol then C.inmunes()[tostring(uid)] = { uid = uid, quien = a.quien } end
     end
     return true
+end
+
+-- Murio un inmune: no se levanta como zombi (se cancela la transformacion y se retira el
+-- cuerpo un rato despues) y, si es alguien que vuelve, queda pendiente su regreso.
+function C.inmuneMurio(clave)
+    local i = C.inmunes()[clave]
+    if i == nil then return end
+    C.inmunes()[clave] = nil
+    local st = Motor.estado()
+    st.caidos = st.caidos or {}
+    st.caidos.muertos = st.caidos.muertos or {}
+    st.caidos.muertos[i.uid] = Mundo.horas()
+    if i.quien ~= nil then st.memoria["caido_" .. i.quien] = true end
+    Mundo.log("cayo un inmune (" .. tostring(i.quien or i.uid) .. "): no se va a levantar")
+    pcall(C.enterrar, st.caidos)
+end
+
+-- Lo que fabrica la gente que se instala en un campamento: cada tanto lo deja en el edificio
+-- del misionero (si esta cargado) y avisa a quien este cerca.
+C.PRODUCCION = {
+    { id = "hartmann", memoria = "cientifico_hartmann", valor = "en_west_point", contacto = "westpoint", cada = 48,
+      texto = "El doctor Hartmann dejo medicina recien hecha en el cuartel. Huele a moho, pero funciona.",
+      items = { { "Narrador.Antibioticos", "Base.Antibiotics", "Base.Pills" }, { "Base.Antibiotics", "Base.Pills" },
+                { "Base.Pills" }, { "Base.Bandage" }, { "Base.Disinfectant", "Base.AlcoholBandage" } } },
+}
+
+function C.revisarProduccion()
+    local st = Motor.estado()
+    st.produccion = st.produccion or {}
+    for _, p in ipairs(C.PRODUCCION) do
+        local e = C.estado(p.contacto)
+        if st.memoria[p.memoria] == p.valor and e.x ~= nil and C.desbloqueado(p.contacto) then
+            local ultima = st.produccion[p.id]
+            if ultima == nil then
+                st.produccion[p.id] = Mundo.horas()
+            elseif Mundo.horas() - ultima >= p.cada and Mundo.cargado(e.x, e.y, e.z) ~= nil then
+                st.produccion[p.id] = Mundo.horas()
+                for _, tipos in ipairs(p.items) do
+                    local item = Mundo.crearItem(tipos)
+                    if item ~= nil then Mundo.dejarEnSuelo(e.x, e.y, e.z or 0, item) end
+                end
+                for _, j in ipairs(Mundo.jugadores()) do
+                    local x, y = Mundo.posicion(j)
+                    if x ~= nil and math.sqrt((x - e.x) ^ 2 + (y - e.y) ^ 2) <= 80 then Motor.enviar(j, "aviso", { texto = p.texto }) end
+                end
+            end
+        end
+    end
+end
+
+-- Los que vuelven despues de caer: aparecen vivos la proxima vez que pasas por su campamento.
+C.REGRESOS = {
+    { quien = "tomas", contacto = "westpoint", def = "tomas_vuelve", radio = 40 },
+}
+
+function C.revisarRegresos()
+    local st = Motor.estado()
+    for _, r in ipairs(C.REGRESOS) do
+        if st.memoria["caido_" .. r.quien] == true and C.desbloqueado(r.contacto) and Defs.get(r.def) ~= nil
+                and Motor.activos(r.def) == 0 then
+            local e = C.estado(r.contacto)
+            local j = e.x ~= nil and Mundo.jugadorCerca(e.x, e.y, r.radio) or nil
+            if j ~= nil then
+                local inst = Motor.iniciar(r.def, j)
+                if inst ~= nil then st.memoria["caido_" .. r.quien] = "volvio" end
+            end
+        end
+    end
 end
 
 -- {"armar_legendario", grupo = "tomas", rol = "tomas"}: le pone en la mano un arma legendaria
@@ -440,6 +517,7 @@ end
 
 function C.onNpcMuerto(cuerpo, uid, asesino)
     if uid == nil then return end
+    if C.inmunes()[tostring(uid)] ~= nil then pcall(C.inmuneMurio, tostring(uid)) end
     for _, c in ipairs(C.LISTA) do
         local e = C.estado(c.id)
         if e.uid == uid then
@@ -533,6 +611,7 @@ function C.tick()
                         -- Conversa solo si hay alguien cerca.
                         local lineas = {}
                         for _, f in ipairs(c.frases or {}) do lineas[#lineas + 1] = { "contacto", f } end
+                        for _, f in ipairs(c.frases_tomas or {}) do lineas[#lineas + 1] = { "contacto", f } end
                         e.charla = e.charla or {}
                         local m, texto = Motor.charlaElegir(lineas, { { e.uid, "contacto", c.nombre } }, e.charla, 10, 0.15)
                         if m ~= nil then C.decir(c.id, texto) end
@@ -550,6 +629,8 @@ function C.tick()
         end
     end
     pcall(C.revisarMall)
+    pcall(C.revisarRegresos)
+    pcall(C.revisarProduccion)
     -- De paso, reaplicar las mejoras de los objetos legendarios que llevan los jugadores.
     local L = Narrador.Legendario
     if L ~= nil then
@@ -700,10 +781,18 @@ function C.tickMinuto()
         if e.muertos ~= nil then pcall(C.enterrar, e) end
         pcall(C.vigilar, c, e)
     end
-    for clave, uid in pairs(C.inmunes()) do
+    for clave, i in pairs(C.inmunes()) do
+        local uid = type(i) == "table" and i.uid or i
         local actor = Mundo.actor(uid)
-        if actor ~= nil and actor.lifecycle == "dead" then C.inmunes()[clave] = nil else pcall(C.curar, uid) end
+        if (actor ~= nil and actor.lifecycle == "dead") or C.cuerpoMuerto(uid) then
+            if type(i) ~= "table" then C.inmunes()[clave] = { uid = uid } end
+            pcall(C.inmuneMurio, clave)
+        else
+            pcall(C.curar, uid)
+        end
     end
+    local caidos = Motor.estado().caidos
+    if caidos ~= nil and caidos.muertos ~= nil and next(caidos.muertos) ~= nil then pcall(C.enterrar, caidos) end
 end
 
 -- Encargo en curso de un contacto (o nil).

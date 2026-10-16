@@ -48,9 +48,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorContactos.lua": {
-    "mtime": 1792112860.29524,
-    "seen": 1792112927.076613,
-    "ast_hash": "224ec6a13f721821edc447041fe622f8",
+    "mtime": 1792113238.2230852,
+    "seen": 1792113259.5416498,
+    "ast_hash": "39ecfa25f7821cf7d0081b06791cbe58",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorConversacionServer.lua": {
@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorGenerador.lua": {
-    "mtime": 1792112835.262904,
-    "seen": 1792112927.076623,
-    "ast_hash": "7cb0dd98eddfc66e8a1479186b7435c7",
+    "mtime": 1792113238.2224972,
+    "seen": 1792113259.5416589,
+    "ast_hash": "73bdf0c4cd15a848c011f81b326dca96",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorHuellas.lua": {
@@ -696,15 +696,15 @@
     "semantic_hash": ""
   },
   "NarradorCoop/ROADMAP.md": {
-    "mtime": 1792112924.9004326,
-    "seen": 1792112927.0766807,
-    "ast_hash": "94602ed1065370c9e511ba64b7b1b90c",
+    "mtime": 1792113257.427855,
+    "seen": 1792113259.5417175,
+    "ast_hash": "320389c39369ef340e20a7bf84cad1b2",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/Arcos/Desbloqueos.lua": {
-    "mtime": 1792112255.8777144,
-    "seen": 1792112298.156269,
-    "ast_hash": "7304c95da1f9c849fb3e9c1569ba72e9",
+    "mtime": 1792113257.4059014,
+    "seen": 1792113259.5416753,
+    "ast_hash": "3a47aecb58c168c36c38701d55d30654",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorPasajeros.lua": {
@@ -720,9 +720,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/Arcos/LeyendaTomas.lua": {
-    "mtime": 1792112890.941,
-    "seen": 1792112927.0766492,
-    "ast_hash": "485fc8a08b4d242bdfc9f4e7dfe380cc",
+    "mtime": 1792113238.221553,
+    "seen": 1792113259.5416856,
+    "ast_hash": "646ad9236c0ded94234b7a759ff02ad5",
     "semantic_hash": ""
   }
 }
