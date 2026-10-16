@@ -61,7 +61,9 @@ Lore.arcos.cal_amigo_secreto = {
 -- los que cambian con el tipo.
 -- ===========================================================================
 local ENC_FINALES = {
-    final_llevado = "Ayude a {nombre} cerca de {lugar:punto} y le dije que fuera donde {misionero}, que alla hay gente y hay trabajo. Lo vi alejarse sin mirar atras. Ojala llegue. Ojala algun dia me cruce con el y me cuente que llego.",
+    final_llevado = "Lleve a {nombre} hasta {lugar:misionero}, donde {misionero}. Todo el camino me fue contando de su vida de antes, como si hablar lo mantuviera vivo. Ahora tiene un techo, gente y trabajo. Cuando me fui ya estaba ayudando a cargar cajas.",
+    final_no_llego = "{nombre} no llego donde {misionero}. Lo estaba llevando yo, me seguia a dos pasos, y en un momento ya no. Lo saque de un problema para meterlo en otro.",
+    final_separados = "Perdi a {nombre} en el camino a {lugar:misionero}. Me di vuelta y no estaba. Lo busque un rato. Ojala haya llegado solo. Ojala.",
     final_compartiste = "Ayude a {nombre} cerca de {lugar:punto} y le deje algo de comer. No tenia mucho para dar, pero el tenia menos. Algun dia el mundo devuelve esas cosas. Algun dia.",
     final_cobraste = "Ayude a {nombre} cerca de {lugar:punto} y le pedi algo a cambio. Me pago con lo que tenia sin discutir. Asi funcionan las cosas ahora. No me gusta como suena cuando lo escribo.",
     final_despedida = "Ayude a {nombre} cerca de {lugar:punto}. Nos dimos la mano y cada uno siguio su camino. En este condado eso es casi una amistad.",
@@ -163,7 +165,7 @@ local ENCUENTROS = {
         llegada = "Es {nombre_completo}, de Sous, rodeado en {lugar:punto} sin salida. Me vio llegar y grito algo que solo un amigo grita. No lo voy a dejar aqui.",
         salvado = "{nombre_completo} esta vivo. Se rio de nervios, me dio un abrazo que me levanto del suelo y me dijo que no le contara a nadie en la base. Le voy a contar a todos.",
         finales = {
-            final_llevado = "Saque a {nombre_completo} del lio en {lugar:punto}. Le dije que volviera a la base y me hizo caso por primera vez en la vida. Sous me debe una. Otra mas.",
+            final_llevado = "Saque a {nombre_completo} del lio en {lugar:punto} y lo acompane hasta {lugar:misionero}. Se quejo todo el camino de que no necesitaba escolta. No se separo de mi ni un metro. Sous me debe una. Otra mas.",
             final_compartiste = "Saque a {nombre_completo} del lio en {lugar:punto} y le pase algo de comer para el camino. Me dijo que en la base me lo devuelve con intereses. Jorge se va a encargar de cobrarle.",
             final_cobraste = "Saque a {nombre_completo} del lio en {lugar:punto}. Le cobre la ayuda, y me pago sin decir nada. Entre amigos eso no se hace. Lo se. Lo hice igual.",
             final_despedida = "Saque a {nombre_completo} del lio en {lugar:punto}. Volvio a la base caminando como si nada, silbando. Asi son en Sous: casi mueren y despues fingen que fue un paseo.",
@@ -174,12 +176,14 @@ local ENCUENTROS = {
     },
 }
 
+local ENC_ESCOLTA = "{nombre} viene conmigo. Lo llevo donde {misionero}, en {lugar:misionero}. Camina pegado a mi espalda y se sobresalta con cada ruido. Si lo pierdo de vista, lo pierdo."
+
 for tipo, t in pairs(ENCUENTROS) do
     local finales = {}
     for k, v in pairs(ENC_FINALES) do finales[k] = v end
     for k, v in pairs(t.finales or {}) do finales[k] = v end
     Lore.arcos["enc_" .. tipo] = {
-        etapas = { aviso = t.aviso, llegada = t.llegada, salvado = t.salvado },
+        etapas = { aviso = t.aviso, llegada = t.llegada, salvado = t.salvado, escolta = t.escolta or ENC_ESCOLTA },
         finales = finales,
     }
 end
