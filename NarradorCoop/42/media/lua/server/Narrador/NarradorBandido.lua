@@ -6,6 +6,9 @@
 --     anterior. Si rechazaste el primero, la puerta queda abierta: vuelve al patio.
 --   * Con sospecha (misiones saboteadas), al volver al patio Pereira puede descubrirte:
 --     BA.CHANCE_SOSPECHA % por cada sabotaje. Entonces manda cazadores (bandido_castigo).
+--   * Si dejaste ir a Maulen en Sous (memoria "maulen_salvado"), BA.ESPERA_MAULEN horas despues
+--     mata a Pereira y se queda con el patio (bandido_maulen): desde ahi el jefe es el
+--     (memoria "bandido_jefe" = "maulen"), sin importar tu Knox.
 -- Textos sin tildes a proposito.
 
 if isClient ~= nil and isClient() then return end
@@ -23,7 +26,13 @@ Narrador.Bandido = BA
 BA.CADA = 12
 BA.CHANCE_SOSPECHA = 30
 BA.RADIO_PATIO = 40
-BA.IDS = { "bandido_1", "bandido_2", "bandido_3", "bandido_4", "bandido_5", "bandido_castigo" }
+BA.ESPERA_MAULEN = 72
+BA.IDS = { "bandido_1", "bandido_2", "bandido_3", "bandido_4", "bandido_5", "bandido_castigo", "bandido_maulen" }
+-- Variables del jefe del patio que reciben todos los capitulos.
+BA.JEFES = {
+    pereira = { jefe_perfil = "narrador_pereira_01", jefe_nombre = "la Sargento Pereira", jefe_corto = "Pereira" },
+    maulen = { jefe_perfil = "narrador_pereira_maulen", jefe_nombre = "Maulen Callupan", jefe_corto = "Maulen" },
+}
 -- Con estos valores de la memoria "bandido" la historia ya termino.
 BA.TERMINADA = { redimido = true, pereira = true, pereira_escapo = true }
 
@@ -32,11 +41,18 @@ function BA.enCurso()
     return false
 end
 
-function BA.lanzar(defId, jugador)
+function BA.jefe()
+    return Motor.estado().memoria.bandido_jefe == "maulen" and "maulen" or "pereira"
+end
+
+function BA.lanzar(defId, jugador, extra)
     local st = Motor.estado()
     if st.director ~= nil and st.director.veces ~= nil then st.director.veces[defId] = nil end
     local grupo, nombreGrupo = Mundo.grupoDe(jugador)
-    local inst, razon = Motor.iniciar(defId, jugador, { vars = { dueno = grupo, dueno_nombre = nombreGrupo } })
+    local vars = { dueno = grupo, dueno_nombre = nombreGrupo, bandido_jefe = BA.jefe() }
+    for k, v in pairs(BA.JEFES[vars.bandido_jefe]) do vars[k] = v end
+    for k, v in pairs(extra or {}) do vars[k] = v end
+    local inst, razon = Motor.iniciar(defId, jugador, { vars = vars })
     if inst == nil then
         Mundo.log("no se pudo lanzar " .. defId .. ": " .. tostring(razon))
         return nil
@@ -59,18 +75,40 @@ local function jugadorEnPatio(m)
     return Mundo.jugadorCerca(l.x, l.y, BA.RADIO_PATIO)
 end
 
+-- Maulen mata a Pereira y toma el patio (una sola vez).
+function BA.revisarMaulen(m)
+    if m.maulen_salvado ~= true or m.bandido_jefe == "maulen" then return false end
+    m.maulen_hora = m.maulen_hora or Mundo.horas()
+    if Mundo.horas() - m.maulen_hora < BA.ESPERA_MAULEN then return false end
+    local j = Mundo.jugadorAlAzar()
+    if j == nil then return false end
+    local venia = (tonumber(m.bandido_cap) or 0) >= 1
+    m.bandido_jefe = "maulen"
+    m.bandido = nil
+    m.bandido_sospecha = 0
+    if not venia then m.bandido_cap = 1 end
+    BA.lanzar("bandido_maulen", j, { venia_de_pereira = venia })
+    return true
+end
+
 function BA.revisar()
     local m = Motor.estado().memoria
     if BA.TERMINADA[tostring(m.bandido)] or BA.enCurso() then return end
+    if BA.revisarMaulen(m) then return end
     local cap = tonumber(m.bandido_cap) or 0
     if cap >= 5 then return end
-    if cap == 0 then
-        local j
-        if m.bandido == "rechazado" then j = jugadorEnPatio(m) else j = jugadorConGancho(m) end
+    -- Rechazaste el trabajo: la puerta queda abierta si vuelves al patio.
+    if m.bandido == "rechazado" then
+        local j = jugadorEnPatio(m)
         if j ~= nil then
             m.bandido = nil
-            BA.lanzar("bandido_1", j)
+            BA.lanzar(BA.jefe() == "maulen" and "bandido_maulen" or "bandido_1", j)
         end
+        return
+    end
+    if cap == 0 then
+        local j = jugadorConGancho(m)
+        if j ~= nil then BA.lanzar("bandido_1", j) end
         return
     end
     if m.bandido_desde ~= nil and Mundo.horas() - m.bandido_desde < BA.CADA then return end

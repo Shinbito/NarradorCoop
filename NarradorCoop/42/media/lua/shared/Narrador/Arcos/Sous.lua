@@ -1097,6 +1097,59 @@ Narrador.Defs.registrar({
     }),
 })
 
+-- ---------------------------------------------------------------------------
+-- Perdonar a Maulen (solo si fuiste solo al escondite): si sigue vivo un cuarto de hora despues
+-- de encontrarlo, se rinde. Si lo dejas ir, Sous nunca lo sabe (cree que se escapo) y Maulen
+-- termina en el patio de trenes de Muldraugh, matando a la Sargento Pereira y quedandose con su
+-- banda (ver Arcos/Bandido.lua, bandido_maulen).
+-- ---------------------------------------------------------------------------
+do
+    local def = Narrador.Defs.get("sous")
+    local et = def.etapas
+    table.insert(et.escondite.salidas, 2,
+        { cuando = { { "grupo_listo", "maulen" }, { "vivo", "maulen", "maulen" }, { "horas", 0.25 } }, ir = "rendicion" })
+    et.rendicion = {
+        pista = "Maulen se rinde. Decidir que hacer con el (clic derecho cerca).",
+        ancla = "escondite", ancla_grupo = "maulen_rendido", radio = 20,
+        al_entrar = {
+            { "retirar", grupo = "maulen" },
+            { "npcs", id = "maulen_rendido", lugar = "escondite", radio = 30, no_mas_cerca = 6, modo = "guard", quietos = true,
+              correa = 3, inmortales = true, postura = "friendly", perfiles = { { "maulen", "narrador_sous_10" } },
+              nombres = { maulen = { "Maulen", "Callupan" } } },
+            { "aviso", texto = "Maulen sale de detras de un mueble con las manos arriba y el cigarro apagado en la boca." },
+        },
+        opciones = {
+            { id = "perdonar", texto = "Dejarlo ir. Sous va a creer que se escapo",
+              dice = { rol = "maulen", texto = "Peni... no se te va a olvidar esto. A mi tampoco. Me voy lejos, donde nadie me conozca. Bueno, casi nadie." },
+              acciones = { { "variable", nombre = "maulen_perdonado", valor = true } } },
+            { id = "matar", texto = "Terminar con el",
+              respuesta = "Maulen cierra los ojos. 'Atun con lechuga, peni. Todos los dias.'",
+              acciones = { { "banderas", grupo = "maulen_rendido", inmortales = false } } },
+        },
+        salidas = {
+            { cuando = { "muerto", "maulen_rendido", "maulen" }, ir = "decision" },
+            { cuando = { "eleccion", "perdonar" }, ir = "perdonado" },
+            { cuando = { "horas", 24 }, ir = "final_maulen_escapa" },
+        },
+    }
+    et.perdonado = {
+        al_entrar = {
+            { "retirar_lejos", grupo = "maulen_rendido", lugar = "escondite", radio = 80, retraso = 0.2 },
+            { "memoria", clave = "maulen_salvado", valor = true },
+            { "huella", acto = "perdonaste", texto = "Deje ir a Maulen Callupan. Sous cree que se escapo." },
+        },
+        salidas = { { ir = "decision_perdonado" } },
+    }
+    local d = et.decision
+    et.decision_perdonado = {
+        pista = d.pista, ancla = d.ancla, radio = d.radio, opciones = d.opciones, salidas = d.salidas,
+        al_entrar = {
+            { "contar_bajas", grupo = "escuadra", memoria = "sous", lider_orden = LIDERES },
+            { "diario", texto = "Deje ir a Maulen. Las cosas de Sous estan en {lugar:escondite}. Cuando vuelva voy a decir que se escapo." },
+        },
+    }
+end
+
 -- ===========================================================================
 -- Capitulo 3 (rama enemiga): la guerra con Sous
 -- ===========================================================================

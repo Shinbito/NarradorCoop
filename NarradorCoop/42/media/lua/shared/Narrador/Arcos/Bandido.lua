@@ -19,7 +19,16 @@
 require "Narrador/NarradorDefs"
 require "Narrador/NarradorKnoxDefs"
 
-local registrar = Narrador.Defs.registrar
+-- Variables del jefe del patio por defecto (Pereira). NarradorBandido.lua las cambia si el
+-- jefe es Maulen.
+local function registrar(def)
+    def.sorteo = def.sorteo or {}
+    def.sorteo.bandido_jefe = { valores = { "pereira" } }
+    def.sorteo.jefe_perfil = { valores = { "narrador_pereira_01" } }
+    def.sorteo.jefe_nombre = { valores = { "la Sargento Pereira" } }
+    def.sorteo.jefe_corto = { valores = { "Pereira" } }
+    return Narrador.Defs.registrar(def)
+end
 local KNOX = Narrador.KnoxDefs.BANDIDOS_MISION
 
 Narrador.Facciones = Narrador.Facciones or {}
@@ -53,15 +62,23 @@ Narrador.Facciones.narrador_pereira = {
         { id = "narrador_pereira_04", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.Pistol", cuerpo = "Base.BaseballBat" },
         { id = "narrador_pereira_05", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.HuntingRifle", cuerpo = "Base.Machete" },
         { id = "narrador_pereira_06", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.Revolver", cuerpo = "Base.Axe" },
+        -- Maulen Callupan, si lo dejaste ir en Sous y mato a Pereira (ver bandido_maulen).
+        { id = "narrador_pereira_maulen", respaldo = "k93_truckstop_06", nombre = "Maulen Callupan", rol = "Jefe del patio",
+          arma = "Base.Pistol", cuerpo = "Base.Machete",
+          stats = { healthHP = 200, strength = 8, endurance = 9, awareness = 9, aiming = 8 },
+          ropa = { Jacket = "Base.Jacket_Padded" } },
         { id = "narrador_pereira_07", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.Shotgun", cuerpo = "Base.Hammer" },
     },
 }
 
 local PEREIRA = "pereira"
-local SARGENTO = { { "pereira", "narrador_pereira_01" } }
-local GUARDIA_PATIO = { { "pereira", "narrador_pereira_01" }, { "desertor1", "narrador_pereira_02" }, { "desertor2", "narrador_pereira_03" } }
+
+-- Lo que dice el jefe del patio: la Sargento Pereira o Maulen Callupan, si lo dejaste ir en Sous
+-- y la mato (memoria "bandido_jefe" = "maulen"; las variables las pone NarradorBandido.lua).
+local function J(pereira, maulen) return { por_var = "bandido_jefe", textos = { maulen = maulen, otro = pereira } } end
+local GUARDIA_PATIO = { { "pereira", "var:jefe_perfil" }, { "desertor1", "narrador_pereira_02" }, { "desertor2", "narrador_pereira_03" } }
 local BANDA_COMPLETA = {
-    { "pereira", "narrador_pereira_01" }, { "desertor1", "narrador_pereira_02" }, { "desertor2", "narrador_pereira_03" },
+    { "pereira", "var:jefe_perfil" }, { "desertor1", "narrador_pereira_02" }, { "desertor2", "narrador_pereira_03" },
     { "bandido1", "narrador_pereira_04" }, { "bandido2", "narrador_pereira_05" }, { "bandido3", "narrador_pereira_06" },
     { "bandido4", "narrador_pereira_07" },
 }
@@ -76,14 +93,14 @@ end
 -- Pereira (y su guardia) esperando en el patio, amistosos.
 local function pereiraEnPatio(perfiles)
     return { "npcs", id = PEREIRA, lugar = "patio", radio = 40, no_mas_cerca = 8, modo = "guard", quietos = true, correa = 6,
-        inmortales = true, postura = "friendly", perfiles = perfiles or GUARDIA_PATIO, femeninos = { "pereira" } }
+        inmortales = true, postura = "friendly", perfiles = perfiles or GUARDIA_PATIO }
 end
 
 -- Etapas comunes: llegar al patio y que aparezca Pereira; al volver, la mision termina al
 -- acercarse a ella.
 local function llegarAlPatio(siguiente)
     return {
-        pista = "Ir al patio de trenes de Muldraugh, donde espera la Sargento Pereira.",
+        pista = "Ir al patio de trenes de Muldraugh, donde espera {jefe_nombre}.",
         objetivo = "patio",
         al_entrar = { pereiraEnPatio() },
         salidas = {
@@ -274,16 +291,16 @@ registrar({
             },
         },
         historia = {
-            pista = "Escuchar a la Sargento Pereira en {lugar:patio}.",
+            pista = "Escuchar a {jefe_nombre} en {lugar:patio}.",
             ancla = "patio", ancla_grupo = PEREIRA, radio = 20,
             al_entrar = {
-                { "decir", grupo = PEREIRA, rol = "pereira", texto = "La primera noche yo mandaba el cordon de Muldraugh. La comisaria estaba llena de mordidos y de sanos, todos mezclados. Ordene cerrar. Protocolo." },
-                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.08, texto = "Un cabo de mierda abrio la puerta de atras y saco a once. Por esos once se me escaparon cuarenta muertos al pueblo. El heroe es el. Las tumbas son mias." },
-                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.16, texto = "Ese cabo hoy tiene un campamento en mi comisaria. Anda de noche y traeme sus reservas. Toda la caja." },
+                { "decir", grupo = PEREIRA, rol = "pereira", texto = J("La primera noche yo mandaba el cordon de Muldraugh. La comisaria estaba llena de mordidos y de sanos, todos mezclados. Ordene cerrar. Protocolo.", "La sargento tenia una libreta, peni. Antes de quemarla la lei entera. Habla de una comisaria y de un cabo que le abrio la puerta a once personas.") },
+                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.08, texto = J("Un cabo de mierda abrio la puerta de atras y saco a once. Por esos once se me escaparon cuarenta muertos al pueblo. El heroe es el. Las tumbas son mias.", "Yo con el cabo no tengo nada. Pero el cabo tiene reservas, y una banda come mucho. Mas que atun, peni.") },
+                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.16, texto = J("Ese cabo hoy tiene un campamento en mi comisaria. Anda de noche y traeme sus reservas. Toda la caja.", "Anda de noche y traeme sus reservas. Toda la caja. Educadamente, si se puede.") },
             },
             opciones = {
                 { id = "aceptar", texto = "Voy esta noche",
-                  dice = { rol = "pereira", texto = "De noche. Sin ruido. Si te ve, no te conozco." } },
+                  dice = { rol = "pereira", texto = J("De noche. Sin ruido. Si te ve, no te conozco.", "De noche, peni. Y si te ve, saludalo de mi parte. Broma. Broma.") } },
             },
             salidas = {
                 { cuando = { "eleccion", "aceptar" }, ir = "encargo" },
@@ -294,7 +311,7 @@ registrar({
             al_entrar = {
                 { "lugar_contacto", id = "comisaria", contacto = "muldraugh" },
                 { "reloj", id = "plazo", horas = 72 },
-                { "diario", texto = "Pereira me conto su version de la comisaria: ella ordeno cerrar, el Cabo Ramiro abrio. Quiere que le robe las reservas al Cabo, de noche." },
+                { "diario", texto = J("Pereira me conto su version de la comisaria: ella ordeno cerrar, el Cabo Ramiro abrio. Quiere que le robe las reservas al Cabo, de noche.", "Maulen leyo en la libreta de la sargento la historia de la comisaria. No le importa quien tenia razon: quiere las reservas del Cabo, de noche.") },
             },
             salidas = { { ir = "acercarse" } },
         },
@@ -303,8 +320,8 @@ registrar({
             objetivo = "comisaria",
             ancla = "comisaria", radio = 25,
             opciones = {
-                { id = "avisar", texto = "Avisarle al Cabo lo que quiere Pereira",
-                  respuesta = "El Cabo te escucha sin parpadear. Cuando terminas, saca la libreta y escribe un nombre: Pereira." },
+                { id = "avisar", texto = "Avisarle al Cabo lo que quiere {jefe_corto}",
+                  respuesta = "El Cabo te escucha sin parpadear. Cuando terminas, saca la libreta y escribe un nombre: {jefe_corto}." },
             },
             salidas = {
                 { cuando = { "eleccion", "avisar" }, ir = "avisado" },
@@ -334,16 +351,16 @@ registrar({
         },
         avisado = {
             al_entrar = {
-                { "decir_contacto", texto = "Pereira. Negativo a sorprenderme, civil: la esperaba. Llevele esto. Piedras y latas vacias. Que crea que gano. Yo anoto." },
+                { "decir_contacto", texto = J("Pereira. Negativo a sorprenderme, civil: la esperaba. Llevele esto. Piedras y latas vacias. Que crea que gano. Yo anoto.", "Callupan? El de los chilenos? Negativo a sorprenderme, civil. Llevele esto: piedras y latas vacias. Que crea que gano. Yo anoto.") },
                 { "objeto", id = "caja", lugar = "comisaria", radio = 6, tipo = { "Base.Bag_DuffelBag" }, nombre = "Reservas del Cabo Ramiro" },
                 { "variable", nombre = "sabotaje", valor = true },
                 { "reputacion", contacto = "muldraugh", cantidad = 10, motivo = "le avisaste de Pereira" },
-                { "diario", texto = "Le avise al Cabo. Me dio una caja con piedras para Pereira. Si la abre delante de mi, estoy muerto." },
+                { "diario", texto = "Le avise al Cabo. Me dio una caja con piedras para {jefe_corto}. Si la abre delante de mi, estoy muerto." },
             },
             salidas = { { cuando = { "alguien_tiene", "caja" }, ir = "volver" } },
         },
         volver = {
-            pista = "Llevarle la caja a la Sargento Pereira, en {lugar:patio}.",
+            pista = "Llevarle la caja a {jefe_nombre}, en {lugar:patio}.",
             objetivo = "patio",
             al_entrar = { pereiraEnPatio() },
             salidas = { { cuando = { { "grupo_listo", PEREIRA }, { "cerca", "patio", 20 } }, ir = "informe" } },
@@ -351,7 +368,7 @@ registrar({
         informe = {
             al_entrar = {
                 { "quitar_objeto", id = "caja" },
-                { "decir", grupo = PEREIRA, rol = "pereira", texto = "La caja del cabo. Pesa lo justo. Esta noche duerme con hambre por primera vez desde que me robo la gloria." },
+                { "decir", grupo = PEREIRA, rol = "pereira", texto = J("La caja del cabo. Pesa lo justo. Esta noche duerme con hambre por primera vez desde que me robo la gloria.", "La caja del cabo. Pesa lo justo. El inventario lo llevo yo, ya sabes que se me da bien.") },
             },
             salidas = {
                 { cuando = { "var", "sabotaje", true }, ir = "final_saboteado" },
@@ -362,13 +379,13 @@ registrar({
             { "knox", cantidad = KNOX, motivo = "bandido: robo al Cabo" },
             { "memoria", clave = "bandido_cap", valor = 2 },
             { "memoria", clave = "bandido_ultimo", valor = "hecho" },
-            { "diario", texto = "Le robe las reservas al Cabo Ramiro para Pereira. El campamento de Muldraugh va a pasar hambre." },
+            { "diario", texto = "Le robe las reservas al Cabo Ramiro para {jefe_corto}. El campamento de Muldraugh va a pasar hambre." },
         } },
         final_saboteado = { final = true, al_entrar = {
             sospecha(),
             { "memoria", clave = "bandido_cap", valor = 2 },
             { "memoria", clave = "bandido_ultimo", valor = "hecho" },
-            { "diario", texto = "Pereira recibio la caja con piedras sin abrirla. Por ahora. El Cabo sabe lo que viene." },
+            { "diario", texto = "{jefe_corto} recibio la caja con piedras sin abrirla. Por ahora. El Cabo sabe lo que viene." },
         } },
         final_abandonado = abandonado(2),
     },
@@ -394,16 +411,16 @@ registrar({
             },
         },
         pedido = {
-            pista = "Escuchar a la Sargento Pereira en {lugar:patio}.",
+            pista = "Escuchar a {jefe_nombre} en {lugar:patio}.",
             ancla = "patio", ancla_grupo = PEREIRA, radio = 20,
             al_entrar = {
                 { "lugar", id = "casa", desde = "patio", salas = { "livingroom", "kitchen", "bedroom" }, min = 400, max = 1400 },
-                { "decir", grupo = PEREIRA, rol = "pereira", texto = "Tres de mis hombres desertaron. Una familia los escondio una semana en {lugar:casa}. Les dio sopa y les curo los pies." },
-                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.08, texto = "Eso tiene un precio. Que todo Knox sepa que esconder a mis desertores se paga. Todos. Nadie queda para contarlo." },
+                { "decir", grupo = PEREIRA, rol = "pereira", texto = J("Tres de mis hombres desertaron. Una familia los escondio una semana en {lugar:casa}. Les dio sopa y les curo los pies.", "Tres de los muchachos de la sargento se fueron cuando yo llegue. Una familia los escondio una semana en {lugar:casa}. Les dio sopa.") },
+                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.08, texto = J("Eso tiene un precio. Que todo Knox sepa que esconder a mis desertores se paga. Todos. Nadie queda para contarlo.", "Mi chuchu decia que el que esconde a un ladron es ladron. Yo era el ladron, asi que se de lo que hablo. Que no quede nadie, peni.") },
             },
             opciones = {
                 { id = "aceptar", texto = "Entendido",
-                  dice = { rol = "pereira", texto = "No me traigas excusas. Traeme silencio." } },
+                  dice = { rol = "pereira", texto = J("No me traigas excusas. Traeme silencio.", "Rapido y en silencio. Como cuando yo vaciaba el deposito de Sous.") } },
             },
             salidas = {
                 { cuando = { "eleccion", "aceptar" }, ir = "encargo" },
@@ -412,9 +429,9 @@ registrar({
         },
         encargo = {
             al_entrar = {
-                { "mapa", lugar = "casa", titulo = "Mapa de Pereira: la familia" },
+                { "mapa", lugar = "casa", titulo = "Mapa de {jefe_corto}: la familia" },
                 { "reloj", id = "plazo", horas = 72 },
-                { "diario", texto = "Pereira quiere muerta a una familia en {lugar:casa}. Su crimen: darle sopa a tres desertores." },
+                { "diario", texto = "{jefe_corto} quiere muerta a una familia en {lugar:casa}. Su crimen: darle sopa a tres desertores." },
             },
             salidas = { { ir = "viaje" } },
         },
@@ -450,7 +467,7 @@ registrar({
                 { "decir", grupo = FAMILIA, rol = "hijo", retraso = 0.1, texto = "Mama, por que el senor no se sienta?" },
             },
             opciones = {
-                { id = "avisar", texto = "Decirles que huyan esta noche. Pedirles algo para enganar a Pereira",
+                { id = "avisar", texto = "Decirles que huyan esta noche. Pedirles algo para enganar a {jefe_corto}",
                   dice = { rol = "padre", texto = "Mi anillo de casado. Digale que me lo saco de la mano fria. Nos vamos al sur. Que Dios lo cuide." },
                   acciones = { { "variable", nombre = "sabotaje", valor = true } } },
             },
@@ -462,7 +479,7 @@ registrar({
         },
         muertos = {
             al_entrar = {
-                { "huella", acto = "mataste", texto = "Mate a la familia Salinas por orden de Pereira. Me ofrecieron sopa." },
+                { "huella", acto = "mataste", texto = "Mate a la familia Salinas por orden de {jefe_corto}. Me ofrecieron sopa." },
                 { "diario", texto = "Los Salinas estan muertos. El chico me pregunto por que no me sentaba. No me sente." },
             },
             salidas = { { ir = "volver" } },
@@ -471,21 +488,21 @@ registrar({
             al_entrar = {
                 { "objeto", id = "prueba", lugar = "casa", radio = 6, tipo = { "Base.Ring_Left_RingFinger_Gold", "Base.Ring_Right_RingFinger_Gold" },
                   nombre = "Anillo de Arturo Salinas" },
-                { "huella", acto = "salvaste", texto = "Deje huir a la familia Salinas en vez de matarla para Pereira." },
+                { "huella", acto = "salvaste", texto = "Deje huir a la familia Salinas en vez de matarla para {jefe_corto}." },
                 { "retirar_lejos", grupo = FAMILIA, lugar = "casa", radio = 80, retraso = 0.3 },
-                { "diario", texto = "Los Salinas huyeron al sur. Llevo el anillo de Arturo como prueba falsa. Pereira huele las mentiras." },
+                { "diario", texto = "Los Salinas huyeron al sur. Llevo el anillo de Arturo como prueba falsa. {jefe_corto} huele las mentiras." },
             },
             salidas = { { ir = "volver" } },
         },
         volver = {
-            pista = "Volver donde la Sargento Pereira, en {lugar:patio}.",
+            pista = "Volver donde {jefe_nombre}, en {lugar:patio}.",
             objetivo = "patio",
             al_entrar = { pereiraEnPatio() },
             salidas = { { cuando = { { "grupo_listo", PEREIRA }, { "cerca", "patio", 20 } }, ir = "informe" } },
         },
         informe = {
             al_entrar = {
-                { "decir", grupo = PEREIRA, rol = "pereira", texto = "Silencio en {lugar:casa}. Bien. Ahora en Knox van a pensar dos veces antes de dar sopa." },
+                { "decir", grupo = PEREIRA, rol = "pereira", texto = J("Silencio en {lugar:casa}. Bien. Ahora en Knox van a pensar dos veces antes de dar sopa.", "Silencio en {lugar:casa}. Ya ves, peni: aca todos somos amigos. Todos.") },
             },
             salidas = {
                 { cuando = { "var", "sabotaje", true }, ir = "final_saboteado" },
@@ -496,14 +513,14 @@ registrar({
             { "knox", cantidad = KNOX, motivo = "bandido: la familia" },
             { "memoria", clave = "bandido_cap", valor = 3 },
             { "memoria", clave = "bandido_ultimo", valor = "hecho" },
-            { "diario", texto = "Mate a la familia Salinas para Pereira. Ya no se que escribir aqui." },
+            { "diario", texto = "Mate a la familia Salinas para {jefe_corto}. Ya no se que escribir aqui." },
         } },
         final_saboteado = { final = true, al_entrar = {
             sospecha(),
             { "quitar_objeto", id = "prueba" },
             { "memoria", clave = "bandido_cap", valor = 3 },
             { "memoria", clave = "bandido_ultimo", valor = "hecho" },
-            { "diario", texto = "Pereira se quedo con el anillo de Arturo. Los Salinas estan vivos, lejos. Cada mentira me pesa un poco mas." },
+            { "diario", texto = "{jefe_corto} se quedo con el anillo de Arturo. Los Salinas estan vivos, lejos. Cada mentira me pesa un poco mas." },
         } },
         final_abandonado = abandonado(3),
     },
@@ -529,17 +546,17 @@ registrar({
             },
         },
         pedido = {
-            pista = "Escuchar a la Sargento Pereira en {lugar:patio}.",
+            pista = "Escuchar a {jefe_nombre} en {lugar:patio}.",
             ancla = "patio", ancla_grupo = PEREIRA, radio = 20,
             al_entrar = {
                 { "lugar", id = "almacen", desde = "patio", salas = { "grocery", "grocerystorage", "conveniencestore", "warehouse" },
                   respaldo = { "kitchen", "storage" }, min = 400, max = 1500 },
-                { "decir", grupo = PEREIRA, rol = "pereira", texto = "Un grupo de civiles junto latas para el invierno en {lugar:almacen}. Muchas latas. Demasiadas para gente que no sabe defenderlas." },
-                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.08, texto = "Traemelas todas. El invierno es de los fuertes." },
+                { "decir", grupo = PEREIRA, rol = "pereira", texto = J("Un grupo de civiles junto latas para el invierno en {lugar:almacen}. Muchas latas. Demasiadas para gente que no sabe defenderlas.", "Un grupo de civiles junto latas para el invierno en {lugar:almacen}. Me dicen que hay atun. Mucho atun.") },
+                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.08, texto = J("Traemelas todas. El invierno es de los fuertes.", "Traemelas todas. El atun primero.") },
             },
             opciones = {
                 { id = "aceptar", texto = "Todas",
-                  dice = { rol = "pereira", texto = "Todas. Si lloran, que lloren con la boca cerrada." } },
+                  dice = { rol = "pereira", texto = J("Todas. Si lloran, que lloren con la boca cerrada.", "Todas, peni. Si lloran, que lloren despacito.") } },
             },
             salidas = {
                 { cuando = { "eleccion", "aceptar" }, ir = "encargo" },
@@ -548,9 +565,9 @@ registrar({
         },
         encargo = {
             al_entrar = {
-                { "mapa", lugar = "almacen", titulo = "Mapa de Pereira: las latas" },
+                { "mapa", lugar = "almacen", titulo = "Mapa de {jefe_corto}: las latas" },
                 { "reloj", id = "plazo", horas = 72 },
-                { "diario", texto = "Pereira quiere la comida que un grupo de sobrevivientes junto para el invierno en {lugar:almacen}." },
+                { "diario", texto = "{jefe_corto} quiere la comida que un grupo de sobrevivientes junto para el invierno en {lugar:almacen}." },
             },
             salidas = { { ir = "viaje" } },
         },
@@ -591,7 +608,7 @@ registrar({
                 { id = "mitad", texto = "Llevarte la mitad y decirles que escondan el resto",
                   dice = { rol = "abuela", texto = "La mitad. Que Dios te lo pague, mijo. Al menos los ninos comen." },
                   acciones = { { "variable", nombre = "sabotaje", valor = true },
-                               { "huella", acto = "compartiste", texto = "Le deje la mitad de la comida a un grupo que Pereira queria dejar sin nada." } } },
+                               { "huella", acto = "compartiste", texto = "Le deje la mitad de la comida a un grupo que {jefe_corto} queria dejar sin nada." } } },
             },
             salidas = {
                 { cuando = { "o", { "eleccion", "todo" }, { "eleccion", "mitad" } }, ir = "carga" },
@@ -608,7 +625,7 @@ registrar({
             salidas = { { cuando = { "alguien_tiene", "latas" }, ir = "volver" } },
         },
         volver = {
-            pista = "Llevarle las provisiones a la Sargento Pereira, en {lugar:patio}.",
+            pista = "Llevarle las provisiones a {jefe_nombre}, en {lugar:patio}.",
             objetivo = "patio",
             al_entrar = { pereiraEnPatio() },
             salidas = { { cuando = { { "grupo_listo", PEREIRA }, { "cerca", "patio", 20 } }, ir = "informe" } },
@@ -616,7 +633,7 @@ registrar({
         informe = {
             al_entrar = {
                 { "quitar_objeto", id = "latas" },
-                { "decir", grupo = PEREIRA, rol = "pereira", texto = "Latas. Bien. Ya estas listo para lo grande. Vuelve cuando quieras saber que es lo grande." },
+                { "decir", grupo = PEREIRA, rol = "pereira", texto = J("Latas. Bien. Ya estas listo para lo grande. Vuelve cuando quieras saber que es lo grande.", "Latas. Y atun. Ya estas listo para lo grande, peni. Vuelve cuando quieras saber que es lo grande.") },
             },
             salidas = {
                 { cuando = { "var", "sabotaje", true }, ir = "final_saboteado" },
@@ -627,13 +644,13 @@ registrar({
             { "knox", cantidad = KNOX, motivo = "bandido: las latas" },
             { "memoria", clave = "bandido_cap", valor = 4 },
             { "memoria", clave = "bandido_ultimo", valor = "hecho" },
-            { "diario", texto = "Le quite el invierno a once personas para Pereira. Cuatro eran ninos." },
+            { "diario", texto = "Le quite el invierno a once personas para {jefe_corto}. Cuatro eran ninos." },
         } },
         final_saboteado = { final = true, al_entrar = {
             sospecha(),
             { "memoria", clave = "bandido_cap", valor = 4 },
             { "memoria", clave = "bandido_ultimo", valor = "hecho" },
-            { "diario", texto = "Le lleve a Pereira la mitad de las latas. La otra mitad la escondieron los Quispe. Pereira conto dos veces." },
+            { "diario", texto = "Le lleve a {jefe_corto} la mitad de las latas. La otra mitad la escondieron los Quispe. {jefe_corto} conto dos veces." },
         } },
         final_abandonado = abandonado(4),
     },
@@ -656,8 +673,8 @@ local ALIADOS = {
 local asalto = {
     { "faccion", id = "narrador_pereira", postura = "hostile" },
     { "npcs", id = "banda", lugar = "patio", radio = 50, modo = "guard", correa = 25, postura = "hostile", hostiles = true,
-      perfiles = BANDA_COMPLETA, femeninos = { "pereira" } },
-    { "aviso", texto = "El patio de trenes esta en pie de guerra. Pereira sabe que vienes." },
+      perfiles = BANDA_COMPLETA },
+    { "aviso", texto = "El patio de trenes esta en pie de guerra. {jefe_corto} sabe que vienes." },
 }
 for i, a in ipairs(ALIADOS) do
     asalto[#asalto + 1] = { "npcs", id = "aliados_" .. i, lugar = "patio", radio = 70, no_mas_cerca = 30, modo = "guard", correa = 40,
@@ -686,15 +703,15 @@ registrar({
             },
         },
         plan = {
-            pista = "Decidir de que lado estas (clic derecho cerca de la Sargento Pereira).",
+            pista = "Decidir de que lado estas (clic derecho cerca de {jefe_nombre}).",
             ancla = "patio", ancla_grupo = PEREIRA, radio = 20,
             al_entrar = {
-                { "decir", grupo = PEREIRA, rol = "pereira", texto = "Lo grande. Manana tomamos la comisaria. El cabo muere en la misma puerta que abrio. Tu vas adelante, a mi derecha." },
-                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.08, texto = "Despues Muldraugh. Despues Knox entero. Los misioneros son curitas en una herida que hay que cauterizar." },
+                { "decir", grupo = PEREIRA, rol = "pereira", texto = J("Lo grande. Manana tomamos la comisaria. El cabo muere en la misma puerta que abrio. Tu vas adelante, a mi derecha.", "Lo grande: manana vamos por Sous. Me echaron, me cazaron, me dejaron solo con atun y lechuga. Akagami muere colgado de su barra oxidada.") },
+                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.08, texto = J("Despues Muldraugh. Despues Knox entero. Los misioneros son curitas en una herida que hay que cauterizar.", "Despues el cabo y despues Knox entero. Pero primero Sous. Mi chuchu decia que uno es de la tierra. Esa base es mia.") },
             },
             opciones = {
-                { id = "con_pereira", texto = "A tu derecha, Sargento",
-                  dice = { rol = "pereira", texto = "Eso queria escuchar. Duerme. Manana empieza Knox." } },
+                { id = "con_pereira", texto = "A tu derecha, {jefe_corto}",
+                  dice = { rol = "pereira", texto = J("Eso queria escuchar. Duerme. Manana empieza Knox.", "Sabia que no me ibas a fallar, peni. Tu me dejaste vivir. Ahora vivimos los dos.") } },
                 { id = "contra_pereira", texto = "Irte en silencio. Esto se termina, pero no como ella quiere",
                   respuesta = "Asientes, te das vuelta y caminas sin apuro. Ya sabes a quien le vas a pedir ayuda." },
             },
@@ -705,11 +722,11 @@ registrar({
             },
         },
         preparar = {
-            pista = "Pedir ayuda y volver al patio de trenes a terminar con Pereira. Los misioneros que te tengan confianza 4 van a mandar a su gente.",
+            pista = "Pedir ayuda y volver al patio de trenes a terminar con {jefe_corto}. Los misioneros que te tengan confianza 4 van a mandar a su gente.",
             al_entrar = {
                 { "retirar", grupo = PEREIRA },
                 { "reloj", id = "plazo", horas = 96 },
-                { "diario", texto = "Le di la espalda a Pereira. Manana iba a matar al Cabo y despues a todo Knox. Tengo que llegar antes. No voy a llegar solo si alguien todavia confia en mi." },
+                { "diario", texto = J("Le di la espalda a {jefe_corto}. Manana iba a matar al Cabo y despues a todo Knox. Tengo que llegar antes. No voy a llegar solo si alguien todavia confia en mi.", "Le di la espalda a Maulen. Manana iba a matar a Sous, despues al Cabo, despues a todo Knox. Tengo que llegar antes. No voy a llegar solo si alguien todavia confia en mi.") },
             },
             salidas = {
                 { cuando = { { "horas", 6 }, { "cerca", "patio", 120 } }, ir = "asalto" },
@@ -717,7 +734,7 @@ registrar({
             },
         },
         asalto = {
-            pista = "Acabar con la Sargento Pereira y su banda en {lugar:patio}.",
+            pista = "Acabar con {jefe_nombre} y su banda en {lugar:patio}.",
             objetivo = "patio",
             al_entrar = asalto,
             salidas = {
@@ -729,7 +746,7 @@ registrar({
             },
         },
         pelea = {
-            pista = "Acabar con la Sargento Pereira y su banda en {lugar:patio}.",
+            pista = "Acabar con {jefe_nombre} y su banda en {lugar:patio}.",
             objetivo = "patio",
             al_entrar = {
                 { "inmune", grupo = "tomas", rol = "tomas", quien = "tomas", si = { "mem", "tomas_conocido" } },
@@ -749,11 +766,11 @@ registrar({
             { "memoria", clave = "bandido", valor = "pereira" },
             { "memoria", clave = "bandido_cap", valor = 5 },
             { "memoria", clave = "bandido_ultimo", valor = "hecho" },
-            { "diario", texto = "Le dije a Pereira que si. Manana tomamos la comisaria del Cabo. Despues, Knox." },
+            { "diario", texto = J("Le dije a Pereira que si. Manana tomamos la comisaria del Cabo. Despues, Knox.", "Le dije a Maulen que si. Manana vamos por Sous. Despues el Cabo. Despues, Knox.") },
         } },
         final_redencion = { final = true, al_entrar = {
             { "knox_reiniciar", texto = "La gente perdonara tus pecados del pasado, pero en tu mente sigue existiendo cada acto malvado que hiciste." },
-            { "huella", acto = "protegiste", texto = "Acabe con la Sargento Pereira antes de que tomara la comisaria del Cabo." },
+            { "huella", acto = "protegiste", texto = J("Acabe con la Sargento Pereira antes de que tomara la comisaria del Cabo.", "Acabe con Maulen Callupan antes de que fuera por Sous.") },
             { "decir", grupo = "tomas", rol = "tomas", si = { "mem", "tomas_conocido" },
               texto = "No se por que estuviste con ella. Se por que te diste vuelta. Con eso me basta, amigo." },
             { "decir", grupo = JULIO, rol = "julio", si = { "mem", "julio_vivo" },
@@ -762,36 +779,36 @@ registrar({
             { "memoria", clave = "bandido", valor = "redimido" },
             { "memoria", clave = "bandido_cap", valor = 5 },
             { "memoria", clave = "bandido_ultimo", valor = "hecho" },
-            { "diario", texto = "La Sargento Pereira esta muerta en el patio de trenes. No lo hice solo. Me queda su fusil y una lista de nombres que voy a cargar siempre." },
+            { "diario", texto = J("La Sargento Pereira esta muerta en el patio de trenes. No lo hice solo. Me queda su fusil y una lista de nombres que voy a cargar siempre.", "Maulen Callupan esta muerto en el patio de trenes. Esta vez de verdad. Lo deje vivir una vez y me costo caro a mi y a todo Knox. No lo hice solo: vino gente que todavia creia en mi.") },
         } },
         final_escapo = { final = true, al_entrar = {
             { "retirar", grupo = "banda" },
             { "memoria", clave = "bandido", valor = "pereira_escapo" },
             { "memoria", clave = "bandido_cap", valor = 5 },
             { "memoria", clave = "bandido_ultimo", valor = "hecho" },
-            { "diario", texto = "Pereira se me escapo del patio. Sigue viva, en algun lado, y sabe mi cara." },
+            { "diario", texto = J("Pereira se me escapo del patio. Sigue viva, en algun lado, y sabe mi cara.", "Maulen se me escapo del patio. Otra vez. Desaparecer es lo unico que siempre supo hacer bien.") },
         } },
         final_abandonado = abandonado(5),
     },
 })
 
 -- ===========================================================================
--- Castigo: Pereira descubrio un sabotaje y manda a cazarte.
+-- Castigo: el jefe del patio descubrio un sabotaje y manda a cazarte.
 -- ===========================================================================
 registrar({
     id = "bandido_castigo",
-    titulo = "Pereira lo sabe",
-    titulo_menu = "Bandido: Pereira descubre el sabotaje",
+    titulo = "{jefe_corto} lo sabe",
+    titulo_menu = "Bandido: el jefe descubre el sabotaje",
     requiere_alife = true, automatico = false,
     inicio = "caza",
     etapas = {
         caza = {
-            pista = "Sobrevivir a los cazadores de Pereira.",
+            pista = "Sobrevivir a los cazadores de {jefe_corto}.",
             al_entrar = {
                 { "lugar_jugador", id = "aqui" },
-                { "aviso", texto = "Un silbido corto. Despues otro. Pereira abrio la caja, conto las latas o encontro a alguien que no debia estar vivo. Viene su gente." },
+                { "aviso", texto = J("Un silbido corto. Despues otro. {jefe_corto} abrio la caja, conto las latas o encontro a alguien que no debia estar vivo. Viene su gente.", "Un silbido corto. Despues otro. Maulen hizo el inventario y no le cuadro. Te manda saludos con su gente. 'Aca todos somos amigos', decia.") },
                 { "bandidos", id = "cazadores", lugar = "aqui", radio = 60, modo = "hunt", cantidad = { 4, 6 } },
-                { "diario", texto = "Pereira descubrio lo que hice. Mando gente a matarme." },
+                { "diario", texto = "{jefe_corto} descubrio lo que hice. Mando gente a matarme." },
             },
             salidas = {
                 { cuando = { "todos_muertos", "cazadores" }, ir = "final_sobreviviste" },
@@ -800,7 +817,68 @@ registrar({
         },
         final_sobreviviste = { final = true, al_entrar = {
             { "memoria", clave = "pereira_desconfia", valor = true },
-            { "diario", texto = "Sobrevivi a los cazadores de Pereira. Si vuelvo al patio, me va a recibir con una sonrisa y el dedo en el gatillo." },
+            { "diario", texto = "Sobrevivi a los cazadores de {jefe_corto}. Si vuelvo al patio, me va a recibir con una sonrisa y el dedo en el gatillo." },
         } },
+    },
+})
+
+-- ===========================================================================
+-- Maulen toma el patio: si lo dejaste ir en Sous, termina en el patio de trenes, mata a la
+-- Sargento Pereira y se queda con su banda. Te busca porque te debe la vida (sin importar tu
+-- Knox). Si ya estabas trabajando para Pereira, sigues con el desde el capitulo en que ibas.
+-- ===========================================================================
+registrar({
+    id = "bandido_maulen",
+    titulo = "El camino del bandido: Maulen",
+    titulo_menu = "Bandido: Maulen toma el patio",
+    requiere_alife = true, automatico = false,
+    inicio = "nota",
+    etapas = {
+        nota = {
+            al_entrar = {
+                { "lugar_casa", id = "casa" },
+                patio(),
+                { "memoria_lugar", lugar = "patio", clave = "bandido_patio" },
+                { "faccion", id = "narrador_pereira", postura = "friendly" },
+                { "nota", lugar = "casa", radio = 4, titulo = "Nota con olor a cigarro",
+                  texto = "Peni: me dejaste vivir y no se me olvida. Encontre trabajo, y despues encontre algo mejor: el puesto de la jefa. Patio de trenes de Muldraugh. Ven, que aca todos somos amigos. Todos. -M." },
+                { "mapa", lugar = "patio", titulo = "Mapa de Maulen: el patio de trenes" },
+                { "aviso", texto = "Alguien dejo una nota en {lugar:casa}. Huele a cigarro y a atun." },
+                { "diario", texto = "Me dejaron una nota firmada con una M. Huele a cigarro y a atun. Es Maulen. Me espera en {lugar:patio}." },
+            },
+            salidas = { { ir = "citacion" } },
+        },
+        citacion = llegarAlPatio("reunion"),
+        reunion = {
+            pista = "Hablar con Maulen Callupan en {lugar:patio} (clic derecho cerca).",
+            ancla = "patio", ancla_grupo = PEREIRA, radio = 20,
+            al_entrar = {
+                { "decir", grupo = PEREIRA, rol = "pereira", texto = "Peni! Pasa, pasa. Tranquilo, aca todos somos amigos. Todos. Bueno, la sargento ya no, pero ella se lo busco." },
+                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.05, si = { "var", "venia_de_pereira", true },
+                  texto = "Tu trabajabas para ella, cierto? Lo se todo. Llevaba una libreta. Yo tambien llevo una. Sigues conmigo, peni, donde quedaste." },
+                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.05, si = { "no", { "var", "venia_de_pereira", true } },
+                  texto = "La sargento me recibio con un fusil. Yo la recibi con una sonrisa. Ahora el patio es mio. Y tu me dejaste vivir. Eso se paga." },
+            },
+            opciones = {
+                { id = "unirse", texto = "Que necesitas, Maulen?",
+                  dice = { rol = "pereira", texto = "Eso queria escuchar, peni. Primero cosas chicas. Despues, lo grande. Vuelve manana." } },
+                { id = "rechazar", texto = "Te deje vivir. No te debo nada mas",
+                  dice = { rol = "pereira", texto = "Tranquilo, peni. Tranquilo. La puerta queda abierta. Mi chuchu decia que todos vuelven." } },
+            },
+            salidas = {
+                { cuando = { "eleccion", "unirse" }, ir = "final_unido" },
+                { cuando = { "eleccion", "rechazar" }, ir = "final_rechazo" },
+                { cuando = { "horas", 24 }, ir = "final_abandonado" },
+            },
+        },
+        final_unido = { final = true, al_entrar = {
+            { "memoria", clave = "bandido_ultimo", valor = "hecho" },
+            { "diario", texto = "Maulen mato a la Sargento Pereira y se quedo con su banda. Ahora trabajo para el. Lo deje vivir y el me lo devuelve asi." },
+        } },
+        final_rechazo = { final = true, al_entrar = {
+            { "memoria", clave = "bandido", valor = "rechazado" },
+            { "diario", texto = "Le dije a Maulen que no le debo nada. Sonrio como siempre. Dijo que todos vuelven." },
+        } },
+        final_abandonado = abandonado("de Maulen"),
     },
 })

@@ -162,6 +162,8 @@ Lore.arcos.sous = {
                 otro = "Maulen Callupan esta muerto. Todo lo que robo esta aqui, en {lugar:escondite}. Podria devolverselo a Sous. Podria quedarmelo. Nadie de afuera sabria la diferencia. Yo si.",
             },
         },
+        rendicion = "Maulen salio con las manos arriba y el cigarro apagado. Estamos solos en {lugar:escondite}: nadie de Sous me ve. Si lo mato, se termina. Si lo dejo ir, nadie lo va a saber nunca. Nadie menos yo.",
+        decision_perdonado = "Deje ir a Maulen Callupan. Se fue caminando sin apuro, como si supiera algo que yo no. Las cosas de Sous estan aqui, en {lugar:escondite}. Cuando vuelva voy a decir que se escapo. Ahora tengo que decidir que hago con lo robado.",
         devolver = "Cargue los suministros. Sous esta esperando en {lugar:base_sous}. Cristian y Jorge volvieron del cerro sin encontrar nada, y Jorge ya esta haciendo la cuenta de lo que falta.",
     },
     finales = {
