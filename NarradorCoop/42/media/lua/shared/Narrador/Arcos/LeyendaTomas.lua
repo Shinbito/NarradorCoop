@@ -1,7 +1,7 @@
 -- Historia de la Tia Chela, capitulo 3: "Un cientifico que dice tener la cura".
 -- No tiene nada que ver con la mision de la cura (las pastillas K-93): el doctor Hartmann es
--- un charlatan. Pero al llegar al campamento se pone a fabricar medicina (antibioticos,
--- pastillas, vendas) y la deja en el cuartel cada tanto (C.PRODUCCION en NarradorContactos).
+-- un charlatan. Pero sabe hacer remedios: cuando el campamento de la Chela llega a nivel 4
+-- es su curandero y vende medicina (ver shared/Narrador/NarradorCampamentosDefs.lua).
 -- Sale entre las ofertas de la Chela cuando su capitulo 2 ya se hizo y te tiene confianza 3+
 -- (G.ESPECIALES en server/Narrador/NarradorGenerador.lua). Al llegar, alguien ya esta
 -- peleando por el cientifico: es Tomas, el hijo de la Chela, la leyenda que anda ayudando
@@ -164,16 +164,16 @@ Narrador.Defs.registrar({
                 { "variable", nombre = "rep_extra", valor = 10 },
                 -- Era un charlatan... pero sabe hacer remedios.
                 { "decir", grupo = DOC, rol = "cientifico", texto = "Bueno... la cura, la cura, exactamente no. Lo dije para que alguien viniera. Pero se hacer antibioticos con moho y paciencia. Denme una mesa y les hago medicina." },
-                { "decir_contacto", retraso = 0.05, texto = "Charlatan. Pero un charlatan que hace remedios sirve. Te quedas, y te lavas las manos." },
+                { "decir_contacto", retraso = 0.05, texto = "Charlatan. Pero un charlatan que hace remedios sirve. Cuando el campamento crezca, te pongo una consulta. Por mientras, te lavas las manos." },
                 { "decir_contacto", texto = "Lo viste? A mi Tomas? Y esta bien? ... Ese cabro porfiado. Ya. Ya. No me mires, que se me metio algo en el ojo.",
                   si = { "var", "dijo_tomas", true } },
                 { "decir_contacto", texto = "Lo trajiste vivo, mijo. Ya veremos si lo de la cura es verdad. Por mientras, que coma algo.",
                   si = { "no", { "var", "dijo_tomas", true } } },
                 { "pago_encargo", lugar = "contacto", radio = 35 },
-                { "residentes", id = "hartmann", grupos = { DOC }, lugar = "contacto", radio = 20, max_zombis = 2 },
+                { "retirar_lejos", grupo = DOC, lugar = "contacto", radio = 40, retraso = 1 },
                 { "memoria", clave = "cientifico_hartmann", valor = "en_west_point" },
                 { "memoria", clave = "historia_westpoint_3", valor = true },
-                { "diario", texto = "El doctor Hartmann no tenia ninguna cura: era un charlatan. Pero se quedo con la Tia Chela y dice que va a fabricar medicina en el cuartel. Ella le dio una mesa." },
+                { "diario", texto = "El doctor Hartmann no tenia ninguna cura: era un charlatan. Pero sabe hacer remedios: cuando el campamento de la Tia Chela crezca, va a abrir su consulta ahi." },
             },
         },
 

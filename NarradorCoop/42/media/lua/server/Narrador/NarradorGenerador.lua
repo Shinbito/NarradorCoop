@@ -664,10 +664,11 @@ end
 -- Modo historia de cada misionero: sus capitulos salen entre las ofertas (en cualquier
 -- nivel) cuando el capitulo anterior ya se hizo. Cada uno: contacto, capitulo, memoria que
 -- pide (requiere) y la que deja al terminar (hecho), confianza minima (nivel 1..5), nivel del
--- pago y chance (1 en n; 1 = siempre). El capitulo 1 de cada uno es su desbloqueo
--- (shared/Narrador/Arcos/Desbloqueos.lua).
+-- pago y chance (1 en n; 1 = siempre). El desbloqueo (fundar el campamento) va aparte, antes
+-- del capitulo 1. Los capitulos tambien son requisito para subir el campamento de nivel
+-- (shared/Narrador/NarradorCampamentosDefs.lua).
 G.ESPECIALES = {
-    -- Tia Chela, capitulo 3. Falta escribir su capitulo 2 (deja "historia_westpoint_2").
+    -- Tia Chela, capitulo 3. Faltan sus capitulos 1 y 2 (dejan "historia_westpoint_1" y "_2").
     { def = "leyenda_tomas", contacto = "westpoint", capitulo = 3, requiere = "historia_westpoint_2",
       hecho = "historia_westpoint_3", confianza = 3, pago = "dificil", chance = 1,
       titulo = "Un cientifico que dice tener la cura",

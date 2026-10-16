@@ -296,7 +296,11 @@ Motor.inmediatas.cliente_desde_encuentro = function(inst, a)
             sexo = "h" })
         while #e.clientes[cid] > 8 do table.remove(e.clientes[cid], 1) end
     end
-    -- Mandarle gente sin pedir nada a cambio sube la confianza con el misionero.
+    -- Llego al campamento: cuenta para su nivel (ver NarradorCampamentos).
+    local K = Narrador.Campamentos
+    if a.salvado and K ~= nil then pcall(K.sumarSalvado, cid) end
+    -- Mandarle gente sin pedir nada a cambio sube la confianza con el misionero. Poco a
+    -- proposito: salvando gente sola no alcanza para los niveles de confianza del campamento.
     local R = Narrador.Reputacion
     local c = C.def(cid)
     if R ~= nil and R.activa() and c ~= nil then

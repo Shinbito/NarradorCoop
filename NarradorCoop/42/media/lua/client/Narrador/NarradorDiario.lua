@@ -269,6 +269,15 @@ function Diario.paginaNotas(estado)
                 agregar(b, { t = texto .. ((ultima and suyo) and " Tengo un encargo suyo pendiente." or ""),
                     f = "mano", c = SEPIA, sangria = 8, antes = i > 1 and 3 or 0 })
             end
+            -- Su campamento: nivel, gente salvada y lo que falta para el siguiente.
+            local k = estado.campamentos ~= nil and estado.campamentos[c.id] or nil
+            if k ~= nil then
+                local linea = "Campamento nivel " .. tostring(k.nivel or 0) .. ". Salve y traje a " .. tostring(k.salvados or 0) .. "."
+                if k.siguiente ~= nil and type(k.falta) == "table" and #k.falta > 0 then
+                    linea = linea .. " Para que llegue el " .. tostring(k.siguiente) .. ": " .. table.concat(k.falta, ", ") .. "."
+                end
+                agregar(b, { t = linea, f = "chico", c = TINTA_AZUL, sangria = 8, antes = 3 })
+            end
         end
         agregar(b, { t = "> Para pedir trabajo hay que acercarse y hablarles (clic derecho). Un encargo a la vez por grupo.",
             f = "chico", c = TINTA_AZUL, antes = 8 })

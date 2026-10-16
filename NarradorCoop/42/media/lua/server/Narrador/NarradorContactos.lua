@@ -395,39 +395,6 @@ function C.inmuneMurio(clave)
     pcall(C.enterrar, st.caidos)
 end
 
--- Lo que fabrica la gente que se instala en un campamento: cada tanto lo deja en el edificio
--- del misionero (si esta cargado) y avisa a quien este cerca.
-C.PRODUCCION = {
-    { id = "hartmann", memoria = "cientifico_hartmann", valor = "en_west_point", contacto = "westpoint", cada = 48,
-      texto = "El doctor Hartmann dejo medicina recien hecha en el cuartel. Huele a moho, pero funciona.",
-      items = { { "Narrador.Antibioticos", "Base.Antibiotics", "Base.Pills" }, { "Base.Antibiotics", "Base.Pills" },
-                { "Base.Pills" }, { "Base.Bandage" }, { "Base.Disinfectant", "Base.AlcoholBandage" } } },
-}
-
-function C.revisarProduccion()
-    local st = Motor.estado()
-    st.produccion = st.produccion or {}
-    for _, p in ipairs(C.PRODUCCION) do
-        local e = C.estado(p.contacto)
-        if st.memoria[p.memoria] == p.valor and e.x ~= nil and C.desbloqueado(p.contacto) then
-            local ultima = st.produccion[p.id]
-            if ultima == nil then
-                st.produccion[p.id] = Mundo.horas()
-            elseif Mundo.horas() - ultima >= p.cada and Mundo.cargado(e.x, e.y, e.z) ~= nil then
-                st.produccion[p.id] = Mundo.horas()
-                for _, tipos in ipairs(p.items) do
-                    local item = Mundo.crearItem(tipos)
-                    if item ~= nil then Mundo.dejarEnSuelo(e.x, e.y, e.z or 0, item) end
-                end
-                for _, j in ipairs(Mundo.jugadores()) do
-                    local x, y = Mundo.posicion(j)
-                    if x ~= nil and math.sqrt((x - e.x) ^ 2 + (y - e.y) ^ 2) <= 80 then Motor.enviar(j, "aviso", { texto = p.texto }) end
-                end
-            end
-        end
-    end
-end
-
 -- Los que vuelven despues de caer: aparecen vivos la proxima vez que pasas por su campamento.
 C.REGRESOS = {
     { quien = "tomas", contacto = "westpoint", def = "tomas_vuelve", radio = 40 },
@@ -630,7 +597,6 @@ function C.tick()
     end
     pcall(C.revisarMall)
     pcall(C.revisarRegresos)
-    pcall(C.revisarProduccion)
     -- De paso, reaplicar las mejoras de los objetos legendarios que llevan los jugadores.
     local L = Narrador.Legendario
     if L ~= nil then

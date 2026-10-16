@@ -193,7 +193,7 @@ local function encuentro(id, t)
             { "soltar_acompanante", grupo = "npc", rol = "npc2" },
             { "banderas", grupo = "npc", inmortales = true },
             { "huella", acto = "salvaste" },
-            { "cliente_desde_encuentro", rep = 6 },
+            { "cliente_desde_encuentro", salvado = true },
             { "decir", grupo = "npc", rol = "npc", texto = "Llegamos. Llegamos de verdad. Gracias." },
             { "transformar", grupo = "npc", rol = "npc2", retraso = 0.6, si = { "var", "giro", "mordido" } },
             { "retirar_lejos", grupo = "npc", lugar = "misionero", radio = 50, retraso = 2 },
