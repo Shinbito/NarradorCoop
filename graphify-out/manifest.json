@@ -48,9 +48,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorContactos.lua": {
-    "mtime": 1792111795.1149037,
-    "seen": 1792111915.0043366,
-    "ast_hash": "ed746c0fd4c2a75ae742dcdbde28b2ba",
+    "mtime": 1792112641.009869,
+    "seen": 1792112687.993942,
+    "ast_hash": "a43c1bb749ea8670bd1cdfb57774b04f",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorConversacionServer.lua": {
@@ -78,9 +78,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorEncuentros.lua": {
-    "mtime": 1792111886.3572595,
-    "seen": 1792111915.004345,
-    "ast_hash": "0d67ae6dd7c9ba12ddc6f2cfb105ab38",
+    "mtime": 1792112586.9989355,
+    "seen": 1792112687.9939518,
+    "ast_hash": "8b63bcc7eb46e268b2f47cd5b53ada1d",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorGenerador.lua": {
@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/Arcos/Encuentros.lua": {
-    "mtime": 1792111886.3576345,
-    "seen": 1792111915.0043616,
-    "ast_hash": "49d19b6c71a16b030fef46487d14a897",
+    "mtime": 1792112602.249239,
+    "seen": 1792112687.9939704,
+    "ast_hash": "affddc0c848c2d46cd4709d687770dc2",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/Arcos/EventosCortos.lua": {
@@ -696,9 +696,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/ROADMAP.md": {
-    "mtime": 1792112532.6109664,
-    "seen": 1792112536.1468413,
-    "ast_hash": "0d78a9c9bc1b0b1840da2304f10ce85d",
+    "mtime": 1792112685.7362716,
+    "seen": 1792112687.994011,
+    "ast_hash": "c863d4724ac58508280c4fc32464d606",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/Arcos/Desbloqueos.lua": {
@@ -708,9 +708,15 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorPasajeros.lua": {
-    "mtime": 1792112515.2649777,
-    "seen": 1792112536.1467528,
-    "ast_hash": "c846a981035ea87322a4548791df79d8",
+    "mtime": 1792112586.9983652,
+    "seen": 1792112687.9939616,
+    "ast_hash": "1378732fcb8266e6281b5ba71607942d",
+    "semantic_hash": ""
+  },
+  "NarradorCoop/42/media/lua/shared/Narrador/Arcos/HijaCabo.lua": {
+    "mtime": 1792112670.4049869,
+    "seen": 1792112687.993977,
+    "ast_hash": "23615aa92ed72842af0bf0174935d6a8",
     "semantic_hash": ""
   }
 }

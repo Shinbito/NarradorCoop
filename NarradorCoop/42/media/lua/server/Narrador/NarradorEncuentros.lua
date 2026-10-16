@@ -274,6 +274,16 @@ end
 
 -- La persona salvada queda como cliente del misionero mas cercano (puede volver a pedir).
 E.REP_LLEVAR = 3
+
+-- El campamento del misionero al que se manda a la persona salvada.
+Motor.inmediatas.lugar_misionero = function(inst, a)
+    local c = C.def(tostring(inst.vars.misionero_id))
+    local e = c ~= nil and C.estado(c.id) or nil
+    if e == nil or e.x == nil then return false, "sin misionero" end
+    inst.lugares[a.id or "misionero"] = { x = e.x, y = e.y, z = e.z or 0, radio = 15, exacto = true,
+        etiqueta = "el campamento de " .. c.nombre }
+    return true
+end
 Motor.inmediatas.cliente_desde_encuentro = function(inst, a)
     local G = Narrador.Generador
     local cid = inst.vars.misionero_id
@@ -296,9 +306,9 @@ Motor.inmediatas.cliente_desde_encuentro = function(inst, a)
             if inst.vars.dueno == nil or g == inst.vars.dueno then
                 if not vistos[g] then
                     vistos[g] = true
-                    R.sumar(g, cid, E.REP_LLEVAR, "le mande a " .. tostring(inst.vars.nombre or "alguien"))
+                    R.sumar(g, cid, tonumber(a.rep) or E.REP_LLEVAR, "le lleve a " .. tostring(inst.vars.nombre or "alguien"))
                 end
-                Motor.enviar(p, "aviso", { texto = "+" .. E.REP_LLEVAR .. " de reputacion con " .. C.nombreCompleto(c) })
+                Motor.enviar(p, "aviso", { texto = "+" .. tostring(tonumber(a.rep) or E.REP_LLEVAR) .. " de reputacion con " .. C.nombreCompleto(c) })
             end
         end
     end

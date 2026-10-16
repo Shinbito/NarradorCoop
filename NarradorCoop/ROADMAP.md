@@ -70,7 +70,24 @@
 - El Cabo Ramiro tiene una historia principal propia cuando se crea su campamento, aparte de
   los encargos.
 
-### Misión futura: la hija del Cabo Ramiro (Louisville)
+### Misión: la hija del Cabo Ramiro (programada, DESACTIVADA)
+- Archivo: `shared/Narrador/Arcos/HijaCabo.lua` (`automatico = false`: nada la lanza sola; un
+  admin la puede iniciar a mano para probarla). Para activarla falta decidir cuándo sale
+  (por ejemplo, al llegar a confianza 5 con el Cabo).
+- Etapas: el Cabo pide el favor y da el mapa -> viaje a una escuela de Louisville -> horda de
+  30 (+15 por jugador extra, sin corredores) con Valentina y 3 sobrevivientes peleando ->
+  hablar con ella -> traerla al campamento (te sigue y se sube al auto) -> reencuentro.
+- Si llega: +25 de confianza con el Cabo, Valentina se queda a vivir en el campamento y hay
+  recompensa. Si muere: final triste.
+- Falta revisar en el juego que el perfil elegido para Valentina (`k93_hensley_family_03`) se
+  vea como una muchacha.
+
+### Encuentros: llevar a la persona al campamento (hecho, falta probar)
+- "Llevarlo donde {misionero}" ya no lo manda solo: te sigue (y se sube al auto contigo) y hay
+  que llegar con él vivo al campamento. Si llega: +6 de confianza con aviso. Si muere en el
+  camino, o lo pierdes 96 horas, la historia termina sin premio.
+
+### Idea original: la hija del Cabo Ramiro (Louisville)
 - Sale de su capa 5 de personalidad: tiene una hija en Louisville a la que le escribe cartas
   que nunca manda.
 - Hay que ir a buscarla a una escuela de Louisville. Ahí hay varios NPCs intentando

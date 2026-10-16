@@ -142,9 +142,9 @@ local function encuentro(id, t)
                   dice = { rol = "npc", texto = "Arranco! Toma, esto es tuyo. Vuelve cuando quieras comprar algo." },
                   acciones = { { "recompensa", lugar = "punto", radio = 30, items = "var:regalo_comerciante" },
                                { "variable", nombre = "bateria", valor = false } } },
-                { id = "llevar", texto = "Mandarlo donde {misionero}, que ahi hay gente",
+                { id = "llevar", texto = "Llevarlo donde {misionero}, que ahi hay gente",
                   si = { { "no", { "var", "cuerda", true } }, { "no", { "var", "misionero_id" } } },
-                  dice = { rol = "npc", texto = "Donde {misionero}? Ya. Voy para alla. Si llego, te debo una." } },
+                  dice = { rol = "npc", texto = "Donde {misionero}? Ya. Te sigo, pero no me dejes atras." } },
                 { id = "provisiones", texto = "Darle algo de comer y dejarlo ir", requiere = { "comida" }, si = { "no", { "var", "cuerda", true } },
                   falta = "No llevas comida.",
                   dice = { rol = "npc", texto = "Comida... de verdad? No me voy a olvidar de esto." } },
@@ -155,19 +155,56 @@ local function encuentro(id, t)
             },
             salidas = {
                 { cuando = { "todos_muertos", "npc" }, ir = "final_muerto" },
-                { cuando = { "eleccion", "llevar" }, ir = "final_llevado" },
+                { cuando = { "eleccion", "llevar" }, ir = "escolta" },
                 { cuando = { "eleccion", "provisiones" }, ir = "final_compartiste" },
                 { cuando = { "eleccion", "cobrar" }, ir = "final_cobraste" },
                 { cuando = { "eleccion", "dejar" }, ir = "final_despedida" },
                 { cuando = { "horas", 3 }, ir = "final_despedida" },
             },
         },
+        -- Llevarlo sano y salvo al campamento del misionero: te sigue a pie y se sube al auto
+        -- contigo (ver server/Narrador/NarradorPasajeros.lua). Ya no es inmortal.
+        escolta = {
+            pista = "Llevar a {nombre} sano y salvo a {lugar:misionero}.",
+            objetivo = "misionero",
+            al_entrar = {
+                { "lugar_misionero", id = "misionero" },
+                { "acompanante", grupo = "npc", rol = "npc", inmortal = false },
+                { "acompanante", grupo = "npc", rol = "npc2", inmortal = false },
+                -- Suelto (sin quedarse quieto ni correa) para que pueda seguirte; el repaso
+                -- periodico de banderas del grupo respeta esto.
+                { "banderas", grupo = "npc", inmortales = false, quietos = false, correa = 0 },
+                { "diario", texto = "{nombre} viene conmigo. Lo llevo donde {misionero}, en {lugar:misionero}." },
+            },
+            salidas = {
+                { cuando = { "mato_jugador", "npc" }, ir = "final_lo_mataste" },
+                { cuando = { "todos_muertos", "npc" }, ir = "final_no_llego" },
+                { cuando = { "npc_cerca", "npc", "misionero", 15 }, ir = "final_llevado" },
+                { cuando = { "horas", 96 }, ir = "final_separados" },
+            },
+        },
         final_llevado = { final = true, al_entrar = {
+            { "soltar_acompanante", grupo = "npc", rol = "npc" },
+            { "soltar_acompanante", grupo = "npc", rol = "npc2" },
+            { "banderas", grupo = "npc", inmortales = true },
             { "huella", acto = "salvaste" },
-            { "cliente_desde_encuentro" },
+            { "cliente_desde_encuentro", rep = 6 },
+            { "decir", grupo = "npc", rol = "npc", texto = "Llegamos. Llegamos de verdad. Gracias." },
             { "transformar", grupo = "npc", rol = "npc2", retraso = 0.6, si = { "var", "giro", "mordido" } },
+            { "retirar_lejos", grupo = "npc", lugar = "misionero", radio = 50, retraso = 2 },
+            { "diario", texto = "Lleve a {nombre} sano y salvo donde {misionero}. Ahora vive en {lugar:misionero}." },
+        } },
+        final_no_llego = { final = true, al_entrar = {
+            { "soltar_acompanante", grupo = "npc", rol = "npc" },
+            { "soltar_acompanante", grupo = "npc", rol = "npc2" },
+            { "huella", acto = "no_alcanzaste" },
+            { "diario", texto = "{nombre} no llego donde {misionero}. Lo estaba llevando yo." },
+        } },
+        final_separados = { final = true, al_entrar = {
+            { "soltar_acompanante", grupo = "npc", rol = "npc" },
+            { "soltar_acompanante", grupo = "npc", rol = "npc2" },
             { "retirar_lejos", grupo = "npc", lugar = "punto", radio = 50, retraso = 0.3 },
-            { "diario", texto = "Ayude a {nombre} cerca de {lugar:punto}. Lo mande donde {misionero}. Ojala llegue." },
+            { "diario", texto = "Perdi a {nombre} en el camino. Ojala haya llegado solo donde {misionero}." },
         } },
         final_compartiste = { final = true, al_entrar = {
             { "huella", acto = "compartiste" },

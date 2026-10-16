@@ -584,6 +584,19 @@ Motor.inmediatas.desbloquear_contacto = function(inst, a)
     return true
 end
 
+-- {"lugar_contacto", id = "contacto", contacto = "muldraugh"}: el edificio del misionero como
+-- lugar del arco; deja tambien vars.contacto y vars.contacto_nombre (para decir_contacto).
+Motor.inmediatas.lugar_contacto = function(inst, a)
+    local c = C.def(tostring(a.contacto or inst.vars.contacto))
+    if c == nil then return false, "misionero desconocido" end
+    local e = C.ubicar(c)
+    if e == nil then return false, "no se encontro el edificio de " .. c.nombre end
+    inst.vars.contacto, inst.vars.contacto_nombre = c.id, C.nombreCompleto(c)
+    inst.lugares[a.id or "contacto"] = { x = e.x, y = e.y, z = e.z or 0, radio = 15, exacto = true,
+        etiqueta = "el campamento de " .. c.nombre }
+    return true
+end
+
 -- Accion de la mision: la casa del jugador (su refugio) o, si no tiene, donde esta.
 Motor.inmediatas.lugar_casa = function(inst, a)
     local ok = Motor.inmediatas.lugar_refugio(inst, a)

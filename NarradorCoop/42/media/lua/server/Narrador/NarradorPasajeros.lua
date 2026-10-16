@@ -125,6 +125,8 @@ end
 function P.subir(a, jugador)
     a.subido = true
     visible(a.uid, false)
+    -- Escondido no lo puede morder nadie.
+    if not a.inmortal then pcall(Mundo.banderas, a.uid, P.BANDERAS) end
     Motor.enviar(jugador, "aviso", { texto = tostring(a.nombre) .. " se sube donde sea que haya espacio." })
     Mundo.log("acompanante " .. tostring(a.uid) .. " se subio al auto")
 end
@@ -138,6 +140,11 @@ function P.bajar(a, jugador)
         Motor.enviar(jugador, "aviso", { texto = tostring(a.nombre) .. " se baja contigo." })
     end
     visible(a.uid, true)
+    if not a.inmortal then
+        local banderas = Motor.copiar(P.BANDERAS)
+        banderas.invulnerable = false
+        pcall(Mundo.banderas, a.uid, banderas)
+    end
     Mundo.log("acompanante " .. tostring(a.uid) .. " se bajo del auto")
 end
 
@@ -213,6 +220,26 @@ Motor.inmediatas.soltar_acompanante = function(inst, a)
     local uid = uidDe(inst, a)
     if uid ~= nil then P.quitar(uid) end
     return true
+end
+
+-- {"npc_cerca", grupo, lugar, radio}: algun miembro vivo del grupo llego cerca del lugar
+-- (si va "en el auto", cuenta donde esta su jugador).
+Motor.condiciones.npc_cerca = function(inst, c)
+    local g, l = inst.grupos[c[2]], inst.lugares[c[3]]
+    if g == nil or l == nil then return false end
+    local radio = tonumber(c[4]) or 15
+    for uid, m in pairs(g.miembros or {}) do
+        if m.vivo then
+            local x, y = Mundo.posicionActor(uid)
+            local a = P.lista()[tostring(uid)]
+            if a ~= nil and a.subido then
+                local j = jugadorPorNombre(a.jugador)
+                if j ~= nil then x, y = Mundo.posicion(j) end
+            end
+            if x ~= nil and math.sqrt((x - l.x) ^ 2 + (y - l.y) ^ 2) <= radio then return true end
+        end
+    end
+    return false
 end
 
 -- Admin: el NPC de A-Life mas cercano te acompana (para probar lo del auto).
