@@ -232,8 +232,8 @@
     cada uno), Eduardo si lo conociste y Julio si lo perdonaste. Al matar a Pereira: Knox a 0
     con "La gente perdonara tus pecados del pasado, pero en tu mente sigue existiendo cada acto
     malvado que hiciste", un arma legendaria y memoria `bandido` = "redimido".
-- PENDIENTE: confirmar en el juego las coordenadas del patio de trenes
-  (`Narrador.BandidoPatio.cerca_de` en `Bandido.lua`, hoy 10330,9760, provisorio).
+- El patio de trenes va de 11544,9590 a 11746,10232 (`Narrador.BandidoPatio` en `Bandido.lua`);
+  Pereira se instala en la casa del patio mas cerca del centro.
 
 #### Fase 2: la conquista de Knox (por escribir)
 - Asalto a la comisaria con Pereira: el Cabo Ramiro muere de verdad y los bandidos ocupan la
