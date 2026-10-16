@@ -262,8 +262,13 @@ function Diario.paginaNotas(estado)
             local suyo = mio ~= nil and mio.contacto == c.id
             agregar(b, { t = tostring(c.nombre) .. " (" .. tostring(c.ciudad) .. ")", f = "chico",
                 c = suyo and ROJO or TINTA, antes = 6, junto = true })
-            agregar(b, { t = tostring(Lore.CONTACTOS[c.id] or "") .. (suyo and " Tengo un encargo suyo pendiente." or ""),
-                f = "mano", c = SEPIA, sangria = 8 })
+            -- Lo que se de el: mas cuanto mas confianza me tiene.
+            local capas = Diario.loQueSe(estado, c.id)
+            for i, texto in ipairs(capas) do
+                local ultima = i == #capas
+                agregar(b, { t = texto .. ((ultima and suyo) and " Tengo un encargo suyo pendiente." or ""),
+                    f = "mano", c = SEPIA, sangria = 8, antes = i > 1 and 3 or 0 })
+            end
         end
         agregar(b, { t = "> Para pedir trabajo hay que acercarse y hablarles (clic derecho). Un encargo a la vez por grupo.",
             f = "chico", c = TINTA_AZUL, antes = 8 })
@@ -286,6 +291,20 @@ function Diario.paginaNotas(estado)
         agregar(b, { t = "Project A-Life no esta activo: las historias con personas no van a aparecer.", f = "chico", c = ROJO, antes = 12 })
     end
     return b
+end
+
+-- Entradas del perfil de un misionero hasta mi nivel de confianza con el.
+function Diario.loQueSe(estado, id)
+    local lista = Lore.PERFILES ~= nil and Lore.PERFILES[id] or nil
+    if lista == nil then return { tostring(Lore.CONTACTOS[id] or "") } end
+    local grupo = Narrador.Cliente ~= nil and Narrador.Cliente.miGrupo() or nil
+    local fila = estado.reputacion ~= nil and grupo ~= nil and estado.reputacion[grupo] or nil
+    local r = fila ~= nil and fila[id] or nil
+    local nivel = math.max(1, math.min(#lista, tonumber(r ~= nil and r.nivel or 1) or 1))
+    if estado.reputacion_activa == false then nivel = 1 end
+    local r2 = {}
+    for i = 1, nivel do r2[#r2 + 1] = lista[i] end
+    return r2
 end
 
 -- Libreta de contactos: como me trata cada misionero y cuanto falta para que me tenga mas confianza.

@@ -31,6 +31,19 @@ Lore.CONTACTOS = {
     rosewood = "Atiende una bencinera sin bencina. Dice que nunca cierra. Le debo un par de cigarros.",
 }
 
+-- Lo que voy sabiendo de cada misionero: una entrada por nivel de confianza (1 = recien lo
+-- conozco ... 5 = el maximo). El diario muestra hasta el nivel que tengo con el. Si un
+-- misionero no tiene lista, se usa su linea de Lore.CONTACTOS.
+Lore.PERFILES = {
+    muldraugh = {
+        "Ex cabo de policia de Muldraugh. Habla como si yo estuviera detenido y lo anota todo en una libreta de tapas negras. Paga lo que promete.",
+        "Veintidos anos de servicio y nunca paso de cabo. Dice que fue por 'diferencias de criterio' con el comisario. Se plancha el uniforme con una olla caliente. Todos los dias, aunque se acabe el mundo.",
+        "La libreta no es solo de encargos. Le vi una pagina: nombres de vecinos de Muldraugh, con una cruz o un signo de pregunta al lado. Dice que lleva el censo. Que alguien tiene que acordarse de quien queda.",
+        "Una noche me conto lo de la comisaria. Cuando empezo todo, el comisario mando cerrar con la gente adentro, 'por protocolo'. Ramiro abrio la puerta de atras y saco a once. Al resto no alcanzo. Por eso quiere el campamento: para hacerlo bien esta vez.",
+        "Tiene una hija en Louisville. Le escribe cartas que nunca manda y las guarda al final de la libreta. Me pidio que, si un dia no vuelve de una ronda, se las lleve. Le dije que si. No me dio las gracias: me hizo un saludo militar perfecto, que le temblo un poco.",
+    },
+}
+
 Lore.NIVELES = {
     facil = "Trabajo facil, segun el.",
     medio = "Trabajo con riesgo. Pagan mejor.",

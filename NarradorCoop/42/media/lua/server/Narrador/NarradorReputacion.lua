@@ -148,6 +148,11 @@ function R.ascenso(grupo, contacto, nivel)
     local st = Motor.estado()
     st.diario[#st.diario + 1] = { h = floor(Mundo.horas()), t = C.nombreCompleto(c) .. " ahora me dice " .. rango .. ".",
         arco = "Libreta de contactos" }
+    -- Si hay algo nuevo que contar de el, el diario avisa (ver Lore.PERFILES).
+    local perfiles = Narrador.Lore ~= nil and Narrador.Lore.PERFILES or nil
+    if perfiles ~= nil and perfiles[contacto] ~= nil and perfiles[contacto][nivel] ~= nil then
+        Motor.enviar(nil, "aviso", { texto = "Anotaste algo nuevo sobre " .. c.nombre .. " en el diario (Notas)." })
+    end
     while #st.diario > Motor.MAX_DIARIO_GLOBAL do table.remove(st.diario, 1) end
 end
 

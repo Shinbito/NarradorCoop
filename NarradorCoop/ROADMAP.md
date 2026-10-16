@@ -30,6 +30,18 @@
   2 anotaciones viejas por historia (antes 4), 3 historias cerradas (antes 6), 3 rumores
   (antes 6) y 8 entradas en el registro (antes 25). Más aire entre renglones.
 
+## Misioneros y campamentos (hecho, falta probar en el juego)
+- Cada misionero empieza bloqueado. Al andar por su pueblo, llega a tu casa (refugio, o donde
+  estés si no tienes) y te pide ayudarlo a limpiar su edificio para armar un campamento; lo
+  que encuentres adentro es tuyo. Solo se puede responder "Te ayudo" o "Mas rato".
+- Al limpiarlo (15 zombis) queda desbloqueado: se instala ahí y da encargos.
+- Corre en paralelo con la historia principal (los Bell). Archivo: `shared/Narrador/Arcos/Desbloqueos.lua`.
+- Sandbox "Misioneros se desbloquean" para apagarlo. En partidas viejas los misioneros que ya
+  estaban siguen desbloqueados.
+- Diario: la descripción de un misionero aparece al conocerlo y crece con la confianza
+  (`Lore.PERFILES`). El Cabo Ramiro tiene sus 5 capas; los otros tres, por escribir.
+- Mandar a alguien de un encuentro al campamento sube la confianza (+3, con aviso).
+
 ## Ideas futuras: campamentos de supervivientes
 
 ### Fase 1: el campamento existe y crece

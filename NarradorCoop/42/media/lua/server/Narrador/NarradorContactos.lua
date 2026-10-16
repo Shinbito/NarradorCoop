@@ -447,6 +447,7 @@ end
 
 function C.tick()
     if not Mundo.hayALife() then return end
+    C.migrarDesbloqueo()
     for _, c in ipairs(C.LISTA) do
         local e = C.estado(c.id)
         pcall(function()
@@ -496,8 +497,12 @@ function C.tick()
                 end
             end
             -- Puertas y ventanas: cada 10 minutos aunque no haya nadie cerca (si esta cargado).
-            if Mundo.jugadorCerca(e.x, e.y, 70) == nil then pcall(C.cuidarEdificio, e) end
-            if e.uid == nil then pcall(C.reponer, c, e) end
+            if not C.desbloqueado(c.id) then
+                pcall(C.revisarDesbloqueo, c, e)
+            else
+                if Mundo.jugadorCerca(e.x, e.y, 70) == nil then pcall(C.cuidarEdificio, e) end
+                if e.uid == nil then pcall(C.reponer, c, e) end
+            end
         end
     end
     pcall(C.revisarMall)
@@ -506,6 +511,91 @@ function C.tick()
     if L ~= nil then
         for _, p in ipairs(Mundo.jugadores()) do pcall(L.repasarJugador, p) end
     end
+end
+
+-- ---------------------------------------------------------------------------
+-- Desbloqueo: el misionero primero tiene que fundar su campamento
+-- ---------------------------------------------------------------------------
+-- Hasta que no se completa su mision de desbloqueo (shared/Narrador/Arcos/Desbloqueos.lua) el
+-- misionero no esta en su edificio ni da encargos. La mision se lanza cuando un jugador anda
+-- por su pueblo.
+
+function C.desbloqueado(id)
+    if Mundo.sandbox("DesbloqueoMisioneros", true) == false then return true end
+    return C.estado(id).desbloqueado == true
+end
+
+-- Partidas de antes de los desbloqueos: los misioneros que ya estaban ubicados quedan
+-- desbloqueados (no se le quita a nadie un misionero que ya usaba).
+function C.migrarDesbloqueo()
+    local st = Motor.estado()
+    if st.desbloqueoVersion == 1 then return end
+    st.desbloqueoVersion = 1
+    for _, c in ipairs(C.LISTA) do
+        local e = C.estado(c.id)
+        if e.x ~= nil then e.desbloqueado = true end
+    end
+end
+
+-- Jugador vivo dentro del pueblo del misionero (o nil).
+function C.jugadorEnPueblo(c)
+    local p = Mundo.puebloPorNombre(c.ciudad)
+    if p == nil then return nil end
+    for _, j in ipairs(Mundo.jugadores()) do
+        if Mundo.vivo(j) then
+            local x, y = Mundo.posicion(j)
+            if x ~= nil and x >= p.minX and x <= p.maxX and y >= p.minY and y <= p.maxY then return j end
+        end
+    end
+    return nil
+end
+
+-- Cada 10 minutos: si hay alguien en el pueblo y la mision no esta en curso, una chance de
+-- que el misionero vaya a buscarlo (en promedio media hora despues de llegar).
+C.CHANCE_DESBLOQUEO = 3
+
+function C.revisarDesbloqueo(c, e)
+    if e.x == nil or C.desbloqueado(c.id) then return end
+    local defId = "desbloqueo_" .. c.id
+    if Defs.get(defId) == nil or Motor.activos(defId) > 0 then return end
+    local j = C.jugadorEnPueblo(c)
+    if j == nil or Mundo.azar(C.CHANCE_DESBLOQUEO) ~= 1 then return end
+    local lugar = { x = e.x, y = e.y, z = e.z or 0, radio = 20, exacto = true, etiqueta = tostring(e.etiqueta or c.ciudad) }
+    -- max_veces de la definicion: si alguna vez se corto a medias, se puede volver a lanzar.
+    local d = Motor.estado().director
+    if d ~= nil and d.veces ~= nil then d.veces[defId] = nil end
+    local inst, razon = Motor.iniciar(defId, j, { vars = { contacto = c.id, contacto_nombre = C.nombreCompleto(c) },
+        lugares = { contacto = lugar } })
+    if inst == nil then Mundo.log("no se pudo lanzar " .. defId .. ": " .. tostring(razon)) end
+end
+
+-- Accion de la mision: el misionero queda desbloqueado y aparece en su edificio.
+Motor.inmediatas.desbloquear_contacto = function(inst, a)
+    local c = C.def(tostring(a.contacto or inst.vars.contacto))
+    if c == nil then return true end
+    local e = C.estado(c.id)
+    e.desbloqueado, e.pidiendo, e.faltas = true, nil, 0
+    e.conocidoDesde = Mundo.horas()
+    pcall(C.reponer, c, e)
+    if a.texto ~= nil then
+        for _, p in ipairs(Mundo.jugadores()) do Motor.enviar(p, "aviso", { texto = c.nombre .. ": " .. tostring(a.texto) }) end
+    end
+    Motor.publicar()
+    return true
+end
+
+-- Accion de la mision: la casa del jugador (su refugio) o, si no tiene, donde esta.
+Motor.inmediatas.lugar_casa = function(inst, a)
+    local ok = Motor.inmediatas.lugar_refugio(inst, a)
+    if ok then return true end
+    for _, p in ipairs(Mundo.jugadores()) do
+        if Mundo.nombreJugador(p) == inst.refNombre then
+            local x, y, z = Mundo.posicion(p)
+            inst.lugares[a.id] = { x = floor(x), y = floor(y), z = floor(z or 0), etiqueta = "donde estoy" }
+            return true
+        end
+    end
+    return Motor.inmediatas.lugar_jugador(inst, a)
 end
 
 -- Si falta el misionero y hay alguien cerca con su edificio cargado, se pide de nuevo. Si un
@@ -531,7 +621,7 @@ end
 -- Cada minuto, solo con jugadores cerca: banderas y vida al dia (A-Life las puede perder al
 -- recargar el cuerpo cuando alguien llega), reponer si murio y pedirlo si falta.
 function C.vigilar(c, e)
-    if e.x == nil or Mundo.jugadorCerca(e.x, e.y, 70) == nil then return end
+    if e.x == nil or not C.desbloqueado(c.id) or Mundo.jugadorCerca(e.x, e.y, 70) == nil then return end
     pcall(C.cuidarEdificio, e)
     if e.uid ~= nil then
         local actor = Mundo.actor(e.uid)
@@ -591,7 +681,7 @@ function C.vista()
     local lista = {}
     for _, c in ipairs(C.LISTA) do
         local e = C.estado(c.id)
-        if e.x ~= nil then
+        if e.x ~= nil and C.desbloqueado(c.id) then
             lista[#lista + 1] = { id = c.id, ciudad = c.ciudad, nombre = C.nombreCompleto(c), uid = e.uid,
                 x = e.x, y = e.y }
         end
@@ -663,6 +753,10 @@ end
 function C.pedirTrabajo(jugador, id, nivel)
     local c = C.def(tostring(id))
     if c == nil or C.NIVELES[tostring(nivel)] == nil then return end
+    if not C.desbloqueado(c.id) then
+        Motor.responder(jugador, C.nombreCompleto(c) .. " todavia no tiene campamento.")
+        return
+    end
     local e = C.estado(c.id)
     local x, y = C.posicion(c.id)
     local px, py = Mundo.posicion(jugador)

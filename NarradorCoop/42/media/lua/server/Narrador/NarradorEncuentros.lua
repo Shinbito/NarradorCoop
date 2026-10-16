@@ -138,7 +138,8 @@ function E.misioneroCercano(x, y)
     local mejor, md
     for _, c in ipairs(C.LISTA) do
         local ce = C.estado(c.id)
-        if ce.x ~= nil then
+        -- Solo los que ya tienen campamento (desbloqueados).
+        if ce.x ~= nil and (C.desbloqueado == nil or C.desbloqueado(c.id)) then
             local d = math.sqrt((ce.x - x) ^ 2 + (ce.y - y) ^ 2)
             if md == nil or d < md then mejor, md = c, d end
         end
@@ -255,14 +256,24 @@ end
 -- Acciones que usan los encuentros
 -- ---------------------------------------------------------------------------
 
--- Antes marcaba la zona en el mapa del mundo del jugador. Ya no se marca nada ahi (lo
--- ensuciaba): al encuentro lleva la flecha o la brujula. Se deja la accion para que las
--- definiciones que la usan sigan cargando.
+-- La zona del encuentro va en un mapa de papel para los jugadores del grupo dueno (el mapa
+-- del mundo del jugador queda limpio).
 Motor.inmediatas.marcar_zona = function(inst, a)
+    local l = inst.lugares[a.lugar]
+    if l == nil then return true end
+    local zona = Motor.zonaDe(l, tonumber(a.radio) or 30)
+    local texto = Motor.texto(inst, a.texto or "Por aca")
+    for _, p in ipairs(Mundo.jugadores()) do
+        if Mundo.vivo(p) and (inst.vars.dueno == nil or Mundo.grupoDe(p) == inst.vars.dueno) then
+            local mapa = Mundo.crearMapaZona("Mapa: algo paso por aca", zona, texto)
+            if mapa ~= nil then Mundo.darItem(p, mapa) end
+        end
+    end
     return true
 end
 
 -- La persona salvada queda como cliente del misionero mas cercano (puede volver a pedir).
+E.REP_LLEVAR = 3
 Motor.inmediatas.cliente_desde_encuentro = function(inst, a)
     local G = Narrador.Generador
     local cid = inst.vars.misionero_id
@@ -274,6 +285,22 @@ Motor.inmediatas.cliente_desde_encuentro = function(inst, a)
         table.insert(e.clientes[cid], { nombre = n[1], apellido = n[2], perfil = inst.vars.perfil, oficio = "camionero", veces = 1,
             sexo = "h" })
         while #e.clientes[cid] > 8 do table.remove(e.clientes[cid], 1) end
+    end
+    -- Mandarle gente sin pedir nada a cambio sube la confianza con el misionero.
+    local R = Narrador.Reputacion
+    local c = C.def(cid)
+    if R ~= nil and R.activa() and c ~= nil then
+        local vistos = {}
+        for _, p in ipairs(Mundo.jugadores()) do
+            local g = Mundo.grupoDe(p)
+            if inst.vars.dueno == nil or g == inst.vars.dueno then
+                if not vistos[g] then
+                    vistos[g] = true
+                    R.sumar(g, cid, E.REP_LLEVAR, "le mande a " .. tostring(inst.vars.nombre or "alguien"))
+                end
+                Motor.enviar(p, "aviso", { texto = "+" .. E.REP_LLEVAR .. " de reputacion con " .. C.nombreCompleto(c) })
+            end
+        end
     end
     return true
 end
