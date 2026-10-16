@@ -1448,11 +1448,9 @@ function Motor.darMapaZona(inst, lugarId, opciones)
     local jugadores = opciones.jugadores or Mundo.jugadores()
     for _, p in ipairs(jugadores) do
         if Mundo.vivo(p) then
+            -- Solo el mapa de papel: el mapa del mundo del jugador queda limpio.
             local mapa = Mundo.crearMapaZona(titulo, zona, texto, opciones.extras)
             if mapa ~= nil then Mundo.darItem(p, mapa) end
-            if tonumber(Mundo.sandbox("Indicadores", 1)) ~= 3 then
-                Motor.enviar(p, "marcar", { x = zona.x, y = zona.y, radio = zona.r, texto = texto })
-            end
         end
     end
     return true

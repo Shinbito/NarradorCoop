@@ -402,9 +402,11 @@ function Mundo.buscarEnPueblo(spec)
             if spec.agrupado ~= nil then
                 elegida = Mundo.elegirAgrupada(p, salas, spec)
             elseif spec.cerca_del_centro then
+                -- spec.piso: el piso que se prefiere (0 = planta baja, 1 = segundo piso...).
+                local piso = tonumber(spec.piso) or 0
                 local mejor
                 for _, s in ipairs(salas) do
-                    local d = math.sqrt((s.x - cx) ^ 2 + (s.y - cy) ^ 2) + (s.z ~= 0 and 400 or 0)
+                    local d = math.sqrt((s.x - cx) ^ 2 + (s.y - cy) ^ 2) + (s.z ~= piso and 400 or 0)
                     if mejor == nil or d < mejor then mejor, elegida = d, s end
                 end
             else

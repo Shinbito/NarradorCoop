@@ -19,7 +19,8 @@ local floor = math.floor
 C.LISTA = {
     { id = "muldraugh", rol = "cabo", ciudad = "Muldraugh", nombre = "Cabo Ramiro", apellido = "Mandados",
       perfil = "k93_muldraugh_pd_01", oficio = "ex cabo de policia",
-      salas = { "policeoffice", "policestorage", "policehall" }, respaldo = { "church", "motelroom", "office" },
+      -- En la oficina del segundo piso de la comisaria (piso = 1; 0 es la planta baja).
+      salas = { "policeoffice" }, piso = 1, respaldo = { "policestorage", "policehall", "church", "office" },
       frases = {
           "Atencion, civil. Si busca trabajo, yo tengo. Si busca descanso, se equivoco de oficina.",
           "Veintidos anos de servicio y termino repartiendo mandados. La vida, mi amigo.",
@@ -90,7 +91,8 @@ function C.nombreCompleto(c) return c.nombre .. " " .. c.apellido end
 function C.ubicar(c)
     local e = C.estado(c.id)
     if e.x ~= nil then return e end
-    local l = Mundo.buscarLugar({ pueblo = c.ciudad, salas = c.salas, respaldo = c.respaldo, cerca_del_centro = true })
+    local l = Mundo.buscarLugar({ pueblo = c.ciudad, salas = c.salas, respaldo = c.respaldo, cerca_del_centro = true,
+        piso = c.piso })
     if l == nil then return nil end
     e.x, e.y, e.z, e.sala, e.etiqueta = l.x, l.y, l.z, l.sala, l.etiqueta
     return e
@@ -320,16 +322,21 @@ function C.tick()
             -- Antes la busqueda de edificios solo miraba un pedazo de cada ciudad (por eso el
             -- Cabo Ramiro no quedaba en la comisaria). Si quedo en un edificio de respaldo, se
             -- vuelve a buscar una vez con la busqueda arreglada.
-            if e.x ~= nil and e.reubicado ~= 1 then
+            -- Lo mismo si tiene un piso fijo y quedo en otro (el Cabo Ramiro, que va arriba).
+            if e.x ~= nil and e.reubicado ~= 2 then
                 local enSuSala = false
                 for _, sala in ipairs(c.salas or {}) do if sala == e.sala then enSuSala = true end end
-                e.reubicado = 1
-                if not enSuSala and C.encargoActivo(c.id) == nil then
+                if c.piso ~= nil and floor(tonumber(e.z) or 0) ~= c.piso then enSuSala = false end
+                -- Con un encargo en curso no se mueve (se vuelve a revisar cuando termine).
+                if enSuSala then
+                    e.reubicado = 2
+                elseif C.encargoActivo(c.id) == nil then
+                    e.reubicado = 2
                     if e.uid ~= nil then Mundo.retirar(e.uid) end
                     e.x, e.y, e.z, e.sala, e.etiqueta, e.uid, e.pidiendo = nil, nil, nil, nil, nil, nil, nil
                 end
             end
-            if e.x == nil then C.ubicar(c); e.reubicado = 1 end
+            if e.x == nil then C.ubicar(c); e.reubicado = 2 end
         end)
         pcall(C.enterrar, e)
         if e.x ~= nil then

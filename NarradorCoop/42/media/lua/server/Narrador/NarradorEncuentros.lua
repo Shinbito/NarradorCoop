@@ -255,17 +255,10 @@ end
 -- Acciones que usan los encuentros
 -- ---------------------------------------------------------------------------
 
--- Marca la zona del lugar en el mapa del mundo de los jugadores del grupo dueno.
+-- Antes marcaba la zona en el mapa del mundo del jugador. Ya no se marca nada ahi (lo
+-- ensuciaba): al encuentro lleva la flecha o la brujula. Se deja la accion para que las
+-- definiciones que la usan sigan cargando.
 Motor.inmediatas.marcar_zona = function(inst, a)
-    local l = inst.lugares[a.lugar]
-    if l == nil then return true end
-    local zona = Motor.zonaDe(l, tonumber(a.radio) or 30)
-    if tonumber(Mundo.sandbox("Indicadores", 1)) == 3 then return true end
-    for _, p in ipairs(Mundo.jugadores()) do
-        if inst.vars.dueno == nil or Mundo.grupoDe(p) == inst.vars.dueno then
-            Motor.enviar(p, "marcar", { x = zona.x, y = zona.y, radio = zona.r, texto = Motor.texto(inst, a.texto or "Por aca") })
-        end
-    end
     return true
 end
 

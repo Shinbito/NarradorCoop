@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/client/Narrador/NarradorMapas.lua": {
-    "mtime": 1792108414.1191883,
-    "seen": 1792108852.2290058,
-    "ast_hash": "82daf6c4e0411f56ce1b955af2927f00",
+    "mtime": 1792111497.6685138,
+    "seen": 1792111538.9979312,
+    "ast_hash": "c96ca7f750becf44aa42e80a5801e866",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/client/Narrador/NarradorPastillas.lua": {
@@ -48,9 +48,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorContactos.lua": {
-    "mtime": 1792111081.856619,
-    "seen": 1792111139.9949484,
-    "ast_hash": "c0d5ffe8cb3c3a1c42cba28f7b4b8c85",
+    "mtime": 1792111528.6170506,
+    "seen": 1792111538.9979389,
+    "ast_hash": "3730978b1518b10ae7f38fdd17cfbf01",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorConversacionServer.lua": {
@@ -72,15 +72,15 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorDirector.lua": {
-    "mtime": 1792108414.120659,
-    "seen": 1792108852.2290165,
-    "ast_hash": "3b288c2e6d7d03ba3cf0d611cfc990c8",
+    "mtime": 1792111478.1497982,
+    "seen": 1792111538.997945,
+    "ast_hash": "223d9c98608bab9fa1640680a39cf4d5",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorEncuentros.lua": {
-    "mtime": 1792108414.120659,
-    "seen": 1792108852.229018,
-    "ast_hash": "0f5bc7bd006d46c545ce2a71cf27b7fe",
+    "mtime": 1792111478.1495152,
+    "seen": 1792111538.997947,
+    "ast_hash": "8f2f632ac9b3462f1136073c8d73a768",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorGenerador.lua": {
@@ -96,15 +96,15 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorMotor.lua": {
-    "mtime": 1792108414.1206622,
-    "seen": 1792108852.229021,
-    "ast_hash": "9980427340439907b0f0d638b8a2dcf4",
+    "mtime": 1792111478.148727,
+    "seen": 1792111538.9979515,
+    "ast_hash": "5b0d4b58ef2935ebf717547b624a5ad9",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorMundo.lua": {
-    "mtime": 1792108414.1206622,
-    "seen": 1792108852.2290227,
-    "ast_hash": "62b5042e8668ea5348bc639ea23d3157",
+    "mtime": 1792111522.012073,
+    "seen": 1792111538.997953,
+    "ast_hash": "319cc98c8ba595ee1b94b39b04926211",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorObjetosServer.lua": {

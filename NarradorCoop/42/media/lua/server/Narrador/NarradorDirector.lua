@@ -294,12 +294,6 @@ function Director.oir(a, x, y, texto)
                 lista[#lista + 1] = { h = floor(Mundo.horas()), t = texto, def = a.def, falso = a.falso ~= nil,
                     clave = tostring(a.def or ("falso" .. tostring(a.falso))) .. ":" .. tostring(a.desde) }
                 while #lista > 12 do table.remove(lista, 1) end
-                if a.lugar ~= nil then
-                    local zona = Motor.zonaDe(a.lugar, 60)
-                    if tonumber(Mundo.sandbox("Indicadores", 1)) ~= 3 then
-                        Motor.enviar(p, "marcar", { x = zona.x, y = zona.y, radio = zona.r, texto = "Rumor" })
-                    end
-                end
             end
         end
     end
