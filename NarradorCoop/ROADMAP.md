@@ -2,6 +2,8 @@
 
 Grafo del codigo (graphify): `NarradorCoop/graphify-out/` (`GRAPH_REPORT.md` para leer, `graph.json` y `graph.html`).
 Para actualizarlo: `cd NarradorCoop && graphify update .`
+Mapa de historias (que historia abre a cual y por que memoria): `NarradorCoop/MAPA_HISTORIAS.md`.
+Para actualizarlo: `python3 NarradorCoop/herramientas/mapa_historias.py` (necesita `pip install lupa`).
 
 ## Técnico
 

@@ -456,9 +456,9 @@
     "semantic_hash": ""
   },
   "ROADMAP.md": {
-    "mtime": 1792122501.720147,
-    "seen": 1792188667.1083663,
-    "ast_hash": "55e9e3f0df73751ba62af5c05510a14c",
+    "mtime": 1792189049.9506426,
+    "seen": 1792189052.585502,
+    "ast_hash": "61ea1e8cf4ea8ba81afd2167d610d366",
     "semantic_hash": ""
   },
   "common/LEEME.txt": {
@@ -837,6 +837,18 @@
     "mtime": 1792108415.1592472,
     "seen": 1792188667.1084673,
     "ast_hash": "42f428c823dc2cafb9f4ce15f78c85a6",
+    "semantic_hash": ""
+  },
+  "herramientas/mapa_historias.py": {
+    "mtime": 1792189041.896087,
+    "seen": 1792189052.585491,
+    "ast_hash": "c640931e350c54fa9fe4c6a26fa83bb8",
+    "semantic_hash": ""
+  },
+  "MAPA_HISTORIAS.md": {
+    "mtime": 1792189041.957885,
+    "seen": 1792189052.5854988,
+    "ast_hash": "09880daeda2b7ee3c20ae01440e8da56",
     "semantic_hash": ""
   }
 }
