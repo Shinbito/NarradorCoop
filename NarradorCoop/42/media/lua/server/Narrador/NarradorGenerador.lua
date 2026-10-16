@@ -621,15 +621,34 @@ end
 -- ---------------------------------------------------------------------------
 
 local function cerca(jugador, contactoId)
+    -- Un misionero sin campamento todavia no da trabajo (ver C.desbloqueado).
+    if C.desbloqueado ~= nil and not C.desbloqueado(contactoId) then return false end
     local x, y = C.posicion(contactoId)
     local px, py = Mundo.posicion(jugador)
     return x ~= nil and px ~= nil and math.sqrt((x - px) ^ 2 + (y - py) ^ 2) <= 10
+end
+
+-- Con muy mala fama en Knox (nivel -4 o peor) los misioneros ya no dan trabajo.
+G.RECHAZO = {
+    muldraugh = "Usted aca ya no es bienvenido, civil. Con todo el dano que ha hecho, ni un mandado le doy. Retirese de mi comisaria.",
+    westpoint = "No, mijo. Ya no. Con todo el dano que has hecho, aca no hay recados pa ti. Andate antes de que me arrepienta.",
+    riverside = "Esta puerta nunca se cierra, hijo. Salvo para ti. Lo que has hecho no lo perdona ni el Senor ni yo.",
+    rosewood = "Para ti la bencinera esta cerrada, mijito. Primera vez en treinta anos que cierro. Ya sabes por que.",
+}
+
+function G.rechazaPorKnox(jugador, contactoId, nivel)
+    local KX = Narrador.Knox
+    if KX == nil or not KX.despreciadoJugador(jugador) then return false end
+    C.decir(contactoId, G.RECHAZO[contactoId] or "Aca ya no eres bienvenido.")
+    Motor.enviar(jugador, "ofertas", { contacto = contactoId, nivel = nivel or "facil", lista = {}, nota = "Con tu fama en Knox, ya no te dan trabajo." })
+    return true
 end
 
 function G.verOfertas(jugador, args)
     local contactoId, nivel = tostring(args.contacto), tostring(args.nivel)
     local c = C.def(contactoId)
     if c == nil or C.NIVELES[nivel] == nil then return end
+    if G.rechazaPorKnox(jugador, contactoId, nivel) then return end
     if not cerca(jugador, contactoId) then Motor.responder(jugador, "Estas muy lejos."); return end
     local grupo = Mundo.grupoDe(jugador)
     if C.encargoDelGrupo(grupo) ~= nil then
@@ -653,8 +672,48 @@ function G.verOfertas(jugador, args)
         end
         if o ~= nil then usados[o.def] = true; lista[#lista + 1] = o end
     end
+    local especial = G.ofertaEspecial(contactoId, nivel, grupo)
+    if especial ~= nil then lista[#lista + 1] = especial end
     G.estado().ofertas[grupo] = { contacto = contactoId, nivel = nivel, lista = lista, hora = Mundo.horas() }
     G.enviarOfertas(jugador, grupo)
+end
+
+-- Modo historia de cada misionero: sus capitulos salen entre las ofertas (en cualquier
+-- nivel) cuando el capitulo anterior ya se hizo. Cada uno: contacto, capitulo, memoria que
+-- pide (requiere) y la que deja al terminar (hecho), confianza minima (nivel 1..5), nivel del
+-- pago y chance (1 en n; 1 = siempre). El desbloqueo (fundar el campamento) va aparte, antes
+-- del capitulo 1. Los capitulos tambien son requisito para subir el campamento de nivel
+-- (shared/Narrador/NarradorCampamentosDefs.lua).
+G.ESPECIALES = {
+    -- Tia Chela, capitulo 3. Faltan sus capitulos 1 y 2 (dejan "historia_westpoint_1" y "_2").
+    { def = "leyenda_tomas", contacto = "westpoint", capitulo = 3, requiere = "historia_westpoint_2",
+      hecho = "historia_westpoint_3", confianza = 3, pago = "dificil", chance = 1,
+      titulo = "Un cientifico que dice tener la cura",
+      resumen = { "Historia de la Tia Chela, cap. 3", "Para: un cientifico que pide ayuda por la radio",
+                  "Donde: un hospital o laboratorio", "Pago: botin dificil", "Ojo: hay una horda" } },
+}
+
+-- El capitulo que deja esa memoria ("historia_<id>_<n>") ya esta escrito? Si no, no se pide.
+function G.capituloEscrito(contactoId, memoria)
+    for _, e in ipairs(G.ESPECIALES) do
+        if e.contacto == contactoId and e.hecho == memoria and Defs.get(e.def) ~= nil then return true end
+    end
+    return false
+end
+
+function G.ofertaEspecial(contactoId, nivel, grupo)
+    local st = Motor.estado()
+    for _, e in ipairs(G.ESPECIALES) do
+        if e.contacto == contactoId and (e.nivel == nil or e.nivel == nivel) and Defs.get(e.def) ~= nil
+                and Motor.activos(e.def) == 0 and st.memoria[e.hecho] == nil
+                and (e.requiere == nil or st.memoria[e.requiere] ~= nil or not G.capituloEscrito(e.contacto, e.requiere))
+                and R.nivel(R.valor(grupo, contactoId)) >= (e.confianza or 1) and Mundo.azar(e.chance or 1) == 1 then
+            local titulo = e.capitulo ~= nil and ("Historia, cap. " .. e.capitulo .. ": " .. e.titulo) or e.titulo
+            return { def = e.def, vars = { nivel = e.pago or nivel }, lugares = { contacto = C.lugar(contactoId) },
+                titulo = titulo, resumen = e.resumen, tipo = nil }
+        end
+    end
+    return nil
 end
 
 function G.enviarOfertas(jugador, grupo)
@@ -676,6 +735,7 @@ function G.tomarOferta(jugador, args)
         return
     end
     if not cerca(jugador, of.contacto) then Motor.responder(jugador, "Estas muy lejos."); return end
+    if G.rechazaPorKnox(jugador, of.contacto) then return end
     if C.encargoDelGrupo(grupo) ~= nil then C.decir(of.contacto, "Ya tienes uno. Terminalo primero."); return end
     local o = of.lista[i]
     G.estado().ofertas[grupo] = nil
@@ -737,6 +797,7 @@ function G.pedirTrabajo(jugador, id, nivel)
     local c = C.def(tostring(id))
     if c == nil or C.NIVELES[tostring(nivel)] == nil then return end
     if not cerca(jugador, c.id) then Motor.responder(jugador, "Estas muy lejos."); return end
+    if G.rechazaPorKnox(jugador, c.id) then return end
     local grupo = Mundo.grupoDe(jugador)
     local activo = C.encargoDelGrupo(grupo)
     if activo ~= nil then

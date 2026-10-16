@@ -31,6 +31,40 @@ Lore.CONTACTOS = {
     rosewood = "Atiende una bencinera sin bencina. Dice que nunca cierra. Le debo un par de cigarros.",
 }
 
+-- Lo que voy sabiendo de cada misionero: una entrada por nivel de confianza (1 = recien lo
+-- conozco ... 5 = el maximo). El diario muestra hasta el nivel que tengo con el. Si un
+-- misionero no tiene lista, se usa su linea de Lore.CONTACTOS.
+Lore.PERFILES = {
+    muldraugh = {
+        "Ex cabo de policia de Muldraugh. Habla como si yo estuviera detenido y lo anota todo en una libreta de tapas negras. Paga lo que promete.",
+        "Veintidos anos de servicio y nunca paso de cabo. Dice que fue por 'diferencias de criterio' con el comisario. Se plancha el uniforme con una olla caliente. Todos los dias, aunque se acabe el mundo.",
+        "La libreta no es solo de encargos. Le vi una pagina: nombres de vecinos de Muldraugh, con una cruz o un signo de pregunta al lado. Dice que lleva el censo. Que alguien tiene que acordarse de quien queda.",
+        "Una noche me conto lo de la comisaria. Cuando empezo todo, el comisario mando cerrar con la gente adentro, 'por protocolo'. Ramiro abrio la puerta de atras y saco a once. Al resto no alcanzo. Por eso quiere el campamento: para hacerlo bien esta vez.",
+        "Tiene una hija en Louisville. Le escribe cartas que nunca manda y las guarda al final de la libreta. Me pidio que, si un dia no vuelve de una ronda, se las lleve. Le dije que si. No me dio las gracias: me hizo un saludo militar perfecto, que le temblo un poco.",
+    },
+    westpoint = {
+        "Bombera voluntaria de toda la vida. Me reta como si fuera mi tia y despues me pasa trabajo. No le discuto.",
+        "Treinta anos en el cuartel de West Point y nunca la dejaron manejar el carro bomba: 'cosa de hombres', le decian. Ahora lo maneja ella, sin licencia y sin frenos. Dice que es lo mejor que le ha pasado en la vida.",
+        "Cocina para todos aunque no haya nada. Cuenta las porciones en voz baja y siempre le falta una: la suya. Cuando le pregunte, me dijo que ya habia comido. No habia comido.",
+        "La primera noche hubo un incendio en la calle Main. Ella entro sola a buscar a una vecina. Salio con la vecina en brazos y la vecina ya estaba mordida. La tuvo que dejar en la vereda. Desde ese dia no apaga ningun fuego: dice que el fuego, por lo menos, avisa.",
+        "Tuvo un hijo, Eduardo. Se fue a Louisville el 92, peleados, y no se hablaban. Ella le guarda una frazada doblada en el cuartel, por si vuelve. A mi me dice mijo porque asi le decia a el. Me lo conto llorando y despues me reto por mirarla.",
+    },
+    riverside = {
+        "Pastor de la iglesia del pueblo. Bendice cada salida y admite que la mitad de sus encargos los inventa.",
+        "Antes de cura fue boxeador amateur en Lexington. Tiene la nariz quebrada dos veces y una derecha que no se le olvido. Dice que Dios le dio dos puños para que pudiera poner la otra mejilla con calma.",
+        "Inventa encargos porque cree que la gente ociosa se muere. Que el que tiene algo que hacer manana tiene una razon para despertar. Lleva una lista de quien vino cada semana y se preocupa cuando alguien no aparece.",
+        "No le queda mucha fe. Me lo dijo una noche, con una botella de vino de misa en la mano: 'Hijo, rezo por costumbre. Si Dios existe, se fue de vacaciones el 93.' Al otro dia hizo misa igual, para tres personas y un perro.",
+        "Hace anos se fue un domingo sin decirle a nadie, y una muchacha que necesitaba ayuda se quedo esperandolo en la iglesia. Nunca supo que paso con ella. Por eso no cierra nunca la puerta y por eso sigue aqui. 'No me voy a ir de nuevo', dice. 'No otra vez.'",
+    },
+    rosewood = {
+        "Atiende una bencinera sin bencina. Dice que nunca cierra. Le debo un par de cigarros.",
+        "Heredo la bencinera de su marido, Hector, que murio de un infarto en el 88 llenando el estanque de un camion. Ella siguio atendiendo al dia siguiente. 'La bomba no se para', dice. Tiene su foto pegada en la caja registradora.",
+        "Se sabe la vida de todos los camioneros de la ruta 31: quien engana a quien, quien debe plata, quien llora en el bano. Antes era chisme. Ahora es lo unico que queda de ellos, y lo cuenta para que no se pierdan.",
+        "Esconde un estanque de bencina bajo el piso del taller. No es para ella: es para el dia en que haga falta sacar a la gente del pueblo de una vez. Me lo mostro una sola vez y me hizo jurar. Le jure.",
+        "Tiene miedo. Siempre tuvo. De la oscuridad, de los asaltos, de quedarse sola. Por eso nunca cerro de noche: con la luz prendida y alguien al otro lado del mostrador, el miedo se le olvida. 'Tu eres mi luz prendida ahora, mijito', me dijo. Y se rio para que no se notara.",
+    },
+}
+
 Lore.NIVELES = {
     facil = "Trabajo facil, segun el.",
     medio = "Trabajo con riesgo. Pagan mejor.",

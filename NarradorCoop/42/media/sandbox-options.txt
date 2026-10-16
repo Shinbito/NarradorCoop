@@ -107,3 +107,9 @@ option Narrador.Ocupaciones = {
     page = Narrador, translation = Narrador.Ocupaciones,
     _tooltip = Narrador.Ocupaciones_tooltip,
 }
+
+option Narrador.DesbloqueoMisioneros = {
+    type = boolean, default = true,
+    page = Narrador, translation = Narrador.DesbloqueoMisioneros,
+    _tooltip = Narrador.DesbloqueoMisioneros_tooltip,
+}

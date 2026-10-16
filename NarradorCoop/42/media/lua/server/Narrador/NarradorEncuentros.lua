@@ -138,7 +138,8 @@ function E.misioneroCercano(x, y)
     local mejor, md
     for _, c in ipairs(C.LISTA) do
         local ce = C.estado(c.id)
-        if ce.x ~= nil then
+        -- Solo los que ya tienen campamento (desbloqueados).
+        if ce.x ~= nil and (C.desbloqueado == nil or C.desbloqueado(c.id)) then
             local d = math.sqrt((ce.x - x) ^ 2 + (ce.y - y) ^ 2)
             if md == nil or d < md then mejor, md = c, d end
         end
@@ -255,21 +256,34 @@ end
 -- Acciones que usan los encuentros
 -- ---------------------------------------------------------------------------
 
--- Marca la zona del lugar en el mapa del mundo de los jugadores del grupo dueno.
+-- La zona del encuentro va en un mapa de papel para los jugadores del grupo dueno (el mapa
+-- del mundo del jugador queda limpio).
 Motor.inmediatas.marcar_zona = function(inst, a)
     local l = inst.lugares[a.lugar]
     if l == nil then return true end
     local zona = Motor.zonaDe(l, tonumber(a.radio) or 30)
-    if tonumber(Mundo.sandbox("Indicadores", 1)) == 3 then return true end
+    local texto = Motor.texto(inst, a.texto or "Por aca")
     for _, p in ipairs(Mundo.jugadores()) do
-        if inst.vars.dueno == nil or Mundo.grupoDe(p) == inst.vars.dueno then
-            Motor.enviar(p, "marcar", { x = zona.x, y = zona.y, radio = zona.r, texto = Motor.texto(inst, a.texto or "Por aca") })
+        if Mundo.vivo(p) and (inst.vars.dueno == nil or Mundo.grupoDe(p) == inst.vars.dueno) then
+            local mapa = Mundo.crearMapaZona("Mapa: algo paso por aca", zona, texto)
+            if mapa ~= nil then Mundo.darItem(p, mapa) end
         end
     end
     return true
 end
 
 -- La persona salvada queda como cliente del misionero mas cercano (puede volver a pedir).
+E.REP_LLEVAR = 3
+
+-- El campamento del misionero al que se manda a la persona salvada.
+Motor.inmediatas.lugar_misionero = function(inst, a)
+    local c = C.def(tostring(inst.vars.misionero_id))
+    local e = c ~= nil and C.estado(c.id) or nil
+    if e == nil or e.x == nil then return false, "sin misionero" end
+    inst.lugares[a.id or "misionero"] = { x = e.x, y = e.y, z = e.z or 0, radio = 15, exacto = true,
+        etiqueta = "el campamento de " .. c.nombre }
+    return true
+end
 Motor.inmediatas.cliente_desde_encuentro = function(inst, a)
     local G = Narrador.Generador
     local cid = inst.vars.misionero_id
@@ -281,6 +295,28 @@ Motor.inmediatas.cliente_desde_encuentro = function(inst, a)
         table.insert(e.clientes[cid], { nombre = n[1], apellido = n[2], perfil = inst.vars.perfil, oficio = "camionero", veces = 1,
             sexo = "h" })
         while #e.clientes[cid] > 8 do table.remove(e.clientes[cid], 1) end
+    end
+    -- Llego al campamento: cuenta para su nivel (ver NarradorCampamentos).
+    local K = Narrador.Campamentos
+    if a.salvado and K ~= nil then
+        pcall(K.sumarSalvado, cid, n ~= nil and { nombre = n[1], apellido = n[2], perfil = inst.vars.perfil } or nil)
+    end
+    -- Mandarle gente sin pedir nada a cambio sube la confianza con el misionero. Poco a
+    -- proposito: salvando gente sola no alcanza para los niveles de confianza del campamento.
+    local R = Narrador.Reputacion
+    local c = C.def(cid)
+    if R ~= nil and R.activa() and c ~= nil then
+        local vistos = {}
+        for _, p in ipairs(Mundo.jugadores()) do
+            local g = Mundo.grupoDe(p)
+            if inst.vars.dueno == nil or g == inst.vars.dueno then
+                if not vistos[g] then
+                    vistos[g] = true
+                    R.sumar(g, cid, tonumber(a.rep) or E.REP_LLEVAR, "le lleve a " .. tostring(inst.vars.nombre or "alguien"))
+                end
+                Motor.enviar(p, "aviso", { texto = "+" .. tostring(tonumber(a.rep) or E.REP_LLEVAR) .. " de reputacion con " .. C.nombreCompleto(c) })
+            end
+        end
     end
     return true
 end

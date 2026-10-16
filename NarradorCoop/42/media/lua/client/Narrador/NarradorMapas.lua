@@ -61,21 +61,38 @@ if LootMaps ~= nil and LootMaps.Init ~= nil then
     LootMaps.Init.NarradorMapa = M.iniciarMapa
 end
 
--- Dibuja las marcas guardadas en el item (sin duplicar las que ya esten).
+-- API de simbolos del mapa abierto. El mapa del mundo usa getSymbolsAPI (y ese funciona);
+-- antes aca se pedia solo getSymbolsAPIv2, que no siempre existe, y por eso el mapa del
+-- misionero salia sin anotaciones.
+local function apiSimbolos(mapUI)
+    local mapAPI = mapUI.mapAPI
+    if mapAPI == nil then pcall(function() mapAPI = mapUI.javaObject:getAPIv1() end) end
+    if mapAPI == nil then return nil end
+    for _, nombre in ipairs({ "getSymbolsAPIv2", "getSymbolsAPI" }) do
+        local ok, api = pcall(function() return mapAPI[nombre](mapAPI) end)
+        if ok and api ~= nil then return api end
+    end
+    return nil
+end
+
+-- Dibuja las marcas guardadas en el item (sin duplicar las que ya esten). Devuelve true si
+-- pudo dibujar.
 function M.ponerMarcas(mapUI)
     local item = mapUI.mapObj or mapUI.mapItem
     local md = datosDe(item)
-    if md == nil or type(md.marcas) ~= "table" then return end
-    local api = mapUI.mapAPI:getSymbolsAPIv2()
-    if api == nil then return end
+    if md == nil or type(md.marcas) ~= "table" then return true end
+    local api = apiSimbolos(mapUI)
+    if api == nil then return false end
     local ya = {}
-    for i = 0, api:getSymbolCount() - 1 do
-        local s = api:getSymbolByIndex(i)
-        if s ~= nil then
-            local tipo = s:isText() and "t" or "s"
-            ya[tipo .. floor(s:getWorldX()) .. "," .. floor(s:getWorldY())] = true
+    pcall(function()
+        for i = 0, api:getSymbolCount() - 1 do
+            local s = api:getSymbolByIndex(i)
+            if s ~= nil then
+                local tipo = s:isText() and "t" or "s"
+                ya[tipo .. floor(s:getWorldX()) .. "," .. floor(s:getWorldY())] = true
+            end
         end
-    end
+    end)
     local escala = ISMap ~= nil and ISMap.SCALE or 0.666
     local capaTexto
     pcall(function() capaTexto = api:getDefaultTextLayerID() end)
@@ -108,18 +125,34 @@ function M.ponerMarcas(mapUI)
             end
         end
     end
+    return true
 end
 
-function M.enganchar()
+-- Las marcas se ponen la primera vez que el mapa se dibuja (para entonces el mapa ya esta
+-- armado), y ademas despues de initMapData si esa funcion existe en esta version.
+function M.engancharISMap()
     if ISMap == nil or M._enganchado then return end
     M._enganchado = true
-    local original = ISMap.initMapData
-    ISMap.initMapData = function(self, ...)
-        local r = original(self, ...)
-        pcall(M.ponerMarcas, self)
-        return r
+    if type(ISMap.initMapData) == "function" then
+        local original = ISMap.initMapData
+        ISMap.initMapData = function(self, ...)
+            local r = original(self, ...)
+            local ok, listo = pcall(M.ponerMarcas, self)
+            if ok and listo then self._narradorMarcas = true end
+            return r
+        end
+    end
+    local render = ISMap.render
+    ISMap.render = function(self, ...)
+        if not self._narradorMarcas then
+            local ok, listo = pcall(M.ponerMarcas, self)
+            if ok and listo then self._narradorMarcas = true end
+        end
+        if render ~= nil then return render(self, ...) end
     end
 end
+
+function M.enganchar() M.engancharISMap() end
 M.enganchar()
 
 -- ---------------------------------------------------------------------------

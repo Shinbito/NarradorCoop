@@ -9,6 +9,7 @@ require "ISUI/ISPanel"
 require "Narrador/NarradorDefs"
 require "Narrador/NarradorLore"
 require "Narrador/NarradorCliente"
+require "Narrador/NarradorKnoxDefs"
 
 Narrador = Narrador or {}
 local Diario = Narrador.Diario or {}
@@ -35,25 +36,31 @@ Diario.PESTANAS = {
     { id = "notas", texto = "Notas", color = { r = 0.18, g = 0.24, b = 0.42 } },
 }
 
--- Tintas.
-local TINTA = { r = 0.17, g = 0.12, b = 0.08 }
-local TINTA_TITULO = { r = 0.42, g = 0.11, b = 0.08 }
-local TINTA_AZUL = { r = 0.12, g = 0.20, b = 0.45 }
-local LAPIZ = { r = 0.42, g = 0.37, b = 0.30 }
-local SEPIA = { r = 0.36, g = 0.25, b = 0.15 }
+-- Tintas: todo escrito con un lapiz pasta azul (mas cargado en los titulos, gastado en las
+-- fechas y notas al margen). El rojo queda solo para lo urgente.
+local TINTA = { r = 0.10, g = 0.17, b = 0.47 }
+local TINTA_TITULO = { r = 0.05, g = 0.10, b = 0.38 }
+local TINTA_AZUL = { r = 0.16, g = 0.26, b = 0.56 }
+local LAPIZ = { r = 0.33, g = 0.40, b = 0.60 }
+local SEPIA = { r = 0.20, g = 0.28, b = 0.55 }
 local ROJO = { r = 0.62, g = 0.10, b = 0.08 }
 
--- Fuentes: la manuscrita si el juego la tiene; si no, la normal.
+-- Fuentes: todo a mano con la letra manuscrita del juego (la de las notas del mapa), del
+-- mismo tamano; los titulos se distinguen por la tinta y el subrayado, no por ser enormes.
+-- Las fechas y notas al margen van en letra chica.
 function Diario.fuentes()
-    local mano = UIFont.Handwritten or UIFont.Medium
+    local mano = UIFont.Handwritten or UIFont.Small
     return {
-        titulo = UIFont.Large or UIFont.Medium,
-        sub = UIFont.Medium,
+        titulo = mano,
+        sub = mano,
         mano = mano,
         chico = UIFont.Small,
         fecha = UIFont.Small,
     }
 end
+
+-- Interlineado extra: deja aire entre renglones para que no sea un bloque de texto.
+Diario.INTERLINEA = 3
 
 -- ---------------------------------------------------------------------------
 -- Utilidades
@@ -118,7 +125,8 @@ function Diario.entrada(b, arco, titulo)
     agregar(b, { t = titulo, f = "sub", c = TINTA_TITULO, antes = 10, junto = true })
     local h = ultimaHora(arco)
     if h ~= nil then agregar(b, { t = Diario.fecha(h), f = "fecha", c = LAPIZ, junto = true }) end
-    if arco.intro ~= nil and arco.mostrarIntro then
+    -- La introduccion solo al empezar el capitulo; despues ya se sabe y es texto de mas.
+    if arco.intro ~= nil and arco.mostrarIntro and #(arco.diario or {}) <= 1 then
         agregar(b, { t = arco.intro, f = "mano", c = SEPIA, antes = 4 })
     end
     agregar(b, { t = arco.lore or arco.pista or "", f = "mano", c = TINTA, antes = 4 })
@@ -128,7 +136,7 @@ function Diario.entrada(b, arco, titulo)
     local d = arco.diario or {}
     if #d > 1 then
         agregar(b, { t = "Anotado antes:", f = "fecha", c = LAPIZ, antes = 8, junto = true })
-        local hasta = math.max(1, #d - 4)
+        local hasta = math.max(1, #d - 2)
         for i = #d - 1, hasta, -1 do
             local e = d[i]
             agregar(b, { t = Diario.fecha(e.h) .. "  " .. tostring(e.t), f = "fecha", c = LAPIZ, sangria = 8, antes = 2 })
@@ -160,8 +168,7 @@ end
 
 function Diario.paginaHistoria(estado)
     local b = {}
-    agregar(b, { t = "Historia", f = "titulo", c = TINTA_TITULO, centrado = true })
-    agregar(b, { t = "Lo que me esta pasando, para no olvidarlo.", f = "fecha", c = LAPIZ, centrado = true })
+    agregar(b, { t = "Historia", f = "titulo", c = TINTA_TITULO, centrado = true, subrayado = true })
     agregar(b, { adorno = true, antes = 6 })
     local activos = {}
     for _, a in ipairs(estado.arcos or {}) do
@@ -193,8 +200,7 @@ end
 function Diario.paginaSecundarias(estado)
     local b = {}
     local miGrupo = Narrador.Cliente ~= nil and Narrador.Cliente.miGrupo() or nil
-    agregar(b, { t = "Asuntos pendientes", f = "titulo", c = TINTA_TITULO, centrado = true })
-    agregar(b, { t = "Gente que pidio ayuda, cosas que no pude ignorar.", f = "fecha", c = LAPIZ, centrado = true })
+    agregar(b, { t = "Asuntos pendientes", f = "titulo", c = TINTA_TITULO, centrado = true, subrayado = true })
     agregar(b, { adorno = true, antes = 6 })
     local hay = false
     for _, a in ipairs(estado.arcos or {}) do
@@ -205,7 +211,7 @@ function Diario.paginaSecundarias(estado)
     end
     if not hay then agregar(b, { t = Lore.VACIO.secundaria, f = "mano", c = SEPIA, antes = 6 }) end
 
-    agregar(b, { t = "Encargos", f = "titulo", c = TINTA_TITULO, centrado = true, antes = 16, junto = true })
+    agregar(b, { t = "Encargos", f = "titulo", c = TINTA_TITULO, centrado = true, subrayado = true, antes = 16, junto = true })
     local mio, otros = nil, 0
     for _, a in ipairs(estado.arcos or {}) do
         if a.tipo == "encargo" and not a.terminado then
@@ -237,14 +243,14 @@ function Diario.paginaSecundarias(estado)
     if #cer > 0 then
         agregar(b, { adorno = true, antes = 10 })
         agregar(b, { t = "Ya pasaron", f = "sub", c = LAPIZ, antes = 8, junto = true })
-        for i = 1, math.min(6, #cer) do cerrada(b, cer[i]) end
+        for i = 1, math.min(3, #cer) do cerrada(b, cer[i]) end
     end
     return b
 end
 
 function Diario.paginaNotas(estado)
     local b = {}
-    agregar(b, { t = "Notas", f = "titulo", c = TINTA_TITULO, centrado = true })
+    agregar(b, { t = "Notas", f = "titulo", c = TINTA_TITULO, centrado = true, subrayado = true })
     agregar(b, { adorno = true, antes = 6 })
     local contactos = estado.contactos or {}
     agregar(b, { t = "Los misioneros", f = "sub", c = TINTA_TITULO, antes = 6, junto = true })
@@ -257,8 +263,24 @@ function Diario.paginaNotas(estado)
             local suyo = mio ~= nil and mio.contacto == c.id
             agregar(b, { t = tostring(c.nombre) .. " (" .. tostring(c.ciudad) .. ")", f = "chico",
                 c = suyo and ROJO or TINTA, antes = 6, junto = true })
-            agregar(b, { t = tostring(Lore.CONTACTOS[c.id] or "") .. (suyo and " Tengo un encargo suyo pendiente." or ""),
-                f = "mano", c = SEPIA, sangria = 8 })
+            -- Lo que se de el: mas cuanto mas confianza me tiene.
+            local capas = Diario.loQueSe(estado, c.id)
+            for i, texto in ipairs(capas) do
+                local ultima = i == #capas
+                agregar(b, { t = texto .. ((ultima and suyo) and " Tengo un encargo suyo pendiente." or ""),
+                    f = "mano", c = SEPIA, sangria = 8, antes = i > 1 and 3 or 0 })
+            end
+            -- Su campamento: nivel, gente salvada y lo que falta para el siguiente.
+            local k = estado.campamentos ~= nil and estado.campamentos[c.id] or nil
+            if k ~= nil then
+                local linea = "Campamento nivel " .. tostring(k.nivel or 0) .. ". Salve y traje a " .. tostring(k.salvados or 0)
+                    .. ". Guardias: " .. tostring(k.guardias or 0) .. " de " .. tostring(k.max_guardias or 15) .. "."
+                if k.ataque then linea = linea .. " LO ESTA ATACANDO UNA HORDA." end
+                if k.siguiente ~= nil and type(k.falta) == "table" and #k.falta > 0 then
+                    linea = linea .. " Para que llegue el " .. tostring(k.siguiente) .. ": " .. table.concat(k.falta, ", ") .. "."
+                end
+                agregar(b, { t = linea, f = "chico", c = TINTA_AZUL, sangria = 8, antes = 3 })
+            end
         end
         agregar(b, { t = "> Para pedir trabajo hay que acercarse y hablarles (clic derecho). Un encargo a la vez por grupo.",
             f = "chico", c = TINTA_AZUL, antes = 8 })
@@ -272,7 +294,7 @@ function Diario.paginaNotas(estado)
     if #diario == 0 then
         agregar(b, { t = "Nada anotado todavia.", f = "mano", c = SEPIA, antes = 4 })
     end
-    for i = #diario, math.max(1, #diario - 24), -1 do
+    for i = #diario, math.max(1, #diario - 7), -1 do
         local e = diario[i]
         agregar(b, { t = Diario.fecha(e.h) .. "  -  " .. tostring(e.arco), f = "fecha", c = LAPIZ, antes = 6, junto = true })
         agregar(b, { t = tostring(e.t), f = "chico", c = TINTA, sangria = 8 })
@@ -281,6 +303,20 @@ function Diario.paginaNotas(estado)
         agregar(b, { t = "Project A-Life no esta activo: las historias con personas no van a aparecer.", f = "chico", c = ROJO, antes = 12 })
     end
     return b
+end
+
+-- Entradas del perfil de un misionero hasta mi nivel de confianza con el.
+function Diario.loQueSe(estado, id)
+    local lista = Lore.PERFILES ~= nil and Lore.PERFILES[id] or nil
+    if lista == nil then return { tostring(Lore.CONTACTOS[id] or "") } end
+    local grupo = Narrador.Cliente ~= nil and Narrador.Cliente.miGrupo() or nil
+    local fila = estado.reputacion ~= nil and grupo ~= nil and estado.reputacion[grupo] or nil
+    local r = fila ~= nil and fila[id] or nil
+    local nivel = math.max(1, math.min(#lista, tonumber(r ~= nil and r.nivel or 1) or 1))
+    if estado.reputacion_activa == false then nivel = 1 end
+    local r2 = {}
+    for i = 1, nivel do r2[#r2 + 1] = lista[i] end
+    return r2
 end
 
 -- Libreta de contactos: como me trata cada misionero y cuanto falta para que me tenga mas confianza.
@@ -302,6 +338,12 @@ function Diario.libreta(b, estado, contactos)
             linea = linea .. ". Mas no se puede."
         end
         if r ~= nil and r.favor then linea = linea .. " Me debe un favor." end
+        -- Con muy mala fama en Knox pesa mas lo que hice que su confianza.
+        local kx = estado.knox ~= nil and grupo ~= nil and estado.knox[grupo] or nil
+        local KD = Narrador.KnoxDefs
+        if kx ~= nil and KD ~= nil and (tonumber(kx.nivel) or 1) <= KD.DESPRECIO then
+            linea = linea .. " Pero con lo que he hecho en Knox, ya no me quiere ver."
+        end
         agregar(b, { t = linea, f = "chico", c = TINTA, sangria = 8, antes = 3 })
     end
     agregar(b, { t = "> La confianza sube cumpliendo encargos y se corre la voz entre ellos. Abre mas ofertas, mapas mas exactos y favores.",
@@ -318,7 +360,7 @@ function Diario.rumores(b, estado)
         agregar(b, { t = "No he escuchado nada raro. Habria que conversar mas con la gente.", f = "mano", c = SEPIA, antes = 4 })
         return
     end
-    for i = #lista, math.max(1, #lista - 5), -1 do
+    for i = #lista, math.max(1, #lista - 2), -1 do
         local r = lista[i]
         agregar(b, { t = Diario.fecha(r.h), f = "fecha", c = LAPIZ, antes = 4, junto = true })
         agregar(b, { t = '"' .. tostring(r.t) .. '"', f = "mano", c = TINTA, sangria = 8 })
@@ -331,6 +373,12 @@ function Diario.loQueHice(b, estado)
     local mio = estado.huellas ~= nil and grupo ~= nil and estado.huellas[grupo] or nil
     agregar(b, { adorno = true, antes = 10 })
     agregar(b, { t = "Lo que hice", f = "sub", c = TINTA_TITULO, antes = 6, junto = true })
+    -- Como me conocen en Knox (reputacion global).
+    local kx = estado.knox ~= nil and grupo ~= nil and estado.knox[grupo] or nil
+    if kx ~= nil then
+        local malo = (tonumber(kx.nivel) or 1) < 0
+        agregar(b, { t = "En Knox me conocen como: " .. tostring(kx.titulo) .. ".", f = "mano", c = malo and ROJO or TINTA_TITULO, antes = 4 })
+    end
     if mio == nil or #(mio.huellas or {}) == 0 then
         agregar(b, { t = "Todavia nada que me pese. O que me enorgullezca.", f = "mano", c = SEPIA, antes = 4 })
         return
@@ -373,7 +421,7 @@ function Diario.paginar(bloques, ancho, alto)
         else
             local fuente = F[bl.f or "mano"] or F.mano
             c.fuente = fuente
-            c.hl = Diario.alto(fuente) + 1
+            c.hl = Diario.alto(fuente) + Diario.INTERLINEA
             c.lineas = Diario.envolver(bl.t or "", ancho - (bl.sangria or 0), fuente)
             c.alto = #c.lineas * c.hl
         end
@@ -417,7 +465,7 @@ function Diario.paginar(bloques, ancho, alto)
                 local x = bl.sangria or 0
                 if bl.centrado then x = floor((ancho - Diario.ancho(c.fuente, linea)) / 2) end
                 table.insert(paginas[#paginas], { t = linea, x = x, y = y, fuente = c.fuente, c = bl.c or TINTA,
-                    tachado = bl.tachado, ancho = Diario.ancho(c.fuente, linea), hl = c.hl })
+                    tachado = bl.tachado, subrayado = bl.subrayado, ancho = Diario.ancho(c.fuente, linea), hl = c.hl })
                 y = y + c.hl
             end
         end
@@ -535,12 +583,17 @@ function NarradorDiarioLibro:dibujarPagina(i, pagina)
         if l.adorno then
             local _, _, ancho = self:rectPagina(i)
             local cx = px + floor(ancho / 2)
-            self:drawRect(cx - 50, py + l.y + 4, 100, 1, 0.45, SEPIA.r, SEPIA.g, SEPIA.b)
-            self:drawRect(cx - 3, py + l.y + 2, 6, 5, 0.6, TINTA_TITULO.r, TINTA_TITULO.g, TINTA_TITULO.b)
+            self:drawRect(cx - 40, py + l.y + 4, 80, 1, 0.4, LAPIZ.r, LAPIZ.g, LAPIZ.b)
         else
             self:drawText(l.t, px + l.x, py + l.y, l.c.r, l.c.g, l.c.b, 1, l.fuente)
             if l.tachado then
                 self:drawRect(px + l.x - 2, py + l.y + floor(l.hl / 2), l.ancho + 4, 1, 0.8, l.c.r, l.c.g, l.c.b)
+            end
+            if l.subrayado then
+                -- Doble raya a mano, la de abajo un poco mas corta.
+                local yl = py + l.y + l.hl - 2
+                self:drawRect(px + l.x - 4, yl, l.ancho + 8, 1, 0.75, l.c.r, l.c.g, l.c.b)
+                self:drawRect(px + l.x + 2, yl + 2, l.ancho - 6, 1, 0.5, l.c.r, l.c.g, l.c.b)
             end
         end
     end
