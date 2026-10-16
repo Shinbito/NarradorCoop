@@ -676,12 +676,20 @@ G.ESPECIALES = {
                   "Donde: un hospital o laboratorio", "Pago: botin dificil", "Ojo: hay una horda" } },
 }
 
+-- El capitulo que deja esa memoria ("historia_<id>_<n>") ya esta escrito? Si no, no se pide.
+function G.capituloEscrito(contactoId, memoria)
+    for _, e in ipairs(G.ESPECIALES) do
+        if e.contacto == contactoId and e.hecho == memoria and Defs.get(e.def) ~= nil then return true end
+    end
+    return false
+end
+
 function G.ofertaEspecial(contactoId, nivel, grupo)
     local st = Motor.estado()
     for _, e in ipairs(G.ESPECIALES) do
         if e.contacto == contactoId and (e.nivel == nil or e.nivel == nivel) and Defs.get(e.def) ~= nil
                 and Motor.activos(e.def) == 0 and st.memoria[e.hecho] == nil
-                and (e.requiere == nil or st.memoria[e.requiere] ~= nil)
+                and (e.requiere == nil or st.memoria[e.requiere] ~= nil or not G.capituloEscrito(e.contacto, e.requiere))
                 and R.nivel(R.valor(grupo, contactoId)) >= (e.confianza or 1) and Mundo.azar(e.chance or 1) == 1 then
             local titulo = e.capitulo ~= nil and ("Historia, cap. " .. e.capitulo .. ": " .. e.titulo) or e.titulo
             return { def = e.def, vars = { nivel = e.pago or nivel }, lugares = { contacto = C.lugar(contactoId) },
