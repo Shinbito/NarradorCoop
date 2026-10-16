@@ -2,7 +2,8 @@
 -- laboratorio o base militar) a buscar el antibiotico experimental K-93, que cura la mordida.
 -- Ultra dificil. Sale una vez cada 20 dias de juego para todo el servidor: si un misionero te
 -- la da, los otros no la tienen hasta que pasen los 20 dias (ver server/Narrador/NarradorCuraServer.lua).
--- En el lugar hay varias pastillas K-93 iguales y solo una es la verdadera. Con Medicina 4 o
+-- En el lugar hay varias pastillas K-93 iguales: de 1 a 4 son verdaderas (siempre al menos
+-- una) y el resto son de azucar. Con Medicina 4 o
 -- mas se distinguen; si no, hay que entregar una al azar o probarlas. Puedes entregar la
 -- verdadera, una cualquiera, una falsa a proposito (y quedarte con la buena) o ninguna.
 -- Textos sin tildes a proposito.
@@ -36,13 +37,13 @@ Narrador.Defs.registrar({
             salidas = plazo({ { cuando = { "cerca", "objetivo", 60 }, ir = "en_sitio" } }),
         },
         en_sitio = {
-            pista = "Encontrar el refrigerador con las pastillas K-93 en {lugar:objetivo}. Llevatelas todas: solo una es la verdadera.",
+            pista = "Encontrar el refrigerador con las pastillas K-93 en {lugar:objetivo}. Llevatelas todas: no todas son verdaderas.",
             al_entrar = {
                 { "oleada", lugar = "objetivo", radio = 70, cantidad = { 80, 100 } },
                 { "oleada", lugar = "objetivo", radio = 70, cantidad = { 40, 60 }, retraso = 0.4 },
                 { "corredores", lugar = "objetivo", radio = 70, cantidad = { 8, 12 }, retraso = 0.2 },
                 { "bandidos", id = "saqueadores", lugar = "objetivo", radio = 70, modo = "guard", cantidad = { 4, 6 } },
-                { "pastillas", id = "cura", lugar = "objetivo", radio = 70, cantidad = { 5, 7 }, reales = 1, nombre = "Pastilla K-93" },
+                { "pastillas", id = "cura", lugar = "objetivo", radio = 70, cantidad = { 5, 7 }, reales = { 1, 4 }, nombre = "Pastilla K-93" },
                 { "aviso", texto = "Aca adentro hay mas muertos que en cualquier lugar que hayas visto. Y algunos corren." },
             },
             salidas = plazo({ { cuando = { "alguien_tiene", "cura" }, ir = "volver" } }),
@@ -50,7 +51,7 @@ Narrador.Defs.registrar({
         volver = {
             pista = "Volver con {contacto_nombre} en {lugar:contacto} con una pastilla K-93.",
             ancla = "contacto",
-            al_entrar = { { "diario", texto = "Tengo las pastillas K-93. Todas iguales. Una sola es la verdadera. Una tiene que llegar donde {contacto_nombre}... y la buena es un seguro de vida." } },
+            al_entrar = { { "diario", texto = "Tengo las pastillas K-93. Todas iguales. Algunas son de azucar y no se cuantas son de verdad. Una tiene que llegar donde {contacto_nombre}... y la buena es un seguro de vida." } },
             opciones = {
                 { id = "entregar", texto = "Entregarle una pastilla a {contacto_nombre} (cualquiera)", requiere = { "pastilla", "cura", "cualquiera" },
                   falta = "No llevas las pastillas." },

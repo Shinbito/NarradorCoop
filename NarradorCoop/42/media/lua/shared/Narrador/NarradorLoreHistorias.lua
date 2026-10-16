@@ -14,8 +14,8 @@ Lore.NIVELES.cura = "La cura. Louisville otra vez. Esta vez corren."
 Lore.arcos.encargo_cura = {
     etapas = {
         viaje = "{contacto_nombre} me hablo de un antibiotico experimental, el K-93, que cura la mordida. Lo guardaban en {lugar:objetivo}, en pleno Louisville. Tiene a alguien mordido esperando. Una dosis es para esa persona. La otra, dice, es mia. Nunca una promesa me habia pesado tanto en la mochila.",
-        en_sitio = "Estoy en {lugar:objetivo}. Hay mas muertos que en cualquier lugar que haya visto, y algunos corren. Corren. El refrigerador con el K-93 tiene que estar adentro. Las pastillas son todas iguales y solo una sirve. Me las llevo todas y despues pienso.",
-        volver = "Sali de Louisville con un punado de pastillas iguales en el bolsillo. Una sola es la verdadera. Alguien espera donde {contacto_nombre}, en {lugar:contacto}, y cada hora cuenta. Y yo tengo en la mano lo unico en el mundo que me salvaria de una mordida. Tengo que decidir que entrego.",
+        en_sitio = "Estoy en {lugar:objetivo}. Hay mas muertos que en cualquier lugar que haya visto, y algunos corren. Corren. El refrigerador con el K-93 tiene que estar adentro. Las pastillas son todas iguales y no todas sirven. Me las llevo todas y despues pienso.",
+        volver = "Sali de Louisville con un punado de pastillas iguales en el bolsillo. Algunas son de verdad, otras de azucar, y a simple vista no hay como saber cuantas. Alguien espera donde {contacto_nombre}, en {lugar:contacto}, y cada hora cuenta. Y yo tengo en la mano lo unico en el mundo que me salvaria de una mordida. Tengo que decidir que entrego.",
     },
     finales = {
         final_cumplido = "Le entregue la dosis a {contacto_nombre}. La verdadera. La persona que esperaba va a despertar manana sin fiebre, y no va a saber nunca como me llamo. Esta bien asi. Hay cosas que valen mas que un seguro de vida.",

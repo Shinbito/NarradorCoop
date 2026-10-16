@@ -959,15 +959,21 @@ Motor.diferidas = {
         Mundo.zombiEn(l.x, l.y, l.z, p.femenino)
         return true
     end,
-    -- Varias pastillas K-93 iguales; "reales" de ellas son las verdaderas (0 o 1, o "var:x" true/false).
+    -- Varias pastillas K-93 iguales; "reales" de ellas son las verdaderas: un numero, un rango
+    -- { min, max } o "var:x" true/false (1 o 0). Las verdaderas van en posiciones distintas.
     pastillas = function(inst, p, l)
         local n = Motor.cantidad(p.cantidad, 4)
         local reales = p.reales
         if reales == true then reales = 1 elseif reales == false or reales == nil then reales = 0 end
-        reales = tonumber(reales) or 0
+        reales = math.min(Motor.cantidad(reales, 0), n)
+        local orden = {}
+        for i = 1, n do orden[i] = i end
         local cual = {}
-        for i = 1, math.min(reales, n) do cual[Mundo.azar(n)] = true end
-        if reales > 0 and Motor.vacia(cual) then cual[1] = true end
+        for i = 1, reales do
+            local j = i + Mundo.azar(n - i + 1) - 1
+            orden[i], orden[j] = orden[j], orden[i]
+            cual[orden[i]] = true
+        end
         for i = 1, n do
             local item = Mundo.crearItem({ "Narrador.CuraZ", "Base.Pills" })
             if item ~= nil then
