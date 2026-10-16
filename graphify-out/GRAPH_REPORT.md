@@ -1,17 +1,17 @@
 # Graph Report - NarradorCoop  (2026-10-16)
 
 ## Corpus Check
-- 57 files · ~197,544 words
+- 59 files · ~199,720 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 20 file(s) not represented in the graph (top: .X 18, (none) 1, .info 1)
 
 ## Summary
-- 807 nodes · 2517 edges · 21 communities (20 shown, 1 thin omitted)
-- Extraction: 69% EXTRACTED · 31% INFERRED · 0% AMBIGUOUS · INFERRED: 784 edges (avg confidence: 0.85)
+- 824 nodes · 2555 edges · 20 communities (19 shown, 1 thin omitted)
+- Extraction: 69% EXTRACTED · 31% INFERRED · 0% AMBIGUOUS · INFERRED: 796 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2baeae36`
+- Built from commit: `e65ce76d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -27,25 +27,24 @@
 - NarradorConversas.lua
 - NarradorMundo.lua
 - NarradorCuraServer.lua
-- Motor.enviar
+- NarradorHuellas.lua
+- Generados.lua
 - NarradorLegendario.lua
-- NarradorLore.lua
 - NarradorIndicadoresCalc.lua
 - Cliente.recibir
 - NarradorContactos.lua
 - README.md
 - NarradorContactos.lua
-- NarradorObjetosServer.lua
 - Ideas futuras: campamentos de supervivientes
 
 ## God Nodes (most connected - your core abstractions)
-1. `Motor.estado()` - 80 edges
-2. `Mundo.horas()` - 76 edges
+1. `Motor.estado()` - 83 edges
+2. `Mundo.horas()` - 77 edges
 3. `Mundo.azar()` - 58 edges
-4. `Mundo.log()` - 36 edges
-5. `Mundo.jugadores()` - 34 edges
-6. `Mundo.posicion()` - 31 edges
-7. `Motor.enviar()` - 30 edges
+4. `Mundo.log()` - 37 edges
+5. `Mundo.jugadores()` - 36 edges
+6. `Motor.enviar()` - 31 edges
+7. `Mundo.posicion()` - 31 edges
 8. `Motor.iniciar()` - 30 edges
 9. `C.estado()` - 28 edges
 10. `Motor.publicar()` - 27 edges
@@ -53,27 +52,27 @@
 ## Surprising Connections (you probably didn't know these)
 - `S.comprar()` --calls--> `L.crearAuto()`  [INFERRED]
   NarradorCoop/42/media/lua/server/Narrador/NarradorCampamentos.lua → NarradorCoop/42/media/lua/shared/Narrador/NarradorLegendario.lua
-- `CS.repasoCura()` --calls--> `Cura.infectado()`  [INFERRED]
-  NarradorCoop/42/media/lua/server/Narrador/NarradorCuraServer.lua → NarradorCoop/42/media/lua/shared/Narrador/NarradorCura.lua
 - `Motor.transformar()` --calls--> `Mundo.zombiEn()`  [INFERRED]
   NarradorCoop/42/media/lua/server/Narrador/NarradorMotor.lua → NarradorCoop/42/media/lua/server/Narrador/NarradorMundo.lua
 - `Motor.pedirGrupo()` --calls--> `Mundo.existePerfil()`  [INFERRED]
   NarradorCoop/42/media/lua/server/Narrador/NarradorMotor.lua → NarradorCoop/42/media/lua/server/Narrador/NarradorMundo.lua
 - `Motor.onNpcMuerto()` --calls--> `Mundo.esJugador()`  [INFERRED]
   NarradorCoop/42/media/lua/server/Narrador/NarradorMotor.lua → NarradorCoop/42/media/lua/server/Narrador/NarradorMundo.lua
+- `Ind.menuAdmin()` --calls--> `Cliente.enviar()`  [INFERRED]
+  NarradorCoop/42/media/lua/client/Narrador/NarradorIndicadores.lua → NarradorCoop/42/media/lua/client/Narrador/NarradorCliente.lua
 
 ## Import Cycles
 - None detected.
 
-## Communities (21 total, 1 thin omitted)
+## Communities (20 total, 1 thin omitted)
 
 ### Community 0 - "NarradorMotor.lua"
 Cohesion: 0.06
-Nodes (99): C.aparecer(), C.encargoActivo(), C.encargosActivos(), C.limpiar(), C.migrarDesbloqueo(), C.reponer(), C.revisarDesbloqueo(), C.revisarMall() (+91 more)
+Nodes (104): C.alMorir(), C.aparecer(), C.encargoActivo(), C.enterrar(), C.limpiar(), C.migrarDesbloqueo(), C.reponer(), C.revisarDesbloqueo() (+96 more)
 
 ### Community 1 - "Mundo.horas"
-Cohesion: 0.07
-Nodes (83): A.activas(), A.agrupar(), A.direccionTexto(), A.elegirTipo(), A.intervalo(), A.lanzar(), A.presupuesto(), A.programar() (+75 more)
+Cohesion: 0.08
+Nodes (73): A.activas(), A.agrupar(), A.direccionTexto(), A.elegirTipo(), A.intervalo(), A.lanzar(), A.presupuesto(), A.programar() (+65 more)
 
 ### Community 2 - "NarradorOcupaciones.lua"
 Cohesion: 0.24
@@ -84,12 +83,12 @@ Cohesion: 0.07
 Nodes (68): Cliente.enviar(), ahora(), arcoPorId(), Conv.abrir(), Conv.abrirMisiones(), Conv.alCambiarResolucion(), Conv.altoFuente(), Conv.cambiarSeguir() (+60 more)
 
 ### Community 4 - "NarradorDefs.lua"
-Cohesion: 0.05
-Nodes (44): apiSimbolos(), datosDe(), imagenEncima(), M.enganchar(), M.engancharISMap(), M.iniciarMapa(), M.menu(), M.pedirFavor() (+36 more)
+Cohesion: 0.06
+Nodes (36): apiSimbolos(), datosDe(), imagenEncima(), M.enganchar(), M.engancharISMap(), M.iniciarMapa(), M.menu(), M.pedirFavor() (+28 more)
 
 ### Community 5 - "NarradorDiario.lua"
-Cohesion: 0.09
-Nodes (45): agregar(), cerrada(), cerradas(), dentro(), Diario.abrir(), Diario.acomodarIcono(), Diario.alCambiarResolucion(), Diario.alternar() (+37 more)
+Cohesion: 0.07
+Nodes (50): agregar(), cerrada(), cerradas(), dentro(), Diario.abrir(), Diario.acomodarIcono(), Diario.alCambiarResolucion(), Diario.alternar() (+42 more)
 
 ### Community 6 - "NarradorCliente.lua"
 Cohesion: 0.10
@@ -105,23 +104,23 @@ Nodes (29): calza(), claveZona(), CS.activaCerca(), CS.avanzar(), CS.charlaPausa
 
 ### Community 9 - "NarradorMundo.lua"
 Cohesion: 0.06
-Nodes (55): C.cajaEdificio(), C.curar(), Director.revisarVisitas(), contarTipos(), H.dispararEco(), calza(), casillaLibre(), centro() (+47 more)
+Nodes (57): C.cajaEdificio(), C.curar(), C.ubicar(), Director.revisarVisitas(), contarTipos(), H.dispararEco(), calza(), casillaLibre() (+49 more)
 
 ### Community 10 - "NarradorCuraServer.lua"
 Cohesion: 0.17
-Nodes (13): Cura.examinar(), Cura.menuInventario(), nivelMedicina(), CS.falta(), CS.st(), CS.vista(), Cura.curar(), Cura.dolor() (+5 more)
+Nodes (14): Cura.examinar(), Cura.menuInventario(), nivelMedicina(), CS.falta(), CS.repasoCura(), CS.st(), CS.vista(), Cura.curar() (+6 more)
 
-### Community 11 - "Motor.enviar"
-Cohesion: 0.19
-Nodes (17): Cal.amigoSecreto(), Cal.calor(), Cal.corteLuz(), Cal.eventosActivos(), Cal.fonda(), Cal.niebla(), Cal.residente(), Cal.sousAliados() (+9 more)
+### Community 11 - "NarradorHuellas.lua"
+Cohesion: 0.18
+Nodes (19): H.alTerminar(), H.anunciarTitulo(), H.completarHuella(), H.estadoTexto(), H.fama(), H.gruposDe(), H.registrar(), H.st() (+11 more)
+
+### Community 12 - "Generados.lua"
+Cohesion: 0.42
+Nodes (9): base(), buscar(), complicaciones(), enSitio(), entregarAlMisionero(), finales(), inicio(), plazo() (+1 more)
 
 ### Community 14 - "NarradorLegendario.lua"
 Cohesion: 0.33
 Nodes (9): azar(), crearItem(), es(), L.alEquipar(), L.aplicar(), L.crear(), L.crearAuto(), L.marcar() (+1 more)
-
-### Community 15 - "NarradorLore.lua"
-Cohesion: 0.43
-Nodes (5): Motor.vistaLore(), Lore.de(), Lore.etapa(), Lore.final(), Lore.intro()
 
 ### Community 16 - "NarradorIndicadoresCalc.lua"
 Cohesion: 0.22
@@ -133,19 +132,15 @@ Nodes (7): Cliente.actualizarNpcs(), Cliente.alComandoServidor(), Cliente.cartel
 
 ### Community 18 - "NarradorContactos.lua"
 Cohesion: 0.08
-Nodes (46): KC.menu(), KC.miConfianza(), anotar(), avisarTodos(), esCaja(), esMunicion(), esRopaSuelta(), mejorar() (+38 more)
+Nodes (43): KC.menu(), KC.miConfianza(), anotar(), avisarTodos(), esCaja(), esMunicion(), esRopaSuelta(), mejorar() (+35 more)
 
 ### Community 20 - "NarradorContactos.lua"
-Cohesion: 0.10
-Nodes (64): Cal.dulces(), S.falta(), S.nivelConfianza(), C.darMapa(), C.decir(), C.def(), C.encargoDelGrupo(), C.extra() (+56 more)
-
-### Community 22 - "NarradorObjetosServer.lua"
-Cohesion: 0.25
-Nodes (12): Mundo.crearMapa(), Mundo.crearMapaZona(), S.alComando(), S.crearMapa(), S.favoresDisponibles(), S.pedirFavor(), S.zona(), F.def() (+4 more)
+Cohesion: 0.07
+Nodes (86): Cal.amigoSecreto(), Cal.calor(), Cal.corteLuz(), Cal.dulces(), Cal.eventosActivos(), Cal.fonda(), Cal.niebla(), Cal.residente() (+78 more)
 
 ### Community 23 - "Ideas futuras: campamentos de supervivientes"
-Cohesion: 0.10
-Nodes (19): Brújula sigue a la cámara (hecho, falta probar en el juego), Campamentos con niveles y comerciantes (hecho, falta probar), Diario en lápiz pasta azul (hecho, falta probar en el juego), Encuentros: llevar a la persona al campamento (hecho, falta probar), Estético, Fase 1: el campamento existe y crece, Fase 2: reservas y trueque, Fase 3: oficios (+11 more)
+Cohesion: 0.08
+Nodes (25): A. Eventos fortuitos de Tomás (después de conocerlo), B. El camino del bandido (Knox negativo), Brújula sigue a la cámara (hecho, falta probar en el juego), C. Modo historia de los misioneros, Campamentos con niveles y comerciantes (hecho, falta probar), Diario en lápiz pasta azul (hecho, falta probar en el juego), Encuentros: llevar a la persona al campamento (hecho, falta probar), Estético (+17 more)
 
 ## Knowledge Gaps
 - **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
@@ -153,17 +148,17 @@ Nodes (19): Brújula sigue a la cámara (hecho, falta probar en el juego), Campa
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Motor.estado()` connect `NarradorMotor.lua` to `Mundo.horas`, `NarradorOcupaciones.lua`, `NarradorDefs.lua`, `NarradorConversas.lua`, `NarradorMundo.lua`, `NarradorCuraServer.lua`, `Motor.enviar`, `NarradorContactos.lua`, `NarradorContactos.lua`, `NarradorObjetosServer.lua`?**
-  _High betweenness centrality (0.039) - this node is a cross-community bridge._
-- **Are the 56 inferred relationships involving `Motor.estado()` (e.g. with `A.st()` and `Cal.corteLuz()`) actually correct?**
-  _`Motor.estado()` has 56 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `Motor.estado()` connect `NarradorMotor.lua` to `Mundo.horas`, `NarradorOcupaciones.lua`, `NarradorDefs.lua`, `NarradorConversas.lua`, `NarradorMundo.lua`, `NarradorCuraServer.lua`, `NarradorHuellas.lua`, `NarradorContactos.lua`, `NarradorContactos.lua`?**
+  _High betweenness centrality (0.044) - this node is a cross-community bridge._
+- **Are the 59 inferred relationships involving `Motor.estado()` (e.g. with `A.st()` and `Cal.corteLuz()`) actually correct?**
+  _`Motor.estado()` has 59 INFERRED edges - model-reasoned connections that need verification._
 - **Should `NarradorMotor.lua` be split into smaller, more focused modules?**
-  _Cohesion score 0.06067961165048544 - nodes in this community are weakly interconnected._
-- **Why does `Mundo.horas()` connect `Mundo.horas` to `NarradorMotor.lua`, `NarradorOcupaciones.lua`, `NarradorDefs.lua`, `NarradorConversas.lua`, `NarradorMundo.lua`, `NarradorCuraServer.lua`, `Motor.enviar`, `NarradorContactos.lua`, `NarradorContactos.lua`?**
-  _High betweenness centrality (0.035) - this node is a cross-community bridge._
-- **Are the 74 inferred relationships involving `Mundo.horas()` (e.g. with `A.elegirTipo()` and `A.lanzar()`) actually correct?**
-  _`Mundo.horas()` has 74 INFERRED edges - model-reasoned connections that need verification._
+  _Cohesion score 0.05606523955147808 - nodes in this community are weakly interconnected._
+- **Why does `Mundo.horas()` connect `Mundo.horas` to `NarradorMotor.lua`, `NarradorOcupaciones.lua`, `NarradorConversas.lua`, `NarradorMundo.lua`, `NarradorCuraServer.lua`, `NarradorHuellas.lua`, `NarradorContactos.lua`, `NarradorContactos.lua`?**
+  _High betweenness centrality (0.034) - this node is a cross-community bridge._
+- **Are the 75 inferred relationships involving `Mundo.horas()` (e.g. with `A.elegirTipo()` and `A.lanzar()`) actually correct?**
+  _`Mundo.horas()` has 75 INFERRED edges - model-reasoned connections that need verification._
 - **Should `Mundo.horas` be split into smaller, more focused modules?**
-  _Cohesion score 0.06687565308254964 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07592407592407592 - nodes in this community are weakly interconnected._
 - **Why does `S.comprar()` connect `NarradorContactos.lua` to `NarradorMotor.lua`, `Mundo.horas`, `NarradorMundo.lua`, `NarradorLegendario.lua`, `NarradorContactos.lua`?**
   _High betweenness centrality (0.031) - this node is a cross-community bridge._

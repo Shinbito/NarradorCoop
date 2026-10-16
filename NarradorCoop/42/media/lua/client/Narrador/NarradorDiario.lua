@@ -364,6 +364,12 @@ function Diario.loQueHice(b, estado)
     local mio = estado.huellas ~= nil and grupo ~= nil and estado.huellas[grupo] or nil
     agregar(b, { adorno = true, antes = 10 })
     agregar(b, { t = "Lo que hice", f = "sub", c = TINTA_TITULO, antes = 6, junto = true })
+    -- Como me conocen en Knox (reputacion global).
+    local kx = estado.knox ~= nil and grupo ~= nil and estado.knox[grupo] or nil
+    if kx ~= nil then
+        local malo = (tonumber(kx.nivel) or 1) < 0
+        agregar(b, { t = "En Knox me conocen como: " .. tostring(kx.titulo) .. ".", f = "mano", c = malo and ROJO or TINTA_TITULO, antes = 4 })
+    end
     if mio == nil or #(mio.huellas or {}) == 0 then
         agregar(b, { t = "Todavia nada que me pese. O que me enorgullezca.", f = "mano", c = SEPIA, antes = 4 })
         return

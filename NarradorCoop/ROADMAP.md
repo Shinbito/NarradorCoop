@@ -141,6 +141,72 @@
   en Louisville), la muchacha que esperaba al Padre Nacho, el estanque de bencina escondido de
   la Misia Rosa.
 
+### Reputación global de Knox (hecho, falta probar)
+- Un eje por grupo, de -300 a 300 (`shared/Narrador/NarradorKnoxDefs.lua`,
+  `server/Narrador/NarradorKnox.lua`). Se alimenta solo de las huellas: salvaste/protegiste +5,
+  compartiste +3, cumpliste (encargo) +2, lo dejaste -4, mataste -15, traicionaste -12, etc.
+- Positivo: 1 Desconocido, 2 Mensajero (20), 3 La nueva esperanza (60), 4 El guerrero (120),
+  5 El héroe de Knox (200).
+- Negativo: 1 Poco confiable (-10), 2 Rumores negativos (-40), 3 La nube negra (-90),
+  4 El destripador (-150), 5 El demonio de Knox (-220).
+- Aviso y entrada en el diario al cambiar de nivel; el diario (Notas -> Lo que hice) muestra
+  el título. Admin: Pruebas -> "Reputacion de Knox +30 / -30".
+- Ganchos para las historias: acción `{ "knox", cantidad = n }`, acción
+  `{ "knox_reiniciar", texto = "..." }`, condiciones `{ "knox_minimo", n }` y
+  `{ "knox_maximo", n }`, y la memoria `knox_bandido_<grupo>` = "listo" la primera vez que el
+  grupo llega a Rumores negativos.
+
+## PARA EL PRÓXIMO CHAT: historias por desarrollar
+
+### A. Eventos fortuitos de Tomás (después de conocerlo)
+- Condición: memoria `tomas_conocido`. Sale como evento fortuito, más seguido cuanto más
+  avanzada la partida (por ejemplo, una tirada por día con chance 5% + 1% por día de partida,
+  tope 40%, y al menos 72 horas entre uno y otro).
+- Tomás llega corriendo cerca del jugador y avisa. Dos variantes:
+  - Horda gigantesca detrás de él (60 + 20 por jugador extra).
+  - Bandidos persiguiéndolo: "Vienen bandidos detrás mío. Escóndete o pelea conmigo."
+- Opciones: pelear junto a él o esconderse. Si te vas lejos mientras pelea (abandonarlo),
+  baja la reputación de Knox (por ejemplo -15). Si ganan, sube (por ejemplo +10) y Tomás
+  dice algo heroico y humilde.
+- Tomás es inmune (`{ "inmune", grupo, rol, quien = "tomas" }`): si cae, vuelve vivo al
+  cuartel de la Chela (ya hecho, `C.REGRESOS` y arco `tomas_vuelve`).
+
+### B. El camino del bandido (Knox negativo)
+- Al llegar a nivel negativo 2 (Rumores negativos; memoria `knox_bandido_<grupo>` = "listo")
+  un bandido se contacta contigo y te ofrece trabajo sucio.
+- Primera misión: matar a un traidor. Después te lleva a su campamento, ya establecido en un
+  pueblo que no sea de los 4 principales (Brandenburg, Echo Creek, Ekron, Irvington, March
+  Ridge, Fallas Lake o Valley Station). El campamento se te marca con un mapa de papel.
+- Ahí empieza un modo historia nuevo de 5 misiones. Cada una baja mucho la reputación de Knox
+  (por ejemplo -30). Ideas que dio el usuario: robarle a los campamentos de los misioneros
+  (y bajar la confianza con ese misionero), ir a una casa y matar a una familia, robarle la
+  comida a gente que intenta sobrevivir.
+- Misión 5: decidir.
+  - Quedarte como la mano derecha del líder.
+  - Acabar con todos los bandidos y redimirte: la reputación de Knox vuelve a 0
+    (`knox_reiniciar`) con el texto: "La gente perdonará tus pecados del pasado, pero en tu
+    mente sigue existiendo cada acto malvado que hiciste."
+
+### C. Modo historia de los misioneros
+- Capítulos 1 y 2 de los cuatro (son requisito de los niveles 2 y 3 del campamento) y del 3 en
+  adelante del Cabo, el Padre Nacho y la Misia Rosa. Se registran en `G.ESPECIALES`
+  (`server/Narrador/NarradorGenerador.lua`) y cada uno deja la memoria `historia_<id>_<n>`.
+- Valentina (la hija del Cabo, `HijaCabo.lua`, desactivada) puede ser uno de sus capítulos.
+- Ganchos de las capas de personalidad: la muchacha que esperaba al Padre Nacho, el estanque
+  de bencina de la Misia Rosa.
+
+### Piezas listas para armar historias
+- Oleadas: `{ "oleada", cantidad, fija = true, por_jugador = n, caminantes = true,
+  planta_baja = true, meta = "var", meta_frac = 0.8 }`.
+- Acompañantes que te siguen y se suben al auto: `{ "acompanante", grupo, rol }`,
+  `{ "soltar_acompanante", grupo, rol }` y la condición `{ "npc_cerca", grupo, lugar, radio }`.
+- NPC inmune a la zombificación: `{ "inmune", grupo, rol, quien }`; con arma legendaria en la
+  mano: `{ "armar_legendario", grupo, rol }`.
+- El edificio de un misionero como lugar: `{ "lugar_contacto", id, contacto }`.
+- La casa del jugador (refugio o donde esté): `{ "lugar_casa", id }`.
+- Reputación con un misionero: `{ "reputacion", contacto, cantidad }`; con Knox: `{ "knox", cantidad }`.
+- Mapas de papel: `{ "mapa", lugar, titulo }`.
+
 ### Qué ya existe en el código y sirve de base
 - Misioneros fijos por ciudad y encargos: `server/Narrador/NarradorContactos.lua`.
 - Confianza por misionero y por grupo: `server/Narrador/NarradorReputacion.lua`.
