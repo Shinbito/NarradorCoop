@@ -1,4 +1,4 @@
-Narrador Co-op v0.9.0 (Build 42) - necesita Project A-Life (ProjectALifeNPCs) para las historias con NPCs.
+Narrador Co-op v0.10.0 (Build 42) - necesita Project A-Life (ProjectALifeNPCs) para las historias con NPCs.
 
 El contenido del mod esta en la carpeta 42.
 
@@ -10,8 +10,8 @@ Que trae:
   Pegas) y Rosewood (Misia Rosa Bencina): encargos infinitos facil / medio / dificil / ULTRA (Louisville,
   premio legendario: arma, traje o auto). Un encargo a la vez por faccion. Al tomarlo te llega un mapa con la zona marcada.
 
-- Cada mision que te manda a un edificio te da un mapa con la ZONA donde esta (un circulo),
-  y la marca en el mapa del mundo.
+- Cada mision que te manda a un edificio te da un mapa de papel con la ZONA donde esta (un circulo).
+  El mapa del mundo de tu personaje queda limpio.
 - Los personajes del Narrador solo dicen lo que escribe el Narrador (A-Life no les pone frases).
 
 - Diario de vida: el icono del libro en pantalla (se arrastra para moverlo) abre el diario del
@@ -146,3 +146,33 @@ Novedades 0.9.0:
   Si los matas a todos el lugar queda libre, y 20 dias despues llegan otros.
 - Opcion de sandbox "Lugares ocupados" para apagarlo. Admin: "Ocupar el lugar emblematico" y
   "Estado de los lugares emblematicos" en las pruebas del narrador.
+
+Novedades 0.10.0:
+- Misioneros desbloqueables: cada uno empieza sin campamento. Al andar por su pueblo llega a tu
+  casa y te pide ayudarlo a limpiar su edificio (comisaria, cuartel de bomberos, iglesia o
+  bencinera). Solo puedes decir "Te ayudo" o "Mas rato". Primero 15 zombis y despues una horda
+  de 30 (+15 por jugador extra), sin corredores. Lo que encuentres adentro es tuyo. Opcion de
+  sandbox "Misioneros se desbloquean" para apagarlo; en partidas viejas siguen desbloqueados.
+- El Cabo Ramiro vive en la oficina del segundo piso de la comisaria.
+- Campamentos con niveles: salvando gente, haciendo los capitulos de cada misionero y ganando su
+  confianza, llegan el carpintero (nivel 1), el herrero (2), el mecanico (3) y el curandero (4).
+  Venden a cambio de comida, municion, abrigo (ropa; vale segun sus stats) o medicina, con
+  precios segun lo que valora cada campamento y la confianza. El herrero mejora el arma que
+  llevas en la mano; el mecanico vende un auto con confianza maxima.
+- Encuentros: "Llevarlo donde el misionero" ahora es una escolta: te sigue a pie y "se sube
+  donde sea que haya espacio" cuando vas en auto. Si llega vivo, suma al campamento y a la confianza.
+- Reputacion de Knox: 5 niveles buenos (Desconocido, Mensajero, La nueva esperanza, El guerrero,
+  El heroe de Knox) y 5 malos (Poco confiable, Rumores negativos, La nube negra, El destripador,
+  El demonio de Knox), segun como te portas con la gente.
+- Diario: letra manuscrita en lapiz pasta azul, titulos subrayados y menos texto. La
+  descripcion de cada misionero aparece al conocerlo y crece con su confianza (cinco capas).
+- Tomas Recados, el hijo de la Tia Chela: una leyenda que anda ayudando gente por Knox. La
+  gente lo nombra, hay rumores con sus pasos y un capitulo de la Chela donde lo conoces.
+  Nunca se levanta como zombi y siempre se salva por las minimas. El Cabo Ramiro le tiene
+  envidia.
+- Mapas de papel (con sus anotaciones) para encargos, encuentros y rumores; el mapa del mundo
+  del jugador ya no se marca.
+- Brujula: en primera persona intenta seguir a la camara de Project Viewpoint (clic derecho ->
+  Narrador -> Indicador para elegir camara o personaje, y diagnostico en console.txt).
+- Misioneros mas firmes: aparecen sin zombis encima, son inmortales desde el primer momento,
+  se reponen si mueren y las puertas y ventanas de su edificio no se rompen.
