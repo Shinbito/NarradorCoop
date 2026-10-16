@@ -214,4 +214,73 @@ Lore.arcos.inmoral_fugitivo = inmoral({
     volver = "Llevo el carnet de Benjamin Sotelo para {contacto_nombre}.",
 }, "Cace a Benjamin Sotelo para {contacto_nombre}. Vivo o muerto, da lo mismo para ellos. Para mi no.")
 
+-- ===========================================================================
+-- Fase 3: Eduardo
+-- ===========================================================================
+local function A(t1, t2, t3) return { por_var = "atentado", textos = { ["1"] = t1, ["2"] = t2, otro = t3 } } end
+
+Lore.arcos.eduardo_atentado = {
+    etapas = {
+        llega = A("Alguien me sigue. Paso firme, sin apuro. Conozco ese paso: lo vi en Knox ayudando gente.",
+            "Un silbido que ya conozco. Eduardo vuelve.",
+            "No lo escuche llegar. Esta vez no."),
+        pelea = A("Eduardo Giovanns, el hijo de la Tia Chela. El que la gente nombra cuando cuenta como se salvo. Ahora viene por mi. Tiene razon.",
+            "Eduardo encontro la frazada de su mama, doblada en la silla. Me lo dijo antes de levantar el arma.",
+            "Eduardo pelea como si fuera la ultima vez. Para uno de los dos, lo es."),
+        retirada = A("Eduardo se fue. Dijo que esto no termina hoy, pero que termina.",
+            "Eduardo se fue otra vez. Dijo que la proxima no se va.",
+            "Eduardo me tuvo en el suelo. Bajo el arma. Dijo que su mama decia que todos merecen una segunda oportunidad."),
+    },
+    finales = {
+        final = A("Eduardo Giovanns intento matarme. Se fue. Dijo que esto termina. Le creo.",
+            "Eduardo volvio. Encontro la frazada de su mama. Dijo que la proxima vez no se va. Le creo mas.",
+            "Eduardo me tuvo en el suelo y no disparo. Me dejo una nota: si quiero hablar, sin el arma en la mano. Si no, con ella. Me espera en Fallas Lake."),
+    },
+}
+
+Lore.arcos.eduardo_fallas = {
+    etapas = {
+        viaje = "Voy a Fallas Lake, a las casas abandonadas al lado del campo. Eduardo me espera. Todavia no se con que mano voy a llegar.",
+        base = "Llegue a las casas de Fallas Lake. Hay una olla en una fogata apagada y una frazada vieja en una silla. Eduardo esta en algun lado.",
+        frente = "Eduardo me mira sin levantar el arma. Dice que me siente o dispare, pero que no lo haga esperar. Ya espero bastante en su vida.",
+        duelo = "Eduardo levanto el arma. No hay nadie mas en Fallas Lake. Solo nosotros dos y el campo.",
+        pelea_final = "Eduardo pelea sin rabia. Como si fuera un trabajo mas. El ultimo.",
+    },
+    finales = {
+        final_eduardo_muerto = "Mate a Eduardo Giovanns en el campo de Fallas Lake. Era el ultimo que quedaba. Knox es de la banda y de nadie mas. Me quede con su arma. El silencio me lo quede tambien. Fin.",
+        final_reconquista = "Le dije a Eduardo que quiero devolverle Knox a la gente. Me miro un rato largo. Despues me sirvio sopa y me reto, como hubiera hecho su mama. Vamos a sacar a los bandidos ciudad por ciudad.",
+    },
+}
+
+local RECON = {
+    muldraugh = "Valentina, la hija del Cabo Ramiro",
+    westpoint = "Eduardo",
+    riverside = "la Hermana Lucia",
+    rosewood = "Hector, el sobrino de la Misia Rosa",
+}
+for id, nuevo in pairs(RECON) do
+    Lore.arcos["reconquista_" .. id] = {
+        etapas = {
+            viaje = "Eduardo me espera cerca de {lugar:objetivo}. Vamos a sacar a los bandidos que yo ayude a poner.",
+            asalto = "Llegamos. {contacto_nombre} esta adentro con su gente. Me conoce. Sabe que yo los traje.",
+            pelea = "Eduardo pelea adelante, como siempre. Yo detras, como debi estar desde el principio.",
+        },
+        finales = {
+            final_reconquistado = "Sacamos a los bandidos de {lugar:objetivo}. Ahora la cuida " .. nuevo .. ". Me dio la mano. No la merecia y la tome igual.",
+            final_abandonado = "No termine la reconquista de {lugar:objetivo}. Eduardo va a volver a buscarme.",
+        },
+    }
+end
+
+Lore.arcos.reconquista_patio = {
+    etapas = {
+        viaje = "Solo queda el patio de trenes. Eduardo me espera cerca. {jefe_corto} sabe que vengo.",
+        asalto = "El patio de trenes, donde empezo todo. {jefe_corto} me ve llegar al lado de Eduardo.",
+        pelea = "La ultima pelea por Knox. La banda dispara desde los vagones. Eduardo dice 'vamos' como si fueramos a almorzar.",
+    },
+    finales = {
+        final_luz = "El patio de trenes cayo. {jefe_nombre} ya no manda en nada. En cada ciudad hay alguien que cree en la gente, y en West Point, Eduardo cocina para todos y le falta una porcion. Knox vuelve a ser luz de esperanza. Yo vuelvo a tener nombre. No el de antes. Uno nuevo.",
+    },
+}
+
 return Lore

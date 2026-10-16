@@ -87,9 +87,82 @@ DD.CAPITANES = {
     },
 }
 
--- Los misioneros nuevos de la reconquista (fase 3). Llenos en server/Narrador/NarradorDominios.lua
--- cuando se escriba la fase 3; por ahora solo los datos.
-DD.NUEVOS = {}
+-- Los misioneros nuevos de la reconquista (fase 3): Knox se reconquisto con Eduardo y en cada
+-- ciudad vuelve alguien que cree en la gente. Te tienen toda la confianza (trajiste la paz).
+DD.NUEVOS = {
+    muldraugh = {
+        rol = "valentina", nombre = "Valentina", apellido = "Mandados", perfil = "k93_hensley_family_03",
+        oficio = "hija del Cabo Ramiro",
+        frases = {
+            "Mi papa anotaba a todos en una libreta. Yo tambien. Pero en una sola lista: la de los que quedan.",
+            "Llegue de Louisville por la radio. Tarde. Siempre llego tarde a lo de mi papa.",
+            "Tengo trabajo. Del limpio. Del que ayuda.",
+            "Firmes, civil. Asi decia el. Me sale solo.",
+            "Encontre sus cartas al final de la libreta. Las leo todas las noches.",
+            "Negativo a rendirse. Eso tambien me lo dejo.",
+        },
+        rangos = { "Civil", "Recluta", "Soldado", "Sargento", "Mi General" },
+        perfil_lore = {
+            "Valentina Mandados, la hija del Cabo Ramiro, manda ahora en la comisaria de Muldraugh. Llego de Louisville siguiendo la radio, demasiado tarde para su papa.",
+            "Encontro las cartas que el Cabo le escribia y nunca mandaba, al final de su libreta. Las lee todas las noches, una por una.",
+            "Habla como el sin darse cuenta: 'negativo', 'civil', 'firmes'. Cuando se escucha, se rie y se le mojan los ojos al mismo tiempo.",
+        },
+    },
+    westpoint = {
+        rol = "eduardo", nombre = "Eduardo", apellido = "Giovanns", perfil = "k93_stockyard_05",
+        oficio = "hijo de la Tia Chela",
+        frases = {
+            "Mi mama tenia recados para todos. Yo tambien. Toma agua antes de salir, ah?",
+            "No soy ninguna leyenda. Llegue tarde a casa, nada mas.",
+            "La frazada sigue en la silla. No la voy a mover.",
+            "Cuida a la gente. Es lo unico que importa.",
+            "Si te muerden, no vuelvas. Te quiero, pero no tanto. Asi decia ella. Me sale igual.",
+            "Siempre hay alguien esperando que llegue alguien. Hoy te toca a ti.",
+        },
+        rangos = { "Desconocido", "Mijito", "Regalon", "Sobrino", "Hijo de la casa" },
+        perfil_lore = {
+            "Eduardo Giovanns volvio al cuartel de West Point, el de su mama. Ahora el reparte los recados. La frazada que ella le guardaba sigue doblada en la silla.",
+            "Intento matarme tres veces. A la tercera me tuvo en el suelo y no disparo. Dice que su mama decia que todos merecen una segunda oportunidad. Yo soy la prueba de que tenia razon. O de que no.",
+            "Cocina para todos y le falta una porcion, como a ella. Cuando le pregunto, dice que ya comio. No ha comido.",
+        },
+    },
+    riverside = {
+        rol = "lucia", nombre = "Hermana Lucia", apellido = "Pegas", perfil = "k93_red_cross_08",
+        oficio = "monja",
+        frases = {
+            "Hace anos espere al Padre Nacho en esta iglesia. No llego. Ahora la puerta la abro yo.",
+            "La puerta no se cierra. Nunca. Eso lo aprendi esperando.",
+            "Tengo encargos. No los invento, como el Padre. Bueno, algunos.",
+            "Dios no se fue de vacaciones. Se quedo esperando, como yo.",
+            "Ve en paz. Y si no hay paz, vuelve que aca hay sopa.",
+            "Adopte el apellido del Padre. Pegas. Le hubiera dado risa.",
+        },
+        rangos = { "Oveja perdida", "Feligres", "Monaguillo", "Diacono", "Santo varon" },
+        perfil_lore = {
+            "La Hermana Lucia es la muchacha que esperaba al Padre Nacho en la iglesia, hace anos, el domingo que el se fue. Ahora es ella la que abre la puerta.",
+            "Tomo el apellido del Padre, Pegas. Dice que es para que alguien en Riverside lo siga llevando.",
+            "No cierra nunca la puerta. Cuando le pregunte por que, me dijo: 'Porque se lo que es esperar del otro lado'.",
+        },
+    },
+    rosewood = {
+        rol = "hector", nombre = "Hector", apellido = "Bencina Jr.", perfil = "k93_truckstop_10",
+        oficio = "sobrino de la Misia Rosa",
+        frases = {
+            "La tia decia que la bomba no se para. No se para, entonces.",
+            "Me salvo una pastilla que alguien trajo desde Louisville. Desde ese dia le debo la vida a un desconocido.",
+            "La foto del tio Hector sigue en la caja. Le saque los bigotes de plumon. Me costo.",
+            "Bencina hay poca. Encargos hay hartos.",
+            "La luz queda prendida toda la noche. Por la tia. Y porque a mi tambien me da miedo.",
+            "Lleno o normal? Es broma. Ella siempre hacia esa broma.",
+        },
+        rangos = { "Afuerino", "Vecino", "Compadre", "Socio de la bomba", "Dueno de la bencinera" },
+        perfil_lore = {
+            "Hector Bencina Jr., el sobrino de la Misia Rosa, atiende ahora la bencinera de Rosewood. Era el que estaba con fiebre en la bodega cuando su tia pedia la cura.",
+            "Le limpio los bigotes de plumon a la foto de su tio en la caja registradora. Le tomo una tarde entera.",
+            "Deja la luz prendida toda la noche. Dice que es por su tia. Despues admite que tambien es por el.",
+        },
+    },
+}
 
 -- Perfil del diario segun el dominio (el cliente lo usa en Diario.loQueSe).
 function DD.perfilLore(dominio, id)

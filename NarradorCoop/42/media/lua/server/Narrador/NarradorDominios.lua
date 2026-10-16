@@ -160,6 +160,35 @@ Motor.diferidas.incendiar = function(inst, p, l)
     return true
 end
 
+-- {"desinmunizar", grupo}: los del grupo dejan de ser inmunes (pueden morir de verdad).
+Motor.inmediatas.desinmunizar = function(inst, a)
+    local g = inst.grupos[a.grupo]
+    for _, uid in pairs(g ~= nil and g.roles or {}) do C.inmunes()[tostring(uid)] = nil end
+    return true
+end
+
+-- {"confianza_todos", cantidad}: sube la confianza con todos los de las ciudades (la reconquista).
+Motor.inmediatas.confianza_todos = function(inst, a)
+    local grupos, vistos = {}, {}
+    if inst.vars.dueno ~= nil then grupos[1] = inst.vars.dueno end
+    for _, p in ipairs(Mundo.jugadores()) do
+        local g = Mundo.grupoDe(p)
+        if not vistos[g] then vistos[g] = true; grupos[#grupos + 1] = g end
+    end
+    for _, g in ipairs(grupos) do
+        for _, c in ipairs(C.LISTA) do pcall(R.sumar, g, c.id, tonumber(a.cantidad) or 100, "trajiste la paz a Knox") end
+    end
+    return true
+end
+
+-- Eduardo vuelve al campamento de la Chela cuando cae (C.REGRESOS), pero solo si la Chela
+-- sigue mandando en West Point: si no, ese campamento ya no es su casa (o el es el misionero).
+local regresosOriginal = C.revisarRegresos
+function C.revisarRegresos()
+    if D.dominio("westpoint") ~= "mision" then return end
+    return regresosOriginal()
+end
+
 -- {"misionero_muerto", id}
 Motor.condiciones.misionero_muerto = function(inst, c)
     return Motor.estado().memoria["misionero_muerto_" .. tostring(c[2])] == true

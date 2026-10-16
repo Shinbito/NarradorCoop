@@ -260,16 +260,23 @@
   sabotear (dejar ir a la gente), a cambio de confianza con el capitan.
 - Falta revisar en el juego el perfil de la Capitana Kell (`k93_vfd_05`), que sea mujer.
 
-#### Fase 3: Eduardo (por escribir)
-- Con Knox conquistado, Eduardo Giovanns intenta matarte 3 veces (eventos de lore). En el
-  tercero te tiene en el suelo y no dispara ("mi mama decia que todos merecen una segunda
-  oportunidad") y te deja una nota para ir a su base: las casas abandonadas al lado del campo
-  de Fallas Lake.
-- Si vas armado: la mision final del juego, matar a Eduardo.
-- Si vas a hablar: la reconquista. Con Eduardo matas a los bandidos ciudad por ciudad. Vuelven
-  misioneros nuevos (nombres nuevos) y en West Point la Tia Chela es reemplazada por su hijo
-  Eduardo. Te tienen toda la confianza por haber traido la paz a Knox, y Knox vuelve a ser luz
-  de esperanza.
+#### Fase 3: Eduardo (hecho, falta probar en el juego)
+- Archivo: `shared/Narrador/Arcos/Eduardo.lua` (diario en `NarradorLoreBandido.lua`).
+- Con Knox conquistado, Eduardo viene por ti 3 veces, cada 48 horas (`eduardo_atentado`):
+  aparece donde estes, pelea un rato (es inmortal) y se retira. En el tercero baja el arma
+  ("mi mama decia que todos merecen una segunda oportunidad") y deja una nota con un mapa a su
+  base: las casas abandonadas al lado del campo de Fallas Lake (`Narrador.EduardoBase`).
+- En Fallas Lake (`eduardo_fallas`):
+  - "Vengo a terminar esto": duelo a muerte, la ultima mision del juego (memoria `fin` =
+    "eduardo_muerto", -30 de Knox, te quedas con su arma).
+  - "Vengo a hablar": la reconquista. Con Eduardo sacas a los capitanes de las 4 ciudades en el
+    orden que quieras (al entrar a cada pueblo, +15 de Knox cada una) y al final al jefe del
+    patio. En cada ciudad vuelve un misionero nuevo: Valentina Mandados (la hija del Cabo),
+    Eduardo (West Point), la Hermana Lucia (la que esperaba al Padre Nacho) y Hector Bencina Jr.
+    (el sobrino de la Misia Rosa). Al final: Knox a 45 ("La nueva esperanza"), confianza maxima
+    con todos y memoria `fin` = "reconquista".
+- PENDIENTE: confirmar en el juego donde quedan las casas de Fallas Lake (hoy se busca la casa
+  mas cerca del centro del pueblo) y los perfiles de la Hermana Lucia (`k93_red_cross_08`).
 
 ### C. Modo historia de los misioneros
 - Capítulos 1 y 2 de los cuatro (son requisito de los niveles 2 y 3 del campamento) y del 3 en

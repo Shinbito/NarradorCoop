@@ -18,6 +18,7 @@ require "Narrador/NarradorMotor"
 require "Narrador/NarradorContactos"
 require "Narrador/Arcos/Bandido"
 require "Narrador/Arcos/Conquista"
+require "Narrador/Arcos/Eduardo"
 
 local Mundo, Motor, C = Narrador.Mundo, Narrador.Motor, Narrador.Contactos
 
@@ -29,7 +30,12 @@ BA.CHANCE_SOSPECHA = 30
 BA.RADIO_PATIO = 40
 BA.ESPERA_MAULEN = 72
 BA.IDS = { "bandido_1", "bandido_2", "bandido_3", "bandido_4", "bandido_5", "bandido_castigo", "bandido_maulen",
-    "conquista_sous", "conquista_muldraugh", "conquista_westpoint", "conquista_riverside", "conquista_rosewood" }
+    "conquista_sous", "conquista_muldraugh", "conquista_westpoint", "conquista_riverside", "conquista_rosewood",
+    "eduardo_atentado", "eduardo_fallas", "reconquista_muldraugh", "reconquista_westpoint", "reconquista_riverside",
+    "reconquista_rosewood", "reconquista_patio" }
+-- Fase 3: horas entre los atentados de Eduardo (y desde que Knox quedo conquistado).
+BA.ESPERA_EDUARDO = 48
+BA.RECONQUISTA = { "muldraugh", "westpoint", "riverside", "rosewood" }
 -- Las ciudades que se conquistan despues de la comisaria, en el orden que quiera el jugador.
 BA.CIUDADES = { "westpoint", "riverside", "rosewood" }
 -- Variables del jefe del patio que reciben todos los capitulos.
@@ -140,11 +146,54 @@ function BA.revisarConquista(m)
     end
 end
 
+-- Fase 3: Eduardo viene tres veces; despues Fallas Lake; despues, si hablaste, la reconquista.
+function BA.revisarEduardo(m)
+    if m.fin ~= nil then return end
+    local ahora = Mundo.horas()
+    local n = tonumber(m.eduardo_atentados) or 0
+    if n < 3 then
+        local desde = m.eduardo_desde or m.knox_conquistado_hora or ahora
+        if ahora - desde < BA.ESPERA_EDUARDO then return end
+        local j = Mundo.jugadorAlAzar()
+        if j ~= nil and BA.lanzar("eduardo_atentado", j, { atentado = n + 1 }) ~= nil then
+            m.eduardo_atentados, m.eduardo_desde = n + 1, ahora
+        end
+        return
+    end
+    if m.eduardo_nota and not m.eduardo_fallas then
+        local j = Mundo.jugadorAlAzar()
+        if j ~= nil and BA.lanzar("eduardo_fallas", j) ~= nil then m.eduardo_fallas = true end
+        return
+    end
+    if m.reconquista ~= true then return end
+    if m.bandido_desde ~= nil and ahora - m.bandido_desde < BA.CADA then return end
+    local faltan = 0
+    for _, id in ipairs(BA.RECONQUISTA) do
+        if not m["reconquista_" .. id] then
+            faltan = faltan + 1
+            local j = C.jugadorEnPueblo(C.def(id))
+            if j ~= nil then
+                BA.lanzar("reconquista_" .. id, j)
+                return
+            end
+        end
+    end
+    if faltan == 0 and not m.reconquista_patio_lanzada then
+        local j = Mundo.jugadorAlAzar()
+        if j ~= nil and BA.lanzar("reconquista_patio", j) ~= nil then m.reconquista_patio_lanzada = true end
+    elseif faltan > 0 and not m.reconquista_aviso then
+        m.reconquista_aviso = true
+        for _, p in ipairs(Mundo.jugadores()) do
+            Motor.enviar(p, "aviso", { texto = "Eduardo: 'Ciudad por ciudad. Entra a cualquiera de las cuatro y yo llego.'" })
+        end
+    end
+end
+
 function BA.revisar()
     local m = Motor.estado().memoria
     if BA.enCurso() then return end
     if m.bandido == "pereira" then
-        BA.revisarConquista(m)
+        if m.knox_conquistado then BA.revisarEduardo(m) else BA.revisarConquista(m) end
         return
     end
     if BA.TERMINADA[tostring(m.bandido)] then return end
