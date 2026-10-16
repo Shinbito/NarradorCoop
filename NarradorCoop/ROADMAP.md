@@ -1,5 +1,8 @@
 # Roadmap NarradorCoop
 
+Grafo del codigo (graphify): `NarradorCoop/graphify-out/` (`GRAPH_REPORT.md` para leer, `graph.json` y `graph.html`).
+Para actualizarlo: `cd NarradorCoop && graphify update .`
+
 ## Técnico
 
 ### Brújula sigue a la cámara (hecho, falta probar en el juego)
