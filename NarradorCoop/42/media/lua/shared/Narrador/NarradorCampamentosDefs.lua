@@ -22,14 +22,36 @@ K.NIVELES = {
     { salvados = 8, confianza = 4, oficio = "curandero", historia_de = { westpoint = 3 } },
 }
 
--- Lo que valora cada campamento: multiplica el precio si pagas con eso (menos de 1 = barato,
--- porque es lo que quieren juntar; mas de 1 = caro, porque ya les sobra).
+-- Reservas: cada campamento tiene de 0 a 100 de comida, municion, abrigo y medicina. Pagar con
+-- lo que les falta rinde mas (barato) y con lo que les sobra rinde menos (caro): el precio se
+-- multiplica por 0.5 (reserva 0) a 1.5 (reserva 100). Lo que pagas se suma a sus reservas y
+-- cada dia gastan (mas con mas guardias; abrigo mas en invierno; municion y medicina en los
+-- ataques de hordas). Empiezan segun lo que valora cada uno (K.GUSTOS: menos de 1 = le falta).
 K.GUSTOS = {
     muldraugh = { municion = 0.6, comida = 1.3, abrigo = 1.0, medicina = 0.9 },  -- el Cabo: militar, quiere balas
     westpoint = { municion = 1.1, comida = 0.8, abrigo = 1.0, medicina = 1.0 },  -- la Chela: cocina para todos
     riverside = { municion = 1.2, comida = 0.8, abrigo = 0.7, medicina = 0.7 },  -- el Padre Nacho: enfermos y frio
     rosewood = { municion = 0.9, comida = 0.9, abrigo = 1.1, medicina = 1.0 },   -- la Misia Rosa: compra de todo
 }
+
+function K.reservasIniciales(contactoId)
+    local g = K.GUSTOS[contactoId] or {}
+    local r = {}
+    for _, m in ipairs({ "comida", "municion", "abrigo", "medicina" }) do
+        r[m] = math.max(5, math.min(95, math.floor(50 * (tonumber(g[m]) or 1) + 0.5)))
+    end
+    return r
+end
+
+-- Gasto diario de un campamento (guardias = cuantos hay; invierno = true en invierno).
+function K.gastoDiario(guardias, invierno)
+    guardias = tonumber(guardias) or 0
+    return { comida = 3 + math.floor(guardias / 2), medicina = 1 + math.floor(guardias / 5),
+        abrigo = invierno and 4 or 1, municion = 1 }
+end
+K.GASTO_ATAQUE = { municion = 10, medicina = 6 }
+-- Cuanto suben las reservas por cada unidad pagada.
+K.RESERVA_POR_UNIDAD = 2
 
 -- Descuento por confianza con el misionero (nivel 1..5).
 K.DESCUENTO = { 1, 1, 0.9, 0.8, 0.65 }
@@ -84,6 +106,9 @@ K.OFICIOS = {
             { texto = "Martillo", items = { { "Base.Hammer", "Base.HammerStone" } }, precio = 4 },
             { texto = "Serrucho", items = { { "Base.Saw", "Base.GardenSaw" } }, precio = 4 },
             { texto = "Bate con clavos", items = { { "Base.BaseballBatNails", "Base.BaseballBat" } }, precio = 5, confianza = 3 },
+            -- Para el herrero: con un mango te forja un arma.
+            { texto = "Mango de arma (para el herrero)", items = { { "Narrador.MangoArma" } }, precio = 4 },
+            { texto = "Mango de madera noble (arma legendaria)", items = { { "Narrador.MangoLegendario" } }, precio = 14, confianza = 4 },
         },
     },
     herrero = {
@@ -94,6 +119,8 @@ K.OFICIOS = {
             { texto = "Machete", items = { { "Base.Machete" } }, precio = 8 },
             { texto = "Hacha", items = { { "Base.Axe", "Base.WoodAxe" } }, precio = 8 },
             { texto = "Mejorar el arma que llevas en la mano", servicio = "mejorar", precio = 10, confianza = 3 },
+            -- Necesita un mango del carpintero: normal -> arma excepcional; noble -> legendaria.
+            { texto = "Forjar un arma con tu mango del carpintero", servicio = "forjar", precio = 6 },
         },
     },
     mecanico = {
@@ -224,6 +251,12 @@ function K.generarRecado(oficio, azar)
 end
 K.RECADO_PEDIDO = "Quieres que la gente confie en ti? Ayudame con esto: "
 
+-- Lo que forja el herrero con un mango (alternativas por si un tipo no existe).
+K.FORJA = {
+    { "Base.Machete" }, { "Base.Axe", "Base.WoodAxe" }, { "Base.Katana", "Base.Machete" },
+    { "Base.SpearMachete", "Base.SpearKnife", "Base.Machete" }, { "Base.HandAxe", "Base.Axe" },
+}
+
 -- Quien es el del oficio en un campamento (perfil, nombre, texto de llegada).
 function K.persona(oficio, contactoId)
     local o = K.OFICIOS[oficio]
@@ -237,10 +270,14 @@ function K.persona(oficio, contactoId)
     }
 end
 
--- Precio final de un articulo: base x gusto del campamento x descuento por confianza.
-function K.precio(articulo, contactoId, moneda, nivelConfianza)
+-- Precio final de un articulo: base x lo que le falta o le sobra al campamento x descuento por
+-- confianza. reservas = las del campamento (si no se pasan, se usa lo que valora de base).
+function K.precio(articulo, contactoId, moneda, nivelConfianza, reservas)
     local gustos = K.GUSTOS[contactoId] or {}
     local g = tonumber(gustos[moneda]) or 1
+    if type(reservas) == "table" and tonumber(reservas[moneda]) ~= nil then
+        g = 0.5 + math.max(0, math.min(100, tonumber(reservas[moneda]))) / 100
+    end
     local d = K.DESCUENTO[math.max(1, math.min(5, tonumber(nivelConfianza) or 1))] or 1
     return math.max(1, math.floor((tonumber(articulo.precio) or 1) * g * d + 0.5))
 end

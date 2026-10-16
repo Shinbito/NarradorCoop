@@ -23,7 +23,27 @@ S.PUESTOS = { carpintero = { 3, 0 }, herrero = { -3, 0 }, mecanico = { 0, 3 }, c
 function S.estado(contactoId)
     local e = C.estado(contactoId)
     e.campamento = e.campamento or { nivel = 0, salvados = 0, oficios = {} }
+    if e.campamento.reservas == nil then e.campamento.reservas = K.reservasIniciales(contactoId) end
     return e.campamento
+end
+
+-- ---------------------------------------------------------------------------
+-- Reservas (comida, municion, abrigo, medicina: de 0 a 100)
+-- ---------------------------------------------------------------------------
+
+function S.sumarReserva(k, moneda, n)
+    k.reservas[moneda] = math.max(0, math.min(100, (tonumber(k.reservas[moneda]) or 50) + (tonumber(n) or 0)))
+end
+
+-- Cada dia el campamento gasta lo suyo.
+function S.gastar(c, k)
+    local ahora = Mundo.horas()
+    if k.gastoHora == nil then k.gastoHora = ahora; return end
+    if ahora - k.gastoHora < 24 then return end
+    k.gastoHora = ahora
+    local invierno = false
+    pcall(function() invierno = Mundo.estacion() == "invierno" end)
+    for moneda, n in pairs(K.gastoDiario(#(k.guardias or {}), invierno)) do S.sumarReserva(k, moneda, -n) end
 end
 
 local function avisarTodos(texto)
@@ -145,6 +165,7 @@ function S.empezarAtaque(c, e, k)
     local n = 15 + 2 * #(k.guardias or {})
     local total = Mundo.oleada(e.x, e.y, 0, n, 30, 55)
     k.ataque = { inicio = Mundo.horas(), meta = math.max(5, floor(total * 0.8)), ayudaron = {} }
+    for moneda, g in pairs(K.GASTO_ATAQUE) do S.sumarReserva(k, moneda, -g) end
     k.ultimoAtaque = Mundo.horas()
     for _, p in ipairs(Mundo.jugadores()) do
         local x, y = Mundo.posicion(p)
@@ -325,6 +346,7 @@ function S.tick()
             pcall(S.cuidar, c, e)
             pcall(S.cuidarGuardias, c, e)
             pcall(S.revisarAtaque, c, e)
+            pcall(S.gastar, c, S.estado(c.id))
         end
     end
 end
@@ -442,6 +464,31 @@ local function mejorar(jugador)
     return true
 end
 
+-- El herrero forja un arma con el mango del carpintero que llevas: mango de arma -> arma
+-- excepcional; mango de madera noble -> arma legendaria. Se gasta el mango.
+function S.forjar(jugador)
+    local L = Narrador.Legendario
+    local function buscar(tipo)
+        return Mundo.buscarItem(jugador, function(it)
+            local ok, t = pcall(function() return it:getFullType() end)
+            return ok and t == tipo
+        end)
+    end
+    local nivel = "legendaria"
+    local mango, cont = buscar("Narrador.MangoLegendario")
+    if mango == nil then
+        nivel = "chetada"
+        mango, cont = buscar("Narrador.MangoArma")
+    end
+    if mango == nil then return false, "Sin mango no hay arma. El carpintero los hace." end
+    local arma = Mundo.crearItem(K.FORJA[Mundo.azar(#K.FORJA)])
+    if arma == nil then return false, "Se me apago el fuego. Vuelve despues." end
+    Mundo.quitarItem(cont, mango)
+    if L ~= nil then pcall(L.marcar, arma, nivel) end
+    Mundo.darItem(jugador, arma)
+    return true
+end
+
 -- Comando publico: { contacto, oficio, i, moneda }
 function S.comprar(jugador, args)
     local c = C.def(tostring(args.contacto))
@@ -468,7 +515,7 @@ function S.comprar(jugador, args)
         Motor.responder(jugador, "Eso no te lo vendo todavia. Primero que " .. c.nombre .. " te tenga mas confianza.")
         return
     end
-    local precio = K.precio(art, c.id, moneda, nivel)
+    local precio = K.precio(art, c.id, moneda, nivel, k.reservas)
     local tiene, sacar = S.juntar(jugador, moneda, precio)
     if tiene < precio then
         Motor.responder(jugador, "Te faltan: cuesta " .. precio .. " de " .. moneda .. " y llevas " .. tiene .. ".")
@@ -478,12 +525,17 @@ function S.comprar(jugador, args)
     if art.servicio == "mejorar" then
         local ok, razon = mejorar(jugador)
         if not ok then Motor.responder(jugador, p.nombre[1] .. ": " .. tostring(razon)); return end
+    elseif art.servicio == "forjar" then
+        local ok, razon = S.forjar(jugador)
+        if not ok then Motor.responder(jugador, p.nombre[1] .. ": " .. tostring(razon)); return end
     elseif art.servicio == "auto" then
         local L = Narrador.Legendario
         local ok = L ~= nil and L.crearAuto(px + 4, py + 4, 0)
         if not ok then Motor.responder(jugador, p.nombre[1] .. ": No hay espacio aca para dejartelo. Busca una calle despejada."); return end
     end
     for _, par in ipairs(sacar) do Mundo.quitarItem(par[2], par[1]) end
+    -- Lo que pagaste queda en las reservas del campamento.
+    S.sumarReserva(k, moneda, precio * K.RESERVA_POR_UNIDAD)
     for _, tipos in ipairs(art.items or {}) do
         local item = Mundo.crearItem(tipos)
         if item ~= nil then Mundo.darItem(jugador, item) end
@@ -598,6 +650,7 @@ function S.vista(v)
             local falta = S.falta(c)
             lista[c.id] = { nivel = k.nivel or 0, salvados = k.salvados or 0, oficios = oficios, falta = falta,
                 guardias = #(k.guardias or {}), max_guardias = S.MAX_GUARDIAS, ataque = k.ataque ~= nil,
+                reservas = k.reservas,
                 siguiente = K.NIVELES[(k.nivel or 0) + 1] ~= nil and K.NIVELES[(k.nivel or 0) + 1].oficio or nil }
         end
     end

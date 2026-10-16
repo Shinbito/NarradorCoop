@@ -158,7 +158,12 @@ Novedades 0.10.0:
   confianza, llegan el carpintero (nivel 1), el herrero (2), el mecanico (3) y el curandero (4).
   Venden a cambio de comida, municion, abrigo (ropa; vale segun sus stats) o medicina, con
   precios segun lo que valora cada campamento y la confianza. El herrero mejora el arma que
-  llevas en la mano; el mecanico vende un auto con confianza maxima.
+  llevas en la mano y forja armas con los mangos que vende el carpintero (el mango de madera
+  noble da un arma legendaria); el mecanico vende un auto con confianza maxima. Cada campamento
+  tiene reservas de comida, municion, abrigo y medicina: pagar con lo que les falta es barato.
+- Guardias: la gente que llevas a un campamento se queda rondandolo (hasta 15). Cada tanto una
+  horda ataca el campamento: los guardias pelean y pueden morir. Si ayudas a defenderlo, ganas
+  fama y confianza.
 - Encuentros: "Llevarlo donde el misionero" ahora es una escolta: te sigue a pie y "se sube
   donde sea que haya espacio" cuando vas en auto. Si llega vivo, suma al campamento y a la confianza.
 - Reputacion de Knox: 5 niveles buenos (Desconocido, Mensajero, La nueva esperanza, El guerrero,

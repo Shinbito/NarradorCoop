@@ -252,9 +252,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Translate/EN/ItemName.json": {
-    "mtime": 1792108414.129045,
-    "seen": 1792108852.2290606,
-    "ast_hash": "d8c02d5da7b1d0f192c9e3db6896e01e",
+    "mtime": 1792116013.0834997,
+    "seen": 1792116073.5656621,
+    "ast_hash": "9d5b7f3f276a2438ccb90e567ee086a9",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Translate/EN/Sandbox.json": {
@@ -264,15 +264,15 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Translate/EN/Tooltip.json": {
-    "mtime": 1792108414.1291819,
-    "seen": 1792108852.2290654,
-    "ast_hash": "0ae985484c74164f87e33569d1d8d0f7",
+    "mtime": 1792116013.0841136,
+    "seen": 1792116073.5656648,
+    "ast_hash": "ce02742cc6bddaca5af2b8dcbee1bae5",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Translate/ES/ItemName.json": {
-    "mtime": 1792108414.1291819,
-    "seen": 1792108852.2290666,
-    "ast_hash": "39fcc773884e51e3ca7e150eaa57aa85",
+    "mtime": 1792116013.083162,
+    "seen": 1792116073.5656657,
+    "ast_hash": "80288314b25c86f8a8ce4a2c7bbe1ba3",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Translate/ES/Sandbox.json": {
@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Translate/ES/Tooltip.json": {
-    "mtime": 1792108414.12934,
-    "seen": 1792108852.2290688,
-    "ast_hash": "c5fa270ed8acd4be1c3fe1d46eb9fd93",
+    "mtime": 1792116013.083879,
+    "seen": 1792116073.565669,
+    "ast_hash": "435fd0ac15ba15df669ab6a193520c9e",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/sandbox-options.txt": {
@@ -294,9 +294,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/scripts/NarradorItems.txt": {
-    "mtime": 1792108414.1326623,
-    "seen": 1792108852.2290711,
-    "ast_hash": "0068cbf5a13027f876f4621e27068cf6",
+    "mtime": 1792116013.0827258,
+    "seen": 1792116073.565672,
+    "ast_hash": "e9fc514df764e875d11bde20c938fe12",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/scripts/NarradorModelos.txt": {
@@ -318,9 +318,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/common/LEEME.txt": {
-    "mtime": 1792115345.067971,
-    "seen": 1792115347.2171655,
-    "ast_hash": "cae99c1544acfdfbb3fa6ed2bbd4c112",
+    "mtime": 1792116071.0702446,
+    "seen": 1792116073.5656788,
+    "ast_hash": "6fb47ef3dfb2d2fd544b77d581ff16d5",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/textures/Item_NarradorAntibioticos.png": {
@@ -696,9 +696,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/ROADMAP.md": {
-    "mtime": 1792115558.0211585,
-    "seen": 1792115560.1363204,
-    "ast_hash": "a18e66bad6ac4a64d6b0fffb2597494c",
+    "mtime": 1792116071.0696948,
+    "seen": 1792116073.5656776,
+    "ast_hash": "f1c1148e26f10ef922ce84d3b72fbcc9",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/Arcos/Desbloqueos.lua": {
@@ -726,21 +726,21 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/client/Narrador/NarradorCampamentosCliente.lua": {
-    "mtime": 1792115125.8865945,
-    "seen": 1792115148.992846,
-    "ast_hash": "c0b1c49bd89675143a89cbcccd61c732",
+    "mtime": 1792116056.1379323,
+    "seen": 1792116073.5655565,
+    "ast_hash": "f62dd8f98c36002216f09fc3ca0fa8eb",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorCampamentos.lua": {
-    "mtime": 1792115963.5433156,
-    "seen": 1792115986.320781,
-    "ast_hash": "016adc412bc0ff1a5d58a6cc80eedd90",
+    "mtime": 1792116056.1374393,
+    "seen": 1792116073.5655806,
+    "ast_hash": "8eb330448ef7919ed6c0bbea3758fdbe",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/NarradorCampamentosDefs.lua": {
-    "mtime": 1792115523.7530541,
-    "seen": 1792115560.136293,
-    "ast_hash": "5ff33286dd2a27350d6d9fcbf177ddf1",
+    "mtime": 1792116031.9183433,
+    "seen": 1792116073.5656452,
+    "ast_hash": "e0a3c925988b211c355403744f910a0a",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorKnox.lua": {

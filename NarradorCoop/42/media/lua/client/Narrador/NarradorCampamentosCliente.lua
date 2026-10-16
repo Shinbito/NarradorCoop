@@ -60,7 +60,7 @@ function KC.menu(numJugador, context, worldobjects, test)
                     local no = context:addOption("[" .. tostring(o.titulo) .. "] " .. tostring(o.nombre) .. " no te vende nada", nil, nil)
                     no.notAvailable = true
                 else
-                    KC.menuCatalogo(context, o, def, contactoId, nivel)
+                    KC.menuCatalogo(context, o, def, contactoId, nivel, k.reservas)
                 end
             end
         end
@@ -68,16 +68,34 @@ function KC.menu(numJugador, context, worldobjects, test)
 end
 
 -- Lista de cosas que vende y como pagar cada una.
-function KC.menuCatalogo(context, o, def, contactoId, nivel)
+-- Lo que le falta y lo que le sobra al campamento (para saber con que conviene pagar).
+function KC.textoReservas(reservas)
+    if type(reservas) ~= "table" then return nil end
+    local partes, menor, mayor = {}, nil, nil
+    for _, m in ipairs(K.ORDEN_MONEDAS) do
+        local v = tonumber(reservas[m]) or 50
+        partes[#partes + 1] = m .. " " .. math.floor(v)
+        if menor == nil or v < (tonumber(reservas[menor]) or 50) then menor = m end
+        if mayor == nil or v > (tonumber(reservas[mayor]) or 50) then mayor = m end
+    end
+    return "Reservas: " .. table.concat(partes, ", ") .. ". Les falta " .. menor .. "; les sobra " .. mayor .. "."
+end
+
+function KC.menuCatalogo(context, o, def, contactoId, nivel, reservas)
     local C = Narrador.Cliente
     local raiz = context:addOption("[" .. tostring(o.titulo) .. "] Comerciar con " .. tostring(o.nombre), nil, nil)
     local sub = ISContextMenu:getNew(context)
     context:addSubMenu(raiz, sub)
+    local info = KC.textoReservas(reservas)
+    if info ~= nil then
+        local op = sub:addOption(info, nil, nil)
+        op.notAvailable = true
+    end
     for i, art in ipairs(def ~= nil and def.catalogo or {}) do
         local bloqueado = art.confianza ~= nil and nivel < art.confianza
         local precios, partes = {}, {}
         for _, m in ipairs(K.ORDEN_MONEDAS) do
-            precios[m] = K.precio(art, contactoId, m, nivel)
+            precios[m] = K.precio(art, contactoId, m, nivel, reservas)
             partes[#partes + 1] = precios[m] .. " " .. m
         end
         local texto = art.texto .. "  (" .. table.concat(partes, " / ") .. ")"

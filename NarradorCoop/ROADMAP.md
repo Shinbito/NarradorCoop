@@ -111,6 +111,22 @@
   segun lo que es: botiquin 4, antibioticos 3, venda 1...). El precio depende de lo que valora
   cada campamento y de la confianza con el misionero.
 
+### Guardias, ataques, reservas y forja (hecho, falta probar)
+- Guardias: la gente que llevas al campamento se queda rondándolo (máximo 15; si está lleno,
+  "queda resguardado haciendo encargos" y no aparece).
+- Ataques: con guardias en el campamento y alguien a menos de 150 casillas, cada tanto (al
+  menos 72 horas entre uno y otro) llega una horda (15 + 2 por guardia). Los guardias pelean
+  y pueden morir de verdad; el misionero y los comerciantes no. Si ayudas a defender: +6 Knox
+  y +3 de confianza.
+- Reservas: cada campamento tiene de 0 a 100 de comida, munición, abrigo y medicina. Pagar con
+  lo que les falta es barato y con lo que les sobra, caro (x0.5 a x1.5). Lo que pagas se suma a
+  sus reservas; cada día gastan (comida según los guardias, abrigo más en invierno) y en los
+  ataques se les va munición y medicina. El menú de comerciar muestra las reservas y qué les
+  falta.
+- Forja: el carpintero vende "Mango de arma" (4) y, con confianza 4, "Mango de madera noble"
+  (14). El herrero forja un arma con el mango que lleves: con el normal sale excepcional, con
+  el noble, legendaria (machete, hacha, katana, lanza o hacha de mano).
+
 ### Modo historia de cada misionero
 - Cada misionero tiene sus capitulos. Capitulo 1 = su desbloqueo (fundar el campamento).
   Los siguientes salen entre sus ofertas cuando el anterior ya se hizo (`G.ESPECIALES` en
