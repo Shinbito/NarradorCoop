@@ -76,9 +76,11 @@
 - Hay que ir a buscarla a una escuela de Louisville. Ahí hay varios NPCs intentando
   sobrevivir mientras los ataca una horda; la hija está peleando y hay que salvarla.
 - Traerla de vuelta al campamento del Cabo. Los NPCs de A-Life son cuerpos de zombi
-  controlados, así que probablemente no pueden subirse a un auto. Plan: ella te sigue a pie
-  (A-Life tiene la postura "walkWith"); si subes a un auto con ella cerca, "sube" (desaparece) y
-  reaparece a tu lado cuando bajas cerca del campamento.
+  controlados, así que probablemente no pueden subirse a un auto. Para eso ya está el sistema
+  de acompañantes (`server/Narrador/NarradorPasajeros.lua`, hecho, falta probar): te sigue a
+  pie; si subes a un auto con ella a menos de 12 casillas, sale "X se sube donde sea que haya
+  espacio" y desaparece; cada vez que te bajas, aparece a tu lado. Prueba de admin:
+  Narrador -> Pruebas -> "Acompanante: el NPC mas cercano me sigue".
 - Ganchos para más misiones así en las capas 5 de los otros: el hijo de la Tía Chela (Tomás,
   en Louisville), la muchacha que esperaba al Padre Nacho, el estanque de bencina escondido de
   la Misia Rosa.

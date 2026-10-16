@@ -494,6 +494,8 @@ function Ind.menuAdmin(destino)
         subRep:addOption(c[2], nil, function() Cliente.enviar("repSumar", { contacto = c[1], cantidad = 20 }) end)
     end
     sub:addOption("Estado del narrador (tension, rumores, fama)", nil, function() Cliente.enviar("estadoNarrador", {}) end)
+    sub:addOption("Acompanante: el NPC mas cercano me sigue (probar el auto)", nil, function() Cliente.enviar("acompananteAhora", {}) end)
+    sub:addOption("Soltar a los acompanantes", nil, function() Cliente.enviar("soltarAcompanantes", {}) end)
     local am = sub:addOption("Amenaza ahora", nil, nil)
     local subAm = ISContextMenu:getNew(sub)
     sub:addSubMenu(am, subAm)

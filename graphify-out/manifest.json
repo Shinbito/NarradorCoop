@@ -18,9 +18,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/client/Narrador/NarradorIndicadores.lua": {
-    "mtime": 1792111056.2267034,
-    "seen": 1792111139.994937,
-    "ast_hash": "efc5ea492c134a99ef32a54512263427",
+    "mtime": 1792112525.2209783,
+    "seen": 1792112536.146727,
+    "ast_hash": "383016ecee4c51ee37fdcd56d3c43d96",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/client/Narrador/NarradorMapas.lua": {
@@ -696,15 +696,21 @@
     "semantic_hash": ""
   },
   "NarradorCoop/ROADMAP.md": {
-    "mtime": 1792112295.585135,
-    "seen": 1792112298.1563106,
-    "ast_hash": "1e65f5622b75ce2de85c883fd7d87253",
+    "mtime": 1792112532.6109664,
+    "seen": 1792112536.1468413,
+    "ast_hash": "0d78a9c9bc1b0b1840da2304f10ce85d",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/Arcos/Desbloqueos.lua": {
     "mtime": 1792112255.8777144,
     "seen": 1792112298.156269,
     "ast_hash": "7304c95da1f9c849fb3e9c1569ba72e9",
+    "semantic_hash": ""
+  },
+  "NarradorCoop/42/media/lua/server/Narrador/NarradorPasajeros.lua": {
+    "mtime": 1792112515.2649777,
+    "seen": 1792112536.1467528,
+    "ast_hash": "c846a981035ea87322a4548791df79d8",
     "semantic_hash": ""
   }
 }
