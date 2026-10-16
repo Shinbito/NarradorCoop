@@ -670,7 +670,13 @@ end
 
 function C.desbloqueado(id)
     if Mundo.sandbox("DesbloqueoMisioneros", true) == false then return true end
-    return C.estado(id).desbloqueado == true
+    local ok = C.estado(id).desbloqueado == true
+    -- Fundar el campamento es el capitulo 1 de su historia (tambien en partidas de antes).
+    if ok then
+        local m = Motor.estado().memoria
+        if m["historia_" .. id .. "_1"] == nil then m["historia_" .. id .. "_1"] = true end
+    end
+    return ok
 end
 
 -- Partidas de antes de los desbloqueos: los misioneros que ya estaban ubicados quedan

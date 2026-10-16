@@ -1,5 +1,5 @@
--- La hija del Cabo Ramiro (DESACTIVADA por ahora: automatico = false y nada la lanza sola;
--- un admin la puede iniciar a mano desde el menu de pruebas).
+-- La hija del Cabo Ramiro: capitulo 3 de su historia. Sale entre sus ofertas despues del
+-- capitulo 2 y con confianza 4 (G.ESPECIALES en server/Narrador/NarradorGenerador.lua).
 -- Sale de la capa 5 de su personalidad: tiene una hija en Louisville, Valentina, a la que le
 -- escribe cartas que nunca manda. El Cabo pide ir a buscarla a una escuela de Louisville: hay
 -- gente atrincherada, una horda encima y Valentina peleando en la entrada. Hay que salvarla y
@@ -15,7 +15,7 @@ local GENTE = "sobrevivientes"
 Narrador.Defs.registrar({
     id = "hija_cabo",
     titulo = "Valentina",
-    titulo_menu = "Desactivada: la hija del Cabo Ramiro",
+    titulo_menu = "Historia del Cabo Ramiro, cap. 3: Valentina",
     requiere_alife = true,
     automatico = false,
     max_veces = 1,
@@ -132,6 +132,7 @@ Narrador.Defs.registrar({
                             { "Base.Vest_BulletPolice", "Base.Hat_Police" } } },
                 { "diario", texto = "Le traje a Valentina al Cabo Ramiro. Saco las cartas de la libreta y se las dio todas juntas. Ella las leyo sentada en la escalera de la comisaria." },
                 { "memoria", clave = "hija_cabo", valor = "salvada" },
+                { "memoria", clave = "historia_muldraugh_3", valor = true },
             },
         },
 
@@ -142,6 +143,7 @@ Narrador.Defs.registrar({
                 { "decir_contacto", texto = "No me lo diga. No me lo diga, soldado. Ya se." },
                 { "diario", texto = "Valentina murio. No la pude traer. El Cabo Ramiro no anoto nada en su libreta ese dia." },
                 { "memoria", clave = "hija_cabo", valor = "muerta" },
+                { "memoria", clave = "historia_muldraugh_3", valor = "fallido" },
             },
         },
     },

@@ -278,13 +278,27 @@
 - Las casas de Fallas Lake estan en 7440,7946 (`Narrador.EduardoBase.cerca_de`).
 - PENDIENTE: revisar en el juego el perfil de la Hermana Lucia (`k93_red_cross_08`).
 
-### C. Modo historia de los misioneros
-- Capítulos 1 y 2 de los cuatro (son requisito de los niveles 2 y 3 del campamento) y del 3 en
-  adelante del Cabo, el Padre Nacho y la Misia Rosa. Se registran en `G.ESPECIALES`
-  (`server/Narrador/NarradorGenerador.lua`) y cada uno deja la memoria `historia_<id>_<n>`.
-- Valentina (la hija del Cabo, `HijaCabo.lua`, desactivada) puede ser uno de sus capítulos.
-- Ganchos de las capas de personalidad: la muchacha que esperaba al Padre Nacho, el estanque
-  de bencina de la Misia Rosa.
+### A. Eventos fortuitos de Eduardo (hecho, falta probar en el juego)
+- Archivos: `shared/Narrador/Arcos/EduardoEventos.lua` y `server/Narrador/NarradorEduardo.lua`.
+- Despues de conocerlo: una tirada por dia (5% + 1% por dia de partida, tope 40%, 72 horas entre
+  uno y otro). Llega corriendo con una horda (60 + 20 por jugador) o con bandidos detras.
+- Pelear con el y ganar: +10 de Knox y botin dificil. Esconderse (quedarse cerca): nada. Irse
+  lejos mientras pelea: -15. No salen si estas del lado de los bandidos ni si Eduardo murio.
+
+### C. Modo historia de los misioneros (hecho, falta probar en el juego)
+- Archivos: `shared/Narrador/Arcos/Capitulos.lua` y `shared/Narrador/NarradorLoreCapitulos.lua`;
+  se registran en `G.ESPECIALES`. Fundar el campamento es el capitulo 1 (memoria
+  `historia_<id>_1`, tambien en partidas viejas).
+- Tia Chela: 2 La radio del cuartel (repuestos, antena y la voz de Eduardo) -> 3 el cientifico.
+- Cabo Ramiro: 2 La puerta de atras (rescatar a Gladys Moreno, una de los once; nombra a
+  Pereira) -> 3 Valentina (la mision que estaba desactivada, ahora con confianza 4).
+- Padre Nacho: 2 El ring de Lexington (reto a puno limpio con el Martillo Duggan) -> 3 La
+  muchacha que esperaba (traer a Lucia de una iglesia de otro pueblo).
+- Misia Rosa: 2 La ruta 31 (traer al Gordo Earl y su carga) -> 3 El estanque (defender la
+  bencinera de noche, con la luz apagada por primera vez).
+- Los capitulos que salen mal tambien cuentan como hechos (memoria = "fallido"), para no trabar
+  el campamento.
+- Por escribir: capitulos 4 en adelante.
 
 ### Piezas listas para armar historias
 - Oleadas: `{ "oleada", cantidad, fija = true, por_jugador = n, caminantes = true,
