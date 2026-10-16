@@ -47,7 +47,7 @@ Lore.PERFILES = {
         "Treinta anos en el cuartel de West Point y nunca la dejaron manejar el carro bomba: 'cosa de hombres', le decian. Ahora lo maneja ella, sin licencia y sin frenos. Dice que es lo mejor que le ha pasado en la vida.",
         "Cocina para todos aunque no haya nada. Cuenta las porciones en voz baja y siempre le falta una: la suya. Cuando le pregunte, me dijo que ya habia comido. No habia comido.",
         "La primera noche hubo un incendio en la calle Main. Ella entro sola a buscar a una vecina. Salio con la vecina en brazos y la vecina ya estaba mordida. La tuvo que dejar en la vereda. Desde ese dia no apaga ningun fuego: dice que el fuego, por lo menos, avisa.",
-        "Tuvo un hijo, Tomas. Se fue a Louisville el 92, peleados, y no se hablaban. Ella le guarda una frazada doblada en el cuartel, por si vuelve. A mi me dice mijo porque asi le decia a el. Me lo conto llorando y despues me reto por mirarla.",
+        "Tuvo un hijo, Eduardo. Se fue a Louisville el 92, peleados, y no se hablaban. Ella le guarda una frazada doblada en el cuartel, por si vuelve. A mi me dice mijo porque asi le decia a el. Me lo conto llorando y despues me reto por mirarla.",
     },
     riverside = {
         "Pastor de la iglesia del pueblo. Bendice cada salida y admite que la mitad de sus encargos los inventa.",

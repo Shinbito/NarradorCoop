@@ -45,10 +45,25 @@ local function anotar(texto)
     while #st.diario > (Motor.MAX_DIARIO_GLOBAL or 40) do table.remove(st.diario, 1) end
 end
 
+function KX.nivelDe(grupo)
+    return (KD.nivel(KX.valor(grupo)))
+end
+
+-- Ya no lo quieren en ningun campamento (nivel -4 o peor).
+function KX.despreciado(grupo)
+    return grupo ~= nil and KX.nivelDe(grupo) <= KD.DESPRECIO
+end
+
+function KX.despreciadoJugador(jugador)
+    return jugador ~= nil and KX.despreciado(Mundo.grupoDe(jugador))
+end
+
 function KX.sumar(grupo, cantidad, motivo)
     cantidad = tonumber(cantidad) or 0
     if grupo == nil or cantidad == 0 then return end
     local antes = KX.valor(grupo)
+    -- Con mala fama, solo salvar gente o acabar con bandidos la mejora.
+    if cantidad > 0 and antes < 0 and not KD.REDIMEN[tostring(motivo)] then return end
     local despues = math.max(KD.MIN, math.min(KD.MAX, antes + cantidad))
     KX.tabla()[tostring(grupo)] = despues
     local nAntes = KD.nivel(antes)
@@ -151,6 +166,12 @@ if Events ~= nil and not KX._eventos then
     KX._eventos = true
     if Events.OnGameStart ~= nil then Events.OnGameStart.Add(KX.enganchar) end
     if Events.OnServerStarted ~= nil then Events.OnServerStarted.Add(KX.enganchar) end
+end
+
+-- Lugar tomado por bandidos que queda limpio: cuenta como acabar con bandidos.
+function KX.bandidosLimpios(jugador)
+    if jugador == nil then return end
+    KX.sumar(Mundo.grupoDe(jugador), KD.BANDIDOS, "bandidos")
 end
 
 return KX

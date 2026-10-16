@@ -5,6 +5,7 @@
 -- Textos sin tildes a proposito.
 
 require "Narrador/NarradorCampamentosDefs"
+require "Narrador/NarradorKnoxDefs"
 require "Narrador/NarradorCliente"
 
 Narrador = Narrador or {}
@@ -20,6 +21,10 @@ function KC.miConfianza(estado, contactoId)
     local fila = estado.reputacion ~= nil and grupo ~= nil and estado.reputacion[grupo] or nil
     local r = fila ~= nil and fila[contactoId] or nil
     if estado.reputacion_activa == false then return 1 end
+    -- Con muy mala fama en Knox no hay descuento.
+    local kx = estado.knox ~= nil and grupo ~= nil and estado.knox[grupo] or nil
+    local KD = Narrador.KnoxDefs
+    if kx ~= nil and KD ~= nil and (tonumber(kx.nivel) or 1) <= KD.DESPRECIO then return 1 end
     return tonumber(r ~= nil and r.nivel or 1) or 1
 end
 

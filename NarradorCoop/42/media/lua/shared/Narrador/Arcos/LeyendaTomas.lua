@@ -4,11 +4,11 @@
 -- es su curandero y vende medicina (ver shared/Narrador/NarradorCampamentosDefs.lua).
 -- Sale entre las ofertas de la Chela cuando su capitulo 2 ya se hizo y te tiene confianza 3+
 -- (G.ESPECIALES en server/Narrador/NarradorGenerador.lua). Al llegar, alguien ya esta
--- peleando por el cientifico: es Tomas, el hijo de la Chela, la leyenda que anda ayudando
+-- peleando por el cientifico: es Eduardo, el hijo de la Chela, la leyenda que anda ayudando
 -- gente por todo Knox. Pelean juntos, se presenta, te deja una de sus armas legendarias
 -- ("vas por el mismo camino que yo") y sigue su camino. El cientifico hay que llevarlo vivo
 -- donde la Chela.
--- Tomas: heroe de pelicula, honorable y humilde, siempre ayudando a los demas. Es inmune a la
+-- Eduardo: heroe de pelicula, honorable y humilde, siempre ayudando a los demas. Es inmune a la
 -- zombificacion (Motor.inmediatas.inmune) y pega fuerte. Si cae, nunca se levanta como zombi:
 -- al volver al campamento de la Chela aparece vivo ("uff, pense que la palmaba"), ver
 -- tomas_vuelve abajo y C.REGRESOS en server/Narrador/NarradorContactos.lua.
@@ -56,7 +56,7 @@ Narrador.Defs.registrar({
                 { "npcs", id = TOMAS, lugar = "objetivo", radio = 45, no_mas_cerca = 10, modo = "guard", correa = 12,
                   inmortales = true, postura = "friendly", salud = 400,
                   banderas = { health = 400, damageOutput = 300 },
-                  perfiles = { { "tomas", "k93_stockyard_05" } }, nombres = { tomas = { "Tomas", "Recados" } } },
+                  perfiles = { { "tomas", "k93_stockyard_05" } }, nombres = { tomas = { "Eduardo", "Giovanns" } } },
                 { "variable", nombre = "horda_meta", valor = 9999 },
                 { "oleada", lugar = "objetivo", radio = 60, cantidad = 30, por_jugador = 15, fija = true, caminantes = true,
                   planta_baja = true, min = 14, max = 40, meta = "horda_meta", meta_frac = 0.8 },
@@ -75,7 +75,7 @@ Narrador.Defs.registrar({
                 { "inmune", grupo = TOMAS, rol = "tomas", quien = "tomas" },
                 { "armar_legendario", grupo = TOMAS, rol = "tomas" },
                 { "decir", grupo = TOMAS, rol = "tomas", texto = "Llegaste justo, amigo. Tu por la izquierda, yo por la derecha. Primero el doctor, despues nosotros." },
-                -- Unos segundos de gracia y ya nadie es inmortal (Tomas aguanta mucho, pero puede caer).
+                -- Unos segundos de gracia y ya nadie es inmortal (Eduardo aguanta mucho, pero puede caer).
                 { "banderas", grupo = DOC, inmortales = false, retraso = 0.15 },
                 { "banderas", grupo = TOMAS, inmortales = false, retraso = 0.15 },
             },
@@ -95,10 +95,10 @@ Narrador.Defs.registrar({
             al_entrar = {
                 { "banderas", grupo = DOC, inmortales = true },
                 { "banderas", grupo = TOMAS, inmortales = true },
-                { "decir", grupo = TOMAS, rol = "tomas", texto = "Buena pelea. No, no soy ninguna leyenda: llegue antes, nada mas. Tomas. Tomas Recados. Gracias por venir." },
+                { "decir", grupo = TOMAS, rol = "tomas", texto = "Buena pelea. No, no soy ninguna leyenda: llegue antes, nada mas. Eduardo. Eduardo Giovanns. Gracias por venir." },
             },
             opciones = {
-                { id = "decirle", texto = "Recados? Tu mama te espera en el cuartel de West Point.",
+                { id = "decirle", texto = "Giovanns... Eduardo? Tu mama, la Tia Chela, te espera en el cuartel de West Point.",
                   dice = { rol = "tomas", texto = "La Chela. Viva. Claro que esta viva, si es mas porfiada que yo. Dile que guarde la frazada un poco mas. Todavia no puedo volver." },
                   acciones = { { "variable", nombre = "dijo_tomas", valor = true } } },
                 { id = "callar", texto = "No decirle nada",
@@ -116,23 +116,23 @@ Narrador.Defs.registrar({
             al_entrar = {
                 { "decir", grupo = TOMAS, rol = "tomas", texto = "Toma. Yo me arreglo con menos. Tu la vas a necesitar: vas por el mismo camino que yo. Cuida a la gente." },
                 { "legendario", lugar = "objetivo", radio = 30, clase = "arma" },
-                { "aviso", texto = "Tomas deja un arma a tus pies y se va sin mirar atras." },
+                { "aviso", texto = "Eduardo deja un arma a tus pies y se va sin mirar atras." },
                 { "retirar_lejos", grupo = TOMAS, lugar = "objetivo", radio = 70, retraso = 0.3 },
-                { "diario", texto = "Conoci a Tomas Recados, el que la gente nombra cuando cuenta como se salvo. Me dejo una de sus armas. Dice que voy por el mismo camino que el." },
-                { "huella", acto = "salvaste", texto = "Pelee junto a Tomas Recados, la leyenda de Knox." },
+                { "diario", texto = "Conoci a Eduardo Giovanns, el que la gente nombra cuando cuenta como se salvo. Me dejo una de sus armas. Dice que voy por el mismo camino que el." },
+                { "huella", acto = "salvaste", texto = "Pelee junto a Eduardo Giovanns, la leyenda de Knox." },
                 { "memoria", clave = "tomas_conocido", valor = true },
             },
             salidas = { { ir = "escolta" } },
         },
 
-        -- Tomas cayo peleando por el doctor. Su arma queda en el suelo. (No se levanta como
+        -- Eduardo cayo peleando por el doctor. Su arma queda en el suelo. (No se levanta como
         -- zombi y, al volver al campamento de la Chela, aparece vivo.)
         caido = {
             al_entrar = {
-                { "aviso", texto = "Tomas cae entre los muertos, cubriendo al doctor hasta el final. Su arma queda en el suelo." },
+                { "aviso", texto = "Eduardo cae entre los muertos, cubriendo al doctor hasta el final. Su arma queda en el suelo." },
                 { "legendario", lugar = "objetivo", radio = 30, clase = "arma" },
-                { "diario", texto = "Vi caer a Tomas Recados, el que la gente nombra cuando cuenta como se salvo. Cayo cubriendo al doctor. Me quede con su arma." },
-                { "huella", acto = "salvaste", texto = "Pelee junto a Tomas Recados, la leyenda de Knox. Lo vi caer." },
+                { "diario", texto = "Vi caer a Eduardo Giovanns, el que la gente nombra cuando cuenta como se salvo. Cayo cubriendo al doctor. Me quede con su arma." },
+                { "huella", acto = "salvaste", texto = "Pelee junto a Eduardo Giovanns, la leyenda de Knox. Lo vi caer." },
                 { "memoria", clave = "tomas_conocido", valor = true },
             },
             salidas = {
@@ -165,7 +165,7 @@ Narrador.Defs.registrar({
                 -- Era un charlatan... pero sabe hacer remedios.
                 { "decir", grupo = DOC, rol = "cientifico", texto = "Bueno... la cura, la cura, exactamente no. Lo dije para que alguien viniera. Pero se hacer antibioticos con moho y paciencia. Denme una mesa y les hago medicina." },
                 { "decir_contacto", retraso = 0.05, texto = "Charlatan. Pero un charlatan que hace remedios sirve. Cuando el campamento crezca, te pongo una consulta. Por mientras, te lavas las manos." },
-                { "decir_contacto", texto = "Lo viste? A mi Tomas? Y esta bien? ... Ese cabro porfiado. Ya. Ya. No me mires, que se me metio algo en el ojo.",
+                { "decir_contacto", texto = "Lo viste? A mi Eduardo? Y esta bien? ... Ese cabro porfiado. Ya. Ya. No me mires, que se me metio algo en el ojo.",
                   si = { "var", "dijo_tomas", true } },
                 { "decir_contacto", texto = "Lo trajiste vivo, mijo. Ya veremos si lo de la cura es verdad. Por mientras, que coma algo.",
                   si = { "no", { "var", "dijo_tomas", true } } },
@@ -190,12 +190,12 @@ Narrador.Defs.registrar({
     },
 })
 
--- Tomas vuelve: si cayo en alguna parte, la proxima vez que pasas por el campamento de la
+-- Eduardo vuelve: si cayo en alguna parte, la proxima vez que pasas por el campamento de la
 -- Chela esta ahi, vivo, como si nada. Lo lanza C.REGRESOS (server/Narrador/NarradorContactos.lua).
 Narrador.Defs.registrar({
     id = "tomas_vuelve",
-    titulo = "Tomas, otra vez",
-    titulo_menu = "Tomas vuelve (lo lanza el campamento de la Chela)",
+    titulo = "Eduardo, otra vez",
+    titulo_menu = "Eduardo vuelve (lo lanza el campamento de la Chela)",
     requiere_alife = true,
     automatico = false,
     inicio = "llega",
@@ -206,7 +206,7 @@ Narrador.Defs.registrar({
                 { "lugar_contacto", id = "contacto", contacto = "westpoint" },
                 { "npcs", id = TOMAS, lugar = "contacto", radio = 25, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 6,
                   inmortales = true, postura = "friendly", salud = 400, banderas = { health = 400, damageOutput = 300 },
-                  perfiles = { { "tomas", "k93_stockyard_05" } }, nombres = { tomas = { "Tomas", "Recados" } } },
+                  perfiles = { { "tomas", "k93_stockyard_05" } }, nombres = { tomas = { "Eduardo", "Giovanns" } } },
             },
             salidas = {
                 { cuando = { "grupo_listo", TOMAS }, ir = "charla" },
@@ -215,15 +215,15 @@ Narrador.Defs.registrar({
         },
 
         charla = {
-            pista = "Tomas esta en {lugar:contacto}. Vivo.",
+            pista = "Eduardo esta en {lugar:contacto}. Vivo.",
             ancla = "contacto", ancla_grupo = TOMAS, radio = 20,
             al_entrar = {
                 { "inmune", grupo = TOMAS, rol = "tomas", quien = "tomas" },
                 { "decir", grupo = TOMAS, rol = "tomas", texto = "Uff... pense que la palmaba. Esta vez si, de verdad." },
                 { "decir", grupo = TOMAS, rol = "tomas", retraso = 0.05, texto = "Me arrastre hasta un sotano y dormi dos dias. Siempre hay un sotano. Gracias por terminar lo que yo no pude." },
                 { "decir_contacto", retraso = 0.1, texto = "Otra vez casi te matai, cabro porfiado. Sientate, que hay sopa. Y no me discutas." },
-                { "aviso", texto = "Tomas Recados esta en {lugar:contacto}, con la ropa rota y una sonrisa cansada." },
-                { "diario", texto = "Tomas esta vivo. Aparecio en {lugar:contacto} como si nada: 'pense que la palmaba'. Siempre se salva por las minimas." },
+                { "aviso", texto = "Eduardo Giovanns esta en {lugar:contacto}, con la ropa rota y una sonrisa cansada." },
+                { "diario", texto = "Eduardo esta vivo. Aparecio en {lugar:contacto} como si nada: 'pense que la palmaba'. Siempre se salva por las minimas." },
             },
             opciones = {
                 { id = "muerto", texto = "Te vi caer. Pense que estabas muerto.",

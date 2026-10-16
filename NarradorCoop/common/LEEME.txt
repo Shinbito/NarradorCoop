@@ -163,10 +163,13 @@ Novedades 0.10.0:
   donde sea que haya espacio" cuando vas en auto. Si llega vivo, suma al campamento y a la confianza.
 - Reputacion de Knox: 5 niveles buenos (Desconocido, Mensajero, La nueva esperanza, El guerrero,
   El heroe de Knox) y 5 malos (Poco confiable, Rumores negativos, La nube negra, El destripador,
-  El demonio de Knox), segun como te portas con la gente.
+  El demonio de Knox), segun como te portas con la gente. La gente te habla distinto: con mala
+  fama te insultan y te temen; con buena te quieren y saben de tus hazanas. Desde El
+  destripador los misioneros ya no te dan trabajo y los comerciantes no te hacen descuento.
+  Con mala fama solo se sube salvando gente o acabando con bandidos.
 - Diario: letra manuscrita en lapiz pasta azul, titulos subrayados y menos texto. La
   descripcion de cada misionero aparece al conocerlo y crece con su confianza (cinco capas).
-- Tomas Recados, el hijo de la Tia Chela: una leyenda que anda ayudando gente por Knox. La
+- Eduardo Giovanns, el hijo de la Tia Chela: una leyenda que anda ayudando gente por Knox. La
   gente lo nombra, hay rumores con sus pasos y un capitulo de la Chela donde lo conoces.
   Nunca se levanta como zombi y siempre se salva por las minimas. El Cabo Ramiro le tiene
   envidia.

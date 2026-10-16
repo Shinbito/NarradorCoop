@@ -628,10 +628,27 @@ local function cerca(jugador, contactoId)
     return x ~= nil and px ~= nil and math.sqrt((x - px) ^ 2 + (y - py) ^ 2) <= 10
 end
 
+-- Con muy mala fama en Knox (nivel -4 o peor) los misioneros ya no dan trabajo.
+G.RECHAZO = {
+    muldraugh = "Usted aca ya no es bienvenido, civil. Con todo el dano que ha hecho, ni un mandado le doy. Retirese de mi comisaria.",
+    westpoint = "No, mijo. Ya no. Con todo el dano que has hecho, aca no hay recados pa ti. Andate antes de que me arrepienta.",
+    riverside = "Esta puerta nunca se cierra, hijo. Salvo para ti. Lo que has hecho no lo perdona ni el Senor ni yo.",
+    rosewood = "Para ti la bencinera esta cerrada, mijito. Primera vez en treinta anos que cierro. Ya sabes por que.",
+}
+
+function G.rechazaPorKnox(jugador, contactoId, nivel)
+    local KX = Narrador.Knox
+    if KX == nil or not KX.despreciadoJugador(jugador) then return false end
+    C.decir(contactoId, G.RECHAZO[contactoId] or "Aca ya no eres bienvenido.")
+    Motor.enviar(jugador, "ofertas", { contacto = contactoId, nivel = nivel or "facil", lista = {}, nota = "Con tu fama en Knox, ya no te dan trabajo." })
+    return true
+end
+
 function G.verOfertas(jugador, args)
     local contactoId, nivel = tostring(args.contacto), tostring(args.nivel)
     local c = C.def(contactoId)
     if c == nil or C.NIVELES[nivel] == nil then return end
+    if G.rechazaPorKnox(jugador, contactoId, nivel) then return end
     if not cerca(jugador, contactoId) then Motor.responder(jugador, "Estas muy lejos."); return end
     local grupo = Mundo.grupoDe(jugador)
     if C.encargoDelGrupo(grupo) ~= nil then
@@ -718,6 +735,7 @@ function G.tomarOferta(jugador, args)
         return
     end
     if not cerca(jugador, of.contacto) then Motor.responder(jugador, "Estas muy lejos."); return end
+    if G.rechazaPorKnox(jugador, of.contacto) then return end
     if C.encargoDelGrupo(grupo) ~= nil then C.decir(of.contacto, "Ya tienes uno. Terminalo primero."); return end
     local o = of.lista[i]
     G.estado().ofertas[grupo] = nil
@@ -779,6 +797,7 @@ function G.pedirTrabajo(jugador, id, nivel)
     local c = C.def(tostring(id))
     if c == nil or C.NIVELES[tostring(nivel)] == nil then return end
     if not cerca(jugador, c.id) then Motor.responder(jugador, "Estas muy lejos."); return end
+    if G.rechazaPorKnox(jugador, c.id) then return end
     local grupo = Mundo.grupoDe(jugador)
     local activo = C.encargoDelGrupo(grupo)
     if activo ~= nil then

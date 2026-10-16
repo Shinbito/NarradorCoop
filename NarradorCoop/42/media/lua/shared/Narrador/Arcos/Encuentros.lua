@@ -17,11 +17,19 @@ Narrador.Charlas.encuentro = {
     { "npc", "No tengo mucho, pero lo que tengo es tuyo si salimos de esta." },
     { "npc2", "Rapido, rapido, que entran!" },
     { "npc2", "No los dejes pasar, por favor." },
-    -- La leyenda de Tomas Recados: la gente que salvo lo nombra.
-    { "npc", "Una vez me saco de una igual a esta un tal Tomas. Alto, callado, con un arma que brillaba. Tu me lo recuerdas." },
-    { "npc", "Dicen que por aca anda Tomas, el que ayuda a la gente. Ojala no sea un cuento.", si = { "no", { "mem", "tomas_conocido" } } },
-    { "npc", "Peleas como Tomas. Si, ese Tomas. Todo Knox habla de el.", si = { "mem", "tomas_conocido" } },
-    { "npc2", "Tomas nunca pide nada a cambio. Dicen. Ojala tu tampoco." },
+    -- La leyenda de Eduardo Giovanns: la gente que salvo lo nombra.
+    { "npc", "Una vez me saco de una igual a esta un tal Eduardo. Alto, callado, con un arma que brillaba. Tu me lo recuerdas." },
+    { "npc", "Dicen que por aca anda Eduardo, el que ayuda a la gente. Ojala no sea un cuento.", si = { "no", { "mem", "tomas_conocido" } } },
+    { "npc", "Peleas como Eduardo. Si, ese Eduardo. Todo Knox habla de el.", si = { "mem", "tomas_conocido" } },
+    { "npc2", "Eduardo nunca pide nada a cambio. Dicen. Ojala tu tampoco." },
+    -- Segun tu fama en Knox.
+    { "npc", "Yo se quien eres. Que me salves no borra lo que hiciste.", si = { "knox_maximo", -90 } },
+    { "npc", "No me toques! Me salvas y despues que? Me matas tu?", si = { "knox_maximo", -90 } },
+    { "npc2", "Es el. El de las historias. No lo mires a los ojos.", si = { "knox_maximo", -90 } },
+    { "npc", "Escuche cosas de ti. Ojala no sean verdad.", si = { { "knox_maximo", -10 }, { "knox_minimo", -89 } } },
+    { "npc", "Eres tu! La nueva esperanza! Sabia que ibas a venir.", si = { "knox_minimo", 60 } },
+    { "npc", "Todos hablan de lo que hiciste en Knox. Nunca pense que te iba a conocer.", si = { "knox_minimo", 120 } },
+    { "npc2", "El heroe de Knox, aca, por nosotros. Mi mama no me lo va a creer.", si = { "knox_minimo", 200 } },
 }
 
 -- Datos de cada tipo (el servidor los usa para sortear y armar el encuentro).

@@ -31,12 +31,12 @@ C.LISTA = {
           "No me diga Cabo. Bueno, si, digame Cabo. Me gusta.",
           "Si vuelve con las manos vacias, no se preocupe: el castigo es otro encargo.",
       },
-      -- Le tiene mala a Tomas Recados: dice que es un engreido. Es envidia.
+      -- Le tiene mala a Eduardo Giovanns: dice que es un engreido. Es envidia.
       frases_tomas = {
-          "Tomas, Tomas, todos hablan de Tomas. Yo saque a once personas de esta comisaria y nadie me hace canciones.",
-          "Ese Tomas es un engreido. Anda salvando gente sin llenar ni un formulario.",
+          "Eduardo, Eduardo, todos hablan de Eduardo. Yo saque a once personas de esta comisaria y nadie me hace canciones.",
+          "Ese Eduardo es un engreido. Anda salvando gente sin llenar ni un formulario.",
           "Humilde, dicen que es. El que es humilde no anda con un arma que brilla.",
-          "Si ve al tal Tomas, digale que aca hay orden. Que no se le ocurra venir a salvar a nadie a mi comisaria.",
+          "Si ve al tal Eduardo, digale que aca hay orden. Que no se le ocurra venir a salvar a nadie a mi comisaria.",
           "Leyenda. Leyenda! Veintidos anos de servicio y la leyenda es el.",
       } },
     { id = "westpoint", rol = "chela", ciudad = "West Point", nombre = "Tia Chela", apellido = "Recados",
@@ -81,6 +81,54 @@ C.LISTA = {
 }
 
 C.NIVELES = { facil = "facil", medio = "medio", dificil = "dificil", ultra = "ultra" }
+
+-- Lo que dicen segun tu fama en Knox (ver KnoxDefs.tono): mientras peor, mas te insultan;
+-- mientras mejor, mas te quieren y mas saben de lo que hiciste.
+C.FRASES_KNOX = {
+    muldraugh = {
+        odio = { "Usted me da asco, civil. En veintidos anos no vi a nadie hacer lo que usted hizo.",
+                 "No se me acerque. Tengo su nombre anotado, y no es en la lista buena.",
+                 "Si de mi dependiera, usted estaria detenido. O algo peor. Mucho peor." },
+        desconfianza = { "Ojo, civil. Escucho cosas de usted y no me gustan nada.",
+                         "Lo tengo vigilado. Que no se le olvide." },
+        aprecio = { "Me contaron lo que hizo por la gente. No se lo voy a decir dos veces: bien hecho.",
+                    "Todo Knox habla de usted. Bueno, despues del tal Eduardo. Pero habla." },
+        amor = { "El heroe de Knox en mi comisaria. Firmes todos, carajo.",
+                 "Le guarde el mejor catre, soldado. No le diga a nadie.",
+                 "Lo que hizo usted no lo hizo ni Eduardo. Y eso que me cuesta decirlo." },
+    },
+    westpoint = {
+        odio = { "No me mires, mijo. Ya no eres mi mijo.", "Me da pena en lo que te convertiste. Y rabia. Mas rabia." },
+        desconfianza = { "Andan diciendo cosas feas de ti. Ojala sean mentiras, mijo." },
+        aprecio = { "Me contaron que salvaste a otra familia. Toma, sopa caliente, te la ganaste." },
+        amor = { "Mi Eduardo y tu. Los dos con la misma porfia de ayudar. Me haces llorar, cabro.",
+                 "Te teji un gorro. Feo, pero calientito. Pa mi heroe." },
+    },
+    riverside = {
+        odio = { "Rezo por las almas de los que mataste. Por la tuya ya no me alcanza.",
+                 "El diablo tiene muchas caras, hijo. Una es la tuya." },
+        desconfianza = { "Confesion gratis, hijo. Algo me dice que la necesitas." },
+        aprecio = { "La gente prende velas con tu nombre. Literal, las vi." },
+        amor = { "Si hubiera santos en este fin del mundo, tu serias el primero. Te lo digo con la nariz quebrada y todo.",
+                 "En la misa del domingo hablamos de ti. De todo lo que hiciste por la gente." },
+    },
+    rosewood = {
+        odio = { "Te vendia cigarros. Ahora no te vendo ni el aire.",
+                 "Los camioneros contaban historias de monstruos. Ahora las cuentan de ti." },
+        desconfianza = { "Cuidado, mijito, que en la ruta se habla. Y de ti se habla feo." },
+        aprecio = { "Los camioneros que quedan te nombran. Cosas buenas, mijito." },
+        amor = { "Mijito, eres la luz prendida de todo Knox.", "Te guarde el ultimo chocolate de la bencinera. El ultimo, ah." },
+    },
+}
+
+-- Tono de la gente con el jugador mas cercano a (x, y), o nil.
+function C.tonoKnox(x, y)
+    local KX, KD = Narrador.Knox, Narrador.KnoxDefs
+    if KX == nil or KD == nil or x == nil then return nil end
+    local j = Mundo.jugadorCerca(x, y, 15)
+    if j == nil then return nil end
+    return KD.tono(KX.nivelDe(Mundo.grupoDe(j)))
+end
 
 function C.def(id)
     for _, c in ipairs(C.LISTA) do if c.id == id then return c end end
@@ -362,7 +410,7 @@ end
 -- NPCs especiales: inmunes a la zombificacion y con armas legendarias en la mano
 -- ---------------------------------------------------------------------------
 
--- NPCs que nunca se infectan (Tomas, por ejemplo): cada minuto se les saca la infeccion,
+-- NPCs que nunca se infectan (Eduardo, por ejemplo): cada minuto se les saca la infeccion,
 -- igual que a los misioneros. Pueden morir, pero nunca se levantan como zombi.
 function C.inmunes()
     local st = Motor.estado()
@@ -579,6 +627,13 @@ function C.tick()
                         local lineas = {}
                         for _, f in ipairs(c.frases or {}) do lineas[#lineas + 1] = { "contacto", f } end
                         for _, f in ipairs(c.frases_tomas or {}) do lineas[#lineas + 1] = { "contacto", f } end
+                        -- Segun la fama en Knox de quien esta cerca: con mala fama, solo desprecio.
+                        local tono = C.tonoKnox(e.x, e.y)
+                        local porTono = tono ~= nil and C.FRASES_KNOX[c.id] ~= nil and C.FRASES_KNOX[c.id][tono] or nil
+                        if porTono ~= nil then
+                            if tono == "odio" then lineas = {} end
+                            for _, f in ipairs(porTono) do lineas[#lineas + 1] = { "contacto", f } end
+                        end
                         e.charla = e.charla or {}
                         local m, texto = Motor.charlaElegir(lineas, { { e.uid, "contacto", c.nombre } }, e.charla, 10, 0.15)
                         if m ~= nil then C.decir(c.id, texto) end

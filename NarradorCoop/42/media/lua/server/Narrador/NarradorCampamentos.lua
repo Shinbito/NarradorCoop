@@ -261,6 +261,9 @@ end
 
 function S.nivelConfianza(jugador, contactoId)
     local R = Narrador.Reputacion
+    -- Con muy mala fama en Knox no hay descuento para nadie.
+    local KX = Narrador.Knox
+    if KX ~= nil and KX.despreciadoJugador(jugador) then return 1 end
     if R == nil or not R.activa() then return 1 end
     return R.nivel(R.valor(Mundo.grupoDe(jugador), contactoId))
 end
@@ -322,7 +325,9 @@ function S.comprar(jugador, args)
         local item = Mundo.crearItem(tipos)
         if item ~= nil then Mundo.darItem(jugador, item) end
     end
-    Motor.enviar(jugador, "aviso", { texto = p.nombre[1] .. " te vende: " .. art.texto .. " (" .. precio .. " de " .. moneda .. ")." })
+    local KX = Narrador.Knox
+    local como = (KX ~= nil and KX.despreciadoJugador(jugador)) and " te vende de mala gana, sin mirarte: " or " te vende: "
+    Motor.enviar(jugador, "aviso", { texto = p.nombre[1] .. como .. art.texto .. " (" .. precio .. " de " .. moneda .. ")." })
 end
 
 -- ---------------------------------------------------------------------------

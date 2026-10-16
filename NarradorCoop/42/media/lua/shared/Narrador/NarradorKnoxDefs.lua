@@ -36,6 +36,26 @@ KD.ACTOS = {
     mentiste = -2, abandonaste = -2, cobraste = -1, fallaste = -1,
 }
 
+-- Desde este nivel (o peor) los misioneros ya no te dan encargos ni capitulos y los
+-- comerciantes de los campamentos no te hacen descuento.
+KD.DESPRECIO = -4
+
+-- Con la reputacion en negativo solo se sube salvando gente o acabando con bandidos.
+KD.REDIMEN = { salvaste = true, protegiste = true, bandidos = true, redencion = true, admin = true }
+-- Lo que da limpiar un lugar tomado por bandidos.
+KD.BANDIDOS = 15
+
+-- Tono de la gente segun el nivel: "odio" (-5..-3), "desconfianza" (-2..-1), "aprecio" (2..3),
+-- "amor" (4..5). Nivel 1 (Desconocido): nada especial.
+function KD.tono(nivel)
+    nivel = tonumber(nivel) or 1
+    if nivel <= -3 then return "odio" end
+    if nivel < 0 then return "desconfianza" end
+    if nivel >= 4 then return "amor" end
+    if nivel >= 2 then return "aprecio" end
+    return nil
+end
+
 -- Lo que se dice al cambiar de nivel.
 KD.AVISOS = {
     [2] = "Tu nombre empieza a correr de boca en boca. En Knox te dicen: Mensajero.",

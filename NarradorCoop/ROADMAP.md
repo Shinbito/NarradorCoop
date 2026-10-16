@@ -82,20 +82,20 @@
 - Falta revisar en el juego que el perfil elegido para Valentina (`k93_hensley_family_03`) se
   vea como una muchacha.
 
-### La leyenda de Tomas Recados, el hijo de la Tia Chela (hecho, falta probar)
-- Los NPCs de los encuentros lo nombran: "una vez me saco de una igual a esta un tal Tomas".
+### La leyenda de Eduardo Giovanns, el hijo de la Tia Chela (hecho, falta probar)
+- Los NPCs de los encuentros lo nombran: "una vez me saco de una igual a esta un tal Eduardo".
   Despues de conocerlo te dicen que peleas como el.
-- Rumores con sus pasos: lugares donde estuvo, con una nota firmada "T.R." y algo para el que
+- Rumores con sus pasos: lugares donde estuvo, con una nota firmada "E.G." y algo para el que
   viene detras (tu vas siguiendo su camino).
 - Historia de la Chela, capitulo 3, "Un cientifico que dice tener la cura" (no tiene nada que
   ver con la mision de la cura K-93). Sale entre sus ofertas cuando su capitulo 2 ya se hizo y
-  te tiene confianza 3+. Al llegar, Tomas ya esta peleando solo contra una horda (30 +15 por
+  te tiene confianza 3+. Al llegar, Eduardo ya esta peleando solo contra una horda (30 +15 por
   jugador, sin corredores). Pelean juntos, se presenta, puedes contarle de su mama, te deja un
   arma legendaria ("vas por el mismo camino que yo") y se va. Hay que llevar al doctor
   Hartmann vivo donde la Chela: era un charlatan, pero se queda en el cuartel y cada 48 horas
   deja medicina (antibioticos, pastillas, vendas, desinfectante). Archivo:
   `shared/Narrador/Arcos/LeyendaTomas.lua`.
-- Tomas: heroe de pelicula, honorable y humilde. Inmune a la zombificacion, 400 de vida, mucho
+- Eduardo: heroe de pelicula, honorable y humilde. Inmune a la zombificacion, 400 de vida, mucho
   dano y un arma legendaria. Si cae, nunca se levanta: la proxima vez que pasas por el cuartel
   de la Chela aparece vivo ("uff, pense que la palmaba"). Siempre se salva por las minimas.
 - El Cabo Ramiro le tiene mala: dice que es un engreido (es envidia).
@@ -118,7 +118,7 @@
 - Hecho: Chela cap. 1 (desbloqueo) y cap. 3 (el cientifico). Por escribir: Chela cap. 2 (sin
   el, el 3 no sale) y los capitulos 2+ del Cabo, el Padre Nacho y la Misia Rosa. La hija del
   Cabo (Valentina) puede ser uno de sus capitulos.
-- Falta revisar en el juego los perfiles de Tomas (`k93_stockyard_05`) y del doctor
+- Falta revisar en el juego los perfiles de Eduardo (`k93_stockyard_05`) y del doctor
   (`k93_red_cross_02`), y si A-Life le deja el arma en la mano.
 
 ### Encuentros: llevar a la persona al campamento (hecho, falta probar)
@@ -137,7 +137,7 @@
   pie; si subes a un auto con ella a menos de 12 casillas, sale "X se sube donde sea que haya
   espacio" y desaparece; cada vez que te bajas, aparece a tu lado. Prueba de admin:
   Narrador -> Pruebas -> "Acompanante: el NPC mas cercano me sigue".
-- Ganchos para más misiones así en las capas 5 de los otros: el hijo de la Tía Chela (Tomás,
+- Ganchos para más misiones así en las capas 5 de los otros: el hijo de la Tía Chela (Eduardo,
   en Louisville), la muchacha que esperaba al Padre Nacho, el estanque de bencina escondido de
   la Misia Rosa.
 
@@ -151,6 +151,13 @@
   4 El destripador (-150), 5 El demonio de Knox (-220).
 - Aviso y entrada en el diario al cambiar de nivel; el diario (Notas -> Lo que hice) muestra
   el título. Admin: Pruebas -> "Reputacion de Knox +30 / -30".
+- Con nivel -4 o peor (El destripador, El demonio de Knox): los misioneros no te dan encargos
+  ni capítulos ("ya no eres bienvenido por el daño que has hecho") y los comerciantes no hacen
+  descuento y te venden de mala gana.
+- Con la reputación en negativo solo se sube salvando gente (salvaste/protegiste) o acabando
+  con bandidos (limpiar un lugar tomado: +15).
+- La gente habla distinto según tu fama: los misioneros (`C.FRASES_KNOX`) y los NPCs de los
+  encuentros te insultan y te temen con mala fama, y con buena te quieren y saben de tus hazañas.
 - Ganchos para las historias: acción `{ "knox", cantidad = n }`, acción
   `{ "knox_reiniciar", texto = "..." }`, condiciones `{ "knox_minimo", n }` y
   `{ "knox_maximo", n }`, y la memoria `knox_bandido_<grupo>` = "listo" la primera vez que el
@@ -158,17 +165,17 @@
 
 ## PARA EL PRÓXIMO CHAT: historias por desarrollar
 
-### A. Eventos fortuitos de Tomás (después de conocerlo)
+### A. Eventos fortuitos de Eduardo (después de conocerlo)
 - Condición: memoria `tomas_conocido`. Sale como evento fortuito, más seguido cuanto más
   avanzada la partida (por ejemplo, una tirada por día con chance 5% + 1% por día de partida,
   tope 40%, y al menos 72 horas entre uno y otro).
-- Tomás llega corriendo cerca del jugador y avisa. Dos variantes:
+- Eduardo llega corriendo cerca del jugador y avisa. Dos variantes:
   - Horda gigantesca detrás de él (60 + 20 por jugador extra).
   - Bandidos persiguiéndolo: "Vienen bandidos detrás mío. Escóndete o pelea conmigo."
 - Opciones: pelear junto a él o esconderse. Si te vas lejos mientras pelea (abandonarlo),
-  baja la reputación de Knox (por ejemplo -15). Si ganan, sube (por ejemplo +10) y Tomás
+  baja la reputación de Knox (por ejemplo -15). Si ganan, sube (por ejemplo +10) y Eduardo
   dice algo heroico y humilde.
-- Tomás es inmune (`{ "inmune", grupo, rol, quien = "tomas" }`): si cae, vuelve vivo al
+- Eduardo es inmune (`{ "inmune", grupo, rol, quien = "tomas" }`): si cae, vuelve vivo al
   cuartel de la Chela (ya hecho, `C.REGRESOS` y arco `tomas_vuelve`).
 
 ### B. El camino del bandido (Knox negativo)

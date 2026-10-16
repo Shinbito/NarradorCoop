@@ -331,6 +331,8 @@ function O.revisarOcupado(e, k)
         local j = Mundo.jugadorCerca(e.cx, e.cy, 120)
         if j ~= nil then
             Motor.enviar(j, "aviso", { texto = "Limpiaste " .. tostring(e.etiqueta) .. ". En unas semanas va a llegar otra gente a ocuparlo." })
+            -- Acabar con bandidos mejora la reputacion de Knox (aunque este en negativo).
+            if Narrador.Knox ~= nil then pcall(Narrador.Knox.bandidosLimpios, j) end
         end
         Motor.publicar()
         return

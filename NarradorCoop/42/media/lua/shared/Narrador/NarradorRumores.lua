@@ -108,19 +108,19 @@ Rum.FALSOS = {
                  sous = { { "bastian", "Oe, dicen que anoche habia musica en {lugar}, po. Carrete apocaliptico." } } },
       premio = { { "Base.Battery" }, { "Base.Radio", "Base.Bandage" } },
       nota = "Era una radio a pilas. Se le acabaron. Llevatela si quieres." },
-    -- Los pasos de Tomas Recados: donde estuvo, deja algo para el que viene detras.
+    -- Los pasos de Eduardo Giovanns: donde estuvo, deja algo para el que viene detras.
     { lugar = { salas = { "gasstore", "grocery", "policeoffice", "firestorage" }, min = 250, max = 900 },
-      lineas = { misionero = { "Dicen que Tomas, el que anda ayudando gente, paso por {lugar}. Dicen que deja cosas para los que vienen atras." },
-                 vecino = { "Un tal Tomas limpio {lugar} solo, la semana pasada. Mi primo lo vio. Bueno, mi primo dice." },
-                 sous = { { "cristian", "Wn, dicen que Tomas, el leyenda, estuvo en {lugar}. Hay que ir, po." } } },
+      lineas = { misionero = { "Dicen que Eduardo, el que anda ayudando gente, paso por {lugar}. Dicen que deja cosas para los que vienen atras." },
+                 vecino = { "Un tal Eduardo limpio {lugar} solo, la semana pasada. Mi primo lo vio. Bueno, mi primo dice." },
+                 sous = { { "cristian", "Wn, dicen que Eduardo, el leyenda, estuvo en {lugar}. Hay que ir, po." } } },
       premio = { { "Base.Bullets9mmBox", "Base.Bullets9mm" }, { "Base.Bandage" }, { "Base.TinnedBeans", "Base.CannedBeans" } },
-      nota = "Si llegaste hasta aca, vas por buen camino. Deje esto para el que venga detras. Cuida a la gente. - T.R." },
+      nota = "Si llegaste hasta aca, vas por buen camino. Deje esto para el que venga detras. Cuida a la gente. - E.G." },
     { lugar = { salas = { "classroom", "church", "livingroom" }, min = 250, max = 900 },
-      lineas = { misionero = { "Una senora juraba que Tomas, el de las historias, la saco de {lugar}. Yo le creo." },
-                 vecino = { "En {lugar} hay una pared con nombres. Al final dice 'Tomas estuvo aqui'." },
-                 sous = { { "martin_a", "Bro, en {lugar} dicen que hay una firma de Tomas. El leyenda. Raro pero ya." } } },
+      lineas = { misionero = { "Una senora juraba que Eduardo, el de las historias, la saco de {lugar}. Yo le creo." },
+                 vecino = { "En {lugar} hay una pared con nombres. Al final dice 'Eduardo estuvo aqui'." },
+                 sous = { { "martin_a", "Bro, en {lugar} dicen que hay una firma de Eduardo. El leyenda. Raro pero ya." } } },
       premio = { { "Base.FirstAidKit", "Base.Bandage" }, { "Base.WaterBottleFull", "Base.WaterBottle" } },
-      nota = "Aca dormimos siete. Se fueron todos al norte, vivos. Si encuentras gente, sacala. Alguien tiene que hacerlo. - T.R." },
+      nota = "Aca dormimos siete. Se fueron todos al norte, vivos. Si encuentras gente, sacala. Alguien tiene que hacerlo. - E.G." },
 }
 
 return Rum
