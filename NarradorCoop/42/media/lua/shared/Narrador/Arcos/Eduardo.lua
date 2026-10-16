@@ -28,9 +28,11 @@ local PERFIL_TOMAS = { { "tomas", "k93_stockyard_05" } }
 local NOMBRE_TOMAS = { tomas = { "Eduardo", "Giovanns" } }
 local FUERTE = { health = 400, damageOutput = 300 }
 
--- Donde esta la base de Eduardo: las casas abandonadas al lado del campo de Fallas Lake.
+-- Donde esta la base de Eduardo: las casas abandonadas al lado del campo de Fallas Lake
+-- (7440,7946). Se usa la casa mas cercana a ese punto.
 Narrador.EduardoBase = {
     pueblo = "Fallas Lake", nombre = "las casas abandonadas al lado del campo de Fallas Lake",
+    cerca_de = { 7440, 7946, 80 },
     salas = { "livingroom", "kitchen", "bedroom" }, respaldo = { "barn", "farmstorage", "garagestorage" },
     cerca_del_centro = true,
 }
@@ -91,7 +93,8 @@ registrar({
         nota = {
             al_entrar = {
                 { "lugar", id = "base", pueblo = Narrador.EduardoBase.pueblo, nombre = Narrador.EduardoBase.nombre,
-                  salas = Narrador.EduardoBase.salas, respaldo = Narrador.EduardoBase.respaldo, cerca_del_centro = true },
+                  salas = Narrador.EduardoBase.salas, respaldo = Narrador.EduardoBase.respaldo, cerca_del_centro = true,
+                  cerca_de = Narrador.EduardoBase.cerca_de },
                 { "memoria_lugar", lugar = "base", clave = "eduardo_base" },
                 { "nota", lugar = "aqui", radio = 3, titulo = "Nota de Eduardo",
                   texto = "Si quieres hablar, ven sin el arma en la mano. Si no, ven con ella. Ya sabes donde. Te espero. -E." },
@@ -124,7 +127,7 @@ registrar({
             al_entrar = {
                 { "lugar_memoria", id = "base", clave = "eduardo_base", pueblo = Narrador.EduardoBase.pueblo,
                   nombre = Narrador.EduardoBase.nombre, salas = Narrador.EduardoBase.salas,
-                  respaldo = Narrador.EduardoBase.respaldo, cerca_del_centro = true },
+                  respaldo = Narrador.EduardoBase.respaldo, cerca_del_centro = true, cerca_de = Narrador.EduardoBase.cerca_de },
             },
             salidas = { { cuando = { "cerca", "base", 40 }, ir = "base" } },
         },

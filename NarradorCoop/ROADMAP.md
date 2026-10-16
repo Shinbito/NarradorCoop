@@ -275,8 +275,8 @@
     Eduardo (West Point), la Hermana Lucia (la que esperaba al Padre Nacho) y Hector Bencina Jr.
     (el sobrino de la Misia Rosa). Al final: Knox a 45 ("La nueva esperanza"), confianza maxima
     con todos y memoria `fin` = "reconquista".
-- PENDIENTE: confirmar en el juego donde quedan las casas de Fallas Lake (hoy se busca la casa
-  mas cerca del centro del pueblo) y los perfiles de la Hermana Lucia (`k93_red_cross_08`).
+- Las casas de Fallas Lake estan en 7440,7946 (`Narrador.EduardoBase.cerca_de`).
+- PENDIENTE: revisar en el juego el perfil de la Hermana Lucia (`k93_red_cross_08`).
 
 ### C. Modo historia de los misioneros
 - Capítulos 1 y 2 de los cuatro (son requisito de los niveles 2 y 3 del campamento) y del 3 en
