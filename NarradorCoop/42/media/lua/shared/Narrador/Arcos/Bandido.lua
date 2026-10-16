@@ -24,12 +24,13 @@ local KNOX = Narrador.KnoxDefs.BANDIDOS_MISION
 
 Narrador.Facciones = Narrador.Facciones or {}
 
--- El patio de trenes al oeste de Muldraugh. Si ahi no se encuentra nada, la bodega mas cercana.
+-- El patio de trenes de Muldraugh: de 11544,9590 a 11746,10232, con varias casas. Se busca la
+-- casa mas cerca del centro (11645,9911); el radio cubre todo el patio.
 Narrador.BandidoPatio = {
     pueblo = "Muldraugh", nombre = "el patio de trenes de Muldraugh",
-    cerca_de = { 10330, 9760, 160 },
-    salas = { "warehouse", "storageunit", "factorystorage", "garagestorage", "railroad*", "train*" },
-    respaldo = { "storage", "garage", "kitchen", "livingroom" },
+    cerca_de = { 11645, 9911, 330 },
+    salas = { "livingroom", "kitchen", "bedroom" },
+    respaldo = { "warehouse", "storageunit", "garagestorage", "storage", "garage" },
 }
 
 Narrador.Facciones.narrador_pereira = {
