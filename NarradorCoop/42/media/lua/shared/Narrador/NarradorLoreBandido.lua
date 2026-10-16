@@ -283,4 +283,26 @@ Lore.arcos.reconquista_patio = {
     },
 }
 
+-- ===========================================================================
+-- Eventos fortuitos de Eduardo
+-- ===========================================================================
+local function EV(h, b) return { por_var = "variante", textos = { horda = h, otro = b } } end
+Lore.arcos.eduardo_evento = {
+    etapas = {
+        llega = EV("Alguien viene corriendo hacia mi. Detras, un ruido como de rio: pies, cientos de pies.",
+            "Alguien viene corriendo hacia mi. Detras, disparos."),
+        aviso = EV("Es Eduardo Giovanns, con una horda gigante pegada a la espalda. Me pide que pelee con el o que me esconda. No hay tiempo para pensarlo.",
+            "Es Eduardo Giovanns, con bandidos detras. Me pide que pelee con el o que me esconda."),
+        pelea = "Peleo al lado de Eduardo. El va adelante, como siempre. Yo cubro su espalda, como puedo.",
+        escondido = "Me escondi. Eduardo pelea solo. Si me alejo, lo dejo solo de verdad.",
+    },
+    finales = {
+        final_ganado = EV("Eduardo llego con una horda detras. Peleamos juntos y salimos vivos. Dijo que fue suerte. No fue suerte.",
+            "Eduardo llego con bandidos detras. Peleamos juntos. Dijo que no eran malos, solo tenian hambre y un arma."),
+        final_escondido = "Eduardo peleo solo mientras yo me escondia. Cuando termino me dijo que a el tambien le da miedo. No le crei.",
+        final_abandonado = "Me fui lejos mientras Eduardo peleaba por los dos. En Knox se va a saber. Siempre se sabe.",
+        final_cayo = "Eduardo cayo peleando. Si es como dicen, va a aparecer en el cuartel de su mama, como si nada.",
+    },
+}
+
 return Lore
