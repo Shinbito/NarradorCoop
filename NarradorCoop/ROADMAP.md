@@ -82,6 +82,22 @@
 - Falta revisar en el juego que el perfil elegido para Valentina (`k93_hensley_family_03`) se
   vea como una muchacha.
 
+### La leyenda de Tomas Recados, el hijo de la Tia Chela (hecho, falta probar)
+- Los NPCs de los encuentros lo nombran: "una vez me saco de una igual a esta un tal Tomas".
+  Despues de conocerlo te dicen que peleas como el.
+- Rumores con sus pasos: lugares donde estuvo, con una nota firmada "T.R." y algo para el que
+  viene detras (tu vas siguiendo su camino).
+- Encargo especial de la Chela, "Un cientifico que dice tener la cura": a veces sale entre
+  sus ofertas dificiles con confianza 3+. Al llegar, Tomas ya esta peleando solo contra una
+  horda (30 +15 por jugador, sin corredores). Pelean juntos, se presenta, puedes contarle de
+  su mama, te deja un arma legendaria ("vas por el mismo camino que yo") y se va. Hay que
+  llevar al doctor Hartmann vivo donde la Chela; si llega, se queda a vivir en el cuartel
+  (gancho para la cura). Archivo: `shared/Narrador/Arcos/LeyendaTomas.lua`.
+- Tomas: inmune a la zombificacion (se le saca la infeccion cada minuto), 400 de vida, mucho
+  dano y un arma legendaria en la mano. Puede morir.
+- Falta revisar en el juego los perfiles de Tomas (`k93_stockyard_05`) y del doctor
+  (`k93_red_cross_02`), y si A-Life le deja el arma en la mano.
+
 ### Encuentros: llevar a la persona al campamento (hecho, falta probar)
 - "Llevarlo donde {misionero}" ya no lo manda solo: te sigue (y se sube al auto contigo) y hay
   que llegar con él vivo al campamento. Si llega: +6 de confianza con aviso. Si muere en el

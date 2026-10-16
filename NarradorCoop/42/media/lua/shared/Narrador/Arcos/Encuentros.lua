@@ -17,6 +17,11 @@ Narrador.Charlas.encuentro = {
     { "npc", "No tengo mucho, pero lo que tengo es tuyo si salimos de esta." },
     { "npc2", "Rapido, rapido, que entran!" },
     { "npc2", "No los dejes pasar, por favor." },
+    -- La leyenda de Tomas Recados: la gente que salvo lo nombra.
+    { "npc", "Una vez me saco de una igual a esta un tal Tomas. Alto, callado, con un arma que brillaba. Tu me lo recuerdas." },
+    { "npc", "Dicen que por aca anda Tomas, el que ayuda a la gente. Ojala no sea un cuento.", si = { "no", { "mem", "tomas_conocido" } } },
+    { "npc", "Peleas como Tomas. Si, ese Tomas. Todo Knox habla de el.", si = { "mem", "tomas_conocido" } },
+    { "npc2", "Tomas nunca pide nada a cambio. Dicen. Ojala tu tampoco." },
 }
 
 -- Datos de cada tipo (el servidor los usa para sortear y armar el encuentro).

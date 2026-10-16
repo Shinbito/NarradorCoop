@@ -350,6 +350,50 @@ function C.curar(uid)
     end
 end
 
+-- ---------------------------------------------------------------------------
+-- NPCs especiales: inmunes a la zombificacion y con armas legendarias en la mano
+-- ---------------------------------------------------------------------------
+
+-- NPCs que nunca se infectan (Tomas, por ejemplo): cada minuto se les saca la infeccion,
+-- igual que a los misioneros. Pueden morir, pero nunca se levantan como zombi.
+function C.inmunes()
+    local st = Motor.estado()
+    st.inmunes = st.inmunes or {}
+    return st.inmunes
+end
+
+-- {"inmune", grupo = "tomas", rol = "tomas"}
+Motor.inmediatas.inmune = function(inst, a)
+    local g = inst.grupos[a.grupo]
+    for rol, uid in pairs(g ~= nil and g.roles or {}) do
+        if a.rol == nil or rol == a.rol then C.inmunes()[tostring(uid)] = uid end
+    end
+    return true
+end
+
+-- {"armar_legendario", grupo = "tomas", rol = "tomas"}: le pone en la mano un arma legendaria
+-- (y su municion en el inventario). Si A-Life le cambia el arma, al menos la lleva encima.
+Motor.inmediatas.armar_legendario = function(inst, a)
+    local L = Narrador.Legendario
+    local g = inst.grupos[a.grupo]
+    if L == nil or g == nil then return true end
+    for rol, uid in pairs(g.roles or {}) do
+        if a.rol == nil or rol == a.rol then
+            local cuerpo = Mundo.cuerpoActor(uid)
+            if cuerpo ~= nil then
+                local items = L.crear(a.clase or "arma", "legendaria")
+                pcall(function()
+                    for i, item in ipairs(items) do
+                        cuerpo:getInventory():AddItem(item)
+                        if i == 1 then cuerpo:setPrimaryHandItem(item) end
+                    end
+                end)
+            end
+        end
+    end
+    return true
+end
+
 -- Mantiene vivo al misionero: banderas, sin infeccion y con la vida llena.
 function C.proteger(e)
     if e.uid == nil then return end
@@ -655,6 +699,10 @@ function C.tickMinuto()
         local e = C.estado(c.id)
         if e.muertos ~= nil then pcall(C.enterrar, e) end
         pcall(C.vigilar, c, e)
+    end
+    for clave, uid in pairs(C.inmunes()) do
+        local actor = Mundo.actor(uid)
+        if actor ~= nil and actor.lifecycle == "dead" then C.inmunes()[clave] = nil else pcall(C.curar, uid) end
     end
 end
 

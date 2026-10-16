@@ -621,6 +621,8 @@ end
 -- ---------------------------------------------------------------------------
 
 local function cerca(jugador, contactoId)
+    -- Un misionero sin campamento todavia no da trabajo (ver C.desbloqueado).
+    if C.desbloqueado ~= nil and not C.desbloqueado(contactoId) then return false end
     local x, y = C.posicion(contactoId)
     local px, py = Mundo.posicion(jugador)
     return x ~= nil and px ~= nil and math.sqrt((x - px) ^ 2 + (y - py) ^ 2) <= 10
@@ -653,8 +655,33 @@ function G.verOfertas(jugador, args)
         end
         if o ~= nil then usados[o.def] = true; lista[#lista + 1] = o end
     end
+    local especial = G.ofertaEspecial(contactoId, nivel, grupo)
+    if especial ~= nil then lista[#lista + 1] = especial end
     G.estado().ofertas[grupo] = { contacto = contactoId, nivel = nivel, lista = lista, hora = Mundo.horas() }
     G.enviarOfertas(jugador, grupo)
+end
+
+-- Encargos especiales de un misionero (arcos fijos que aparecen a veces entre las ofertas).
+-- Cada uno: contacto, nivel, confianza minima (nivel 1..5), chance (1 en n) y la memoria que
+-- dice que ya se hizo.
+G.ESPECIALES = {
+    { def = "leyenda_tomas", contacto = "westpoint", nivel = "dificil", confianza = 3, chance = 3, hecho = "tomas_conocido",
+      titulo = "Un cientifico que dice tener la cura",
+      resumen = { "Dificil: rescate", "Para: un cientifico que pide ayuda por la radio", "Donde: un hospital o laboratorio",
+                  "Pago: botin dificil + lo que tenga el cientifico", "Ojo: hay una horda" } },
+}
+
+function G.ofertaEspecial(contactoId, nivel, grupo)
+    local st = Motor.estado()
+    for _, e in ipairs(G.ESPECIALES) do
+        if e.contacto == contactoId and e.nivel == nivel and Defs.get(e.def) ~= nil and Motor.activos(e.def) == 0
+                and st.memoria[e.hecho] == nil and R.nivel(R.valor(grupo, contactoId)) >= e.confianza
+                and Mundo.azar(e.chance) == 1 then
+            return { def = e.def, vars = {}, lugares = { contacto = C.lugar(contactoId) }, titulo = e.titulo,
+                resumen = e.resumen, tipo = nil }
+        end
+    end
+    return nil
 end
 
 function G.enviarOfertas(jugador, grupo)

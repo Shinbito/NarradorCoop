@@ -48,9 +48,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorContactos.lua": {
-    "mtime": 1792112641.009869,
-    "seen": 1792112687.993942,
-    "ast_hash": "a43c1bb749ea8670bd1cdfb57774b04f",
+    "mtime": 1792112860.29524,
+    "seen": 1792112927.076613,
+    "ast_hash": "224ec6a13f721821edc447041fe622f8",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorConversacionServer.lua": {
@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorGenerador.lua": {
-    "mtime": 1792108414.120659,
-    "seen": 1792108852.229019,
-    "ast_hash": "19b555a39b58a8f16df3241f34f49b5c",
+    "mtime": 1792112835.262904,
+    "seen": 1792112927.076623,
+    "ast_hash": "7cb0dd98eddfc66e8a1479186b7435c7",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorHuellas.lua": {
@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/Arcos/Encuentros.lua": {
-    "mtime": 1792112602.249239,
-    "seen": 1792112687.9939704,
-    "ast_hash": "affddc0c848c2d46cd4709d687770dc2",
+    "mtime": 1792112912.0513058,
+    "seen": 1792112927.0766413,
+    "ast_hash": "6ea0283f026c2835ed5b092339b33ad7",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/Arcos/EventosCortos.lua": {
@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/NarradorRumores.lua": {
-    "mtime": 1792108414.1269717,
-    "seen": 1792108852.2290592,
-    "ast_hash": "5e764bbe05e400e0f0f0b7b98f9f7aaf",
+    "mtime": 1792112912.0516798,
+    "seen": 1792112927.0766654,
+    "ast_hash": "acd49f1773c4ccce6c3345fbb2588e85",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Translate/EN/ItemName.json": {
@@ -696,9 +696,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/ROADMAP.md": {
-    "mtime": 1792112685.7362716,
-    "seen": 1792112687.994011,
-    "ast_hash": "c863d4724ac58508280c4fc32464d606",
+    "mtime": 1792112924.9004326,
+    "seen": 1792112927.0766807,
+    "ast_hash": "94602ed1065370c9e511ba64b7b1b90c",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/Arcos/Desbloqueos.lua": {
@@ -717,6 +717,12 @@
     "mtime": 1792112670.4049869,
     "seen": 1792112687.993977,
     "ast_hash": "23615aa92ed72842af0bf0174935d6a8",
+    "semantic_hash": ""
+  },
+  "NarradorCoop/42/media/lua/shared/Narrador/Arcos/LeyendaTomas.lua": {
+    "mtime": 1792112890.941,
+    "seen": 1792112927.0766492,
+    "ast_hash": "485fc8a08b4d242bdfc9f4e7dfe380cc",
     "semantic_hash": ""
   }
 }
