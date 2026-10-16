@@ -122,6 +122,9 @@ end
 
 function C.aparecer(c, e, jugador)
     if not Mundo.hayALife() then return end
+    -- Sin zombis encima antes de que aparezca: si no, a veces nacia y lo mataban antes de
+    -- que llegaran las banderas.
+    pcall(C.limpiar, e.x, e.y)
     e.intentos = (e.intentos or 0) + 1
     local requestId = "narrador:contacto:" .. c.id .. ":" .. tostring(e.intentos)
     Mundo.reservarNombres(requestId, { [c.perfil] = { c.nombre, c.apellido } })
@@ -135,8 +138,10 @@ function C.aparecer(c, e, jugador)
     local ok, razon = Mundo.spawnGrupo(jugador, args, function(resultado)
         local uids = type(resultado) == "table" and resultado.actorUids or nil
         if type(uids) == "table" and uids[1] ~= nil then
-            e.uid, e.pidiendo = uids[1], nil
-            Mundo.nombrarActor(e.uid, c.nombre, c.apellido)
+            e.uid, e.pidiendo, e.faltas = uids[1], nil, 0
+            -- Inmortal desde el primer momento (no esperar al proximo C.tick).
+            pcall(C.proteger, e)
+            pcall(Mundo.nombrarActor, e.uid, c.nombre, c.apellido)
             Motor.publicar()
         else
             e.pidiendo = nil
@@ -161,6 +166,11 @@ function C.zonaSegura(e)
     local x, y = e.x, e.y
     local px, py = Mundo.posicionActor(e.uid)
     if px ~= nil then x, y = px, py end
+    C.limpiar(x, y)
+end
+
+function C.limpiar(x, y)
+    if x == nil or getCell == nil then return end
     if Mundo.jugadorCerca(x, y, 25) == nil then
         local interop = ProjectALife ~= nil and ProjectALife.Interop or nil
         pcall(function()
@@ -347,13 +357,7 @@ function C.tick()
                     pcall(C.zonaSegura, e)
                 end
             end
-            if e.uid == nil and (e.pidiendo == nil or Mundo.horas() - e.pidiendo > 1) then
-                pcall(function()
-                    e.pidiendo = nil
-                    local j = Mundo.jugadorCerca(e.x, e.y, 70)
-                    if j ~= nil and Mundo.cargado(e.x, e.y, e.z) ~= nil then C.aparecer(c, e, j) end
-                end)
-            end
+            if e.uid == nil then pcall(C.reponer, c, e) end
         end
     end
     pcall(C.revisarMall)
@@ -364,11 +368,49 @@ function C.tick()
     end
 end
 
--- Cada minuto: cancelar a tiempo la transformacion de un misionero que acaba de morir.
+-- Si falta el misionero y hay alguien cerca con su edificio cargado, se pide de nuevo. Si un
+-- pedido no contesta en un cuarto de hora, se vuelve a intentar.
+C.ESPERA_PEDIDO = 0.25
+
+function C.reponer(c, e)
+    if e.uid ~= nil or e.x == nil then return end
+    if e.pidiendo ~= nil and Mundo.horas() - e.pidiendo <= C.ESPERA_PEDIDO then return end
+    e.pidiendo = nil
+    local j = Mundo.jugadorCerca(e.x, e.y, 70)
+    if j ~= nil and Mundo.cargado(e.x, e.y, e.z) ~= nil then C.aparecer(c, e, j) end
+end
+
+-- El cuerpo cargado del misionero esta muerto aunque A-Life todavia no lo anote.
+function C.cuerpoMuerto(uid)
+    local cuerpo = Mundo.cuerpoActor(uid)
+    if cuerpo == nil then return false end
+    local ok, muerto = pcall(function() return cuerpo:isDead() end)
+    return ok and muerto == true
+end
+
+-- Cada minuto, solo con jugadores cerca: banderas y vida al dia (A-Life las puede perder al
+-- recargar el cuerpo cuando alguien llega), reponer si murio y pedirlo si falta.
+function C.vigilar(c, e)
+    if e.x == nil or Mundo.jugadorCerca(e.x, e.y, 70) == nil then return end
+    if e.uid ~= nil then
+        local actor = Mundo.actor(e.uid)
+        if (actor ~= nil and actor.lifecycle == "dead") or C.cuerpoMuerto(e.uid) then
+            pcall(C.alMorir, e, c, e.uid)
+        elseif actor ~= nil then
+            pcall(C.proteger, e)
+        end
+    end
+    if e.uid == nil then pcall(C.reponer, c, e) end
+end
+
+-- Cada minuto: cancelar a tiempo la transformacion de un misionero que acaba de morir y
+-- cuidar a los que tienen jugadores cerca.
 function C.tickMinuto()
+    if not Mundo.hayALife() then return end
     for _, c in ipairs(C.LISTA) do
         local e = C.estado(c.id)
         if e.muertos ~= nil then pcall(C.enterrar, e) end
+        pcall(C.vigilar, c, e)
     end
 end
 
