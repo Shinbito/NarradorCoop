@@ -32,18 +32,47 @@ end
 -- ---------------------------------------------------------------------------
 
 function S.sumarReserva(k, moneda, n)
-    k.reservas[moneda] = math.max(0, math.min(100, (tonumber(k.reservas[moneda]) or 50) + (tonumber(n) or 0)))
+    k.reservas[moneda] = math.max(K.RESERVA_MIN, math.min(K.RESERVA_MAX, (tonumber(k.reservas[moneda]) or 50) + (tonumber(n) or 0)))
 end
 
--- Cada dia el campamento gasta lo suyo.
-function S.gastar(c, k)
+-- Cada dia: gasto, lo que traen los guardias, vuelta hacia el normal (que cambia cada semana)
+-- y, a veces, un suceso. Asi la economia nunca se agota y va cambiando con la partida.
+function S.dia(c, k)
     local ahora = Mundo.horas()
     if k.gastoHora == nil then k.gastoHora = ahora; return end
     if ahora - k.gastoHora < 24 then return end
     k.gastoHora = ahora
-    local invierno = false
-    pcall(function() invierno = Mundo.estacion() == "invierno" end)
-    for moneda, n in pairs(K.gastoDiario(#(k.guardias or {}), invierno)) do S.sumarReserva(k, moneda, -n) end
+    k.normal = k.normal or K.reservasIniciales(c.id)
+    k.normalHora = k.normalHora or ahora
+    -- Cada semana cambia lo que el campamento logra juntar solo.
+    if ahora - k.normalHora >= 24 * 7 then
+        k.normalHora = ahora
+        for m, v in pairs(k.normal) do
+            local cambio = Mundo.azar(K.NORMAL_CAMBIO * 2 + 1) - K.NORMAL_CAMBIO - 1
+            k.normal[m] = math.max(K.NORMAL_MIN, math.min(K.NORMAL_MAX, v + cambio))
+        end
+    end
+    local estacion = "primavera"
+    pcall(function() estacion = Mundo.estacion() end)
+    local guardias = #(k.guardias or {})
+    for moneda, n in pairs(K.gastoDiario(guardias, estacion)) do S.sumarReserva(k, moneda, -n) end
+    for moneda, n in pairs(K.produccionGuardias(guardias, estacion)) do S.sumarReserva(k, moneda, n) end
+    for m, base in pairs(k.normal) do
+        local objetivo = K.normalEstacion(base, m, estacion)
+        local actual = tonumber(k.reservas[m]) or 50
+        S.sumarReserva(k, m, math.floor((objetivo - actual) * K.VUELTA_AL_NORMAL + 0.5))
+    end
+    if Mundo.azar(K.SUCESO_CHANCE) == 1 then
+        local s = K.SUCESOS[Mundo.azar(#K.SUCESOS)]
+        S.sumarReserva(k, s.moneda, s.n)
+        local texto = string.gsub(s.texto, "{quien}", c.nombre)
+        local e = C.estado(c.id)
+        for _, p in ipairs(Mundo.jugadores()) do
+            local x, y = Mundo.posicion(p)
+            if x ~= nil and e.x ~= nil and math.sqrt((x - e.x) ^ 2 + (y - e.y) ^ 2) <= 150 then Motor.enviar(p, "aviso", { texto = texto }) end
+        end
+        anotar(texto)
+    end
 end
 
 local function avisarTodos(texto)
@@ -346,7 +375,7 @@ function S.tick()
             pcall(S.cuidar, c, e)
             pcall(S.cuidarGuardias, c, e)
             pcall(S.revisarAtaque, c, e)
-            pcall(S.gastar, c, S.estado(c.id))
+            pcall(S.dia, c, S.estado(c.id))
         end
     end
 end

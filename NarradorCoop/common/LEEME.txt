@@ -161,6 +161,8 @@ Novedades 0.10.0:
   llevas en la mano y forja armas con los mangos que vende el carpintero (el mango de madera
   noble da un arma legendaria); el mecanico vende un auto con confianza maxima. Cada campamento
   tiene reservas de comida, municion, abrigo y medicina: pagar con lo que les falta es barato.
+  Las reservas nunca se agotan y cambian con la partida: en invierno escasea la comida, en
+  otono hay cosecha, y a veces llegan caravanas o les roban.
 - Guardias: la gente que llevas a un campamento se queda rondandolo (hasta 15). Cada tanto una
   horda ataca el campamento: los guardias pelean y pueden morir. Si ayudas a defenderlo, ganas
   fama y confianza.

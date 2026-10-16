@@ -43,13 +43,61 @@ function K.reservasIniciales(contactoId)
     return r
 end
 
--- Gasto diario de un campamento (guardias = cuantos hay; invierno = true en invierno).
-function K.gastoDiario(guardias, invierno)
+-- Estaciones: cambian el gasto y lo "normal" de cada reserva. En invierno escasea la comida
+-- (se gasta mas, los guardias encuentran menos y su normal baja) y se va el abrigo; en otono
+-- hay cosecha; en verano sobra comida pero se enferma mas gente.
+K.ESTACIONES = {
+    invierno = { gasto = { comida = 3, abrigo = 3 }, normal = { comida = -25, abrigo = -15 }, guardias_comida = 0.5 },
+    primavera = { gasto = {}, normal = { medicina = 5 }, guardias_comida = 1 },
+    verano = { gasto = { medicina = 1 }, normal = { comida = 10, medicina = -5 }, guardias_comida = 1.2 },
+    otono = { gasto = {}, normal = { comida = 15 }, guardias_comida = 1.5 },
+}
+
+-- Gasto diario de un campamento (guardias = cuantos hay; estacion = "invierno", "otono"...).
+function K.gastoDiario(guardias, estacion)
     guardias = tonumber(guardias) or 0
-    return { comida = 3 + math.floor(guardias / 2), medicina = 1 + math.floor(guardias / 5),
-        abrigo = invierno and 4 or 1, municion = 1 }
+    local g = { comida = 2 + math.floor(guardias / 3), medicina = 1 + math.floor(guardias / 5), abrigo = 1, municion = 1 }
+    local e = K.ESTACIONES[tostring(estacion)]
+    for m, n in pairs(e ~= nil and e.gasto or {}) do g[m] = (g[m] or 0) + n end
+    return g
+end
+
+-- Lo normal de una reserva en esta estacion.
+function K.normalEstacion(normal, moneda, estacion)
+    local e = K.ESTACIONES[tostring(estacion)]
+    local d = e ~= nil and e.normal ~= nil and e.normal[moneda] or 0
+    return math.max(K.RESERVA_MIN or 10, math.min(100, (tonumber(normal) or 50) + d))
 end
 K.GASTO_ATAQUE = { municion = 10, medicina = 6 }
+
+-- Economia sustentable: nunca baja de RESERVA_MIN. Cada dia, ademas del gasto, cada reserva se
+-- acerca un poco a su "normal" (lo que el campamento logra juntar solo) y los guardias traen
+-- algo. Ese normal cambia cada semana al azar (las necesidades del campamento van mutando) y
+-- a veces pasan cosas: llega una caravana, se echa a perder la comida, les roban.
+K.RESERVA_MIN = 10
+K.RESERVA_MAX = 100
+K.NORMAL_MIN, K.NORMAL_MAX = 20, 85
+K.NORMAL_CAMBIO = 15        -- cuanto puede moverse el normal cada semana (+/-)
+K.VUELTA_AL_NORMAL = 0.35   -- fraccion de la distancia al normal que recuperan por dia
+K.SUCESO_CHANCE = 5         -- 1 en n dias pasa algo
+K.SUCESOS = {
+    { moneda = "comida", n = 20, texto = "Llego una caravana con comida al campamento de {quien}." },
+    { moneda = "comida", n = -15, texto = "Se le echo a perder parte de la comida al campamento de {quien}." },
+    { moneda = "municion", n = 18, texto = "Los guardias de {quien} encontraron una caja de municion." },
+    { moneda = "municion", n = -12, texto = "Le robaron municion al campamento de {quien} durante la noche." },
+    { moneda = "abrigo", n = 15, texto = "Alguien dono ropa de abrigo al campamento de {quien}." },
+    { moneda = "abrigo", n = -10, texto = "Se mojo la ropa guardada del campamento de {quien}." },
+    { moneda = "medicina", n = 15, texto = "Un viajero dejo medicina en el campamento de {quien}." },
+    { moneda = "medicina", n = -12, texto = "Hubo enfermos en el campamento de {quien}: se gasto la medicina." },
+}
+
+-- Lo que traen los guardias por dia (la comida depende de la estacion).
+function K.produccionGuardias(guardias, estacion)
+    guardias = tonumber(guardias) or 0
+    local e = K.ESTACIONES[tostring(estacion)]
+    local f = e ~= nil and e.guardias_comida or 1
+    return { comida = math.floor(guardias / 3 * f), municion = math.floor(guardias / 5) }
+end
 -- Cuanto suben las reservas por cada unidad pagada.
 K.RESERVA_POR_UNIDAD = 2
 
