@@ -273,7 +273,9 @@ function Diario.paginaNotas(estado)
             -- Su campamento: nivel, gente salvada y lo que falta para el siguiente.
             local k = estado.campamentos ~= nil and estado.campamentos[c.id] or nil
             if k ~= nil then
-                local linea = "Campamento nivel " .. tostring(k.nivel or 0) .. ". Salve y traje a " .. tostring(k.salvados or 0) .. "."
+                local linea = "Campamento nivel " .. tostring(k.nivel or 0) .. ". Salve y traje a " .. tostring(k.salvados or 0)
+                    .. ". Guardias: " .. tostring(k.guardias or 0) .. " de " .. tostring(k.max_guardias or 15) .. "."
+                if k.ataque then linea = linea .. " LO ESTA ATACANDO UNA HORDA." end
                 if k.siguiente ~= nil and type(k.falta) == "table" and #k.falta > 0 then
                     linea = linea .. " Para que llegue el " .. tostring(k.siguiente) .. ": " .. table.concat(k.falta, ", ") .. "."
                 end

@@ -204,7 +204,8 @@ local function encuentro(id, t)
             { "cliente_desde_encuentro", salvado = true },
             { "decir", grupo = "npc", rol = "npc", texto = "Llegamos. Llegamos de verdad. Gracias." },
             { "transformar", grupo = "npc", rol = "npc2", retraso = 0.6, si = { "var", "giro", "mordido" } },
-            { "retirar_lejos", grupo = "npc", lugar = "misionero", radio = 50, retraso = 2 },
+            -- Se va a instalar: vuelve a aparecer como guardia del campamento (si hay cupo).
+            { "retirar_lejos", grupo = "npc", lugar = "misionero", radio = 50, retraso = 0.2 },
             { "diario", texto = "Lleve a {nombre} sano y salvo donde {misionero}. Ahora vive en {lugar:misionero}." },
         } },
         final_no_llego = { final = true, al_entrar = {

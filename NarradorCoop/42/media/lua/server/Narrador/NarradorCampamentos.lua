@@ -36,11 +36,165 @@ local function anotar(texto)
     while #st.diario > (Motor.MAX_DIARIO_GLOBAL or 60) do table.remove(st.diario, 1) end
 end
 
--- Una persona salvada llego al campamento.
-function S.sumarSalvado(contactoId)
+-- ---------------------------------------------------------------------------
+-- Guardias: la gente que salvas y llevas al campamento
+-- ---------------------------------------------------------------------------
+-- Se quedan como guardias (rondan el campamento) hasta un maximo de 15. Si ya hay 15, la
+-- persona queda resguardada adentro haciendo encargos y no sale a rondar. Cuando una horda
+-- ataca el campamento, los guardias pelean y pueden morir de verdad.
+S.MAX_GUARDIAS = 15
+S.RADIO_GUARDIAS = 18
+
+-- Una persona salvada llego al campamento. persona = { nombre, apellido, perfil } (opcional).
+function S.sumarSalvado(contactoId, persona)
+    local c = C.def(contactoId)
     local k = S.estado(contactoId)
     k.salvados = (k.salvados or 0) + 1
-    pcall(S.revisar, C.def(contactoId), C.estado(contactoId))
+    k.guardias = k.guardias or {}
+    if persona ~= nil and persona.perfil ~= nil then
+        local nombre = tostring(persona.nombre or "Alguien")
+        if #k.guardias < S.MAX_GUARDIAS then
+            -- Aparece como guardia un rato despues (cuando la persona del encuentro ya se fue).
+            k.guardias[#k.guardias + 1] = { nombre = persona.nombre, apellido = persona.apellido, perfil = persona.perfil,
+                desde = Mundo.horas() + 0.5 }
+            avisarTodos(nombre .. " se queda en el campamento de " .. (c ~= nil and c.nombre or "?") .. " como guardia ("
+                .. #k.guardias .. " de " .. S.MAX_GUARDIAS .. ").")
+        else
+            avisarTodos(nombre .. " queda resguardado en el campamento de " .. (c ~= nil and c.nombre or "?")
+                .. " haciendo encargos. Ya hay " .. S.MAX_GUARDIAS .. " guardias rondando.")
+        end
+    end
+    pcall(S.revisar, c, C.estado(contactoId))
+end
+
+local function banderasGuardia(e, inmortal)
+    return { persistent = true, invulnerable = inmortal, stationary = false, leashRadius = S.RADIO_GUARDIAS }
+end
+
+function S.aparecerGuardia(c, e, g, jugador)
+    local ang = (Mundo.azar(360) / 180) * math.pi
+    local x, y = floor(e.x + math.cos(ang) * 6), floor(e.y + math.sin(ang) * 6)
+    g.intentos = (g.intentos or 0) + 1
+    local requestId = "narrador:guardia:" .. c.id .. ":" .. tostring(g.nombre) .. ":" .. tostring(g.intentos)
+    if g.nombre ~= nil then Mundo.reservarNombres(requestId, { [g.perfil] = { g.nombre, g.apellido or "" } }) end
+    local args = {
+        requestId = requestId, x = x, y = y, z = 0,
+        mode = "patrol", radius = 4, distance = 0, separation = 1, atomicGroup = true,
+        persistent = true, stationary = false, invulnerable = true, leashRadius = S.RADIO_GUARDIAS,
+        profileIds = { g.perfil }, count = 1, hostileOverride = false, playerStance = "friendly", playerKeepOut = 0,
+    }
+    local ok = Mundo.spawnGrupo(jugador, args, function(resultado)
+        local uids = type(resultado) == "table" and resultado.actorUids or nil
+        if type(uids) == "table" and uids[1] ~= nil then
+            g.uid, g.pidiendo = uids[1], nil
+            if g.nombre ~= nil then pcall(Mundo.nombrarActor, g.uid, g.nombre, g.apellido or "") end
+            local k = S.estado(c.id)
+            pcall(Mundo.banderas, g.uid, banderasGuardia(e, k.ataque == nil), { x = e.x, y = e.y, z = 0 })
+        else
+            g.pidiendo = nil
+        end
+    end)
+    if ok then g.pidiendo = Mundo.horas() end
+end
+
+-- Cada 10 minutos: guardias vivos con sus banderas, muertos fuera de la lista, faltantes a
+-- aparecer (de a uno, con alguien cerca).
+function S.cuidarGuardias(c, e)
+    local k = S.estado(c.id)
+    local quedan, pidio = {}, false
+    for _, g in ipairs(k.guardias or {}) do
+        local muerto = false
+        if g.uid ~= nil then
+            local actor = Mundo.actor(g.uid)
+            if (actor ~= nil and actor.lifecycle == "dead") or C.cuerpoMuerto(g.uid) then muerto = true end
+        end
+        if muerto then
+            avisarTodos(tostring(g.nombre or "Un guardia") .. " murio defendiendo el campamento de " .. c.nombre .. ".")
+            anotar(tostring(g.nombre or "Un guardia") .. " murio defendiendo el campamento de " .. c.nombre .. ".")
+        else
+            quedan[#quedan + 1] = g
+            if g.uid ~= nil then
+                pcall(Mundo.banderas, g.uid, banderasGuardia(e, k.ataque == nil), { x = e.x, y = e.y, z = 0 })
+                pcall(C.curar, g.uid)
+            elseif not pidio and Mundo.horas() >= (g.desde or 0) and (g.pidiendo == nil or Mundo.horas() - g.pidiendo > 0.25) then
+                g.pidiendo = nil
+                local j = Mundo.jugadorCerca(e.x, e.y, 70)
+                if j ~= nil and Mundo.cargado(e.x, e.y, 0) ~= nil then
+                    S.aparecerGuardia(c, e, g, j)
+                    pidio = true
+                end
+            end
+        end
+    end
+    k.guardias = quedan
+end
+
+-- ---------------------------------------------------------------------------
+-- Hordas que atacan los campamentos
+-- ---------------------------------------------------------------------------
+-- Con un jugador cerca (a menos de 150 casillas) y guardias en el campamento, cada tanto
+-- llega una horda. Mientras dura, los guardias no son inmortales y no se limpian los zombis
+-- de alrededor (C.zonaSegura). Si ayudas a defenderlo, sube tu fama en Knox y la confianza.
+S.ATAQUE_CADA = 72        -- horas minimas entre ataques al mismo campamento
+S.ATAQUE_CHANCE = 48      -- 1 en n por cada chequeo de 10 minutos (pasada la espera)
+S.ATAQUE_DURA = 3         -- horas maximas
+S.ATAQUE_KNOX = 6
+S.ATAQUE_CONFIANZA = 3
+
+function S.empezarAtaque(c, e, k)
+    local n = 15 + 2 * #(k.guardias or {})
+    local total = Mundo.oleada(e.x, e.y, 0, n, 30, 55)
+    k.ataque = { inicio = Mundo.horas(), meta = math.max(5, floor(total * 0.8)), ayudaron = {} }
+    k.ultimoAtaque = Mundo.horas()
+    for _, p in ipairs(Mundo.jugadores()) do
+        local x, y = Mundo.posicion(p)
+        if x ~= nil and math.sqrt((x - e.x) ^ 2 + (y - e.y) ^ 2) <= 300 then
+            Motor.enviar(p, "aviso", { texto = "Una horda va hacia el campamento de " .. c.nombre .. ". Los guardias se preparan." })
+        end
+    end
+    anotar("Una horda ataco el campamento de " .. c.nombre .. " (" .. c.ciudad .. ").")
+    Mundo.log("ataque al campamento " .. c.id .. ": " .. total .. " zombis")
+    Motor.publicar()
+end
+
+function S.seguirAtaque(c, e, k)
+    local a = k.ataque
+    for _, p in ipairs(Mundo.jugadores()) do
+        local x, y = Mundo.posicion(p)
+        if x ~= nil and Mundo.vivo(p) and math.sqrt((x - e.x) ^ 2 + (y - e.y) ^ 2) <= 60 then a.ayudaron[Mundo.grupoDe(p)] = true end
+    end
+    local bajas = Motor.contarBajas(e.x, e.y, 60, a.inicio)
+    if bajas < a.meta and Mundo.horas() - a.inicio < S.ATAQUE_DURA then return end
+    k.ataque = nil
+    local KX, R = Narrador.Knox, Narrador.Reputacion
+    for grupo in pairs(a.ayudaron) do
+        if KX ~= nil then KX.sumar(grupo, S.ATAQUE_KNOX, "protegiste") end
+        if R ~= nil and R.activa() then R.sumar(grupo, c.id, S.ATAQUE_CONFIANZA, "defendio el campamento", true) end
+        for _, p in ipairs(Mundo.jugadores()) do
+            if Mundo.grupoDe(p) == grupo then
+                Motor.enviar(p, "aviso", { texto = c.nombre .. ": Aguantamos. Gracias por quedarte a pelear con nosotros." })
+            end
+        end
+    end
+    pcall(S.cuidarGuardias, c, e)
+    anotar("El campamento de " .. c.nombre .. " aguanto la horda. Quedan " .. #(k.guardias or {}) .. " guardias.")
+    Motor.publicar()
+end
+
+function S.revisarAtaque(c, e)
+    local k = S.estado(c.id)
+    if k.ataque ~= nil then return S.seguirAtaque(c, e, k) end
+    if #(k.guardias or {}) == 0 then return end
+    if k.ultimoAtaque ~= nil and Mundo.horas() - k.ultimoAtaque < S.ATAQUE_CADA then return end
+    if k.ultimoAtaque == nil then k.ultimoAtaque = Mundo.horas(); return end
+    if Mundo.jugadorCerca(e.x, e.y, 150) == nil or Mundo.cargado(e.x, e.y, 0) == nil then return end
+    if Mundo.azar(S.ATAQUE_CHANCE) ~= 1 then return end
+    S.empezarAtaque(c, e, k)
+end
+
+function S.enAtaque(contactoId)
+    local e = C.estado(contactoId)
+    return e.campamento ~= nil and e.campamento.ataque ~= nil
 end
 
 -- ---------------------------------------------------------------------------
@@ -169,6 +323,8 @@ function S.tick()
         if e.x ~= nil and C.desbloqueado(c.id) then
             pcall(S.revisar, c, e)
             pcall(S.cuidar, c, e)
+            pcall(S.cuidarGuardias, c, e)
+            pcall(S.revisarAtaque, c, e)
         end
     end
 end
@@ -441,6 +597,7 @@ function S.vista(v)
             end
             local falta = S.falta(c)
             lista[c.id] = { nivel = k.nivel or 0, salvados = k.salvados or 0, oficios = oficios, falta = falta,
+                guardias = #(k.guardias or {}), max_guardias = S.MAX_GUARDIAS, ataque = k.ataque ~= nil,
                 siguiente = K.NIVELES[(k.nivel or 0) + 1] ~= nil and K.NIVELES[(k.nivel or 0) + 1].oficio or nil }
         end
     end

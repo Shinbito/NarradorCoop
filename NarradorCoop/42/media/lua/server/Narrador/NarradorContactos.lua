@@ -221,6 +221,8 @@ C.BANDERAS = { persistent = true, stationary = true, invulnerable = true, leashR
 -- desaparezcan en la cara de nadie).
 function C.zonaSegura(e)
     if e.uid == nil or e.x == nil or getCell == nil then return end
+    -- Durante un ataque de horda al campamento no se limpia nada: pelean los guardias.
+    if e.campamento ~= nil and e.campamento.ataque ~= nil then return end
     local x, y = e.x, e.y
     local px, py = Mundo.posicionActor(e.uid)
     if px ~= nil then x, y = px, py end

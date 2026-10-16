@@ -298,7 +298,9 @@ Motor.inmediatas.cliente_desde_encuentro = function(inst, a)
     end
     -- Llego al campamento: cuenta para su nivel (ver NarradorCampamentos).
     local K = Narrador.Campamentos
-    if a.salvado and K ~= nil then pcall(K.sumarSalvado, cid) end
+    if a.salvado and K ~= nil then
+        pcall(K.sumarSalvado, cid, n ~= nil and { nombre = n[1], apellido = n[2], perfil = inst.vars.perfil } or nil)
+    end
     -- Mandarle gente sin pedir nada a cambio sube la confianza con el misionero. Poco a
     -- proposito: salvando gente sola no alcanza para los niveles de confianza del campamento.
     local R = Narrador.Reputacion
