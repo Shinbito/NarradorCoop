@@ -46,6 +46,8 @@ KD.RECADO = 5
 KD.MATAR = -5
 -- Cada mision para los bandidos (la historia de los bandidos, por escribir).
 KD.BANDIDOS_MISION = -15
+-- Reputacion de Knox con la que se abre el camino del bandido (la primera vez que llegas).
+KD.BANDIDO_UMBRAL = -5
 
 -- Desde este nivel (o peor) los misioneros ya no te dan encargos ni capitulos y los
 -- comerciantes de los campamentos no te hacen descuento.

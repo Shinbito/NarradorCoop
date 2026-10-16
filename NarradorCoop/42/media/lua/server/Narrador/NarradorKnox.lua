@@ -5,8 +5,8 @@
 -- Niveles y puntos: shared/Narrador/NarradorKnoxDefs.lua.
 --
 -- Ganchos para las historias (ver ROADMAP):
---   * Al llegar por primera vez a "Rumores negativos" queda la memoria "knox_bandido_<grupo>" =
---     "listo" (ahi se engancharia el bandido que te ofrece trabajo).
+--   * Al llegar por primera vez a KD.BANDIDO_UMBRAL (-5) o menos queda la memoria
+--     "knox_bandido_<grupo>" = "listo" (ahi se engancha el camino del bandido).
 --   * Acciones de arco: { "knox", cantidad = -30, motivo = "..." } y
 --     { "knox_reiniciar", texto = "..." } (redencion: vuelve a 0).
 -- Textos sin tildes a proposito.
@@ -71,12 +71,12 @@ function KX.sumar(grupo, cantidad, motivo)
     if nDespues ~= nAntes then
         avisarGrupo(grupo, KD.AVISOS[nDespues] or ("En Knox ahora te dicen: " .. titulo .. "."))
         anotar("En Knox ahora me dicen " .. titulo .. ".")
-        -- Primera vez con mala fama de verdad: queda listo el gancho del bandido.
-        local st = Motor.estado()
-        if nDespues <= -2 and st.memoria["knox_bandido_" .. tostring(grupo)] == nil then
-            st.memoria["knox_bandido_" .. tostring(grupo)] = "listo"
-            Mundo.log("knox: " .. tostring(grupo) .. " llego a Rumores negativos (gancho del bandido listo)")
-        end
+    end
+    -- Primera vez en KD.BANDIDO_UMBRAL o menos: queda listo el gancho del bandido.
+    local st = Motor.estado()
+    if despues <= KD.BANDIDO_UMBRAL and st.memoria["knox_bandido_" .. tostring(grupo)] == nil then
+        st.memoria["knox_bandido_" .. tostring(grupo)] = "listo"
+        Mundo.log("knox: " .. tostring(grupo) .. " llego a " .. KD.BANDIDO_UMBRAL .. " (gancho del bandido listo)")
     end
     Mundo.log("knox " .. tostring(grupo) .. ": " .. antes .. " -> " .. despues .. " (" .. tostring(motivo) .. ")")
 end

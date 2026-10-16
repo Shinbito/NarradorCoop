@@ -191,7 +191,7 @@
 - Ganchos para las historias: acción `{ "knox", cantidad = n }`, acción
   `{ "knox_reiniciar", texto = "..." }`, condiciones `{ "knox_minimo", n }` y
   `{ "knox_maximo", n }`, y la memoria `knox_bandido_<grupo>` = "listo" la primera vez que el
-  grupo llega a Rumores negativos.
+  grupo llega a -5 de Knox o menos.
 
 ## PARA EL PRÓXIMO CHAT: historias por desarrollar
 
@@ -209,7 +209,7 @@
   cuartel de la Chela (ya hecho, `C.REGRESOS` y arco `tomas_vuelve`).
 
 ### B. El camino del bandido (Knox negativo)
-- Al llegar a nivel negativo 2 (Rumores negativos, -20; memoria `knox_bandido_<grupo>` = "listo")
+- Al llegar por primera vez a -5 de Knox o menos (`KD.BANDIDO_UMBRAL`; memoria `knox_bandido_<grupo>` = "listo")
   un bandido se contacta contigo y te ofrece trabajo sucio.
 - Primera misión: matar a un traidor. Después te lleva a su campamento, ya establecido en un
   pueblo que no sea de los 4 principales (Brandenburg, Echo Creek, Ekron, Irvington, March
