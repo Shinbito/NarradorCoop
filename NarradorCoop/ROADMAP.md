@@ -157,7 +157,9 @@
   el título. Admin: Pruebas -> "Reputacion de Knox +30 / -30".
 - Con nivel -4 o peor (El destripador, El demonio de Knox): los misioneros no te dan encargos
   ni capítulos ("ya no eres bienvenido por el daño que has hecho") y los comerciantes no te
-  venden nada.
+  venden nada. Pesa más Knox que la confianza: aunque el misionero te tenga confianza 5, si tu
+  fama en Knox es de El destripador o peor te sigue despreciando (sin encargos, sin favor
+  semanal, sin felicitaciones al subir de rango).
 - Los comerciantes siempre tienen un recado ("Quieres que la gente confíe en ti? Ayúdame con
   esto"): una misión chica que te marca un lugar en un mapa ("ayúdame a buscar los clavos,
   estoy seguro de que en el garage de esa casa hay"), buscas la cosa ahí y se la llevas

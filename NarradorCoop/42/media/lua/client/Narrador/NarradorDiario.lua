@@ -9,6 +9,7 @@ require "ISUI/ISPanel"
 require "Narrador/NarradorDefs"
 require "Narrador/NarradorLore"
 require "Narrador/NarradorCliente"
+require "Narrador/NarradorKnoxDefs"
 
 Narrador = Narrador or {}
 local Diario = Narrador.Diario or {}
@@ -335,6 +336,12 @@ function Diario.libreta(b, estado, contactos)
             linea = linea .. ". Mas no se puede."
         end
         if r ~= nil and r.favor then linea = linea .. " Me debe un favor." end
+        -- Con muy mala fama en Knox pesa mas lo que hice que su confianza.
+        local kx = estado.knox ~= nil and grupo ~= nil and estado.knox[grupo] or nil
+        local KD = Narrador.KnoxDefs
+        if kx ~= nil and KD ~= nil and (tonumber(kx.nivel) or 1) <= KD.DESPRECIO then
+            linea = linea .. " Pero con lo que he hecho en Knox, ya no me quiere ver."
+        end
         agregar(b, { t = linea, f = "chico", c = TINTA, sangria = 8, antes = 3 })
     end
     agregar(b, { t = "> La confianza sube cumpliendo encargos y se corre la voz entre ellos. Abre mas ofertas, mapas mas exactos y favores.",
