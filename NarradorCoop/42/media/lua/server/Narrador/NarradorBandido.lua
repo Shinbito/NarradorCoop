@@ -17,6 +17,7 @@ require "Narrador/NarradorMundo"
 require "Narrador/NarradorMotor"
 require "Narrador/NarradorContactos"
 require "Narrador/Arcos/Bandido"
+require "Narrador/Arcos/Conquista"
 
 local Mundo, Motor, C = Narrador.Mundo, Narrador.Motor, Narrador.Contactos
 
@@ -27,7 +28,10 @@ BA.CADA = 12
 BA.CHANCE_SOSPECHA = 30
 BA.RADIO_PATIO = 40
 BA.ESPERA_MAULEN = 72
-BA.IDS = { "bandido_1", "bandido_2", "bandido_3", "bandido_4", "bandido_5", "bandido_castigo", "bandido_maulen" }
+BA.IDS = { "bandido_1", "bandido_2", "bandido_3", "bandido_4", "bandido_5", "bandido_castigo", "bandido_maulen",
+    "conquista_sous", "conquista_muldraugh", "conquista_westpoint", "conquista_riverside", "conquista_rosewood" }
+-- Las ciudades que se conquistan despues de la comisaria, en el orden que quiera el jugador.
+BA.CIUDADES = { "westpoint", "riverside", "rosewood" }
 -- Variables del jefe del patio que reciben todos los capitulos.
 BA.JEFES = {
     pereira = { jefe_perfil = "narrador_pereira_01", jefe_nombre = "la Sargento Pereira", jefe_corto = "Pereira" },
@@ -91,9 +95,59 @@ function BA.revisarMaulen(m)
     return true
 end
 
+-- Sous sigue en su base (aliado, como residentes) y hay que ir por ellos primero (con Maulen).
+function BA.sousEnPie(m)
+    local st = Motor.estado()
+    return m.sous == "aliados" and type(m["lugar.base_sous"]) == "table" and st.residentes.sous ~= nil
+end
+
+-- Fase 2: la conquista. Una a la vez, BA.CADA horas entre una y otra.
+function BA.revisarConquista(m)
+    if m.knox_conquistado == true then return end
+    if m.bandido_desde ~= nil and Mundo.horas() - m.bandido_desde < BA.CADA then return end
+    if BA.jefe() == "maulen" and not m.conquista_sous and BA.sousEnPie(m) then
+        local j = Mundo.jugadorAlAzar()
+        if j ~= nil then BA.lanzar("conquista_sous", j) end
+        return
+    end
+    if not m.conquista_muldraugh then
+        local j = Mundo.jugadorAlAzar()
+        if j ~= nil then BA.lanzar("conquista_muldraugh", j) end
+        return
+    end
+    local faltan = {}
+    for _, id in ipairs(BA.CIUDADES) do
+        if not m["conquista_" .. id] then
+            faltan[#faltan + 1] = id
+            local j = C.jugadorEnPueblo(C.def(id))
+            if j ~= nil then
+                BA.lanzar("conquista_" .. id, j)
+                return
+            end
+        end
+    end
+    if #faltan == 0 then
+        m.knox_conquistado = true
+        m.knox_conquistado_hora = Mundo.horas()
+        for _, p in ipairs(Mundo.jugadores()) do
+            Motor.enviar(p, "aviso", { texto = "Knox es de la banda del patio de trenes. Ya no queda un solo misionero." })
+        end
+    elseif not m.conquista_aviso then
+        m.conquista_aviso = true
+        for _, p in ipairs(Mundo.jugadores()) do
+            Motor.enviar(p, "aviso", { texto = "La comisaria cayo. Quedan West Point, Riverside y Rosewood: la banda va contigo cuando entres a cada pueblo." })
+        end
+    end
+end
+
 function BA.revisar()
     local m = Motor.estado().memoria
-    if BA.TERMINADA[tostring(m.bandido)] or BA.enCurso() then return end
+    if BA.enCurso() then return end
+    if m.bandido == "pereira" then
+        BA.revisarConquista(m)
+        return
+    end
+    if BA.TERMINADA[tostring(m.bandido)] then return end
     if BA.revisarMaulen(m) then return end
     local cap = tonumber(m.bandido_cap) or 0
     if cap >= 5 then return end

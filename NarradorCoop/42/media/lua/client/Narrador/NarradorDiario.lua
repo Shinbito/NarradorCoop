@@ -8,6 +8,7 @@
 require "ISUI/ISPanel"
 require "Narrador/NarradorDefs"
 require "Narrador/NarradorLore"
+require "Narrador/NarradorDominiosDefs"
 require "Narrador/NarradorCliente"
 require "Narrador/NarradorKnoxDefs"
 
@@ -308,6 +309,13 @@ end
 -- Entradas del perfil de un misionero hasta mi nivel de confianza con el.
 function Diario.loQueSe(estado, id)
     local lista = Lore.PERFILES ~= nil and Lore.PERFILES[id] or nil
+    -- Si en esa ciudad manda otro (un capitan de los bandidos o un misionero nuevo), su perfil.
+    local DD = Narrador.DominiosDefs
+    for _, c in ipairs(estado.contactos or {}) do
+        if c.id == id and c.dominio ~= nil and c.dominio ~= "mision" and DD ~= nil then
+            lista = DD.perfilLore(c.dominio, id) or lista
+        end
+    end
     if lista == nil then return { tostring(Lore.CONTACTOS[id] or "") } end
     local grupo = Narrador.Cliente ~= nil and Narrador.Cliente.miGrupo() or nil
     local fila = estado.reputacion ~= nil and grupo ~= nil and estado.reputacion[grupo] or nil

@@ -44,7 +44,7 @@ Narrador.BandidoPatio = {
 
 Narrador.Facciones.narrador_pereira = {
     id = "narrador_pereira",
-    version = 1,
+    version = 2,
     nombre = "La banda de Pereira",
     descripcion = "Desertores de la Guardia Nacional y bandidos al mando de la Sargento Pereira.",
     postura = "friendly",

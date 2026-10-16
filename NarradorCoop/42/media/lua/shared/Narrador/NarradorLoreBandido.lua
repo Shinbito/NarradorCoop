@@ -136,4 +136,82 @@ Lore.arcos.bandido_maulen = {
     },
 }
 
+-- ===========================================================================
+-- Fase 2: la conquista y los encargos inmorales
+-- ===========================================================================
+Lore.arcos.conquista_sous = {
+    etapas = {
+        viaje = "Maulen va por Sous. Me espera cerca de {lugar:base}. Conozco cada cara que esta adentro: Akagami con sus listas, Zent con sus calculos, Wertres que nos curaba a todos. Camino igual.",
+        asalto = "Llegamos a la base de Sous. Ya nos vieron. Alguien grita mi nombre desde una ventana, sin entender.",
+        pelea = "Akagami me reconocio. 'Mi bro, no', dijo. Zent dijo que lo sabia. Maulen se reia. Yo disparaba.",
+    },
+    finales = {
+        final_conquistado = "La base de Sous es de Maulen. No queda nadie que se ria en la barra oxidada. Yo estuve ahi y no me tapo los oidos: todavia los escucho.",
+        final_abandonado = "No llegue a lo de Sous. Maulen va a volver a pedirlo, sonriendo.",
+    },
+}
+
+local CONQUISTA = {
+    muldraugh = { viaje = "Hoy la banda va por la comisaria del Cabo Ramiro. Me esperan cerca. El Cabo tiene mi nombre en su libreta. En cual lista, ya no se.",
+                  pelea = "El Cabo no se rinde. Nunca se rindio. Grita 'negativo' entre disparo y disparo." },
+    westpoint = { viaje = "Hoy la banda va por el cuartel de la Tia Chela. Ella me decia mijo. Me esperan cerca.",
+                  pelea = "La Chela salio a la puerta con un hacha de bombero. Me vio. Bajo el hacha un segundo. Solo un segundo." },
+    riverside = { viaje = "Hoy la banda va por la iglesia del Padre Nacho. La puerta nunca se cierra. Hoy la cerramos nosotros.",
+                  pelea = "El Padre Nacho no corre. Se queda en la puerta, con los punos arriba, como cuando boxeaba en Lexington." },
+    rosewood = { viaje = "Hoy la banda va por la bencinera de la Misia Rosa. Tiene la luz prendida, como siempre. Para no tener miedo.",
+                 pelea = "La Misia Rosa apago la luz de la bencinera. Primera vez en treinta anos. Por eso supe que tenia miedo." },
+}
+for id, t in pairs(CONQUISTA) do
+    Lore.arcos["conquista_" .. id] = {
+        etapas = { viaje = t.viaje, asalto = "Llegamos. {jefe_corto} va adelante. Los que defienden el lugar me conocen.", pelea = t.pelea },
+        finales = {
+            final_abandonado = "No termine la conquista. La banda va a volver a pedirlo.",
+        },
+    }
+end
+Lore.arcos.conquista_muldraugh.finales.final_conquistado = "La comisaria de Muldraugh es de la banda. El Cabo Ramiro murio en la oficina del segundo piso, con la libreta abierta. No quise leer la ultima pagina."
+Lore.arcos.conquista_westpoint.finales.final_conquistado = "El cuartel de West Point es de la banda. La Tia Chela murio diciendome mijo. La frazada de Eduardo sigue doblada en la silla."
+Lore.arcos.conquista_riverside.finales.final_conquistado = "La iglesia de Riverside es de la banda. El Padre Nacho no se fue: se quedo en la puerta, como dijo. La puerta ahora esta cerrada."
+Lore.arcos.conquista_rosewood.finales.final_conquistado = "La bencinera de Rosewood es de la banda. La Misia Rosa murio con la luz apagada. Dijo que ya no tenia miedo. Yo si."
+
+local INMORAL_FIN = {
+    final_perdonado = "No hice lo que me pidio {contacto_nombre}. Me va a cobrar. Que cobre.",
+    final_vencido = "Se acabo el plazo del encargo de {contacto_nombre}. Mejor asi.",
+}
+local function inmoral(etapas, hecho)
+    local f = { final_hecho = hecho }
+    for k, v in pairs(INMORAL_FIN) do f[k] = v end
+    return { etapas = etapas, finales = f }
+end
+
+Lore.arcos.inmoral_tributo = inmoral({
+    viaje = "{contacto_nombre} me mando a cobrarle tributo a una familia en {lugar:objetivo}. Comida y balas. Lo que tengan.",
+    sitio = "Llegue a {lugar:objetivo}. Por la ventana se ve una mesa con dos platos.",
+    frente = "Ignacio Fuentes y su hija Paula. El dice que pagaron la semana pasada y que les queda para tres dias. Ella le dice que me de lo del sotano para que me vaya.",
+    cobrado = "Los Fuentes dejaron el tributo en el suelo, en una mochila. Tengo que recogerlo.",
+    volver = "Llevo el tributo de los Fuentes. Pesa poco. Para ellos pesaba mucho.",
+}, "Le cobre el tributo a los Fuentes para {contacto_nombre}. Me pagaron mirando el suelo.")
+
+Lore.arcos.inmoral_testigo = inmoral({
+    viaje = "{contacto_nombre} quiere muerto a un testigo escondido en {lugar:objetivo}. Vio algo. Quiere contarlo.",
+    sitio = "Llegue a {lugar:objetivo}. Alguien respira detras de una puerta.",
+    frente = "Oscar Lagos vio lo que hicimos en la comisaria. Quiere que alguien lo sepa. Me lo dice sin pedir nada.",
+    volver = "Llevo el carnet de Oscar Lagos. La foto me mira.",
+}, "Silencie a Oscar Lagos para {contacto_nombre}. Lo ultimo que dijo fue un nombre que no conozco.")
+
+Lore.arcos.inmoral_quemar = inmoral({
+    viaje = "{contacto_nombre} quiere que queme un refugio en {lugar:objetivo}. Llevo bencina.",
+    sitio = "Llegue al refugio de {lugar:objetivo}. Hay ropa de nino colgada en una cuerda.",
+    frente = "Marta Ibanez vio el bidon y supo. Le dijo a Luis que sacara a los ninos. No grito. Eso fue lo peor.",
+    volver = "El refugio de {lugar:objetivo} ardio. Tengo que avisarle a {contacto_nombre}. Huelo a humo.",
+}, "Queme el refugio de {lugar:objetivo} para {contacto_nombre}. Todavia huelo a humo cuando escribo.")
+
+Lore.arcos.inmoral_fugitivo = inmoral({
+    viaje = "{contacto_nombre} quiere de vuelta a un fugitivo escondido en {lugar:objetivo}. Vivo o muerto.",
+    sitio = "Llegue a {lugar:objetivo}. Hay muertos rondando. El fugitivo eligio mal donde esconderse. O no tenia donde elegir.",
+    frente = "Benjamin Sotelo se escapo porque le pidieron matar a una familia y no pudo. Me lo cuenta como si yo fuera a entender. Entiendo.",
+    escolta = "Benjamin Sotelo camina delante de mi, de vuelta donde {contacto_nombre}. No intenta escapar. Ya se canso.",
+    volver = "Llevo el carnet de Benjamin Sotelo para {contacto_nombre}.",
+}, "Cace a Benjamin Sotelo para {contacto_nombre}. Vivo o muerto, da lo mismo para ellos. Para mi no.")
+
 return Lore

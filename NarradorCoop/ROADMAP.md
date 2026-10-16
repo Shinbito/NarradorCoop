@@ -235,13 +235,30 @@
 - El patio de trenes va de 11544,9590 a 11746,10232 (`Narrador.BandidoPatio` en `Bandido.lua`);
   Pereira se instala en la casa del patio mas cerca del centro.
 
-#### Fase 2: la conquista de Knox (por escribir)
-- Asalto a la comisaria con Pereira: el Cabo Ramiro muere de verdad y los bandidos ocupan la
-  comisaria.
-- Despues, un capitulo por misionero (Chela, Nacho, Rosa) para matarlo, en el orden que quieras.
-- Cada campamento conquistado pasa a ser un campamento de bandidos: los mismos comerciantes y un
-  capitan nuevo en vez del misionero (uno distinto por ciudad, contraparte oscura del
-  misionero). Sus encargos son todos inmorales.
+#### Maulen como jefe (hecho, falta probar en el juego)
+- En Sous, si vas solo al escondite y Maulen sigue vivo un cuarto de hora, se rinde. Si lo
+  dejas ir, Sous cree que se escapo (memoria `maulen_salvado`).
+- 72 horas despues Maulen mata a Pereira y se queda con el patio (`bandido_maulen`): te deja una
+  nota porque te debe la vida, sin importar tu Knox. Si ya trabajabas para Pereira, sigues con
+  el desde el capitulo en que ibas. Los capitulos 2 a 5 cambian de dialogos y diario segun el
+  jefe (memoria `bandido_jefe`).
+
+#### Fase 2: la conquista de Knox (hecho, falta probar en el juego)
+- Archivos: `shared/Narrador/Arcos/Conquista.lua`, `shared/Narrador/Arcos/Inmorales.lua`,
+  `shared/Narrador/NarradorDominiosDefs.lua` y `server/Narrador/NarradorDominios.lua`.
+- Con Maulen de jefe, primero la base de Sous (si Sous es aliado y sigue en su base). Despues la
+  comisaria del Cabo; despues West Point, Riverside y Rosewood en el orden que quieras (se
+  lanza al entrar a cada pueblo). -15 de Knox cada una. Al terminar: memoria `knox_conquistado`.
+- Cada ciudad tiene un dominio (memoria `dominio_<id>`): mision, bandido o nuevo. En la
+  conquista el misionero pierde la inmortalidad y, al morir, lo reemplaza su capitan: el Capitan
+  Vargas Toledo (Muldraugh), la Capitana Morrigan Kell (West Point), el Diacono Saul Reyes
+  (Riverside) y el Capitan Tito Duarte (Rosewood). Mismos comerciantes y campamento; rangos de
+  confianza y perfil del diario propios.
+- Los capitanes no rechazan a nadie por su fama, no dan capitulos ni la cura, y solo dan
+  encargos inmorales: cobrar tributo, silenciar a un testigo, quemar un refugio (con bencina;
+  prende fuego de verdad) y cazar a un fugitivo. Cada uno: -5 de Knox. Todos se pueden
+  sabotear (dejar ir a la gente), a cambio de confianza con el capitan.
+- Falta revisar en el juego el perfil de la Capitana Kell (`k93_vfd_05`), que sea mujer.
 
 #### Fase 3: Eduardo (por escribir)
 - Con Knox conquistado, Eduardo Giovanns intenta matarte 3 veces (eventos de lore). En el
