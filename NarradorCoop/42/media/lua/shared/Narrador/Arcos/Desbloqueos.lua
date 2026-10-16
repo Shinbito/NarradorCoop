@@ -11,7 +11,11 @@
 require "Narrador/NarradorDefs"
 
 local VISITA = "visita"
+-- Primero 15 zombis adentro; despues llega una horda de 30 (mas 15 por cada jugador extra).
+-- Sin corredores. Para terminar hay que matar el 80% de la horda.
 local META = 15
+local HORDA = 30
+local HORDA_POR_JUGADOR = 15
 
 local LISTA = {
     { id = "muldraugh", nombre = "Cabo Ramiro", apellido = "Mandados", perfil = "k93_muldraugh_pd_01",
@@ -127,15 +131,30 @@ for _, c in ipairs(LISTA) do
                 pista = "Limpiar {lugar:contacto}: van {bajas:contacto} de {bajas_meta}.",
                 al_entrar = {
                     { "variable", nombre = "bajas_meta", valor = META },
-                    { "oleada", lugar = "contacto", radio = 35, cantidad = { META + 3, META + 9 } },
+                    { "oleada", lugar = "contacto", radio = 35, cantidad = META, fija = true, caminantes = true, planta_baja = true, min = 2, max = 14 },
                     { "aviso", texto = "{lugar:contacto} esta lleno de muertos. Hay que limpiarlo." },
                 },
                 salidas = {
-                    { cuando = { "bajas_en", "contacto", META, 45 }, ir = "final_campamento" },
+                    { cuando = { "bajas_en", "contacto", META, 45 }, ir = "horda" },
                 },
             },
 
-            -- 5. Limpio: el misionero se instala y queda desbloqueado.
+            -- 5. El ruido atrajo una horda. Aguantar en el edificio.
+            horda = {
+                pista = "Aguantar la horda en {lugar:contacto}: van {bajas:contacto} de {horda_meta}.",
+                al_entrar = {
+                    -- Hasta que aparezca la horda, la meta es imposible (no se termina antes).
+                    { "variable", nombre = "horda_meta", valor = 9999 },
+                    { "aviso", texto = "Tanto disparo y tanto golpe se escucho lejos. Viene una horda hacia {lugar:contacto}. Aguanta." },
+                    { "oleada", lugar = "contacto", radio = 60, cantidad = HORDA, por_jugador = HORDA_POR_JUGADOR, fija = true,
+                      caminantes = true, planta_baja = true, min = 30, max = 55, meta = "horda_meta", meta_frac = 0.8, retraso = 0.15 },
+                },
+                salidas = {
+                    { cuando = { "bajas_en", "contacto", "var:horda_meta", 70 }, ir = "final_campamento" },
+                },
+            },
+
+            -- 6. Limpio: el misionero se instala y queda desbloqueado.
             final_campamento = {
                 final = true,
                 al_entrar = {

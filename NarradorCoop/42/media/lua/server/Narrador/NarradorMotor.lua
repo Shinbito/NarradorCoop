@@ -906,11 +906,31 @@ Motor.inmediatas = {
 
 -- Acciones que esperan a que un jugador este cerca y el lugar este cargado.
 Motor.diferidas = {
+    -- Opciones extra:
+    --   fija = true: sin la escala del arco ni el descuento del rumor (cantidad exacta).
+    --   por_jugador = n: suma n por cada jugador cerca del lugar despues del primero.
+    --   caminantes = true: ningun corredor en esta oleada.
+    --   meta = "var", meta_frac = 0.8: deja en inst.vars[meta] cuantos hay que matar.
+    --   planta_baja = true: en el piso de la calle (z = 0).
     oleada = function(inst, p, l)
-        local n = Motor.cantidad(p.cantidad, 12) * (tonumber(inst.vars.escala) or 1)
-        -- Si siguieron el rumor, llegaron preparados: menos muertos.
-        if inst.vars.rumor_seguido == true then n = n * 0.7 end
-        Mundo.oleada(l.x, l.y, l.z, math.max(1, floor(n + 0.5)), p.min, p.max)
+        local n = Motor.cantidad(p.cantidad, 12)
+        if not p.fija then
+            n = n * (tonumber(inst.vars.escala) or 1)
+            -- Si siguieron el rumor, llegaron preparados: menos muertos.
+            if inst.vars.rumor_seguido == true then n = n * 0.7 end
+        end
+        if tonumber(p.por_jugador) ~= nil then
+            local cerca = 0
+            for _, j in ipairs(Mundo.jugadores()) do
+                local x, y = Mundo.posicion(j)
+                if Mundo.vivo(j) and x ~= nil and math.sqrt((x - l.x) ^ 2 + (y - l.y) ^ 2) <= 120 then cerca = cerca + 1 end
+            end
+            n = n + tonumber(p.por_jugador) * math.max(0, cerca - 1)
+        end
+        -- planta_baja: aparecen en la calle aunque el lugar este en un segundo piso.
+        local z = p.planta_baja and 0 or l.z
+        local total = Mundo.oleada(l.x, l.y, z, math.max(1, floor(n + 0.5)), p.min, p.max, { caminantes = p.caminantes })
+        if p.meta ~= nil then inst.vars[p.meta] = math.max(1, floor(total * (tonumber(p.meta_frac) or 1))) end
         return true
     end,
     objeto = function(inst, p, l)

@@ -470,7 +470,12 @@ end
 -- ---------------------------------------------------------------------------
 
 -- Oleada repartida en grupitos alrededor del punto, caminando hacia el.
-function Mundo.oleada(x, y, z, cantidad, distMin, distMax)
+-- Velocidad de un zombi: 1 corredor, 2 rapido, 3 lento. Para sacar corredores de una oleada.
+function Mundo.sinCorrer(zombi)
+    pcall(function() zombi:changeSpeed(2) end)
+end
+
+function Mundo.oleada(x, y, z, cantidad, distMin, distMax, opciones)
     if addZombiesInOutfit == nil then return 0 end
     local mult = (tonumber(Mundo.sandbox("MultiplicadorZombis", 100)) or 100) / 100
     local total = math.max(1, floor((tonumber(cantidad) or 10) * mult + 0.5))
@@ -486,7 +491,10 @@ function Mundo.oleada(x, y, z, cantidad, distMin, distMax)
             pcall(function()
                 for i = 0, lista:size() - 1 do
                     local zombi = lista:get(i)
-                    if zombi ~= nil then pcall(function() zombi:pathToLocation(floor(x), floor(y), floor(z or 0)) end) end
+                    if zombi ~= nil then
+                        if opciones ~= nil and opciones.caminantes then Mundo.sinCorrer(zombi) end
+                        pcall(function() zombi:pathToLocation(floor(x), floor(y), floor(z or 0)) end)
+                    end
                 end
             end)
         end

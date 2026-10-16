@@ -34,12 +34,14 @@
 - Cada misionero empieza bloqueado. Al andar por su pueblo, llega a tu casa (refugio, o donde
   estés si no tienes) y te pide ayudarlo a limpiar su edificio para armar un campamento; lo
   que encuentres adentro es tuyo. Solo se puede responder "Te ayudo" o "Mas rato".
-- Al limpiarlo (15 zombis) queda desbloqueado: se instala ahí y da encargos.
+- Al limpiarlo queda desbloqueado: se instala ahí y da encargos. Primero hay 15 zombis
+  adentro y después llega una horda de 30 (+15 por cada jugador extra), sin corredores; hay
+  que matar el 80% de la horda.
 - Corre en paralelo con la historia principal (los Bell). Archivo: `shared/Narrador/Arcos/Desbloqueos.lua`.
 - Sandbox "Misioneros se desbloquean" para apagarlo. En partidas viejas los misioneros que ya
   estaban siguen desbloqueados.
 - Diario: la descripción de un misionero aparece al conocerlo y crece con la confianza
-  (`Lore.PERFILES`). El Cabo Ramiro tiene sus 5 capas; los otros tres, por escribir.
+  (`Lore.PERFILES`). Los cuatro tienen sus 5 capas.
 - Mandar a alguien de un encuentro al campamento sube la confianza (+3, con aviso).
 
 ## Ideas futuras: campamentos de supervivientes
@@ -67,6 +69,19 @@
 ### Fase 4: historia propia del campamento
 - El Cabo Ramiro tiene una historia principal propia cuando se crea su campamento, aparte de
   los encargos.
+
+### Misión futura: la hija del Cabo Ramiro (Louisville)
+- Sale de su capa 5 de personalidad: tiene una hija en Louisville a la que le escribe cartas
+  que nunca manda.
+- Hay que ir a buscarla a una escuela de Louisville. Ahí hay varios NPCs intentando
+  sobrevivir mientras los ataca una horda; la hija está peleando y hay que salvarla.
+- Traerla de vuelta al campamento del Cabo. Los NPCs de A-Life son cuerpos de zombi
+  controlados, así que probablemente no pueden subirse a un auto. Plan: ella te sigue a pie
+  (A-Life tiene la postura "walkWith"); si subes a un auto con ella cerca, "sube" (desaparece) y
+  reaparece a tu lado cuando bajas cerca del campamento.
+- Ganchos para más misiones así en las capas 5 de los otros: el hijo de la Tía Chela (Tomás,
+  en Louisville), la muchacha que esperaba al Padre Nacho, el estanque de bencina escondido de
+  la Misia Rosa.
 
 ### Qué ya existe en el código y sirve de base
 - Misioneros fijos por ciudad y encargos: `server/Narrador/NarradorContactos.lua`.

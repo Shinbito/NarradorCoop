@@ -96,15 +96,15 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorMotor.lua": {
-    "mtime": 1792111478.148727,
-    "seen": 1792111538.9979515,
-    "ast_hash": "5b0d4b58ef2935ebf717547b624a5ad9",
+    "mtime": 1792112251.0965068,
+    "seen": 1792112298.1562557,
+    "ast_hash": "b9aba0e01050818c9019a33c4d822991",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorMundo.lua": {
-    "mtime": 1792111522.012073,
-    "seen": 1792111538.997953,
-    "ast_hash": "319cc98c8ba595ee1b94b39b04926211",
+    "mtime": 1792112239.664532,
+    "seen": 1792112298.1562579,
+    "ast_hash": "7033f93e1f1be6845fe39280b90b24bf",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorObjetosServer.lua": {
@@ -228,9 +228,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/NarradorLore.lua": {
-    "mtime": 1792111832.9819796,
-    "seen": 1792111915.0043797,
-    "ast_hash": "2ea98a93e6cefe4a149537b5300f20dc",
+    "mtime": 1792112277.6438243,
+    "seen": 1792112298.1562903,
+    "ast_hash": "2086a724835e54ae44133b53cff0d23a",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/NarradorLoreGenerados.lua": {
@@ -696,15 +696,15 @@
     "semantic_hash": ""
   },
   "NarradorCoop/ROADMAP.md": {
-    "mtime": 1792111912.8831172,
-    "seen": 1792111915.0043976,
-    "ast_hash": "467661c98bc0ed92924cefd8226282bd",
+    "mtime": 1792112295.585135,
+    "seen": 1792112298.1563106,
+    "ast_hash": "1e65f5622b75ce2de85c883fd7d87253",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/Arcos/Desbloqueos.lua": {
-    "mtime": 1792111766.8637142,
-    "seen": 1792111915.0043604,
-    "ast_hash": "8423f38bafd7add88dc1fb7813d0170b",
+    "mtime": 1792112255.8777144,
+    "seen": 1792112298.156269,
+    "ast_hash": "7304c95da1f9c849fb3e9c1569ba72e9",
     "semantic_hash": ""
   }
 }
