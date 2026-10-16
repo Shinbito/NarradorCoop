@@ -148,45 +148,79 @@ Novedades 0.9.0:
   "Estado de los lugares emblematicos" en las pruebas del narrador.
 
 Novedades 0.10.0:
+
+MISIONEROS Y CAMPAMENTOS
 - Misioneros desbloqueables: cada uno empieza sin campamento. Al andar por su pueblo llega a tu
-  casa y te pide ayudarlo a limpiar su edificio (comisaria, cuartel de bomberos, iglesia o
-  bencinera). Solo puedes decir "Te ayudo" o "Mas rato". Primero 15 zombis y despues una horda
-  de 30 (+15 por jugador extra), sin corredores. Lo que encuentres adentro es tuyo. Opcion de
-  sandbox "Misioneros se desbloquean" para apagarlo; en partidas viejas siguen desbloqueados.
+  casa (tu refugio, o donde estes) y te pide ayudarlo a limpiar su edificio (comisaria, cuartel
+  de bomberos, iglesia o bencinera) para armar un campamento. Solo puedes decir "Te ayudo" o
+  "Mas rato". Primero hay 15 zombis y despues llega una horda de 30 (+15 por jugador extra), sin
+  corredores. Lo que encuentres adentro es tuyo. Sandbox "Misioneros se desbloquean" para
+  apagarlo; en partidas viejas los que ya tenias siguen ahi.
 - El Cabo Ramiro vive en la oficina del segundo piso de la comisaria.
-- Campamentos con niveles: salvando gente, haciendo los capitulos de cada misionero y ganando su
-  confianza, llegan el carpintero (nivel 1), el herrero (2), el mecanico (3) y el curandero (4).
-  Venden a cambio de comida, municion, abrigo (ropa; vale segun sus stats) o medicina, con
-  precios segun lo que valora cada campamento y la confianza. El herrero mejora el arma que
-  llevas en la mano y forja armas con los mangos que vende el carpintero (el mango de madera
-  noble da un arma legendaria); el mecanico vende un auto con confianza maxima. Cada campamento
-  tiene reservas de comida, municion, abrigo y medicina: pagar con lo que les falta es barato.
-  Las reservas nunca se agotan y cambian con la partida: en invierno escasea la comida, en
-  otono hay cosecha, y a veces llegan caravanas o les roban.
-- Guardias: la gente que llevas a un campamento se queda rondandolo (hasta 15). Cada tanto una
-  horda ataca el campamento: los guardias pelean y pueden morir. Si ayudas a defenderlo, ganas
-  fama y confianza.
+- Niveles del campamento: con cada nivel llega alguien con un oficio.
+    Nivel 1 carpintero: 2 personas salvadas.
+    Nivel 2 herrero: 4 salvadas + capitulo 1 del misionero + confianza 2.
+    Nivel 3 mecanico: 6 salvadas + capitulo 2 + confianza 3.
+    Nivel 4 curandero: 8 salvadas + confianza 4 (con la Tia Chela, ademas su capitulo 3: el
+    curandero es el doctor Hartmann). Un capitulo que todavia no existe no se pide.
+- Comerciantes: venden a cambio de comida, municion (una caja o 10 balas), abrigo (ropa que no
+  llevas puesta; cada prenda vale de 1 a 5 segun sus stats) o medicina (botiquin 4,
+  antibioticos 3, venda 1...). Con mas confianza, mas descuento.
+    Carpintero: tablas, clavos, herramientas y mangos de arma (el de madera noble, con
+    confianza 4).
+    Herrero: cuchillos, machete, hacha; mejora el arma que llevas en la mano y forja un arma
+    con un mango del carpintero (mango normal: arma excepcional; madera noble: legendaria).
+    Mecanico: bateria, bidon, gata; un auto con confianza maxima.
+    Curandero: vendas, pastillas, antibioticos, botiquin.
+- Recados: cada comerciante siempre tiene una mision chica ("Quieres que la gente confie en
+  ti? Ayudame con esto"): te marca en un mapa donde buscar algo de su oficio ("estoy seguro de
+  que en el garage de esa casa hay clavos") y se lo llevas. Se arman al azar. Uno a la vez,
+  uno cada 12 horas.
+- Reservas: cada campamento tiene comida, municion, abrigo y medicina. Pagar con lo que les
+  falta rinde mas; con lo que les sobra, menos. Nunca se agotan (minimo 10) y cambian con la
+  partida: lo que el campamento logra juntar solo cambia cada semana, a veces llegan caravanas
+  o les roban, y las estaciones pesan (en invierno escasea la comida y el abrigo, en otono hay
+  cosecha, en verano se gasta mas medicina). El menu de comerciar muestra que les falta.
+- Guardias: la gente que salvas y llevas a un campamento se queda rondandolo, hasta 15. Si ya
+  hay 15, queda resguardada adentro haciendo encargos.
+- Hordas contra los campamentos: si hay guardias y estas cerca, cada tanto una horda ataca el
+  campamento. Los guardias pelean y pueden morir de verdad. Si ayudas a defenderlo: +6 de fama
+  en Knox y +3 de confianza.
 - Encuentros: "Llevarlo donde el misionero" ahora es una escolta: te sigue a pie y "se sube
-  donde sea que haya espacio" cuando vas en auto. Si llega vivo, suma al campamento y a la confianza.
-- Reputacion de Knox: 5 niveles buenos (Desconocido, Mensajero, La nueva esperanza, El guerrero,
-  El heroe de Knox) y 5 malos (Poco confiable, Rumores negativos, La nube negra, El destripador,
-  El demonio de Knox), segun como te portas con la gente. La gente te habla distinto: con mala
-  fama te insultan y te temen; con buena te quieren y saben de tus hazanas. Desde El
-  destripador los misioneros ya no te dan trabajo y los comerciantes no te venden nada, pero
-  siempre tienen un recado (una mision chica: buscar algo en un lugar que te marcan en un mapa)
-  para que la gente vuelva a confiar en ti. Puntos: ayudar a alguien
-  +4, recado +5, encargos y misiones segun dificultad (+4 / +6 / +10 / +15), matar a alguien
-  fuera de una mision -5. Con mala fama solo se sube salvando gente, acabando con bandidos o
-  haciendo recados.
-- Diario: letra manuscrita en lapiz pasta azul, titulos subrayados y menos texto. La
-  descripcion de cada misionero aparece al conocerlo y crece con su confianza (cinco capas).
+  donde sea que haya espacio" cuando vas en auto. Si llega vivo, suma al campamento.
+- La descripcion de cada misionero aparece en el diario al conocerlo y crece con su confianza
+  (cinco capas de su historia).
+- Misioneros y comerciantes mas firmes: aparecen sin zombis encima, son inmortales desde el
+  primer momento, se reponen si mueren, nunca quedan dos iguales, y las puertas y ventanas de
+  su edificio no se rompen. Su edificio nunca queda como "lugar ocupado" por bandidos.
+
+REPUTACION DE KNOX
+- Tu fama en todo Knox, segun como te portas con la gente:
+    Buena: Desconocido (0), Mensajero (20), La nueva esperanza (45), El guerrero (90),
+    El heroe de Knox (150).
+    Mala: Poco confiable (bajo 0), Rumores negativos (-20), La nube negra (-45),
+    El destripador (-90), El demonio de Knox (-150).
+- Puntos: ayudar a alguien +4, recado +5, encargos y misiones segun dificultad (facil +4,
+  medio +6, dificil +10, ultra +15), limpiar un lugar tomado por bandidos +15, defender un
+  campamento +6, matar a alguien fuera de una mision -5 (dentro de una mision no cuenta).
+- La gente te habla distinto: con mala fama desconfian; desde El destripador te insultan y te
+  temen. Con buena fama saben de tus hazanas y te quieren.
+- Desde El destripador los misioneros ya no te dan trabajo (aunque te tengan mucha confianza,
+  pesa mas lo que hiciste en Knox) y los comerciantes no te venden nada, pero sus recados
+  siguen. Con mala fama solo se sube salvando gente, acabando con bandidos o haciendo recados.
+
+HISTORIAS
 - Eduardo Giovanns, el hijo de la Tia Chela: una leyenda que anda ayudando gente por Knox. La
-  gente lo nombra, hay rumores con sus pasos y un capitulo de la Chela donde lo conoces.
-  Nunca se levanta como zombi y siempre se salva por las minimas. El Cabo Ramiro le tiene
-  envidia.
-- Mapas de papel (con sus anotaciones) para encargos, encuentros y rumores; el mapa del mundo
-  del jugador ya no se marca.
+  gente lo nombra y hay rumores con sus pasos (notas firmadas E.G.). En el capitulo 3 de la
+  Chela ("Un cientifico que dice tener la cura") lo conoces peleando contra una horda: te deja
+  un arma legendaria y hay que llevar al doctor Hartmann vivo al cuartel. Eduardo nunca se
+  levanta como zombi: si cae, aparece vivo en el cuartel de la Chela ("uff, pense que la
+  palmaba"). El Cabo Ramiro le tiene envidia.
+
+MAPAS, DIARIO Y BRUJULA
+- Mapas de papel con sus anotaciones para encargos, encuentros y rumores. El mapa del mundo de
+  tu personaje ya no se marca.
+- Diario: letra manuscrita en lapiz pasta azul, titulos subrayados y menos texto. Muestra el
+  nivel de cada campamento, sus guardias y tu fama en Knox.
 - Brujula: en primera persona intenta seguir a la camara de Project Viewpoint (clic derecho ->
   Narrador -> Indicador para elegir camara o personaje, y diagnostico en console.txt).
-- Misioneros mas firmes: aparecen sin zombis encima, son inmortales desde el primer momento,
-  se reponen si mueren y las puertas y ventanas de su edificio no se rompen.

@@ -320,6 +320,13 @@ end
 function S.aparecer(c, e, oficio, o, jugador)
     local p = K.persona(oficio, c.id)
     local x, y, z = S.posicionPuesto(e, oficio)
+    -- Nunca dos: si ya hay uno con su nombre cerca, se adopta.
+    local existente = Mundo.buscarActorPorNombre(p.nombre[1], p.nombre[2], x, y, 40)
+    if existente ~= nil then
+        o.uid, o.pidiendo = existente, nil
+        pcall(Mundo.banderas, o.uid, C.BANDERAS, { x = x, y = y, z = z })
+        return
+    end
     o.intentos = (o.intentos or 0) + 1
     local requestId = "narrador:oficio:" .. c.id .. ":" .. oficio .. ":" .. tostring(o.intentos)
     Mundo.reservarNombres(requestId, { [p.perfil] = { p.nombre[1], p.nombre[2] } })
@@ -332,6 +339,7 @@ function S.aparecer(c, e, oficio, o, jugador)
     local ok = Mundo.spawnGrupo(jugador, args, function(resultado)
         local uids = type(resultado) == "table" and resultado.actorUids or nil
         if type(uids) == "table" and uids[1] ~= nil then
+            if o.uid ~= nil and o.uid ~= uids[1] and Mundo.actorVivo(o.uid) then Mundo.retirar(uids[1]); return end
             o.uid, o.pidiendo = uids[1], nil
             pcall(Mundo.nombrarActor, o.uid, p.nombre[1], p.nombre[2])
             pcall(Mundo.banderas, o.uid, C.BANDERAS, { x = x, y = y, z = z })

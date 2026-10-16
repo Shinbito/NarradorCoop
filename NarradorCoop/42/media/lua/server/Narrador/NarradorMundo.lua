@@ -728,6 +728,27 @@ end
 -- Pone nombre y apellido a un NPC de A-Life y lo deja "presentado" a los jugadores
 -- conectados, para que A-Life muestre el nombre y no "Desconocido".
 -- Devuelve true si quedo bien (o ya estaba).
+-- Un NPC de A-Life vivo y cargado con ese nombre a menos de "radio" casillas de (x, y), o nil.
+-- Sirve para no duplicar personajes fijos: si A-Life lo creo pero no aviso, se adopta.
+-- excepto = uid a ignorar.
+function Mundo.buscarActorPorNombre(nombre, apellido, x, y, radio, excepto)
+    local vigia = ProjectALife ~= nil and ProjectALife.Watchdog or nil
+    if vigia == nil or type(vigia.bindings) ~= "table" or nombre == nil then return nil end
+    radio = radio or 30
+    for uid, enlace in pairs(vigia.bindings) do
+        if uid ~= excepto and enlace ~= nil and enlace.shell ~= nil then
+            local actor = Mundo.actor(uid)
+            local mem = actor ~= nil and type(actor.memory) == "table" and actor.memory or nil
+            if mem ~= nil and actor.lifecycle ~= "dead" and mem.personFirst == nombre
+                    and (apellido == nil or apellido == "" or mem.personLast == apellido) then
+                local ok, sx, sy = pcall(function() return enlace.shell:getX(), enlace.shell:getY() end)
+                if ok and sx ~= nil and (x == nil or math.sqrt((sx - x) ^ 2 + (sy - y) ^ 2) <= radio) then return uid end
+            end
+        end
+    end
+    return nil
+end
+
 function Mundo.nombrarActor(uid, nombre, apellido)
     local registro = ProjectALife ~= nil and ProjectALife.ActorRegistry or nil
     if registro == nil or type(registro.peek) ~= "function" or type(registro.update) ~= "function" then return false end

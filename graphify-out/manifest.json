@@ -48,9 +48,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorContactos.lua": {
-    "mtime": 1792115963.5435903,
-    "seen": 1792115986.3207824,
-    "ast_hash": "7793b0d978007dda5ccb7ae84e466006",
+    "mtime": 1792118820.1294324,
+    "seen": 1792118858.7724214,
+    "ast_hash": "ac9f59862195874ce4279b5f1e1d2eb9",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorConversacionServer.lua": {
@@ -102,9 +102,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorMundo.lua": {
-    "mtime": 1792112239.664532,
-    "seen": 1792112298.1562579,
-    "ast_hash": "7033f93e1f1be6845fe39280b90b24bf",
+    "mtime": 1792118820.1278384,
+    "seen": 1792118858.77244,
+    "ast_hash": "bdef4e679c5aa5dbc784cffca4c85e8c",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorObjetosServer.lua": {
@@ -318,9 +318,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/common/LEEME.txt": {
-    "mtime": 1792116561.2713287,
-    "seen": 1792116563.5760922,
-    "ast_hash": "cb672c986007fa4eff10e959119f62b5",
+    "mtime": 1792118855.8629057,
+    "seen": 1792118858.7725205,
+    "ast_hash": "baf63d3e09e07ac21a54d8d13cd321a0",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/textures/Item_NarradorAntibioticos.png": {
@@ -696,9 +696,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/ROADMAP.md": {
-    "mtime": 1792116561.2707667,
-    "seen": 1792116563.576091,
-    "ast_hash": "21617f58bcd522de5f9ac2265c373214",
+    "mtime": 1792118728.0372088,
+    "seen": 1792118858.7725186,
+    "ast_hash": "7bcf4874bcb1912df7a9f256edd97d1f",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/Arcos/Desbloqueos.lua": {
@@ -732,9 +732,9 @@
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/server/Narrador/NarradorCampamentos.lua": {
-    "mtime": 1792116540.729917,
-    "seen": 1792116563.5760238,
-    "ast_hash": "1d028f23b916e8543f20d20b5205aee8",
+    "mtime": 1792118820.13652,
+    "seen": 1792118858.7724187,
+    "ast_hash": "e832871f80e93db0c7869d71c54e3b36",
     "semantic_hash": ""
   },
   "NarradorCoop/42/media/lua/shared/Narrador/NarradorCampamentosDefs.lua": {

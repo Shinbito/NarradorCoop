@@ -180,6 +180,15 @@ end
 
 function C.aparecer(c, e, jugador)
     if not Mundo.hayALife() then return end
+    -- Si ya hay uno con su nombre cerca (A-Life lo creo pero no aviso), se adopta: nunca dos.
+    local existente = Mundo.buscarActorPorNombre(c.nombre, c.apellido, e.x, e.y, 40)
+    if existente ~= nil then
+        e.uid, e.pidiendo, e.faltas = existente, nil, 0
+        pcall(C.proteger, e)
+        Mundo.log("se adopto al " .. C.nombreCompleto(c) .. " que ya estaba (" .. tostring(existente) .. ")")
+        Motor.publicar()
+        return
+    end
     -- Sin zombis encima antes de que aparezca: si no, a veces nacia y lo mataban antes de
     -- que llegaran las banderas.
     pcall(C.limpiar, e.x, e.y)
@@ -196,6 +205,12 @@ function C.aparecer(c, e, jugador)
     local ok, razon = Mundo.spawnGrupo(jugador, args, function(resultado)
         local uids = type(resultado) == "table" and resultado.actorUids or nil
         if type(uids) == "table" and uids[1] ~= nil then
+            -- Llego tarde un pedido viejo y ya hay otro: este sobra.
+            if e.uid ~= nil and e.uid ~= uids[1] and Mundo.actorVivo(e.uid) then
+                Mundo.retirar(uids[1])
+                Mundo.log("se retiro un " .. C.nombreCompleto(c) .. " duplicado (" .. tostring(uids[1]) .. ")")
+                return
+            end
             e.uid, e.pidiendo, e.faltas = uids[1], nil, 0
             -- Inmortal desde el primer momento (no esperar al proximo C.tick).
             pcall(C.proteger, e)
@@ -491,6 +506,16 @@ end
 -- Mantiene vivo al misionero: banderas, sin infeccion y con la vida llena.
 function C.proteger(e)
     if e.uid == nil then return end
+    -- Si quedo un duplicado de antes con su nombre, se retira.
+    for _, c in ipairs(C.LISTA) do
+        if C.estado(c.id) == e then
+            local otro = Mundo.buscarActorPorNombre(c.nombre, c.apellido, e.x, e.y, 60, e.uid)
+            if otro ~= nil then
+                Mundo.retirar(otro)
+                Mundo.log("se retiro un " .. C.nombreCompleto(c) .. " duplicado (" .. tostring(otro) .. ")")
+            end
+        end
+    end
     pcall(Mundo.banderas, e.uid, C.BANDERAS, { x = e.x, y = e.y, z = e.z or 0 })
     pcall(C.curar, e.uid)
 end
