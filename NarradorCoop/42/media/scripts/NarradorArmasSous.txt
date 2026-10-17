@@ -1,0 +1,82 @@
+module Narrador
+{
+    imports
+    {
+        Base
+    }
+
+    /* Palo de Ekko: el premio de la historia de Martin Zent (Arcos/HistoriasSous1.lua).
+       Propiedades del bate del juego (Base.BaseballBat) con un poco mas de alcance.
+       El modelo y la textura son propios (models_X/Narrador/PaloEkko.X). */
+    item PaloEkko
+    {
+        DisplayCategory = SportsWeapon,
+        ItemType = base:weapon,
+        Icon = NarradorPaloEkko,
+        Weight = 1.8,
+        AttachmentType = Shovel,
+        BaseSpeed = 1.0,
+        BreakSound = BaseballBatBreak,
+        Categories = base:blunt,
+        ConditionLowerChanceOneIn = 30,
+        ConditionMax = 40,
+        CriticalChance = 45.0,
+        CritDmgMultiplier = 2.0,
+        DoorDamage = 5,
+        DoorHitSound = BaseballBatHit,
+        DropSound = BaseballBatDrop,
+        HitAngleMod = -30.0,
+        HitFloorSound = BaseballBatHit,
+        HitSound = BaseballBatHit,
+        IdleAnim = Idle_Weapon2,
+        KnockBackOnNoDeath = true,
+        KnockdownMod = 2.0,
+        MaxDamage = 1.4,
+        MaxHitcount = 2,
+        MaxRange = 1.35,
+        MinAngle = 0.75,
+        MinDamage = 1.0,
+        MinRange = 0.61,
+        MinimumSwingtime = 3.0,
+        PushBackMod = 0.5,
+        RunAnim = Run_Weapon2,
+        SplatBloodOnNoDeath = false,
+        SplatNumber = 1,
+        SubCategory = Swinging,
+        SwingAmountBeforeImpact = 0.02,
+        SwingAnim = Bat,
+        SwingSound = BaseballBatSwing,
+        Swingtime = 3.0,
+        TreeDamage = 1,
+        TwoHandWeapon = true,
+        WeaponLength = 0.55,
+        OnBreak = OnBreak.BaseballBat,
+        Tags = base:repairwithglue;base:repairwithtape,
+        WeaponSprite = NarradorPaloEkko,
+        DisplayName = Palo de Ekko,
+        Tooltip = Tooltip_Narrador_PaloEkko,
+    }
+}
+
+module Base
+{
+    /* En module Base, igual que NarradorModelosArmas.txt: el juego busca el WeaponSprite en Base.
+       Mismos attachments que el bate del juego (el palo tiene el mismo eje: Y a lo largo,
+       mango cerca del origen). */
+    model NarradorPaloEkko
+    {
+        mesh = Narrador/PaloEkko,
+        texture = Narrador/Armas/PaloEkko,
+        scale = 1.0,
+        attachment world
+        {
+            offset = -0.0285 0.2419 -0.0,
+            rotate = -0.0 0.0 0.1866,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.0067 -0.0091 -0.0022,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+}
