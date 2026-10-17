@@ -183,9 +183,12 @@ Todo lo de las versiones 0.10, 0.11 y 0.12 está hecho pero sin probar. Lo que m
 - Probar: que los sienta de verdad (si no, mirar la opcion "Idle_BenchSeat" de A-Life), que el
   generador da luz al galpon y que los muebles se ven en otros clientes.
 
-### Maniqui del misionero (por hacer)
-- Cuando el NPC del misionero no esta, un maniqui fijo vestido como el en su puesto; con clic
-  derecho se le pueden pedir misiones igual mientras el mod intenta reponer al NPC.
+### Maniqui del misionero (hecho, falta probar en el juego)
+- Un maniqui fijo junto al puesto de cada misionero, vestido como el (decoracion del campamento):
+  `server/Narrador/NarradorManiquies.lua` y `client/Narrador/NarradorManiquiesCliente.lua`.
+- Si el NPC no esta, clic derecho en el maniqui: "Pedir trabajo a ... (maniqui)" abre la
+  conversacion del misionero. Si alguien lo saca o lo rompe, se vuelve a poner.
+- Probar: que el maniqui salga vestido en multijugador (se viste con `wearItem` sin personaje).
 
 ### Los Bell durante su historia (por decidir)
 - La pista de "acogidos" (la espera de 3 horas de juego antes de que Daniel pida el suero) tiene
