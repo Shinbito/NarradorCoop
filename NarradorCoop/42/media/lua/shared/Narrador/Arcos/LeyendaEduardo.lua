@@ -51,7 +51,7 @@ Narrador.Defs.registrar({
             objetivo = "objetivo",
             al_entrar = {
                 { "npcs", id = DOC, lugar = "objetivo", radio = 45, no_mas_cerca = 14, modo = "guard", quietos = true, correa = 5,
-                  inmortales = true, postura = "friendly", perfiles = { { "cientifico", "k93_red_cross_02" } },
+                  inmortales = true, postura = "friendly", perfiles = { { "cientifico", "k93_county_ems_06" } },
                   nombres = { cientifico = { "Elias", "Hartmann" } } },
                 { "npcs", id = EDUARDO, lugar = "objetivo", radio = 45, no_mas_cerca = 10, modo = "guard", correa = 12,
                   inmortales = true, postura = "friendly", salud = 400,

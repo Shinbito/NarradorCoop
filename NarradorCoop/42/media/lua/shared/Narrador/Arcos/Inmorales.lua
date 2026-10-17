@@ -98,7 +98,7 @@ registrarInmoral("tributo", {
             al_entrar = {
                 { "npcs", id = "familia", lugar = "objetivo", radio = 40, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 4,
                   inmortales = true, postura = "friendly",
-                  perfiles = { { "padre", "k93_hensley_family_02" }, { "hija", "k93_hensley_family_08" } },
+                  perfiles = { { "padre", "k93_hensley_family_02" }, { "hija", "k93_hensley_family_08" } }, femeninos = { "hija" },
                   nombres = { padre = { "Ignacio", "Fuentes" }, hija = { "Paula", "Fuentes" } } },
             },
             salidas = plazo({ { cuando = { { "grupo_listo", "familia" }, { "cerca", "objetivo", 15 } }, ir = "frente" } }),
@@ -153,7 +153,7 @@ registrarInmoral("testigo", {
             objetivo = "objetivo",
             al_entrar = {
                 { "npcs", id = "testigo", lugar = "objetivo", radio = 40, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 4,
-                  inmortales = true, postura = "friendly", perfiles = { { "testigo", "k93_county_ems_02" } },
+                  inmortales = true, postura = "friendly", perfiles = { { "testigo", "k93_county_ems_07" } },
                   nombres = { testigo = { "Oscar", "Lagos" } } },
             },
             salidas = plazo({ { cuando = { { "grupo_listo", "testigo" }, { "cerca", "objetivo", 15 } }, ir = "frente" } }),
@@ -208,7 +208,7 @@ registrarInmoral("quemar", {
             al_entrar = {
                 { "npcs", id = "refugiados", lugar = "objetivo", radio = 40, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 4,
                   inmortales = true, postura = "friendly",
-                  perfiles = { { "uno", "k93_red_cross_06" }, { "dos", "k93_red_cross_07" } },
+                  perfiles = { { "uno", "k93_red_cross_07" }, { "dos", "k93_red_cross_06" } }, femeninos = { "uno" },
                   nombres = { uno = { "Marta", "Ibanez" }, dos = { "Luis", "Ibanez" } } },
             },
             salidas = plazo({ { cuando = { { "grupo_listo", "refugiados" }, { "cerca", "objetivo", 15 } }, ir = "frente" } }),
@@ -265,7 +265,7 @@ registrarInmoral("fugitivo", {
             objetivo = "objetivo",
             al_entrar = {
                 { "npcs", id = "fugitivo", lugar = "objetivo", radio = 40, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 4,
-                  inmortales = true, postura = "friendly", perfiles = { { "fugitivo", "k93_kessinger_04" } },
+                  inmortales = true, postura = "friendly", perfiles = { { "fugitivo", "k93_kessinger_11" } },
                   nombres = { fugitivo = { "Benjamin", "Sotelo" } } },
                 { "oleada", lugar = "objetivo", radio = 50, cantidad = { 8, 14 }, min = 20, max = 40 },
             },

@@ -58,6 +58,19 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
   se anota si la mataste tú, con un lamento genérico.
 - Prueba: `herramientas/pruebas/prueba_caidos.lua`.
 
+### Sous con el aspecto de sus fotos y modelos del sexo correcto (hecho en 0.11.0, falta probar)
+- `Mundo.crearFaccion` acepta `aspecto` (piel 0 a 4, peinado, barba y sus colores, con los nombres
+  de `hairStyles.xml` / `beardStyles.xml`) y `tintes` (color "r,g,b" por prenda) en cada integrante.
+- Sous (versión 3 de la facción, se reescriben los perfiles): Akagami, Zent, Tati, Walita,
+  Cristonks, Hasag y Wertres según sus fotos. Faltan fotos de Benjamín Matric, David Shinbo y Maulen.
+- Se revisaron todos los perfiles k93 del mod contra el catálogo de A-Life (`body.sex`): Lucía,
+  Hartmann, el Diácono Reyes, el Capitán Duarte, Marta y Luis Ibáñez, Oscar Lagos, Benjamín
+  Sotelo, Kevin Morales, el respaldo de Pereira y dos mercaderes tenían el sexo cambiado. Las
+  mujeres con nombre tienen `femeninos` (Gladys, Lucía, Paula, Marta y las sobrevivientes de la
+  escuela).
+- Los NPCs de Sous que ya estaban en el mundo pueden seguir con la ropa vieja hasta que vuelvan
+  a aparecer.
+
 ### 3. Técnico (hecho en 0.11.0)
 - Chequeo automático en GitHub (`.github/workflows/chequeos.yml`) en cada push y pull request:
   que todos los `.lua` compilen, la lista de memorias, el mapa de historias (y que esté al día) y

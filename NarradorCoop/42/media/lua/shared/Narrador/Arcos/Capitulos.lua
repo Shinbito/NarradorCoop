@@ -138,7 +138,7 @@ registrar({
             objetivo = "casa",
             al_entrar = {
                 { "npcs", id = GLADYS, lugar = "casa", radio = 40, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 4,
-                  postura = "friendly", perfiles = { { "gladys", "k93_red_cross_09" } }, nombres = { gladys = { "Gladys", "Moreno" } } },
+                  postura = "friendly", perfiles = { { "gladys", "k93_red_cross_09" } }, nombres = { gladys = { "Gladys", "Moreno" } }, femeninos = { "gladys" } },
                 { "oleada", lugar = "casa", radio = 50, cantidad = { 18, 26 }, min = 12, max = 30 },
                 { "oleada", lugar = "casa", radio = 50, cantidad = { 10, 14 }, min = 14, max = 30, retraso = 0.4 },
             },
@@ -308,7 +308,7 @@ registrar({
             objetivo = "iglesia",
             al_entrar = {
                 { "npcs", id = LUCIA, lugar = "iglesia", radio = 35, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 5,
-                  postura = "friendly", perfiles = { { "lucia", "k93_red_cross_08" } }, nombres = { lucia = { "Lucia", "Ferrada" } } },
+                  postura = "friendly", perfiles = { { "lucia", "k93_prather_08" } }, nombres = { lucia = { "Lucia", "Ferrada" } }, femeninos = { "lucia" } },
                 { "oleada", lugar = "iglesia", radio = 50, cantidad = { 20, 28 }, min = 12, max = 30 },
             },
             salidas = {

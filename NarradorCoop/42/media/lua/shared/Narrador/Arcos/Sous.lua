@@ -20,11 +20,14 @@ Narrador.Facciones = Narrador.Facciones or {}
 -- "respaldo": perfil normal de A-Life (hombre, amistoso) que se usa si por algun motivo
 -- A-Life no acepto el perfil propio; igual nace con el nombre de Sous.
 -- Stats de A-Life (1 a 10, vida hasta 200): Sous esta bien entrenado.
+-- Aspecto de los que tienen foto (ver Mundo.crearFaccion): colores "r,g,b" de 0 a 1.
+local PELO_OSCURO, NEGRO = "0.10,0.07,0.05", "0.09,0.09,0.10"
+
 local STATS_SOUS = { healthHP = 160, strength = 10, endurance = 10, awareness = 10, aiming = 9, aimZombiePercent = 100 }
 
 Narrador.Facciones.narrador_sous = {
     id = "narrador_sous",
-    version = 2,
+    version = 3,
     nombre = "Sous",
     descripcion = "Grupo de sobrevivientes de amigos que se juntaban a jugar a la pelota y al LoL.",
     postura = "friendly",
@@ -34,16 +37,53 @@ Narrador.Facciones.narrador_sous = {
     relaciones = { narrador_banda_maulen = "hostile" },
     miembros = {
         { id = "narrador_sous_01", respaldo = "k93_hensley_family_01", nombre = "Martin Akagami", rol = "Lider", arma = "Base.Shotgun", cuerpo = "Base.Machete",
-          ropa = { Vest = "Base.Vest_BulletCivilian" } },
-        { id = "narrador_sous_02", respaldo = "k93_vfd_01", nombre = "Martin Zent", rol = "Analista", arma = "Base.HuntingRifle", cuerpo = "Base.Crowbar" },
+          -- Overol de obrero, casco, antiparras, pasamontanas y chaleco reflectante: solo se le ve la cara.
+          aspecto = { piel = 1, pelo = "Short", color_pelo = PELO_OSCURO },
+          ropa = { Hat = "Base.Hat_HardHat", Eyes = "Base.Glasses_SafetyGoggles", Mask = "Base.Hat_BalaclavaFace",
+                   Top = "Base.Boilersuit_BlueRed", Pants = "none", Vest = "Base.Vest_HighViz",
+                   Hands = "Base.Gloves_LeatherGloves", Shoes = "Base.Shoes_WorkBoots" } },
+        { id = "narrador_sous_02", respaldo = "k93_vfd_01", nombre = "Martin Zent", rol = "Analista", arma = "Base.HuntingRifle", cuerpo = "Base.Crowbar",
+          -- Pelo crespo, polera verde con estampado, pantalon negro y pulsera.
+          aspecto = { piel = 1, pelo = "MessyCurly", color_pelo = PELO_OSCURO },
+          ropa = { Top = "Base.Tshirt_DefaultDECAL_TINT", Pants = "Base.Trousers_DefaultTEXTURE_TINT",
+                   RightWrist = "Base.Bracelet_RightFriendshipTINT", Shoes = "Base.Shoes_BlackBoots" },
+          tintes = { Top = "0.13,0.27,0.18", Pants = NEGRO, RightWrist = NEGRO } },
         { id = "narrador_sous_03", respaldo = "k93_red_cross_01", nombre = "Benjamin Matric", rol = "Informatico", arma = "Base.Pistol", cuerpo = "Base.BaseballBat" },
         { id = "narrador_sous_04", respaldo = "k93_truckstop_01", nombre = "David Shinbo", rol = "Sociologo", arma = "Base.Pistol", cuerpo = "Base.Axe",
           ropa = { Jacket = "Base.Jacket_ArmyOliveDrab" } },
-        { id = "narrador_sous_05", respaldo = "k93_hensley_family_06", nombre = "Bastian Tati", rol = "Enlace", arma = "Base.Pistol", cuerpo = "Base.HuntingKnife" },
-        { id = "narrador_sous_06", respaldo = "k93_muldraugh_pd_02", nombre = "Hanz Walita", rol = "Artesano", arma = "Base.Shotgun", cuerpo = "Base.Nightstick" },
-        { id = "narrador_sous_07", respaldo = "k93_truckstop_03", nombre = "Cristian Cristonks", rol = "Piloto", arma = "Base.Revolver", cuerpo = "Base.Hammer" },
-        { id = "narrador_sous_08", respaldo = "k93_prather_02", nombre = "Jorge Hasag", rol = "Intendente", arma = "Base.HuntingRifle", cuerpo = "Base.Machete" },
-        { id = "narrador_sous_09", respaldo = "k93_county_ems_01", nombre = "Cristobal Wertres", rol = "Ingeniero", arma = "Base.Pistol", cuerpo = "Base.Crowbar" },
+        { id = "narrador_sous_05", respaldo = "k93_hensley_family_06", nombre = "Bastian Tati", rol = "Enlace", arma = "Base.Pistol", cuerpo = "Base.HuntingKnife",
+          -- Pelo crespo, lentes de sol, polera negra, pantalon cafe, reloj y pulsera roja.
+          aspecto = { piel = 1, pelo = "MessyCurly", color_pelo = PELO_OSCURO },
+          ropa = { Eyes = "Base.Glasses_Sun", Top = "Base.Tshirt_DefaultTEXTURE_TINT", Pants = "Base.Trousers_DefaultTEXTURE_TINT",
+                   LeftWrist = "Base.WristWatch_Left_DigitalBlack", RightWrist = "Base.Bracelet_RightFriendshipTINT",
+                   Shoes = "Base.Shoes_TrainerTINT" },
+          tintes = { Top = NEGRO, Pants = "0.36,0.24,0.15", RightWrist = "0.70,0.10,0.10", Shoes = NEGRO } },
+        { id = "narrador_sous_06", respaldo = "k93_muldraugh_pd_02", nombre = "Hanz Walita", rol = "Artesano", arma = "Base.Shotgun", cuerpo = "Base.Nightstick",
+          -- Pelo oscuro hacia el lado, barba completa, aro y polera negra.
+          aspecto = { piel = 1, pelo = "LeftParting", color_pelo = PELO_OSCURO, barba = "Full", color_barba = PELO_OSCURO },
+          ropa = { Ears = "Base.Earring_LoopSmall_Silver_Both", Top = "Base.Tshirt_DefaultTEXTURE_TINT", Pants = "Base.Trousers_Black",
+                   Shoes = "Base.Shoes_BlackBoots" },
+          tintes = { Top = NEGRO } },
+        { id = "narrador_sous_07", respaldo = "k93_truckstop_03", nombre = "Cristian Cristonks", rol = "Piloto", arma = "Base.Revolver", cuerpo = "Base.Hammer",
+          -- Ropa de ski: casco blanco, antiparras azules, cuello tapado, parka negra y guantes.
+          aspecto = { piel = 1, pelo = "Short", color_pelo = PELO_OSCURO },
+          ropa = { Hat = "Base.Hat_CrashHelmet", Eyes = "Base.Glasses_SkiGoggles", Mask = "Base.Hat_BalaclavaFace",
+                   Jacket = "Base.Jacket_Padded", Pants = "Base.Trousers_Padded", Hands = "Base.Gloves_LeatherGlovesBlack",
+                   Shoes = "Base.Shoes_BlackBoots" },
+          tintes = { Hat = "0.92,0.92,0.92", Jacket = NEGRO, Pants = NEGRO } },
+        { id = "narrador_sous_08", respaldo = "k93_prather_02", nombre = "Jorge Hasag", rol = "Intendente", arma = "Base.HuntingRifle", cuerpo = "Base.Machete",
+          -- Ropa de ski: casco negro, antiparras azules, cuello tapado, parka verde claro, guantes cafe y pantalon oscuro.
+          aspecto = { piel = 1, pelo = "Short", color_pelo = PELO_OSCURO },
+          ropa = { Hat = "Base.Hat_CrashHelmet", Eyes = "Base.Glasses_SkiGoggles", Mask = "Base.Hat_BalaclavaFace",
+                   Jacket = "Base.Jacket_Padded", Pants = "Base.Trousers_Padded", Hands = "Base.Gloves_LeatherGlovesBrown",
+                   Shoes = "Base.Shoes_HikingBoots" },
+          tintes = { Hat = NEGRO, Jacket = "0.66,0.66,0.55", Pants = "0.15,0.17,0.20" } },
+        { id = "narrador_sous_09", respaldo = "k93_county_ems_01", nombre = "Cristobal Wertres", rol = "Ingeniero", arma = "Base.Pistol", cuerpo = "Base.Crowbar",
+          -- Pelo corto oscuro, poleron negro, jeans y bolso cruzado.
+          aspecto = { piel = 1, pelo = "Fresh", color_pelo = PELO_OSCURO },
+          ropa = { Top = "Base.Tshirt_DefaultTEXTURE_TINT", Jacket = "Base.HoodieDOWN_WhiteTINT", Pants = "Base.Trousers_Denim",
+                   Shoes = "Base.Shoes_TrainerTINT" },
+          tintes = { Top = NEGRO, Jacket = "0.17,0.17,0.18", Shoes = NEGRO } },
         { id = "narrador_sous_10", respaldo = "k93_truckstop_06", nombre = "Maulen Callupan", rol = "Encargado del deposito", arma = "Base.Pistol", cuerpo = "Base.Machete" },
     },
 }

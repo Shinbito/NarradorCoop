@@ -51,7 +51,7 @@ Narrador.Facciones.narrador_pereira = {
     desconocidos = "hostile",
     stats = { healthHP = 110, strength = 8, endurance = 8, awareness = 8, aiming = 8 },
     miembros = {
-        { id = "narrador_pereira_01", respaldo = "k93_deserters_01", nombre = "Sargento Pereira", rol = "Sargento", mujer = true,
+        { id = "narrador_pereira_01", respaldo = "k93_deserters_09", nombre = "Sargento Pereira", rol = "Sargento", mujer = true,
           arma = "Base.AssaultRifle", cuerpo = "Base.Machete",
           stats = { healthHP = 200, strength = 9, endurance = 10, awareness = 10, aiming = 10 },
           ropa = { Jacket = "Base.Jacket_ArmyCamoGreen", Vest = "Base.Vest_BulletArmy" } },
@@ -585,7 +585,7 @@ registrar({
             al_entrar = {
                 { "npcs", id = GRUPO, lugar = "almacen", radio = 40, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 5,
                   inmortales = true, postura = "friendly", femeninos = { "abuela" },
-                  perfiles = { { "jefe", "k93_truckstop_05" }, { "abuela", "k93_red_cross_04" }, { "chico", "k93_county_ems_03" } },
+                  perfiles = { { "jefe", "k93_truckstop_05" }, { "abuela", "k93_red_cross_04" }, { "chico", "k93_kessinger_02" } },
                   nombres = { jefe = { "Ramon", "Quispe" }, abuela = { "Dona Elba", "Quispe" }, chico = { "Kevin", "Morales" } } },
                 { "oleada", lugar = "almacen", radio = 50, cantidad = { 10, 14 }, min = 20, max = 40 },
             },

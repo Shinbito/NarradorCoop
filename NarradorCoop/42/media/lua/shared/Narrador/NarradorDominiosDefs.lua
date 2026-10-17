@@ -50,7 +50,7 @@ DD.CAPITANES = {
         },
     },
     riverside = {
-        rol = "diacono_reyes", nombre = "Diacono Saul", apellido = "Reyes", perfil = "k93_prather_04",
+        rol = "diacono_reyes", nombre = "Diacono Saul", apellido = "Reyes", perfil = "k93_prather_06",
         oficio = "falso predicador",
         frases = {
             "El diezmo es voluntario, hijo. Voluntariamente me lo das o voluntariamente te lo quito.",
@@ -68,7 +68,7 @@ DD.CAPITANES = {
         },
     },
     rosewood = {
-        rol = "capitan_duarte", nombre = "Capitan Tito", apellido = "Duarte", perfil = "k93_truckstop_07",
+        rol = "capitan_duarte", nombre = "Capitan Tito", apellido = "Duarte", perfil = "k93_truckstop_11",
         oficio = "contrabandista",
         frases = {
             "Bencina tengo. La saque de abajo del taller. La vieja la tenia bien escondida.",
@@ -130,7 +130,7 @@ DD.NUEVOS = {
     },
     riverside = {
         presentacion = "la Hermana Lucia",
-        rol = "lucia", nombre = "Hermana Lucia", apellido = "Pegas", perfil = "k93_red_cross_08",
+        rol = "lucia", nombre = "Hermana Lucia", apellido = "Pegas", perfil = "k93_prather_08",
         oficio = "monja",
         frases = {
             "Hace anos espere al Padre Nacho en esta iglesia. No llego. Ahora la puerta la abro yo.",

@@ -137,7 +137,7 @@ K.OFICIOS = {
         titulo = "Curandero", perfil = "k93_county_ems_04", nombre = { "Rosendo", "Hierbas" },
         -- La Tia Chela: el curandero es el doctor Hartmann (su capitulo 3). Si murio en ese
         -- capitulo, hace de curandero un mercader cualquiera (K.MERCADERES).
-        por_contacto = { westpoint = { perfil = "k93_red_cross_02", nombre = { "Elias", "Hartmann" },
+        por_contacto = { westpoint = { perfil = "k93_county_ems_06", nombre = { "Elias", "Hartmann" },
             llega = "El doctor Hartmann abre su consulta en el cuartel. Dice que ya no promete curas, solo remedios.",
             murio = { "cientifico_hartmann", "muerto" } } },
         llega = "Llega al campamento un curandero con una maleta llena de frascos.",
@@ -262,10 +262,10 @@ K.FORJA = {
 -- Mercaderes de paso: toman un oficio cuando el que tenia que llegar murio. Se elige uno al
 -- azar la primera vez y queda anotado en la memoria ("mercader_<oficio>_<contacto>").
 K.MERCADERES = {
-    { perfil = "k93_stockyard_04", nombre = { "Ramon", "Alforjas" } },
-    { perfil = "k93_truckstop_05", nombre = { "Berta", "Canastos" } },
-    { perfil = "k93_county_ems_02", nombre = { "Julian", "Frascos" } },
-    { perfil = "k93_prather_02", nombre = { "Olga", "Trueque" } },
+    { perfil = "k93_stockyard_08", nombre = { "Ramon", "Alforjas" } },
+    { perfil = "k93_truckstop_09", nombre = { "Berta", "Canastos" } },
+    { perfil = "k93_county_ems_01", nombre = { "Julian", "Frascos" } },
+    { perfil = "k93_prather_05", nombre = { "Olga", "Trueque" } },
 }
 
 local function mercader(oficio, contactoId, memoria, titulo)

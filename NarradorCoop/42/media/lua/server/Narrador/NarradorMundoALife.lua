@@ -246,6 +246,17 @@ function Mundo.crearFaccion(spec)
                 if m.ropa ~= nil then
                     for slot, tipo in pairs(m.ropa) do p.clothing[slot] = tipo; p.outfitSets.A[slot] = tipo end
                 end
+                -- Color de cada prenda ("r,g,b" de 0 a 1), para las que se pueden tenir.
+                for slot, color in pairs(m.tintes or {}) do p.outfitTints.A[slot] = color end
+                -- Aspecto: piel (0 a 4), peinado y barba (nombres de hairStyles.xml / beardStyles.xml).
+                local a = m.aspecto
+                if a ~= nil then
+                    if a.piel ~= nil then p.general.skin = a.piel end
+                    if a.pelo ~= nil then p.general.hairStyle = a.pelo end
+                    if a.color_pelo ~= nil then p.general.hairColor = a.color_pelo end
+                    if a.barba ~= nil then p.general.beardStyle = a.barba end
+                    if a.color_barba ~= nil then p.general.beardColor = a.color_barba end
+                end
                 local hecho, razonP = PA.upsert(m.id, CP.serializeProfiles({ p }))
                 if not hecho then error("integrante " .. m.id .. ": " .. tostring(razonP)) end
             end

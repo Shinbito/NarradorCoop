@@ -55,7 +55,7 @@ Narrador.Defs.registrar({
                   femeninos = { "hija" } },
                 { "npcs", id = GENTE, lugar = "escuela", radio = 50, no_mas_cerca = 15,
                   modo = "guard", quietos = true, correa = 8, inmortales = true, postura = "friendly",
-                  perfiles = { { "uno", "k93_red_cross_03" }, { "dos", "k93_red_cross_04" }, { "tres", "k93_county_ems_03" } } },
+                  perfiles = { { "uno", "k93_red_cross_03" }, { "dos", "k93_red_cross_04" }, { "tres", "k93_county_ems_03" } }, femeninos = { "dos", "tres" } },
                 { "variable", nombre = "horda_meta", valor = 9999 },
                 { "oleada", lugar = "escuela", radio = 60, cantidad = 30, por_jugador = 15, fija = true, caminantes = true,
                   planta_baja = true, min = 14, max = 40, meta = "horda_meta", meta_frac = 0.8 },
