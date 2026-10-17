@@ -143,10 +143,11 @@ Narrador.SousBases = {
 }
 
 -- Sous en su base: inmortales, con el dano al maximo (para los pocos zombis que lleguen) y
--- libres de moverse por el edificio y los alrededores, sin alejarse mas de la correa.
-local BASE_NPC = { modo = "patrol", radio_grupo = 14, correa = 35, inmortales = true,
+-- adentro del edificio (correa corta). Cuando la base esta amueblada, cada uno tiene su silla en
+-- la mesa como puesto y A-Life los sienta (server/Narrador/NarradorSousBase.lua).
+local BASE_NPC = { modo = "guard", radio_grupo = 4, correa = 12, inmortales = true,
     banderas = { health = 200, damageOutput = 300 } }
-local BANDERAS_BASE = { persistent = true, invulnerable = true, stationary = false, leashRadius = 35,
+local BANDERAS_BASE = { persistent = true, invulnerable = true, stationary = false, leashRadius = 12,
     health = 200, damageOutput = 300 }
 
 local function enBase(spec)

@@ -157,11 +157,16 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
 - Base: `Mundo.acompanar` (postura "caminar con" de A-Life) y la renovacion de
   `NarradorPasajeros.lua`. Falta decidir como se les dice que vuelvan a la base.
 
-### La base de Sous viva (por hacer)
-- Que se queden dentro de la base: sentados en sillas (A-Life los sienta si su punto de guardia
-  esta junto a una silla o banca, `ALifeModuleIdleLife.seatPost`), una mesa con una baraja,
-  sacos de dormir, un generador funcionando (combustible que se rellena solo) y bidones de agua.
-- A-Life no tiene animacion de cartas: sentados a la mesa con frases de juego.
+### La base de Sous viva (hecho, falta probar en el juego)
+- Sous en su base (amigos) usa modo "guard" con correa 12: se quedan adentro.
+- La primera vez que alguien pasa con la zona cargada se amuebla la base una sola vez (memoria
+  `sous_base`, `server/Narrador/NarradorSousBase.lua`): mesas grandes con una baraja, una silla por
+  integrante, sacos de dormir, bidones de agua (15 L) y un generador afuera pegado a la pared,
+  conectado y prendido; cada 12 horas se rellena solo.
+- Cada uno tiene su silla como puesto de guardia de A-Life (stance "garrison", rol "sit") y A-Life
+  los sienta; sentados a la mesa hablan de cartas (`Narrador.Charlas.sous_cartas`).
+- Probar: que los sienta de verdad (si no, mirar la opcion "Idle_BenchSeat" de A-Life), que el
+  generador da luz al galpon y que los muebles se ven en otros clientes.
 
 ### Maniqui del misionero (por hacer)
 - Cuando el NPC del misionero no esta, un maniqui fijo vestido como el en su puesto; con clic
