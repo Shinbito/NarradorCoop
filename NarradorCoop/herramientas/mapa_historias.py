@@ -66,6 +66,8 @@ LANZADORES = {
     "desbloqueo_rosewood": ("al andar por Rosewood (NarradorContactos)", [], []),
     "cal_fonda": ("18 de septiembre, con Sous aliado (NarradorCalendario)", [("sous", "aliados")], []),
     "cal_amigo_secreto": ("24 de diciembre, con Sous aliado (NarradorCalendario)", [("sous", "aliados")], []),
+    "venganza_meulen": ("120 horas despues de que Meulen muere en Sous o en el patio (NarradorVenganzaMeulen)",
+                        ["meulen_muerte_hora"], ["meulen_venganza", "meulen_final"]),
     "encargo_cura": ("pedirle 'algo especial' a un misionero, cada 20 dias (NarradorCuraServer)", [], []),
 }
 for rol in ["benjamin", "martin_z", "martin_a", "david", "bastian", "hanz", "cristian", "jorge", "cristobal"]:
