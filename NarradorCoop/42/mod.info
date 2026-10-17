@@ -4,3 +4,6 @@ author=Shinbo
 modversion=0.11.0
 versionMin=42.21.0
 description=Narrador de historias para co-op: historia principal (Los Bell y Sous), eventos por mensajero, misioneros con campamentos que crecen, comerciantes y trueque, reputacion de Knox y premios legendarios. Usa Project A-Life para los NPCs.
+ZBVersionMin=2.3.0
+javaJarFile=media/java/client/NarradorViewpoint.jar
+javaPkgName=narradorvp
