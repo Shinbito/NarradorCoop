@@ -132,7 +132,7 @@ Todo lo de las versiones 0.10, 0.11 y 0.12 está hecho pero sin probar. Lo que m
 
 ## Pedidos nuevos (17 de octubre)
 
-### Modo historia de cada integrante de Sous (por hacer)
+### Modo historia de cada integrante de Sous (hecho en 0.12, falta probar)
 - Hechas (falta probar en el juego) las de Walita, Cristonks, Hasag y Wertres:
   `shared/Narrador/Arcos/HistoriasSous2.lua`, lanzador en `server/Narrador/NarradorHistoriasSous2.lua`
   (Sous aliado, una a la vez, 30 horas entre historias de Sous; memoria `sous_historia_<rol>`).
@@ -151,7 +151,7 @@ Todo lo de las versiones 0.10, 0.11 y 0.12 está hecho pero sin probar. Lo que m
   "se comen" y por eso se van tanto juntos a la nieve; Matric es el que mas sospecha. (Las
   primeras frases ya estan en `Narrador.Charlas.sous_base`.)
 
-### La venganza de Meulen (por hacer)
+### La venganza de Meulen (hecho en 0.12, falta probar)
 - Despues de que Meulen muere (final de la historia de Sous), un tiempo despues reaparece vivo:
   dice que la Pachamama lo trajo de vuelta. Ahora busca venganza.
 - Ataque al refugio: Meulen llega con una banda de bandidos a tu refugio. Durante el ataque
@@ -164,7 +164,7 @@ Todo lo de las versiones 0.10, 0.11 y 0.12 está hecho pero sin probar. Lo que m
 - Engancha con "Reclutar a Sous": la opcion "Sigueme" se abre recien cuando Meulen esta muerto
   de verdad (al final de esta historia).
 
-### Reclutar a Sous: "Sigueme" (por hacer)
+### Reclutar a Sous: "Sigueme" (hecho en 0.12, falta probar)
 - Sous tiene su propia confianza, como la de los misioneros (`NarradorReputacion.lua`), pero solo
   sube ayudandolos con sus misiones (no con encargos sueltos ni regalos).
 - Cuando termina la historia de Sous y Meulen esta muerto, en la conversacion con cada integrante
@@ -194,7 +194,7 @@ Todo lo de las versiones 0.10, 0.11 y 0.12 está hecho pero sin probar. Lo que m
 - La pista de "acogidos" (la espera de 3 horas de juego antes de que Daniel pida el suero) tiene
   que decir que hay que esperar. Opcional: que no los mate una horda mientras dura su historia.
 
-### Brujula con Project Viewpoint (por hacer)
+### Brujula con Project Viewpoint (hecho en 0.12 con puente Java, falta probar)
 - Viewpoint guarda el angulo de la camara en Java (`viewpoint.FP.viewYaw`) y no lo expone al Lua.
   Hace falta un mini mod Java (ZombieBuddy) que lo pase al Lua; mientras tanto la brujula usa la
   direccion del personaje.
