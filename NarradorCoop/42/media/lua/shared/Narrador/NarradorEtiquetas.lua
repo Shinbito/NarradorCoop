@@ -10,6 +10,7 @@ require "Narrador/NarradorDefs"
 require "Narrador/Arcos/FamiliaInfectada"
 require "Narrador/Arcos/EventosCortos"
 require "Narrador/Arcos/Sous"
+require "Narrador/Arcos/SousAmigos"
 
 Narrador = Narrador or {}
 local Et = Narrador.Etiquetas or {}
