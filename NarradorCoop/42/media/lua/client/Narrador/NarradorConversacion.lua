@@ -384,6 +384,17 @@ function Conv.opciones(obj, estado, modo, nivelElegido)
                 op({ tipo = "favor", rol = f.rol, texto = "Te noto preocupado. Necesitas algo?" })
             end
         end
+        -- Reclutar a Sous (servidor: NarradorSousConfianza.lua).
+        local sc = estado.sous_confianza
+        if obj.sous and sc ~= nil and sc.abierto then
+            local sigue = false
+            for _, u in ipairs(sc.siguiendo or {}) do if u == obj.uid then sigue = true end end
+            if sigue then
+                op({ tipo = "sous_vuelve", texto = "Vuelve a la base." })
+            elseif (tonumber((sc.valores or {})[Conv.miGrupo() or ""]) or 0) >= (sc.umbral or 40) then
+                op({ tipo = "sous_sigueme", texto = "Sigueme." })
+            end
+        end
         op({ tipo = "charlar", texto = "Y, como va todo?", suave = true })
         op({ tipo = "adios", texto = "Nos vemos." })
         return ops
@@ -777,6 +788,10 @@ function NarradorConversacionVentana:elegirOpcion(o)
         self:agregar("yo", nil, o.texto)
         self.esperandoHasta = ahora() + 5000
         if Narrador.Mapas ~= nil and Narrador.Mapas.pedirFavor ~= nil then Narrador.Mapas.pedirFavor(o.rol) end
+    elseif o.tipo == "sous_sigueme" or o.tipo == "sous_vuelve" then
+        self:agregar("yo", nil, o.texto)
+        self.esperandoHasta = ahora() + 5000
+        Cliente.enviar(o.tipo == "sous_sigueme" and "sousSigueme" or "sousVuelve", { uid = obj ~= nil and obj.uid or nil })
     elseif o.tipo == "charlar" then
         self:agregar("yo", nil, o.texto)
         self.esperandoHasta = ahora() + 4000
