@@ -72,6 +72,9 @@ LANZADORES = {
 }
 for rol in ["benjamin", "martin_z", "martin_a", "david", "bastian", "hanz", "cristian", "jorge", "cristobal"]:
     LANZADORES["favor_" + rol] = ("pedirle el favor en la base de Sous (FavoresSous)", [("sous", "aliados")], [])
+for rol in ["hanz", "cristian", "jorge", "cristobal"]:
+    LANZADORES["historia_sous_" + rol] = ("con Sous aliado, una a la vez y 30 horas entre historias de Sous (NarradorHistoriasSous2)",
+                                          [("sous", "aliados")], [])
 
 # Memorias que deja el codigo del servidor (no una accion de un arco): clave -> arcos que la causan.
 SERVIDOR_DEJA = {
