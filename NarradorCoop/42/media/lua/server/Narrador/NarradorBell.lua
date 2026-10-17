@@ -15,6 +15,7 @@ if isClient ~= nil and isClient() then return end
 require "Narrador/NarradorMundo"
 require "Narrador/NarradorMotor"
 require "Narrador/NarradorAmenazas"
+require "Narrador/NarradorSousBase"
 
 local Mundo, Motor = Narrador.Mundo, Narrador.Motor
 local floor = math.floor
@@ -30,7 +31,7 @@ B.HORAS_ALERTA = 1     -- una oleada cuenta como peligro durante esta cantidad d
 B.HORAS_FUERA = { 6, 12 }
 B.RADIO_VOLVER = 120   -- vuelven cuando hay un jugador a esta distancia del refugio
 B.ZONA = { radio = 30, max = 2 }
-B.BANDERAS = { persistent = true, invulnerable = true, stationary = false, leashRadius = 15 }
+B.BANDERAS = { persistent = true, invulnerable = true, stationary = false, leashRadius = 8 }  -- correa corta: no salen del refugio
 -- Lo que traen al volver: dos cosas al azar.
 B.BOTIN = {
     { "Base.TinnedBeans", "Base.CannedBeans" }, { "Base.Bandage" }, { "Base.Pills" },
@@ -209,6 +210,7 @@ end
 
 function B.tick()
     pcall(B.migrar)
+    if Motor.minutosDesdeArranque % 10 == 0 then pcall(B.rondarHistoria) end
     local b = B.st()
     if b == nil or b.x == nil or Motor.vacia(b.miembros) then return end
     local peligro = B.peligro(b)
@@ -231,9 +233,13 @@ function B.tick()
             B.aparecer(b, rol, m, jugador)
         end
     end
+    pcall(B.alVolver, b, #presentes)
     local charla, texto = Motor.charlaElegir(Narrador.Charlas ~= nil and Narrador.Charlas[b.charla] or nil, presentes, b.memoria, 10, 1.5)
     if charla ~= nil then Motor.decirUid(charla[1], charla[3], texto) end
     if Motor.minutosDesdeArranque % 10 == 0 and #presentes > 0 then
+        local uids = {}
+        for _, p in ipairs(presentes) do uids[#uids + 1] = p[1] end
+        pcall(B.rondar, uids, b.x, b.y, b.z)
         Mundo.limpiarZona(b.x, b.y, B.ZONA.radio, B.ZONA.max)
         for _, p in ipairs(presentes) do
             pcall(Mundo.banderas, p[1], B.BANDERAS, { x = b.x, y = b.y, z = b.z or 0 })
@@ -241,6 +247,177 @@ function B.tick()
         end
     end
 end
+-- ---------------------------------------------------------------------------
+-- Rondar el refugio: a ratos sentados en una silla del refugio, a ratos caminando adentro
+-- (correa corta). Usa el mismo truco que la base de Sous (Narrador.SousBase.fijarPuesto).
+-- ---------------------------------------------------------------------------
+
+B.RADIO_SILLAS = 12
+B.CHANCE_SENTARSE = 50
+local DIRS = { N = { 0, -1 }, S = { 0, 1 }, E = { 1, 0 }, W = { -1, 0 } }
+
+-- Sillas del edificio del refugio cerca del punto (sprites "furniture_seating*" con Facing).
+function B.sillas(x, y, z)
+    local lista = {}
+    pcall(function()
+        local centro = getCell():getGridSquare(floor(x), floor(y), floor(z or 0))
+        local edificio = centro ~= nil and centro:getBuilding() or nil
+        if edificio == nil then return end
+        for dx = -B.RADIO_SILLAS, B.RADIO_SILLAS do
+            for dy = -B.RADIO_SILLAS, B.RADIO_SILLAS do
+                local sq = getCell():getGridSquare(floor(x) + dx, floor(y) + dy, floor(z or 0))
+                if sq ~= nil and sq:getBuilding() == edificio then
+                    local objs = sq:getObjects()
+                    for i = 0, objs:size() - 1 do
+                        local o = objs:get(i)
+                        local nombre = o:getSprite() ~= nil and o:getSprite():getName() or nil
+                        if type(nombre) == "string" and string.find(nombre, "furniture_seating", 1, true) == 1 then
+                            local cara = o:getProperties() ~= nil and o:getProperties():get("Facing") or nil
+                            local d = DIRS[tostring(cara)]
+                            if d ~= nil then
+                                lista[#lista + 1] = { x = sq:getX() + 0.5, y = sq:getY() + 0.5, z = sq:getZ(),
+                                    fx = sq:getX() + 0.5 + d[1], fy = sq:getY() + 0.5 + d[2] }
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end)
+    return lista
+end
+
+-- uids: lista de uids de los Bell presentes; x, y, z: el refugio.
+function B.rondar(uids, x, y, z)
+    local SB = Narrador.SousBase
+    if SB == nil or SB.fijarPuesto == nil or #uids == 0 then return end
+    local sillas = B.sillas(x, y, z)
+    local usadas = 0
+    for _, uid in ipairs(uids) do
+        usadas = usadas + 1
+        local silla = sillas[usadas]
+        if silla ~= nil and Mundo.azar(100) <= B.CHANCE_SENTARSE then
+            pcall(SB.fijarPuesto, uid, silla)
+        else
+            pcall(SB.fijarPuesto, uid, nil)
+        end
+    end
+end
+
+-- Mientras dura su historia (familia_infectada) tambien rondan el refugio.
+function B.rondarHistoria()
+    local st = Motor.estado()
+    for _, id in ipairs(st.orden) do
+        local inst = st.arcos[id]
+        if inst ~= nil and inst.final == nil and inst.def == "familia_infectada" then
+            local g, l = inst.grupos.familia, inst.lugares.refugio
+            if g ~= nil and g.estado == "listo" and l ~= nil and Mundo.jugadorCerca(l.x, l.y, 40) ~= nil then
+                local uids = {}
+                for uid, m in pairs(g.miembros) do if m.vivo then uids[#uids + 1] = uid end end
+                B.rondar(uids, l.x, l.y, l.z)
+            end
+        end
+    end
+end
+
+-- ---------------------------------------------------------------------------
+-- Al volver a casa despues de varias horas: los Bell limpiaron o encontraron comida
+-- ---------------------------------------------------------------------------
+
+B.HORAS_AUSENCIA = 8      -- horas de juego sin nadie en el refugio
+B.RADIO_CASA = 25         -- "en casa" = un jugador a esta distancia
+B.RADIO_LIMPIEZA = 15
+B.LATAS = { { "Base.TinnedBeans", "Base.CannedBeans" }, { "Base.TinnedSoup", "Base.CannedSoup" },
+    { "Base.CannedCorn", "Base.TinnedBeans" }, { "Base.CannedPeas", "Base.TinnedSoup" }, { "Base.TunaTin", "Base.TinnedBeans" } }
+
+local function avisarTodos(b, texto)
+    for _, p in ipairs(Mundo.jugadores()) do
+        local x, y = Mundo.posicion(p)
+        if x ~= nil and math.abs(x - b.x) <= 60 and math.abs(y - b.y) <= 60 then Motor.enviar(p, "aviso", { texto = texto }) end
+    end
+end
+
+-- Limpia sangre, mugre y cadaveres dentro del edificio del refugio. Devuelve cuantos cuerpos saco.
+function B.limpiarCasa(b)
+    local cuerpos = 0
+    pcall(function()
+        local centro = getCell():getGridSquare(floor(b.x), floor(b.y), floor(b.z or 0))
+        local edificio = centro ~= nil and centro:getBuilding() or nil
+        if edificio == nil then return end
+        for dz = 0, 1 do
+            for dx = -B.RADIO_LIMPIEZA, B.RADIO_LIMPIEZA do
+                for dy = -B.RADIO_LIMPIEZA, B.RADIO_LIMPIEZA do
+                    local sq = getCell():getGridSquare(floor(b.x) + dx, floor(b.y) + dy, floor(b.z or 0) + dz)
+                    if sq ~= nil and sq:getBuilding() == edificio then
+                        pcall(function() sq:removeBlood(false, false) end)
+                        pcall(function() sq:removeGrime() end)
+                        local lista = sq:getDeadBodys()
+                        for i = lista:size() - 1, 0, -1 do
+                            local c = lista:get(i)
+                            local ok = pcall(function() sq:removeCorpse(c, false) end)
+                            if ok then cuerpos = cuerpos + 1 end
+                        end
+                    end
+                end
+            end
+        end
+    end)
+    return cuerpos
+end
+
+-- Llamar cada tick: si alguien vuelve al refugio despues de B.HORAS_AUSENCIA, pasa algo.
+function B.alVolver(b, vivos)
+    local ahora = Mundo.horas()
+    local enCasa = Mundo.jugadorCerca(b.x, b.y, B.RADIO_CASA) ~= nil
+    if not enCasa then return end
+    local antes = b.ultimaVisita
+    b.ultimaVisita = ahora
+    if antes == nil or ahora - antes < B.HORAS_AUSENCIA or vivos == 0 or b.escondidos ~= nil then return end
+    if Mundo.azar(2) == 1 then
+        local cuerpos = B.limpiarCasa(b)
+        avisarTodos(b, cuerpos > 0 and ("Los Bell limpiaron la casa mientras no estabas: sacaron " .. cuerpos .. " cuerpos y fregaron la sangre.")
+            or "Los Bell limpiaron la casa mientras no estabas. Huele a cloro y a sopa.")
+        Mundo.log("los Bell limpiaron el refugio (" .. cuerpos .. " cuerpos)")
+    else
+        local n = 2 + Mundo.azar(3)
+        for _ = 1, n do
+            local item = Mundo.crearItem(B.LATAS[Mundo.azar(#B.LATAS)])
+            if item ~= nil then Mundo.dejarEnSuelo(b.x, b.y, b.z or 0, item) end
+        end
+        avisarTodos(b, "Los Bell encontraron " .. n .. " latas de comida mientras no estabas. Las dejaron en la entrada.")
+        Mundo.log("los Bell encontraron " .. n .. " latas")
+    end
+end
+
+-- {"bell_rematar", lugar = "refugio"}: el que se transformo es rematado por el padre (o por la
+-- madre si el transformado es el padre). Espera a que aparezca el zombi en ese punto.
+Motor.diferidas.bell_rematar = function(inst, p, l)
+    local x, y, z = inst.vars.transformado_x, inst.vars.transformado_y, inst.vars.transformado_z
+    if x == nil then return true end
+    local muertos = 0
+    pcall(function()
+        local lista = getCell():getZombieList()
+        for i = 0, lista:size() - 1 do
+            local zb = lista:get(i)
+            if zb ~= nil and not zb:isDead() and math.abs(zb:getX() - x) <= 4 and math.abs(zb:getY() - y) <= 4
+                    and floor(zb:getZ()) == floor(z or 0) and not (Mundo.esNpc ~= nil and Mundo.esNpc(zb)) then
+                zb:Kill(nil)
+                muertos = muertos + 1
+                return
+            end
+        end
+    end)
+    if muertos == 0 then return false end
+    local padre = tostring(inst.vars.infectado) == "padre"
+    local quien = padre and "madre" or "padre"
+    local texto = padre and "Perdoname, Daniel. Wade, no mires. No mires." or "Lo siento... lo siento tanto. No eras tu. Ya no eras tu."
+    pcall(Motor.inmediatas.decir, inst, { "decir", grupo = "familia", rol = quien, texto = texto })
+    Motor.avisar(inst, padre and "Yvonne levanta el arma con las manos temblando. Un disparo. Despues, silencio."
+        or "Daniel se pone delante de su familia. Un golpe seco. Despues, silencio.")
+    Mundo.log(inst.id .. ": " .. quien .. " remato al transformado")
+    return true
+end
+
 Motor.tickExtra.bell = B.tick
 
 -- Son NPCs del Narrador: A-Life no les pone frases y el cliente los trata como residentes.

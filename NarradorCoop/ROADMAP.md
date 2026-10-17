@@ -190,9 +190,14 @@ Todo lo de las versiones 0.10, 0.11 y 0.12 está hecho pero sin probar. Lo que m
   conversacion del misionero. Si alguien lo saca o lo rompe, se vuelve a poner.
 - Probar: que el maniqui salga vestido en multijugador (se viste con `wearItem` sin personaje).
 
-### Los Bell durante su historia (por decidir)
-- La pista de "acogidos" (la espera de 3 horas de juego antes de que Daniel pida el suero) tiene
-  que decir que hay que esperar. Opcional: que no los mate una horda mientras dura su historia.
+### Los Bell durante su historia (hecho, falta probar en el juego)
+- Inmortales desde que llegan hasta que termina lo de la cura. Si los dejas quedarse, piden la
+  cura al tiro (antes esperaban 3 horas de juego).
+- El infectado puede ser el hijo, la madre o el padre. Si se transforma, lo remata el padre (o la
+  madre, si el transformado es el padre): accion "bell_rematar" en NarradorBell.lua.
+- Rondan el refugio con correa corta (8) y a ratos se sientan en sus sillas (`B.rondar`).
+- Al volver a casa despues de 8 horas de juego sin nadie: limpiaron la casa (sangre, mugre y
+  cadaveres) o encontraron latas (`B.alVolver`).
 
 ### Brujula con Project Viewpoint (hecho en 0.12 con puente Java, falta probar)
 - Viewpoint guarda el angulo de la camara en Java (`viewpoint.FP.viewYaw`) y no lo expone al Lua.

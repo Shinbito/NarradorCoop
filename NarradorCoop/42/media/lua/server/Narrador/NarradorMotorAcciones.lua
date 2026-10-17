@@ -77,6 +77,8 @@ function Motor.transformar(inst, accion)
     Mundo.retirar(uid)
     m.vivo, m.retirado, m.causa = false, true, "transformado"
     if x == nil then return true end
+    -- Donde quedo el zombi (para que otro de la historia lo remate, ver "bell_rematar").
+    inst.vars.transformado_x, inst.vars.transformado_y, inst.vars.transformado_z = floor(x), floor(y), floor(z or 0)
     local femenino = m.femenino == true
     if Mundo.cargado(x, y, z) ~= nil and Mundo.jugadorCerca(x, y, 60) ~= nil then
         Mundo.zombiEn(x, y, z, femenino)

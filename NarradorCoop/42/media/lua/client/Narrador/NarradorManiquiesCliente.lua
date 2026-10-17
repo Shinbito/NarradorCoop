@@ -48,6 +48,23 @@ function MC.menu(numJugador, context, worldobjects, test)
     end)
 end
 
+-- No se le puede sacar la ropa (ni meterle cosas) al maniqui de un misionero.
+require "TimedActions/ISInventoryTransferAction"
+require "Narrador/NarradorManiquiesProteccion"
+if ISInventoryTransferAction ~= nil and not MC._transferencia then
+    MC._transferencia = true
+    local valido = ISInventoryTransferAction.isValid
+    ISInventoryTransferAction.isValid = function(self, ...)
+        local MP = Narrador.ManiquiesProteccion
+        for _, cont in ipairs({ self.srcContainer, self.destContainer }) do
+            local padre
+            pcall(function() padre = cont:getParent() end)
+            if MP ~= nil and MP.esDelMod(padre) then return false end
+        end
+        return valido(self, ...)
+    end
+end
+
 if Events ~= nil and not MC._enganchado then
     MC._enganchado = true
     Events.OnFillWorldObjectContextMenu.Add(MC.menu)
