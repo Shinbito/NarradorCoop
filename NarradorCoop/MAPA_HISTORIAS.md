@@ -545,14 +545,14 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_aliados` | "Entregar las armas" | `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal |
+| `final_aliados` | "Entregar los suministros a Sous" | `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal |
 | `final_maulen_escapa` | "Ir con Akagami, Zent y Walita", y despues `pasan 120 h`<br>"Ir con Matric, Tati y David Shinbo", y despues `pasan 120 h`<br>"Ir con Tati, Shinbo y Zent", y despues `pasan 120 h`<br>"Ir con Wertres y David Shinbo", y despues `pasan 120 h`<br>"Ir con todo Sous", y despues `pasan 120 h`<br>"Mejor ir solo", y despues `pasan 120 h`<br>"Mejor ir solo", y despues `pasan 24 h`<br>"Revisar el deposito saqueado" o "Mejor ir solo", y despues `pasan 120 h`<br>"Revisar el deposito saqueado", y despues `pasan 120 h` | `sous` = maulen_escapa | Maulen escapa con todo |
 | `final_mentira` | "Quedarte con todo lo que robo Meulen", y despues `elige quedarse y todos_muertos escuadra` | `sous_mentira` = true, `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal |
-| `final_negado` | "Decir que no es tu problema"<br>"Entregar las armas", y despues `pasan 120 h`<br>"Ofrecer tu ayuda a Sous", y despues `pasan 120 h` | `sous` = negado | Le dices que no a Sous |
+| `final_negado` | "Decir que no es tu problema"<br>"Entregar los suministros a Sous", y despues `pasan 120 h`<br>"Ofrecer tu ayuda a Sous", y despues `pasan 120 h` | `sous` = negado | Le dices que no a Sous |
 | `final_nunca_fuiste` | `pasan 120 h`<br>`pasan 96 h` | `sous` = ignorados | - |
-| `final_sous_caidos` | "Entregar las armas", y despues `todos_muertos sous`<br>`todos_muertos sous` | `sous` = caidos | Sous cae en su base |
+| `final_sous_caidos` | "Entregar los suministros a Sous", y despues `todos_muertos sous`<br>`todos_muertos sous` | `sous` = caidos | Sous cae en su base |
 | `final_te_quedaste` | "Decidir devolverle las cosas a Sous", y despues `pasan 72 h`<br>"Quedarte con todo lo que robo Meulen" | `sous` = enemigos | sous_guerra |
-| `final_traicion` | "Decidir devolverle las cosas a Sous", y despues `mato_jugador sous`<br>"Dejarlo ir. Sous va a creer que se escapo", y despues `mato_jugador escuadra`<br>"Entregar las armas", y despues `mato_jugador sous`<br>"Ir con Akagami, Zent y Walita", y despues `mato_jugador escuadra`<br>"Ir con Matric, Tati y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo" o "Ir con Matric, Tati y David Shinbo" o "Mejor ir solo" o "Ir con todo Sous" o "Ir con Akagami, Zent y Walita" o "Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con todo Sous", y despues `mato_jugador escuadra`<br>"Ofrecer tu ayuda a Sous", y despues `mato_jugador sous`<br>"Revisar el deposito saqueado", y despues `mato_jugador sous`<br>`mato_jugador sous` | `sous` = enemigos | sous_guerra |
+| `final_traicion` | "Decidir devolverle las cosas a Sous", y despues `mato_jugador sous`<br>"Dejarlo ir. Sous va a creer que se escapo", y despues `mato_jugador escuadra`<br>"Entregar los suministros a Sous", y despues `mato_jugador sous`<br>"Ir con Akagami, Zent y Walita", y despues `mato_jugador escuadra`<br>"Ir con Matric, Tati y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo" o "Ir con Matric, Tati y David Shinbo" o "Mejor ir solo" o "Ir con todo Sous" o "Ir con Akagami, Zent y Walita" o "Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con todo Sous", y despues `mato_jugador escuadra`<br>"Ofrecer tu ayuda a Sous", y despues `mato_jugador sous`<br>"Revisar el deposito saqueado", y despues `mato_jugador sous`<br>`mato_jugador sous` | `sous` = enemigos | sous_guerra |
 
 ### El arsenal (`sous_arsenal`)
 
@@ -570,13 +570,6 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `final_escapaste` | `pasan 12 h` | - | asalto_nocturno |
 | `final_ganada` | `todos_muertos emboscadores` | `trueque` = ganado | - |
 | `final_ignorado` | `pasan 48 h`<br>`pasan 72 h` | - | - |
-
-### La venganza de Meulen (`venganza_meulen`)
-
-| Final | Como se llega | Deja | Lleva a |
-| --- | --- | --- | --- |
-| `final_escapo` | `pasan 48 h`<br>`pasan 96 h` | `meulen_final` = escapo | - |
-| `final_muerto` | `muerto jefe maulen` | `meulen_final` = muerto | - |
 
 ## Historias
 
@@ -644,7 +637,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | El arsenal | `sous_arsenal` | lo abre sous, sous_guerra | `sous`, `sous_lider`, `sous_lider_nombre`, `sous_lider_perfil` | - | `arsenal` = arma (final_arma)<br>`arsenal` = auto (final_auto)<br>`arsenal` = traje (final_traje) |
 | La guerra con Sous | `sous_guerra` | lo abre sous | - | - | `sous` = eliminado (final_sous_eliminado) |
 | El trueque | `trueque_trampa` | el director (al azar, segun tension) | - | - | `trueque` = ganado (final_ganada) |
-| La venganza de Meulen | `venganza_meulen` | 120 horas despues de que Meulen muere en Sous o en el patio (NarradorVenganzaMeulen) | `meulen_muerte_hora`, `sous`, `sous_lider_nombre`, `sous_murio_hanz` | `meulen_venganza`, `meulen_final` | `meulen_final` = escapo (final_escapo)<br>`meulen_final` = muerto (final_muerto) |
+| La venganza de Meulen | `venganza_meulen` | 120 horas despues de que Meulen muere en Sous o en el patio (NarradorVenganzaMeulen) | `meulen_muerte_hora`, `sous`, `sous_lider_nombre`, `sous_murio_hanz` | `meulen_venganza`, `meulen_final` | `meulen_final` = muerto (final_muerto) |
 
 ## Memorias
 
@@ -714,7 +707,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `maulen_salvado` | Dejaste ir a Maulen en el escondite: abre su camino como jefe del patio. | sous | bandido_maulen, conquista_sous | escribe: Sous; lee: NarradorBandido, NarradorVenganzaMeulen |
 | `mercader_<oficio>_<contacto>` | Cual de K.MERCADERES hace un oficio del campamento porque el propio murio (indice). | - | - | escribe: NarradorCampamentosDefs, NarradorDominios; lee: NarradorCampamentosDefs, NarradorDominios |
 | `mercader_misionero_<id>` | Cual de K.MERCADERES es el forastero que manda en esa ciudad (indice). | - | - | escribe: NarradorCampamentosDefs, NarradorDominios; lee: NarradorCampamentosDefs, NarradorDominios |
-| `meulen_final` | Como termino la venganza de Meulen: muerto (de verdad; abre el reclutamiento de Sous) o escapo. | venganza_meulen | venganza_meulen | escribe: VenganzaMeulen; lee: NarradorSousConfianza, NarradorVenganzaMeulen |
+| `meulen_final` | Como termino la venganza de Meulen: muerto (de verdad; abre el reclutamiento de Sous). | venganza_meulen | venganza_meulen | escribe: VenganzaMeulen; lee: NarradorSousConfianza, NarradorVenganzaMeulen |
 | `meulen_muerte_hora` | Hora en que el lanzador vio a Meulen muerto (en Sous o en el patio): 120 horas despues vuelve (venganza_meulen). | - | venganza_meulen | escribe: NarradorVenganzaMeulen; lee: NarradorVenganzaMeulen |
 | `meulen_venganza` | La venganza de Meulen ya se lanzo ('lanzada'): no se repite. | - | venganza_meulen | escribe: NarradorVenganzaMeulen; lee: NarradorVenganzaMeulen |
 | `misionero_muerto_<id>` | El misionero de esa ciudad murio en la conquista. | - | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_westpoint, reconquista_muldraugh, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | escribe: NarradorDominios; lee: NarradorDominios |

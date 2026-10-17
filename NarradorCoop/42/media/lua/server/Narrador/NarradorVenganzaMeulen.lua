@@ -60,6 +60,16 @@ end
 Motor.tickExtra.venganzaMeulen = VM.tick
 
 -- {"cuerpo", lugar, radio}: un cadaver con sangre junto al lugar (cuando esta cargado).
+-- {"olvidar_grupo", grupo}: retira a los que queden del grupo y lo borra, para que la proxima
+-- vez que la historia pida ese grupo aparezca uno nuevo (los matones que te siguen mandando).
+Motor.inmediatas.olvidar_grupo = function(inst, a)
+    if inst.grupos[a.grupo] ~= nil then
+        pcall(Motor.retirarGrupo, inst, a.grupo)
+        inst.grupos[a.grupo] = nil
+    end
+    return true
+end
+
 Motor.diferidas.cuerpo = function(inst, p, l)
     local sq = Mundo.cargado(l.x + 1, l.y, l.z)
     if sq == nil then return false end

@@ -27,7 +27,7 @@ MEMORIAS = {
     "maulen_salvado": "Dejaste ir a Maulen en el escondite: abre su camino como jefe del patio.",
     "meulen_muerte_hora": "Hora en que el lanzador vio a Meulen muerto (en Sous o en el patio): 120 horas despues vuelve (venganza_meulen).",
     "meulen_venganza": "La venganza de Meulen ya se lanzo ('lanzada'): no se repite.",
-    "meulen_final": "Como termino la venganza de Meulen: muerto (de verdad; abre el reclutamiento de Sous) o escapo.",
+    "meulen_final": "Como termino la venganza de Meulen: muerto (de verdad; abre el reclutamiento de Sous).",
     "arsenal": "Que sacaste del arsenal de Louisville (arma, auto o traje). Un misionero te lo comenta (NarradorConsecuencias).",
     "arsenal_comentado": "Que misionero ya te comento lo del arsenal (una sola vez).",
     "<prefijo>_lider": "Quien lidera un grupo despues de las bajas (accion 'bajas' del motor, prefijo = 'sous').",

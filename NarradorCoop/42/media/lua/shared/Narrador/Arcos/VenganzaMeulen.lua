@@ -3,14 +3,14 @@
 -- Lo lanza server/Narrador/NarradorVenganzaMeulen.lua, una sola vez.
 --
 --   1. Presagio: una lata de atun con lechuga en la puerta de tu refugio y una nota firmada.
---   2. Asalto: Meulen y su banda de saqueadores atacan el refugio, en dos tandas. Meulen es
---      inmortal: cuando cae la banda (o pasa un rato) se esfuma, como siempre.
+--   2. Asalto: la banda de saqueadores de Meulen ataca el refugio, en dos tandas. Meulen no
+--      viene (manda a los suyos); los matones traen sus papeles: notas, mapas y atun con lechuga.
 --      Si no estabas en casa, la saquean igual y te dejan la nota.
 --   3. Persecucion: un mapa que se le cayo -> el cuerpo de un maton que dejaron atras ->
 --      los rezagados con la libreta de Meulen -> su guarida nueva.
 --   4. La guarida: Meulen con su banda, ya sin suerte. Se le mata de verdad.
--- Finales: memoria "meulen_final" = "muerto" (abre el reclutamiento de Sous) o "escapo" (si
--- no lo persigues a tiempo).
+-- Final: memoria "meulen_final" = "muerto" (abre el reclutamiento de Sous). Si no lo persigues,
+-- no se termina: cada VM.ACOSO horas sin avanzar te manda matones donde estes (etapa "acoso").
 --
 -- Ids internos con "maulen" (perfiles narrador_maulen_banda y narrador_banda_0x de Sous.lua).
 -- Textos sin tildes a proposito (ver nota en FamiliaInfectada.lua).
@@ -23,8 +23,16 @@ Narrador.Charlas = Narrador.Charlas or {}
 local VM = Narrador.VenganzaMeulen or {}
 Narrador.VenganzaMeulen = VM
 
--- Horas que tiene cada tramo de la persecucion antes de que Meulen se pierda del todo.
-VM.PLAZO = 96
+-- Horas sin avanzar en la persecucion antes de que Meulen te mande matones otra vez.
+VM.ACOSO = 36
+
+-- Lo que traen todos los de la banda en los bolsillos (Meulen les ensena a comer): atun con lechuga.
+local ATUN_LECHUGA = { { "Base.TunaTin", "Base.TinnedBeans" }, { "Base.Lettuce", "Base.Cabbage" } }
+local function bolsillos(n)
+    local items = {}
+    for _ = 1, n do items[#items + 1] = ATUN_LECHUGA[1]; items[#items + 1] = ATUN_LECHUGA[2] end
+    return items
+end
 
 local MEULEN = { { "maulen", "narrador_maulen_banda" } }
 local NOMBRES = { maulen = { "Meulen", "Canupan" } }
@@ -38,16 +46,15 @@ local MATONES = {
 local SOUS_ALIADO = { { "memoria", "sous", "aliados" }, { "mem", "sous_lider_nombre" } }
 local HANZ_VIVO = { { "memoria", "sous", "aliados" }, { "no", { "memoria", "sous_murio_hanz", true } } }
 
--- Meulen en el asalto: no se le puede matar y lo sabe.
+-- Los matones de Meulen en el asalto (el no viene: manda a los suyos).
 Narrador.Charlas.venganza_asalto = {
-    { "maulen", "Mari mari, peni. Te acuerdas de mi? Yo si me acuerdo de ti." },
-    { "maulen", "La Pachamama no me quiso, peni. Me escupio de vuelta. Pa esto." },
-    { "maulen", "Pachamama, Nuke Mapu... me da lo mismo como le digan. Me trajo igual." },
-    { "maulen", "Dispara no mas. Ya me mataron una vez y mira." },
-    { "maulen", "Bonita tu casa. Yo tambien tenia una. Sous me la quito. Despues tu." },
-    { "maulen", "Cuantas latas tienes, peni? Las conte desde afuera. Siempre cuento." },
-    { "maulen", "Chaltu may por abrir la puerta. Bueno, no la abriste. La abrimos nosotros." },
-    { "maulen", "Yo no me olvido. Nunca me he olvidado de nada. Pregunta en Sous." },
+    { "maton1", "Mari mari, peni! Te manda saludos el jefe. Dice que te acuerdes de el." },
+    { "maton2", "El jefe dice que la Pachamama lo trajo de vuelta. Yo no pregunto, yo cobro." },
+    { "maton3", "Atun con lechuga pa todos, dijo el jefe. Y despues tu casa." },
+    { "maton1", "Cuantas latas tienes? El jefe ya las conto desde afuera." },
+    { "maton4", "Sous le quito todo al jefe. Ahora le toca a tu casa." },
+    { "maton2", "El jefe no vino, no. El jefe nunca viene. Por algo sigue vivo." },
+    { "maton5", "Si me matas, revisa bien. El jefe nos hace cargar sus papeles." },
 }
 
 -- Meulen en su guarida: ya sin suerte.
@@ -62,13 +69,16 @@ Narrador.Charlas.venganza_guarida = {
 }
 
 -- Una parada de la persecucion: llegar al lugar o perderle el rastro.
-local function tramo(pista, lugar, siguiente, radio)
+-- Si no avanzas en VM.ACOSO horas, Meulen te manda matones (etapa "acoso") y despues vuelves
+-- a esta misma parada ("volver_a").
+local function tramo(pista, lugar, siguiente, radio, id)
     return {
         pista = pista,
         salidas = {
             { cuando = { "cerca", lugar, radio or 45 }, ir = siguiente },
-            { cuando = { "horas", VM.PLAZO }, ir = "final_escapo" },
+            { cuando = { "horas", VM.ACOSO }, ir = "acoso" },
         },
+        al_entrar = { { "variable", nombre = "volver_a", valor = id } },
     }
 end
 
@@ -107,20 +117,18 @@ Narrador.Defs.registrar({
 
         -- Meulen y los saqueadores atacan el refugio. Meulen no muere aca.
         asalto = {
-            pista = "Defender {lugar:casa}: Meulen Canupan viene con su banda.",
+            pista = "Defender {lugar:casa}: la banda de Meulen Canupan viene por ti.",
             mapa = false,
-            charla = { grupo = "meulen", lista = "venganza_asalto", radio = 30, cada = 0.1 },
+            charla = { grupo = "banda", lista = "venganza_asalto", radio = 30, cada = 0.1 },
             al_entrar = {
                 { "aviso", texto = "Un silbido corto afuera. Despues otro. Alguien grita 'Mari mari, peni!' y empiezan los disparos." },
-                { "bandidos", id = "meulen", lugar = "llegada", radio = 90, modo = "hunt", salud = 200, inmortales = true,
-                  perfiles = MEULEN, nombres = NOMBRES },
                 { "bandidos", id = "banda", lugar = "llegada", radio = 90, modo = "hunt",
                   perfiles = MATONES, recortar = { 3, 4 } },
                 -- La segunda tanda llega por el otro lado.
                 { "bandidos", id = "banda2", lugar = "llegada2", radio = 90, modo = "hunt", retraso = 0.25,
                   perfiles = MATONES, recortar = { 2, 4 } },
-                { "aviso", retraso = 0.25, texto = "Llegan mas por el otro lado de {lugar:casa}. Meulen trajo a todos los que pudo juntar." },
-                { "diario", texto = "Meulen Canupan esta vivo y vino a mi refugio con una banda de saqueadores." },
+                { "aviso", retraso = 0.25, texto = "Llegan mas por el otro lado de {lugar:casa}. Meulen mando a todos los que pudo juntar." },
+                { "diario", texto = "Meulen Canupan esta vivo y mando a su banda de saqueadores a mi refugio. El no vino. Nunca viene." },
                 { "aviso", si = HANZ_VIVO, retraso = 0.15,
                   texto = "En la radio de Sous, Hanz Walita: 'Pachamama?! Broder, la Pachamama es de nosotros, del norte! Los mapuche le dicen Nuke Mapu. Ni pa resucitar se informa el Meulen.'" },
             },
@@ -130,22 +138,21 @@ Narrador.Defs.registrar({
             },
         },
 
-        -- Sale vivo "por nada": humo, un grito en mapudungun y ya no esta.
+        -- Despues del asalto: lo que traian los matones en los bolsillos.
         huida = {
-            pista = "Revisar {lugar:casa} despues del asalto.",
+            pista = "Revisar a los matones caidos en {lugar:casa}.",
             mapa = false,
             al_entrar = {
-                { "decir", grupo = "meulen", rol = "maulen", texto = "Pewkallal, peni. Esto no termina aca." },
-                { "aviso", texto = "Revienta un tarro de humo junto a la puerta. Cuando se despeja, Meulen ya no esta. Desaparecer era lo unico que siempre supo hacer bien." },
-                { "retirar", grupo = "meulen", retraso = 0.03 },
+                { "aviso", texto = "Los que quedan de la banda arrancan gritando 'Pewkallal!'. Los caidos tienen los bolsillos llenos: atun, lechuga y papeles." },
                 { "retirar_lejos", grupo = "banda", lugar = "casa", radio = 70 },
                 { "retirar_lejos", grupo = "banda2", lugar = "casa", radio = 70 },
+                { "recompensa", lugar = "casa", radio = 40, items = bolsillos(4) },
                 { "lugar", id = "rastro1", desde = "casa", salas = { "garagestorage", "storageunit", "warehouse", "kitchen", "livingroom" },
                   respaldo = { "bedroom", "bathroom" }, min = 300, max = 900 },
-                { "nota", lugar = "casa", radio = 40, titulo = "Papel quemado en la orilla",
-                  texto = "Un mapa dibujado a mano, medio quemado por el tarro de humo. Tiene una flecha hacia {lugar:rastro1} y una mancha de atun." },
-                { "mapa", lugar = "rastro1", titulo = "Mapa que se le cayo a Meulen" },
-                { "diario", texto = "Le di a Meulen y no cayo, como si algo lo cuidara. Escapo otra vez, entre el humo. Se le cayo un mapa con una flecha hacia {lugar:rastro1}. Si no lo sigo ahora, vuelve." },
+                { "nota", lugar = "casa", radio = 40, titulo = "Libreta de un maton",
+                  texto = "Ordenes del jefe, con letra apretada: 'Despues de la casa, todos a {lugar:rastro1}. El que se quede, se queda. Atun con lechuga, nada de otra cosa.'" },
+                { "mapa", lugar = "rastro1", titulo = "Mapa en el bolsillo de un maton" },
+                { "diario", texto = "Meulen no vino al asalto: mando a su banda. Uno de los matones traia una libreta con ordenes y un mapa hacia {lugar:rastro1}. Si no lo sigo, me va a seguir mandando gente." },
             },
             salidas = { { ir = "seguir1" } },
         },
@@ -157,6 +164,7 @@ Narrador.Defs.registrar({
             al_entrar = {
                 { "lugar", id = "rastro1", desde = "casa", salas = { "garagestorage", "storageunit", "warehouse", "kitchen", "livingroom" },
                   respaldo = { "bedroom", "bathroom" }, min = 300, max = 900 },
+                { "recompensa", lugar = "casa", radio = 40, items = bolsillos(1) },
                 { "nota", lugar = "casa", radio = 40, titulo = "Nota clavada en la puerta",
                   texto = "Vine a visitarte y no estabas, peni. Me lleve un par de cosas pa los cabros. La proxima te espero. Si quieres conversar, ya sabes donde no buscarme. -M.C." },
                 { "mapa", lugar = "rastro1", titulo = "Mapa que se le cayo a Meulen" },
@@ -166,7 +174,7 @@ Narrador.Defs.registrar({
             salidas = { { ir = "seguir1" } },
         },
 
-        seguir1 = tramo("Seguir el rastro de Meulen hasta {lugar:rastro1}.", "rastro1", "pista1"),
+        seguir1 = tramo("Seguir el rastro de Meulen hasta {lugar:rastro1}.", "rastro1", "pista1", nil, "seguir1"),
 
         -- El cuerpo de un maton que dejaron atras.
         pista1 = {
@@ -175,6 +183,7 @@ Narrador.Defs.registrar({
                 { "lugar", id = "rastro2", desde = "rastro1", salas = { "garagestorage", "storageunit", "warehouse", "farmstorage", "barn" },
                   respaldo = { "livingroom", "kitchen" }, min = 300, max = 900 },
                 { "cuerpo", lugar = "rastro1", radio = 50 },
+                { "recompensa", lugar = "rastro1", radio = 50, items = bolsillos(1) },
                 { "oleada", lugar = "rastro1", radio = 50, cantidad = { 8, 14 } },
                 { "nota", lugar = "rastro1", radio = 50, titulo = "Papel en el bolsillo de un muerto",
                   texto = "Si alguien queda herido se queda. Lo dijo el jefe. Nos juntamos en {lugar:rastro2} y de ahi a la casa nueva. No le digan a nadie que el jefe sangra." },
@@ -184,20 +193,31 @@ Narrador.Defs.registrar({
             salidas = { { ir = "seguir2" } },
         },
 
-        seguir2 = tramo("Seguir a la banda de Meulen hasta {lugar:rastro2}.", "rastro2", "pista2", 60),
+        seguir2 = tramo("Seguir a la banda de Meulen hasta {lugar:rastro2}.", "rastro2", "pista2", 60, "seguir2"),
 
         -- Los rezagados de la banda, con la libreta de Meulen.
         pista2 = {
             pista = "Encontrar la libreta de Meulen en {lugar:rastro2}. Quedan unos de su banda.",
             al_entrar = {
+                { "variable", nombre = "volver_a", valor = "pista2_espera" },
                 { "bandidos", id = "rezagados", lugar = "rastro2", radio = 60, modo = "guard", perfiles = MATONES, recortar = { 2, 3 } },
+                { "recompensa", lugar = "rastro2", radio = 60, items = bolsillos(3) },
                 { "objeto", id = "libreta", lugar = "rastro2", radio = 60, tipo = { "Base.Notebook", "Base.SheetPaper2" }, nombre = "Libreta de Meulen Canupan" },
                 { "nota", lugar = "rastro2", radio = 60, titulo = "Latas vacias",
                   texto = "Una ruma de latas de atun, hojas de lechuga y colillas aplastadas. Alguien conto las latas y las anoto en la pared con carbon." },
             },
             salidas = {
                 { cuando = { "alguien_tiene", "libreta" }, ir = "revelada" },
-                { cuando = { "horas", VM.PLAZO }, ir = "final_escapo" },
+                { cuando = { "horas", VM.ACOSO }, ir = "acoso" },
+            },
+        },
+
+        -- La misma parada, de vuelta despues de un acoso (sin volver a poner a nadie).
+        pista2_espera = {
+            pista = "Encontrar la libreta de Meulen en {lugar:rastro2}.",
+            salidas = {
+                { cuando = { "alguien_tiene", "libreta" }, ir = "revelada" },
+                { cuando = { "horas", VM.ACOSO }, ir = "acoso" },
             },
         },
 
@@ -215,7 +235,7 @@ Narrador.Defs.registrar({
             salidas = { { ir = "hacia" } },
         },
 
-        hacia = tramo("Ir a la guarida de Meulen en {lugar:guarida}.", "guarida", "guarida", 70),
+        hacia = tramo("Ir a la guarida de Meulen en {lugar:guarida}.", "guarida", "guarida", 70, "hacia"),
 
         -- Ahora si: Meulen se puede matar.
         guarida = {
@@ -224,7 +244,9 @@ Narrador.Defs.registrar({
             al_entrar = {
                 { "bandidos", id = "jefe", lugar = "guarida", radio = 60, modo = "guard", salud = 200,
                   perfiles = MEULEN, nombres = NOMBRES },
+                { "variable", nombre = "volver_a", valor = "guarida_espera" },
                 { "bandidos", id = "guardia", lugar = "guarida", radio = 60, modo = "guard", perfiles = MATONES, recortar = { 4, 6 } },
+                { "recompensa", lugar = "guarida", radio = 60, items = bolsillos(4) },
                 { "recompensa", lugar = "guarida", radio = 60,
                   items = { { "Base.TunaTin", "Base.TinnedBeans" }, { "Base.TunaTin", "Base.TinnedBeans" }, { "Base.TunaTin", "Base.TinnedBeans" },
                             { "Base.Bullets9mmBox", "Base.Bullets9mm" }, { "Base.ShotgunShells" }, { "Base.Bandage" } } },
@@ -232,7 +254,55 @@ Narrador.Defs.registrar({
             },
             salidas = {
                 { cuando = { "muerto", "jefe", "maulen" }, ir = "final_muerto" },
-                { cuando = { "horas", 48 }, ir = "final_escapo" },
+                { cuando = { "horas", VM.ACOSO }, ir = "acoso" },
+            },
+        },
+
+        -- Meulen sigue en su guarida; de vuelta despues de un acoso.
+        guarida_espera = {
+            pista = "Matar a Meulen Canupan en {lugar:guarida}. Esta vez de verdad.",
+            charla = { grupos = { "jefe", "guardia" }, lista = "venganza_guarida", radio = 25, cada = 0.12 },
+            salidas = {
+                { cuando = { "muerto", "jefe", "maulen" }, ir = "final_muerto" },
+                { cuando = { "horas", VM.ACOSO }, ir = "acoso" },
+            },
+        },
+
+        -- No lo persigues: te manda matones donde estes, cada VM.ACOSO horas, hasta que lo mates.
+        acoso = {
+            pista = "La banda de Meulen te encontro. Defenderte.",
+            mapa = false,
+            al_entrar = {
+                { "olvidar_grupo", grupo = "acoso" },
+                { "lugar_jugador", id = "acosado" },
+                { "lugar_cerca", id = "acoso_llegada", de = "acosado", distancia = 30 },
+                { "bandidos", id = "acoso", lugar = "acoso_llegada", radio = 90, modo = "hunt", perfiles = MATONES, recortar = { 3, 5 } },
+                { "aviso", texto = "Un silbido corto, despues otro. Meulen te mando a su gente: 'Mari mari, peni! El jefe se aburrio de esperarte.'" },
+                { "diario", texto = "Como no fui a buscar a Meulen, el me vino a buscar a mi. Otra vez mando a sus matones." },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", "acoso" }, ir = "acoso_fin" },
+                { cuando = { "horas", 3 }, ir = "acoso_fin" },
+            },
+        },
+
+        -- Lo que traian: atun con lechuga y otra pista hacia donde ibas.
+        acoso_fin = {
+            mapa = false,
+            al_entrar = {
+                { "retirar_lejos", grupo = "acoso", lugar = "acosado", radio = 70 },
+                { "recompensa", lugar = "acosado", radio = 40, items = bolsillos(3) },
+                { "nota", lugar = "acosado", radio = 40, titulo = "Papel en el bolsillo de un maton",
+                  texto = "'El jefe dice que si no viene, vamos nosotros. Cada dia y medio, hasta que venga o hasta que no quede nadie.' Atras, una mancha de atun." },
+                { "aviso", texto = "Los matones traian atun con lechuga y un papel con ordenes. Meulen va a seguir mandando gente hasta que lo encuentres." },
+            },
+            salidas = {
+                { cuando = { "var", "volver_a", "seguir1" }, ir = "seguir1" },
+                { cuando = { "var", "volver_a", "seguir2" }, ir = "seguir2" },
+                { cuando = { "var", "volver_a", "pista2_espera" }, ir = "pista2_espera" },
+                { cuando = { "var", "volver_a", "hacia" }, ir = "hacia" },
+                { cuando = { "var", "volver_a", "guarida_espera" }, ir = "guarida_espera" },
+                { ir = "seguir1" },
             },
         },
 
@@ -250,20 +320,6 @@ Narrador.Defs.registrar({
                   texto = "Por la radio, {sous_lider_nombre}: 'Ya esta, entonces. De verdad esta vez. Ven a la base, mi bro. Sous te debe una... y Sous no olvida.'" },
                 { "aviso", si = HANZ_VIVO, retraso = 0.1,
                   texto = "Hanz Walita, por la radio: 'Que la Nuke Mapu se lo quede esta vez, broder. Y que no lo devuelva.'" },
-            },
-        },
-
-        final_escapo = {
-            final = true,
-            al_entrar = {
-                { "memoria", clave = "meulen_final", valor = "escapo" },
-                { "retirar", grupo = "meulen" },
-                { "retirar", grupo = "jefe" },
-                { "retirar", grupo = "guardia" },
-                { "retirar", grupo = "rezagados" },
-                { "diario", texto = "Le perdi el rastro a Meulen Canupan. Volvio de la muerte y se fue de nuevo, sin apuro. Algun dia alguien va a encontrar una lata de atun en su puerta." },
-                { "aviso", si = SOUS_ALIADO,
-                  texto = "Por la radio, {sous_lider_nombre}: 'Se fue, cierto? Ya. Desde hoy cada uno con su llave otra vez.'" },
             },
         },
     },
