@@ -41,14 +41,18 @@ MEMORIAS = {
     "dominio_<id>": "De quien es la ciudad: nil = mision, 'bandido' o 'nuevo' (NarradorDominios).",
     "misionero_muerto_<id>": "El misionero de esa ciudad murio en la conquista.",
     "radio_westpoint": "La radio del cuartel de la Chela quedo arreglada (cap. 2).",
-    "lucia": "Que paso con la Hermana Lucia en el cap. 3 del Padre Nacho (en_riverside o muerta).",
+    "lucia": "Que paso con la Hermana Lucia en el cap. 3 del Padre Nacho (en_riverside o muerta). Si murio, la reemplaza otro.",
     "estanque_rosewood": "El estanque de bencina de la Misia Rosa quedo defendido (cap. 3).",
-    "hija_cabo": "Valentina: salvada o muerta.",
+    "hija_cabo": "Valentina: salvada o muerta. Si murio, en la reconquista la reemplaza otro (NUEVO_MURIO).",
+    "cura_<contacto>": "Como termino la primera mision de la cura de ese misionero: salvo o murio (cura_rosewood = el sobrino de la Misia Rosa).",
+    "nuevo_<id>": "Quien reemplaza al misionero nuevo de la reconquista que murio antes: bell_padre, bell_madre, bell_hijo o forastero.",
+    "mercader_misionero_<id>": "Cual de K.MERCADERES es el forastero que manda en esa ciudad (indice).",
+    "mercader_<oficio>_<contacto>": "Cual de K.MERCADERES hace un oficio del campamento porque el propio murio (indice).",
     # --- Eduardo (en el codigo, "tomas") ---
     "tomas_conocido": "Ya conociste a Eduardo (cap. 3 de la Chela). Abre sus eventos fortuitos.",
     "tomas_vivo": "Eduardo volvio vivo al cuartel despues de caer.",
     "tomas_muerto": "Mataste a Eduardo en el duelo de Fallas Lake. Corta sus eventos.",
-    "cientifico_hartmann": "El doctor Hartmann: en_west_point o muerto.",
+    "cientifico_hartmann": "El doctor Hartmann: en_west_point o muerto. Muerto, el curandero de la Chela es un mercader.",
     "eduardo_ev_dia": "Ultimo dia en que se tiro el evento fortuito de Eduardo.",
     "eduardo_ev_hora": "Hora del ultimo evento fortuito de Eduardo.",
     # --- Camino del bandido ---
@@ -102,11 +106,8 @@ SIN_LECTOR = {
     "cal.fonda": "registro",
     "campamento_<id>": "registro; el codigo mira C.desbloqueado() y historia_<id>_1",
     "radio_westpoint": "pendiente: la radio podria dar rumores o avisos",
-    "lucia": "pendiente: Lucia vuelve como misionera en la reconquista, pero no se mira si murio",
     "estanque_rosewood": "pendiente: el estanque podria dar bencina a la Misia Rosa",
-    "hija_cabo": "pendiente: si Valentina murio, la reconquista igual la trae de misionera",
     "tomas_vivo": "registro",
-    "cientifico_hartmann": "pendiente: el curandero del nivel 4 de la Chela no mira si Hartmann murio",
     "bandido_ultimo": "registro",
     "pereira_desconfia": "pendiente: Pereira podria pagar menos o vigilarte",
     "denise": "registro (eventos cortos)",
@@ -122,6 +123,12 @@ SIN_LECTOR = {
 }
 
 
+# Usos que el escaner no ve (la memoria llega como parametro de una funcion compartida).
+OTROS_USOS = {
+    "mercader_<oficio>_<contacto>": ("shared/Narrador/NarradorCampamentosDefs.lua", True, True),  # archivo, escribe, lee
+}
+
+
 def entrada(clave):
     """La entrada de MEMORIAS que cubre esa clave del codigo (la mas especifica)."""
     fijas = [e for e in MEMORIAS if e == clave]
@@ -134,6 +141,11 @@ def entrada(clave):
 def agrupar():
     """entrada -> (archivos que escriben, archivos que leen, claves del codigo)."""
     escribe, lee = escanear()
+    for clave, (archivo, w, r) in OTROS_USOS.items():
+        if w:
+            escribe.setdefault(clave, set()).add(archivo)
+        if r:
+            lee.setdefault(clave, set()).add(archivo)
     out, sueltas = {}, set()
     for clave in set(escribe) | set(lee):
         e = entrada(clave)

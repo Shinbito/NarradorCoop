@@ -252,11 +252,13 @@ Lore.arcos.eduardo_fallas = {
     },
 }
 
+-- Quien queda a cargo de cada ciudad: lo resuelve el servidor ({nuevo:<id>}, NarradorDominios),
+-- porque si el misionero nuevo murio antes lo reemplaza otro.
 local RECON = {
-    muldraugh = "Valentina, la hija del Cabo Ramiro",
-    westpoint = "Eduardo",
-    riverside = "la Hermana Lucia",
-    rosewood = "Hector, el sobrino de la Misia Rosa",
+    muldraugh = "{nuevo:muldraugh}",
+    westpoint = "{nuevo:westpoint}",
+    riverside = "{nuevo:riverside}",
+    rosewood = "{nuevo:rosewood}",
 }
 for id, nuevo in pairs(RECON) do
     Lore.arcos["reconquista_" .. id] = {

@@ -31,7 +31,8 @@ def patron(expr):
     out = []
     for p in partes:
         if p.startswith('"'):
-            out.append(p.strip('"'))
+            # "cura_{contacto}": la accion memoria rellena {var} (Motor.texto).
+            out.append(re.sub(r"\{(\w+)\}", r"<\1>", p.strip('"')))
         else:
             p = re.sub(r"^tostring\((.*)\)$", r"\1", p)
             nombres = re.findall(r"[A-Za-z_]\w*", re.sub(r"\[.*?\]", "", p))
@@ -88,6 +89,9 @@ def escanear():
             anotar(lee, patron(m.group(2)), ruta)
         for m in re.finditer(r'\{\s*"misionero_muerto"\s*,\s*' + CADENA, texto):
             anotar(lee, "misionero_muerto_" + m.group(1), ruta)
+        # Reglas de datos { murio = { "clave", valor } }: se lee esa memoria.
+        for m in re.finditer(r'\bmurio\s*=\s*\{\s*' + CADENA, texto):
+            anotar(lee, m.group(1), ruta)
         for m in re.finditer(r"vars_desde_memoria\s*=\s*\{([^}]*)\}", texto):
             for c in re.findall(CADENA, m.group(1)):
                 anotar(lee, c, ruta)

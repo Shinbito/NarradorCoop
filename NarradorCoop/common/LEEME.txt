@@ -210,6 +210,13 @@ Novedades 0.11.0:
 - La cura: entre 1 y 4 pastillas K-93 verdaderas, siempre al menos una.
 - Diario: entradas para las misiones que no tenian texto (la cura, las fechas de Sous, los
   encuentros, los favores, los desbloqueos y los capitulos).
+- Los Bell se quedan a vivir en tu refugio si sobreviven: son inmortales, ayudan a limpiar la
+  zona y, cuando ven venir una horda o un ataque, arrancan para salvarse. Vuelven unas horas
+  despues con algo chico que encontraron (comida, vendas, cartuchos...).
+- Reconquista: si Valentina, la Hermana Lucia o el sobrino de la Misia Rosa murieron antes, en
+  su lugar queda a cargo un Bell que siga vivo (y deja tu refugio) o, si no queda ninguno, un
+  mercader de paso.
+- Si el doctor Hartmann murio, el curandero del cuartel de la Chela es un mercader de paso.
 - Para desarrollar: lista central de memorias de la partida con su chequeo
   (herramientas/memorias.py), mapa de historias mas completo (herramientas/mapa_historias.py)
   y grafo de graphify solo con el codigo.

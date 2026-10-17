@@ -313,7 +313,7 @@ function Diario.loQueSe(estado, id)
     local DD = Narrador.DominiosDefs
     for _, c in ipairs(estado.contactos or {}) do
         if c.id == id and c.dominio ~= nil and c.dominio ~= "mision" and DD ~= nil then
-            lista = DD.perfilLore(c.dominio, id) or lista
+            lista = DD.perfilLore(c.dominio, id, c.reemplazo) or lista
         end
     end
     if lista == nil then return { tostring(Lore.CONTACTOS[id] or "") } end

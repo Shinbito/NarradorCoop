@@ -135,9 +135,11 @@ K.OFICIOS = {
     },
     curandero = {
         titulo = "Curandero", perfil = "k93_county_ems_04", nombre = { "Rosendo", "Hierbas" },
-        -- La Tia Chela: el curandero es el doctor Hartmann (su capitulo 3).
+        -- La Tia Chela: el curandero es el doctor Hartmann (su capitulo 3). Si murio en ese
+        -- capitulo, hace de curandero un mercader cualquiera (K.MERCADERES).
         por_contacto = { westpoint = { perfil = "k93_red_cross_02", nombre = { "Elias", "Hartmann" },
-            llega = "El doctor Hartmann abre su consulta en el cuartel. Dice que ya no promete curas, solo remedios." } },
+            llega = "El doctor Hartmann abre su consulta en el cuartel. Dice que ya no promete curas, solo remedios.",
+            murio = { "cientifico_hartmann", "muerto" } } },
         llega = "Llega al campamento un curandero con una maleta llena de frascos.",
         catalogo = {
             { texto = "Vendas", items = { { "Base.Bandage" }, { "Base.Bandage" } }, precio = 2 },
@@ -257,11 +259,38 @@ K.FORJA = {
     { "Base.SpearMachete", "Base.SpearKnife", "Base.Machete" }, { "Base.HandAxe", "Base.Axe" },
 }
 
--- Quien es el del oficio en un campamento (perfil, nombre, texto de llegada).
-function K.persona(oficio, contactoId)
+-- Mercaderes de paso: toman un oficio cuando el que tenia que llegar murio. Se elige uno al
+-- azar la primera vez y queda anotado en la memoria ("mercader_<oficio>_<contacto>").
+K.MERCADERES = {
+    { perfil = "k93_stockyard_04", nombre = { "Ramon", "Alforjas" } },
+    { perfil = "k93_truckstop_05", nombre = { "Berta", "Canastos" } },
+    { perfil = "k93_county_ems_02", nombre = { "Julian", "Frascos" } },
+    { perfil = "k93_prather_02", nombre = { "Olga", "Trueque" } },
+}
+
+local function mercader(oficio, contactoId, memoria, titulo)
+    local clave = "mercader_" .. tostring(oficio) .. "_" .. tostring(contactoId)
+    local i = tonumber(memoria[clave])
+    if i == nil or K.MERCADERES[i] == nil then
+        i = ZombRand(#K.MERCADERES) + 1
+        memoria[clave] = i
+    end
+    local m = K.MERCADERES[i]
+    return { perfil = m.perfil, nombre = m.nombre, titulo = titulo,
+             llega = "Llega al campamento " .. m.nombre[1] .. " " .. m.nombre[2]
+                 .. ", que andaba de paso vendiendo cosas. De remedios sabe lo justo, pero algo sabe." }
+end
+
+-- Quien es el del oficio en un campamento (perfil, nombre, texto de llegada). memoria es la
+-- de la partida (solo el servidor la pasa): sirve para ver si el propio del campamento murio.
+function K.persona(oficio, contactoId, memoria)
     local o = K.OFICIOS[oficio]
     if o == nil then return nil end
     local propio = o.por_contacto ~= nil and o.por_contacto[contactoId] or nil
+    if propio ~= nil and propio.murio ~= nil and memoria ~= nil
+            and memoria[propio.murio[1]] == propio.murio[2] then
+        return mercader(oficio, contactoId, memoria, o.titulo)
+    end
     return {
         perfil = propio ~= nil and propio.perfil or o.perfil,
         nombre = propio ~= nil and propio.nombre or o.nombre,

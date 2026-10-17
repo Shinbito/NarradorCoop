@@ -892,8 +892,12 @@ Motor.inmediatas = {
         if inst.relojes[a.id] ~= nil then inst.relojes[a.id].activo = false end
         return true
     end,
+    -- {"memoria", clave, valor, si_vacia}: la clave acepta {var} ("cura_{contacto}"). Con
+    -- si_vacia = true no pisa lo que ya habia.
     memoria = function(inst, a)
-        Motor.estado().memoria[a.clave] = Motor.valor(inst, a.valor)
+        local clave, st = Motor.texto(inst, a.clave), Motor.estado()
+        if a.si_vacia and st.memoria[clave] ~= nil then return true end
+        st.memoria[clave] = Motor.valor(inst, a.valor)
         return true
     end,
     variable = function(inst, a)
@@ -1997,6 +2001,8 @@ function Motor.actualizarPropios()
     for _, e in pairs(st.contactos) do
         if type(e) == "table" and e.uid ~= nil then lista[tostring(e.uid)] = true end
     end
+    -- Otros modulos agregan los suyos: Motor.propiosExtra[nombre] = function(lista) ... end
+    for _, f in pairs(Motor.propiosExtra or {}) do pcall(f, lista) end
     Mundo.uidsPropios = lista
     Mundo.silenciarALife()
     return lista

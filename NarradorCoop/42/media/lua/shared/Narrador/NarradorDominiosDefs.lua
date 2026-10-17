@@ -91,6 +91,7 @@ DD.CAPITANES = {
 -- ciudad vuelve alguien que cree en la gente. Te tienen toda la confianza (trajiste la paz).
 DD.NUEVOS = {
     muldraugh = {
+        presentacion = "Valentina, la hija del Cabo Ramiro",
         rol = "valentina", nombre = "Valentina", apellido = "Mandados", perfil = "k93_hensley_family_03",
         oficio = "hija del Cabo Ramiro",
         frases = {
@@ -109,6 +110,7 @@ DD.NUEVOS = {
         },
     },
     westpoint = {
+        presentacion = "Eduardo",
         rol = "eduardo", nombre = "Eduardo", apellido = "Giovanns", perfil = "k93_stockyard_05",
         oficio = "hijo de la Tia Chela",
         frases = {
@@ -127,6 +129,7 @@ DD.NUEVOS = {
         },
     },
     riverside = {
+        presentacion = "la Hermana Lucia",
         rol = "lucia", nombre = "Hermana Lucia", apellido = "Pegas", perfil = "k93_red_cross_08",
         oficio = "monja",
         frases = {
@@ -145,6 +148,7 @@ DD.NUEVOS = {
         },
     },
     rosewood = {
+        presentacion = "Hector, el sobrino de la Misia Rosa",
         rol = "hector", nombre = "Hector", apellido = "Bencina Jr.", perfil = "k93_truckstop_10",
         oficio = "sobrino de la Misia Rosa",
         frases = {
@@ -165,7 +169,107 @@ DD.NUEVOS = {
 }
 
 -- Perfil del diario segun el dominio (el cliente lo usa en Diario.loQueSe).
-function DD.perfilLore(dominio, id)
+-- Si el misionero nuevo de una ciudad murio antes (en su capitulo, o el sobrino de la Misia Rosa
+-- en la mision de la cura), en la reconquista lo
+-- reemplaza un Bell que siga vivo en tu refugio (en el orden de PREFERENCIA_BELL) y, si no
+-- queda ninguno, un mercader que andaba de paso (K.MERCADERES). Lo elige el servidor al
+-- reconquistar y queda en la memoria "nuevo_<id>" (bell_padre, bell_madre, bell_hijo o forastero).
+DD.NUEVO_MURIO = {
+    muldraugh = { murio = { "hija_cabo", "muerta" } },
+    riverside = { murio = { "lucia", "muerta" } },
+    rosewood = { murio = { "cura_rosewood", "murio" } },
+}
+DD.PREFERENCIA_BELL = {
+    muldraugh = { "padre", "hijo", "madre" },
+    riverside = { "madre", "padre", "hijo" },
+    rosewood = { "hijo", "padre", "madre" },
+}
+
+local RANGOS_BELL = { "Forastero", "Vecino", "Conocido", "De la casa", "Familia" }
+
+DD.REEMPLAZOS = {
+    bell_padre = {
+        presentacion = "Daniel Bell, el de la familia que llego a tu refugio",
+        rol = "daniel_bell", nombre = "Daniel", apellido = "Bell", perfil = "k93_bell_family_01",
+        oficio = "padre de familia",
+        frases = {
+            "Llegue a tu puerta pidiendo techo. Ahora la puerta la abro yo. Raro, no?",
+            "Aca no se le cierra la puerta a nadie. Me acuerdo de lo que es golpear y que no abran.",
+            "Tengo trabajo. Honrado. Como el que tu me diste a mi.",
+            "Si viene algo grande, arrancamos y volvemos. Eso lo aprendi en tu refugio.",
+            "Le debo la vida a mi familia, y la vida de mi familia te la debo a ti.",
+            "No soy el que estaba antes. Hago lo que puedo con lo que dejo.",
+        },
+        rangos = RANGOS_BELL,
+        perfil_lore = {
+            "Daniel Bell manda ahora donde antes mandaba otro. Llego a mi refugio pidiendo techo unos dias; ahora es el quien da techo.",
+            "Dice que no sabe mandar, que solo sabe cuidar a los suyos. Le dije que es lo mismo. Se rio y no me creyo.",
+            "Guarda la lista de los que llegan, como hacia el que estaba antes. Al final de la lista anoto a su familia.",
+        },
+    },
+    bell_madre = {
+        presentacion = "Yvonne Bell, la de la familia que llego a tu refugio",
+        rol = "yvonne_bell", nombre = "Yvonne", apellido = "Bell", perfil = "k93_bell_family_02",
+        oficio = "madre de familia",
+        frases = {
+            "Hay sopa. Poca, pero hay. Despues hablamos de trabajo.",
+            "Aca se comparte. El que no comparte, que se vaya a otro pueblo.",
+            "Tengo encargos. Y una venda, por si vuelves mal.",
+            "Esta puerta se queda abierta. Yo se lo que es esperar del otro lado.",
+            "Te debo mas de lo que te puedo pagar. Empecemos por algo.",
+            "Si te muerden, no me mientas. Ya me mintieron una vez sobre una cura.",
+        },
+        rangos = RANGOS_BELL,
+        perfil_lore = {
+            "Yvonne Bell cuida ahora el lugar. Llego a mi refugio con su familia y una fiebre en la casa; ahora reparte la sopa y los encargos.",
+            "No le gusta que le digan que manda. Dice que solo ordena la cocina, y que la cocina es todo.",
+            "Deja una vela prendida en la ventana todas las noches. Dice que es para los que todavia vienen caminando.",
+        },
+    },
+    bell_hijo = {
+        presentacion = "Wade Bell, el hijo de la familia que llego a tu refugio",
+        rol = "wade_bell", nombre = "Wade", apellido = "Bell", perfil = "k93_bell_family_04",
+        oficio = "el menor de los Bell",
+        frases = {
+            "Ya se que soy joven. Pero el que estaba antes tambien fue joven alguna vez.",
+            "Tengo trabajo. Del que se hace corriendo, que es lo que mejor me sale.",
+            "Mi papa dice que aprenda de ti. Yo le digo que ya aprendi: hay que volver siempre.",
+            "Mate a dos con la pala esta manana. Bueno, a uno y medio.",
+            "La gente me hace caso. No se por que. Yo tampoco me haria caso.",
+            "Si viene una horda, arrancamos. Despues volvemos con algo. Asi se hace.",
+        },
+        rangos = RANGOS_BELL,
+        perfil_lore = {
+            "Wade Bell, el menor de los Bell, quedo a cargo. Llego a mi refugio con fiebre; ahora es el que sale primero a limpiar la cuadra.",
+            "Anota todo en un cuaderno con dibujos. Dice que es para que el que venga despues sepa como se hace.",
+            "Cuando nadie lo ve, practica la voz de mando frente a un vidrio. Le sale mejor de lo que cree.",
+        },
+    },
+    -- Nombre y perfil salen de K.MERCADERES (el servidor los pone).
+    forastero = {
+        rol = "forastero", oficio = "mercader de paso",
+        frases = {
+            "Venia de paso. Me quede porque nadie mas se quedo.",
+            "Se vender. Mandar, estoy aprendiendo.",
+            "Tengo encargos. Pagan poco pero pagan.",
+            "El que estaba antes era mejor. Eso lo sabe todo el pueblo, y yo tambien.",
+            "Aca no hay leyendas. Hay trabajo.",
+            "Si me traes algo bueno, te lo pago bien. Es lo unico que se hacer bien.",
+        },
+        rangos = { "Cliente", "Conocido", "Socio", "Socio de confianza", "Familia" },
+        perfil_lore = {
+            "Quien manda ahora es un mercader que andaba de paso. Se quedo porque nadie mas quiso quedarse.",
+            "Lleva las cuentas del lugar como llevaba las de su carreta: todo anotado, nada regalado.",
+            "No habla de los que estuvieron antes. Una vez lo vi limpiar la placa de la puerta sin que nadie se lo pidiera.",
+        },
+    },
+}
+
+-- reemplazo: el de la memoria "nuevo_<id>" (lo manda el servidor en la vista de contactos).
+function DD.perfilLore(dominio, id, reemplazo)
+    if dominio == "nuevo" and reemplazo ~= nil and DD.REEMPLAZOS[reemplazo] ~= nil then
+        return DD.REEMPLAZOS[reemplazo].perfil_lore
+    end
     local t = dominio == "bandido" and DD.CAPITANES or (dominio == "nuevo" and DD.NUEVOS or nil)
     local d = t ~= nil and t[id] or nil
     return d ~= nil and d.perfil_lore or nil

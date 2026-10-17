@@ -199,14 +199,16 @@ registrar({
 -- ===========================================================================
 local DEFENSORES = { { "bandido1", "narrador_pereira_04" }, { "bandido2", "narrador_pereira_05" }, { "bandido3", "narrador_pereira_06" } }
 
+-- "nuevo" es quien queda a cargo: Valentina, Eduardo, la Hermana Lucia o Hector, o su reemplazo
+-- si murio antes (plantilla {nuevo:<id>}, ver NarradorDominios).
 local CIUDADES = {
-    muldraugh = { titulo = "la comisaria de Muldraugh", nuevo = "Valentina, la hija del Cabo Ramiro",
+    muldraugh = { titulo = "la comisaria de Muldraugh", nuevo = "{nuevo:muldraugh}",
         eduardo = "El Cabo me decia engreido. Tenia razon a veces. Vamos a devolverle su comisaria." },
-    westpoint = { titulo = "el cuartel de West Point", nuevo = "Eduardo",
+    westpoint = { titulo = "el cuartel de West Point", nuevo = "{nuevo:westpoint}",
         eduardo = "Es la casa de mi mama. Yo entro primero. No me discutas." },
-    riverside = { titulo = "la iglesia de Riverside", nuevo = "la Hermana Lucia",
+    riverside = { titulo = "la iglesia de Riverside", nuevo = "{nuevo:riverside}",
         eduardo = "Hay que abrir esa puerta otra vez. Y que no se cierre nunca mas." },
-    rosewood = { titulo = "la bencinera de Rosewood", nuevo = "Hector, el sobrino de la Misia Rosa",
+    rosewood = { titulo = "la bencinera de Rosewood", nuevo = "{nuevo:rosewood}",
         eduardo = "La luz de esa bencinera estuvo prendida treinta anos. Vamos a prenderla." },
 }
 

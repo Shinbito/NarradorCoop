@@ -22,14 +22,30 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
 - La brújula con Project Viewpoint (ver "Brújula sigue a la cámara").
 - Cuando esté probado: fusionar el PR #1 a `main` (`main` sigue en la versión del 15 de octubre).
 
-### 2. Errores de historia (los encontró el chequeo de memorias)
-- Si Valentina murió en su capítulo (`hija_cabo` = muerta), la reconquista igual la trae como
-  misionera de Muldraugh. Falta decidir quién la reemplaza.
-- Lo mismo con la Hermana Lucía (`lucia` = muerta) en Riverside.
-- El curandero del nivel 4 de la Chela es el doctor Hartmann aunque haya muerto
-  (`cientifico_hartmann` = muerto), porque su capítulo fallido cuenta como hecho. Falta decidir
-  quién es el curandero en ese caso.
-- Otras 5 decisiones que hoy no tienen consecuencia: ver "Memorias sin usar".
+### 2. Errores de historia (arreglados en 0.11.0, falta probar en el juego)
+- Si el misionero nuevo de la reconquista murió antes, lo reemplaza un Bell que siga vivo en tu
+  refugio; si no queda ninguno, un mercader de paso (`DD.NUEVO_MURIO` y `DD.REEMPLAZOS` en
+  `NarradorDominiosDefs.lua`, `D.reemplazo` en `NarradorDominios.lua`, memoria `nuevo_<id>`):
+  - Muldraugh, si Valentina murió (`hija_cabo` = muerta): Daniel, Wade o Yvonne, en ese orden.
+  - Riverside, si la Hermana Lucía murió (`lucia` = muerta): Yvonne, Daniel o Wade.
+  - Rosewood, si el sobrino de la Misia Rosa murió en la misión de la cura (`cura_rosewood` =
+    murio, nueva): Wade, Daniel o Yvonne.
+  - El Bell que pasa a ser misionero deja el refugio. Los textos de la reconquista lo nombran
+    con la plantilla `{nuevo:<id>}`.
+- Si el doctor Hartmann murió (`cientifico_hartmann` = muerto), el curandero de la Chela es un
+  mercader de paso al azar (`K.MERCADERES`, campo `murio` en `por_contacto`).
+
+### Los Bell en tu refugio (hecho en 0.11.0, falta probar en el juego)
+- Archivo: `server/Narrador/NarradorBell.lua` (acción `bell_quedarse` en los finales de los Bell).
+- En los finales en que sobreviven se quedan a vivir en el refugio: inmortales, limpian la zona
+  (dejan 2 zombis como máximo en 30 casillas) y conversan (`Narrador.Charlas.bell_refugio`).
+- Cuando ven venir una horda o un ataque (aviso de una amenaza a menos de 200 casillas del
+  refugio, o una oleada que aparece cerca) arrancan para salvarse: desaparecen y vuelven entre 6
+  y 12 horas después, cuando ya no hay peligro y hay alguien cerca, con dos cosas chicas
+  (comida, vendas, pastillas, cartuchos, clavos o desinfectante).
+- Partidas de antes: si estaban como residentes (final del engaño) se pasan solos; si no hay nada
+  guardado, vuelve solo Daniel, que nunca se infecta.
+- Prueba: `python3 NarradorCoop/herramientas/pruebas/correr.py`.
 
 ### 3. Técnico
 - La lista `LANZADORES` de `mapa_historias.py` se mantiene a mano. El chequeo podría avisar si
@@ -49,7 +65,7 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
 
 ### 4. Contenido
 - Capítulos 4 en adelante de cada misionero.
-- Darle consecuencia a las memorias sin usar (abajo).
+- Darle consecuencia a las 5 memorias sin usar (abajo).
 
 ## Técnico
 
@@ -248,10 +264,6 @@ decisión del jugador que hoy no tiene consecuencia:
 - `bell_culpa`: le diste una falsa a los Bell y te quedaste la verdadera. Sous, Maulen o el diario
   podrían echártelo en cara.
 - `curandero_falso`: el curandero que les vendió pastillas falsas a los Bell podría aparecer.
-- `hija_cabo` = muerta: si Valentina murió, la reconquista igual la trae como misionera de Muldraugh.
-- `lucia` = muerta: lo mismo con la Hermana Lucía en Riverside.
-- `cientifico_hartmann` = muerto: el curandero del nivel 4 de la Chela es Hartmann aunque haya muerto
-  (su capítulo fallido cuenta como hecho).
 - `pereira_desconfia`: Pereira descubrió un sabotaje; podría pagar menos o vigilarte.
 - `radio_westpoint`: la radio del cuartel arreglada podría dar rumores o avisos.
 - `estanque_rosewood`: el estanque defendido podría dar bencina a la Misia Rosa.

@@ -270,7 +270,7 @@ function S.revisar(c, e)
     if falta == nil or #falta > 0 then return end
     k.nivel = (k.nivel or 0) + 1
     local req = K.NIVELES[k.nivel]
-    local p = K.persona(req.oficio, c.id)
+    local p = K.persona(req.oficio, c.id, Motor.estado().memoria)
     k.oficios[req.oficio] = k.oficios[req.oficio] or {}
     avisarTodos("El campamento de " .. c.nombre .. " sube a nivel " .. k.nivel .. ". " .. tostring(p.llega))
     anotar("El campamento de " .. c.nombre .. " (" .. c.ciudad .. ") subio a nivel " .. k.nivel .. ": llego "
@@ -289,7 +289,7 @@ function S.posicionPuesto(e, oficio)
 end
 
 function S.aparecer(c, e, oficio, o, jugador)
-    local p = K.persona(oficio, c.id)
+    local p = K.persona(oficio, c.id, Motor.estado().memoria)
     local x, y, z = S.posicionPuesto(e, oficio)
     o.intentos = (o.intentos or 0) + 1
     local requestId = "narrador:oficio:" .. c.id .. ":" .. oficio .. ":" .. tostring(o.intentos)
@@ -506,7 +506,7 @@ function S.comprar(jugador, args)
     -- Con fama de El destripador o peor no te venden nada (los recados siguen, ver S.recado).
     local KX = Narrador.Knox
     if KX ~= nil and KX.despreciadoJugador(jugador) then
-        local quien = K.persona(oficio, c.id)
+        local quien = K.persona(oficio, c.id, Motor.estado().memoria)
         Motor.responder(jugador, quien.nombre[1] .. ": A ti no te vendo nada. Pero si quieres que la gente confie en ti, tengo un recado.")
         return
     end
@@ -521,7 +521,7 @@ function S.comprar(jugador, args)
         Motor.responder(jugador, "Te faltan: cuesta " .. precio .. " de " .. moneda .. " y llevas " .. tiene .. ".")
         return
     end
-    local p = K.persona(oficio, c.id)
+    local p = K.persona(oficio, c.id, Motor.estado().memoria)
     if art.servicio == "mejorar" then
         local ok, razon = mejorar(jugador)
         if not ok then Motor.responder(jugador, p.nombre[1] .. ": " .. tostring(razon)); return end
@@ -575,7 +575,7 @@ function S.recado(jugador, args)
     local x, y = Mundo.posicionActor(o.uid)
     local px, py = Mundo.posicion(jugador)
     if x == nil or px == nil or math.sqrt((x - px) ^ 2 + (y - py) ^ 2) > 6 then Motor.responder(jugador, "Estas muy lejos."); return end
-    local p = K.persona(oficio, c.id)
+    local p = K.persona(oficio, c.id, Motor.estado().memoria)
     local grupo = Mundo.grupoDe(jugador)
     if S.recadoDelGrupo(grupo) ~= nil then
         Motor.responder(jugador, p.nombre[1] .. ": Primero termina el recado que ya tienes.")
@@ -642,7 +642,7 @@ function S.vista(v)
             local k = S.estado(c.id)
             local oficios = {}
             for oficio, o in pairs(k.oficios or {}) do
-                local p = K.persona(oficio, c.id)
+                local p = K.persona(oficio, c.id, Motor.estado().memoria)
                 local r = S.recadoActual(o, oficio)
                 oficios[#oficios + 1] = { oficio = oficio, uid = o.uid, titulo = p.titulo, nombre = p.nombre[1] .. " " .. p.nombre[2],
                     recado = r ~= nil and r.corto or nil }

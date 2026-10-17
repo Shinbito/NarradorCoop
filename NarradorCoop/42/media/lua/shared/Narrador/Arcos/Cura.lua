@@ -70,7 +70,10 @@ Narrador.Defs.registrar({
                 { cuando = { "eleccion", "quedarse" }, ir = "final_te_la_quedaste" },
             }),
         },
+        -- "cura_<contacto>" guarda como termino la primera vez: salvo o murio (en Rosewood es el
+        -- sobrino de la Misia Rosa, que despues puede volver de misionero en la reconquista).
         final_cumplido = { final = true, al_entrar = {
+            { "memoria", clave = "cura_{contacto}", valor = "salvo", si_vacia = true },
             { "decir_contacto", texto = "var:gracias" },
             { "pago_encargo", lugar = "contacto", radio = 35 },
             { "chetada", chance = 40, lugar = "contacto", radio = 35 },
@@ -79,6 +82,7 @@ Narrador.Defs.registrar({
         -- Le entregaste una falsa (sin saber o a proposito). El misionero nunca sabe la diferencia:
         -- la persona que esperaba no se salva, y te lo agradece igual por haberlo intentado.
         final_cumplido_falsa = { final = true, al_entrar = {
+            { "memoria", clave = "cura_{contacto}", valor = "murio", si_vacia = true },
             { "decir_contacto", texto = "var:gracias" },
             { "pago_encargo", lugar = "contacto", radio = 35 },
             { "huella", acto = "traicionaste", si = { "var", "engano", true },
@@ -90,11 +94,13 @@ Narrador.Defs.registrar({
             { "diario", si = { "no", { "var", "engano", true } }, texto = "Le entregue una pastilla a {contacto_nombre}. Ojala haya sido la buena." },
         } },
         final_te_la_quedaste = { final = true, al_entrar = {
+            { "memoria", clave = "cura_{contacto}", valor = "murio", si_vacia = true },
             { "reputacion", cantidad = -20, motivo = "se quedo con la cura" },
             { "decir_contacto", texto = "Te vi la cara. No la trajiste. Alguien se va a morir esperando. Anda." },
             { "diario", texto = "Me quede con las dos dosis. {contacto_nombre} no me lo va a perdonar." },
         } },
         final_vencido = { final = true, al_entrar = {
+            { "memoria", clave = "cura_{contacto}", valor = "murio", si_vacia = true },
             { "diario", texto = "No volvi a tiempo de Louisville. La persona que esperaba la cura no aguanto." },
         } },
     },

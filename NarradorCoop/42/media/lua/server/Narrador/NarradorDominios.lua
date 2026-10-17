@@ -5,6 +5,8 @@
 --   * Con un capitan (bandido): no rechaza a nadie por su fama en Knox, no da capitulos de
 --     historia ni la cura, y todas sus ofertas son encargos inmorales (Arcos/Inmorales.lua).
 -- El campamento, los comerciantes y la confianza siguen siendo de la ciudad.
+-- Si el misionero nuevo murio antes (Valentina, la Hermana Lucia), lo reemplaza un Bell vivo de
+-- tu refugio o un mercader de paso (D.reemplazo, memoria "nuevo_<id>").
 --
 -- Para la conquista: { "condenar_misionero", contacto = "muldraugh" } le quita al misionero la
 -- inmortalidad; cuando muere, la ciudad pasa al dominio indicado (bandido por defecto) y queda la
@@ -20,6 +22,8 @@ require "Narrador/NarradorContactos"
 require "Narrador/NarradorReputacion"
 require "Narrador/NarradorGenerador"
 require "Narrador/NarradorCuraServer"
+require "Narrador/NarradorCampamentosDefs"
+require "Narrador/NarradorBell"
 
 local DD, Mundo, Motor, C = Narrador.DominiosDefs, Narrador.Mundo, Narrador.Motor, Narrador.Contactos
 local R, G = Narrador.Reputacion, Narrador.Generador
@@ -50,9 +54,70 @@ end
 
 function D.esBandido(id) return D.dominio(id) == "bandido" end
 
+-- ---------------------------------------------------------------------------
+-- Reemplazos de los misioneros nuevos que murieron antes (ver DD.NUEVO_MURIO)
+-- ---------------------------------------------------------------------------
+
+-- Quien reemplaza al misionero nuevo de esa ciudad: nil (el de siempre), "bell_<rol>" o
+-- "forastero". Con guardar = true queda en la memoria y el Bell deja el refugio.
+function D.reemplazo(id, guardar)
+    local m = Motor.estado().memoria
+    if m["nuevo_" .. tostring(id)] ~= nil then return m["nuevo_" .. tostring(id)] end
+    local regla = DD.NUEVO_MURIO[id]
+    if regla == nil or m[regla.murio[1]] ~= regla.murio[2] then return nil end
+    local tomados = {}
+    for _, c in ipairs(C.LISTA) do
+        local otro = m["nuevo_" .. c.id]
+        if otro ~= nil then tomados[otro] = true end
+    end
+    local vivos = {}
+    for _, rol in ipairs(Narrador.Bell.vivos()) do vivos[rol] = true end
+    local elegido = "forastero"
+    for _, rol in ipairs(DD.PREFERENCIA_BELL[id] or Narrador.Bell.ORDEN) do
+        if vivos[rol] and not tomados["bell_" .. rol] then elegido = "bell_" .. rol; break end
+    end
+    if guardar then
+        m["nuevo_" .. tostring(id)] = elegido
+        local rol = string.match(elegido, "^bell_(.+)$")
+        if rol ~= nil then Narrador.Bell.sacar(rol) end
+        Mundo.log("en " .. tostring(id) .. " el misionero nuevo es " .. elegido)
+    end
+    return elegido
+end
+
+-- Datos del forastero: nombre y perfil de un mercader de paso (uno al azar, fijo por ciudad).
+local function forastero(id)
+    local K = Narrador.CampamentosDefs
+    local m = Motor.estado().memoria
+    local i = tonumber(m["mercader_misionero_" .. tostring(id)])
+    if i == nil or K.MERCADERES[i] == nil then
+        i = Mundo.azar(#K.MERCADERES)
+        m["mercader_misionero_" .. tostring(id)] = i
+    end
+    local merc, d = K.MERCADERES[i], {}
+    for k, v in pairs(DD.REEMPLAZOS.forastero) do d[k] = v end
+    d.nombre, d.apellido, d.perfil = merc.nombre[1], merc.nombre[2], merc.perfil
+    d.presentacion = merc.nombre[1] .. " " .. merc.nombre[2] .. ", que andaba de paso"
+    return d
+end
+
+local function datosNuevo(id)
+    local r = D.reemplazo(id, false)
+    if r == "forastero" then return forastero(id) end
+    if r ~= nil then return DD.REEMPLAZOS[r] end
+    return DD.NUEVOS[id]
+end
+
+-- Como se nombra en los textos al misionero nuevo de una ciudad: {nuevo:muldraugh}.
+function D.presentacion(id)
+    local d = datosNuevo(id)
+    return d ~= nil and (d.presentacion or d.nombre) or "alguien nuevo"
+end
+Motor.plantillas.nuevo = function(inst, id) return D.presentacion(id) end
+
 local function datos(id, d)
     if d == "bandido" then return DD.CAPITANES[id] end
-    if d == "nuevo" then return DD.NUEVOS[id] end
+    if d == "nuevo" then return datosNuevo(id) end
     return nil
 end
 
@@ -73,6 +138,7 @@ end
 function D.cambiar(id, dominio)
     local m = Motor.estado().memoria
     m["dominio_" .. tostring(id)] = dominio ~= "mision" and dominio or nil
+    if dominio == "nuevo" then D.reemplazo(id, true) end
     local e = C.estado(id)
     if e.uid ~= nil then pcall(Mundo.retirar, e.uid) end
     e.uid, e.pidiendo, e.faltas, e.charla, e.condenado = nil, nil, 0, nil, nil
@@ -263,7 +329,8 @@ end
 local vistaOriginal = C.vista
 function C.vista()
     local lista = vistaOriginal()
-    for _, v in ipairs(lista) do v.dominio = D.dominio(v.id) end
+    local m = Motor.estado().memoria
+    for _, v in ipairs(lista) do v.dominio, v.reemplazo = D.dominio(v.id), m["nuevo_" .. tostring(v.id)] end
     return lista
 end
 
