@@ -98,7 +98,9 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
 
 ### 4. Contenido
 - Capítulos 4 en adelante de cada misionero.
-- Más consecuencias para las memorias "solo de registro" (encuentros, alijo, trueque...).
+- ~~Más consecuencias para las memorias "solo de registro" (encuentros, alijo, trueque...).~~ Hecho
+  para arsenal, denise, lucas, trueque, alijo y desertor (ver "Consecuencias de las decisiones");
+  quedan solo de registro cal.fonda, eduardo_vivo, bandido_ultimo, asalto y las del motor.
 
 ## Hecho el 17 de octubre (falta probar en el juego)
 - Mapa anotado que cerraba el juego (texto sin fuente en la API v1 de simbolos).
@@ -380,6 +382,24 @@ pendientes):
   la radio y un cuarto de hora antes (`A.EXTRA_RADIO`).
 - `estanque_rosewood` (defendiste el estanque, cap. 3): cada 72 horas, cuando pasas por la
   bencinera, la Misia Rosa te deja un bidón lleno (`server/Narrador/NarradorConsecuencias.lua`).
+
+### Más consecuencias (falta probar en el juego)
+Siete historias cortas nuevas en `shared/Narrador/Arcos/ConsecuenciasExtra.lua`: salen una sola
+vez (`max_veces = 1`), las elige el Director días después (`si` = la memoria del final), y una
+frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
+- `denise` = rescatada → "La promesa de Denise": Lonnie te trae la comida que Denise prometió
+  cocinarte (Knox +5).
+- `denise` = asesinada → "El hermano de Denise": Lonnie y 2-3 amigos te salen a cazar (Knox -5).
+- `lucas` = rescatado → "Lo que encontró Lucas": te marca una farmacia intacta (remedios + nota).
+- `lucas` = asesinado → "La madre de Lucas": Loretta lo cuenta en todo Knox (Knox -15).
+- `trueque` = ganado → "El cobro del trueque": los hermanos de los emboscadores vienen a cobrar
+  (4-5 bandidos; si los matas, Knox +5).
+- `alijo` = encontrado → "La viuda del alijo": Marta Quiroz pide su parte en tu refugio. Compartir
+  comida: Knox +10; negarte: Knox -5; matarla: Knox -15 (`alijo` pasa a compartido/negado/viuda_muerta).
+- `desertor` = protegido → "Ray vuelve": Ray Doyle llega con una patrulla de la Guardia detrás y
+  pelea contigo (munición y Knox +10).
+- `arsenal` (arma/traje/auto) → el primer misionero vivo al que te acerques comenta lo que
+  sacaste del arsenal (una vez, memoria `arsenal_comentado`).
 
 ## Historias del roadmap (hechas en 0.11.0, falta probar en el juego)
 

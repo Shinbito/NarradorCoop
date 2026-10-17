@@ -327,6 +327,52 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `final_abandonado` | `pasan 12 h`<br>`pasan 96 h` | - | - |
 | `final_conquistado` | `misionero_muerto westpoint` | `conquista_westpoint` = true | - |
 
+### La viuda del alijo (`eco_alijo_viuda`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_compartido` | "Compartir comida con ella" | `alijo` = compartido | - |
+| `final_la_mataste` | `mato_jugador viuda` | `alijo` = viuda_muerta | - |
+| `final_negado` | "Decirle que lo encontrado es tuyo"<br>`pasan 24 h` | `alijo` = negado | - |
+| `final_no_llego` | `pasan 48 h` | - | - |
+
+### El hermano de Denise (`eco_denise_lonnie`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_muertos` | `todos_muertos lonnie` | - | - |
+| `final_se_fueron` | `pasan 12 h` | - | - |
+
+### La promesa de Denise (`eco_denise_olla`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_fria` | `pasan 48 h` | - | - |
+| `final_olla` | `mensaje_entregado` | - | - |
+
+### Ray vuelve (`eco_desertor_vuelve`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_cayo` | `todos_muertos soldado` | `desertor` = muerto | - |
+| `final_juntos` | `pasan 12 h`<br>`todos_muertos guardia` | - | - |
+| `final_lo_mataste` | `mato_jugador soldado` | `desertor` = asesinado | - |
+| `final_no_llego` | `pasan 48 h` | - | - |
+
+### Lo que encontro Lucas (`eco_lucas_farmacia`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_encontrado` | `pasan 2 h` | - | - |
+| `final_nadie` | `pasan 48 h`<br>`pasan 96 h` | - | - |
+
+### El cobro del trueque (`eco_trueque_cobro`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_saldado` | `todos_muertos cobradores` | - | - |
+| `final_se_fueron` | `pasan 12 h` | - | - |
+
 ### Eduardo, corriendo (`eduardo_evento`)
 
 | Final | Como se llega | Deja | Lleva a |
@@ -499,14 +545,14 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_aliados` | "Entregar la medicina" | `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal |
+| `final_aliados` | "Entregar las armas" | `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal |
 | `final_maulen_escapa` | "Ir con Akagami, Zent y Walita", y despues `pasan 120 h`<br>"Ir con Matric, Tati y David Shinbo", y despues `pasan 120 h`<br>"Ir con Tati, Shinbo y Zent", y despues `pasan 120 h`<br>"Ir con Wertres y David Shinbo", y despues `pasan 120 h`<br>"Ir con todo Sous", y despues `pasan 120 h`<br>"Mejor ir solo", y despues `pasan 120 h`<br>"Mejor ir solo", y despues `pasan 24 h`<br>"Revisar el deposito saqueado" o "Mejor ir solo", y despues `pasan 120 h`<br>"Revisar el deposito saqueado", y despues `pasan 120 h` | `sous` = maulen_escapa | Maulen escapa con todo |
 | `final_mentira` | "Quedarte con todo lo que robo Meulen", y despues `elige quedarse y todos_muertos escuadra` | `sous_mentira` = true, `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal |
-| `final_negado` | "Decir que no es tu problema"<br>"Entregar la medicina", y despues `pasan 120 h`<br>"Ofrecer tu ayuda a Sous", y despues `pasan 120 h` | `sous` = negado | Le dices que no a Sous |
+| `final_negado` | "Decir que no es tu problema"<br>"Entregar las armas", y despues `pasan 120 h`<br>"Ofrecer tu ayuda a Sous", y despues `pasan 120 h` | `sous` = negado | Le dices que no a Sous |
 | `final_nunca_fuiste` | `pasan 120 h`<br>`pasan 96 h` | `sous` = ignorados | - |
-| `final_sous_caidos` | "Entregar la medicina", y despues `todos_muertos sous`<br>`todos_muertos sous` | `sous` = caidos | Sous cae en su base |
+| `final_sous_caidos` | "Entregar las armas", y despues `todos_muertos sous`<br>`todos_muertos sous` | `sous` = caidos | Sous cae en su base |
 | `final_te_quedaste` | "Decidir devolverle las cosas a Sous", y despues `pasan 72 h`<br>"Quedarte con todo lo que robo Meulen" | `sous` = enemigos | sous_guerra |
-| `final_traicion` | "Decidir devolverle las cosas a Sous", y despues `mato_jugador sous`<br>"Dejarlo ir. Sous va a creer que se escapo", y despues `mato_jugador escuadra`<br>"Entregar la medicina", y despues `mato_jugador sous`<br>"Ir con Akagami, Zent y Walita", y despues `mato_jugador escuadra`<br>"Ir con Matric, Tati y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo" o "Ir con Matric, Tati y David Shinbo" o "Mejor ir solo" o "Ir con todo Sous" o "Ir con Akagami, Zent y Walita" o "Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con todo Sous", y despues `mato_jugador escuadra`<br>"Ofrecer tu ayuda a Sous", y despues `mato_jugador sous`<br>"Revisar el deposito saqueado", y despues `mato_jugador sous`<br>`mato_jugador sous` | `sous` = enemigos | sous_guerra |
+| `final_traicion` | "Decidir devolverle las cosas a Sous", y despues `mato_jugador sous`<br>"Dejarlo ir. Sous va a creer que se escapo", y despues `mato_jugador escuadra`<br>"Entregar las armas", y despues `mato_jugador sous`<br>"Ir con Akagami, Zent y Walita", y despues `mato_jugador escuadra`<br>"Ir con Matric, Tati y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo" o "Ir con Matric, Tati y David Shinbo" o "Mejor ir solo" o "Ir con todo Sous" o "Ir con Akagami, Zent y Walita" o "Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con todo Sous", y despues `mato_jugador escuadra`<br>"Ofrecer tu ayuda a Sous", y despues `mato_jugador sous`<br>"Revisar el deposito saqueado", y despues `mato_jugador sous`<br>`mato_jugador sous` | `sous` = enemigos | sous_guerra |
 
 ### El arsenal (`sous_arsenal`)
 
@@ -555,6 +601,13 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | Padre Nacho quiere un campamento | `desbloqueo_riverside` | al andar por Riverside (NarradorContactos) | - | - | `campamento_riverside` = fundado (final_campamento)<br>`historia_riverside_1` = true (final_campamento) |
 | Misia Rosa quiere un campamento | `desbloqueo_rosewood` | al andar por Rosewood (NarradorContactos) | - | - | `campamento_rosewood` = fundado (final_campamento)<br>`historia_rosewood_1` = true (final_campamento) |
 | Tia Chela quiere un campamento | `desbloqueo_westpoint` | al andar por West Point (NarradorContactos) | - | - | `campamento_westpoint` = fundado (final_campamento)<br>`historia_westpoint_1` = true (final_campamento) |
+| La viuda del alijo | `eco_alijo_viuda` | el director (al azar, segun tension) | - | - | `alijo` = compartido (final_compartido)<br>`alijo` = negado (final_negado)<br>`alijo` = viuda_muerta (final_la_mataste) |
+| El hermano de Denise | `eco_denise_lonnie` | el director (al azar, segun tension) | - | - | - |
+| La promesa de Denise | `eco_denise_olla` | el director (al azar, segun tension) | - | - | - |
+| Ray vuelve | `eco_desertor_vuelve` | el director (al azar, segun tension) | - | - | `desertor` = asesinado (final_lo_mataste)<br>`desertor` = muerto (final_cayo) |
+| Lo que encontro Lucas | `eco_lucas_farmacia` | el director (al azar, segun tension) | - | - | - |
+| La madre de Lucas | `eco_lucas_loretta` | el director (al azar, segun tension) | - | - | - |
+| El cobro del trueque | `eco_trueque_cobro` | el director (al azar, segun tension) | - | - | - |
 | Eduardo viene por ti | `eduardo_atentado` | 3 veces, cada 48 horas (NarradorBandido) | `knox_conquistado` | `fin` | `eduardo_nota` = true (nota) |
 | Eduardo, corriendo | `eduardo_evento` | tirada diaria (NarradorEduardo) | `eduardo_conocido` | `eduardo_muerto_duelo`, `bandido = pereira`, `fin` | - |
 | Fallas Lake | `eduardo_fallas` | despues del tercer atentado (NarradorBandido) | `eduardo_nota = true` | `fin` | `eduardo_muerto_duelo` = true (final_eduardo_muerto)<br>`fin` = eduardo_muerto (final_eduardo_muerto)<br>`reconquista` = true (final_reconquista) |
@@ -596,8 +649,9 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `<prefijo>_lider_nombre` | Nombre del lider del grupo (accion 'bajas'). | - | sous_arsenal | escribe: NarradorMotorAcciones; lee: Sous |
 | `<prefijo>_lider_perfil` | Perfil de A-Life del lider del grupo (accion 'bajas'). | - | sous_arsenal | escribe: NarradorMotorAcciones; lee: Sous |
 | `<prefijo>_murio_<rol>` | Ese rol del grupo murio (sous_murio_hanz...). Lo usan charlas, encuentros y 'sin_muertos_de'. | - | - | escribe: NarradorMotorAcciones; lee: ConversasSous, NarradorEncuentros, NarradorMotorAcciones, NarradorMotorGrupos, Sous |
-| `alijo` | El alijo custodiado: encontrado. | alijo_custodiado | - | escribe: EventosCortos |
-| `arsenal` | Que sacaste del arsenal de Louisville (arma, auto o traje). | sous_arsenal | - | escribe: Sous |
+| `alijo` | El alijo custodiado: encontrado; despues compartido, negado o viuda_muerta (la viuda del dueno, ConsecuenciasExtra). | alijo_custodiado, eco_alijo_viuda | - | escribe: ConsecuenciasExtra, EventosCortos; lee: ConsecuenciasExtra |
+| `arsenal` | Que sacaste del arsenal de Louisville (arma, auto o traje). Un misionero te lo comenta (NarradorConsecuencias). | sous_arsenal | - | escribe: Sous; lee: NarradorConsecuencias |
+| `arsenal_comentado` | Que misionero ya te comento lo del arsenal (una sola vez). | - | - | escribe: NarradorConsecuencias; lee: NarradorConsecuencias |
 | `asalto` | El asalto nocturno: rechazado. | asalto_nocturno | - | escribe: EventosCortos |
 | `bandido` | Camino del bandido: pereira, rechazado, redimido o pereira_escapo. | bandido_1, bandido_2, bandido_3, bandido_4, bandido_5, bandido_maulen | conquista_muldraugh, conquista_sous, eduardo_evento | escribe: Bandido, NarradorBandido; lee: NarradorBandido, NarradorEduardo |
 | `bandido_aviso_cabo` | Ya se aviso que el cap. 2 espera el campamento del Cabo. | - | - | escribe: NarradorBandido; lee: NarradorBandido |
@@ -619,8 +673,8 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `conv.<conv>.quien` | Quien respondio esa conversacion. | - | - | escribe: NarradorConversas |
 | `cura_<contacto>` | Como termino la primera mision de la cura de ese misionero: salvo o murio (cura_rosewood = el sobrino de la Misia Rosa). | - | - | escribe: Cura; lee: NarradorDominiosDefs |
 | `curandero_falso` | Los Bell compraron pastillas a un curandero falso: era el doctor Hartmann (te lo confiesa en el cap. 3 de la Chela). | familia_infectada | leyenda_eduardo | escribe: FamiliaInfectada; lee: LeyendaEduardo |
-| `denise` | Denise (sobreviviente acorralada): rescatada, muerta o asesinada. | sobreviviente_acorralada | - | escribe: EventosCortos |
-| `desertor` | El desertor: protegido, entregado, echado, muerto o asesinado. | el_desertor | - | escribe: EventosCortos |
+| `denise` | Denise (sobreviviente acorralada): rescatada, muerta o asesinada. Rescatada: Lonnie te trae su comida; asesinada: Lonnie te caza (ConsecuenciasExtra). | sobreviviente_acorralada | - | escribe: EventosCortos; lee: ConsecuenciasExtra |
+| `desertor` | El desertor: protegido, entregado, echado, muerto o asesinado. Protegido: Ray vuelve con la Guardia detras (ConsecuenciasExtra). | eco_desertor_vuelve, el_desertor | - | escribe: ConsecuenciasExtra, EventosCortos; lee: ConsecuenciasExtra |
 | `dominio_<id>` | De quien es la ciudad: nil = mision, 'bandido' o 'nuevo' (NarradorDominios). | - | - | escribe: NarradorDominios; lee: NarradorDominios |
 | `eduardo_atentados` | Atentados de Eduardo hechos (3). | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `eduardo_conocido` | Ya conociste a Eduardo (cap. 3 de la Chela). Abre sus eventos fortuitos. | leyenda_eduardo | bandido_5, eduardo_evento | escribe: LeyendaEduardo; lee: Bandido, Encuentros, NarradorEduardo |
@@ -642,7 +696,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `knox_bandido_<grupo>` | 'listo' la primera vez que el grupo llega a -5 de Knox (abre a Pereira). | - | bandido_1 | escribe: NarradorKnox; lee: NarradorKnox |
 | `knox_conquistado` | Las cinco conquistas terminaron: Knox es de la banda. | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_westpoint | eduardo_atentado | escribe: NarradorBandido; lee: NarradorBandido |
 | `knox_conquistado_hora` | Hora en que Knox quedo conquistado (cuenta para el primer atentado). | - | - | escribe: NarradorBandido; lee: NarradorBandido |
-| `lucas` | Lucas (hijo perdido): rescatado, muerto, asesinado o transformado. | hijo_perdido | - | escribe: EventosCortos |
+| `lucas` | Lucas (hijo perdido): rescatado, muerto, asesinado o transformado. Rescatado: te marca una farmacia; asesinado: Loretta lo cuenta (Knox -15). | hijo_perdido | - | escribe: EventosCortos; lee: ConsecuenciasExtra |
 | `lucia` | Que paso con la Hermana Lucia en el cap. 3 del Padre Nacho (en_riverside o muerta). Si murio, la reemplaza otro. | cap_nacho_3 | - | escribe: Capitulos; lee: NarradorDominiosDefs |
 | `lugar.<clave>` | Lugares guardados con memoria_lugar (ver lugar.base_sous y compania). | - | - | escribe: NarradorMotorAcciones; lee: NarradorMotorAcciones |
 | `lugar.bandido_patio` | Lugar de la casa de Pereira en el patio de trenes. | - | - | escribe: Bandido, NarradorMotorAcciones; lee: Bandido, Eduardo, NarradorBandido, NarradorMotorAcciones |
@@ -664,13 +718,13 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `reconquista_patio_lanzada` | Ya se lanzo el asalto final al patio. | - | - | escribe: Eduardo, NarradorBandido; lee: NarradorBandido |
 | `sous` | Relacion con Sous: aliados, enemigos, ignorados, negado, caidos, eliminado, conquistada, maulen_escapa. | conquista_sous, sous, sous_guerra | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal | escribe: Conquista, Sous; lee: ConversasSous, FavoresSous, NarradorBandido, NarradorCalendario, NarradorDirector, NarradorEncuentros, Sous |
 | `sous_mentira` | Le mentiste a Sous sobre la noche de Maulen (los misioneros sospechan). | sous | - | escribe: Sous; lee: ConversasSous, Sous |
-| `trueque` | El trueque trampa: ganado. | trueque_trampa | - | escribe: EventosCortos |
+| `trueque` | El trueque trampa: ganado. Ganado: los hermanos de los emboscadores vienen a cobrar (ConsecuenciasExtra). | trueque_trampa | - | escribe: EventosCortos; lee: ConsecuenciasExtra |
 
 ### Memorias sin usar
 
 Se escriben y nadie las lee todavia (ver `SIN_LECTOR` en `memorias.py`).
 
 
-Solo de registro: `<def>.final`, `alijo`, `arsenal`, `asalto`, `bandido_ultimo`, `cal.fonda`, `campamento_<id>`, `conv.<conv>.hora`, `conv.<conv>.quien`, `denise`, `desertor`, `eduardo_vivo`, `faccion.<id>`, `lucas`, `trueque`.
+Solo de registro: `<def>.final`, `asalto`, `bandido_ultimo`, `cal.fonda`, `campamento_<id>`, `conv.<conv>.hora`, `conv.<conv>.quien`, `eduardo_vivo`, `faccion.<id>`.
 
 Encargos que se repiten (no son trama): `enc`, `encargo`, `encargo_alijo`, `encargo_gen`, `encargo_medicina`, `encargo_paquete`, `encargo_planos`, `encargo_radio`, `encargo_rescate`, `encargo_ultra`, `inmoral`, `recado`.
