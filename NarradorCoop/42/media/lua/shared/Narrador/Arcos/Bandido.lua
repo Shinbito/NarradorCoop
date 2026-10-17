@@ -862,6 +862,9 @@ registrar({
             ancla = "patio", ancla_grupo = PEREIRA, radio = 20,
             al_entrar = {
                 { "decir", grupo = PEREIRA, rol = "pereira", texto = "Peni! Pasa, pasa. Tranquilo, aca todos somos amigos. Todos. Bueno, la sargento ya no, pero ella se lo busco." },
+                -- Consecuencia de los Bell (bell_culpa): Maulen sabe lo de la pastilla.
+                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.1, si = { "memoria", "bell_culpa", true },
+                  texto = "Y lo de los Bell, peni... azucar por cura y te quedaste con la buena. Aca nadie te juzga. Aca eso se aplaude." },
                 { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.05, si = { "var", "venia_de_pereira", true },
                   texto = "Tu trabajabas para ella, cierto? Lo se todo. Llevaba una libreta. Yo tambien llevo una. Sigues conmigo, peni, donde quedaste." },
                 { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.05, si = { "no", { "var", "venia_de_pereira", true } },

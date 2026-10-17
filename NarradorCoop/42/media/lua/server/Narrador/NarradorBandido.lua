@@ -27,6 +27,7 @@ Narrador.Bandido = BA
 
 BA.CADA = 12
 BA.CHANCE_SOSPECHA = 30
+BA.DESCONFIANZA = 1.5    -- con pereira_desconfia, cada sabotaje pesa 45% en vez de 30%
 BA.RADIO_PATIO = 40
 BA.ESPERA_MAULEN = 72
 BA.IDS = { "bandido_1", "bandido_2", "bandido_3", "bandido_4", "bandido_5", "bandido_castigo", "bandido_maulen",
@@ -53,6 +54,11 @@ end
 
 function BA.jefe()
     return Motor.estado().memoria.bandido_jefe == "maulen" and "maulen" or "pereira"
+end
+
+-- Como se nombra al jefe del patio en los avisos.
+function BA.jefeCorto(m)
+    return (m or Motor.estado().memoria).bandido_jefe == "maulen" and "Maulen" or "Pereira"
 end
 
 function BA.lanzar(defId, jugador, extra)
@@ -226,7 +232,13 @@ function BA.revisar()
         return
     end
     local sospecha = tonumber(m.bandido_sospecha) or 0
-    if sospecha > 0 and Mundo.azar(100) <= sospecha * BA.CHANCE_SOSPECHA then
+    -- Consecuencia del castigo (pereira_desconfia): desde que sobreviviste a sus cazadores te vigila mas.
+    local chance = BA.CHANCE_SOSPECHA * (m.pereira_desconfia == true and BA.DESCONFIANZA or 1)
+    if m.pereira_desconfia == true and not m.pereira_aviso_desconfia then
+        m.pereira_aviso_desconfia = true
+        Motor.enviar(j, "aviso", { texto = BA.jefeCorto(m) .. ": 'Sobreviviste a mi gente. No creas que se me olvido. Desde hoy te miro yo.'" })
+    end
+    if sospecha > 0 and Mundo.azar(100) <= sospecha * chance then
         m.bandido_sospecha = 0
         BA.lanzar("bandido_castigo", j)
         return

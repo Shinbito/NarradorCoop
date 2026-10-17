@@ -1009,4 +1009,13 @@ end
 -- La parte de A-Life (ver arriba).
 require "Narrador/NarradorMundoALife"
 
+-- Llena de bencina un bidon (Build 42: contenedor de fluidos). false si no se pudo.
+function Mundo.llenarBencina(item)
+    if item == nil or Fluid == nil then return false end
+    return pcall(function()
+        local fc = item:getFluidContainer()
+        fc:addFluid(Fluid.Petrol, fc:getCapacity() - fc:getAmount())
+    end)
+end
+
 return Mundo

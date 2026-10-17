@@ -228,6 +228,10 @@ Novedades 0.11.0:
   Callupan con aspecto mapuche (pelo largo con trarilonco, chaleco de tejido y collar de plata).
 - Cada personaje con nombre tiene un modelo de su sexo (antes la Hermana Lucia, el doctor
   Hartmann, el Diacono Reyes, el Capitan Duarte y otros salian con el cuerpo equivocado).
+- Consecuencias: Maulen sabe si engañaste a los Bell; el doctor Hartmann confiesa que les vendio
+  las pastillas falsas; si sobreviviste a los cazadores de Pereira, te vigila mas; con la radio
+  de la Chela arreglada las amenazas se avisan antes; con el estanque defendido la Misia Rosa
+  te deja un bidon de bencina cada tres dias.
 - Para desarrollar: lista central de memorias de la partida con su chequeo
   (herramientas/memorias.py), mapa de historias mas completo (herramientas/mapa_historias.py)
   y grafo de graphify solo con el codigo. Pruebas sin el juego (herramientas/pruebas) y chequeo

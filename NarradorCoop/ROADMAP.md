@@ -98,7 +98,7 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
 
 ### 4. Contenido
 - Capítulos 4 en adelante de cada misionero.
-- Darle consecuencia a las 5 memorias sin usar (abajo).
+- Más consecuencias para las memorias "solo de registro" (encuentros, alijo, trueque...).
 
 ## Técnico
 
@@ -291,15 +291,19 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
   `{ "knox_maximo", n }`, y la memoria `knox_bandido_<grupo>` = "listo" la primera vez que el
   grupo llega a -5 de Knox o menos.
 
-## Memorias sin usar (pendientes)
-Se escriben y nadie las lee todavía (`SIN_LECTOR` en `herramientas/memorias.py`). Cada una es una
-decisión del jugador que hoy no tiene consecuencia:
-- `bell_culpa`: le diste una falsa a los Bell y te quedaste la verdadera. Sous, Maulen o el diario
-  podrían echártelo en cara.
-- `curandero_falso`: el curandero que les vendió pastillas falsas a los Bell podría aparecer.
-- `pereira_desconfia`: Pereira descubrió un sabotaje; podría pagar menos o vigilarte.
-- `radio_westpoint`: la radio del cuartel arreglada podría dar rumores o avisos.
-- `estanque_rosewood`: el estanque defendido podría dar bencina a la Misia Rosa.
+## Consecuencias de las decisiones (hecho en 0.11.0, falta probar en el juego)
+Las 5 memorias que se escribían y nadie leía ahora tienen consecuencia (`memorias.py` ya no tiene
+pendientes):
+- `bell_culpa` (le diste una falsa a los Bell): Maulen lo sabe y te lo dice cuando te llama al
+  patio; en Sous, Martín Zent y David escuchan a los Bell hablar maravillas de ti.
+- `curandero_falso`: el doctor Hartmann es el que les vendió las pastillas de azúcar a los Bell;
+  te lo confiesa al llegar al cuartel de la Chela (cap. 3) y queda en el diario.
+- `pereira_desconfia` (sobreviviste a los cazadores): el jefe del patio te avisa que te vigila y
+  desde ahí cada sabotaje pesa 45% en vez de 30% (`BA.DESCONFIANZA`).
+- `radio_westpoint` (arreglaste la radio de la Chela, cap. 2): los avisos de amenazas llegan por
+  la radio y un cuarto de hora antes (`A.EXTRA_RADIO`).
+- `estanque_rosewood` (defendiste el estanque, cap. 3): cada 72 horas, cuando pasas por la
+  bencinera, la Misia Rosa te deja un bidón lleno (`server/Narrador/NarradorConsecuencias.lua`).
 
 ## Historias del roadmap (hechas en 0.11.0, falta probar en el juego)
 

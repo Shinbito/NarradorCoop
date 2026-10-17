@@ -396,6 +396,9 @@ Narrador.Charlas.sous_aliados = {
     { "martin_a", "Cabros, se viene visita. Ordenen un poco, no sean asi." },
     { "martin_a", "Desde lo de Maulen, cada uno lleva su propia llave. Aprendimos, mi sangre." },
     { "martin_z", "Volviste. Ya estaba apostando a que no." },
+    -- Consecuencia de los Bell (bell_culpa): ellos no saben nada y hablan bien de ti.
+    { "martin_z", "Pase por tu refugio. Los Bell hablan maravillas de ti. Que fuiste hasta el laboratorio por ellos y todo.", si = { "memoria", "bell_culpa", true } },
+    { "david", "Daniel Bell todavia reza por ti en las noches. Es lindo que alguien rece por uno, no?", si = { "memoria", "bell_culpa", true } },
     { "martin_z", "Encontre una ruta segura. Bueno, menos insegura. No te ilusiones." },
     { "martin_z", "Akagami hizo otra lista. Tu estas primero. No te acostumbres." },
     { "martin_z", "Si alguna vez quieres aprender a calcular probabilidades, te enseno. Spoiler: todas son malas." },

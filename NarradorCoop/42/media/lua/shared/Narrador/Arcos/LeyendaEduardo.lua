@@ -164,6 +164,11 @@ Narrador.Defs.registrar({
                 { "variable", nombre = "rep_extra", valor = 10 },
                 -- Era un charlatan... pero sabe hacer remedios.
                 { "decir", grupo = DOC, rol = "cientifico", texto = "Bueno... la cura, la cura, exactamente no. Lo dije para que alguien viniera. Pero se hacer antibioticos con moho y paciencia. Denme una mesa y les hago medicina." },
+                -- Consecuencia de los Bell (curandero_falso): Hartmann es el que les vendio las pastillas de azucar.
+                { "decir", grupo = DOC, rol = "cientifico", retraso = 0.08, si = { "memoria", "curandero_falso", true },
+                  texto = "...Yo te conozco. Fuiste a buscar el suero para la familia del refugio, los Bell. Si. Las pastillas las vendi yo. Agua, azucar y colorante. Pense que nadie iba a llegar tan lejos por una caja de pastillas." },
+                { "diario", si = { "memoria", "curandero_falso", true },
+                  texto = "El doctor Hartmann es el que vendio las pastillas falsas de los Bell. Lo traje vivo igual. Todavia no se si hice bien." },
                 { "decir_contacto", retraso = 0.05, texto = "Charlatan. Pero un charlatan que hace remedios sirve. Cuando el campamento crezca, te pongo una consulta. Por mientras, te lavas las manos." },
                 { "decir_contacto", texto = "Lo viste? A mi Eduardo? Y esta bien? ... Ese cabro porfiado. Ya. Ya. No me mires, que se me metio algo en el ojo.",
                   si = { "var", "dijo_eduardo", true } },

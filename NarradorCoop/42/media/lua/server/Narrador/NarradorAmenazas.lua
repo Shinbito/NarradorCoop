@@ -25,6 +25,7 @@ Narrador.Amenazas = A
 A.RADIO_JUNTOS = 150
 A.EXTRA_POR_JUGADOR = 0.4
 A.HORAS_AVISO = { 0.15, 0.35 }
+A.EXTRA_RADIO = 0.25      -- con la radio del cuartel de la Chela arreglada, el aviso llega un cuarto de hora antes
 
 A.TIPOS = {
     horda = { peso = 10, avisos = {
@@ -143,6 +144,11 @@ function A.programar(grupo, tipo)
     local h = A.HORAS_AVISO
     local pend = { tipo = tipo, puntos = puntos, poder = poder, ang = ang, jugadores = nombres, x = floor(x), y = floor(y),
         llega = Mundo.horas() + h[1] + Mundo.azar(floor((h[2] - h[1]) * 100)) / 100, juntos = #grupo }
+    -- Consecuencia de la radio de la Chela (radio_westpoint): avisa antes y por la radio.
+    if Motor.estado().memoria.radio_westpoint == true then
+        pend.llega = pend.llega + A.EXTRA_RADIO
+        aviso = "La radio del cuartel de la Chela: '" .. aviso .. "'"
+    end
     local e = A.st()
     e.pendientes[#e.pendientes + 1] = pend
     for _, p in ipairs(grupo) do Motor.enviar(p, "aviso", { texto = aviso }) end
