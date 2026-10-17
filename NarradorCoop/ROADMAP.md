@@ -119,6 +119,16 @@ Todo lo de las versiones 0.10, 0.11 y 0.12 está hecho pero sin probar. Lo que m
 - Admin: "Respawnear NPCs de las historias activas" y "Arma legendaria de un misionero".
 - Libreta: boton para seguir una mision. Frases sobre la cabeza si no sale la burbuja de A-Life.
 - Poster y foto de Sous: la cara de la imagen salia en espejo.
+- Confianza de Sous (solo con sus misiones) y "Sigueme" / "Vuelve a la base" con Meulen muerto.
+- Amigos de Sous: Waton Ju, Claudio Clau, Fucking Luengo y Renaaaaaato (`Arcos/SousAmigos.lua`).
+- Modo historia de los 9 integrantes de Sous con su arma legendaria (`HistoriasSous1.lua`:
+  Akagami, Zent -La Awp de SOUS y el Palo de Ekko, item y modelo propios-, Matric, Shinbo, Tati;
+  `HistoriasSous2.lua`: Walita, Cristonks, Hasag, Wertres). Los dos lanzadores no se pisan.
+- La venganza de Meulen: sus matones asaltan el refugio y traen las pistas (y atun con lechuga);
+  si no lo persigues te sigue mandando matones. Al matarlo, `meulen_final` = "muerto".
+- La base de Sous viva: mesa con baraja, sillas, sacos, generador y bidones; Sous sentado adentro.
+- Brujula: puente Java (ZombieBuddy) con el angulo de la camara de Viewpoint.
+- 7 consecuencias nuevas para decisiones que antes solo quedaban registradas.
 
 ## Pedidos nuevos (17 de octubre)
 
