@@ -312,7 +312,8 @@ function Motor.revisarGrupos(inst)
                         m.vivo, m.causa, cambio = false, m.causa or "otro", true
                     elseif actor == nil then
                         m.faltas = (m.faltas or 0) + 1
-                        if m.faltas >= 3 then m.vivo, m.causa, cambio = false, m.causa or "otro", true end
+                        -- No se sabe si murio o solo se descargo: queda "desaparecido" (no va al diario de caidos).
+                        if m.faltas >= 3 then m.vivo, m.causa, m.desaparecido, cambio = false, m.causa or "otro", true, true end
                     else
                         m.faltas = 0
                     end

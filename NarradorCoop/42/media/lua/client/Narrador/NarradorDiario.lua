@@ -289,6 +289,7 @@ function Diario.paginaNotas(estado)
     end
     Diario.rumores(b, estado)
     Diario.loQueHice(b, estado)
+    Diario.enMemoria(b, estado)
     agregar(b, { adorno = true, antes = 10 })
     agregar(b, { t = "Registro", f = "sub", c = TINTA_TITULO, antes = 6, junto = true })
     local diario = estado.diario or {}
@@ -399,6 +400,20 @@ function Diario.loQueHice(b, estado)
         if h.eco ~= nil then
             agregar(b, { t = "> Despues: " .. tostring(h.eco), f = "chico", c = TINTA_AZUL, sangria = 18 })
         end
+    end
+end
+
+-- Los que ya no estan: el nombre tachado y lo que escribi. Si lo mate yo, en rojo.
+function Diario.enMemoria(b, estado)
+    local lista = estado.caidos or {}
+    if #lista == 0 then return end
+    agregar(b, { adorno = true, antes = 10 })
+    agregar(b, { t = "Los que ya no estan", f = "sub", c = TINTA_TITULO, antes = 6, junto = true })
+    for i = #lista, 1, -1 do
+        local c = lista[i]
+        agregar(b, { t = tostring(c.nombre), f = "chico", c = c.mato and ROJO or TINTA, tachado = true, antes = 6, junto = true })
+        agregar(b, { t = Diario.fecha(c.h), f = "fecha", c = LAPIZ, sangria = 8, junto = true })
+        agregar(b, { t = tostring(c.texto), f = "mano", c = c.mato and ROJO or SEPIA, sangria = 8, antes = 2 })
     end
 end
 

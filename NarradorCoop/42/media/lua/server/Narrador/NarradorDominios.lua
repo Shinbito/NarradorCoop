@@ -24,6 +24,7 @@ require "Narrador/NarradorGenerador"
 require "Narrador/NarradorCuraServer"
 require "Narrador/NarradorCampamentosDefs"
 require "Narrador/NarradorBell"
+require "Narrador/NarradorCaidos"
 
 local DD, Mundo, Motor, C = Narrador.DominiosDefs, Narrador.Mundo, Narrador.Motor, Narrador.Contactos
 local R, G = Narrador.Reputacion, Narrador.Generador
@@ -168,6 +169,9 @@ function C.alMorir(e, c, uid)
     alMorirOriginal(e, c, uid)
     if condenado then
         Motor.estado().memoria["misionero_muerto_" .. c.id] = true
+        -- Al diario: un misionero de siempre que muere en la conquista murio por lo que hiciste.
+        -- Los capitanes que caen en la reconquista no van.
+        if D.dominio(c.id) == "mision" then pcall(Narrador.Caidos.anotarContacto, c.rol, true) end
         e.condenado_dominio = nil
         D.cambiar(c.id, dominio or "bandido")
     end

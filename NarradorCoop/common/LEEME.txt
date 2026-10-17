@@ -217,6 +217,10 @@ Novedades 0.11.0:
   su lugar queda a cargo un Bell que siga vivo (y deja tu refugio) o, si no queda ninguno, un
   mercader de paso.
 - Si el doctor Hartmann murio, el curandero del cuartel de la Chela es un mercader de paso.
+- Diario: cuando muere un personaje importante (los misioneros, los Bell, Eduardo, Sous, la gente
+  de los capitulos y del camino del bandido), en Notas -> "Los que ya no estan" sale su nombre
+  tachado y unas lineas en su honor. Si lo mataste tu, o murio por algo que hiciste, va en rojo
+  y te lamentas de en que te convertiste.
 - Para desarrollar: lista central de memorias de la partida con su chequeo
   (herramientas/memorias.py), mapa de historias mas completo (herramientas/mapa_historias.py)
   y grafo de graphify solo con el codigo. Pruebas sin el juego (herramientas/pruebas) y chequeo

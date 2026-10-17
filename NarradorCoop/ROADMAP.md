@@ -47,6 +47,17 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
   guardado, vuelve solo Daniel, que nunca se infecta.
 - Prueba: `python3 NarradorCoop/herramientas/pruebas/correr.py`.
 
+### Los que ya no están (hecho en 0.11.0, falta probar en el juego)
+- Archivos: `shared/Narrador/NarradorCaidosDefs.lua` (quién es importante y qué se escribe) y
+  `server/Narrador/NarradorCaidos.lua`. Diario: Notas -> "Los que ya no están".
+- Cuando muere de verdad un personaje importante (no si se retira o se descarga), sale su nombre
+  tachado, la fecha y un homenaje. Si lo mató el jugador, o es un misionero que murió en la
+  conquista, va en rojo con un lamento ("en qué me convertí"). Deja también una línea en el
+  registro.
+- La gente sin nombre propio en la trama (encuentros, víctimas de los encargos inmorales) solo
+  se anota si la mataste tú, con un lamento genérico.
+- Prueba: `herramientas/pruebas/prueba_caidos.lua`.
+
 ### 3. Técnico (hecho en 0.11.0)
 - Chequeo automático en GitHub (`.github/workflows/chequeos.yml`) en cada push y pull request:
   que todos los `.lua` compilen, la lista de memorias, el mapa de historias (y que esté al día) y
