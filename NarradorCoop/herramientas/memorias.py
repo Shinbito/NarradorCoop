@@ -34,6 +34,8 @@ MEMORIAS = {
     "poster_sous": "Ya se entrego el poster de Sous.",
     "lugar.base_sous": "Lugar de la base de Sous (memoria_lugar), lo reusan favores, conquista y calendario.",
     "cal.fonda": "Como salio la fonda del 18 de septiembre (hecha o sin).",
+    "sous_historia_<rol>": "Modo historia de Sous, parte 2 (Walita, Cristonks, Hasag, Wertres): hecho, fallido, postergada o murio. El lanzador ofrece las nuevas y despues las postergadas.",
+    "sous_historias2.ultima": "Hora en que el lanzador de HistoriasSous2 lanzo (o reintento) la ultima historia; marca la espera entre historias.",
     # --- Misioneros y campamentos ---
     "campamento_<id>": "El campamento de ese misionero se fundo (Desbloqueos). Hoy el codigo mira C.desbloqueado().",
     "historia_<id>_<n>": "Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento.",

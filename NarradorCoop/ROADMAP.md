@@ -121,6 +121,9 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
 ## Pedidos nuevos (17 de octubre)
 
 ### Modo historia de cada integrante de Sous (por hacer)
+- Hechas (falta probar en el juego) las de Walita, Cristonks, Hasag y Wertres:
+  `shared/Narrador/Arcos/HistoriasSous2.lua`, lanzador en `server/Narrador/NarradorHistoriasSous2.lua`
+  (Sous aliado, una a la vez, 30 horas entre historias de Sous; memoria `sous_historia_<rol>`).
 - Cada integrante de Sous tiene su propia historia secundaria. Al terminarla te da su arma
   legendaria (como el kit de los misioneros: `C.armaKit` y `Narrador.Legendario`).
 - En esas historias aparecen los amigos de Sous (perfiles propios, como los de `Narrador.Facciones`):
