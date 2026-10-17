@@ -9,6 +9,48 @@ memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias
 memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 
+## Pendiente (versión 0.11.0)
+
+### 1. Probar en el juego (lo más importante)
+Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más hay que mirar:
+- Perfiles de A-Life: Valentina (`k93_hensley_family_03`, que se vea como una muchacha), la
+  Capitana Kell (`k93_vfd_05`, que sea mujer), la Hermana Lucía (`k93_red_cross_08`), Eduardo
+  (`k93_stockyard_05`) y el doctor Hartmann (`k93_red_cross_02`); y si A-Life le deja el arma en
+  la mano a Eduardo.
+- El fuego de "quemar un refugio" (encargos inmorales de los capitanes).
+- El camino del bandido completo, por las dos rutas (Pereira y Maulen), y la reconquista.
+- La brújula con Project Viewpoint (ver "Brújula sigue a la cámara").
+- Cuando esté probado: fusionar el PR #1 a `main` (`main` sigue en la versión del 15 de octubre).
+
+### 2. Errores de historia (los encontró el chequeo de memorias)
+- Si Valentina murió en su capítulo (`hija_cabo` = muerta), la reconquista igual la trae como
+  misionera de Muldraugh. Falta decidir quién la reemplaza.
+- Lo mismo con la Hermana Lucía (`lucia` = muerta) en Riverside.
+- El curandero del nivel 4 de la Chela es el doctor Hartmann aunque haya muerto
+  (`cientifico_hartmann` = muerto), porque su capítulo fallido cuenta como hecho. Falta decidir
+  quién es el curandero en ese caso.
+- Otras 5 decisiones que hoy no tienen consecuencia: ver "Memorias sin usar".
+
+### 3. Técnico
+- La lista `LANZADORES` de `mapa_historias.py` se mantiene a mano. El chequeo podría avisar si
+  el servidor lanza (`BA.lanzar`, `Motor.lanzar`) una historia que no está en la lista.
+- Un chequeo automático en GitHub (Actions) que corra `memorias.py` y el validador de los arcos
+  en cada push.
+- `NarradorDominios.lua` reemplaza 9 funciones de Contactos, Generador y CuraServer
+  (`C.proteger`, `C.alMorir`, `C.revisarRegresos`, `C.vista`, `G.generar`, `G.generarUltra`,
+  `G.ofertaEspecial`, `G.rechazaPorKnox`, `CS.pedir`). Funciona, pero leyendo esos archivos no
+  se ve. Al menos un comentario en cada función original que diga que Dominios la envuelve.
+- 7 archivos del servidor usan el juego directo en vez de pasar por `Mundo` (Campamentos,
+  Pasajeros, Contactos, Motor, Dominios, Legendario y Cura).
+- Archivos muy grandes: `NarradorMotor.lua` (2169 líneas), `NarradorConversacion.lua` (1412),
+  `NarradorMundo.lua` (1379), `Arcos/Sous.lua` (1309).
+- En el código, Eduardo todavía se llama `tomas` (ids y memorias). Cambiarlo rompe las partidas
+  guardadas, así que habría que migrar las memorias viejas.
+
+### 4. Contenido
+- Capítulos 4 en adelante de cada misionero.
+- Darle consecuencia a las memorias sin usar (abajo).
+
 ## Técnico
 
 ### Brújula sigue a la cámara (hecho, falta probar en el juego)
@@ -79,10 +121,9 @@ El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyi
 - El Cabo Ramiro tiene una historia principal propia cuando se crea su campamento, aparte de
   los encargos.
 
-### Misión: la hija del Cabo Ramiro (programada, DESACTIVADA)
-- Archivo: `shared/Narrador/Arcos/HijaCabo.lua` (`automatico = false`: nada la lanza sola; un
-  admin la puede iniciar a mano para probarla). Para activarla falta decidir cuándo sale
-  (por ejemplo, al llegar a confianza 5 con el Cabo).
+### Misión: la hija del Cabo Ramiro (hecho, falta probar en el juego)
+- Archivo: `shared/Narrador/Arcos/HijaCabo.lua`. Es el capítulo 3 del Cabo: sale entre sus
+  ofertas con su capítulo 2 hecho y confianza 4 (`G.ESPECIALES`).
 - Etapas: el Cabo pide el favor y da el mapa -> viaje a una escuela de Louisville -> horda de
   30 (+15 por jugador extra, sin corredores) con Valentina y 3 sobrevivientes peleando ->
   hablar con ella -> traerla al campamento (te sigue y se sube al auto) -> reencuentro.
@@ -136,13 +177,12 @@ El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyi
   (14). El herrero forja un arma con el mango que lleves: con el normal sale excepcional, con
   el noble, legendaria (machete, hacha, katana, lanza o hacha de mano).
 
-### Modo historia de cada misionero
+### Modo historia de cada misionero (hecho hasta el capitulo 3, falta probar)
 - Cada misionero tiene sus capitulos. Capitulo 1 = su desbloqueo (fundar el campamento).
   Los siguientes salen entre sus ofertas cuando el anterior ya se hizo (`G.ESPECIALES` en
   `server/Narrador/NarradorGenerador.lua`; cada capitulo deja la memoria `historia_<id>_<n>`).
-- Hecho: Chela cap. 1 (desbloqueo) y cap. 3 (el cientifico). Por escribir: Chela cap. 2 (sin
-  el, el 3 no sale) y los capitulos 2+ del Cabo, el Padre Nacho y la Misia Rosa. La hija del
-  Cabo (Valentina) puede ser uno de sus capitulos.
+- Hechos los capitulos 1 a 3 de los cuatro (detalle en "C. Modo historia de los misioneros").
+  Por escribir: capitulos 4 en adelante.
 - Falta revisar en el juego los perfiles de Eduardo (`k93_stockyard_05`) y del doctor
   (`k93_red_cross_02`), y si A-Life le deja el arma en la mano.
 
@@ -216,20 +256,7 @@ decisión del jugador que hoy no tiene consecuencia:
 - `radio_westpoint`: la radio del cuartel arreglada podría dar rumores o avisos.
 - `estanque_rosewood`: el estanque defendido podría dar bencina a la Misia Rosa.
 
-## PARA EL PRÓXIMO CHAT: historias por desarrollar
-
-### A. Eventos fortuitos de Eduardo (después de conocerlo)
-- Condición: memoria `tomas_conocido`. Sale como evento fortuito, más seguido cuanto más
-  avanzada la partida (por ejemplo, una tirada por día con chance 5% + 1% por día de partida,
-  tope 40%, y al menos 72 horas entre uno y otro).
-- Eduardo llega corriendo cerca del jugador y avisa. Dos variantes:
-  - Horda gigantesca detrás de él (60 + 20 por jugador extra).
-  - Bandidos persiguiéndolo: "Vienen bandidos detrás mío. Escóndete o pelea conmigo."
-- Opciones: pelear junto a él o esconderse. Si te vas lejos mientras pelea (abandonarlo),
-  baja la reputación de Knox (por ejemplo -15). Si ganan, sube (por ejemplo +10) y Eduardo
-  dice algo heroico y humilde.
-- Eduardo es inmune (`{ "inmune", grupo, rol, quien = "tomas" }`): si cae, vuelve vivo al
-  cuartel de la Chela (ya hecho, `C.REGRESOS` y arco `tomas_vuelve`).
+## Historias del roadmap (hechas en 0.11.0, falta probar en el juego)
 
 ### B. El camino del bandido (Knox negativo)
 
