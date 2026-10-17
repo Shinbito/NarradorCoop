@@ -23,9 +23,9 @@ local function registrar(def)
     return Narrador.Defs.registrar(def)
 end
 
-local TOMAS = "tomas"
-local PERFIL_TOMAS = { { "tomas", "k93_stockyard_05" } }
-local NOMBRE_TOMAS = { tomas = { "Eduardo", "Giovanns" } }
+local EDUARDO = "eduardo"
+local PERFIL_EDUARDO = { { "eduardo", "k93_stockyard_05" } }
+local NOMBRE_EDUARDO = { eduardo = { "Eduardo", "Giovanns" } }
 local FUERTE = { health = 400, damageOutput = 300 }
 
 -- Donde esta la base de Eduardo: las casas abandonadas al lado del campo de Fallas Lake
@@ -56,20 +56,20 @@ registrar({
                 { "aviso", texto = T("Alguien te sigue desde hace rato. Paso firme, sin apuro. Cuando te das vuelta, ya esta encima.",
                     "Un silbido que conoces. Es el. Otra vez.",
                     "Esta vez no lo escuchas llegar. Solo sientes el golpe.") },
-                { "bandidos", id = TOMAS, lugar = "aqui", radio = 30, modo = "hunt", inmortales = true, salud = 400,
-                  banderas = FUERTE, perfiles = PERFIL_TOMAS, nombres = NOMBRE_TOMAS },
+                { "bandidos", id = EDUARDO, lugar = "aqui", radio = 30, modo = "hunt", inmortales = true, salud = 400,
+                  banderas = FUERTE, perfiles = PERFIL_EDUARDO, nombres = NOMBRE_EDUARDO },
             },
             salidas = {
-                { cuando = { "grupo_listo", TOMAS }, ir = "pelea" },
+                { cuando = { "grupo_listo", EDUARDO }, ir = "pelea" },
                 { cuando = { "horas", 3 }, ir = "final" },
             },
         },
         pelea = {
             pista = "Sobrevivir a Eduardo Giovanns.",
             al_entrar = {
-                { "inmune", grupo = TOMAS, rol = "tomas", quien = "tomas_bandido" },
-                { "armar_legendario", grupo = TOMAS, rol = "tomas" },
-                { "decir", grupo = TOMAS, rol = "tomas", texto = T(
+                { "inmune", grupo = EDUARDO, rol = "eduardo", quien = "eduardo_bandido" },
+                { "armar_legendario", grupo = EDUARDO, rol = "eduardo" },
+                { "decir", grupo = EDUARDO, rol = "eduardo", texto = T(
                     "Tu. Te vi en la comisaria. Te vi en el cuartel de mi mama. Llegue tarde a todo. A esto no.",
                     "Encontre la frazada. En la silla. Doblada. Ella la doblaba asi.",
                     "Ya esta. Se termina hoy.") },
@@ -78,11 +78,11 @@ registrar({
         },
         retirada = {
             al_entrar = {
-                { "decir", grupo = TOMAS, rol = "tomas", texto = T(
+                { "decir", grupo = EDUARDO, rol = "eduardo", texto = T(
                     "Esto no termina hoy. Pero termina.",
                     "La proxima vez no me voy.",
                     "...Mi mama decia que todos merecen una segunda oportunidad. No se si tu. Pero ella lo diria. Toma.") },
-                { "retirar_lejos", grupo = TOMAS, lugar = "aqui", radio = 80, retraso = 0.1 },
+                { "retirar_lejos", grupo = EDUARDO, lugar = "aqui", radio = 80, retraso = 0.1 },
                 { "variable", nombre = "ultimo", valor = true, si = { "var", "atentado", 3 } },
             },
             salidas = {
@@ -135,23 +135,23 @@ registrar({
             pista = "Encontrar a Eduardo en {lugar:base}.",
             objetivo = "base",
             al_entrar = {
-                { "npcs", id = TOMAS, lugar = "base", radio = 30, no_mas_cerca = 8, modo = "guard", quietos = true, correa = 6,
-                  inmortales = true, postura = "friendly", salud = 400, banderas = FUERTE, perfiles = PERFIL_TOMAS, nombres = NOMBRE_TOMAS },
+                { "npcs", id = EDUARDO, lugar = "base", radio = 30, no_mas_cerca = 8, modo = "guard", quietos = true, correa = 6,
+                  inmortales = true, postura = "friendly", salud = 400, banderas = FUERTE, perfiles = PERFIL_EDUARDO, nombres = NOMBRE_EDUARDO },
             },
-            salidas = { { cuando = { { "grupo_listo", TOMAS }, { "cerca", "base", 15 } }, ir = "frente" } },
+            salidas = { { cuando = { { "grupo_listo", EDUARDO }, { "cerca", "base", 15 } }, ir = "frente" } },
         },
         frente = {
             pista = "Decidir a que viniste (clic derecho cerca de Eduardo).",
-            ancla = "base", ancla_grupo = TOMAS, radio = 20,
+            ancla = "base", ancla_grupo = EDUARDO, radio = 20,
             al_entrar = {
-                { "inmune", grupo = TOMAS, rol = "tomas", quien = "tomas_bandido" },
-                { "decir", grupo = TOMAS, rol = "tomas", texto = "Viniste. Bien. Sientate o dispara, pero no me hagas esperar. Ya espere bastante en mi vida." },
+                { "inmune", grupo = EDUARDO, rol = "eduardo", quien = "eduardo_bandido" },
+                { "decir", grupo = EDUARDO, rol = "eduardo", texto = "Viniste. Bien. Sientate o dispara, pero no me hagas esperar. Ya espere bastante en mi vida." },
             },
             opciones = {
                 { id = "hablar", texto = "Vengo a hablar. Quiero devolverle Knox a la gente",
-                  dice = { rol = "tomas", texto = "Devolverselo. Despues de quitarselo. ... Ya. Mi mama te hubiera dado sopa y un reto. Yo te doy las dos cosas: la sopa despues." } },
+                  dice = { rol = "eduardo", texto = "Devolverselo. Despues de quitarselo. ... Ya. Mi mama te hubiera dado sopa y un reto. Yo te doy las dos cosas: la sopa despues." } },
                 { id = "terminar", texto = "Vengo a terminar esto",
-                  dice = { rol = "tomas", texto = "Lo sabia. Igual tenia que preguntar. Ella lo hubiera preguntado." } },
+                  dice = { rol = "eduardo", texto = "Lo sabia. Igual tenia que preguntar. Ella lo hubiera preguntado." } },
             },
             salidas = {
                 { cuando = { "eleccion", "hablar" }, ir = "final_reconquista" },
@@ -163,10 +163,10 @@ registrar({
             pista = "Matar a Eduardo Giovanns. La ultima mision.",
             objetivo = "base",
             al_entrar = {
-                { "desinmunizar", grupo = TOMAS },
-                { "retirar", grupo = TOMAS },
+                { "desinmunizar", grupo = EDUARDO },
+                { "retirar", grupo = EDUARDO },
                 { "bandidos", id = "duelo", lugar = "base", radio = 25, modo = "hunt", salud = 400, banderas = FUERTE,
-                  perfiles = PERFIL_TOMAS, nombres = NOMBRE_TOMAS },
+                  perfiles = PERFIL_EDUARDO, nombres = NOMBRE_EDUARDO },
                 { "aviso", texto = "Eduardo levanta su arma. No hay nadie mas en Fallas Lake. Solo ustedes dos y el campo." },
             },
             salidas = { { cuando = { "grupo_listo", "duelo" }, ir = "pelea_final" } },
@@ -174,20 +174,20 @@ registrar({
         pelea_final = {
             pista = "Matar a Eduardo Giovanns. La ultima mision.",
             objetivo = "base",
-            al_entrar = { { "armar_legendario", grupo = "duelo", rol = "tomas" } },
-            salidas = { { cuando = { "muerto", "duelo", "tomas" }, ir = "final_eduardo_muerto" } },
+            al_entrar = { { "armar_legendario", grupo = "duelo", rol = "eduardo" } },
+            salidas = { { cuando = { "muerto", "duelo", "eduardo" }, ir = "final_eduardo_muerto" } },
         },
         final_eduardo_muerto = { final = true, al_entrar = {
             { "legendario", lugar = "base", radio = 20, clase = "arma" },
             { "knox", cantidad = -30, motivo = "mataste a Eduardo Giovanns" },
             { "memoria", clave = "fin", valor = "eduardo_muerto" },
-            { "memoria", clave = "tomas_muerto", valor = true },
+            { "memoria", clave = "eduardo_muerto_duelo", valor = true },
             { "aviso", texto = "Eduardo Giovanns cae en el campo de Fallas Lake. En Knox ya nadie va a contar como se salvo." },
             { "diario", texto = "Mate a Eduardo Giovanns en el campo de Fallas Lake. Era el ultimo. Knox es de la banda. Me quedo su arma y el silencio." },
         } },
         final_reconquista = { final = true, al_entrar = {
             { "faccion", id = "narrador_pereira", postura = "hostile" },
-            { "retirar_lejos", grupo = TOMAS, lugar = "base", radio = 60, retraso = 1 },
+            { "retirar_lejos", grupo = EDUARDO, lugar = "base", radio = 60, retraso = 1 },
             { "memoria", clave = "reconquista", valor = true },
             { "diario", texto = "Le dije a Eduardo que quiero devolverle Knox a la gente. Me creyo, o hizo como que me creia. Vamos a sacar a los bandidos ciudad por ciudad." },
         } },
@@ -241,13 +241,13 @@ for id, cd in pairs(CIUDADES) do
                 pista = "Sacar a los bandidos de " .. cd.titulo .. ".",
                 objetivo = "objetivo",
                 al_entrar = {
-                    { "npcs", id = TOMAS, lugar = "reunion", radio = 30, no_mas_cerca = 8, modo = "guard", correa = 45,
-                      inmortales = true, postura = "friendly", salud = 400, banderas = FUERTE, perfiles = PERFIL_TOMAS, nombres = NOMBRE_TOMAS },
+                    { "npcs", id = EDUARDO, lugar = "reunion", radio = 30, no_mas_cerca = 8, modo = "guard", correa = 45,
+                      inmortales = true, postura = "friendly", salud = 400, banderas = FUERTE, perfiles = PERFIL_EDUARDO, nombres = NOMBRE_EDUARDO },
                     { "condenar_misionero", contacto = id, dominio = "nuevo" },
                     { "bandidos", id = "defensores", lugar = "objetivo", radio = 40, modo = "guard", perfiles = DEFENSORES },
                 },
                 salidas = {
-                    { cuando = { "grupo_listo", TOMAS }, ir = "pelea" },
+                    { cuando = { "grupo_listo", EDUARDO }, ir = "pelea" },
                     { cuando = { "misionero_muerto", id }, ir = "final_reconquistado" },
                     { cuando = { "horas", 12 }, ir = "final_abandonado" },
                 },
@@ -256,9 +256,9 @@ for id, cd in pairs(CIUDADES) do
                 pista = "Sacar a los bandidos de " .. cd.titulo .. ". {contacto_nombre} no se va a rendir.",
                 objetivo = "objetivo",
                 al_entrar = {
-                    { "inmune", grupo = TOMAS, rol = "tomas", quien = "tomas_bandido" },
-                    { "armar_legendario", grupo = TOMAS, rol = "tomas" },
-                    { "decir", grupo = TOMAS, rol = "tomas", texto = cd.eduardo },
+                    { "inmune", grupo = EDUARDO, rol = "eduardo", quien = "eduardo_bandido" },
+                    { "armar_legendario", grupo = EDUARDO, rol = "eduardo" },
+                    { "decir", grupo = EDUARDO, rol = "eduardo", texto = cd.eduardo },
                 },
                 salidas = {
                     { cuando = { "misionero_muerto", id }, ir = "final_reconquistado" },
@@ -268,12 +268,12 @@ for id, cd in pairs(CIUDADES) do
             final_reconquistado = { final = true, al_entrar = {
                 { "knox", cantidad = 15, motivo = "redencion" },
                 { "memoria", clave = "reconquista_" .. id, valor = true },
-                { "retirar_lejos", grupo = TOMAS, lugar = "objetivo", radio = 70, retraso = 0.5 },
+                { "retirar_lejos", grupo = EDUARDO, lugar = "objetivo", radio = 70, retraso = 0.5 },
                 { "aviso", texto = cd.titulo .. " es libre. Vuelve " .. cd.nuevo .. "." },
                 { "diario", texto = "Sacamos a los bandidos de " .. cd.titulo .. ". Ahora la cuida " .. cd.nuevo .. "." },
             } },
             final_abandonado = { final = true, al_entrar = {
-                { "retirar", grupo = TOMAS },
+                { "retirar", grupo = EDUARDO },
                 { "indultar_misionero", contacto = id },
                 { "diario", texto = "No termine lo de " .. cd.titulo .. ". Eduardo va a volver a buscarme." },
             } },
@@ -307,15 +307,15 @@ registrar({
             pista = "Terminar con {jefe_nombre} en {lugar:patio}.",
             objetivo = "patio",
             al_entrar = {
-                { "npcs", id = TOMAS, lugar = "reunion", radio = 30, no_mas_cerca = 8, modo = "guard", correa = 45,
-                  inmortales = true, postura = "friendly", salud = 400, banderas = FUERTE, perfiles = PERFIL_TOMAS, nombres = NOMBRE_TOMAS },
+                { "npcs", id = EDUARDO, lugar = "reunion", radio = 30, no_mas_cerca = 8, modo = "guard", correa = 45,
+                  inmortales = true, postura = "friendly", salud = 400, banderas = FUERTE, perfiles = PERFIL_EDUARDO, nombres = NOMBRE_EDUARDO },
                 { "faccion", id = "narrador_pereira", postura = "hostile" },
                 { "npcs", id = "banda", lugar = "patio", radio = 50, modo = "guard", correa = 25, postura = "hostile", hostiles = true,
                   perfiles = { { "pereira", "var:jefe_perfil" }, { "desertor1", "narrador_pereira_02" }, { "desertor2", "narrador_pereira_03" },
                                { "bandido1", "narrador_pereira_04" }, { "bandido2", "narrador_pereira_05" } } },
             },
             salidas = {
-                { cuando = { { "grupo_listo", TOMAS }, { "grupo_listo", "banda" } }, ir = "pelea" },
+                { cuando = { { "grupo_listo", EDUARDO }, { "grupo_listo", "banda" } }, ir = "pelea" },
                 { cuando = { "muerto", "banda", "pereira" }, ir = "final_luz" },
             },
         },
@@ -323,9 +323,9 @@ registrar({
             pista = "Terminar con {jefe_nombre} en {lugar:patio}.",
             objetivo = "patio",
             al_entrar = {
-                { "inmune", grupo = TOMAS, rol = "tomas", quien = "tomas_bandido" },
-                { "armar_legendario", grupo = TOMAS, rol = "tomas" },
-                { "decir", grupo = TOMAS, rol = "tomas", texto = "El ultimo. Despues de esto, Knox vuelve a ser de la gente. Vamos." },
+                { "inmune", grupo = EDUARDO, rol = "eduardo", quien = "eduardo_bandido" },
+                { "armar_legendario", grupo = EDUARDO, rol = "eduardo" },
+                { "decir", grupo = EDUARDO, rol = "eduardo", texto = "El ultimo. Despues de esto, Knox vuelve a ser de la gente. Vamos." },
                 { "decir", grupo = "banda", rol = "pereira", retraso = 0.05, texto = { por_var = "bandido_jefe", textos = {
                     maulen = "Peni! Tu? Con el? ... Mi chuchu tenia razon: todos vuelven. Aunque sea para esto.",
                     otro = "Lo sabia. Los que cambian de bando una vez, cambian dos. Fuego!" } } },
@@ -336,7 +336,7 @@ registrar({
             { "knox_reiniciar", texto = "Knox vuelve a ser luz de esperanza. La gente sabe lo que hiciste. Tambien sabe lo que deshiciste." },
             { "knox", cantidad = 45, motivo = "redencion" },
             { "confianza_todos", cantidad = 100 },
-            { "retirar_lejos", grupo = TOMAS, lugar = "patio", radio = 70, retraso = 0.5 },
+            { "retirar_lejos", grupo = EDUARDO, lugar = "patio", radio = 70, retraso = 0.5 },
             { "memoria", clave = "fin", valor = "reconquista" },
             { "diario", texto = "El patio de trenes cayo. {jefe_nombre} ya no manda en nada. En cada ciudad hay alguien que cree en la gente, y en West Point, Eduardo cocina para todos. Knox vuelve a ser luz de esperanza. Yo vuelvo a tener nombre." },
         } },

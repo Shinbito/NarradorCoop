@@ -47,21 +47,28 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
   guardado, vuelve solo Daniel, que nunca se infecta.
 - Prueba: `python3 NarradorCoop/herramientas/pruebas/correr.py`.
 
-### 3. Técnico
-- La lista `LANZADORES` de `mapa_historias.py` se mantiene a mano. El chequeo podría avisar si
-  el servidor lanza (`BA.lanzar`, `Motor.lanzar`) una historia que no está en la lista.
-- Un chequeo automático en GitHub (Actions) que corra `memorias.py` y el validador de los arcos
-  en cada push.
-- `NarradorDominios.lua` reemplaza 9 funciones de Contactos, Generador y CuraServer
-  (`C.proteger`, `C.alMorir`, `C.revisarRegresos`, `C.vista`, `G.generar`, `G.generarUltra`,
-  `G.ofertaEspecial`, `G.rechazaPorKnox`, `CS.pedir`). Funciona, pero leyendo esos archivos no
-  se ve. Al menos un comentario en cada función original que diga que Dominios la envuelve.
-- 7 archivos del servidor usan el juego directo en vez de pasar por `Mundo` (Campamentos,
-  Pasajeros, Contactos, Motor, Dominios, Legendario y Cura).
-- Archivos muy grandes: `NarradorMotor.lua` (2169 líneas), `NarradorConversacion.lua` (1412),
-  `NarradorMundo.lua` (1379), `Arcos/Sous.lua` (1309).
-- En el código, Eduardo todavía se llama `tomas` (ids y memorias). Cambiarlo rompe las partidas
-  guardadas, así que habría que migrar las memorias viejas.
+### 3. Técnico (hecho en 0.11.0)
+- Chequeo automático en GitHub (`.github/workflows/chequeos.yml`) en cada push y pull request:
+  que todos los `.lua` compilen, la lista de memorias, el mapa de historias (y que esté al día) y
+  las pruebas de `herramientas/pruebas/`. Se puede correr todo a mano con los mismos comandos.
+- `mapa_historias.py` revisa que cada historia que el servidor lanza (`BA.lanzar`,
+  `Motor.iniciar` con un id escrito) esté en `LANZADORES`, y que `LANZADORES` no tenga ids que no
+  existen.
+- Las 9 funciones que `NarradorDominios.lua` envuelve tienen un comentario en su archivo original.
+- Los archivos del servidor ya no llaman directo al juego: `Mundo.datosGuardados`,
+  `Mundo.enviarCliente`, `Mundo.es`, `Mundo.incendiar`, `Mundo.quitarZombis`,
+  `Mundo.ponerPuerta` y `Mundo.quitarCadaver`. Quedan dos archivos compartidos
+  (`NarradorLegendario.lua` y `NarradorCura.lua`) que corren también en el cliente, donde
+  `Mundo` no existe.
+- El motor quedó repartido: `NarradorMotor.lua` (estado, textos, comunicación, etapas, inicio y
+  fin, pulso y comandos) carga al final `NarradorMotorCondiciones`, `NarradorMotorAcciones`,
+  `NarradorMotorGrupos` y `NarradorMotorCharlas`. Igual `NarradorMundo.lua` con
+  `NarradorMundoALife`. Se comparó que el motor y `Mundo` tengan las mismas funciones que antes.
+- Eduardo ya no se llama `tomas` en el código (`leyenda_eduardo`, `eduardo_vuelve`,
+  `eduardo_conocido`...). `Motor.migrar` cambia las partidas guardadas una sola vez.
+- Quedan grandes `client/Narrador/NarradorConversacion.lua` (1412 líneas, interfaz del cliente,
+  que no se puede probar fuera del juego) y `Arcos/Sous.lua` (1309, los datos de una sola
+  historia). Partirlos no tiene mucha ganancia; se puede ver más adelante.
 
 ### 4. Contenido
 - Capítulos 4 en adelante de cada misionero.

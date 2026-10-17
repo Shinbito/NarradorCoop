@@ -19,8 +19,8 @@ Narrador.Charlas.encuentro = {
     { "npc2", "No los dejes pasar, por favor." },
     -- La leyenda de Eduardo Giovanns: la gente que salvo lo nombra.
     { "npc", "Una vez me saco de una igual a esta un tal Eduardo. Alto, callado, con un arma que brillaba. Tu me lo recuerdas." },
-    { "npc", "Dicen que por aca anda Eduardo, el que ayuda a la gente. Ojala no sea un cuento.", si = { "no", { "mem", "tomas_conocido" } } },
-    { "npc", "Peleas como Eduardo. Si, ese Eduardo. Todo Knox habla de el.", si = { "mem", "tomas_conocido" } },
+    { "npc", "Dicen que por aca anda Eduardo, el que ayuda a la gente. Ojala no sea un cuento.", si = { "no", { "mem", "eduardo_conocido" } } },
+    { "npc", "Peleas como Eduardo. Si, ese Eduardo. Todo Knox habla de el.", si = { "mem", "eduardo_conocido" } },
     { "npc2", "Eduardo nunca pide nada a cambio. Dicen. Ojala tu tampoco." },
     -- Segun tu fama en Knox.
     { "npc", "Yo se quien eres. Que me salves no borra lo que hiciste.", si = { "knox_maximo", -90 } },

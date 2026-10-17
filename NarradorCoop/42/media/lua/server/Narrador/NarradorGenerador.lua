@@ -408,6 +408,7 @@ local function oficioDe(id)
 end
 
 -- Arma las variables del encargo. Devuelve { def, vars, lugares, resumen }.
+-- Ojo: NarradorDominios.lua envuelve esta funcion (cambia lo que hace segun quien manda en la ciudad).
 function G.generar(contactoId, nivel, grupo, tipoForzado)
     local c = C.def(contactoId)
     if c == nil then return nil end
@@ -606,6 +607,7 @@ function G.generar(contactoId, nivel, grupo, tipoForzado)
 end
 
 -- Oferta ULTRA: uno de los cuatro de Louisville (ver Contratos.lua).
+-- Ojo: NarradorDominios.lua envuelve esta funcion (cambia lo que hace segun quien manda en la ciudad).
 function G.generarUltra(contactoId)
     local ids = {}
     for _, def in ipairs(Defs.todos()) do if def.encargo_nivel == "ultra" then ids[#ids + 1] = def end end
@@ -636,6 +638,7 @@ G.RECHAZO = {
     rosewood = "Para ti la bencinera esta cerrada, mijito. Primera vez en treinta anos que cierro. Ya sabes por que.",
 }
 
+-- Ojo: NarradorDominios.lua envuelve esta funcion (cambia lo que hace segun quien manda en la ciudad).
 function G.rechazaPorKnox(jugador, contactoId, nivel)
     local KX = Narrador.Knox
     if KX == nil or not KX.despreciadoJugador(jugador) then return false end
@@ -685,7 +688,7 @@ end
 -- del capitulo 1. Los capitulos tambien son requisito para subir el campamento de nivel
 -- (shared/Narrador/NarradorCampamentosDefs.lua).
 G.ESPECIALES = {
-    -- Capitulos 2 y 3 (shared/Narrador/Arcos/Capitulos.lua, HijaCabo.lua y LeyendaTomas.lua).
+    -- Capitulos 2 y 3 (shared/Narrador/Arcos/Capitulos.lua, HijaCabo.lua y LeyendaEduardo.lua).
     -- El capitulo 1 de cada uno es su desbloqueo y deja "historia_<id>_1".
     { def = "cap_chela_2", contacto = "westpoint", capitulo = 2, requiere = "historia_westpoint_1",
       hecho = "historia_westpoint_2", confianza = 2, pago = "medio", chance = 1,
@@ -723,7 +726,7 @@ G.ESPECIALES = {
       resumen = { "Historia de la Misia Rosa, cap. 3", "Para: defender el estanque escondido",
                   "Donde: la bencinera, de noche", "Pago: botin dificil", "Ojo: vienen bandidos" } },
     -- Tia Chela, capitulo 3.
-    { def = "leyenda_tomas", contacto = "westpoint", capitulo = 3, requiere = "historia_westpoint_2",
+    { def = "leyenda_eduardo", contacto = "westpoint", capitulo = 3, requiere = "historia_westpoint_2",
       hecho = "historia_westpoint_3", confianza = 3, pago = "dificil", chance = 1,
       titulo = "Un cientifico que dice tener la cura",
       resumen = { "Historia de la Tia Chela, cap. 3", "Para: un cientifico que pide ayuda por la radio",
@@ -738,6 +741,7 @@ function G.capituloEscrito(contactoId, memoria)
     return false
 end
 
+-- Ojo: NarradorDominios.lua envuelve esta funcion (cambia lo que hace segun quien manda en la ciudad).
 function G.ofertaEspecial(contactoId, nivel, grupo)
     local st = Motor.estado()
     for _, e in ipairs(G.ESPECIALES) do

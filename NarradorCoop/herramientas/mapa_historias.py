@@ -10,7 +10,8 @@ Lee los arcos (shared/Narrador/Arcos/*.lua) con un interprete de Lua (lupa) y sa
   - en las historias con varios finales, la ultima eleccion antes de cada final y la condicion
     que lo decide.
 Las memorias salen de la lista central (herramientas/memorias.py), que tambien ve el codigo del
-servidor. Con eso arma un diagrama mermaid (GitHub lo dibuja) y una tabla por historia. La salida
+servidor. Tambien revisa que cada historia que el servidor lanza (BA.lanzar, Motor.iniciar con
+un id escrito) este en LANZADORES; si no, sale con error. Con eso arma un diagrama mermaid (GitHub lo dibuja) y una tabla por historia. La salida
 sale siempre en el mismo orden, para que regenerar no ensucie el diff.
 
 Uso (desde la raiz del repo):  pip install lupa  &&  python3 NarradorCoop/herramientas/mapa_historias.py
@@ -56,9 +57,9 @@ LANZADORES = {
     "reconquista_rosewood": ("al entrar a Rosewood (NarradorBandido)", [("reconquista", "true")], FIN),
     "reconquista_patio": ("con las 4 ciudades reconquistadas (NarradorBandido)",
                           ["reconquista_muldraugh", "reconquista_westpoint", "reconquista_riverside", "reconquista_rosewood"], FIN),
-    "eduardo_evento": ("tirada diaria (NarradorEduardo)", ["tomas_conocido"], ["tomas_muerto", ("bandido", "pereira"), "fin"]),
-    "tomas_vuelve": ("al pasar por el cuartel de la Chela, con su campamento (NarradorContactos)",
-                     ["caido_tomas", "historia_westpoint_1"], []),
+    "eduardo_evento": ("tirada diaria (NarradorEduardo)", ["eduardo_conocido"], ["eduardo_muerto_duelo", ("bandido", "pereira"), "fin"]),
+    "eduardo_vuelve": ("al pasar por el cuartel de la Chela, con su campamento (NarradorContactos)",
+                     ["caido_eduardo", "historia_westpoint_1"], []),
     "desbloqueo_muldraugh": ("al andar por Muldraugh (NarradorContactos)", [], []),
     "desbloqueo_westpoint": ("al andar por West Point (NarradorContactos)", [], []),
     "desbloqueo_riverside": ("al andar por Riverside (NarradorContactos)", [], []),
@@ -73,7 +74,7 @@ for rol in ["benjamin", "martin_z", "martin_a", "david", "bastian", "hanz", "cri
 # Memorias que deja el codigo del servidor (no una accion de un arco): clave -> arcos que la causan.
 SERVIDOR_DEJA = {
     "knox_conquistado": ["conquista_muldraugh", "conquista_westpoint", "conquista_riverside", "conquista_rosewood"],
-    "caido_tomas": ["leyenda_tomas", "eduardo_evento"],
+    "caido_eduardo": ["leyenda_eduardo", "eduardo_evento"],
 }
 
 # Desenlaces: memorias que cierran una linea de la historia. Salen en el diagrama como su propio
@@ -279,6 +280,41 @@ def decisiones(a, final):
     return sorted(caminos)
 
 
+def lanzados_por_el_servidor():
+    """Historias que el codigo del servidor lanza con un id escrito: {id o patron: archivos}.
+    "conquista_" .. id queda como el patron "conquista_<>"."""
+    out = {}
+    patron = re.compile(r'(?:BA\.lanzar|Motor\.iniciar)\(\s*("[^"]*"(?:\s*\.\.\s*[^,)]+)?)')
+    carpeta = os.path.join(LUA, "server", "Narrador")
+    for nombre in sorted(os.listdir(carpeta)):
+        if nombre.endswith(".lua"):
+            texto = open(os.path.join(carpeta, nombre), encoding="utf-8").read()
+            for m in patron.finditer(texto):
+                partes = re.split(r"\s*\.\.\s*", m.group(1))
+                clave = "".join(p.strip('"') if p.startswith('"') else "<>" for p in partes)
+                out.setdefault(clave, set()).add(nombre)
+    return out
+
+
+def chequear_lanzadores(arcos, caps):
+    """Errores: una historia que el servidor lanza y no esta en LANZADORES (el mapa diria mal
+    quien la lanza), o una entrada de LANZADORES que no es ninguna historia."""
+    ids = {a["id"] for a in arcos}
+    errores = []
+    for clave, archivos in sorted(lanzados_por_el_servidor().items()):
+        rx = re.compile("^" + ".+".join(re.escape(x) for x in clave.split("<>")) + "$")
+        calzan = sorted(i for i in ids if rx.match(i))
+        if not calzan:
+            errores.append(f"{', '.join(sorted(archivos))} lanza '{clave}' y no hay ninguna historia con ese id")
+        for i in calzan:
+            if i not in LANZADORES and i not in caps and not i.startswith(REPETIBLES):
+                errores.append(f"'{i}' lo lanza {', '.join(sorted(archivos))} y no esta en LANZADORES")
+    for i in sorted(LANZADORES):
+        if i not in ids:
+            errores.append(f"LANZADORES tiene '{i}' y no hay ninguna historia con ese id")
+    return errores
+
+
 def nodo(i):
     return re.sub(r"[^A-Za-z0-9_]", "_", i)
 
@@ -378,7 +414,7 @@ def main():
               "se vuelve a generar con `python3 NarradorCoop/herramientas/mapa_historias.py` (necesita `pip install lupa`).",
               "Los lanzadores del servidor estan en la lista `LANZADORES` del script; si se agrega uno, se agrega ahi.",
               "Las memorias y lo que guardan estan en `NarradorCoop/herramientas/memorias.py`.",
-              "Nota: en el codigo, Eduardo Giovanns todavia se llama `tomas` (su nombre viejo) en ids y memorias.", "",
+              "",
               "## Diagrama", "",
               "Cada flecha sale del final que la provoca y dice que memoria deja. Los nodos redondeados son desenlaces:",
               "decisiones que cierran una linea en vez de abrir otra historia. Las flechas con `x` cortan una historia:",
@@ -466,6 +502,10 @@ def main():
     open(SALIDA, "w", encoding="utf-8").write("\n".join(lineas))
     print(f"{SALIDA}: {len(arcos)} historias, {len(aristas)} conexiones, {len(cortes)} cortes, "
           f"{len(finales_aristas)} desenlaces")
+    errores = chequear_lanzadores(todos, caps)
+    for e in errores:
+        print("error:", e)
+    return 1 if errores else 0
 
 
 if __name__ == "__main__":

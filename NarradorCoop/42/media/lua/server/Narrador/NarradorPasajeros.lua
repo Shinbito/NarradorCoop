@@ -97,7 +97,7 @@ function P.mover(uid, x, y, z)
         pcall(function()
             cuerpo:setX(x); cuerpo:setY(y); cuerpo:setZ(z or 0)
             cuerpo:setLx(x); cuerpo:setLy(y); cuerpo:setLz(z or 0)
-            local sq = getCell():getGridSquare(floor(x), floor(y), floor(z or 0))
+            local sq = Mundo.cargado(x, y, z)
             if sq ~= nil then cuerpo:setCurrent(sq) end
         end)
     end

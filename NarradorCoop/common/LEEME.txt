@@ -219,4 +219,6 @@ Novedades 0.11.0:
 - Si el doctor Hartmann murio, el curandero del cuartel de la Chela es un mercader de paso.
 - Para desarrollar: lista central de memorias de la partida con su chequeo
   (herramientas/memorias.py), mapa de historias mas completo (herramientas/mapa_historias.py)
-  y grafo de graphify solo con el codigo.
+  y grafo de graphify solo con el codigo. Pruebas sin el juego (herramientas/pruebas) y chequeo
+  automatico en GitHub. Eduardo ya no se llama "tomas" en el codigo: las partidas guardadas se
+  actualizan solas al cargar.

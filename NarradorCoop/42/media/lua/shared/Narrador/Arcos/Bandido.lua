@@ -681,9 +681,9 @@ for i, a in ipairs(ALIADOS) do
         postura = "friendly", perfiles = a.perfiles, si = { "rep_minima", a.contacto, 70 } }
     asalto[#asalto + 1] = { "aviso", texto = a.aviso, si = { "rep_minima", a.contacto, 70 } }
 end
-asalto[#asalto + 1] = { "npcs", id = "tomas", lugar = "patio", radio = 70, no_mas_cerca = 30, modo = "guard", correa = 40,
-    postura = "friendly", salud = 400, banderas = { health = 400, damageOutput = 300 }, si = { "mem", "tomas_conocido" },
-    perfiles = { { "tomas", "k93_stockyard_05" } }, nombres = { tomas = { "Eduardo", "Giovanns" } } }
+asalto[#asalto + 1] = { "npcs", id = "eduardo", lugar = "patio", radio = 70, no_mas_cerca = 30, modo = "guard", correa = 40,
+    postura = "friendly", salud = 400, banderas = { health = 400, damageOutput = 300 }, si = { "mem", "eduardo_conocido" },
+    perfiles = { { "eduardo", "k93_stockyard_05" } }, nombres = { eduardo = { "Eduardo", "Giovanns" } } }
 asalto[#asalto + 1] = { "npcs", id = JULIO, lugar = "patio", radio = 70, no_mas_cerca = 30, modo = "guard", correa = 40,
     postura = "friendly", si = { "mem", "julio_vivo" },
     perfiles = { { "julio", "k93_truckstop_02" } }, nombres = { julio = { "Julio", "Cardenas" } } }
@@ -740,7 +740,7 @@ registrar({
             salidas = {
                 { cuando = { "muerto", "banda", "pereira" }, ir = "final_redencion" },
                 -- Eduardo (si viene) tiene que estar en el mundo para hacerlo inmune.
-                { cuando = { { "grupo_listo", "banda" }, { "o", { "grupo_listo", "tomas" }, { "no", { "mem", "tomas_conocido" } } } },
+                { cuando = { { "grupo_listo", "banda" }, { "o", { "grupo_listo", "eduardo" }, { "no", { "mem", "eduardo_conocido" } } } },
                   ir = "pelea" },
                 { cuando = { "horas", 12 }, ir = "final_escapo" },
             },
@@ -749,9 +749,9 @@ registrar({
             pista = "Acabar con {jefe_nombre} y su banda en {lugar:patio}.",
             objetivo = "patio",
             al_entrar = {
-                { "inmune", grupo = "tomas", rol = "tomas", quien = "tomas", si = { "mem", "tomas_conocido" } },
-                { "armar_legendario", grupo = "tomas", rol = "tomas", si = { "mem", "tomas_conocido" } },
-                { "decir", grupo = "tomas", rol = "tomas", si = { "mem", "tomas_conocido" },
+                { "inmune", grupo = "eduardo", rol = "eduardo", quien = "eduardo", si = { "mem", "eduardo_conocido" } },
+                { "armar_legendario", grupo = "eduardo", rol = "eduardo", si = { "mem", "eduardo_conocido" } },
+                { "decir", grupo = "eduardo", rol = "eduardo", si = { "mem", "eduardo_conocido" },
                   texto = "Escuche que venias a hacer lo correcto. Tarde, pero vienes. Yo por la izquierda." },
                 { "decir", grupo = JULIO, rol = "julio", si = { "mem", "julio_vivo" },
                   texto = "Me perdonaste la vida. Vengo a devolverla. Esa sargento es mia tambien." },
@@ -771,7 +771,7 @@ registrar({
         final_redencion = { final = true, al_entrar = {
             { "knox_reiniciar", texto = "La gente perdonara tus pecados del pasado, pero en tu mente sigue existiendo cada acto malvado que hiciste." },
             { "huella", acto = "protegiste", texto = J("Acabe con la Sargento Pereira antes de que tomara la comisaria del Cabo.", "Acabe con Maulen Callupan antes de que fuera por Sous.") },
-            { "decir", grupo = "tomas", rol = "tomas", si = { "mem", "tomas_conocido" },
+            { "decir", grupo = "eduardo", rol = "eduardo", si = { "mem", "eduardo_conocido" },
               texto = "No se por que estuviste con ella. Se por que te diste vuelta. Con eso me basta, amigo." },
             { "decir", grupo = JULIO, rol = "julio", si = { "mem", "julio_vivo" },
               texto = "Te debia una. Marisol esta bien. Ahora estamos a mano." },

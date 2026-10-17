@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Corre las pruebas de herramientas/pruebas/*.lua con los modulos reales del servidor.
 
-El juego no esta: se cargan los modulos con lo minimo (sin A-Life, sin Events) y cada prueba
+El juego no esta: se cargan todos los modulos de shared y server con lo minimo (sin A-Life, sin Events) y cada prueba
 reemplaza las funciones de Mundo que necesita. Cada prueba imprime "TODO BIEN" o "FALLOS: n".
 
 Uso (desde la raiz del repo):  pip install lupa  &&  python3 NarradorCoop/herramientas/pruebas/correr.py
@@ -14,9 +14,15 @@ import lupa
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 LUA = os.path.join(os.path.dirname(os.path.dirname(AQUI)), "42", "media", "lua")
-MODULOS = ["Narrador/NarradorDefs", "Narrador/NarradorMundo", "Narrador/NarradorMotor", "Narrador/NarradorAmenazas",
-           "Narrador/NarradorBell", "Narrador/NarradorContactos", "Narrador/NarradorDominios",
-           "Narrador/NarradorCampamentos"]
+
+
+def modulos():
+    """Todos los modulos de shared/Narrador y server/Narrador (asi se prueba tambien que carguen)."""
+    out = []
+    for carpeta in ("shared", "server"):
+        base = os.path.join(LUA, carpeta, "Narrador")
+        out += ["Narrador/" + n[:-4] for n in sorted(os.listdir(base)) if n.endswith(".lua")]
+    return out
 
 
 def correr(ruta):
@@ -30,7 +36,7 @@ def correr(ruta):
     isClient = function() return false end
     Events = setmetatable({}, { __index = function(t, k) local e = { Add = function() end }; rawset(t, k, e); return e end })
     """)
-    for m in MODULOS:
+    for m in modulos():
         lua.require(m)
     lua.execute(open(ruta, encoding="utf-8").read())
     return salida

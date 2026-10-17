@@ -31,7 +31,7 @@ local R, G = Narrador.Reputacion, Narrador.Generador
 local D = Narrador.Dominios or {}
 Narrador.Dominios = D
 
-D.CAMPOS = { "rol", "nombre", "apellido", "perfil", "oficio", "frases", "frases_tomas" }
+D.CAMPOS = { "rol", "nombre", "apellido", "perfil", "oficio", "frases", "frases_eduardo" }
 
 -- Lo que tenia cada misionero (se guarda una vez, antes de cualquier cambio).
 D.ORIGINAL = D.ORIGINAL or {}
@@ -212,16 +212,7 @@ end
 
 -- {"incendiar", lugar, radio}: prende fuego alrededor del lugar (cuando esta cargado).
 Motor.diferidas.incendiar = function(inst, p, l)
-    local radio = tonumber(p.radio) or 2
-    local ok = pcall(function()
-        local cell = getCell()
-        for dx = -radio, radio, 2 do
-            for dy = -radio, radio, 2 do
-                local sq = cell:getGridSquare(l.x + dx, l.y + dy, l.z or 0)
-                if sq ~= nil then IsoFireManager.StartFire(cell, sq, true, 100) end
-            end
-        end
-    end)
+    local ok = Mundo.incendiar(l.x, l.y, l.z or 0, tonumber(p.radio) or 2)
     if not ok then Mundo.log("no se pudo prender fuego en " .. tostring(l.etiqueta)) end
     return true
 end

@@ -381,7 +381,7 @@ end
 
 local function esRopaSuelta(jugador, it)
     local ok, sirve = pcall(function()
-        if not instanceof(it, "Clothing") then return false end
+        if not Mundo.es(it, "Clothing") then return false end
         if it:isEquipped() then return false end
         if jugador:isEquipped(it) then return false end
         return true
@@ -452,7 +452,7 @@ local function mejorar(jugador)
     local arma
     pcall(function() arma = jugador:getPrimaryHandItem() end)
     local esArma = false
-    pcall(function() esArma = arma ~= nil and instanceof(arma, "HandWeapon") end)
+    esArma = Mundo.es(arma, "HandWeapon")
     if not esArma then return false, "Pasame un arma en la mano, pues." end
     local md
     pcall(function() md = arma:getModData() end)

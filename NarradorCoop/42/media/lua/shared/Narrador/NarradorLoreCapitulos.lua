@@ -1,5 +1,5 @@
 -- Narrador Co-op: el diario durante el modo historia de los misioneros (Arcos/Desbloqueos.lua,
--- Arcos/Capitulos.lua, HijaCabo.lua y LeyendaTomas.lua). Sin tildes ni enies, primera persona.
+-- Arcos/Capitulos.lua, HijaCabo.lua y LeyendaEduardo.lua). Sin tildes ni enies, primera persona.
 
 require "Narrador/NarradorLore"
 
@@ -50,7 +50,7 @@ Lore.arcos.cap_chela_2 = {
     },
 }
 
-Lore.arcos.leyenda_tomas = {
+Lore.arcos.leyenda_eduardo = {
     etapas = {
         viaje = "Un cientifico pide ayuda por la radio de la Chela: dice que tiene la cura. Ella no le cree ni el saludo, pero quiere un doctor. Esta en {lugar:objetivo}.",
         sitio = "Llegue a {lugar:objetivo}. Alguien ya esta peleando: un tipo alto, solo contra la horda, con un arma que no parece de este mundo.",

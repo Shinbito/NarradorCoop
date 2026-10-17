@@ -4,7 +4,6 @@ Generado por `NarradorCoop/herramientas/mapa_historias.py` a partir de los arcos
 se vuelve a generar con `python3 NarradorCoop/herramientas/mapa_historias.py` (necesita `pip install lupa`).
 Los lanzadores del servidor estan en la lista `LANZADORES` del script; si se agrega uno, se agrega ahi.
 Las memorias y lo que guardan estan en `NarradorCoop/herramientas/memorias.py`.
-Nota: en el codigo, Eduardo Giovanns todavia se llama `tomas` (su nombre viejo) en ids y memorias.
 
 ## Diagrama
 
@@ -42,6 +41,7 @@ flowchart LR
   eduardo_atentado["Eduardo viene por ti"]
   eduardo_evento["Eduardo, corriendo"]
   eduardo_fallas["Fallas Lake"]
+  eduardo_vuelve["Eduardo, otra vez"]
   familia_infectada["Los Bell"]
   favor_bastian["Favor de Tati"]
   favor_benjamin["Favor de Matric"]
@@ -53,7 +53,7 @@ flowchart LR
   favor_martin_a["Favor de Akagami"]
   favor_martin_z["Favor de Zent"]
   hija_cabo["Valentina"]
-  leyenda_tomas["Un cientifico que dice tener la cura"]
+  leyenda_eduardo["Un cientifico que dice tener la cura"]
   reconquista_muldraugh["La reconquista: la comisaria de Muldraugh"]
   reconquista_patio["La reconquista: el patio de trenes"]
   reconquista_riverside["La reconquista: la iglesia de Riverside"]
@@ -62,7 +62,6 @@ flowchart LR
   sous["Sous"]
   sous_arsenal["El arsenal"]
   sous_guerra["La guerra con Sous"]
-  tomas_vuelve["Eduardo, otra vez"]
   trueque_trampa["El trueque"]
   fin_bandido_pereira_escapo(["El jefe del patio escapa"])
   fin_bandido_rechazado(["Rechaza a la banda (la puerta queda abierta)"])
@@ -88,7 +87,7 @@ flowchart LR
   bandido_5 -->|final_con_pereira: bandido = pereira| conquista_muldraugh
   bandido_5 -->|final_con_pereira: bandido = pereira| conquista_sous
   cap_cabo_2 -->|final_cumplido, final_muerta: historia_muldraugh_2| hija_cabo
-  cap_chela_2 -->|final_cumplido: historia_westpoint_2| leyenda_tomas
+  cap_chela_2 -->|final_cumplido: historia_westpoint_2| leyenda_eduardo
   cap_nacho_2 -->|final_cumplido: historia_riverside_2| cap_nacho_3
   cap_rosa_2 -->|final_cumplido, final_muerto: historia_rosewood_2| cap_rosa_3
   conquista_muldraugh -->|final_conquistado: conquista_muldraugh| conquista_riverside
@@ -103,9 +102,9 @@ flowchart LR
   desbloqueo_riverside -->|final_campamento: historia_riverside_1| cap_nacho_2
   desbloqueo_rosewood -->|final_campamento: historia_rosewood_1| cap_rosa_2
   desbloqueo_westpoint -->|final_campamento: historia_westpoint_1| cap_chela_2
-  desbloqueo_westpoint -->|final_campamento: historia_westpoint_1| tomas_vuelve
+  desbloqueo_westpoint -->|final_campamento: historia_westpoint_1| eduardo_vuelve
   eduardo_atentado -->|nota: eduardo_nota = true| eduardo_fallas
-  eduardo_evento -->|caido_tomas| tomas_vuelve
+  eduardo_evento -->|caido_eduardo| eduardo_vuelve
   eduardo_fallas -->|final_reconquista: reconquista = true| reconquista_muldraugh
   eduardo_fallas -->|final_reconquista: reconquista = true| reconquista_riverside
   eduardo_fallas -->|final_reconquista: reconquista = true| reconquista_rosewood
@@ -120,8 +119,8 @@ flowchart LR
   familia_infectada -->|final_salvados: abre| sous
   familia_infectada -->|final_se_curo_solo: abre| sous
   familia_infectada -->|final_transformado: abre| sous
-  leyenda_tomas -->|caido, despedida: tomas_conocido| eduardo_evento
-  leyenda_tomas -->|caido_tomas| tomas_vuelve
+  leyenda_eduardo -->|caido, despedida: eduardo_conocido| eduardo_evento
+  leyenda_eduardo -->|caido_eduardo| eduardo_vuelve
   reconquista_muldraugh -->|final_reconquistado: reconquista_muldraugh| reconquista_patio
   reconquista_riverside -->|final_reconquistado: reconquista_riverside| reconquista_patio
   reconquista_rosewood -->|final_reconquistado: reconquista_rosewood| reconquista_patio
@@ -148,8 +147,8 @@ flowchart LR
   trueque_trampa -->|final_escapaste: eco| asalto_nocturno
   bandido_5 --x|corta: final_con_pereira: bandido = pereira| eduardo_evento
   eduardo_fallas --x|corta: final_eduardo_muerto: fin| eduardo_atentado
+  eduardo_fallas --x|corta: final_eduardo_muerto: eduardo_muerto_duelo| eduardo_evento
   eduardo_fallas --x|corta: final_eduardo_muerto: fin| eduardo_evento
-  eduardo_fallas --x|corta: final_eduardo_muerto: tomas_muerto| eduardo_evento
   eduardo_fallas --x|corta: final_eduardo_muerto: fin| reconquista_muldraugh
   eduardo_fallas --x|corta: final_eduardo_muerto: fin| reconquista_patio
   eduardo_fallas --x|corta: final_eduardo_muerto: fin| reconquista_riverside
@@ -323,7 +322,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
 | `final_abandonado` | "Esconderte y dejar que el se encargue", y despues `ausente aqui 120 0.2`<br>"Pelear junto a Eduardo", y despues `ausente aqui 120 0.2`<br>`ausente aqui 120 0.15` | - | - |
-| `final_cayo` | "Esconderte y dejar que el se encargue", y despues `todos_muertos tomas`<br>"Pelear junto a Eduardo", y despues `todos_muertos tomas` | - | - |
+| `final_cayo` | "Esconderte y dejar que el se encargue", y despues `todos_muertos eduardo`<br>"Pelear junto a Eduardo", y despues `todos_muertos eduardo` | - | - |
 | `final_escondido` | "Esconderte y dejar que el se encargue", y despues `pasan 0.6 h`<br>"Esconderte y dejar que el se encargue", y despues `variante = bandidos y todos_muertos bandidos` | - | - |
 | `final_ganado` | "Pelear junto a Eduardo", y despues `variante = bandidos y todos_muertos bandidos`<br>"Pelear junto a Eduardo", y despues `variante = horda y (bajas_en llegada var:horda_meta 70 o pasan 0.5 h y sin_zombis llegada 15)` | - | - |
 | `final_nada` | `pasan 2 h` | - | - |
@@ -332,7 +331,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_eduardo_muerto` | "Vengo a terminar esto", y despues `muerto duelo tomas` | `fin` = eduardo_muerto, `tomas_muerto` = true | FIN: Eduardo muerto, Knox es de la banda |
+| `final_eduardo_muerto` | "Vengo a terminar esto", y despues `muerto duelo eduardo` | `eduardo_muerto_duelo` = true, `fin` = eduardo_muerto | FIN: Eduardo muerto, Knox es de la banda |
 | `final_reconquista` | "Vengo a hablar. Quiero devolverle Knox a la gente" | `reconquista` = true | reconquista_muldraugh, reconquista_riverside, reconquista_rosewood, reconquista_westpoint |
 
 ### El desertor (`el_desertor`)
@@ -442,7 +441,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `final_tarde` | `pasan 48 h`<br>`pasan 72 h` | - | - |
 | `final_tragedia` | `mato_jugador lucas` | `lucas` = asesinado | - |
 
-### Un cientifico que dice tener la cura (`leyenda_tomas`)
+### Un cientifico que dice tener la cura (`leyenda_eduardo`)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
@@ -490,14 +489,14 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_aliados` | "Entregar los suministros a Sous" | `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal |
+| `final_aliados` | "Entregar la medicina" | `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal |
 | `final_maulen_escapa` | "Ir con Akagami, Zent y Walita", y despues `pasan 120 h`<br>"Ir con Matric, Tati y David Shinbo", y despues `pasan 120 h`<br>"Ir con Tati, Shinbo y Zent", y despues `pasan 120 h`<br>"Ir con Wertres y David Shinbo", y despues `pasan 120 h`<br>"Ir con todo Sous", y despues `pasan 120 h`<br>"Mejor ir solo", y despues `pasan 120 h`<br>"Mejor ir solo", y despues `pasan 24 h`<br>"Revisar el deposito saqueado" o "Mejor ir solo", y despues `pasan 120 h`<br>"Revisar el deposito saqueado", y despues `pasan 120 h` | `sous` = maulen_escapa | Maulen escapa con todo |
 | `final_mentira` | "Quedarte con todo lo que robo Maulen", y despues `elige quedarse y todos_muertos escuadra` | `sous_mentira` = true, `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal |
-| `final_negado` | "Decir que no es tu problema"<br>"Entregar los suministros a Sous", y despues `pasan 120 h`<br>"Ofrecer tu ayuda a Sous", y despues `pasan 120 h` | `sous` = negado | Le dices que no a Sous |
+| `final_negado` | "Decir que no es tu problema"<br>"Entregar la medicina", y despues `pasan 120 h`<br>"Ofrecer tu ayuda a Sous", y despues `pasan 120 h` | `sous` = negado | Le dices que no a Sous |
 | `final_nunca_fuiste` | `pasan 120 h`<br>`pasan 96 h` | `sous` = ignorados | - |
-| `final_sous_caidos` | "Entregar los suministros a Sous", y despues `todos_muertos sous`<br>`todos_muertos sous` | `sous` = caidos | Sous cae en su base |
+| `final_sous_caidos` | "Entregar la medicina", y despues `todos_muertos sous`<br>`todos_muertos sous` | `sous` = caidos | Sous cae en su base |
 | `final_te_quedaste` | "Decidir devolverle las cosas a Sous", y despues `pasan 72 h`<br>"Quedarte con todo lo que robo Maulen" | `sous` = enemigos | sous_guerra |
-| `final_traicion` | "Decidir devolverle las cosas a Sous", y despues `mato_jugador sous`<br>"Dejarlo ir. Sous va a creer que se escapo", y despues `mato_jugador escuadra`<br>"Entregar los suministros a Sous", y despues `mato_jugador sous`<br>"Ir con Akagami, Zent y Walita", y despues `mato_jugador escuadra`<br>"Ir con Matric, Tati y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo" o "Ir con Matric, Tati y David Shinbo" o "Mejor ir solo" o "Ir con todo Sous" o "Ir con Akagami, Zent y Walita" o "Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con todo Sous", y despues `mato_jugador escuadra`<br>"Ofrecer tu ayuda a Sous", y despues `mato_jugador sous`<br>"Revisar el deposito saqueado", y despues `mato_jugador sous`<br>`mato_jugador sous` | `sous` = enemigos | sous_guerra |
+| `final_traicion` | "Decidir devolverle las cosas a Sous", y despues `mato_jugador sous`<br>"Dejarlo ir. Sous va a creer que se escapo", y despues `mato_jugador escuadra`<br>"Entregar la medicina", y despues `mato_jugador sous`<br>"Ir con Akagami, Zent y Walita", y despues `mato_jugador escuadra`<br>"Ir con Matric, Tati y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo" o "Ir con Matric, Tati y David Shinbo" o "Mejor ir solo" o "Ir con todo Sous" o "Ir con Akagami, Zent y Walita" o "Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con todo Sous", y despues `mato_jugador escuadra`<br>"Ofrecer tu ayuda a Sous", y despues `mato_jugador sous`<br>"Revisar el deposito saqueado", y despues `mato_jugador sous`<br>`mato_jugador sous` | `sous` = enemigos | sous_guerra |
 
 ### El arsenal (`sous_arsenal`)
 
@@ -526,7 +525,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | El camino del bandido: la comisaria | `bandido_2` | volver al patio de trenes, con el campamento del Cabo (NarradorBandido) | `bandido_cap = 1`, `historia_muldraugh_1` | - | `bandido_cap` = 2 (final_cumplido)<br>`bandido_cap` = 2 (final_saboteado)<br>`bandido_sospecha` = ? (final_saboteado)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_cumplido)<br>`bandido_ultimo` = hecho (final_saboteado) |
 | El camino del bandido: la familia | `bandido_3` | volver al patio de trenes (NarradorBandido) | `bandido_cap = 2` | - | `bandido_cap` = 3 (final_cumplido)<br>`bandido_cap` = 3 (final_saboteado)<br>`bandido_sospecha` = ? (final_saboteado)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_cumplido)<br>`bandido_ultimo` = hecho (final_saboteado) |
 | El camino del bandido: las latas | `bandido_4` | volver al patio de trenes (NarradorBandido) | `bandido_cap = 3` | - | `bandido_cap` = 4 (final_cumplido)<br>`bandido_cap` = 4 (final_saboteado)<br>`bandido_sospecha` = ? (final_saboteado)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_cumplido)<br>`bandido_ultimo` = hecho (final_saboteado) |
-| El camino del bandido: la decision | `bandido_5` | volver al patio de trenes (NarradorBandido) | `bandido_cap = 4`, `julio_vivo`, `tomas_conocido` | - | `bandido` = pereira (final_con_pereira)<br>`bandido` = pereira_escapo (final_escapo)<br>`bandido` = redimido (final_redencion)<br>`bandido_cap` = 5 (final_con_pereira)<br>`bandido_cap` = 5 (final_escapo)<br>`bandido_cap` = 5 (final_redencion)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_con_pereira)<br>`bandido_ultimo` = hecho (final_escapo)<br>`bandido_ultimo` = hecho (final_redencion) |
+| El camino del bandido: la decision | `bandido_5` | volver al patio de trenes (NarradorBandido) | `bandido_cap = 4`, `eduardo_conocido`, `julio_vivo` | - | `bandido` = pereira (final_con_pereira)<br>`bandido` = pereira_escapo (final_escapo)<br>`bandido` = redimido (final_redencion)<br>`bandido_cap` = 5 (final_con_pereira)<br>`bandido_cap` = 5 (final_escapo)<br>`bandido_cap` = 5 (final_redencion)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_con_pereira)<br>`bandido_ultimo` = hecho (final_escapo)<br>`bandido_ultimo` = hecho (final_redencion) |
 | Bandido: el jefe descubre el sabotaje | `bandido_castigo` | al volver al patio, 30% por sabotaje (NarradorBandido) | `bandido_sospecha` | - | `pereira_desconfia` = true (final_sobreviviste) |
 | El camino del bandido: Maulen | `bandido_maulen` | 72 horas despues de perdonar a Maulen (NarradorBandido) | `maulen_salvado` | - | `bandido` = rechazado (final_rechazo)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_unido) |
 | El amigo secreto de Sous | `cal_amigo_secreto` | 24 de diciembre, con Sous aliado (NarradorCalendario) | `sous = aliados` | - | - |
@@ -547,8 +546,9 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | Misia Rosa quiere un campamento | `desbloqueo_rosewood` | al andar por Rosewood (NarradorContactos) | - | - | `campamento_rosewood` = fundado (final_campamento)<br>`historia_rosewood_1` = true (final_campamento) |
 | Tia Chela quiere un campamento | `desbloqueo_westpoint` | al andar por West Point (NarradorContactos) | - | - | `campamento_westpoint` = fundado (final_campamento)<br>`historia_westpoint_1` = true (final_campamento) |
 | Eduardo viene por ti | `eduardo_atentado` | 3 veces, cada 48 horas (NarradorBandido) | `knox_conquistado` | `fin` | `eduardo_nota` = true (nota) |
-| Eduardo, corriendo | `eduardo_evento` | tirada diaria (NarradorEduardo) | `tomas_conocido` | `tomas_muerto`, `bandido = pereira`, `fin` | - |
-| Fallas Lake | `eduardo_fallas` | despues del tercer atentado (NarradorBandido) | `eduardo_nota = true` | `fin` | `fin` = eduardo_muerto (final_eduardo_muerto)<br>`reconquista` = true (final_reconquista)<br>`tomas_muerto` = true (final_eduardo_muerto) |
+| Eduardo, corriendo | `eduardo_evento` | tirada diaria (NarradorEduardo) | `eduardo_conocido` | `eduardo_muerto_duelo`, `bandido = pereira`, `fin` | - |
+| Fallas Lake | `eduardo_fallas` | despues del tercer atentado (NarradorBandido) | `eduardo_nota = true` | `fin` | `eduardo_muerto_duelo` = true (final_eduardo_muerto)<br>`fin` = eduardo_muerto (final_eduardo_muerto)<br>`reconquista` = true (final_reconquista) |
+| Eduardo, otra vez | `eduardo_vuelve` | al pasar por el cuartel de la Chela, con su campamento (NarradorContactos) | `caido_eduardo`, `historia_westpoint_1` | - | `eduardo_vivo` = true (final) |
 | El desertor | `el_desertor` | el director (al azar, segun tension) | - | - | `desertor` = asesinado (final_lo_mataste)<br>`desertor` = echado (final_echado)<br>`desertor` = entregado (final_entregado)<br>`desertor` = muerto (final_capturado)<br>`desertor` = protegido (final_protegido)<br>`desertor` = protegido (final_se_rindieron) |
 | Los Bell | `familia_infectada` | el director (al azar, segun tension) | - | - | `bell` = abandonados (final_abandonados)<br>`bell` = enganados (final_engano)<br>`bell` = era_gripe (final_era_gripe)<br>`bell` = falso_remedio (final_falso_remedio)<br>`bell` = masacre (final_masacre)<br>`bell` = muertos (final_muertos)<br>`bell` = olvidados (final_olvidados)<br>`bell` = salvados (final_salvados)<br>`bell` = se_curo_solo (final_se_curo_solo)<br>`bell` = transformado (final_transformado)<br>`bell_culpa` = true (final_engano)<br>`curandero_falso` = true (final_falso_remedio) |
 | Favor de Tati | `favor_bastian` | pedirle el favor en la base de Sous (FavoresSous) | `sous = aliados` | - | `favor_bastian` = hecho (final_hecho)<br>`favor_bastian` = murio (final_murio) |
@@ -563,7 +563,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | Valentina | `hija_cabo` | capitulo 3 de muldraugh, entre sus ofertas (confianza 4+) | `historia_muldraugh_2` | - | `hija_cabo` = muerta (final_perdida)<br>`hija_cabo` = salvada (final_reencuentro)<br>`historia_muldraugh_3` = fallido (final_perdida)<br>`historia_muldraugh_3` = true (final_reencuentro) |
 | El hijo perdido | `hijo_perdido` | el director (al azar, segun tension) | - | - | `lucas` = asesinado (final_tragedia)<br>`lucas` = muerto (final_lo_perdiste)<br>`lucas` = rescatado (final_reunidos)<br>`lucas` = transformado (final_lo_encontraste_tarde) |
 | Horda en camino | `horda_en_camino` | el director (al azar, segun tension) | - | - | - |
-| Un cientifico que dice tener la cura | `leyenda_tomas` | capitulo 3 de westpoint, entre sus ofertas (confianza 3+) | `historia_westpoint_2` | - | `cientifico_hartmann` = en_west_point (final_cumplido)<br>`cientifico_hartmann` = muerto (final_muerto)<br>`historia_westpoint_3` = true (final_cumplido)<br>`historia_westpoint_3` = true (final_muerto)<br>`tomas_conocido` = true (caido)<br>`tomas_conocido` = true (despedida) |
+| Un cientifico que dice tener la cura | `leyenda_eduardo` | capitulo 3 de westpoint, entre sus ofertas (confianza 3+) | `historia_westpoint_2` | - | `cientifico_hartmann` = en_west_point (final_cumplido)<br>`cientifico_hartmann` = muerto (final_muerto)<br>`eduardo_conocido` = true (caido)<br>`eduardo_conocido` = true (despedida)<br>`historia_westpoint_3` = true (final_cumplido)<br>`historia_westpoint_3` = true (final_muerto) |
 | La reconquista: la comisaria de Muldraugh | `reconquista_muldraugh` | al entrar a Muldraugh (NarradorBandido) | `misionero_muerto_muldraugh`, `reconquista = true` | `fin` | `reconquista_muldraugh` = true (final_reconquistado) |
 | La reconquista: el patio de trenes | `reconquista_patio` | con las 4 ciudades reconquistadas (NarradorBandido) | `reconquista_muldraugh`, `reconquista_riverside`, `reconquista_rosewood`, `reconquista_westpoint` | `fin` | `fin` = reconquista (final_luz) |
 | La reconquista: la iglesia de Riverside | `reconquista_riverside` | al entrar a Riverside (NarradorBandido) | `misionero_muerto_riverside`, `reconquista = true` | `fin` | `reconquista_riverside` = true (final_reconquistado) |
@@ -573,7 +573,6 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | Sous | `sous` | lo abre familia_infectada | `bell` | - | `maulen_salvado` = true (perdonado)<br>`sous` = aliados (final_aliados)<br>`sous` = aliados (final_mentira)<br>`sous` = caidos (final_sous_caidos)<br>`sous` = enemigos (final_te_quedaste)<br>`sous` = enemigos (final_traicion)<br>`sous` = ignorados (final_nunca_fuiste)<br>`sous` = maulen_escapa (final_maulen_escapa)<br>`sous` = negado (final_negado)<br>`sous_mentira` = true (final_mentira) |
 | El arsenal | `sous_arsenal` | lo abre sous, sous_guerra | `sous`, `sous_lider`, `sous_lider_nombre`, `sous_lider_perfil` | - | `arsenal` = arma (final_arma)<br>`arsenal` = auto (final_auto)<br>`arsenal` = traje (final_traje) |
 | La guerra con Sous | `sous_guerra` | lo abre sous | - | - | `sous` = eliminado (final_sous_eliminado) |
-| Eduardo, otra vez | `tomas_vuelve` | al pasar por el cuartel de la Chela, con su campamento (NarradorContactos) | `caido_tomas`, `historia_westpoint_1` | - | `tomas_vivo` = true (final) |
 | El trueque | `trueque_trampa` | el director (al azar, segun tension) | - | - | `trueque` = ganado (final_ganada) |
 
 ## Memorias
@@ -583,10 +582,10 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | Memoria | Que guarda | La dejan | La piden | Archivos |
 | --- | --- | --- | --- | --- |
 | `<def>.final` | Ultimo final de cada historia (sous.final = 'final_aliados'). Lo escribe el motor al terminar. | - | - | escribe: NarradorMotor |
-| `<prefijo>_lider` | Quien lidera un grupo despues de las bajas (accion 'bajas' del motor, prefijo = 'sous'). | - | sous_arsenal | escribe: NarradorMotor; lee: Sous |
-| `<prefijo>_lider_nombre` | Nombre del lider del grupo (accion 'bajas'). | - | sous_arsenal | escribe: NarradorMotor; lee: Sous |
-| `<prefijo>_lider_perfil` | Perfil de A-Life del lider del grupo (accion 'bajas'). | - | sous_arsenal | escribe: NarradorMotor; lee: Sous |
-| `<prefijo>_murio_<rol>` | Ese rol del grupo murio (sous_murio_hanz...). Lo usan charlas, encuentros y 'sin_muertos_de'. | - | - | escribe: NarradorMotor; lee: ConversasSous, NarradorEncuentros, NarradorMotor, Sous |
+| `<prefijo>_lider` | Quien lidera un grupo despues de las bajas (accion 'bajas' del motor, prefijo = 'sous'). | - | sous_arsenal | escribe: NarradorMotorAcciones; lee: Sous |
+| `<prefijo>_lider_nombre` | Nombre del lider del grupo (accion 'bajas'). | - | sous_arsenal | escribe: NarradorMotorAcciones; lee: Sous |
+| `<prefijo>_lider_perfil` | Perfil de A-Life del lider del grupo (accion 'bajas'). | - | sous_arsenal | escribe: NarradorMotorAcciones; lee: Sous |
+| `<prefijo>_murio_<rol>` | Ese rol del grupo murio (sous_murio_hanz...). Lo usan charlas, encuentros y 'sin_muertos_de'. | - | - | escribe: NarradorMotorAcciones; lee: ConversasSous, NarradorEncuentros, NarradorMotorAcciones, NarradorMotorGrupos, Sous |
 | `alijo` | El alijo custodiado: encontrado. | alijo_custodiado | - | escribe: EventosCortos |
 | `arsenal` | Que sacaste del arsenal de Louisville (arma, auto o traje). | sous_arsenal | - | escribe: Sous |
 | `asalto` | El asalto nocturno: rechazado. | asalto_nocturno | - | escribe: EventosCortos |
@@ -599,10 +598,10 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `bandido_ultimo` | Como termino el ultimo capitulo del bandido (hecho o abandonado). | bandido_1, bandido_2, bandido_3, bandido_4, bandido_5, bandido_maulen | - | escribe: Bandido |
 | `bell` | Como terminaron los Bell (salvados, enganados, abandonados, masacre...). Sous la lee. | familia_infectada | sous | escribe: FamiliaInfectada; lee: NarradorBell, Sous |
 | `bell_culpa` | Les diste una pastilla falsa a los Bell y te quedaste con la verdadera. | familia_infectada | - | escribe: FamiliaInfectada |
-| `caido_<quien>` | Un NPC inmune (Eduardo) cayo: true; 'volvio' cuando reaparece en el cuartel. | eduardo_evento, leyenda_tomas | tomas_vuelve | escribe: NarradorContactos; lee: NarradorContactos |
+| `caido_<quien>` | Un NPC inmune (Eduardo) cayo: true; 'volvio' cuando reaparece en el cuartel. | eduardo_evento, leyenda_eduardo | eduardo_vuelve | escribe: NarradorContactos; lee: NarradorContactos |
 | `cal.fonda` | Como salio la fonda del 18 de septiembre (hecha o sin). | cal_fonda | - | escribe: Calendario |
 | `campamento_<id>` | El campamento de ese misionero se fundo (Desbloqueos). Hoy el codigo mira C.desbloqueado(). | desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint | - | escribe: Desbloqueos |
-| `cientifico_hartmann` | El doctor Hartmann: en_west_point o muerto. Muerto, el curandero de la Chela es un mercader. | leyenda_tomas | - | escribe: LeyendaTomas; lee: NarradorCampamentosDefs |
+| `cientifico_hartmann` | El doctor Hartmann: en_west_point o muerto. Muerto, el curandero de la Chela es un mercader. | leyenda_eduardo | - | escribe: LeyendaEduardo; lee: NarradorCampamentosDefs |
 | `conquista_<id>` | Esa ciudad (o 'sous') ya fue conquistada. | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_sous, conquista_westpoint | conquista_riverside, conquista_rosewood, conquista_westpoint | escribe: Conquista; lee: NarradorBandido |
 | `conquista_aviso` | Ya se aviso que empieza la conquista. | - | - | escribe: Conquista, NarradorBandido; lee: NarradorBandido |
 | `conv.<conv>` | Respuesta elegida en una conversacion de 'pregunta' (NarradorConversas). | - | - | escribe: NarradorConversas; lee: ConversasSous |
@@ -614,27 +613,30 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `desertor` | El desertor: protegido, entregado, echado, muerto o asesinado. | el_desertor | - | escribe: EventosCortos |
 | `dominio_<id>` | De quien es la ciudad: nil = mision, 'bandido' o 'nuevo' (NarradorDominios). | - | - | escribe: NarradorDominios; lee: NarradorDominios |
 | `eduardo_atentados` | Atentados de Eduardo hechos (3). | - | - | escribe: NarradorBandido; lee: NarradorBandido |
+| `eduardo_conocido` | Ya conociste a Eduardo (cap. 3 de la Chela). Abre sus eventos fortuitos. | leyenda_eduardo | bandido_5, eduardo_evento | escribe: LeyendaEduardo; lee: Bandido, Encuentros, NarradorEduardo |
 | `eduardo_desde` | Hora del ultimo atentado de Eduardo. | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `eduardo_ev_dia` | Ultimo dia en que se tiro el evento fortuito de Eduardo. | - | - | escribe: NarradorEduardo; lee: NarradorEduardo |
 | `eduardo_ev_hora` | Hora del ultimo evento fortuito de Eduardo. | - | - | escribe: NarradorEduardo; lee: NarradorEduardo |
 | `eduardo_fallas` | Ya se lanzo la historia de Fallas Lake. | - | - | escribe: NarradorBandido; lee: NarradorBandido |
+| `eduardo_muerto_duelo` | Mataste a Eduardo en el duelo de Fallas Lake. Corta sus eventos. | eduardo_fallas | eduardo_evento | escribe: Eduardo; lee: NarradorEduardo |
 | `eduardo_nota` | Eduardo dejo la nota con el mapa a Fallas Lake. | eduardo_atentado | eduardo_fallas | escribe: Eduardo; lee: NarradorBandido |
+| `eduardo_vivo` | Eduardo volvio vivo al cuartel despues de caer. | eduardo_vuelve | - | escribe: LeyendaEduardo |
 | `estanque_rosewood` | El estanque de bencina de la Misia Rosa quedo defendido (cap. 3). | cap_rosa_3 | - | escribe: Capitulos |
-| `faccion.<id>` | Postura de las facciones propias en A-Life (accion 'faccion'). | - | - | escribe: NarradorMotor |
+| `faccion.<id>` | Postura de las facciones propias en A-Life (accion 'faccion'). | - | - | escribe: NarradorMotorAcciones |
 | `favor_<rol>` | El favor de ese miembro de Sous: hecho o murio. Con 'hecho' ya no se ofrece. | favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z | - | escribe: FavoresSous; lee: FavoresSous |
 | `fin` | Final del juego: eduardo_muerto o reconquista. Corta el bandido y los eventos de Eduardo. | eduardo_fallas, reconquista_patio | eduardo_atentado, eduardo_evento, eduardo_fallas, reconquista_muldraugh, reconquista_patio, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | escribe: Eduardo; lee: NarradorBandido, NarradorEduardo |
 | `hija_cabo` | Valentina: salvada o muerta. Si murio, en la reconquista la reemplaza otro (NUEVO_MURIO). | hija_cabo | - | escribe: HijaCabo; lee: NarradorDominiosDefs |
-| `historia_<id>_<n>` | Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento. | cap_cabo_2, cap_chela_2, cap_nacho_2, cap_nacho_3, cap_rosa_2, cap_rosa_3, desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint, hija_cabo, leyenda_tomas | bandido_2, cap_cabo_2, cap_chela_2, cap_nacho_2, cap_nacho_3, cap_rosa_2, cap_rosa_3, hija_cabo, leyenda_tomas, tomas_vuelve | escribe: Capitulos, Desbloqueos, HijaCabo, LeyendaTomas, NarradorContactos, NarradorGenerador; lee: NarradorCampamentos, NarradorContactos, NarradorGenerador |
+| `historia_<id>_<n>` | Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento. | cap_cabo_2, cap_chela_2, cap_nacho_2, cap_nacho_3, cap_rosa_2, cap_rosa_3, desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint, hija_cabo, leyenda_eduardo | bandido_2, cap_cabo_2, cap_chela_2, cap_nacho_2, cap_nacho_3, cap_rosa_2, cap_rosa_3, eduardo_vuelve, hija_cabo, leyenda_eduardo | escribe: Capitulos, Desbloqueos, HijaCabo, LeyendaEduardo, NarradorContactos, NarradorGenerador; lee: NarradorCampamentos, NarradorContactos, NarradorGenerador |
 | `julio_vivo` | Dejaste ir a Julio Cardenas en el cap. 1. | bandido_1 | bandido_5 | escribe: Bandido; lee: Bandido |
 | `knox_bandido_<grupo>` | 'listo' la primera vez que el grupo llega a -5 de Knox (abre a Pereira). | - | bandido_1 | escribe: NarradorKnox; lee: NarradorKnox |
 | `knox_conquistado` | Las cinco conquistas terminaron: Knox es de la banda. | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_westpoint | eduardo_atentado | escribe: NarradorBandido; lee: NarradorBandido |
 | `knox_conquistado_hora` | Hora en que Knox quedo conquistado (cuenta para el primer atentado). | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `lucas` | Lucas (hijo perdido): rescatado, muerto, asesinado o transformado. | hijo_perdido | - | escribe: EventosCortos |
 | `lucia` | Que paso con la Hermana Lucia en el cap. 3 del Padre Nacho (en_riverside o muerta). Si murio, la reemplaza otro. | cap_nacho_3 | - | escribe: Capitulos; lee: NarradorDominiosDefs |
-| `lugar.<clave>` | Lugares guardados con memoria_lugar (ver lugar.base_sous y compania). | - | - | escribe: NarradorMotor; lee: NarradorMotor |
-| `lugar.bandido_patio` | Lugar de la casa de Pereira en el patio de trenes. | - | - | escribe: Bandido, NarradorMotor; lee: Bandido, Eduardo, NarradorBandido, NarradorMotor |
-| `lugar.base_sous` | Lugar de la base de Sous (memoria_lugar), lo reusan favores, conquista y calendario. | - | - | escribe: NarradorMotor, Sous; lee: Calendario, Conquista, FavoresSous, NarradorBandido, NarradorCalendario, NarradorEncuentros, NarradorMotor, NarradorObjetosServer, Sous |
-| `lugar.eduardo_base` | Lugar de las casas de Fallas Lake. | - | - | escribe: Eduardo, NarradorMotor; lee: Eduardo, NarradorMotor |
+| `lugar.<clave>` | Lugares guardados con memoria_lugar (ver lugar.base_sous y compania). | - | - | escribe: NarradorMotorAcciones; lee: NarradorMotorAcciones |
+| `lugar.bandido_patio` | Lugar de la casa de Pereira en el patio de trenes. | - | - | escribe: Bandido, NarradorMotorAcciones; lee: Bandido, Eduardo, NarradorBandido, NarradorMotorAcciones |
+| `lugar.base_sous` | Lugar de la base de Sous (memoria_lugar), lo reusan favores, conquista y calendario. | - | - | escribe: NarradorMotorAcciones, Sous; lee: Calendario, Conquista, FavoresSous, NarradorBandido, NarradorCalendario, NarradorEncuentros, NarradorMotorAcciones, NarradorObjetosServer, Sous |
+| `lugar.eduardo_base` | Lugar de las casas de Fallas Lake. | - | - | escribe: Eduardo, NarradorMotorAcciones; lee: Eduardo, NarradorMotorAcciones |
 | `maulen_hora` | Hora en que se perdono a Maulen (72 horas despues toma el patio). | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `maulen_salvado` | Dejaste ir a Maulen en el escondite: abre su camino como jefe del patio. | sous | bandido_maulen, conquista_sous | escribe: Sous; lee: NarradorBandido |
 | `mercader_<oficio>_<contacto>` | Cual de K.MERCADERES hace un oficio del campamento porque el propio murio (indice). | - | - | escribe: NarradorCampamentosDefs, NarradorDominios; lee: NarradorCampamentosDefs, NarradorDominios |
@@ -650,9 +652,6 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `reconquista_patio_lanzada` | Ya se lanzo el asalto final al patio. | - | - | escribe: Eduardo, NarradorBandido; lee: NarradorBandido |
 | `sous` | Relacion con Sous: aliados, enemigos, ignorados, negado, caidos, eliminado, conquistada, maulen_escapa. | conquista_sous, sous, sous_guerra | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal | escribe: Conquista, Sous; lee: ConversasSous, FavoresSous, NarradorBandido, NarradorCalendario, NarradorDirector, NarradorEncuentros, Sous |
 | `sous_mentira` | Le mentiste a Sous sobre la noche de Maulen (los misioneros sospechan). | sous | - | escribe: Sous; lee: ConversasSous, Sous |
-| `tomas_conocido` | Ya conociste a Eduardo (cap. 3 de la Chela). Abre sus eventos fortuitos. | leyenda_tomas | bandido_5, eduardo_evento | escribe: LeyendaTomas; lee: Bandido, Encuentros, NarradorEduardo |
-| `tomas_muerto` | Mataste a Eduardo en el duelo de Fallas Lake. Corta sus eventos. | eduardo_fallas | eduardo_evento | escribe: Eduardo; lee: NarradorEduardo |
-| `tomas_vivo` | Eduardo volvio vivo al cuartel despues de caer. | tomas_vuelve | - | escribe: LeyendaTomas |
 | `trueque` | El trueque trampa: ganado. | trueque_trampa | - | escribe: EventosCortos |
 
 ### Memorias sin usar
@@ -665,6 +664,6 @@ Se escriben y nadie las lee todavia (ver `SIN_LECTOR` en `memorias.py`).
 - `pereira_desconfia`: Pereira podria pagar menos o vigilarte
 - `radio_westpoint`: la radio podria dar rumores o avisos
 
-Solo de registro: `<def>.final`, `alijo`, `arsenal`, `asalto`, `bandido_ultimo`, `cal.fonda`, `campamento_<id>`, `conv.<conv>.hora`, `conv.<conv>.quien`, `denise`, `desertor`, `faccion.<id>`, `lucas`, `tomas_vivo`, `trueque`.
+Solo de registro: `<def>.final`, `alijo`, `arsenal`, `asalto`, `bandido_ultimo`, `cal.fonda`, `campamento_<id>`, `conv.<conv>.hora`, `conv.<conv>.quien`, `denise`, `desertor`, `eduardo_vivo`, `faccion.<id>`, `lucas`, `trueque`.
 
 Encargos que se repiten (no son trama): `enc`, `encargo`, `encargo_alijo`, `encargo_gen`, `encargo_medicina`, `encargo_paquete`, `encargo_planos`, `encargo_radio`, `encargo_rescate`, `encargo_ultra`, `inmoral`, `recado`.

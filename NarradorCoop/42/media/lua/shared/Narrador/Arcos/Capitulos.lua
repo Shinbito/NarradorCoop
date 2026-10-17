@@ -2,7 +2,7 @@
 -- desbloqueo (fundar el campamento, Arcos/Desbloqueos.lua). Estos salen entre sus ofertas
 -- cuando el anterior ya se hizo (G.ESPECIALES en server/Narrador/NarradorGenerador.lua) y cada
 -- uno deja la memoria "historia_<id>_<n>" (requisito para subir el campamento de nivel).
---   Tia Chela  2: La radio del cuartel        (3: el cientifico, LeyendaTomas.lua)
+--   Tia Chela  2: La radio del cuartel        (3: el cientifico, LeyendaEduardo.lua)
 --   Cabo       2: La puerta de atras          (3: Valentina, HijaCabo.lua)
 --   Padre Nacho 2: El ring de Lexington       3: La muchacha que esperaba
 --   Misia Rosa 2: La ruta 31                  3: El estanque

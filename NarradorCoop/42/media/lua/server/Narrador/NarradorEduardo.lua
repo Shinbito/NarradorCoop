@@ -1,7 +1,7 @@
 -- Narrador Co-op (servidor): eventos fortuitos de Eduardo (shared/Narrador/Arcos/EduardoEventos.lua).
 -- Una tirada por dia de juego, con chance EV.BASE % + EV.POR_DIA % por dia de partida (tope
 -- EV.TOPE %) y al menos EV.ENTRE horas entre uno y otro. Solo despues de conocerlo (memoria
--- "tomas_conocido"), mientras siga vivo y no estes del lado de los bandidos.
+-- "eduardo_conocido"), mientras siga vivo y no estes del lado de los bandidos.
 -- Textos sin tildes a proposito.
 
 if isClient ~= nil and isClient() then return end
@@ -19,7 +19,7 @@ Narrador.EduardoEventos = EV
 EV.BASE, EV.POR_DIA, EV.TOPE, EV.ENTRE = 5, 1, 40, 72
 
 function EV.puede(m)
-    if m.tomas_conocido ~= true or m.tomas_muerto == true then return false end
+    if m.eduardo_conocido ~= true or m.eduardo_muerto_duelo == true then return false end
     -- Del lado de los bandidos, Eduardo no te viene a pedir ayuda (te viene a buscar).
     if m.bandido == "pereira" or m.fin ~= nil then return false end
     if Motor.activos("eduardo_evento") > 0 then return false end

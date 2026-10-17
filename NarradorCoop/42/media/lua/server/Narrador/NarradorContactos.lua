@@ -32,7 +32,7 @@ C.LISTA = {
           "Si vuelve con las manos vacias, no se preocupe: el castigo es otro encargo.",
       },
       -- Le tiene mala a Eduardo Giovanns: dice que es un engreido. Es envidia.
-      frases_tomas = {
+      frases_eduardo = {
           "Eduardo, Eduardo, todos hablan de Eduardo. Yo saque a once personas de esta comisaria y nadie me hace canciones.",
           "Ese Eduardo es un engreido. Anda salvando gente sin llenar ni un formulario.",
           "Humilde, dicen que es. El que es humilde no anda con un arma que brilla.",
@@ -220,7 +220,7 @@ C.BANDERAS = { persistent = true, stationary = true, invulnerable = true, leashR
 -- jugadores, solo se sacan los que sobran y que nadie esta viendo (para que no aparezcan y
 -- desaparezcan en la cara de nadie).
 function C.zonaSegura(e)
-    if e.uid == nil or e.x == nil or getCell == nil then return end
+    if e.uid == nil or e.x == nil then return end
     -- Durante un ataque de horda al campamento no se limpia nada: pelean los guardias.
     if e.campamento ~= nil and e.campamento.ataque ~= nil then return end
     local x, y = e.x, e.y
@@ -230,24 +230,8 @@ function C.zonaSegura(e)
 end
 
 function C.limpiar(x, y)
-    if x == nil or getCell == nil then return end
-    if Mundo.jugadorCerca(x, y, 25) == nil then
-        local interop = ProjectALife ~= nil and ProjectALife.Interop or nil
-        pcall(function()
-            local lista = getCell():getZombieList()
-            local quitar = {}
-            for i = 0, lista:size() - 1 do
-                local z = lista:get(i)
-                if z ~= nil and math.abs(z:getX() - x) <= 14 and math.abs(z:getY() - y) <= 14 then
-                    local esNpc = interop ~= nil and interop.isNpc ~= nil and interop.isNpc(z)
-                    if not esNpc then quitar[#quitar + 1] = z end
-                end
-            end
-            for _, z in ipairs(quitar) do
-                pcall(function() z:removeFromWorld(); z:removeFromSquare() end)
-            end
-        end)
-    end
+    if x == nil then return end
+    if Mundo.jugadorCerca(x, y, 25) == nil then Mundo.quitarZombis(x, y, 14) end
     Mundo.limpiarZona(x, y, 35, 3, 15)
 end
 
@@ -262,11 +246,7 @@ end
 
 C.PISOS_EDIFICIO = 3
 
-local function esDe(objeto, clase)
-    if objeto == nil or instanceof == nil then return false end
-    local ok, si = pcall(instanceof, objeto, clase)
-    return ok and si == true
-end
+local esDe = Mundo.es
 
 -- Contorno del edificio donde esta el misionero (o nil si no esta cargado).
 function C.cajaEdificio(e)
@@ -349,12 +329,9 @@ function C.reponerEdificio(e)
             local hay = false
             for _, d in ipairs(puertasDe(sq)) do if nombreSprite(d) == p.s then hay = true end end
             if not hay then
-                pcall(function()
-                    local puerta = IsoDoor.new(getCell(), sq, getSprite(p.s), p.n == true)
-                    sq:AddSpecialObject(puerta)
-                    if puerta.transmitCompleteItemToClients ~= nil then puerta:transmitCompleteItemToClients() end
+                if Mundo.ponerPuerta(sq, p.s, p.n) then
                     Mundo.log("se repuso una puerta del edificio del misionero en " .. p.x .. "," .. p.y .. "," .. p.z)
-                end)
+                end
             end
         end
     end
@@ -420,7 +397,7 @@ function C.inmunes()
     return st.inmunes
 end
 
--- {"inmune", grupo = "tomas", rol = "tomas", quien = "tomas"}. Con "quien", si muere queda
+-- {"inmune", grupo = "eduardo", rol = "eduardo", quien = "eduardo"}. Con "quien", si muere queda
 -- anotado para que vuelva (ver C.REGRESOS).
 Motor.inmediatas.inmune = function(inst, a)
     local g = inst.grupos[a.grupo]
@@ -447,9 +424,10 @@ end
 
 -- Los que vuelven despues de caer: aparecen vivos la proxima vez que pasas por su campamento.
 C.REGRESOS = {
-    { quien = "tomas", contacto = "westpoint", def = "tomas_vuelve", radio = 40 },
+    { quien = "eduardo", contacto = "westpoint", def = "eduardo_vuelve", radio = 40 },
 }
 
+-- Ojo: NarradorDominios.lua envuelve esta funcion (cambia lo que hace segun quien manda en la ciudad).
 function C.revisarRegresos()
     local st = Motor.estado()
     for _, r in ipairs(C.REGRESOS) do
@@ -465,7 +443,7 @@ function C.revisarRegresos()
     end
 end
 
--- {"armar_legendario", grupo = "tomas", rol = "tomas"}: le pone en la mano un arma legendaria
+-- {"armar_legendario", grupo = "eduardo", rol = "eduardo"}: le pone en la mano un arma legendaria
 -- (y su municion en el inventario). Si A-Life le cambia el arma, al menos la lleva encima.
 Motor.inmediatas.armar_legendario = function(inst, a)
     local L = Narrador.Legendario
@@ -489,6 +467,7 @@ Motor.inmediatas.armar_legendario = function(inst, a)
 end
 
 -- Mantiene vivo al misionero: banderas, sin infeccion y con la vida llena.
+-- Ojo: NarradorDominios.lua envuelve esta funcion (cambia lo que hace segun quien manda en la ciudad).
 function C.proteger(e)
     if e.uid == nil then return end
     pcall(Mundo.banderas, e.uid, C.BANDERAS, { x = e.x, y = e.y, z = e.z or 0 })
@@ -509,7 +488,7 @@ function C.enterrar(e)
             if type(L.corpseOf) == "function" then
                 local ok, cuerpo = pcall(L.corpseOf, t)
                 if ok and cuerpo ~= nil then
-                    pcall(function() cuerpo:getSquare():removeCorpse(cuerpo, false) end)
+                    Mundo.quitarCadaver(cuerpo)
                 end
             end
             Mundo.log("se cancelo la transformacion de un misionero muerto (" .. tostring(uid) .. ")")
@@ -521,6 +500,7 @@ end
 -- Si un misionero muere igual: queda anotado, no se levanta como zombi y C.tick lo vuelve a
 -- poner en su edificio la proxima vez que alguien pase cerca. Los encargos se guardan por
 -- ciudad, asi que siguen valiendo con el nuevo.
+-- Ojo: NarradorDominios.lua envuelve esta funcion (cambia lo que hace segun quien manda en la ciudad).
 function C.alMorir(e, c, uid)
     e.muertos = e.muertos or {}
     e.muertos[uid] = Mundo.horas()
@@ -628,7 +608,7 @@ function C.tick()
                         -- Conversa solo si hay alguien cerca.
                         local lineas = {}
                         for _, f in ipairs(c.frases or {}) do lineas[#lineas + 1] = { "contacto", f } end
-                        for _, f in ipairs(c.frases_tomas or {}) do lineas[#lineas + 1] = { "contacto", f } end
+                        for _, f in ipairs(c.frases_eduardo or {}) do lineas[#lineas + 1] = { "contacto", f } end
                         -- Segun la fama en Knox de quien esta cerca: con mala fama, solo desprecio.
                         local tono = C.tonoKnox(e.x, e.y)
                         local porTono = tono ~= nil and C.FRASES_KNOX[c.id] ~= nil and C.FRASES_KNOX[c.id][tono] or nil
@@ -856,6 +836,7 @@ function C.encargosActivos()
     return lista
 end
 
+-- Ojo: NarradorDominios.lua envuelve esta funcion (cambia lo que hace segun quien manda en la ciudad).
 function C.vista()
     local lista = {}
     for _, c in ipairs(C.LISTA) do

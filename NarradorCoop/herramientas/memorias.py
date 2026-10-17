@@ -48,10 +48,10 @@ MEMORIAS = {
     "nuevo_<id>": "Quien reemplaza al misionero nuevo de la reconquista que murio antes: bell_padre, bell_madre, bell_hijo o forastero.",
     "mercader_misionero_<id>": "Cual de K.MERCADERES es el forastero que manda en esa ciudad (indice).",
     "mercader_<oficio>_<contacto>": "Cual de K.MERCADERES hace un oficio del campamento porque el propio murio (indice).",
-    # --- Eduardo (en el codigo, "tomas") ---
-    "tomas_conocido": "Ya conociste a Eduardo (cap. 3 de la Chela). Abre sus eventos fortuitos.",
-    "tomas_vivo": "Eduardo volvio vivo al cuartel despues de caer.",
-    "tomas_muerto": "Mataste a Eduardo en el duelo de Fallas Lake. Corta sus eventos.",
+    # --- Eduardo (en el codigo, "eduardo") ---
+    "eduardo_conocido": "Ya conociste a Eduardo (cap. 3 de la Chela). Abre sus eventos fortuitos.",
+    "eduardo_vivo": "Eduardo volvio vivo al cuartel despues de caer.",
+    "eduardo_muerto_duelo": "Mataste a Eduardo en el duelo de Fallas Lake. Corta sus eventos.",
     "cientifico_hartmann": "El doctor Hartmann: en_west_point o muerto. Muerto, el curandero de la Chela es un mercader.",
     "eduardo_ev_dia": "Ultimo dia en que se tiro el evento fortuito de Eduardo.",
     "eduardo_ev_hora": "Hora del ultimo evento fortuito de Eduardo.",
@@ -107,7 +107,7 @@ SIN_LECTOR = {
     "campamento_<id>": "registro; el codigo mira C.desbloqueado() y historia_<id>_1",
     "radio_westpoint": "pendiente: la radio podria dar rumores o avisos",
     "estanque_rosewood": "pendiente: el estanque podria dar bencina a la Misia Rosa",
-    "tomas_vivo": "registro",
+    "eduardo_vivo": "registro",
     "bandido_ultimo": "registro",
     "pereira_desconfia": "pendiente: Pereira podria pagar menos o vigilarte",
     "denise": "registro (eventos cortos)",
