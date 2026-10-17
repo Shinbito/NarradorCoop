@@ -101,7 +101,8 @@ function Ind.buscarApiVP()
     Ind._apiVP = false
     pcall(function()
         for k, v in pairs(_G) do
-            if type(k) == "string" and type(v) == "table" and string.find(string.lower(k), "viewpoint", 1, true) ~= nil then
+            if type(k) == "string" and type(v) == "table" and k ~= "NarradorViewpoint"
+                and string.find(string.lower(k), "viewpoint", 1, true) ~= nil then
                 Ind._apiVP = v
                 return
             end
@@ -112,6 +113,8 @@ end
 
 function Ind.primeraPersona()
     if not Ind.hayViewpoint() then return false end
+    local pp = Ind.primeraPersonaPuente()
+    if pp ~= nil then return pp end
     local api = Ind.buscarApiVP()
     if type(api) ~= "table" then return Ind.vpManual == true end
     local campos = { "isFirstPerson", "IsFirstPerson", "isFPS", "isEnabled", "isActive", "firstPerson", "FirstPerson",
@@ -293,7 +296,32 @@ local function leerNumero(t, campo)
     return nil
 end
 
+-- Puente Java propio (NarradorCoop/java/NarradorViewpoint, cargado por ZombieBuddy): lee
+-- viewpoint.input.Look.yaw, el angulo real de la camara de Viewpoint. Devuelve radianes en la
+-- misma convencion que IC.rumbo (atan2(dy, dx) del mundo, x al este, y al sur), porque
+-- Viewpoint orienta al personaje con setForwardDirection(cos(yaw), sin(yaw)): no hay que
+-- convertir nada (ni grados, ni signo, ni los 45 grados de la vista isometrica).
+-- nil si el puente no esta (sin ZombieBuddy, jar no aprobado) o si no estas en primera persona.
+function Ind.yawPuente()
+    local puente = NarradorViewpoint
+    if puente == nil or puente.yaw == nil then return nil end
+    local ok, v = pcall(puente.yaw)
+    if ok and type(v) == "number" and v == v then return v end
+    return nil
+end
+
+function Ind.primeraPersonaPuente()
+    local puente = NarradorViewpoint
+    if puente == nil or puente.primeraPersona == nil then return nil end
+    local ok, v = pcall(puente.primeraPersona)
+    if ok and type(v) == "boolean" then return v end
+    return nil
+end
+
 function Ind.yawCamara()
+    local yp = Ind.yawPuente()
+    if yp ~= nil then return yp + (Ind.ajusteCamara or 0) end
+    -- Respaldo: buscar alguna tabla global de Viewpoint que diga el yaw (no suele haber).
     local api = Ind.buscarApiVP()
     if type(api) ~= "table" then return nil end
     local tablas = { api }
@@ -327,6 +355,13 @@ function Ind.diagnostico()
     local jugador = getPlayer()
     print("[Narrador] brujula: viewpoint=" .. tostring(Ind.hayViewpoint()) .. " primeraPersona=" .. tostring(Ind.primeraPersona())
         .. " yawCamara=" .. tostring(Ind.yawCamara()) .. " personaje=" .. tostring(jugador and Ind.miradaPersonaje(jugador)))
+    local puente = NarradorViewpoint
+    if puente ~= nil and puente.estado ~= nil then
+        local ok, e = pcall(puente.estado)
+        print("[Narrador] brujula: puente Java " .. tostring(ok and e or "error"))
+    else
+        print("[Narrador] brujula: puente Java NarradorViewpoint no cargado (ZombieBuddy ausente o jar sin aprobar)")
+    end
     for k, v in pairs(_G) do
         local n = type(k) == "string" and string.lower(k) or ""
         if (string.find(n, "viewpoint", 1, true) or string.find(n, "camera", 1, true)) then
