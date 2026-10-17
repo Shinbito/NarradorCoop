@@ -1,4 +1,4 @@
-Narrador Co-op v0.10.0 (Build 42) - necesita Project A-Life (ProjectALifeNPCs) para las historias con NPCs.
+Narrador Co-op v0.11.0 (Build 42) - necesita Project A-Life (ProjectALifeNPCs) para las historias con NPCs.
 
 El contenido del mod esta en la carpeta 42.
 
@@ -188,3 +188,28 @@ Novedades 0.10.0:
   Narrador -> Indicador para elegir camara o personaje, y diagnostico en console.txt).
 - Misioneros mas firmes: aparecen sin zombis encima, son inmortales desde el primer momento,
   se reponen si mueren y las puertas y ventanas de su edificio no se rompen.
+
+Novedades 0.11.0:
+- El camino del bandido: con -5 de Knox llega una nota firmada "P." y un mapa al patio de trenes
+  de Muldraugh. La Sargento Pereira tiene 5 capitulos (el traidor, la comisaria del Cabo, la
+  familia, las latas y la decision); cada uno se puede cumplir o sabotear, y con cada sabotaje
+  sube la chance de que te descubra y mande cazadores. Al final puedes quedarte a su lado o
+  redimirte con un asalto al patio junto a los misioneros (Knox vuelve a 0).
+- Maulen: si en Sous lo dejas ir, 72 horas despues mata a Pereira y se queda con el patio.
+- La conquista de Knox: del lado de la banda, la base de Sous, la comisaria del Cabo, West Point,
+  Riverside y Rosewood caen una por una. Los misioneros pierden la inmortalidad y los reemplazan
+  capitanes que solo dan encargos inmorales (cobrar tributo, silenciar a un testigo, quemar un
+  refugio, cazar a un fugitivo), todos saboteables.
+- Eduardo viene por ti tres veces y despues te espera en Fallas Lake: duelo a muerte (el ultimo
+  final del juego) o la reconquista, ciudad por ciudad, con misioneros nuevos.
+- Eventos fortuitos de Eduardo: despues de conocerlo, a veces llega corriendo con una horda o
+  con bandidos detras. Pelear con el sube la fama; abandonarlo la baja.
+- Capitulos 2 y 3 de cada misionero: la radio del cuartel y el cientifico (Tia Chela), la puerta
+  de atras y Valentina (Cabo Ramiro), el ring de Lexington y Lucia (Padre Nacho), la ruta 31 y
+  el estanque (Misia Rosa). Fundar el campamento cuenta como capitulo 1.
+- La cura: entre 1 y 4 pastillas K-93 verdaderas, siempre al menos una.
+- Diario: entradas para las misiones que no tenian texto (la cura, las fechas de Sous, los
+  encuentros, los favores, los desbloqueos y los capitulos).
+- Para desarrollar: lista central de memorias de la partida con su chequeo
+  (herramientas/memorias.py), mapa de historias mas completo (herramientas/mapa_historias.py)
+  y grafo de graphify solo con el codigo.

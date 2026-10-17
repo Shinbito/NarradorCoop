@@ -4,6 +4,10 @@ Grafo del codigo (graphify): `NarradorCoop/graphify-out/` (`GRAPH_REPORT.md` par
 Para actualizarlo: `cd NarradorCoop && graphify update .`
 Mapa de historias (que historia abre a cual y por que memoria): `NarradorCoop/MAPA_HISTORIAS.md`.
 Para actualizarlo: `python3 NarradorCoop/herramientas/mapa_historias.py` (necesita `pip install lupa`).
+Memorias de la partida (que guarda cada una): `NarradorCoop/herramientas/memorias.py`. Al agregar una
+memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias.py`: falla si una
+memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
+El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 
 ## Técnico
 
@@ -197,6 +201,20 @@ Para actualizarlo: `python3 NarradorCoop/herramientas/mapa_historias.py` (necesi
   `{ "knox_reiniciar", texto = "..." }`, condiciones `{ "knox_minimo", n }` y
   `{ "knox_maximo", n }`, y la memoria `knox_bandido_<grupo>` = "listo" la primera vez que el
   grupo llega a -5 de Knox o menos.
+
+## Memorias sin usar (pendientes)
+Se escriben y nadie las lee todavía (`SIN_LECTOR` en `herramientas/memorias.py`). Cada una es una
+decisión del jugador que hoy no tiene consecuencia:
+- `bell_culpa`: le diste una falsa a los Bell y te quedaste la verdadera. Sous, Maulen o el diario
+  podrían echártelo en cara.
+- `curandero_falso`: el curandero que les vendió pastillas falsas a los Bell podría aparecer.
+- `hija_cabo` = muerta: si Valentina murió, la reconquista igual la trae como misionera de Muldraugh.
+- `lucia` = muerta: lo mismo con la Hermana Lucía en Riverside.
+- `cientifico_hartmann` = muerto: el curandero del nivel 4 de la Chela es Hartmann aunque haya muerto
+  (su capítulo fallido cuenta como hecho).
+- `pereira_desconfia`: Pereira descubrió un sabotaje; podría pagar menos o vigilarte.
+- `radio_westpoint`: la radio del cuartel arreglada podría dar rumores o avisos.
+- `estanque_rosewood`: el estanque defendido podría dar bencina a la Misia Rosa.
 
 ## PARA EL PRÓXIMO CHAT: historias por desarrollar
 

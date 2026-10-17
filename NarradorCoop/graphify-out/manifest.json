@@ -1,854 +1,824 @@
 {
   "42/media/lua/client/Narrador/NarradorCampamentosCliente.lua": {
-    "mtime": 1792116282.668164,
-    "seen": 1792188667.1081417,
+    "mtime": 1792206186.8928936,
+    "seen": 1792206949.851748,
     "ast_hash": "f62dd8f98c36002216f09fc3ca0fa8eb",
     "semantic_hash": ""
   },
   "42/media/lua/client/Narrador/NarradorCliente.lua": {
-    "mtime": 1792108415.1154253,
-    "seen": 1792188667.1081514,
+    "mtime": 1792206186.8488934,
+    "seen": 1792206949.851753,
     "ast_hash": "ac7273927bbbfd1f950546097e8a0581",
     "semantic_hash": ""
   },
   "42/media/lua/client/Narrador/NarradorConversacion.lua": {
-    "mtime": 1792108415.1164258,
-    "seen": 1792188667.1081553,
+    "mtime": 1792206186.8498933,
+    "seen": 1792206949.8517556,
     "ast_hash": "7b9c77ade95a98f1630500ea5ba16eb3",
     "semantic_hash": ""
   },
   "42/media/lua/client/Narrador/NarradorDiario.lua": {
-    "mtime": 1792120624.8541214,
-    "seen": 1792188667.1081572,
+    "mtime": 1792206186.8928936,
+    "seen": 1792206949.8517568,
     "ast_hash": "2d76bdca65c8b04f2ea30bc80429549e",
     "semantic_hash": ""
   },
   "42/media/lua/client/Narrador/NarradorIndicadores.lua": {
-    "mtime": 1792116282.668164,
-    "seen": 1792188667.108231,
+    "mtime": 1792206186.8928936,
+    "seen": 1792206949.851758,
     "ast_hash": "476c9d2e07359374e8a4dc58468edb29",
     "semantic_hash": ""
   },
   "42/media/lua/client/Narrador/NarradorMapas.lua": {
-    "mtime": 1792116282.672164,
-    "seen": 1792188667.108234,
+    "mtime": 1792206186.8938935,
+    "seen": 1792206949.8517594,
     "ast_hash": "c96ca7f750becf44aa42e80a5801e866",
     "semantic_hash": ""
   },
   "42/media/lua/client/Narrador/NarradorPastillas.lua": {
-    "mtime": 1792108415.1164258,
-    "seen": 1792188667.1082363,
+    "mtime": 1792206186.8498933,
+    "seen": 1792206949.8517606,
     "ast_hash": "71d960cd725cfcd707d316bc2bc52a64",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorAmenazas.lua": {
-    "mtime": 1792108415.118525,
-    "seen": 1792188667.1082375,
+    "mtime": 1792206186.8508935,
+    "seen": 1792206949.8517616,
     "ast_hash": "dad2ceac262a5198968b10a6d9c7be32",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorBandido.lua": {
-    "mtime": 1792121065.0599442,
-    "seen": 1792188667.1082392,
+    "mtime": 1792206186.8938935,
+    "seen": 1792206949.8517628,
     "ast_hash": "d2d5e281bce039889442fe7fd93e9b35",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorCalendario.lua": {
-    "mtime": 1792108415.1186938,
-    "seen": 1792188667.1082406,
+    "mtime": 1792206186.8508935,
+    "seen": 1792206949.851764,
     "ast_hash": "0e3427b816cef014027681c4aa99abf7",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorCampamentos.lua": {
-    "mtime": 1792116282.6734447,
-    "seen": 1792188667.1082425,
+    "mtime": 1792206186.8938935,
+    "seen": 1792206949.8517647,
     "ast_hash": "8eb330448ef7919ed6c0bbea3758fdbe",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorContactos.lua": {
-    "mtime": 1792122424.0093002,
-    "seen": 1792188667.108245,
+    "mtime": 1792206186.8938935,
+    "seen": 1792206949.8517659,
     "ast_hash": "7e51316afeb977d8e156e9be7194b88f",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorConversacionServer.lua": {
-    "mtime": 1792108415.1186938,
-    "seen": 1792188667.1082468,
+    "mtime": 1792206186.8508935,
+    "seen": 1792206949.8517663,
     "ast_hash": "047ee366ab4e6f4c3cb50e6e1c354802",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorConversas.lua": {
-    "mtime": 1792108415.1186938,
-    "seen": 1792188667.1082482,
+    "mtime": 1792206186.8518934,
+    "seen": 1792206949.8517673,
     "ast_hash": "6d5a27fd1a734341b8130427d06ab4b6",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorCuraServer.lua": {
-    "mtime": 1792108415.1186938,
-    "seen": 1792188667.1082501,
+    "mtime": 1792206186.8518934,
+    "seen": 1792206949.8517683,
     "ast_hash": "4d26a13273f7e5dd4cf289b755e66dfa",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorDirector.lua": {
-    "mtime": 1792116282.674483,
-    "seen": 1792188667.1082516,
+    "mtime": 1792206186.8948934,
+    "seen": 1792206949.8517687,
     "ast_hash": "c3af4c72559d80aaa57148eede36dea1",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorDominios.lua": {
-    "mtime": 1792121043.8900158,
-    "seen": 1792188667.1082535,
+    "mtime": 1792206186.8948934,
+    "seen": 1792206949.85177,
     "ast_hash": "cc4fc95e96b4338de2ecb1bead5a889a",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorEduardo.lua": {
-    "mtime": 1792122247.9063334,
-    "seen": 1792188667.1082551,
+    "mtime": 1792206186.8948934,
+    "seen": 1792206949.8517706,
     "ast_hash": "f803b4cb0543053917ab81dd1fdb90ad",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorEncuentros.lua": {
-    "mtime": 1792116282.674483,
-    "seen": 1792188667.1082568,
+    "mtime": 1792206186.8948934,
+    "seen": 1792206949.8517716,
     "ast_hash": "24ffa8a74604011f60a40d97cbcab9ae",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorGenerador.lua": {
-    "mtime": 1792122424.0061698,
-    "seen": 1792188667.1082582,
+    "mtime": 1792206186.8948934,
+    "seen": 1792206949.8517723,
     "ast_hash": "ea4fbafc73dd8dc3afd0ce8147570446",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorHuellas.lua": {
-    "mtime": 1792108415.1186938,
-    "seen": 1792188667.1082604,
+    "mtime": 1792206186.8528934,
+    "seen": 1792206949.8517737,
     "ast_hash": "fc4c6f16a1c4f4cb1abe1aedf8ccd941",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorKnox.lua": {
-    "mtime": 1792118260.5689049,
-    "seen": 1792188667.108262,
+    "mtime": 1792206186.8958936,
+    "seen": 1792206949.8517747,
     "ast_hash": "001124bd856437c3cdd95ee02fdd891b",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorMotor.lua": {
-    "mtime": 1792116282.674483,
-    "seen": 1792188667.1082647,
+    "mtime": 1792206186.8958936,
+    "seen": 1792206949.8517754,
     "ast_hash": "4e63e188dbdc9517cfe9901dfcbf5997",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorMundo.lua": {
-    "mtime": 1792116282.676164,
-    "seen": 1792188667.1082668,
+    "mtime": 1792206186.8958936,
+    "seen": 1792206949.8517764,
     "ast_hash": "7033f93e1f1be6845fe39280b90b24bf",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorObjetosServer.lua": {
-    "mtime": 1792108415.1186938,
-    "seen": 1792188667.1082685,
+    "mtime": 1792206186.8538935,
+    "seen": 1792206949.8517773,
     "ast_hash": "cced4619cf3be923618aea97086e2a72",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorOcupaciones.lua": {
-    "mtime": 1792116282.676164,
-    "seen": 1792188667.1082704,
+    "mtime": 1792206186.8968935,
+    "seen": 1792206949.8517783,
     "ast_hash": "968aa45c7f7f9876cac82db39ef15070",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorPasajeros.lua": {
-    "mtime": 1792116282.676164,
-    "seen": 1792188667.108272,
+    "mtime": 1792206186.8968935,
+    "seen": 1792206949.851779,
     "ast_hash": "1378732fcb8266e6281b5ba71607942d",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorReputacion.lua": {
-    "mtime": 1792116282.676164,
-    "seen": 1792188667.108274,
+    "mtime": 1792206186.8968935,
+    "seen": 1792206949.85178,
     "ast_hash": "4afae240077e5b805487d163f184d848",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Bandido.lua": {
-    "mtime": 1792120752.1067252,
-    "seen": 1792188667.1082754,
+    "mtime": 1792206186.8968935,
+    "seen": 1792206949.851781,
     "ast_hash": "b403eff733b640b0af00319326742ea4",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Calendario.lua": {
-    "mtime": 1792108415.122963,
-    "seen": 1792188667.1082773,
+    "mtime": 1792206186.8548934,
+    "seen": 1792206949.8517816,
     "ast_hash": "5a6ee62afa4f529c379fe1eb520e5b24",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Capitulos.lua": {
-    "mtime": 1792122397.1623423,
-    "seen": 1792188667.1082788,
+    "mtime": 1792206186.8968935,
+    "seen": 1792206949.8517823,
     "ast_hash": "7e8103a045106af1dca2858175a1d08e",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Conquista.lua": {
-    "mtime": 1792120752.1059544,
-    "seen": 1792188667.1082807,
+    "mtime": 1792206186.8968935,
+    "seen": 1792206949.8517833,
     "ast_hash": "c9b57724c139d1b42e56ee683cf2cde8",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Contratos.lua": {
-    "mtime": 1792108415.1234384,
-    "seen": 1792188667.1082823,
+    "mtime": 1792206186.8548934,
+    "seen": 1792206949.8517842,
     "ast_hash": "b83eea0dfc09e3c7824fae5cecb546c7",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Cura.lua": {
-    "mtime": 1792116132.44212,
-    "seen": 1792188667.108284,
+    "mtime": 1792206186.8978934,
+    "seen": 1792206949.851785,
     "ast_hash": "6bf601f988f808e429417d2d8b98e22e",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Desbloqueos.lua": {
-    "mtime": 1792122424.0087667,
-    "seen": 1792188667.1082857,
+    "mtime": 1792206186.8978934,
+    "seen": 1792206949.8517857,
     "ast_hash": "2c046e7d33693118f12b32ba503dce4c",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Eduardo.lua": {
-    "mtime": 1792121306.0873988,
-    "seen": 1792188667.1082876,
+    "mtime": 1792206186.8978934,
+    "seen": 1792206949.851787,
     "ast_hash": "f7f11fed75e7dd08d419545ad34b6a26",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/EduardoEventos.lua": {
-    "mtime": 1792122236.1863327,
-    "seen": 1792188667.108289,
+    "mtime": 1792206186.8978934,
+    "seen": 1792206949.8517878,
     "ast_hash": "128b1aeb1e6a385c64e177a4150c2f16",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Encuentros.lua": {
-    "mtime": 1792116282.676164,
-    "seen": 1792188667.1082911,
+    "mtime": 1792206186.8978934,
+    "seen": 1792206949.8517885,
     "ast_hash": "c850cafd264cbd46ee216323eeb6ccfc",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/EventosCortos.lua": {
-    "mtime": 1792108415.1234384,
-    "seen": 1792188667.108293,
+    "mtime": 1792206186.8558934,
+    "seen": 1792206949.8517892,
     "ast_hash": "4a5f07168469499d457c54e6fe1fc8d9",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/FamiliaInfectada.lua": {
-    "mtime": 1792108415.1234384,
-    "seen": 1792188667.108302,
+    "mtime": 1792206186.8558934,
+    "seen": 1792206949.8517904,
     "ast_hash": "1be1d23750edb884f7770a73eff21342",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/FavoresSous.lua": {
-    "mtime": 1792108415.1234384,
-    "seen": 1792188667.1083035,
+    "mtime": 1792206186.8558934,
+    "seen": 1792206949.8517916,
     "ast_hash": "e04ba028ef9d0bc575683d7ef95108ab",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Generados.lua": {
-    "mtime": 1792108415.1234384,
-    "seen": 1792188667.1083055,
+    "mtime": 1792206186.8558934,
+    "seen": 1792206949.8517923,
     "ast_hash": "5adc74164f3a9b58fdf2f8273ee89cdb",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/HijaCabo.lua": {
-    "mtime": 1792122424.0083869,
-    "seen": 1792188667.1083071,
+    "mtime": 1792206186.8978934,
+    "seen": 1792206949.8517933,
     "ast_hash": "103de942a55015cdbb9628d170f2ecab",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Inmorales.lua": {
-    "mtime": 1792120830.425959,
-    "seen": 1792188667.1083128,
+    "mtime": 1792206186.8988936,
+    "seen": 1792206949.8517942,
     "ast_hash": "ddcaa029c9ed2b23638b78d97c432684",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/LeyendaTomas.lua": {
-    "mtime": 1792116282.6789823,
-    "seen": 1792188667.1083145,
+    "mtime": 1792206186.8988936,
+    "seen": 1792206949.8517952,
     "ast_hash": "2840c29a7de6e15a66a7db92ebf6dab6",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Recados.lua": {
-    "mtime": 1792116282.6789823,
-    "seen": 1792188667.1083162,
+    "mtime": 1792206186.8988936,
+    "seen": 1792206949.8517962,
     "ast_hash": "8d2d03840793217003e5b637bb2389f1",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Sous.lua": {
-    "mtime": 1792120298.2803242,
-    "seen": 1792188667.1083179,
+    "mtime": 1792206186.8988936,
+    "seen": 1792206949.8517973,
     "ast_hash": "9208de87d955edd27fc599e54def62b7",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Conversas/ConversasHistorias.lua": {
-    "mtime": 1792108415.1234384,
-    "seen": 1792188667.1083198,
+    "mtime": 1792206186.8568935,
+    "seen": 1792206949.8517983,
     "ast_hash": "73ff48493298dcc8bc069e74b8e7cd69",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Conversas/ConversasSous.lua": {
-    "mtime": 1792108415.126155,
-    "seen": 1792188667.1083214,
+    "mtime": 1792206186.8568935,
+    "seen": 1792206949.8517995,
     "ast_hash": "c01e2762e1cc879a13541cbbface1503",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorCampamentosDefs.lua": {
-    "mtime": 1792116282.679209,
-    "seen": 1792188667.1083233,
+    "mtime": 1792206186.8988936,
+    "seen": 1792206949.851801,
     "ast_hash": "e0a3c925988b211c355403744f910a0a",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorConversasDefs.lua": {
-    "mtime": 1792108415.126155,
-    "seen": 1792188667.1083248,
+    "mtime": 1792206186.8568935,
+    "seen": 1792206949.851802,
     "ast_hash": "3737b9d9b8e8a65d7ff48ead4832b06c",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorCura.lua": {
-    "mtime": 1792108415.126155,
-    "seen": 1792188667.1083267,
+    "mtime": 1792206186.8568935,
+    "seen": 1792206949.8518033,
     "ast_hash": "a4dc3cc86ab1f6695a44857a3c26462a",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorDefs.lua": {
-    "mtime": 1792108415.126155,
-    "seen": 1792188667.108328,
+    "mtime": 1792206186.8568935,
+    "seen": 1792206949.8518052,
     "ast_hash": "6e684e3bb5829c9d56344d5b23426ca8",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorDominiosDefs.lua": {
-    "mtime": 1792120958.2747555,
-    "seen": 1792188667.1083295,
+    "mtime": 1792206186.8988936,
+    "seen": 1792206949.8518076,
     "ast_hash": "4ba3ce7a2fc087b41a59aa44257f8e8b",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorEtiquetas.lua": {
-    "mtime": 1792108415.126155,
-    "seen": 1792188667.108331,
+    "mtime": 1792206186.8578935,
+    "seen": 1792206949.8518112,
     "ast_hash": "63b3dcc196ef33eb1e970b03015ec365",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorIndicadoresCalc.lua": {
-    "mtime": 1792108415.126155,
-    "seen": 1792188667.1083324,
+    "mtime": 1792206186.8578935,
+    "seen": 1792206949.8518133,
     "ast_hash": "ca0cdcc58da2988eaaa9810f55e660ab",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorKnoxDefs.lua": {
-    "mtime": 1792118260.5693789,
-    "seen": 1792188667.108334,
+    "mtime": 1792206186.8998935,
+    "seen": 1792206949.851815,
     "ast_hash": "75e0bf5449bf967b1215c627007ec012",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorLegendario.lua": {
-    "mtime": 1792108415.126155,
-    "seen": 1792188667.1083357,
+    "mtime": 1792206186.8578935,
+    "seen": 1792206949.8518162,
     "ast_hash": "15f6c81c3fe3e0233ec414eb562323ca",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorLore.lua": {
-    "mtime": 1792120298.30157,
-    "seen": 1792188667.1083376,
+    "mtime": 1792206186.8998935,
+    "seen": 1792206949.8518171,
     "ast_hash": "f1ce1c2afe94bdf97736f1bb3583c100",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorLoreBandido.lua": {
-    "mtime": 1792122257.397386,
-    "seen": 1792188667.1083393,
+    "mtime": 1792206186.8998935,
+    "seen": 1792206949.8518186,
     "ast_hash": "704516028d2a7039d5e9d18df9d246f9",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorLoreCapitulos.lua": {
-    "mtime": 1792122501.7195299,
-    "seen": 1792188667.108341,
+    "mtime": 1792206186.8998935,
+    "seen": 1792206949.8518198,
     "ast_hash": "d6efa9c84a9c4a5652272c1877e22ea7",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorLoreGenerados.lua": {
-    "mtime": 1792108415.126155,
-    "seen": 1792188667.1083422,
+    "mtime": 1792206186.8578935,
+    "seen": 1792206949.851821,
     "ast_hash": "23aadb4c001b64194af5f5e53de24d91",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorLoreHistorias.lua": {
-    "mtime": 1792116308.0687287,
-    "seen": 1792188667.1083438,
+    "mtime": 1792206186.8998935,
+    "seen": 1792206949.8518224,
     "ast_hash": "1a289ce462aa5e178b0c1a1c19c3e4fe",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorObjetos.lua": {
-    "mtime": 1792108415.126155,
-    "seen": 1792188667.1083455,
+    "mtime": 1792206186.8578935,
+    "seen": 1792206949.8518233,
     "ast_hash": "70fd8c8278240c73504c6a1ca476a48d",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorRumores.lua": {
-    "mtime": 1792116282.6801534,
-    "seen": 1792188667.1083474,
+    "mtime": 1792206186.8998935,
+    "seen": 1792206949.851825,
     "ast_hash": "e61c209cacadc1d2af8343871ab9355c",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Translate/EN/ItemName.json": {
-    "mtime": 1792116282.6801534,
-    "seen": 1792188667.1083488,
+    "mtime": 1792206186.9008934,
+    "seen": 1792206949.8518262,
     "ast_hash": "9d5b7f3f276a2438ccb90e567ee086a9",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Translate/EN/Sandbox.json": {
-    "mtime": 1792116282.6801534,
-    "seen": 1792188667.1083508,
+    "mtime": 1792206186.9008934,
+    "seen": 1792206949.8518274,
     "ast_hash": "959cb7054d042662d3c58060a0c1464d",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Translate/EN/Tooltip.json": {
-    "mtime": 1792116282.6801534,
-    "seen": 1792188667.108352,
+    "mtime": 1792206186.9008934,
+    "seen": 1792206949.851829,
     "ast_hash": "ce02742cc6bddaca5af2b8dcbee1bae5",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Translate/ES/ItemName.json": {
-    "mtime": 1792116282.6801534,
-    "seen": 1792188667.1083539,
+    "mtime": 1792206186.9008934,
+    "seen": 1792206949.8518307,
     "ast_hash": "80288314b25c86f8a8ce4a2c7bbe1ba3",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Translate/ES/Sandbox.json": {
-    "mtime": 1792116282.6801639,
-    "seen": 1792188667.1083553,
+    "mtime": 1792206186.9008934,
+    "seen": 1792206949.8518322,
     "ast_hash": "6bb22d9786f278161f71f822fb46b728",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Translate/ES/Tooltip.json": {
-    "mtime": 1792116282.6801639,
-    "seen": 1792188667.108357,
+    "mtime": 1792206186.9008934,
+    "seen": 1792206949.8518336,
     "ast_hash": "435fd0ac15ba15df669ab6a193520c9e",
     "semantic_hash": ""
   },
   "42/media/sandbox-options.txt": {
-    "mtime": 1792116282.6801639,
-    "seen": 1792188667.1083584,
+    "mtime": 1792206186.9008934,
+    "seen": 1792206949.8518345,
     "ast_hash": "2667c75542010a947c2aeb15f7ababb2",
     "semantic_hash": ""
   },
   "42/media/scripts/NarradorItems.txt": {
-    "mtime": 1792116282.6801639,
-    "seen": 1792188667.1083603,
+    "mtime": 1792206186.9008934,
+    "seen": 1792206949.8518362,
     "ast_hash": "e9fc514df764e875d11bde20c938fe12",
     "semantic_hash": ""
   },
   "42/media/scripts/NarradorModelos.txt": {
-    "mtime": 1792108415.1413805,
-    "seen": 1792188667.1083617,
+    "mtime": 1792206186.8638935,
+    "seen": 1792206949.8518372,
     "ast_hash": "cc67f3081dc9b5be9eb94d57279bc72a",
     "semantic_hash": ""
   },
   "42/media/scripts/NarradorModelosArmas.txt": {
-    "mtime": 1792108415.1413805,
-    "seen": 1792188667.1083636,
+    "mtime": 1792206186.8638935,
+    "seen": 1792206949.851838,
     "ast_hash": "e8801430f8ee3f21b5f48c6c2ff0576d",
     "semantic_hash": ""
   },
-  "README.md": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.108365,
-    "ast_hash": "fac844ff960ac63aaafcab0cca34be0b",
-    "semantic_hash": ""
-  },
-  "ROADMAP.md": {
-    "mtime": 1792189049.9506426,
-    "seen": 1792189052.585502,
-    "ast_hash": "61ea1e8cf4ea8ba81afd2167d610d366",
-    "semantic_hash": ""
-  },
-  "common/LEEME.txt": {
-    "mtime": 1792116282.6817443,
-    "seen": 1792188667.108368,
-    "ast_hash": "6fb47ef3dfb2d2fd544b77d581ff16d5",
-    "semantic_hash": ""
-  },
   "42/media/textures/Item_NarradorAntibioticos.png": {
-    "mtime": 1792108415.1413805,
-    "seen": 1792188667.1083694,
+    "mtime": 1792206186.8638935,
+    "seen": 1792206949.85184,
     "ast_hash": "97c097398fe51fcc6da7ff386421ba64",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorAntiparrasCristonks.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.108371,
+    "mtime": 1792206186.8638935,
+    "seen": 1792206949.8518414,
     "ast_hash": "cd20f658ed9a44bbc396d7f62e0b9b22",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorBotiquinSous.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.1083724,
+    "mtime": 1792206186.8638935,
+    "seen": 1792206949.8518429,
     "ast_hash": "b9a7d85ff3c7a464b1469e5c51268483",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorCajaArsenal.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.108374,
+    "mtime": 1792206186.8638935,
+    "seen": 1792206949.8518438,
     "ast_hash": "23e0f1b79e55eef374a43baa76cba4a9",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorCamisetaBicho.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.1083758,
+    "mtime": 1792206186.8638935,
+    "seen": 1792206949.851845,
     "ast_hash": "614880ac96145160462dfd69d2971868",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorCollarTati.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.1083775,
+    "mtime": 1792206186.8638935,
+    "seen": 1792206949.8518467,
     "ast_hash": "a6a2d0392a3494ddac22f5391c0ae199",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorCuraZ.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.108379,
+    "mtime": 1792206186.8638935,
+    "seen": 1792206949.851848,
     "ast_hash": "6f399f28a0f2df43ec2ea85f59d78613",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorDiarioMaulen.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.10838,
+    "mtime": 1792206186.8638935,
+    "seen": 1792206949.8518493,
     "ast_hash": "07f94bde498fe59eafd12cb7606c767b",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorExpedienteSellado.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.1083834,
+    "mtime": 1792206186.8648934,
+    "seen": 1792206949.8518503,
     "ast_hash": "4dfe3d57d5963ed4b037040483c251f9",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorFotoSous.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.108385,
+    "mtime": 1792206186.8648934,
+    "seen": 1792206949.8518512,
     "ast_hash": "e06af3d53b02ec25a6691109b59c63d1",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorLibroCuentasHasag.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.1083865,
+    "mtime": 1792206186.8648934,
+    "seen": 1792206949.8518527,
     "ast_hash": "f48d3c89f21177beedccc08f1c3481e0",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorLlavesBoveda.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.1083884,
+    "mtime": 1792206186.8648934,
+    "seen": 1792206949.8518536,
     "ast_hash": "9b177d479884413289e7fc25ebef9081",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorMaletinMilitar.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.10839,
+    "mtime": 1792206186.8648934,
+    "seen": 1792206949.8518546,
     "ast_hash": "8e9fabe8467acef9844da223022d0924",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorMuestrasHospital.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.1083918,
+    "mtime": 1792206186.8648934,
+    "seen": 1792206949.8518562,
     "ast_hash": "68de2b839c4aeee5233910f84316d7b2",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorPaqueteMisionero.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.1083932,
+    "mtime": 1792206186.8658934,
+    "seen": 1792206949.8518572,
     "ast_hash": "22f5c4ea0a0e0c38e05338f700f2e57a",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorPelotaAkagami.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.1083949,
+    "mtime": 1792206186.8658934,
+    "seen": 1792206949.8518581,
     "ast_hash": "1c50034aa1fc63a45e0ac7eb6c73783d",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorPlanosPueblo.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.1083963,
+    "mtime": 1792206186.8658934,
+    "seen": 1792206949.851859,
     "ast_hash": "69067e7c7596f8616af5737858a09d03",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorPosterSous.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.1083975,
+    "mtime": 1792206186.8658934,
+    "seen": 1792206949.8518603,
     "ast_hash": "1791aad9b3156b5d45cbed2dfb60d7c2",
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorTalladoWalita.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.108399,
+    "mtime": 1792206186.8658934,
+    "seen": 1792206949.8518612,
     "ast_hash": "956d6ef36e78412a9f387f9d7a7317ca",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/Antibioticos.png": {
-    "mtime": 1792108415.1415339,
-    "seen": 1792188667.1084003,
+    "mtime": 1792206186.8668935,
+    "seen": 1792206949.8518624,
     "ast_hash": "cb570b9e3417e897c6c3101b51784f00",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/AntiparrasCristonks.png": {
-    "mtime": 1792108415.1431935,
-    "seen": 1792188667.1084018,
+    "mtime": 1792206186.8668935,
+    "seen": 1792206949.8518639,
     "ast_hash": "d76c5b8d75e06705f9ba972fbf733e9d",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/Armas/BarraAkagami.png": {
-    "mtime": 1792108415.1431935,
-    "seen": 1792188667.108403,
+    "mtime": 1792206186.8668935,
+    "seen": 1792206949.8518648,
     "ast_hash": "c858c6e42a9dd03adbad4d882694d35c",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/Armas/FachaTati.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.1084044,
+    "mtime": 1792206186.8668935,
+    "seen": 1792206949.851866,
     "ast_hash": "339b99df29d40b8c647c6a2e9850e861",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/Armas/MataPerras.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.108406,
+    "mtime": 1792206186.8668935,
+    "seen": 1792206949.8518674,
     "ast_hash": "4c72b736d7438cb80ebde08c4da1ad8b",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/Armas/PicotaCristonks.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.1084158,
+    "mtime": 1792206186.8668935,
+    "seen": 1792206949.8518686,
     "ast_hash": "c332e8c0387702a7aa853a40ce6b3437",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/Armas/SarcasmoZent.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.1084177,
+    "mtime": 1792206186.8678935,
+    "seen": 1792206949.85187,
     "ast_hash": "158c8b6416417691fbfb0d8e1cd49d40",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/BotiquinSous.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.1084192,
+    "mtime": 1792206186.8678935,
+    "seen": 1792206949.8518713,
     "ast_hash": "f83c18249b8b188b81bb6739447cd779",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/CajaArsenal.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.1084206,
+    "mtime": 1792206186.8678935,
+    "seen": 1792206949.8518722,
     "ast_hash": "6a19602a16f5cca2776fc8e156d38bbf",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/CamisetaBicho.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.108422,
+    "mtime": 1792206186.8678935,
+    "seen": 1792206949.8518736,
     "ast_hash": "07c671055dcee88ad77f00653b1bf3b4",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/CollarTati.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.1084235,
+    "mtime": 1792206186.8678935,
+    "seen": 1792206949.8518748,
     "ast_hash": "4b4ee17cc686ef7b15f863f68a7c26a4",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/DiarioMaulen.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.1084247,
+    "mtime": 1792206186.8688934,
+    "seen": 1792206949.8518758,
     "ast_hash": "956a0e444be44f90f44140cec5296c77",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/ExpedienteSellado.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.1084263,
+    "mtime": 1792206186.8688934,
+    "seen": 1792206949.851877,
     "ast_hash": "4a19d6132d72971465cb4d15f5823462",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/FotoSous.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.1084278,
+    "mtime": 1792206186.8698936,
+    "seen": 1792206949.8518782,
     "ast_hash": "7653e135241388857a43d1f204b0b236",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/LibroCuentasHasag.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.1084292,
+    "mtime": 1792206186.8698936,
+    "seen": 1792206949.8518796,
     "ast_hash": "88a46f9badb813f6f41639b4e27e7ae8",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/LlavesBoveda.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.1084306,
+    "mtime": 1792206186.8698936,
+    "seen": 1792206949.8518813,
     "ast_hash": "a86580f2cc60bb2ebe001dc0d19c6235",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/MaletinMilitar.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.108432,
+    "mtime": 1792206186.8698936,
+    "seen": 1792206949.8518822,
     "ast_hash": "a7a50e57d67ca065db96c1f89bf431ae",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/Mapas/InsigniaSous.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.1084335,
+    "mtime": 1792206186.8708935,
+    "seen": 1792206949.8518834,
     "ast_hash": "c9dbf72e59b6db78acf8b4f5869b5d15",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/MuestrasHospital.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.108435,
+    "mtime": 1792206186.8708935,
+    "seen": 1792206949.8518848,
     "ast_hash": "31522494440b44e2c737835cfd69cf53",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/PaqueteMisionero.png": {
-    "mtime": 1792108415.14376,
-    "seen": 1792188667.108436,
+    "mtime": 1792206186.8708935,
+    "seen": 1792206949.851886,
     "ast_hash": "71a4c770ff35f11cbf5ca4293c1d8bdd",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/PelotaAkagami.png": {
-    "mtime": 1792108415.145202,
-    "seen": 1792188667.1084378,
+    "mtime": 1792206186.8708935,
+    "seen": 1792206949.851887,
     "ast_hash": "6eaef378d3bff1298e5be1170ba7a0c6",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/PlanosPueblo.png": {
-    "mtime": 1792108415.145202,
-    "seen": 1792188667.1084392,
+    "mtime": 1792206186.8718934,
+    "seen": 1792206949.8518882,
     "ast_hash": "8dbfb9729fb03bee1587c4c5bcff8c25",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/PosterSous.png": {
-    "mtime": 1792108415.145202,
-    "seen": 1792188667.1084409,
+    "mtime": 1792206186.8718934,
+    "seen": 1792206949.8518894,
     "ast_hash": "075e8f3d31445fa2f102ee840ec554d3",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/TalladoWalita.png": {
-    "mtime": 1792108415.145202,
-    "seen": 1792188667.1084423,
+    "mtime": 1792206186.8718934,
+    "seen": 1792206949.8518908,
     "ast_hash": "36ec659531cd2c468e8be7520afbdf26",
     "semantic_hash": ""
   },
   "42/media/textures/NarradorDiario_Icono.png": {
-    "mtime": 1792108415.145202,
-    "seen": 1792188667.1084437,
+    "mtime": 1792206186.8718934,
+    "seen": 1792206949.8518918,
     "ast_hash": "7df22dbead659f25ccbb343d3c570c47",
     "semantic_hash": ""
   },
   "42/media/textures/NarradorDiario_Libro.png": {
-    "mtime": 1792108415.1572018,
-    "seen": 1792188667.1084452,
+    "mtime": 1792206186.8738935,
+    "seen": 1792206949.851893,
     "ast_hash": "83967448850353e45e17940e747d0a20",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_00.png": {
-    "mtime": 1792108415.1590693,
-    "seen": 1792188667.1084464,
+    "mtime": 1792206186.8738935,
+    "seen": 1792206949.8518944,
     "ast_hash": "088eab9a227bb4bc25bab3f8cc77d432",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_01.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.1084478,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.8518956,
     "ast_hash": "03298c8ca34dd17e57c67891a9bb95e6",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_02.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.108449,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.8518968,
     "ast_hash": "82d674407e3558fc60437b11bc76310f",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_03.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.1084504,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.8518982,
     "ast_hash": "e82d0d4850b9b9b9d2253ece9064b98c",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_04.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.1084518,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.851899,
     "ast_hash": "c7e3b611150acab419e144d91b8ed052",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_05.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.108453,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.8518999,
     "ast_hash": "b4c1f0590cffd4bfa3be5c883ad9ff07",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_06.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.1084545,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.8519006,
     "ast_hash": "a03768e0f9725ba86fe2d758a5b7c4e2",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_07.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.1084557,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.8519015,
     "ast_hash": "59b0d0843bb25f0ecb2902ccc93fd26e",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_08.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.1084573,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.8519025,
     "ast_hash": "9d174d7623796cc63567ca27e443d64c",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_09.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.1084585,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.851903,
     "ast_hash": "cb205604a749af9a03bc7ea1cf2dc534",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_10.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.1084597,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.851904,
     "ast_hash": "4cc84a966a35edf1b276447d820b4b34",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_11.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.1084611,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.8519049,
     "ast_hash": "01d3f13bf97c6fbc35fdd36709fbf475",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_12.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.1084623,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.8519058,
     "ast_hash": "f567f5fdcaa3f0c3cd8a51b15f3c3865",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_13.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.1084635,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.8519063,
     "ast_hash": "50dda15509221acf30eed26dd0a85658",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_14.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.108465,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.851907,
     "ast_hash": "25805038c1e742a2be08265bc73917c2",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/Flecha_15.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.1084661,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.8519082,
     "ast_hash": "ee35004ad630bf07af736db0f1e0f68c",
     "semantic_hash": ""
   },
   "42/media/ui/Narrador/SimboloSous.png": {
-    "mtime": 1792108415.1592472,
-    "seen": 1792188667.1084673,
+    "mtime": 1792206186.8748934,
+    "seen": 1792206949.8519087,
     "ast_hash": "42f428c823dc2cafb9f4ce15f78c85a6",
-    "semantic_hash": ""
-  },
-  "herramientas/mapa_historias.py": {
-    "mtime": 1792189041.896087,
-    "seen": 1792189052.585491,
-    "ast_hash": "c640931e350c54fa9fe4c6a26fa83bb8",
-    "semantic_hash": ""
-  },
-  "MAPA_HISTORIAS.md": {
-    "mtime": 1792189041.957885,
-    "seen": 1792189052.5854988,
-    "ast_hash": "09880daeda2b7ee3c20ae01440e8da56",
     "semantic_hash": ""
   }
 }
