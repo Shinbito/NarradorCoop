@@ -31,6 +31,40 @@ Lore.CONTACTOS = {
     rosewood = "Atiende una bencinera sin bencina. Dice que nunca cierra. Le debo un par de cigarros.",
 }
 
+-- Lo que voy sabiendo de cada misionero: una entrada por nivel de confianza (1 = recien lo
+-- conozco ... 5 = el maximo). El diario muestra hasta el nivel que tengo con el. Si un
+-- misionero no tiene lista, se usa su linea de Lore.CONTACTOS.
+Lore.PERFILES = {
+    muldraugh = {
+        "Ex cabo de policia de Muldraugh. Habla como si yo estuviera detenido y lo anota todo en una libreta de tapas negras. Paga lo que promete.",
+        "Veintidos anos de servicio y nunca paso de cabo. Dice que fue por 'diferencias de criterio' con el comisario. Se plancha el uniforme con una olla caliente. Todos los dias, aunque se acabe el mundo.",
+        "La libreta no es solo de encargos. Le vi una pagina: nombres de vecinos de Muldraugh, con una cruz o un signo de pregunta al lado. Dice que lleva el censo. Que alguien tiene que acordarse de quien queda.",
+        "Una noche me conto lo de la comisaria. Cuando empezo todo, el comisario mando cerrar con la gente adentro, 'por protocolo'. Ramiro abrio la puerta de atras y saco a once. Al resto no alcanzo. Por eso quiere el campamento: para hacerlo bien esta vez.",
+        "Tiene una hija en Louisville. Le escribe cartas que nunca manda y las guarda al final de la libreta. Me pidio que, si un dia no vuelve de una ronda, se las lleve. Le dije que si. No me dio las gracias: me hizo un saludo militar perfecto, que le temblo un poco.",
+    },
+    westpoint = {
+        "Bombera voluntaria de toda la vida. Me reta como si fuera mi tia y despues me pasa trabajo. No le discuto.",
+        "Treinta anos en el cuartel de West Point y nunca la dejaron manejar el carro bomba: 'cosa de hombres', le decian. Ahora lo maneja ella, sin licencia y sin frenos. Dice que es lo mejor que le ha pasado en la vida.",
+        "Cocina para todos aunque no haya nada. Cuenta las porciones en voz baja y siempre le falta una: la suya. Cuando le pregunte, me dijo que ya habia comido. No habia comido.",
+        "La primera noche hubo un incendio en la calle Main. Ella entro sola a buscar a una vecina. Salio con la vecina en brazos y la vecina ya estaba mordida. La tuvo que dejar en la vereda. Desde ese dia no apaga ningun fuego: dice que el fuego, por lo menos, avisa.",
+        "Tuvo un hijo, Eduardo. Se fue a Louisville el 92, peleados, y no se hablaban. Ella le guarda una frazada doblada en el cuartel, por si vuelve. A mi me dice mijo porque asi le decia a el. Me lo conto llorando y despues me reto por mirarla.",
+    },
+    riverside = {
+        "Pastor de la iglesia del pueblo. Bendice cada salida y admite que la mitad de sus encargos los inventa.",
+        "Antes de cura fue boxeador amateur en Lexington. Tiene la nariz quebrada dos veces y una derecha que no se le olvido. Dice que Dios le dio dos puños para que pudiera poner la otra mejilla con calma.",
+        "Inventa encargos porque cree que la gente ociosa se muere. Que el que tiene algo que hacer manana tiene una razon para despertar. Lleva una lista de quien vino cada semana y se preocupa cuando alguien no aparece.",
+        "No le queda mucha fe. Me lo dijo una noche, con una botella de vino de misa en la mano: 'Hijo, rezo por costumbre. Si Dios existe, se fue de vacaciones el 93.' Al otro dia hizo misa igual, para tres personas y un perro.",
+        "Hace anos se fue un domingo sin decirle a nadie, y una muchacha que necesitaba ayuda se quedo esperandolo en la iglesia. Nunca supo que paso con ella. Por eso no cierra nunca la puerta y por eso sigue aqui. 'No me voy a ir de nuevo', dice. 'No otra vez.'",
+    },
+    rosewood = {
+        "Atiende una bencinera sin bencina. Dice que nunca cierra. Le debo un par de cigarros.",
+        "Heredo la bencinera de su marido, Hector, que murio de un infarto en el 88 llenando el estanque de un camion. Ella siguio atendiendo al dia siguiente. 'La bomba no se para', dice. Tiene su foto pegada en la caja registradora.",
+        "Se sabe la vida de todos los camioneros de la ruta 31: quien engana a quien, quien debe plata, quien llora en el bano. Antes era chisme. Ahora es lo unico que queda de ellos, y lo cuenta para que no se pierdan.",
+        "Esconde un estanque de bencina bajo el piso del taller. No es para ella: es para el dia en que haga falta sacar a la gente del pueblo de una vez. Me lo mostro una sola vez y me hizo jurar. Le jure.",
+        "Tiene miedo. Siempre tuvo. De la oscuridad, de los asaltos, de quedarse sola. Por eso nunca cerro de noche: con la luz prendida y alguien al otro lado del mostrador, el miedo se le olvida. 'Tu eres mi luz prendida ahora, mijito', me dijo. Y se rio para que no se notara.",
+    },
+}
+
 Lore.NIVELES = {
     facil = "Trabajo facil, segun el.",
     medio = "Trabajo con riesgo. Pagan mejor.",
@@ -87,18 +121,18 @@ Lore.arcos.sous = {
     etapas = {
         viaje = "Bastian Tati, de Sous, me dejo indicaciones para llegar a su base en {lugar:base_sous}. Dijo que preguntara por Martin Akagami y que fuera armado. Hablaba como si me conociera de toda la vida. Voy a ir a ver que tienen.",
         base = "Llegue a la base de Sous. Son diez, casi todos chilenos, casi todos amigos de antes de que esto empezara. Se tiran tallas todo el rato, entrenan en una barra oxidada y discuten turnos de guardia como si fuera la final de algo. El lider, Martin Akagami, me mira como evaluando si sirvo. Tengo que hablar con el.",
-        encargo1 = "Primer trabajo para Sous: medicina. Cristobal Wertres, el grandote de casi dos metros, hace de medico sin serlo y ya no le queda nada. En {lugar:farmacia} deberia quedar algo. Mientras salia, Maulen, el encargado del deposito, me deseo suerte en voz muy baja.",
+        encargo1 = "Primer trabajo para Sous: medicina. Cristobal Wertres, el grandote de casi dos metros, hace de medico sin serlo y ya no le queda nada. En {lugar:farmacia} deberia quedar algo. Mientras salia, Meulen, el encargado del deposito, me deseo suerte en voz muy baja.",
         volver1 = "Tengo la medicina. Hay que llevarsela a Wertres en {lugar:base_sous} antes de que alguien en la base empeore.",
-        encargo2 = "Segundo trabajo: armas. Akagami dice que sin armas no pasan el invierno, y Jorge Hasag ya saco la cuenta de cuanto vale la base con ellas. En {lugar:armeria} hay algo. Tambien hay saqueadores, segun dicen. Maulen guardo la medicina en el deposito. Dijo que ahi esta mas segura.",
+        encargo2 = "Segundo trabajo: armas. Akagami dice que sin armas no pasan el invierno, y Jorge Hasag ya saco la cuenta de cuanto vale la base con ellas. En {lugar:armeria} hay algo. Tambien hay saqueadores, segun dicen. Meulen guardo la medicina en el deposito. Dijo que ahi esta mas segura.",
         volver2 = "Tengo las armas de {lugar:armeria}. Sous me espera en {lugar:base_sous}. Hanz Walita prometio tallarme una medalla. Espero que sea chica.",
-        encargo3 = "Maulen me paso el tercer encargo, dice que de parte de Akagami: revisar {lugar:senuelo}, que ahi hay de todo. Me lo dijo sonriendo, educado como siempre. Hay algo en como lo dijo que no me termina de cerrar. Seguramente estoy cansado.",
-        trampa = "En {lugar:senuelo} no habia nada. Nada. Solo muertos y una nota doblada con la letra de Maulen pidiendome perdon por hacerme caminar. Tengo un mal presentimiento. Vuelvo a la base ahora.",
-        pistas = "Maulen vacio el deposito de Sous y desaparecio con todo: la medicina, las armas, la comida. Todo lo que traje, mientras yo estaba lejos persiguiendo nada. Akagami esta furioso consigo mismo. Hay que revisar el deposito saqueado por si dejo algun rastro.",
-        abandonado = "Un recibo arrugado en el deposito me lleva a {lugar:abandonado}. Maulen paso por ahi. El lugar esta repleto de muertos. Si dejo algo escrito, tiene que estar adentro.",
-        plan = "Encontre el diario de Maulen. Escribio que nadie lo iba a buscar en {lugar:escondite}. Puedo ir solo y terminar esto rapido, o volver a {lugar:base_sous} y pedir que vengan conmigo. Si voy con ellos, Maulen no va a estar solo: ya debe saber que lo buscan.",
-        reclutar = "Volvi a la base. Todos quieren ir a buscar a Maulen, cada uno a su manera. Tengo que elegir quien viene conmigo. Mientras mas sean, mas grande va a ser la banda que Maulen junto.",
-        viaje_solo = "Decidi ir solo a {lugar:escondite}. Esto empezo conmigo, porque fui yo el que se fue cuando Maulen me lo pidio. Termina conmigo.",
-        escondite = "Estoy cerca de {lugar:escondite}. Maulen esta solo, con todo lo que le robo a Sous. Tengo que encontrarlo antes de que se vuelva a esfumar.",
+        encargo3 = "Meulen me paso el tercer encargo, dice que de parte de Akagami: revisar {lugar:senuelo}, que ahi hay de todo. Me lo dijo sonriendo, educado como siempre. Hay algo en como lo dijo que no me termina de cerrar. Seguramente estoy cansado.",
+        trampa = "En {lugar:senuelo} no habia nada. Nada. Solo muertos y una nota doblada con la letra de Meulen pidiendome perdon por hacerme caminar. Tengo un mal presentimiento. Vuelvo a la base ahora.",
+        pistas = "Meulen vacio el deposito de Sous y desaparecio con todo: la medicina, las armas, la comida. Todo lo que traje, mientras yo estaba lejos persiguiendo nada. Akagami esta furioso consigo mismo. Hay que revisar el deposito saqueado por si dejo algun rastro.",
+        abandonado = "Un recibo arrugado en el deposito me lleva a {lugar:abandonado}. Meulen paso por ahi. El lugar esta repleto de muertos. Si dejo algo escrito, tiene que estar adentro.",
+        plan = "Encontre el diario de Meulen. Escribio que nadie lo iba a buscar en {lugar:escondite}. Puedo ir solo y terminar esto rapido, o volver a {lugar:base_sous} y pedir que vengan conmigo. Si voy con ellos, Meulen no va a estar solo: ya debe saber que lo buscan.",
+        reclutar = "Volvi a la base. Todos quieren ir a buscar a Meulen, cada uno a su manera. Tengo que elegir quien viene conmigo. Mientras mas sean, mas grande va a ser la banda que Meulen junto.",
+        viaje_solo = "Decidi ir solo a {lugar:escondite}. Esto empezo conmigo, porque fui yo el que se fue cuando Meulen me lo pidio. Termina conmigo.",
+        escondite = "Estoy cerca de {lugar:escondite}. Meulen esta solo, con todo lo que le robo a Sous. Tengo que encontrarlo antes de que se vuelva a esfumar.",
         marcha = {
             por_var = "escuadra",
             textos = {
@@ -106,28 +140,30 @@ Lore.arcos.sous = {
                 jovenes = "Matric, Tati y Shinbo salieron antes hacia {lugar:escondite}. Matric no paro de hablar ni para amarrarse las zapatillas. Me esperan alla.",
                 tsz = "Tati, Shinbo y Zent salieron antes hacia {lugar:escondite}. Zent ya calculo nuestras probabilidades y no quiso decirlas en voz alta. Me esperan alla.",
                 dupla = "Wertres y Shinbo salieron antes hacia {lugar:escondite}. Siempre juntos. Uno mira lejos por altura, el otro mira de cerca por costumbre. Me esperan alla.",
-                todos = "Casi todo Sous salio antes que yo hacia {lugar:escondite}. Cristian y Jorge siguen en el cerro buscando a Maulen por su cuenta. Me esperan alla.",
+                todos = "Casi todo Sous salio antes que yo hacia {lugar:escondite}. Cristian y Jorge siguen en el cerro buscando a Meulen por su cuenta. Me esperan alla.",
                 otro = "La gente de Sous salio antes que yo hacia {lugar:escondite}. Me esperan alla.",
             },
         },
         escondite_grupo = {
             por_var = "escuadra",
             textos = {
-                trio = "Llegamos a {lugar:escondite}. Maulen no esta solo: junto una banda. Akagami ya esta dando ordenes como si fuera un partido. Hay que terminar esto juntos.",
-                jovenes = "Llegamos a {lugar:escondite}. Maulen junto una banda. Tati se arreglo la chaqueta antes de entrar. Matric dice que tiene el corazon a mil pero no se queda atras.",
-                tsz = "Llegamos a {lugar:escondite}. Maulen junto una banda. Zent cuenta enemigos en voz baja, Shinbo mira las salidas, Tati ya esta adelante.",
-                dupla = "Llegamos a {lugar:escondite}. Maulen junto una banda. Wertres se puso adelante para taparnos. Shinbo no se le despega.",
-                todos = "Llegamos a {lugar:escondite} con casi todo Sous. Maulen junto una banda grande. Esto se va a poner feo.",
-                otro = "Llegamos a {lugar:escondite}. Maulen junto una banda. Hay que terminar esto.",
+                trio = "Llegamos a {lugar:escondite}. Meulen no esta solo: junto una banda. Akagami ya esta dando ordenes como si fuera un partido. Hay que terminar esto juntos.",
+                jovenes = "Llegamos a {lugar:escondite}. Meulen junto una banda. Tati se arreglo la chaqueta antes de entrar. Matric dice que tiene el corazon a mil pero no se queda atras.",
+                tsz = "Llegamos a {lugar:escondite}. Meulen junto una banda. Zent cuenta enemigos en voz baja, Shinbo mira las salidas, Tati ya esta adelante.",
+                dupla = "Llegamos a {lugar:escondite}. Meulen junto una banda. Wertres se puso adelante para taparnos. Shinbo no se le despega.",
+                todos = "Llegamos a {lugar:escondite} con casi todo Sous. Meulen junto una banda grande. Esto se va a poner feo.",
+                otro = "Llegamos a {lugar:escondite}. Meulen junto una banda. Hay que terminar esto.",
             },
         },
         decision = {
             por_var = "hubo_bajas",
             textos = {
-                ["true"] = "Maulen Callupan esta muerto. Lo robado esta aqui, en {lugar:escondite}: comida, armas, medicina. Pero la pelea costo caro: {bajas_nombres}. Ahora tengo que decidir. Devolverle todo a Sous... o quedarme con todo.",
-                otro = "Maulen Callupan esta muerto. Todo lo que robo esta aqui, en {lugar:escondite}. Podria devolverselo a Sous. Podria quedarmelo. Nadie de afuera sabria la diferencia. Yo si.",
+                ["true"] = "Meulen Canupan esta muerto. Lo robado esta aqui, en {lugar:escondite}: comida, armas, medicina. Pero la pelea costo caro: {bajas_nombres}. Ahora tengo que decidir. Devolverle todo a Sous... o quedarme con todo.",
+                otro = "Meulen Canupan esta muerto. Todo lo que robo esta aqui, en {lugar:escondite}. Podria devolverselo a Sous. Podria quedarmelo. Nadie de afuera sabria la diferencia. Yo si.",
             },
         },
+        rendicion = "Meulen salio con las manos arriba y el cigarro apagado. Estamos solos en {lugar:escondite}: nadie de Sous me ve. Si lo mato, se termina. Si lo dejo ir, nadie lo va a saber nunca. Nadie menos yo.",
+        decision_perdonado = "Deje ir a Meulen Canupan. Se fue caminando sin apuro, como si supiera algo que yo no. Las cosas de Sous estan aqui, en {lugar:escondite}. Cuando vuelva voy a decir que se escapo. Ahora tengo que decidir que hago con lo robado.",
         devolver = "Cargue los suministros. Sous esta esperando en {lugar:base_sous}. Cristian y Jorge volvieron del cerro sin encontrar nada, y Jorge ya esta haciendo la cuenta de lo que falta.",
     },
     finales = {
@@ -138,12 +174,12 @@ Lore.arcos.sous = {
                 otro = "Le devolvi todo a Sous. Hubo musica de una radio arreglada con dos cables, carne de lata en el fuego y discusiones de pelota hasta tarde. {lider_nombre} me dio su palabra: desde hoy, Sous es mi gente.",
             },
         },
-        final_mentira = "Nadie de Sous quedo vivo para ver lo que paso en {lugar:escondite}. Volvi con una historia: Maulen mato a {bajas_nombres} y escapo con todo. Me creyeron. Por ahora. Escribo esto y no me reconozco la letra.",
-        final_te_quedaste = "Me quede con lo que Maulen le robo a Sous. Alguien lo supo. Para ellos ahora soy igual que el. Peor, porque a mi me querian.",
+        final_mentira = "Nadie de Sous quedo vivo para ver lo que paso en {lugar:escondite}. Volvi con una historia: Meulen mato a {bajas_nombres} y escapo con todo. Me creyeron. Por ahora. Escribo esto y no me reconozco la letra.",
+        final_te_quedaste = "Me quede con lo que Meulen le robo a Sous. Alguien lo supo. Para ellos ahora soy igual que el. Peor, porque a mi me querian.",
         final_traicion = "Hay sangre de Sous en mis manos. Los que quedan no lo van a olvidar. Yo tampoco.",
         final_negado = "Le dije a Sous que no era mi problema. Akagami asintio y no insistio. Cada uno ve por los suyos.",
         final_sous_caidos = "Los muertos llegaron a la base antes que yo. Sous cayo en su propia casa. Encontre la barra oxidada donde entrenaban, tirada en el patio.",
-        final_maulen_escapa = "Maulen se esfumo con todo. Sous nunca recupero lo suyo, y yo nunca pude mirar a Akagami a la cara de nuevo.",
+        final_maulen_escapa = "Meulen se esfumo con todo. Sous nunca recupero lo suyo, y yo nunca pude mirar a Akagami a la cara de nuevo.",
         final_nunca_fuiste = "Nunca fui a la base de Sous. A veces pienso en el tipo bien vestido que vino a buscarme. No volvi a saber de ellos.",
     },
 }

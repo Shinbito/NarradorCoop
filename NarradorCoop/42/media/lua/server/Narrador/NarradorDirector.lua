@@ -294,11 +294,13 @@ function Director.oir(a, x, y, texto)
                 lista[#lista + 1] = { h = floor(Mundo.horas()), t = texto, def = a.def, falso = a.falso ~= nil,
                     clave = tostring(a.def or ("falso" .. tostring(a.falso))) .. ":" .. tostring(a.desde) }
                 while #lista > 12 do table.remove(lista, 1) end
+                -- Donde dicen que pasa, en un mapa de papel (aproximado).
                 if a.lugar ~= nil then
-                    local zona = Motor.zonaDe(a.lugar, 60)
-                    if tonumber(Mundo.sandbox("Indicadores", 1)) ~= 3 then
-                        Motor.enviar(p, "marcar", { x = zona.x, y = zona.y, radio = zona.r, texto = "Rumor" })
-                    end
+                    pcall(function()
+                        local zona = Motor.zonaDe(a.lugar, 60)
+                        local mapa = Mundo.crearMapaZona("Mapa: lo que se dice por ahi", zona, "Rumor")
+                        if mapa ~= nil then Mundo.darItem(p, mapa) end
+                    end)
                 end
             end
         end

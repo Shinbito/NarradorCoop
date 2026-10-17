@@ -41,6 +41,7 @@ function CS.falta()
     return math.max(0, desde + CS.CADA - Mundo.horas())
 end
 
+-- Ojo: NarradorDominios.lua envuelve esta funcion (cambia lo que hace segun quien manda en la ciudad).
 function CS.pedir(jugador, args)
     local c = C.def(tostring(args.contacto))
     if c == nil then return end

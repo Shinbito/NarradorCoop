@@ -10,6 +10,7 @@ require "Narrador/NarradorDefs"
 require "Narrador/Arcos/FamiliaInfectada"
 require "Narrador/Arcos/EventosCortos"
 require "Narrador/Arcos/Sous"
+require "Narrador/Arcos/SousAmigos"
 
 Narrador = Narrador or {}
 local Et = Narrador.Etiquetas or {}
@@ -69,12 +70,12 @@ Et.HUELLAS = {
         final_se_retiraron = { "peleaste", "La banda que atacaba mi refugio se retiro." },
     },
     sous = {
-        final_aliados = { "cumpliste", "Le devolvi a Sous todo lo que robo Maulen." },
-        final_mentira = { "mentiste", "Le menti a Sous sobre lo que paso con Maulen." },
-        final_te_quedaste = { "traicionaste", "Me quede con lo que Maulen le robo a Sous." },
+        final_aliados = { "cumpliste", "Le devolvi a Sous todo lo que robo Meulen." },
+        final_mentira = { "mentiste", "Le menti a Sous sobre lo que paso con Meulen." },
+        final_te_quedaste = { "traicionaste", "Me quede con lo que Meulen le robo a Sous." },
         final_traicion = { "traicionaste", "Le dispare a Sous." },
         final_negado = { "lo_dejaste", "Le dije a Sous que no era mi problema." },
-        final_maulen_escapa = { "no_alcanzaste", "Maulen se escapo." },
+        final_maulen_escapa = { "no_alcanzaste", "Meulen se escapo." },
     },
 }
 

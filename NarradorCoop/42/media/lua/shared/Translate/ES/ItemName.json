@@ -3,7 +3,7 @@
     "Narrador.Antibioticos": "Antibioticos del misionero",
     "Narrador.PaqueteMisionero": "Paquete sellado",
     "Narrador.PlanosPueblo": "Planos del pueblo",
-    "Narrador.DiarioMaulen": "Diario de Maulen Callupan",
+    "Narrador.DiarioMeulen": "Diario de Meulen Canupan",
     "Narrador.MuestrasHospital": "Muestras del hospital",
     "Narrador.MaletinMilitar": "Maletin militar",
     "Narrador.LlavesBoveda": "Llaves de la boveda",
@@ -27,5 +27,8 @@
     "Narrador.PicotaCristonks": "La Picota del Cerro de Cristonks",
     "Narrador.BalanceHasag": "El Balance General de Hasag",
     "Narrador.PalaWertres": "La Pala del Bicho de Wertres",
-    "Narrador.CuraZ": "Pastilla K-93"
+    "Narrador.CuraZ": "Pastilla K-93",
+    "Narrador.MangoArma": "Mango de arma",
+    "Narrador.MangoLegendario": "Mango de madera noble",
+    "Narrador.PaloEkko": "Palo de Ekko"
 }

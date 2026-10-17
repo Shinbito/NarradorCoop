@@ -1,7 +1,8 @@
 -- Historia principal, capitulo 1: la familia Bell llega a tu refugio. Al terminar (con
 -- cualquier final) se abre el capitulo 2, Sous (ver Sous.lua). Uno de los Bell puede estar infectado (o ninguno).
 -- Necesita que algun jugador tenga un refugio reclamado (o una casa marcada como base en A-Life).
--- Si los dejas quedarse, se quedan a vivir ahi aunque la historia termine.
+-- Si los dejas quedarse, se quedan a vivir ahi aunque la historia termine: inmortales, limpian la
+-- zona y arrancan de las hordas (accion "bell_quedarse", server/Narrador/NarradorBell.lua).
 --
 -- "dice" = lo que habla un personaje (burbuja de A-Life sobre su cabeza).
 -- "respuesta" = narracion (cartel arriba de la pantalla).
@@ -45,6 +46,20 @@ Narrador.Charlas.bell = {
     { "hijo", "Por que tengo tanto frio? Afuera hace calor.", si = { "var", "infectado", "hijo" } },
     { "hijo", "Mama esta rara. Duerme todo el dia.", si = { "var", "infectado", "madre" } },
     { "hijo", "Ya me siento mejor, creo. Ya no toso tanto.", si = { "var", "infectado", "nadie" } },
+}
+
+-- Lo que dicen los Bell mientras viven en tu refugio despues de su historia (NarradorBell). Los
+-- del que se transformo no salen solos: solo hablan los que estan.
+Narrador.Charlas.bell_refugio = {
+    { "padre", "Di una vuelta por la cuadra. Limpie dos. Uno era el cartero, creo." },
+    { "padre", "Si viene algo grande, nos vamos. No es cobardia, es que ya perdimos bastante." },
+    { "padre", "Arregle la reja de atras. No va a aguantar una horda, pero algo es algo." },
+    { "madre", "Hay sopa. Poca, pero hay. Come antes de salir." },
+    { "madre", "Cuando nos vamos corriendo, siempre volvemos. Aunque sea con una lata de porotos." },
+    { "madre", "Lave tu ropa. Bueno, la que no estaba rota." },
+    { "hijo", "Mate a uno con la pala! Bueno, papa me ayudo. Un poco." },
+    { "hijo", "Encontre una pila en el auto de la esquina. Funciona!" },
+    { "hijo", "Cuando arrancamos me escondo en la bodega de la bencinera. Nadie me encuentra ahi." },
 }
 
 -- Lo que dicen los Bell que quedan despues del engano. Nunca lo supieron.
@@ -249,6 +264,7 @@ Narrador.Defs.registrar({
                   items = { { "Base.Shotgun", "Base.DoubleBarrelShotgun" }, { "Base.ShotgunShells" }, { "Base.ShotgunShells" },
                             { "Base.TinnedBeans", "Base.CannedBeans" }, { "Base.Bandage" } } },
                 { "memoria", clave = "bell", valor = "salvados" },
+                { "bell_quedarse", grupo = FAMILIA, lugar = "refugio", charla = "bell_refugio" },
             },
         },
 
@@ -260,6 +276,7 @@ Narrador.Defs.registrar({
                 { "decir", grupo = FAMILIA, rol = "padre", texto = "No... no, no, no. Era agua. Nos vendieron agua." },
                 { "diario", texto = "El suero era agua con azucar y colorante. Esa misma noche {nombre:infectado} se levanta distinto. Alguien vendio esperanza falsa en {lugar:laboratorio}." },
                 { "memoria", clave = "bell", valor = "falso_remedio" },
+                { "bell_quedarse", grupo = FAMILIA, lugar = "refugio", charla = "bell_refugio" },
                 { "memoria", clave = "curandero_falso", valor = true },
             },
         },
@@ -275,7 +292,7 @@ Narrador.Defs.registrar({
                   texto = "No funciono... pero tu lo intentaste. Fuiste hasta alla por nosotros. Eso no lo voy a olvidar nunca." },
                 { "diario", texto = "Les di una pastilla de azucar. La verdadera la tengo yo. Esa noche {nombre:infectado} se levanto distinto. Daniel me abrazo y me dio las gracias por intentarlo." },
                 { "huella", acto = "traicionaste", texto = "Les di a los Bell una pastilla falsa y me quede con la verdadera. Ellos me lo agradecen todavia." },
-                { "residentes", id = "bell", grupos = { FAMILIA }, charla = "bell_gratitud", lugar = "refugio", radio = 30, max_zombis = 2 },
+                { "bell_quedarse", grupo = FAMILIA, lugar = "refugio", charla = "bell_gratitud" },
                 { "memoria", clave = "bell", valor = "enganados" },
                 { "memoria", clave = "bell_culpa", valor = true },
             },
@@ -289,6 +306,7 @@ Narrador.Defs.registrar({
                 { "aviso", texto = "Un grito largo llega desde {lugar:refugio}." },
                 { "diario", texto = "No alcanzo el tiempo. {nombre:infectado} se transformo dentro de {lugar:refugio}." },
                 { "memoria", clave = "bell", valor = "transformado" },
+                { "bell_quedarse", grupo = FAMILIA, lugar = "refugio", charla = "bell_refugio" },
             },
         },
 
@@ -301,6 +319,7 @@ Narrador.Defs.registrar({
                 { "recompensa", lugar = "refugio", radio = 40,
                   items = { { "Base.TinnedBeans", "Base.CannedBeans" }, { "Base.Bandage" }, { "Base.Pills" } } },
                 { "memoria", clave = "bell", valor = "era_gripe" },
+                { "bell_quedarse", grupo = FAMILIA, lugar = "refugio", charla = "bell_refugio" },
             },
         },
 
@@ -310,6 +329,7 @@ Narrador.Defs.registrar({
                 { "abrir", def = "sous", horas = 24 },
                 { "diario", texto = "La fiebre de Wade se pasa sola. Era una gripe. Los Bell se quedan en {lugar:refugio}." },
                 { "memoria", clave = "bell", valor = "se_curo_solo" },
+                { "bell_quedarse", grupo = FAMILIA, lugar = "refugio", charla = "bell_refugio" },
             },
         },
 

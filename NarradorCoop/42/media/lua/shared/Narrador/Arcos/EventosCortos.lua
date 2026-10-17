@@ -67,10 +67,14 @@ registrar({
             salidas = { { cuando = { "reloj_vencido", "llegada" }, ir = "llega" } },
         },
         llega = {
-            pista = "Aguantar la horda.",
+            pista = "Aguantar la horda en {lugar:casa}.",
             al_entrar = {
-                { "oleada", lugar = "jugador", cantidad = { 25, 40 }, min = 25, max = 45 },
-                { "aviso", texto = "Se escucha el arrastrar de cientos de pies. Llegaron." },
+                -- La horda va a la casa (el refugio, o donde este el jugador si no tiene).
+                -- De 25 zombis el dia 3 hasta 100 el dia 30 (mas 5 por campamento fundado).
+                { "lugar_casa", id = "casa" },
+                { "oleada", lugar = "casa", progreso = { 25, 100 }, min = 30, max = 60 },
+                { "ruido", lugar = "casa", radio = 150, volumen = 100, veces = 3 },
+                { "aviso", texto = "Se escucha el arrastrar de cientos de pies. Algo hizo ruido en {lugar:casa} y vienen todos para aca." },
             },
             salidas = { { cuando = { "horas", 4 }, ir = "final_paso" } },
         },

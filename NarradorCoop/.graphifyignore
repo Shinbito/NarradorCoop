@@ -1,0 +1,4 @@
+# Solo el codigo del mod: los .md (roadmap, mapa) y las herramientas metian nodos falsos en el grafo.
+*.md
+herramientas/
+common/

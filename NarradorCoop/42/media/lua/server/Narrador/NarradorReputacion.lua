@@ -136,11 +136,22 @@ function R.sumar(grupo, contacto, cantidad, motivo, sinEco)
     while #g.historial > 20 do table.remove(g.historial, 1) end
 end
 
+-- Con muy mala fama en Knox (nivel -4 o peor) el misionero te desprecia, aunque su confianza
+-- contigo sea alta: pesa mas lo que hiciste en Knox.
+function R.despreciado(grupo)
+    local KX = Narrador.Knox
+    return KX ~= nil and KX.despreciado ~= nil and KX.despreciado(grupo)
+end
+
 function R.ascenso(grupo, contacto, nivel)
     local c = C.def(contacto)
     local lineas = R.ASCENSOS[contacto]
     local texto = lineas ~= nil and lineas[nivel] or nil
     if c == nil or texto == nil then return end
+    if R.despreciado(grupo) then
+        Motor.enviar(nil, "aviso", { texto = c.nombre .. " te tiene mas confianza, pero con tu fama en Knox no te lo va a decir." })
+        return
+    end
     texto = string.gsub(texto, "{nombre}", nombreGrupo(grupo))
     C.decir(contacto, texto)
     local rango = R.rango(contacto, R.UMBRALES[nivel])
@@ -148,6 +159,11 @@ function R.ascenso(grupo, contacto, nivel)
     local st = Motor.estado()
     st.diario[#st.diario + 1] = { h = floor(Mundo.horas()), t = C.nombreCompleto(c) .. " ahora me dice " .. rango .. ".",
         arco = "Libreta de contactos" }
+    -- Si hay algo nuevo que contar de el, el diario avisa (ver Lore.PERFILES).
+    local perfiles = Narrador.Lore ~= nil and Narrador.Lore.PERFILES or nil
+    if perfiles ~= nil and perfiles[contacto] ~= nil and perfiles[contacto][nivel] ~= nil then
+        Motor.enviar(nil, "aviso", { texto = "Anotaste algo nuevo sobre " .. c.nombre .. " en el diario (Notas)." })
+    end
     while #st.diario > Motor.MAX_DIARIO_GLOBAL do table.remove(st.diario, 1) end
 end
 
@@ -181,7 +197,7 @@ end
 
 -- Saludo con el nombre del grupo a partir del segundo rango.
 function R.saludo(grupo, contacto, texto)
-    if not R.activa() or R.nivel(R.valor(grupo, contacto)) < 2 then return texto end
+    if not R.activa() or R.nivel(R.valor(grupo, contacto)) < 2 or R.despreciado(grupo) then return texto end
     return nombreGrupo(grupo) .. ", " .. string.lower(string.sub(texto, 1, 1)) .. string.sub(texto, 2)
 end
 
@@ -190,6 +206,11 @@ function R.pedirFavor(jugador, args)
     local contacto = tostring(args.contacto)
     local c = C.def(contacto)
     if c == nil then return end
+    if R.despreciado(Mundo.grupoDe(jugador)) then
+        local G = Narrador.Generador
+        C.decir(contacto, G ~= nil and G.RECHAZO ~= nil and G.RECHAZO[contacto] or "Aca ya no eres bienvenido.")
+        return
+    end
     local x, y = C.posicion(contacto)
     local px, py = Mundo.posicion(jugador)
     if x == nil or px == nil or math.sqrt((x - px) ^ 2 + (y - py) ^ 2) > 10 then

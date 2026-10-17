@@ -33,10 +33,10 @@ module Narrador
         scale = 1.0,
     }
 
-    model NarradorDiarioMaulen
+    model NarradorDiarioMeulen
     {
-        mesh = Narrador/DiarioMaulen,
-        texture = Narrador/DiarioMaulen,
+        mesh = Narrador/DiarioMeulen,
+        texture = Narrador/DiarioMeulen,
         scale = 1.0,
     }
 
