@@ -801,7 +801,7 @@ function C.tickMinuto()
         end
     end
     local caidos = Motor.estado().caidos
-    if caidos ~= nil and caidos.muertos ~= nil and next(caidos.muertos) ~= nil then pcall(C.enterrar, caidos) end
+    if caidos ~= nil and caidos.muertos ~= nil and not Motor.vacia(caidos.muertos) then pcall(C.enterrar, caidos) end
 end
 
 -- Encargo en curso de un contacto (o nil).

@@ -159,7 +159,7 @@ function P.revisar()
     if ahora - P.ultimo < P.CADA_MS then return end
     P.ultimo = ahora
     local lista = P.lista()
-    if next(lista) == nil then return end
+    if Motor.vacia(lista) then return end
     for clave, a in pairs(lista) do
         pcall(function()
             if not Mundo.actorVivo(a.uid) then
