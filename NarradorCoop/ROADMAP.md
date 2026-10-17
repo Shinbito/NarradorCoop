@@ -9,10 +9,10 @@ memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias
 memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 
-## Pendiente (versión 0.11.0)
+## Pendiente (versión 0.12.0)
 
 ### 1. Probar en el juego (lo más importante)
-Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más hay que mirar:
+Todo lo de las versiones 0.10, 0.11 y 0.12 está hecho pero sin probar. Lo que más hay que mirar:
 - Perfiles de A-Life: Valentina (`k93_hensley_family_03`, que se vea como una muchacha), la
   Capitana Kell (`k93_vfd_05`, que sea mujer), la Hermana Lucía (`k93_red_cross_08`), Eduardo
   (`k93_stockyard_05`) y el doctor Hartmann (`k93_red_cross_02`); y si A-Life le deja el arma en
@@ -102,7 +102,7 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
   para arsenal, denise, lucas, trueque, alijo y desertor (ver "Consecuencias de las decisiones");
   quedan solo de registro cal.fonda, eduardo_vivo, bandido_ultimo, asalto y las del motor.
 
-## Hecho el 17 de octubre (falta probar en el juego)
+## Versión 0.12.0: hecho el 17 de octubre (falta probar en el juego)
 - Mapa anotado que cerraba el juego (texto sin fuente en la API v1 de simbolos).
 - Puertas dobles en los campamentos (una puerta abierta no se reconocia por el sprite).
 - A-Life dejaba un zombi en lugar del NPC si fallaba `sendItemStats` al cargarlo.
