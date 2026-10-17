@@ -51,6 +51,8 @@ Motor.condiciones = {
     mato_jugador = function(inst, c)
         local g = grupo(inst, c[2])
         if g == nil then return false end
+        -- Tambien si un jugador los dejo hostiles a golpes (ver Motor.traicionFaccion).
+        if g.traicion ~= nil then return true end
         for _, m in pairs(g.miembros) do if m.causa == "jugador" then return true end end
         return false
     end,

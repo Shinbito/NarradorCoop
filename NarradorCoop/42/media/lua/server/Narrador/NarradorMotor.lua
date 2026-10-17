@@ -500,6 +500,34 @@ function Motor.registrarBaja(x, y)
     while #st.bajas > Motor.MAX_BAJAS do table.remove(st.bajas, 1) end
 end
 
+-- Las pistas con {bajas:lugar} se arman en el servidor, asi que el contador solo cambia en
+-- pantalla cuando se vuelve a mandar el estado. Con una baja nueva se manda al tiro (como
+-- mucho una vez por segundo) y, si quedo alguna sin mandar, en el siguiente minuto de juego.
+Motor.bajaSinPublicar = false
+Motor.ultimaPublicacionBajas = 0
+
+local function hayContadorDeBajas()
+    for _, id in ipairs(Motor.estado().orden or {}) do
+        local inst = Motor.estado().arcos[id]
+        local def = inst ~= nil and Defs.get(inst.def) or nil
+        local etapa = def ~= nil and def.etapas[inst.etapa] or nil
+        if etapa ~= nil and type(etapa.pista) == "string" and string.find(etapa.pista, "{bajas:", 1, true) then return true end
+    end
+    return false
+end
+
+function Motor.avisarContador()
+    if not hayContadorDeBajas() then return end
+    local ahora = getTimestampMs ~= nil and getTimestampMs() or 0
+    if ahora - Motor.ultimaPublicacionBajas >= 1000 then
+        Motor.ultimaPublicacionBajas = ahora
+        Motor.bajaSinPublicar = false
+        Motor.publicar()
+    else
+        Motor.bajaSinPublicar = true
+    end
+end
+
 function Motor.contarBajas(x, y, radio, desde)
     local n = 0
     for _, b in ipairs(Motor.estado().bajas or {}) do
@@ -512,7 +540,10 @@ function Motor.onZombiMuerto(zombi)
     if zombi == nil then return end
     if Mundo.esNpc ~= nil and Mundo.esNpc(zombi) then return end
     local ok, x, y = pcall(function() return zombi:getX(), zombi:getY() end)
-    if ok then Motor.registrarBaja(x, y) end
+    if ok then
+        Motor.registrarBaja(x, y)
+        Motor.avisarContador()
+    end
 end
 
 -- ---------------------------------------------------------------------------
@@ -1037,6 +1068,9 @@ function Motor.tick()
         if inst ~= nil then
             local ok, c = pcall(Motor.tickArco, inst)
             if not ok then Mundo.log("error en " .. id .. ": " .. tostring(c)) elseif c then cambio = true end
+            if st.arcos[id] ~= nil then
+                for gid in pairs(inst.grupos or {}) do pcall(Motor.completarGrupo, inst, gid) end
+            end
         end
     end
     local ok, err = pcall(Motor.tickResidentes)
@@ -1046,6 +1080,10 @@ function Motor.tick()
         if not okE then Mundo.log("error en " .. tostring(nombre) .. ": " .. tostring(errE)) end
     end
     pcall(Motor.actualizarPropios)
+    if Motor.bajaSinPublicar then
+        Motor.bajaSinPublicar = false
+        cambio = true
+    end
     if cambio then Motor.publicar() end
 end
 

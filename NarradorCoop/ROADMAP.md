@@ -18,7 +18,7 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
   (`k93_stockyard_05`) y el doctor Hartmann (`k93_red_cross_02`); y si A-Life le deja el arma en
   la mano a Eduardo.
 - El fuego de "quemar un refugio" (encargos inmorales de los capitanes).
-- El camino del bandido completo, por las dos rutas (Pereira y Maulen), y la reconquista.
+- El camino del bandido completo, por las dos rutas (Pereira y Meulen), y la reconquista.
 - La brújula con Project Viewpoint (ver "Brújula sigue a la cámara").
 - Cuando esté probado: fusionar el PR #1 a `main` (`main` sigue en la versión del 15 de octubre).
 
@@ -62,7 +62,7 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
 - `Mundo.crearFaccion` acepta `aspecto` (piel 0 a 4, peinado, barba y sus colores, con los nombres
   de `hairStyles.xml` / `beardStyles.xml`) y `tintes` (color "r,g,b" por prenda) en cada integrante.
 - Sous (versión 3 de la facción, se reescriben los perfiles): Akagami, Zent, Tati, Walita,
-  Cristonks, Hasag, Wertres, Matric y Shinbo según sus fotos (versión 5). Maulen Callupan sin foto:
+  Cristonks, Hasag, Wertres, Matric y Shinbo según sus fotos (versión 5). Meulen Canupan sin foto:
   aspecto mapuche (piel morena, pelo largo con trarilonco, chaleco de tejido, trapelacucha), igual
   en sus tres perfiles (Sous, su banda y jefe del patio).
 - Se revisaron todos los perfiles k93 del mod contra el catálogo de A-Life (`body.sex`): Lucía,
@@ -99,6 +99,82 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
 ### 4. Contenido
 - Capítulos 4 en adelante de cada misionero.
 - Más consecuencias para las memorias "solo de registro" (encuentros, alijo, trueque...).
+
+## Hecho el 17 de octubre (falta probar en el juego)
+- Mapa anotado que cerraba el juego (texto sin fuente en la API v1 de simbolos).
+- Puertas dobles en los campamentos (una puerta abierta no se reconocia por el sprite).
+- A-Life dejaba un zombi en lugar del NPC si fallaba `sendItemStats` al cargarlo.
+- Misioneros: se reponen solos si su NPC falta o esta roto con alguien cerca; boton de admin.
+- Mision 1 de los misioneros: se borran los zombis que habia; kit inicial (pistola, cargador,
+  funda, cinturon, mochila, balas segun zombis y arma legendaria del misionero).
+- Horda en camino: 25 a 100 zombis segun dias y campamentos, va a la casa y hace ruido.
+- Bandido: "Redimido" si atacas a la banda del patio; campamento del patio con 10 bandidos mas;
+  la banda con ropa, peinado y barba propios.
+- Contador de bajas al dia; asesino tomado de A-Life cuando la muerte llega sin asesino;
+  atacar a una faccion de la historia cuenta como traicion; perdon de A-Life al volver a ser amigos.
+- Grupos de NPCs en tandas de 4 (A-Life crea maximo 8 por pedido) y se completan los grupos cortos.
+- Base de Sous fija por pueblo (`Narrador.SousBases`). Meulen Canupan (antes Maulen Callupan).
+- Admin: "Respawnear NPCs de las historias activas" y "Arma legendaria de un misionero".
+- Libreta: boton para seguir una mision. Frases sobre la cabeza si no sale la burbuja de A-Life.
+- Poster y foto de Sous: la cara de la imagen salia en espejo.
+
+## Pedidos nuevos (17 de octubre)
+
+### Modo historia de cada integrante de Sous (por hacer)
+- Cada integrante de Sous tiene su propia historia secundaria. Al terminarla te da su arma
+  legendaria (como el kit de los misioneros: `C.armaKit` y `Narrador.Legendario`).
+- En esas historias aparecen los amigos de Sous (perfiles propios, como los de `Narrador.Facciones`):
+  - **Waton Ju**: primo de Walita; vivieron juntos en Iquique hasta que Walita tenia 12 (despues
+    Walita se fue a Arica, donde tenia su taller; nunca vivio en Antofagasta). Nunca llego a nivel
+    70 para jugar DZ en PXG (la talla de siempre).
+  - **Claudio Clau**: chico y moreno; polera normal y jeans apretados. Amigo de todos en Sous.
+    Puede aparecer en cualquier historia y al final se une a Sous.
+  - **Fucking Luengo**: chef, rubio, alto y con el pelo corto. Amigo de todos; es parte de Sous
+    pero no del gaming.
+  - **Renaaaaaato**: flaco, blanco, pelo negro con peinado normal. Amigo de todos; fanatico del Counter.
+- Lore que tiene que estar en esas historias: la talla eterna de que los primos Cristonks y Hasag
+  "se comen" y por eso se van tanto juntos a la nieve; Matric es el que mas sospecha. (Las
+  primeras frases ya estan en `Narrador.Charlas.sous_base`.)
+
+### La venganza de Meulen (por hacer)
+- Despues de que Meulen muere (final de la historia de Sous), un tiempo despues reaparece vivo:
+  dice que la Pachamama lo trajo de vuelta. Ahora busca venganza.
+- Ataque al refugio: Meulen llega con una banda de bandidos a tu refugio. Durante el ataque
+  vuelve a salir vivo "por nada" (se escapa en el ultimo momento, no se le puede matar ahi).
+- Persecucion por pistas: siguiendo lo que dejo en el camino (notas, cuerpos, un mapa) se llega a
+  su base nueva, con su banda. Ahi si se le mata, de verdad.
+- Piezas que ya existen: `bandidos` con `salud` alta e inmortal en una etapa (como Meulen en el
+  escondite de Sous), `mapa` y `nota` para las pistas, `retirar_lejos` para la huida, y la
+  "Horda en camino" para el ataque al refugio (lugar "casa" + "ruido").
+- Engancha con "Reclutar a Sous": la opcion "Sigueme" se abre recien cuando Meulen esta muerto
+  de verdad (al final de esta historia).
+
+### Reclutar a Sous: "Sigueme" (por hacer)
+- Sous tiene su propia confianza, como la de los misioneros (`NarradorReputacion.lua`), pero solo
+  sube ayudandolos con sus misiones (no con encargos sueltos ni regalos).
+- Cuando termina la historia de Sous y Meulen esta muerto, en la conversacion con cada integrante
+  aparece la opcion "Sigueme". Se puede reclutar a todos los que quieras.
+- Base: `Mundo.acompanar` (postura "caminar con" de A-Life) y la renovacion de
+  `NarradorPasajeros.lua`. Falta decidir como se les dice que vuelvan a la base.
+
+### La base de Sous viva (por hacer)
+- Que se queden dentro de la base: sentados en sillas (A-Life los sienta si su punto de guardia
+  esta junto a una silla o banca, `ALifeModuleIdleLife.seatPost`), una mesa con una baraja,
+  sacos de dormir, un generador funcionando (combustible que se rellena solo) y bidones de agua.
+- A-Life no tiene animacion de cartas: sentados a la mesa con frases de juego.
+
+### Maniqui del misionero (por hacer)
+- Cuando el NPC del misionero no esta, un maniqui fijo vestido como el en su puesto; con clic
+  derecho se le pueden pedir misiones igual mientras el mod intenta reponer al NPC.
+
+### Los Bell durante su historia (por decidir)
+- La pista de "acogidos" (la espera de 3 horas de juego antes de que Daniel pida el suero) tiene
+  que decir que hay que esperar. Opcional: que no los mate una horda mientras dura su historia.
+
+### Brujula con Project Viewpoint (por hacer)
+- Viewpoint guarda el angulo de la camara en Java (`viewpoint.FP.viewYaw`) y no lo expone al Lua.
+  Hace falta un mini mod Java (ZombieBuddy) que lo pase al Lua; mientras tanto la brujula usa la
+  direccion del personaje.
 
 ## Técnico
 
@@ -294,7 +370,7 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
 ## Consecuencias de las decisiones (hecho en 0.11.0, falta probar en el juego)
 Las 5 memorias que se escribían y nadie leía ahora tienen consecuencia (`memorias.py` ya no tiene
 pendientes):
-- `bell_culpa` (le diste una falsa a los Bell): Maulen lo sabe y te lo dice cuando te llama al
+- `bell_culpa` (le diste una falsa a los Bell): Meulen lo sabe y te lo dice cuando te llama al
   patio; en Sous, Martín Zent y David escuchan a los Bell hablar maravillas de ti.
 - `curandero_falso`: el doctor Hartmann es el que les vendió las pastillas de azúcar a los Bell;
   te lo confiesa al llegar al cuartel de la Chela (cap. 3) y queda en el diario.
@@ -334,10 +410,10 @@ pendientes):
 - El patio de trenes va de 11544,9590 a 11746,10232 (`Narrador.BandidoPatio` en `Bandido.lua`);
   Pereira se instala en la casa del patio mas cerca del centro.
 
-#### Maulen como jefe (hecho, falta probar en el juego)
-- En Sous, si vas solo al escondite y Maulen sigue vivo un cuarto de hora, se rinde. Si lo
+#### Meulen como jefe (hecho, falta probar en el juego)
+- En Sous, si vas solo al escondite y Meulen sigue vivo un cuarto de hora, se rinde. Si lo
   dejas ir, Sous cree que se escapo (memoria `maulen_salvado`).
-- 72 horas despues Maulen mata a Pereira y se queda con el patio (`bandido_maulen`): te deja una
+- 72 horas despues Meulen mata a Pereira y se queda con el patio (`bandido_maulen`): te deja una
   nota porque te debe la vida, sin importar tu Knox. Si ya trabajabas para Pereira, sigues con
   el desde el capitulo en que ibas. Los capitulos 2 a 5 cambian de dialogos y diario segun el
   jefe (memoria `bandido_jefe`).
@@ -345,7 +421,7 @@ pendientes):
 #### Fase 2: la conquista de Knox (hecho, falta probar en el juego)
 - Archivos: `shared/Narrador/Arcos/Conquista.lua`, `shared/Narrador/Arcos/Inmorales.lua`,
   `shared/Narrador/NarradorDominiosDefs.lua` y `server/Narrador/NarradorDominios.lua`.
-- Con Maulen de jefe, primero la base de Sous (si Sous es aliado y sigue en su base). Despues la
+- Con Meulen de jefe, primero la base de Sous (si Sous es aliado y sigue en su base). Despues la
   comisaria del Cabo; despues West Point, Riverside y Rosewood en el orden que quieras (se
   lanza al entrar a cada pueblo). -15 de Knox cada una. Al terminar: memoria `knox_conquistado`.
 - Cada ciudad tiene un dominio (memoria `dominio_<id>`): mision, bandido o nuevo. En la

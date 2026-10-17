@@ -293,16 +293,37 @@ local function nombreSprite(o)
     return ok and n or nil
 end
 
--- Anota las puertas del edificio (una vez por partida y por misionero).
+local function esNorte(d)
+    local norte = false
+    pcall(function() norte = d:getNorth() == true end)
+    return norte
+end
+
+local function abierta(d)
+    local si = false
+    pcall(function() si = d:IsOpen() == true end)
+    return si
+end
+
+-- Una puerta abierta muestra el sprite de "abierta", no el de cerrada: por eso una puerta se
+-- reconoce por su casilla y su lado, nunca por el nombre del sprite.
+local function puertasDelLado(sq, norte)
+    local lista = {}
+    for _, d in ipairs(puertasDe(sq)) do
+        if esNorte(d) == (norte == true) then lista[#lista + 1] = d end
+    end
+    return lista
+end
+
+-- Anota las puertas del edificio (una vez por partida y por misionero). Solo se guarda el
+-- sprite de las cerradas; el de una abierta se completa cuando se la ve cerrada.
 function C.anotarPuertas(e)
     if e.puertas ~= nil then return end
     local lista = {}
     local ok = C.recorrerEdificio(e, function(sq, x, y, z)
         for _, d in ipairs(puertasDe(sq)) do
-            local sprite = nombreSprite(d)
-            local norte = false
-            pcall(function() norte = d:getNorth() == true end)
-            if sprite ~= nil then lista[#lista + 1] = { x = x, y = y, z = z, s = sprite, n = norte } end
+            local sprite = not abierta(d) and nombreSprite(d) or nil
+            lista[#lista + 1] = { x = x, y = y, z = z, s = sprite, n = esNorte(d) }
         end
     end)
     if ok then e.puertas = lista end
@@ -326,9 +347,15 @@ function C.reponerEdificio(e)
     for _, p in ipairs(e.puertas or {}) do
         local sq = Mundo.cargado(p.x, p.y, p.z)
         if sq ~= nil then
-            local hay = false
-            for _, d in ipairs(puertasDe(sq)) do if nombreSprite(d) == p.s then hay = true end end
-            if not hay then
+            local hay = puertasDelLado(sq, p.n)
+            -- Limpia las puertas dobles que dejo la version anterior (una abierta y otra
+            -- repuesta encima): queda una sola.
+            for i = 2, #hay do
+                pcall(function() sq:transmitRemoveItemFromSquare(hay[i]) end)
+                Mundo.log("se quito una puerta duplicada del edificio del misionero en " .. p.x .. "," .. p.y .. "," .. p.z)
+            end
+            if hay[1] ~= nil and not abierta(hay[1]) then p.s = nombreSprite(hay[1]) or p.s end
+            if hay[1] == nil and p.s ~= nil then
                 if Mundo.ponerPuerta(sq, p.s, p.n) then
                     Mundo.log("se repuso una puerta del edificio del misionero en " .. p.x .. "," .. p.y .. "," .. p.z)
                 end
@@ -564,9 +591,24 @@ function C.revisarMall()
     end
 end
 
+-- Misioneros que hay que reponer una vez (subir el numero para repetir). El Cabo Ramiro quedo
+-- como zombi el 2026-10-17 por un error de A-Life al cargarlo: se saca su NPC y C.reponer lo
+-- vuelve a crear en su puesto cuando alguien pasa cerca.
+C.REPONER_UNA_VEZ = { muldraugh = 1 }
+
+function C.reponerUnaVez(c, e)
+    local version = C.REPONER_UNA_VEZ[c.id]
+    if version == nil or e.repuestoAdmin == version then return end
+    e.repuestoAdmin = version
+    if e.uid ~= nil then Mundo.retirar(e.uid) end
+    e.uid, e.pidiendo, e.faltas = nil, nil, 0
+    Mundo.log("se repone una vez a " .. C.nombreCompleto(c) .. " (version " .. tostring(version) .. ")")
+end
+
 function C.tick()
     if not Mundo.hayALife() then return end
     C.migrarDesbloqueo()
+    for _, c in ipairs(C.LISTA) do pcall(C.reponerUnaVez, c, C.estado(c.id)) end
     for _, c in ipairs(C.LISTA) do
         local e = C.estado(c.id)
         pcall(function()
@@ -774,11 +816,38 @@ function C.vigilar(c, e)
         local actor = Mundo.actor(e.uid)
         if (actor ~= nil and actor.lifecycle == "dead") or C.cuerpoMuerto(e.uid) then
             pcall(C.alMorir, e, c, e.uid)
-        elseif actor ~= nil then
-            pcall(C.proteger, e)
+        else
+            if actor ~= nil then pcall(C.proteger, e) end
+            -- Con alguien cerca su NPC tiene que estar cargado y ser un NPC. Si unos minutos
+            -- seguidos no lo esta (se perdio, o quedo un zombi comun en su lugar), se repone.
+            local ok, roto = pcall(C.cuerpoRoto, e, actor)
+            e.roto = (ok and roto) and (e.roto or 0) + 1 or 0
+            if e.roto >= C.MINUTOS_ROTO then
+                Mundo.retirar(e.uid)
+                Mundo.log(C.nombreCompleto(c) .. " no estaba bien cargado; se repone")
+                e.uid, e.pidiendo, e.faltas, e.roto = nil, nil, 0, 0
+            end
         end
     end
     if e.uid == nil then pcall(C.reponer, c, e) end
+end
+
+-- Minutos seguidos con el NPC ausente o roto (y alguien cerca) antes de reponerlo.
+C.MINUTOS_ROTO = 3
+
+-- true si hay un jugador cerca del puesto, el puesto esta cargado y el NPC del misionero no
+-- esta como deberia: sin registro en A-Life, sin cuerpo cargado o con un cuerpo que no es NPC.
+function C.cuerpoRoto(e, actor)
+    if Mundo.jugadorCerca(e.x, e.y, 30) == nil or Mundo.cargado(e.x, e.y, e.z) == nil then return false end
+    if actor == nil then return true end
+    local cuerpo = Mundo.cuerpoActor(e.uid)
+    if cuerpo == nil then return true end
+    local interop = ProjectALife ~= nil and ProjectALife.Interop or nil
+    if interop ~= nil and type(interop.isNpc) == "function" then
+        local ok, esNpc = pcall(interop.isNpc, cuerpo)
+        if ok and esNpc == false then return true end
+    end
+    return false
 end
 
 -- Cada minuto: cancelar a tiempo la transformacion de un misionero que acaba de morir y
@@ -965,6 +1034,122 @@ if Events ~= nil and not C._enganchado then
     if Events.OnGameStart ~= nil then Events.OnGameStart.Add(enganchar) end
     if Events.OnServerStarted ~= nil then Events.OnServerStarted.Add(enganchar) end
     enganchar()
+end
+
+-- ---------------------------------------------------------------------------
+-- Kit de inicio de la mision 1 de cada misionero
+-- ---------------------------------------------------------------------------
+-- Cuando el misionero llega a pedir ayuda, cada jugador de la faccion que este conectado
+-- recibe una pistola con cargador, funda y cinturon, una mochila, balas segun cuantos zombis trae la mision y
+-- el arma legendaria propia de ese misionero. Se entrega una sola vez por misionero.
+
+C.KIT = {
+    pistola = { "Base.Pistol" },
+    cargador = { "Base.9mmClip" },
+    bala = { "Base.Bullets9mm" },
+    mochila = { "Base.Bag_ALICEpack_Army", "Base.Bag_ALICEpack", "Base.Bag_Schoolbag" },
+    funda = { "Base.HolsterSimple_Black", "Base.HolsterSimple" },
+    cinturon = { "Base.Belt2" },
+    BALAS_POR_ZOMBI = 10,
+    BALAS_MINIMAS = 120,
+}
+
+C.ARMAS_KIT = {
+    muldraugh = { tipo = { "Base.Nightstick" }, nombre = "La Luma del Cabo Ramiro" },
+    westpoint = { tipo = { "Base.Axe" }, nombre = "El Hacha de la Tia Chela" },
+    riverside = { tipo = { "Base.Machete" }, nombre = "El Castigo Divino" },
+    rosewood = { tipo = { "Base.Crowbar" }, nombre = "La Palanqueta de la Misia Rosa" },
+}
+
+-- Arma legendaria con nombre propio (o nil si el tipo no existe).
+function C.armaKit(id)
+    local def = C.ARMAS_KIT[id]
+    local L = Narrador.Legendario
+    if def == nil then return nil end
+    local arma = Mundo.crearItem(def.tipo)
+    if arma == nil then return nil end
+    if L ~= nil then
+        L.marcar(arma, "legendaria")
+        pcall(function() arma:getModData().NarradorLegendario.nombre = def.nombre end)
+        L.aplicar(arma)
+    else
+        Mundo.nombrar(arma, def.nombre, nil)
+    end
+    return arma
+end
+
+-- Jugadores conectados del mismo grupo (faccion) que quien lanzo la historia.
+function C.jugadoresDelGrupo(nombreRef)
+    local grupo
+    for _, p in ipairs(Mundo.jugadores()) do
+        if Mundo.nombreJugador(p) == nombreRef then grupo = Mundo.grupoDe(p) end
+    end
+    local lista = {}
+    for _, p in ipairs(Mundo.jugadores()) do
+        if Mundo.vivo(p) and (Mundo.nombreJugador(p) == nombreRef or (grupo ~= nil and Mundo.grupoDe(p) == grupo)) then
+            lista[#lista + 1] = p
+        end
+    end
+    return lista
+end
+
+-- {"kit_inicial", zombis = 45, por_jugador = 15}: zombis de la mision (y cuantos mas por cada
+-- jugador extra), para calcular las balas.
+Motor.inmediatas.kit_inicial = function(inst, a)
+    local c = C.def(tostring(a.contacto or inst.vars.contacto))
+    if c == nil then return true end
+    local e = C.estado(c.id)
+    if e.kitEntregado then return true end
+    local lista = C.jugadoresDelGrupo(inst.refNombre)
+    if #lista == 0 then return true end
+    e.kitEntregado = true
+    local zombis = (tonumber(a.zombis) or 45) + (tonumber(a.por_jugador) or 0) * math.max(0, #lista - 1)
+    local balas = math.max(C.KIT.BALAS_MINIMAS, math.ceil(zombis * C.KIT.BALAS_POR_ZOMBI / #lista))
+    for _, p in ipairs(lista) do
+        for _, tipos in ipairs({ C.KIT.pistola, C.KIT.cargador, C.KIT.funda, C.KIT.cinturon, C.KIT.mochila }) do
+            Mundo.darItem(p, Mundo.crearItem(tipos))
+        end
+        for _ = 1, balas do Mundo.darItem(p, Mundo.crearItem(C.KIT.bala)) end
+        local arma = C.armaKit(c.id)
+        if arma ~= nil then Mundo.darItem(p, arma) end
+        Motor.enviar(p, "aviso", { texto = C.nombreCompleto(c) .. " te entrega un kit: pistola con funda y cinturon, mochila, "
+            .. balas .. " balas y " .. tostring(C.ARMAS_KIT[c.id] and C.ARMAS_KIT[c.id].nombre or "un arma") .. "." })
+    end
+    Mundo.log("kit inicial de " .. C.nombreCompleto(c) .. " para " .. #lista .. " jugadores (" .. balas .. " balas c/u)")
+    return true
+end
+
+-- Admin: el arma legendaria de un misionero para cada jugador conectado del grupo del admin
+-- (para quienes hicieron la mision 1 antes de que existiera el kit).
+Motor.comandosAdmin.armaMisionero = function(jugador, args)
+    local c = C.def(tostring(args and args.contacto or ""))
+    if c == nil then return "Misionero desconocido." end
+    local lista = C.jugadoresDelGrupo(Mundo.nombreJugador(jugador))
+    for _, p in ipairs(lista) do
+        local arma = C.armaKit(c.id)
+        if arma ~= nil then Mundo.darItem(p, arma) end
+    end
+    return "Entregado a " .. #lista .. " jugadores: " .. tostring(C.ARMAS_KIT[c.id] and C.ARMAS_KIT[c.id].nombre) .. "."
+end
+
+-- Admin: saca el NPC actual de un misionero (aunque este roto, por ejemplo un zombi que quedo
+-- en su lugar) y pide uno nuevo en su puesto. Hay que estar a menos de 70 casillas del puesto.
+Motor.comandosAdmin.reponerMisionero = function(jugador, args)
+    local c = C.def(tostring(args and args.contacto or ""))
+    if c == nil then return "Misionero desconocido." end
+    local e = C.estado(c.id)
+    if e.x == nil then C.ubicar(c) end
+    if e.x == nil then return "No tiene puesto todavia." end
+    local px, py = Mundo.posicion(jugador)
+    if px == nil or math.sqrt((e.x - px) ^ 2 + (e.y - py) ^ 2) > 70 then
+        return "Hay que estar cerca de su puesto (" .. floor(e.x) .. "," .. floor(e.y) .. ")."
+    end
+    if Mundo.cargado(e.x, e.y, e.z) == nil then return "Su puesto no esta cargado; acercate mas." end
+    if e.uid ~= nil then Mundo.retirar(e.uid) end
+    e.uid, e.pidiendo, e.faltas = nil, nil, 0
+    C.aparecer(c, e, jugador)
+    Mundo.log("admin repuso a " .. C.nombreCompleto(c))
+    return C.nombreCompleto(c) .. " va a aparecer en su puesto."
 end
 
 return C

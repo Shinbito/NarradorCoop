@@ -4,7 +4,7 @@
 --     lleno de bencina del estanque que defendio.
 -- Las otras consecuencias estan donde pasan: la radio de la Chela (radio_westpoint) en
 -- NarradorAmenazas, la desconfianza de Pereira (pereira_desconfia) en NarradorBandido, y lo de
--- los Bell (bell_culpa, curandero_falso) en las charlas de Sous, en Maulen y en el doctor Hartmann.
+-- los Bell (bell_culpa, curandero_falso) en las charlas de Sous, en Meulen y en el doctor Hartmann.
 -- Textos sin tildes a proposito.
 
 if isClient ~= nil and isClient() then return end

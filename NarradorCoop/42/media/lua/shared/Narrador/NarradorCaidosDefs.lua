@@ -91,9 +91,9 @@ CD.PERSONAJES = {
     { clave = "kevin_morales", nombre = "Kevin Morales", def = "bandido_4", rol = "chico",
       homenaje = "Kevin Morales era el chico del grupo de Ramon. Ya no esta.",
       lamento = "Mate a Kevin Morales. Era un chico. En que me converti." },
-    { clave = "maulen", nombre = "Maulen Callupan", rol = "maulen",
-      homenaje = "Maulen Callupan traiciono a Sous y despues me debio la vida. Murio sin pagar ninguna de las dos cosas.",
-      lamento = "Mate a Maulen Callupan. Se lo merecia, me digo. Y aun asi lo anoto, porque ya no se distinguir cuando alguien se lo merece. En que me converti." },
+    { clave = "maulen", nombre = "Meulen Canupan", rol = "maulen",
+      homenaje = "Meulen Canupan traiciono a Sous y despues me debio la vida. Murio sin pagar ninguna de las dos cosas.",
+      lamento = "Mate a Meulen Canupan. Se lo merecia, me digo. Y aun asi lo anoto, porque ya no se distinguir cuando alguien se lo merece. En que me converti." },
     -- Sous
     { clave = "martin_akagami", nombre = "Martin Akagami", rol = "martin_a",
       homenaje = "Martin Akagami lideraba Sous. Siempre iba adelante." },

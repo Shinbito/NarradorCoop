@@ -68,10 +68,27 @@ local function apiSimbolos(mapUI)
     local mapAPI = mapUI.mapAPI
     if mapAPI == nil then pcall(function() mapAPI = mapUI.javaObject:getAPIv1() end) end
     if mapAPI == nil then return nil end
+    -- Se mira si el metodo existe antes de llamarlo: llamar uno que no existe tira una
+    -- excepcion que el juego vuelca entera al log en cada intento.
     for _, nombre in ipairs({ "getSymbolsAPIv2", "getSymbolsAPI" }) do
-        local ok, api = pcall(function() return mapAPI[nombre](mapAPI) end)
-        if ok and api ~= nil then return api end
+        local metodo = mapAPI[nombre]
+        if metodo ~= nil then
+            local ok, api = pcall(metodo, mapAPI)
+            if ok and api ~= nil then return api end
+        end
     end
+    return nil
+end
+
+-- Segundo argumento de addUntranslatedText. La API v2 pide el id de una capa de texto; la
+-- v1 (la de los mapas de papel, ISMap) pide una UIFont. Nunca devuelve nil: un texto sin
+-- fuente revienta el dibujo del mapa en Java y cierra el juego.
+local function fuenteTexto(api)
+    if api.getDefaultTextLayerID ~= nil then
+        local ok, capa = pcall(api.getDefaultTextLayerID, api)
+        if ok and capa ~= nil then return capa end
+    end
+    if UIFont ~= nil then return UIFont.Handwritten or UIFont.Small end
     return nil
 end
 
@@ -94,9 +111,7 @@ function M.ponerMarcas(mapUI)
         end
     end)
     local escala = ISMap ~= nil and ISMap.SCALE or 0.666
-    local capaTexto
-    pcall(function() capaTexto = api:getDefaultTextLayerID() end)
-    if capaTexto == nil then pcall(function() capaTexto = api:getDefaultLayerID() end) end
+    local capaTexto = fuenteTexto(api)
     -- separacion del texto respecto del simbolo, proporcional al tamano del mapa
     local z = md.zona or {}
     local sep = math.max(4, floor(((tonumber(z.x2) or 300) - (tonumber(z.x1) or 0)) / 45))
@@ -115,7 +130,7 @@ function M.ponerMarcas(mapUI)
             -- el texto va al lado del simbolo; si no hay simbolo, justo en el punto
             local tx, ty = floor(x + sep), floor(y - sep)
             if simbolo == "" then tx, ty = floor(x), floor(y) end
-            if m.t ~= nil and m.t ~= "" and not ya["t" .. tx .. "," .. ty] then
+            if capaTexto ~= nil and m.t ~= nil and m.t ~= "" and not ya["t" .. tx .. "," .. ty] then
                 pcall(function()
                     local s = api:addUntranslatedText(tostring(m.t), capaTexto, tx, ty)
                     s:setRGBA(m.r or 0.75, m.g or 0.1, m.b or 0.1, 1.0)

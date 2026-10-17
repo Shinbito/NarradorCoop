@@ -89,6 +89,8 @@ for _, c in ipairs(LISTA) do
                 al_entrar = {
                     { "aviso", texto = c.llega },
                     { "decir", grupo = VISITA, rol = "visita", texto = c.pedido },
+                    -- Kit para cada jugador de la faccion, con el arma legendaria del misionero.
+                    { "kit_inicial", contacto = c.id, zombis = META + HORDA, por_jugador = HORDA_POR_JUGADOR },
                     { "diario", texto = quien .. " llego a {lugar:casa}. Quiere que lo ayude a limpiar " .. c.edificio
                         .. " para armar un campamento. Lo que encuentre adentro es mio." },
                 },
@@ -131,6 +133,8 @@ for _, c in ipairs(LISTA) do
                 pista = "Limpiar {lugar:contacto}: van {bajas:contacto} de {bajas_meta}.",
                 al_entrar = {
                     { "variable", nombre = "bajas_meta", valor = META },
+                    -- Fuera los zombis que ya estaban: adentro quedan solo los de la mision.
+                    { "quitar_zombis", lugar = "contacto", radio = 40 },
                     { "oleada", lugar = "contacto", radio = 35, cantidad = META, fija = true, caminantes = true, planta_baja = true, min = 2, max = 14 },
                     { "aviso", texto = "{lugar:contacto} esta lleno de muertos. Hay que limpiarlo." },
                 },

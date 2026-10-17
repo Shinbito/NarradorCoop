@@ -493,6 +493,19 @@ function Ind.menuAdmin(destino)
     for _, c in ipairs({ { "muldraugh", "Cabo Ramiro" }, { "westpoint", "Tia Chela" }, { "riverside", "Padre Nacho" }, { "rosewood", "Misia Rosa" } }) do
         subRep:addOption(c[2], nil, function() Cliente.enviar("repSumar", { contacto = c[1], cantidad = 20 }) end)
     end
+    sub:addOption("Respawnear NPCs de las historias activas (muertos o perdidos)", nil, function() Cliente.enviar("reponerHistorias", {}) end)
+    local rp = sub:addOption("Reponer misionero (saca el NPC roto y lo crea de nuevo)", nil, nil)
+    local subRp = ISContextMenu:getNew(sub)
+    sub:addSubMenu(rp, subRp)
+    for _, c in ipairs({ { "muldraugh", "Cabo Ramiro" }, { "westpoint", "Tia Chela" }, { "riverside", "Padre Nacho" }, { "rosewood", "Misia Rosa" } }) do
+        subRp:addOption(c[2], nil, function() Cliente.enviar("reponerMisionero", { contacto = c[1] }) end)
+    end
+    local am2 = sub:addOption("Arma legendaria de un misionero (para mi grupo)", nil, nil)
+    local subAm2 = ISContextMenu:getNew(sub)
+    sub:addSubMenu(am2, subAm2)
+    for _, c in ipairs({ { "muldraugh", "Cabo Ramiro" }, { "westpoint", "Tia Chela" }, { "riverside", "Padre Nacho" }, { "rosewood", "Misia Rosa" } }) do
+        subAm2:addOption(c[2], nil, function() Cliente.enviar("armaMisionero", { contacto = c[1] }) end)
+    end
     sub:addOption("Estado del narrador (tension, rumores, fama)", nil, function() Cliente.enviar("estadoNarrador", {}) end)
     sub:addOption("Acompanante: el NPC mas cercano me sigue (probar el auto)", nil, function() Cliente.enviar("acompananteAhora", {}) end)
     sub:addOption("Soltar a los acompanantes", nil, function() Cliente.enviar("soltarAcompanantes", {}) end)

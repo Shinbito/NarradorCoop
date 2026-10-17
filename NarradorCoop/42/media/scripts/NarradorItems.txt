@@ -75,15 +75,15 @@ module Narrador
         Tooltip = Tooltip_Narrador_PlanosPueblo,
     }
 
-    item DiarioMaulen
+    item DiarioMeulen
     {
         DisplayCategory = Literature,
         ItemType = base:normal,
         Weight = 0.4,
-        Icon = NarradorDiarioMaulen,
-        WorldStaticModel = NarradorDiarioMaulen,
-        DisplayName = Diario de Maulen Callupan,
-        Tooltip = Tooltip_Narrador_DiarioMaulen,
+        Icon = NarradorDiarioMeulen,
+        WorldStaticModel = NarradorDiarioMeulen,
+        DisplayName = Diario de Meulen Canupan,
+        Tooltip = Tooltip_Narrador_DiarioMeulen,
     }
 
     item MuestrasHospital

@@ -20,7 +20,7 @@ flowchart LR
   bandido_4["El camino del bandido: las latas"]
   bandido_5["El camino del bandido: la decision"]
   bandido_castigo["Bandido: el jefe descubre el sabotaje"]
-  bandido_maulen["El camino del bandido: Maulen"]
+  bandido_maulen["El camino del bandido: Meulen"]
   cal_amigo_secreto["El amigo secreto de Sous"]
   cal_fonda["La fonda de Sous"]
   cap_cabo_2["La puerta de atras"]
@@ -162,9 +162,14 @@ flowchart LR
   reconquista_patio --x|corta: final_luz: fin| reconquista_rosewood
   reconquista_patio --x|corta: final_luz: fin| reconquista_westpoint
   bandido_1 -.->|final_rechazo| fin_bandido_rechazado
+  bandido_1 -.->|final_redimido| fin_bandido_redimido
+  bandido_2 -.->|final_redimido| fin_bandido_redimido
+  bandido_3 -.->|final_redimido| fin_bandido_redimido
+  bandido_4 -.->|final_redimido| fin_bandido_redimido
   bandido_5 -.->|final_escapo| fin_bandido_pereira_escapo
   bandido_5 -.->|final_redencion| fin_bandido_redimido
   bandido_maulen -.->|final_rechazo| fin_bandido_rechazado
+  bandido_maulen -.->|final_redimido| fin_bandido_redimido
   cap_nacho_3 -.->|final_cumplido| fin_lucia_en_riverside
   cap_rosa_3 -.->|final_cumplido| fin_estanque_rosewood_defendido
   conquista_sous -.->|final_conquistado| fin_sous_conquistada
@@ -205,6 +210,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `final_cumplido` | "Dejarlo ir. Pedirle su placa como prueba", y despues `nil` | `bandido_cap` = 1, `bandido_ultimo` = hecho | bandido_2 |
 | `final_perdonado` | "Dejarlo ir. Pedirle su placa como prueba", y despues `perdonado = true` | `bandido_cap` = 1, `bandido_ultimo` = hecho | bandido_2 |
 | `final_rechazo` | "No trabajo para nadie" | `bandido` = rechazado | Rechaza a la banda (la puerta queda abierta) |
+| `final_redimido` | "Dejarlo ir. Pedirle su placa como prueba", y despues `mato_jugador campamento`<br>"Dejarlo ir. Pedirle su placa como prueba", y despues `mato_jugador pereira`<br>"Que necesitas?", y despues `mato_jugador campamento`<br>"Que necesitas?", y despues `mato_jugador pereira`<br>`mato_jugador campamento`<br>`mato_jugador pereira` | `bandido_ultimo` = redimido, `bandido` = redimido | Redencion: Knox vuelve a 0 |
 
 ### El camino del bandido: la comisaria (`bandido_2`)
 
@@ -212,6 +218,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | --- | --- | --- | --- |
 | `final_abandonado` | "Voy esta noche", y despues `reloj_vencido plazo`<br>`pasan 24 h`<br>`pasan 6 h` | `bandido_ultimo` = abandonado | - |
 | `final_cumplido` | "Avisarle al Cabo lo que quiere {jefe_corto}", y despues `nil` | `bandido_cap` = 2, `bandido_ultimo` = hecho | bandido_3 |
+| `final_redimido` | "Avisarle al Cabo lo que quiere {jefe_corto}", y despues `mato_jugador campamento`<br>"Avisarle al Cabo lo que quiere {jefe_corto}", y despues `mato_jugador pereira`<br>"Voy esta noche", y despues `mato_jugador campamento`<br>"Voy esta noche", y despues `mato_jugador pereira`<br>`mato_jugador campamento`<br>`mato_jugador pereira` | `bandido_ultimo` = redimido, `bandido` = redimido | Redencion: Knox vuelve a 0 |
 | `final_saboteado` | "Avisarle al Cabo lo que quiere {jefe_corto}", y despues `sabotaje = true` | `bandido_cap` = 2, `bandido_sospecha` = ?, `bandido_ultimo` = hecho | bandido_3, bandido_castigo |
 
 ### El camino del bandido: la familia (`bandido_3`)
@@ -220,6 +227,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | --- | --- | --- | --- |
 | `final_abandonado` | "Entendido", y despues `reloj_vencido plazo`<br>`pasan 24 h`<br>`pasan 6 h` | `bandido_ultimo` = abandonado | - |
 | `final_cumplido` | "Decirles que huyan esta noche. Pedirles algo para enganar a {jefe_corto}", y despues `nil` | `bandido_cap` = 3, `bandido_ultimo` = hecho | bandido_4 |
+| `final_redimido` | "Decirles que huyan esta noche. Pedirles algo para enganar a {jefe_corto}", y despues `mato_jugador campamento`<br>"Decirles que huyan esta noche. Pedirles algo para enganar a {jefe_corto}", y despues `mato_jugador pereira`<br>"Entendido", y despues `mato_jugador campamento`<br>"Entendido", y despues `mato_jugador pereira`<br>`mato_jugador campamento`<br>`mato_jugador pereira` | `bandido_ultimo` = redimido, `bandido` = redimido | Redencion: Knox vuelve a 0 |
 | `final_saboteado` | "Decirles que huyan esta noche. Pedirles algo para enganar a {jefe_corto}", y despues `sabotaje = true` | `bandido_cap` = 3, `bandido_sospecha` = ?, `bandido_ultimo` = hecho | bandido_4, bandido_castigo |
 
 ### El camino del bandido: las latas (`bandido_4`)
@@ -228,6 +236,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | --- | --- | --- | --- |
 | `final_abandonado` | "Todas", y despues `reloj_vencido plazo`<br>`pasan 24 h`<br>`pasan 6 h` | `bandido_ultimo` = abandonado | - |
 | `final_cumplido` | "Llevarte la mitad y decirles que escondan el resto" o "Quitarles todo", y despues `nil` | `bandido_cap` = 4, `bandido_ultimo` = hecho | bandido_5 |
+| `final_redimido` | "Llevarte la mitad y decirles que escondan el resto" o "Quitarles todo", y despues `mato_jugador campamento`<br>"Llevarte la mitad y decirles que escondan el resto" o "Quitarles todo", y despues `mato_jugador pereira`<br>"Todas", y despues `mato_jugador campamento`<br>"Todas", y despues `mato_jugador pereira`<br>`mato_jugador campamento`<br>`mato_jugador pereira` | `bandido_ultimo` = redimido, `bandido` = redimido | Redencion: Knox vuelve a 0 |
 | `final_saboteado` | "Llevarte la mitad y decirles que escondan el resto", y despues `sabotaje = true` | `bandido_cap` = 4, `bandido_sospecha` = ?, `bandido_ultimo` = hecho | bandido_5, bandido_castigo |
 
 ### El camino del bandido: la decision (`bandido_5`)
@@ -239,13 +248,14 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `final_escapo` | "Irte en silencio. Esto se termina, pero no como ella quiere", y despues `pasan 12 h` | `bandido_cap` = 5, `bandido_ultimo` = hecho, `bandido` = pereira_escapo | El jefe del patio escapa |
 | `final_redencion` | "Irte en silencio. Esto se termina, pero no como ella quiere", y despues `muerto banda pereira` | `bandido_cap` = 5, `bandido_ultimo` = hecho, `bandido` = redimido | Redencion: Knox vuelve a 0 |
 
-### El camino del bandido: Maulen (`bandido_maulen`)
+### El camino del bandido: Meulen (`bandido_maulen`)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
 | `final_abandonado` | `pasan 24 h`<br>`pasan 72 h` | `bandido_ultimo` = abandonado | - |
 | `final_rechazo` | "Te deje vivir. No te debo nada mas" | `bandido` = rechazado | Rechaza a la banda (la puerta queda abierta) |
-| `final_unido` | "Que necesitas, Maulen?" | `bandido_ultimo` = hecho | - |
+| `final_redimido` | `mato_jugador campamento`<br>`mato_jugador pereira` | `bandido_ultimo` = redimido, `bandido` = redimido | Redencion: Knox vuelve a 0 |
+| `final_unido` | "Que necesitas, Meulen?" | `bandido_ultimo` = hecho | - |
 
 ### El amigo secreto de Sous (`cal_amigo_secreto`)
 
@@ -491,11 +501,11 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | --- | --- | --- | --- |
 | `final_aliados` | "Entregar la medicina" | `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal |
 | `final_maulen_escapa` | "Ir con Akagami, Zent y Walita", y despues `pasan 120 h`<br>"Ir con Matric, Tati y David Shinbo", y despues `pasan 120 h`<br>"Ir con Tati, Shinbo y Zent", y despues `pasan 120 h`<br>"Ir con Wertres y David Shinbo", y despues `pasan 120 h`<br>"Ir con todo Sous", y despues `pasan 120 h`<br>"Mejor ir solo", y despues `pasan 120 h`<br>"Mejor ir solo", y despues `pasan 24 h`<br>"Revisar el deposito saqueado" o "Mejor ir solo", y despues `pasan 120 h`<br>"Revisar el deposito saqueado", y despues `pasan 120 h` | `sous` = maulen_escapa | Maulen escapa con todo |
-| `final_mentira` | "Quedarte con todo lo que robo Maulen", y despues `elige quedarse y todos_muertos escuadra` | `sous_mentira` = true, `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal |
+| `final_mentira` | "Quedarte con todo lo que robo Meulen", y despues `elige quedarse y todos_muertos escuadra` | `sous_mentira` = true, `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, sous_arsenal |
 | `final_negado` | "Decir que no es tu problema"<br>"Entregar la medicina", y despues `pasan 120 h`<br>"Ofrecer tu ayuda a Sous", y despues `pasan 120 h` | `sous` = negado | Le dices que no a Sous |
 | `final_nunca_fuiste` | `pasan 120 h`<br>`pasan 96 h` | `sous` = ignorados | - |
 | `final_sous_caidos` | "Entregar la medicina", y despues `todos_muertos sous`<br>`todos_muertos sous` | `sous` = caidos | Sous cae en su base |
-| `final_te_quedaste` | "Decidir devolverle las cosas a Sous", y despues `pasan 72 h`<br>"Quedarte con todo lo que robo Maulen" | `sous` = enemigos | sous_guerra |
+| `final_te_quedaste` | "Decidir devolverle las cosas a Sous", y despues `pasan 72 h`<br>"Quedarte con todo lo que robo Meulen" | `sous` = enemigos | sous_guerra |
 | `final_traicion` | "Decidir devolverle las cosas a Sous", y despues `mato_jugador sous`<br>"Dejarlo ir. Sous va a creer que se escapo", y despues `mato_jugador escuadra`<br>"Entregar la medicina", y despues `mato_jugador sous`<br>"Ir con Akagami, Zent y Walita", y despues `mato_jugador escuadra`<br>"Ir con Matric, Tati y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo" o "Ir con Matric, Tati y David Shinbo" o "Mejor ir solo" o "Ir con todo Sous" o "Ir con Akagami, Zent y Walita" o "Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con todo Sous", y despues `mato_jugador escuadra`<br>"Ofrecer tu ayuda a Sous", y despues `mato_jugador sous`<br>"Revisar el deposito saqueado", y despues `mato_jugador sous`<br>`mato_jugador sous` | `sous` = enemigos | sous_guerra |
 
 ### El arsenal (`sous_arsenal`)
@@ -521,13 +531,13 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | --- | --- | --- | --- | --- | --- |
 | El alijo | `alijo_custodiado` | el director (al azar, segun tension) | - | - | `alijo` = encontrado (final_encontrado) |
 | Asalto al refugio | `asalto_nocturno` | eco de trueque_trampa (final_escapaste) | - | - | `asalto` = rechazado (final_rechazado) |
-| El camino del bandido: el traidor | `bandido_1` | Knox llega a -5 (NarradorBandido) | `knox_bandido_<grupo>` | - | `bandido` = rechazado (final_rechazo)<br>`bandido_cap` = 1 (final_cumplido)<br>`bandido_cap` = 1 (final_perdonado)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_cumplido)<br>`bandido_ultimo` = hecho (final_perdonado)<br>`julio_vivo` = true (huida) |
-| El camino del bandido: la comisaria | `bandido_2` | volver al patio de trenes, con el campamento del Cabo (NarradorBandido) | `bandido_cap = 1`, `historia_muldraugh_1` | - | `bandido_cap` = 2 (final_cumplido)<br>`bandido_cap` = 2 (final_saboteado)<br>`bandido_sospecha` = ? (final_saboteado)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_cumplido)<br>`bandido_ultimo` = hecho (final_saboteado) |
-| El camino del bandido: la familia | `bandido_3` | volver al patio de trenes (NarradorBandido) | `bandido_cap = 2` | - | `bandido_cap` = 3 (final_cumplido)<br>`bandido_cap` = 3 (final_saboteado)<br>`bandido_sospecha` = ? (final_saboteado)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_cumplido)<br>`bandido_ultimo` = hecho (final_saboteado) |
-| El camino del bandido: las latas | `bandido_4` | volver al patio de trenes (NarradorBandido) | `bandido_cap = 3` | - | `bandido_cap` = 4 (final_cumplido)<br>`bandido_cap` = 4 (final_saboteado)<br>`bandido_sospecha` = ? (final_saboteado)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_cumplido)<br>`bandido_ultimo` = hecho (final_saboteado) |
+| El camino del bandido: el traidor | `bandido_1` | Knox llega a -5 (NarradorBandido) | `knox_bandido_<grupo>` | - | `bandido` = rechazado (final_rechazo)<br>`bandido` = redimido (final_redimido)<br>`bandido_cap` = 1 (final_cumplido)<br>`bandido_cap` = 1 (final_perdonado)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_cumplido)<br>`bandido_ultimo` = hecho (final_perdonado)<br>`bandido_ultimo` = redimido (final_redimido)<br>`julio_vivo` = true (huida) |
+| El camino del bandido: la comisaria | `bandido_2` | volver al patio de trenes, con el campamento del Cabo (NarradorBandido) | `bandido_cap = 1`, `historia_muldraugh_1` | - | `bandido` = redimido (final_redimido)<br>`bandido_cap` = 2 (final_cumplido)<br>`bandido_cap` = 2 (final_saboteado)<br>`bandido_sospecha` = ? (final_saboteado)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_cumplido)<br>`bandido_ultimo` = hecho (final_saboteado)<br>`bandido_ultimo` = redimido (final_redimido) |
+| El camino del bandido: la familia | `bandido_3` | volver al patio de trenes (NarradorBandido) | `bandido_cap = 2` | - | `bandido` = redimido (final_redimido)<br>`bandido_cap` = 3 (final_cumplido)<br>`bandido_cap` = 3 (final_saboteado)<br>`bandido_sospecha` = ? (final_saboteado)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_cumplido)<br>`bandido_ultimo` = hecho (final_saboteado)<br>`bandido_ultimo` = redimido (final_redimido) |
+| El camino del bandido: las latas | `bandido_4` | volver al patio de trenes (NarradorBandido) | `bandido_cap = 3` | - | `bandido` = redimido (final_redimido)<br>`bandido_cap` = 4 (final_cumplido)<br>`bandido_cap` = 4 (final_saboteado)<br>`bandido_sospecha` = ? (final_saboteado)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_cumplido)<br>`bandido_ultimo` = hecho (final_saboteado)<br>`bandido_ultimo` = redimido (final_redimido) |
 | El camino del bandido: la decision | `bandido_5` | volver al patio de trenes (NarradorBandido) | `bandido_cap = 4`, `eduardo_conocido`, `julio_vivo` | - | `bandido` = pereira (final_con_pereira)<br>`bandido` = pereira_escapo (final_escapo)<br>`bandido` = redimido (final_redencion)<br>`bandido_cap` = 5 (final_con_pereira)<br>`bandido_cap` = 5 (final_escapo)<br>`bandido_cap` = 5 (final_redencion)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_con_pereira)<br>`bandido_ultimo` = hecho (final_escapo)<br>`bandido_ultimo` = hecho (final_redencion) |
 | Bandido: el jefe descubre el sabotaje | `bandido_castigo` | al volver al patio, 30% por sabotaje (NarradorBandido) | `bandido_sospecha` | - | `pereira_desconfia` = true (final_sobreviviste) |
-| El camino del bandido: Maulen | `bandido_maulen` | 72 horas despues de perdonar a Maulen (NarradorBandido) | `bell_culpa`, `maulen_salvado` | - | `bandido` = rechazado (final_rechazo)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_unido) |
+| El camino del bandido: Meulen | `bandido_maulen` | 72 horas despues de perdonar a Maulen (NarradorBandido) | `bell_culpa`, `maulen_salvado` | - | `bandido` = rechazado (final_rechazo)<br>`bandido` = redimido (final_redimido)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_unido)<br>`bandido_ultimo` = redimido (final_redimido) |
 | El amigo secreto de Sous | `cal_amigo_secreto` | 24 de diciembre, con Sous aliado (NarradorCalendario) | `sous = aliados` | - | - |
 | La fonda de Sous | `cal_fonda` | 18 de septiembre, con Sous aliado (NarradorCalendario) | `sous = aliados` | - | `cal.fonda` = hecha (final_fonda)<br>`cal.fonda` = sin (final_sin_fonda) |
 | La puerta de atras | `cap_cabo_2` | capitulo 2 de muldraugh, entre sus ofertas (confianza 2+) | `historia_muldraugh_1` | - | `historia_muldraugh_2` = fallido (final_muerta)<br>`historia_muldraugh_2` = true (final_cumplido) |
@@ -589,7 +599,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `alijo` | El alijo custodiado: encontrado. | alijo_custodiado | - | escribe: EventosCortos |
 | `arsenal` | Que sacaste del arsenal de Louisville (arma, auto o traje). | sous_arsenal | - | escribe: Sous |
 | `asalto` | El asalto nocturno: rechazado. | asalto_nocturno | - | escribe: EventosCortos |
-| `bandido` | Camino del bandido: pereira, rechazado, redimido o pereira_escapo. | bandido_1, bandido_5, bandido_maulen | conquista_muldraugh, conquista_sous, eduardo_evento | escribe: Bandido, NarradorBandido; lee: NarradorBandido, NarradorEduardo |
+| `bandido` | Camino del bandido: pereira, rechazado, redimido o pereira_escapo. | bandido_1, bandido_2, bandido_3, bandido_4, bandido_5, bandido_maulen | conquista_muldraugh, conquista_sous, eduardo_evento | escribe: Bandido, NarradorBandido; lee: NarradorBandido, NarradorEduardo |
 | `bandido_aviso_cabo` | Ya se aviso que el cap. 2 espera el campamento del Cabo. | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `bandido_cap` | Ultimo capitulo del bandido hecho (1 a 5). | bandido_1, bandido_2, bandido_3, bandido_4, bandido_5 | bandido_2, bandido_3, bandido_4, bandido_5 | escribe: Bandido, NarradorBandido; lee: NarradorBandido |
 | `bandido_desde` | Hora del ultimo capitulo del bandido (12 horas entre uno y otro). | - | - | escribe: NarradorBandido; lee: NarradorBandido |

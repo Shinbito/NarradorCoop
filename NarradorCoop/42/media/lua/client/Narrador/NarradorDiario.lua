@@ -110,6 +110,15 @@ end
 
 local function agregar(b, bloque) b[#b + 1] = bloque end
 
+-- Id de la mision que sigue el jugador (la de la flecha), o nil.
+function Diario.idSeguida()
+    local Conv = Narrador.Conversacion
+    if Conv == nil or Conv.misionSeguida == nil then return nil end
+    local Cl = Narrador.Cliente
+    local ok, it = pcall(Conv.misionSeguida, Cl ~= nil and Cl.estado or nil, Cl ~= nil and Cl.miGrupo ~= nil and Cl.miGrupo() or nil)
+    return ok and it ~= nil and it.id or nil
+end
+
 local function visible(arco)
     return not arco.terminado and (arco.lore ~= nil or arco.pista ~= nil)
 end
@@ -133,6 +142,13 @@ function Diario.entrada(b, arco, titulo)
     agregar(b, { t = arco.lore or arco.pista or "", f = "mano", c = TINTA, antes = 4 })
     if arco.pista ~= nil then
         agregar(b, { t = "> " .. arco.pista, f = "chico", c = TINTA_AZUL, antes = 6, sangria = 8 })
+        -- Boton para seguir esta mision (la misma eleccion que en la ventana de misiones).
+        if arco.id ~= nil then
+            local seguida = Diario.idSeguida() == arco.id
+            agregar(b, { t = seguida and "[ Siguiendo esta mision - clic para soltarla ]" or "[ Seguir esta mision ]",
+                f = "chico", c = seguida and ROJO or TINTA_AZUL, antes = 4, sangria = 8, subrayado = not seguida,
+                accion = { seguir = seguida and "-" or arco.id } })
+        end
     end
     local d = arco.diario or {}
     if #d > 1 then
@@ -488,7 +504,8 @@ function Diario.paginar(bloques, ancho, alto)
                 local x = bl.sangria or 0
                 if bl.centrado then x = floor((ancho - Diario.ancho(c.fuente, linea)) / 2) end
                 table.insert(paginas[#paginas], { t = linea, x = x, y = y, fuente = c.fuente, c = bl.c or TINTA,
-                    tachado = bl.tachado, subrayado = bl.subrayado, ancho = Diario.ancho(c.fuente, linea), hl = c.hl })
+                    tachado = bl.tachado, subrayado = bl.subrayado, ancho = Diario.ancho(c.fuente, linea), hl = c.hl,
+                    accion = bl.accion })
                 y = y + c.hl
             end
         end
@@ -588,6 +605,22 @@ function NarradorDiarioLibro:onMouseDown(x, y)
     if dentro(x, y, self:zonaCerrar()) then self:cerrar(); return true end
     if dentro(x, y, self:zonaFlecha(-1)) then self:pasar(-1); return true end
     if dentro(x, y, self:zonaFlecha(1)) then self:pasar(1); return true end
+    -- Botones dentro de las paginas (seguir una mision).
+    local izq = ((self.hoja[self.tab] or 1) - 1) * 2 + 1
+    for i = 1, 2 do
+        local px, py = self:rectPagina(i)
+        for _, l in ipairs(self.paginas[izq + i - 1] or {}) do
+            if l.accion ~= nil and dentro(x, y, px + l.x - 4, py + l.y - 2, (l.ancho or 0) + 8, (l.hl or 12) + 4) then
+                local Conv = Narrador.Conversacion
+                if l.accion.seguir ~= nil and Conv ~= nil and Conv.cambiarSeguir ~= nil then
+                    Conv.cambiarSeguir(l.accion.seguir)
+                    pcall(function() getSoundManager():playUISound("UISelectListItem") end)
+                    self:refrescar()
+                end
+                return true
+            end
+        end
+    end
     return ISPanel.onMouseDown(self, x, y)
 end
 

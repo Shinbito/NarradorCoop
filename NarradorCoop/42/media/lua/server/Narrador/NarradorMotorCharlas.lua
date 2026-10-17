@@ -28,7 +28,7 @@ local function lineasDe(ch)
     if ch == nil then return nil end
     if type(ch.lista) == "string" then return Narrador.Charlas[ch.lista] end
     if type(ch.lista) == "table" then
-        -- Varias listas juntas (por ejemplo, la charla normal mas las frases de Maulen).
+        -- Varias listas juntas (por ejemplo, la charla normal mas las frases de Meulen).
         local todas = {}
         for _, nombre in ipairs(ch.lista) do
             for _, l in ipairs(Narrador.Charlas[nombre] or {}) do todas[#todas + 1] = l end

@@ -449,6 +449,12 @@ function Cliente.decir(datos)
         local ok, mostrado = pcall(burbujas.show, cuerpo, tostring(datos.texto), nil, "directed", tostring(datos.uid))
         if ok and mostrado then return end
     end
+    -- Sin burbuja de A-Life (por ejemplo en primera persona con Project Viewpoint, donde la
+    -- burbuja cae fuera de la pantalla): el texto del juego sobre la cabeza del personaje.
+    if cuerpo ~= nil then
+        local ok = pcall(function() cuerpo:addLineChatElement(tostring(datos.texto), 0.8, 1, 0.8) end)
+        if ok then return end
+    end
     local jugador = getPlayer()
     if jugador == nil then return end
     if datos.x ~= nil and math.sqrt((jugador:getX() - datos.x) ^ 2 + (jugador:getY() - datos.y) ^ 2) > 30 then return end

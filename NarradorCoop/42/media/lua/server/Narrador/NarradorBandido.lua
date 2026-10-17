@@ -6,7 +6,7 @@
 --     anterior. Si rechazaste el primero, la puerta queda abierta: vuelve al patio.
 --   * Con sospecha (misiones saboteadas), al volver al patio Pereira puede descubrirte:
 --     BA.CHANCE_SOSPECHA % por cada sabotaje. Entonces manda cazadores (bandido_castigo).
---   * Si dejaste ir a Maulen en Sous (memoria "maulen_salvado"), BA.ESPERA_MAULEN horas despues
+--   * Si dejaste ir a Meulen en Sous (memoria "maulen_salvado"), BA.ESPERA_MAULEN horas despues
 --     mata a Pereira y se queda con el patio (bandido_maulen): desde ahi el jefe es el
 --     (memoria "bandido_jefe" = "maulen"), sin importar tu Knox.
 -- Textos sin tildes a proposito.
@@ -42,7 +42,7 @@ BA.CIUDADES = { "westpoint", "riverside", "rosewood" }
 -- Variables del jefe del patio que reciben todos los capitulos.
 BA.JEFES = {
     pereira = { jefe_perfil = "narrador_pereira_01", jefe_nombre = "la Sargento Pereira", jefe_corto = "Pereira" },
-    maulen = { jefe_perfil = "narrador_pereira_maulen", jefe_nombre = "Maulen Callupan", jefe_corto = "Maulen" },
+    maulen = { jefe_perfil = "narrador_pereira_maulen", jefe_nombre = "Meulen Canupan", jefe_corto = "Meulen" },
 }
 -- Con estos valores de la memoria "bandido" la historia ya termino.
 BA.TERMINADA = { redimido = true, pereira = true, pereira_escapo = true }
@@ -58,7 +58,7 @@ end
 
 -- Como se nombra al jefe del patio en los avisos.
 function BA.jefeCorto(m)
-    return (m or Motor.estado().memoria).bandido_jefe == "maulen" and "Maulen" or "Pereira"
+    return (m or Motor.estado().memoria).bandido_jefe == "maulen" and "Meulen" or "Pereira"
 end
 
 function BA.lanzar(defId, jugador, extra)
@@ -91,8 +91,8 @@ local function jugadorEnPatio(m)
     return Mundo.jugadorCerca(l.x, l.y, BA.RADIO_PATIO)
 end
 
--- Maulen mata a Pereira y toma el patio (una sola vez).
-function BA.revisarMaulen(m)
+-- Meulen mata a Pereira y toma el patio (una sola vez).
+function BA.revisarMeulen(m)
     if m.maulen_salvado ~= true or m.bandido_jefe == "maulen" then return false end
     m.maulen_hora = m.maulen_hora or Mundo.horas()
     if Mundo.horas() - m.maulen_hora < BA.ESPERA_MAULEN then return false end
@@ -107,7 +107,7 @@ function BA.revisarMaulen(m)
     return true
 end
 
--- Sous sigue en su base (aliado, como residentes) y hay que ir por ellos primero (con Maulen).
+-- Sous sigue en su base (aliado, como residentes) y hay que ir por ellos primero (con Meulen).
 function BA.sousEnPie(m)
     local st = Motor.estado()
     return m.sous == "aliados" and type(m["lugar.base_sous"]) == "table" and st.residentes.sous ~= nil
@@ -203,7 +203,7 @@ function BA.revisar()
         return
     end
     if BA.TERMINADA[tostring(m.bandido)] then return end
-    if BA.revisarMaulen(m) then return end
+    if BA.revisarMeulen(m) then return end
     local cap = tonumber(m.bandido_cap) or 0
     if cap >= 5 then return end
     -- Rechazaste el trabajo: la puerta queda abierta si vuelves al patio.

@@ -33,7 +33,7 @@ Lore.arcos.bandido_1 = {
 Lore.arcos.bandido_2 = {
     etapas = {
         historia = { por_var = "bandido_jefe", textos = {
-            maulen = "Maulen leyo la libreta de la Sargento Pereira antes de quemarla. Ahi estaba la noche de la comisaria: ella ordeno cerrar, el Cabo Ramiro abrio. A Maulen no le importa quien tenia razon. Le importan las reservas del Cabo.",
+            maulen = "Meulen leyo la libreta de la Sargento Pereira antes de quemarla. Ahi estaba la noche de la comisaria: ella ordeno cerrar, el Cabo Ramiro abrio. A Meulen no le importa quien tenia razon. Le importan las reservas del Cabo.",
             otro = "Pereira me conto la noche de la comisaria. Ella mandaba el cordon de Muldraugh y ordeno cerrar con todos adentro. El Cabo Ramiro desobedecio y saco a once. Ella dice que por esos once se escaparon cuarenta muertos. El Cabo dice que lo hizo para hacerlo bien esta vez. Los dos cuentan la misma noche y no es la misma noche.",
         } },
         acercarse = "{jefe_corto} quiere las reservas del campamento del Cabo, en {lugar:comisaria}. De noche, sin ruido. El Cabo me conoce. Me ha pagado, me ha anotado en su libreta. Podria robarle. Podria contarle todo.",
@@ -100,7 +100,7 @@ Lore.arcos.bandido_4 = {
 Lore.arcos.bandido_5 = {
     etapas = {
         plan = { por_var = "bandido_jefe", textos = {
-            maulen = "Maulen me conto lo grande: manana van por Sous. Akagami, Zent, Walita, todos. Despues el Cabo, despues Knox. Me quiere a su lado. Me lo pide sonriendo, con el cigarro apagado, como si me pidiera que le pase la sal.",
+            maulen = "Meulen me conto lo grande: manana van por Sous. Akagami, Zent, Walita, todos. Despues el Cabo, despues Knox. Me quiere a su lado. Me lo pide sonriendo, con el cigarro apagado, como si me pidiera que le pase la sal.",
             otro = "Pereira me conto lo grande: manana toman la comisaria y el Cabo Ramiro muere en la misma puerta que abrio. Despues Muldraugh. Despues todo Knox. Me quiere a su derecha. Me lo pide como si ya supiera la respuesta.",
         } },
         preparar = "Le di la espalda a {jefe_corto}. Tengo poco tiempo antes de que ataque. Si alguien en Knox todavia confia en mi, este es el dia de pedirlo. Despues vuelvo al patio, con quien venga.",
@@ -126,13 +126,13 @@ Lore.arcos.bandido_castigo = {
 
 Lore.arcos.bandido_maulen = {
     etapas = {
-        citacion = "Una nota firmada con una M, con olor a cigarro y a atun. Maulen Callupan, el que deje ir en el escondite. Dice que encontro trabajo y despues algo mejor: el puesto de la jefa. Me espera en {lugar:patio}.",
-        reunion = "Maulen esta en el patio de trenes, con la banda de Pereira detras. De Pereira no queda nada mas que su fusil apoyado en una pared. Me sonrie como siempre. Dice que aca todos somos amigos. Todos.",
+        citacion = "Una nota firmada con una M, con olor a cigarro y a atun. Meulen Canupan, el que deje ir en el escondite. Dice que encontro trabajo y despues algo mejor: el puesto de la jefa. Me espera en {lugar:patio}.",
+        reunion = "Meulen esta en el patio de trenes, con la banda de Pereira detras. De Pereira no queda nada mas que su fusil apoyado en una pared. Me sonrie como siempre. Dice que aca todos somos amigos. Todos.",
     },
     finales = {
-        final_unido = "Maulen mato a la Sargento Pereira y se quedo con su banda. Ahora trabajo para el. Lo deje vivir y el me lo devuelve asi. Mi chuchu, diria el, decia que todo vuelve.",
-        final_rechazo = "Le dije a Maulen que no le debo nada. Sonrio y dijo que todos vuelven. Lo dijo como una promesa.",
-        final_abandonado = "No fui a ver a Maulen. Sabe donde vivo. Siempre supo donde estaba todo.",
+        final_unido = "Meulen mato a la Sargento Pereira y se quedo con su banda. Ahora trabajo para el. Lo deje vivir y el me lo devuelve asi. Mi chuchu, diria el, decia que todo vuelve.",
+        final_rechazo = "Le dije a Meulen que no le debo nada. Sonrio y dijo que todos vuelven. Lo dijo como una promesa.",
+        final_abandonado = "No fui a ver a Meulen. Sabe donde vivo. Siempre supo donde estaba todo.",
     },
 }
 
@@ -141,13 +141,13 @@ Lore.arcos.bandido_maulen = {
 -- ===========================================================================
 Lore.arcos.conquista_sous = {
     etapas = {
-        viaje = "Maulen va por Sous. Me espera cerca de {lugar:base}. Conozco cada cara que esta adentro: Akagami con sus listas, Zent con sus calculos, Wertres que nos curaba a todos. Camino igual.",
+        viaje = "Meulen va por Sous. Me espera cerca de {lugar:base}. Conozco cada cara que esta adentro: Akagami con sus listas, Zent con sus calculos, Wertres que nos curaba a todos. Camino igual.",
         asalto = "Llegamos a la base de Sous. Ya nos vieron. Alguien grita mi nombre desde una ventana, sin entender.",
-        pelea = "Akagami me reconocio. 'Mi bro, no', dijo. Zent dijo que lo sabia. Maulen se reia. Yo disparaba.",
+        pelea = "Akagami me reconocio. 'Mi bro, no', dijo. Zent dijo que lo sabia. Meulen se reia. Yo disparaba.",
     },
     finales = {
-        final_conquistado = "La base de Sous es de Maulen. No queda nadie que se ria en la barra oxidada. Yo estuve ahi y no me tapo los oidos: todavia los escucho.",
-        final_abandonado = "No llegue a lo de Sous. Maulen va a volver a pedirlo, sonriendo.",
+        final_conquistado = "La base de Sous es de Meulen. No queda nadie que se ria en la barra oxidada. Yo estuve ahi y no me tapo los oidos: todavia los escucho.",
+        final_abandonado = "No llegue a lo de Sous. Meulen va a volver a pedirlo, sonriendo.",
     },
 }
 

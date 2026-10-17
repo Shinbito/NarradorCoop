@@ -57,7 +57,7 @@ function Motor.filtrarPerfiles(inst, p)
         end
         if sirve then lista[#lista + 1] = par end
     end
-    -- "recortar" = {min, max}: quedan los "fijos" primeros (por ejemplo Maulen) y una
+    -- "recortar" = {min, max}: quedan los "fijos" primeros (por ejemplo Meulen) y una
     -- cantidad al azar del resto (sus matones).
     if p.recortar ~= nil then
         local fijos = tonumber(p.fijos) or 0
@@ -92,6 +92,7 @@ function Motor.pedirGrupo(inst, p, l, jugador)
     end
     -- Nombres fijos por rol: { padre = { "Daniel", "Bell" }, ... }
     for rol, par in pairs(p.nombres or {}) do g.nombres[rol] = { par[1], par[2] } end
+    Motor.corregirNombres(g)
     if g.estado == "pidiendo" or g.estado == "listo" then return true end
     g.intentos = g.intentos + 1
     local requestId = "narrador:" .. inst.id .. ":" .. tostring(p.id) .. ":" .. tostring(g.intentos)
@@ -163,22 +164,148 @@ function Motor.pedirGrupo(inst, p, l, jugador)
         local par = g.nombres[rol]
         if par ~= nil then porPerfil[perfil] = { par[1], par[2] }; hay = true end
     end
-    if hay then Mundo.reservarNombres(requestId, porPerfil) end
-
     g.accion = Motor.copiar(p)
     local instId, grupoId = inst.id, p.id
-    local ok, razon = Mundo.spawnGrupo(jugador, args, function(resultado)
-        Motor.grupoListo(instId, grupoId, resultado)
-    end)
-    if not ok then
+    -- A-Life crea como mucho 8 NPCs por pedido: los grupos grandes se piden en tandas de 4 y
+    -- se juntan cuando contestan todas.
+    local lotes = Motor.partirPedido(args)
+    local pendientes, juntos, aceptados, hecho = #lotes, { actorUids = {} }, 0, false
+    local function terminar()
+        if pendientes > 0 or hecho then return end
+        hecho = true
+        if #juntos.actorUids == 0 then juntos.actorUids = nil end
+        Motor.grupoListo(instId, grupoId, juntos)
+    end
+    local razon
+    for _, a in ipairs(lotes) do
+        if hay then Mundo.reservarNombres(a.requestId, porPerfil) end
+        local ok, r = Mundo.spawnGrupo(jugador, a, function(resultado)
+            if type(resultado) == "table" and type(resultado.actorUids) == "table" then
+                for _, uid in ipairs(resultado.actorUids) do juntos.actorUids[#juntos.actorUids + 1] = uid end
+            elseif juntos.reason == nil then
+                juntos.reason = type(resultado) == "table" and resultado.reason or nil
+            end
+            pendientes = pendientes - 1
+            terminar()
+        end)
+        if ok then aceptados = aceptados + 1 else pendientes, razon = pendientes - 1, r end
+    end
+    if aceptados == 0 then
         Mundo.log("A-Life rechazo el grupo '" .. tostring(p.id) .. "' de " .. inst.id .. ": " .. tostring(razon))
         return g.intentos >= 6
     end
-    g.estado, g.requestId, g.pedido = "pidiendo", requestId, Mundo.horas()
+    if not hecho then g.estado, g.requestId, g.pedido = "pidiendo", requestId, Mundo.horas() end
+    -- Por si las tandas que si salieron ya contestaron antes de que se rechazara la ultima.
+    if pendientes == 0 then terminar() end
     if p.lugar == "aviso" and l.temporal then
         inst.lugares.aviso = { x = floor(l.x), y = floor(l.y), z = floor(l.z or 0), etiqueta = l.etiqueta }
     end
     return true
+end
+
+-- Un grupo que quedo corto (antes A-Life solo creaba 8 y se perdian los demas, como Wertres y
+-- Meulen en la base de Sous): se piden una sola vez los que faltan y se suman al grupo.
+-- No se toca a los grupos que se recortan al azar o que dependen de otro grupo.
+function Motor.completarGrupo(inst, gid)
+    local g = inst.grupos[gid]
+    if g == nil or g.estado ~= "listo" or g.completado or g.vacio then return end
+    g.completado = true
+    local p = g.accion
+    if p == nil or p.perfiles == nil or p.recortar ~= nil or p.solo_de_grupo ~= nil then return end
+    if inst.fusionar ~= nil and inst.fusionar[gid] ~= nil then return end
+    local perfiles = Motor.filtrarPerfiles(inst, p)
+    local n = 0
+    for _ in pairs(g.miembros) do n = n + 1 end
+    if n >= #perfiles then return end
+    local faltan = {}
+    for _, par in ipairs(perfiles) do
+        if g.roles[par[1]] == nil then faltan[#faltan + 1] = par end
+    end
+    if #faltan == 0 then return end
+    local extra = Motor.copiar(p)
+    extra.id, extra.perfiles, extra.retraso, extra.no_mas_cerca = tostring(gid) .. "_faltan", faltan, nil, nil
+    inst.fusionar = inst.fusionar or {}
+    inst.fusionar[extra.id] = gid
+    Motor.diferir(inst, extra)
+    Mundo.log("al grupo '" .. tostring(gid) .. "' de " .. inst.id .. " le faltan " .. #faltan .. "; se piden")
+end
+
+-- Admin: repone los NPCs de las historias activas. En cada grupo amistoso saca a los que
+-- murieron o se perdieron, olvida la traicion y la enemistad de A-Life con su faccion, y pide
+-- de nuevo a los que faltan (aparecen cuando hay alguien cerca de su lugar).
+function Motor.reponerHistorias()
+    local st = Motor.estado()
+    local grupos, faltan = 0, 0
+    local perfilFaccion = {}
+    for fid, f in pairs(Narrador.Facciones or {}) do
+        for _, m in ipairs(f.miembros or {}) do perfilFaccion[m.id] = fid end
+    end
+    for _, id in ipairs(st.orden) do
+        local inst = st.arcos[id]
+        if inst ~= nil and inst.final == nil then
+            for gid, g in pairs(inst.grupos) do
+                local p = g.accion
+                if g.estado == "listo" and p ~= nil and p.perfiles ~= nil and not p.hostiles
+                        and not (inst.fusionar ~= nil and inst.fusionar[gid] ~= nil) then
+                    local vivos, facciones = {}, {}
+                    for uid, m in pairs(g.miembros) do
+                        local actor = Mundo.actor(uid)
+                        if not m.vivo or actor == nil or actor.lifecycle == "dead" then
+                            if actor ~= nil and actor.lifecycle ~= "dead" then Mundo.retirar(uid) end
+                            if m.rol ~= nil and g.roles[m.rol] == uid then g.roles[m.rol] = nil end
+                            g.miembros[uid] = nil
+                        else
+                            vivos[#vivos + 1] = uid
+                        end
+                    end
+                    for perfil in pairs(g.rolPorPerfil or {}) do
+                        if perfilFaccion[perfil] ~= nil then facciones[perfilFaccion[perfil]] = true end
+                    end
+                    for fid in pairs(facciones) do pcall(Mundo.perdonarFaccion, fid, vivos) end
+                    g.traicion, g.completado, g.vacio = nil, false, nil
+                    local antes = 0
+                    for _ in pairs(inst.pendientes) do antes = antes + 1 end
+                    Motor.completarGrupo(inst, gid)
+                    local despues = 0
+                    for _ in pairs(inst.pendientes) do despues = despues + 1 end
+                    grupos = grupos + 1
+                    if despues > antes then faltan = faltan + 1 end
+                end
+            end
+        end
+    end
+    Motor.publicar()
+    return "Repuestos: " .. grupos .. " grupos revisados, " .. faltan
+        .. " con NPCs pedidos de nuevo (aparecen cuando alguien este cerca de su lugar)."
+end
+
+Motor.comandosAdmin = Motor.comandosAdmin or {}
+Motor.comandosAdmin.reponerHistorias = function() return Motor.reponerHistorias() end
+
+-- NPCs por pedido. A-Life acepta hasta 8 (ALifeAdminConsoleService / ALifeDebugService);
+-- se piden de a 4 para no cargar tanto de una vez.
+Motor.MAX_POR_PEDIDO = 4
+
+-- Parte un pedido en tandas de Motor.MAX_POR_PEDIDO (con perfiles o con cantidad).
+function Motor.partirPedido(args)
+    local tope = Motor.MAX_POR_PEDIDO
+    local total = args.profileIds ~= nil and #args.profileIds or (tonumber(args.count) or 1)
+    if total <= tope then return { args } end
+    local lotes = {}
+    for desde = 1, total, tope do
+        local a = {}
+        for k, v in pairs(args) do a[k] = v end
+        a.requestId = args.requestId .. ":" .. tostring(#lotes + 1)
+        if args.profileIds ~= nil then
+            a.profileIds = {}
+            for i = desde, math.min(total, desde + tope - 1) do a.profileIds[#a.profileIds + 1] = args.profileIds[i] end
+            a.count = #a.profileIds
+        else
+            a.count = math.min(tope, total - desde + 1)
+        end
+        lotes[#lotes + 1] = a
+    end
+    return lotes
 end
 
 function Motor.grupoListo(instId, grupoId, resultado)
@@ -207,6 +334,18 @@ function Motor.grupoListo(instId, grupoId, resultado)
     for uid in pairs(g.miembros) do Mundo.uidsPropios[tostring(uid)] = true end
     Motor.nombrarGrupo(g)
     Motor.banderasGrupo(inst, g)
+    -- Los que faltaban de otro grupo (ver Motor.completarGrupo) se suman a ese grupo.
+    local destino = inst.fusionar ~= nil and inst.fusionar[grupoId] or nil
+    if destino ~= nil and inst.grupos[destino] ~= nil then
+        local t = inst.grupos[destino]
+        for uid, m in pairs(g.miembros) do
+            t.miembros[uid] = m
+            if t.roles[m.rol] == nil then t.roles[m.rol] = uid end
+        end
+        for perfil, rol in pairs(g.rolPorPerfil) do t.rolPorPerfil[perfil] = rol end
+        inst.grupos[grupoId], inst.fusionar[grupoId] = nil, nil
+        Mundo.log("se sumaron los que faltaban al grupo '" .. tostring(destino) .. "' de " .. instId)
+    end
     if g.accion ~= nil and g.accion.acompanar then Motor.acompanarGrupo(inst, g) end
     if grupoId == "mensajero" and inst.mensaje ~= nil then
         local l = inst.lugares.aviso
@@ -259,8 +398,22 @@ function Motor.nombreCompleto(g, m)
 end
 
 -- Pone a cada miembro el nombre de su rol en A-Life (y los presenta a los jugadores conectados).
+-- Nombres que cambiaron (las partidas guardadas todavia tienen el viejo).
+Motor.NOMBRES_NUEVOS = { Maulen = "Meulen", Callupan = "Canupan" }
+
+function Motor.corregirNombres(g)
+    for _, par in pairs(g.nombres or {}) do
+        par[1] = Motor.NOMBRES_NUEVOS[par[1]] or par[1]
+        par[2] = Motor.NOMBRES_NUEVOS[par[2]] or par[2]
+    end
+    for _, m in pairs(g.miembros or {}) do
+        if m.nombre ~= nil then m.nombre = Motor.NOMBRES_NUEVOS[m.nombre] or m.nombre end
+    end
+end
+
 function Motor.nombrarGrupo(g)
     if g.nombres == nil then return end
+    Motor.corregirNombres(g)
     for uid, m in pairs(g.miembros) do
         local par = g.nombres[m.rol]
         if m.vivo and par ~= nil then Mundo.nombrarActor(uid, par[1], par[2]) end
@@ -278,6 +431,9 @@ function Motor.onNpcMuerto(cuerpo, uid, asesino)
                 local m = g.miembros[uid]
                 if m ~= nil and m.vivo then
                     m.vivo = false
+                    if not Mundo.esJugador(asesino) and Mundo.asesinoALife ~= nil then
+                        asesino = Mundo.asesinoALife(cuerpo) or asesino
+                    end
                     if Mundo.esJugador(asesino) then
                         m.causa = "jugador"
                         inst.vars.quien_mato = Mundo.nombreJugador(asesino)
@@ -291,6 +447,34 @@ function Motor.onNpcMuerto(cuerpo, uid, asesino)
             end
         end
     end
+end
+
+-- Un jugador quedo hostil con una faccion de la historia (A-Life, por danar o matar a uno
+-- de los suyos): los grupos de esa faccion en las historias activas cuentan como traicionados,
+-- y la condicion "mato_jugador" se cumple (lleva a los finales de traicion).
+function Motor.traicionFaccion(faccion, jugador, motivo)
+    local spec = Narrador.Facciones ~= nil and Narrador.Facciones[faccion] or nil
+    if spec == nil then return end
+    local perfiles = {}
+    for _, m in ipairs(spec.miembros or {}) do perfiles[m.id] = true end
+    local st = Motor.estado()
+    for _, id in ipairs(st.orden) do
+        local inst = st.arcos[id]
+        if inst ~= nil and inst.final == nil then
+            for gid, g in pairs(inst.grupos) do
+                local delGrupo = false
+                for perfil in pairs(g.rolPorPerfil or {}) do if perfiles[perfil] then delGrupo = true end end
+                if delGrupo and g.accion ~= nil and not g.accion.hostiles and not g.traicion then
+                    g.traicion = Mundo.nombreJugador(jugador)
+                    inst.vars.quien_mato = inst.vars.quien_mato or g.traicion
+                    Mundo.log(inst.id .. ": " .. tostring(g.traicion) .. " ataco a '" .. tostring(gid) .. "' ("
+                        .. tostring(motivo) .. "); cuenta como traicion")
+                    Motor.revisarSalidas(inst, 0)
+                end
+            end
+        end
+    end
+    Motor.publicar()
 end
 
 -- Revision periodica por si el aviso de muerte no llego (por ejemplo, murio sin cargar).

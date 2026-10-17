@@ -1,7 +1,7 @@
 -- El camino del bandido, fase 2: la conquista de Knox (ver ROADMAP). Solo si en el capitulo 5
 -- elegiste quedarte con el jefe del patio (memoria "bandido" = "pereira"). Los lanza
 -- server/Narrador/NarradorBandido.lua, uno a la vez:
---   * Con Maulen de jefe, primero la base de Sous (si Sous sigue en pie y aliado).
+--   * Con Meulen de jefe, primero la base de Sous (si Sous sigue en pie y aliado).
 --   * Despues la comisaria del Cabo Ramiro (Muldraugh).
 --   * Despues West Point, Riverside y Rosewood, en el orden que quieras: se lanza al entrar al
 --     pueblo de cada uno.
@@ -38,7 +38,7 @@ local function banda(lugar)
 end
 
 -- ===========================================================================
--- La base de Sous (solo con Maulen de jefe)
+-- La base de Sous (solo con Meulen de jefe)
 -- ===========================================================================
 local SOUS_DEFENSORES = {
     { "martin_a", "narrador_sous_01" }, { "martin_z", "narrador_sous_02" }, { "benjamin", "narrador_sous_03" },
@@ -49,7 +49,7 @@ local SOUS_DEFENSORES = {
 registrar({
     id = "conquista_sous",
     titulo = "La conquista: la base de Sous",
-    titulo_menu = "Conquista: la base de Sous (Maulen)",
+    titulo_menu = "Conquista: la base de Sous (Meulen)",
     requiere_alife = true, automatico = false,
     inicio = "orden",
     etapas = {
@@ -58,14 +58,14 @@ registrar({
                 { "lugar_memoria", id = "base", clave = "base_sous", salas = { "farmstorage", "barn", "warehouse" },
                   respaldo = { "livingroom", "kitchen" }, min = 300, max = 1200 },
                 { "lugar_cerca", id = "reunion", de = "base", distancia = 45 },
-                { "mapa", lugar = "base", titulo = "Mapa de Maulen: la base de Sous" },
-                { "aviso", texto = "Maulen te manda decir: 'Hoy, peni. La base de Sous. Te espero a la vuelta de la esquina.'" },
-                { "diario", texto = "Maulen va por Sous. Me espera cerca de {lugar:base}. Conozco a cada uno de los que estan adentro." },
+                { "mapa", lugar = "base", titulo = "Mapa de Meulen: la base de Sous" },
+                { "aviso", texto = "Meulen te manda decir: 'Hoy, peni. La base de Sous. Te espero a la vuelta de la esquina.'" },
+                { "diario", texto = "Meulen va por Sous. Me espera cerca de {lugar:base}. Conozco a cada uno de los que estan adentro." },
             },
             salidas = { { ir = "viaje" } },
         },
         viaje = {
-            pista = "Juntarte con Maulen cerca de {lugar:base}.",
+            pista = "Juntarte con Meulen cerca de {lugar:base}.",
             objetivo = "reunion",
             salidas = {
                 { cuando = { "cerca", "reunion", 60 }, ir = "asalto" },
@@ -93,7 +93,7 @@ registrar({
             al_entrar = {
                 { "banderas", grupo = "banda", inmortales = false },
                 { "decir", grupo = "banda", rol = "pereira", texto = "Akagami! Mi chuchu decia que uno es de la tierra. Esta tierra es mia ahora. Todos somos amigos, cierto? Todos!" },
-                { "decir", grupo = "sous_base", rol = "martin_a", retraso = 0.05, texto = "Maulen?! Y tu... tu? Mi bro, no. No me hagas esto." },
+                { "decir", grupo = "sous_base", rol = "martin_a", retraso = 0.05, texto = "Meulen?! Y tu... tu? Mi bro, no. No me hagas esto." },
                 { "decir", grupo = "sous_base", rol = "martin_z", retraso = 0.1, texto = "Sabia que algo no cuadraba. Lo dije. Nadie me escucha." },
             },
             salidas = {
@@ -106,12 +106,12 @@ registrar({
             { "memoria", clave = "sous", valor = "conquistada" },
             { "memoria", clave = "conquista_sous", valor = true },
             { "decir", grupo = "banda", rol = "pereira", texto = "Ya esta, peni. Atun para todos. Ahora el cabo." },
-            { "huella", acto = "mataste", texto = "Ayude a Maulen a tomar la base de Sous. Los conocia a todos." },
-            { "diario", texto = "La base de Sous es de Maulen. No queda nadie que se ria en la barra oxidada. Yo estuve ahi." },
+            { "huella", acto = "mataste", texto = "Ayude a Meulen a tomar la base de Sous. Los conocia a todos." },
+            { "diario", texto = "La base de Sous es de Meulen. No queda nadie que se ria en la barra oxidada. Yo estuve ahi." },
         } },
         final_abandonado = { final = true, al_entrar = {
             { "retirar", grupo = "banda" },
-            { "diario", texto = "No llegue a lo de Sous. Maulen va a volver a pedirlo." },
+            { "diario", texto = "No llegue a lo de Sous. Meulen va a volver a pedirlo." },
         } },
     },
 })
@@ -124,16 +124,16 @@ local CIUDADES = {
         titulo = "la comisaria del Cabo Ramiro",
         defensores = { { "guardia1", "k93_muldraugh_pd_02" }, { "guardia2", "k93_muldraugh_pd_03" }, { "civil", "k93_truckstop_08" } },
         llegada = J("Pereira entra primero a la comisaria, como si volviera a su casa. 'Te acuerdas de mi, cabo?'",
-                    "Maulen sube la escalera de la comisaria fumando. 'Buenas, cabo. Vengo por lo que queda en la libreta.'"),
+                    "Meulen sube la escalera de la comisaria fumando. 'Buenas, cabo. Vengo por lo que queda en la libreta.'"),
         ultimas = J("Pereira. La anote en la libreta hace mucho, sargento. Negativo a rendirme. Abri esa puerta y la volveria a abrir.",
-                    "Callupan. El de los chilenos. Usted esta en mi libreta, civil. Y usted tambien, el de al lado. Negativo a rendirme."),
+                    "Canupan. El de los chilenos. Usted esta en mi libreta, civil. Y usted tambien, el de al lado. Negativo a rendirme."),
         diario = "La comisaria de Muldraugh es de la banda. El Cabo Ramiro murio en la oficina del segundo piso, con la libreta abierta. No quise leer la ultima pagina.",
     },
     westpoint = {
         titulo = "el cuartel de la Tia Chela",
         defensores = { { "bombero1", "k93_vfd_01" }, { "bombero2", "k93_vfd_02" }, { "vecino", "k93_hensley_family_05" } },
         llegada = J("Pereira se para frente al cuartel de bomberos. 'Una bombera vieja y un carro sin frenos. Esto es rapido.'",
-                    "Maulen mira el cuartel. 'Aca cocinan rico, me dijeron. Ojala quede algo.'"),
+                    "Meulen mira el cuartel. 'Aca cocinan rico, me dijeron. Ojala quede algo.'"),
         ultimas = "Mijo... tu? ... Ya. Ya entendi. Dile a Eduardo que la frazada esta en la silla. Y que comi. Dile que comi.",
         diario = "El cuartel de West Point es de la banda. La Tia Chela murio diciendome mijo. La frazada de Eduardo sigue doblada en la silla.",
     },
@@ -141,7 +141,7 @@ local CIUDADES = {
         titulo = "la iglesia del Padre Nacho",
         defensores = { { "fiel1", "k93_prather_02" }, { "fiel2", "k93_prather_03" }, { "fiel3", "k93_red_cross_05" } },
         llegada = J("Pereira patea la puerta de la iglesia. Estaba abierta. Siempre estaba abierta.",
-                    "Maulen se persigna en la puerta de la iglesia, por si acaso. 'Mi chuchu era catolica, peni.'"),
+                    "Meulen se persigna en la puerta de la iglesia, por si acaso. 'Mi chuchu era catolica, peni.'"),
         ultimas = "Hijo. Te estaba esperando. Ya me fui una vez y alguien se quedo esperando. Esta vez no me voy. Ven.",
         diario = "La iglesia de Riverside es de la banda. El Padre Nacho no se fue. Se quedo en la puerta, como dijo. La puerta ahora esta cerrada.",
     },
@@ -149,7 +149,7 @@ local CIUDADES = {
         titulo = "la bencinera de la Misia Rosa",
         defensores = { { "camionero1", "k93_truckstop_01" }, { "camionero2", "k93_truckstop_03" }, { "camionero3", "k93_truckstop_09" } },
         llegada = J("Pereira mira la bencinera. 'La vieja tiene bencina escondida. Todos lo saben menos ella.'",
-                    "Maulen mira la bencinera. 'Bencina escondida y cigarros, peni. El paraiso.'"),
+                    "Meulen mira la bencinera. 'Bencina escondida y cigarros, peni. El paraiso.'"),
         ultimas = "Mijito... se apago la luz. Ya no tengo miedo. Que raro, no? Ya no tengo miedo.",
         diario = "La bencinera de Rosewood es de la banda. La Misia Rosa murio con la luz apagada. Dijo que ya no tenia miedo. Yo si.",
     },

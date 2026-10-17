@@ -474,3 +474,114 @@ Mundo.MAPAS = {
     ["Ekron"] = { "Base.EkronMap" }, ["Irvington"] = { "Base.IrvingtonMap" }, ["Echo Creek"] = { "Base.EchoCreekMap" },
     ["Fallas Lake"] = { "Base.FallasLakeMap" },
 }
+
+-- A-Life, al cargar el cuerpo de un NPC, "repara" los usos de sus objetos y manda los datos a
+-- los clientes con sendItemStats. Si el objeto todavia no esta en ningun contenedor con casilla,
+-- Java tira un error, la carga del NPC se corta a la mitad y queda un zombi comun en su lugar
+-- (le paso al Cabo Ramiro). Aca la reparacion queda protegida: si falla el envio, el NPC
+-- igual termina de cargarse.
+function Mundo.protegerReparacionALife()
+    local U = ProjectALife ~= nil and ProjectALife.ItemUses or nil
+    if type(U) ~= "table" or type(U.repair) ~= "function" or U._narradorProtegido then return end
+    local original = U.repair
+    U.repair = function(item, ...)
+        local ok, resultado = pcall(original, item, ...)
+        return ok and resultado or false
+    end
+    U._narradorProtegido = true
+end
+
+pcall(Mundo.protegerReparacionALife)
+if Events ~= nil and Events.OnServerStarted ~= nil then
+    Events.OnServerStarted.Add(function() pcall(Mundo.protegerReparacionALife) end)
+end
+
+
+-- Quien mato a un NPC segun A-Life, cuando el evento de muerte llega sin asesino (pasa en MP:
+-- el cliente que maneja al NPC reporta la muerte y el servidor lo mata con "server_kill").
+-- Devuelve el jugador (IsoPlayer) o nil.
+function Mundo.asesinoALife(cuerpo)
+    local KA = ProjectALife ~= nil and ProjectALife.KillAttribution or nil
+    if KA == nil or type(KA.peek) ~= "function" or cuerpo == nil then return nil end
+    local ok, tipo, clave, _, _, asesino = pcall(KA.peek, cuerpo)
+    if not ok or tipo ~= "player" then return nil end
+    if asesino ~= nil and Mundo.esJugador(asesino) then return asesino end
+    for _, p in ipairs(Mundo.jugadores()) do
+        if Mundo.claveALife(p) == tostring(clave) then return p end
+    end
+    return nil
+end
+
+-- A-Life deja hostil a toda una faccion amistosa con el jugador que dana o mata a uno de sus
+-- NPCs. Para las facciones de la historia (Narrador.Facciones) eso cuenta como traicion: se
+-- avisa al motor, que corta las misiones de esa faccion (Motor.traicionFaccion).
+function Mundo.engancharReputacion()
+    local R = ProjectALife ~= nil and ProjectALife.Reputation or nil
+    if type(R) ~= "table" or type(R.escalate) ~= "function" or R._narradorEnganchado then return end
+    local original = R.escalate
+    R.escalate = function(player, actorOrFaction, deed, ...)
+        local ok, razon = original(player, actorOrFaction, deed, ...)
+        if ok == true then
+            pcall(function()
+                local faccion = type(actorOrFaction) == "string" and actorOrFaction
+                    or (type(actorOrFaction) == "table" and actorOrFaction.factionId) or nil
+                if faccion == nil then
+                    local data = actorOrFaction:getModData()
+                    faccion = data.ProjectALifeFactionId
+                    if faccion == nil and data.ProjectALifeUID ~= nil then
+                        local a = Mundo.actor(data.ProjectALifeUID)
+                        faccion = a ~= nil and a.factionId or nil
+                    end
+                end
+                local Motor = Narrador.Motor
+                if faccion ~= nil and Narrador.Facciones ~= nil and Narrador.Facciones[faccion] ~= nil
+                        and Motor ~= nil and Motor.traicionFaccion ~= nil then
+                    Motor.traicionFaccion(faccion, player, deed)
+                end
+            end)
+        end
+        return ok, razon
+    end
+    R._narradorEnganchado = true
+end
+
+pcall(Mundo.engancharReputacion)
+if Events ~= nil and Events.OnServerStarted ~= nil then
+    Events.OnServerStarted.Add(function() pcall(Mundo.engancharReputacion) end)
+end
+
+
+-- Borra la enemistad que A-Life guardo de los jugadores con una faccion (por haber danado o
+-- matado a uno de los suyos), y la de los NPCs vivos de la lista uids. Se usa cuando la
+-- historia vuelve a poner a esa faccion como amiga o un admin repone sus NPCs.
+function Mundo.perdonarFaccion(faccion, uids)
+    local R = ProjectALife ~= nil and ProjectALife.Reputation or nil
+    local estado = R ~= nil and R.storage or nil
+    local cambio = false
+    if type(estado) == "table" and type(estado.players) == "table" then
+        for _, porFaccion in pairs(estado.players) do
+            if type(porFaccion) == "table" and porFaccion[faccion] ~= nil then
+                porFaccion[faccion] = nil
+                cambio = true
+            end
+        end
+    end
+    if cambio then
+        R.dirty = true
+        for _, p in ipairs(Mundo.jugadores()) do pcall(R.sync, p) end
+    end
+    local registro = ProjectALife ~= nil and ProjectALife.ActorRegistry or nil
+    if registro ~= nil and type(registro.peek) == "function" and type(registro.update) == "function" then
+        for _, uid in ipairs(uids or {}) do
+            local a = registro.peek(uid)
+            if a ~= nil then
+                pcall(registro.update, uid, a.revision, function(r)
+                    if type(r.memory) == "table" then
+                        r.memory.hostileToPlayerKeys, r.memory.hostileAct, r.memory.hitByAt = nil, nil, nil
+                    end
+                end)
+            end
+        end
+    end
+    return cambio
+end

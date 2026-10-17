@@ -20,7 +20,7 @@ require "Narrador/NarradorDefs"
 require "Narrador/NarradorKnoxDefs"
 
 -- Variables del jefe del patio por defecto (Pereira). NarradorBandido.lua las cambia si el
--- jefe es Maulen.
+-- jefe es Meulen.
 local function registrar(def)
     def.sorteo = def.sorteo or {}
     def.sorteo.bandido_jefe = { valores = { "pereira" } }
@@ -42,7 +42,7 @@ Narrador.BandidoPatio = {
     respaldo = { "warehouse", "storageunit", "garagestorage", "storage", "garage" },
 }
 
--- Maulen Callupan (apellido mapuche): piel morena, pelo largo con trarilonco (cintillo rojo
+-- Meulen Canupan (apellido mapuche): piel morena, pelo largo con trarilonco (cintillo rojo
 -- anudado), chaleco de tejido con rombos, trapelacucha (collar largo de plata) y botas de cuero.
 -- Igual en Sous.lua (narrador_sous_10, narrador_maulen_banda) y Bandido.lua (narrador_pereira_maulen).
 local MAULEN_ASPECTO = { piel = 3, pelo = "Grungey", color_pelo = "0.05,0.04,0.04" }
@@ -52,7 +52,7 @@ local MAULEN_TINTES = { Hat = "0.65,0.08,0.08", Top = "0.10,0.09,0.09", Jacket =
 
 Narrador.Facciones.narrador_pereira = {
     id = "narrador_pereira",
-    version = 3,
+    version = 5,
     nombre = "La banda de Pereira",
     descripcion = "Desertores de la Guardia Nacional y bandidos al mando de la Sargento Pereira.",
     postura = "friendly",
@@ -62,7 +62,10 @@ Narrador.Facciones.narrador_pereira = {
         { id = "narrador_pereira_01", respaldo = "k93_deserters_09", nombre = "Sargento Pereira", rol = "Sargento", mujer = true,
           arma = "Base.AssaultRifle", cuerpo = "Base.Machete",
           stats = { healthHP = 200, strength = 9, endurance = 10, awareness = 10, aiming = 10 },
-          ropa = { Jacket = "Base.Jacket_ArmyCamoGreen", Vest = "Base.Vest_BulletArmy" } },
+          ropa = { Hat = "Base.Hat_BeretArmy", Top = "Base.Tshirt_ArmyGreen", Jacket = "Base.Jacket_ArmyCamoGreen",
+                   Vest = "Base.Vest_BulletArmy", Pants = "Base.Trousers_ArmyService", Shoes = "Base.Shoes_ArmyBoots",
+                   Hands = "Base.Gloves_LeatherGlovesBlack" },
+          aspecto = { piel = 1, pelo = "Bun", color_pelo = "0.08,0.06,0.05" } },
         { id = "narrador_pereira_02", respaldo = "k93_deserters_02", nombre = "Desertor", rol = "Banda de Pereira", nombre_al_azar = true,
           arma = "Base.AssaultRifle", cuerpo = "Base.HuntingKnife", ropa = { Jacket = "Base.Jacket_ArmyCamoGreen" } },
         { id = "narrador_pereira_03", respaldo = "k93_deserters_03", nombre = "Desertor", rol = "Banda de Pereira", nombre_al_azar = true,
@@ -70,18 +73,76 @@ Narrador.Facciones.narrador_pereira = {
         { id = "narrador_pereira_04", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.Pistol", cuerpo = "Base.BaseballBat" },
         { id = "narrador_pereira_05", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.HuntingRifle", cuerpo = "Base.Machete" },
         { id = "narrador_pereira_06", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.Revolver", cuerpo = "Base.Axe" },
-        -- Maulen Callupan, si lo dejaste ir en Sous y mato a Pereira (ver bandido_maulen).
-        { id = "narrador_pereira_maulen", respaldo = "k93_truckstop_06", nombre = "Maulen Callupan", rol = "Jefe del patio",
+        -- Meulen Canupan, si lo dejaste ir en Sous y mato a Pereira (ver bandido_maulen).
+        { id = "narrador_pereira_maulen", respaldo = "k93_truckstop_06", nombre = "Meulen Canupan", rol = "Jefe del patio",
           arma = "Base.Pistol", cuerpo = "Base.Machete",
           stats = { healthHP = 200, strength = 8, endurance = 9, awareness = 9, aiming = 8 },
           aspecto = MAULEN_ASPECTO, ropa = MAULEN_ROPA, tintes = MAULEN_TINTES },
         { id = "narrador_pereira_07", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.Shotgun", cuerpo = "Base.Hammer" },
+        -- El resto del campamento del patio (ver CAMPAMENTO_PATIO).
+        { id = "narrador_pereira_08", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.Pistol", cuerpo = "Base.BaseballBat" },
+        { id = "narrador_pereira_09", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.Shotgun", cuerpo = "Base.Crowbar" },
+        { id = "narrador_pereira_10", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.HuntingRifle", cuerpo = "Base.Machete" },
+        { id = "narrador_pereira_11", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.Revolver", cuerpo = "Base.Axe" },
+        { id = "narrador_pereira_12", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.AssaultRifle", cuerpo = "Base.HuntingKnife" },
+        { id = "narrador_pereira_13", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.Pistol", cuerpo = "Base.Hammer" },
+        { id = "narrador_pereira_14", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.Shotgun", cuerpo = "Base.Machete" },
+        { id = "narrador_pereira_15", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.Pistol2", cuerpo = "Base.Crowbar" },
+        { id = "narrador_pereira_16", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.HuntingRifle", cuerpo = "Base.BaseballBat" },
+        { id = "narrador_pereira_17", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.Revolver", cuerpo = "Base.HuntingKnife" },
     },
 }
 
+-- Aspecto de la banda: los desertores con uniforme de la Guardia y los bandidos con lo que
+-- han ido juntando (cuero, capucha, pasamontanas, chaleco). Se reparte por turno a los que no
+-- tienen ropa propia; peinados y barbas tambien rotan para que no salgan todos iguales.
+local ROPA_BANDA = {
+    { Hat = "Base.Hat_BeretArmy", Top = "Base.Tshirt_ArmyGreen", Jacket = "Base.Jacket_ArmyCamoGreen", Vest = "Base.Vest_BulletArmy",
+      Pants = "Base.Trousers_CamoGreen", Shoes = "Base.Shoes_ArmyBoots" },
+    { Hat = "Base.Hat_BalaclavaFull", Top = "Base.Tshirt_DefaultTEXTURE_TINT", Jacket = "Base.Jacket_LeatherBlack",
+      Pants = "Base.Trousers_JeanBaggy", Shoes = "Base.Shoes_BlackBoots", Hands = "Base.Gloves_LeatherGlovesBlack" },
+    { Hat = "Base.Hat_Army", Top = "Base.Shirt_CamoGreen", Vest = "Base.Vest_BulletCivilian",
+      Pants = "Base.Trousers_ArmyService", Shoes = "Base.Shoes_ArmyBoots" },
+    { Hat = "Base.Hat_BandanaTiedTINT", Top = "Base.Tshirt_DefaultTEXTURE_TINT", Jacket = "Base.Jacket_Black",
+      Pants = "Base.Trousers_DefaultTEXTURE_TINT", Shoes = "Base.Shoes_BlackBoots" },
+    { Hat = "Base.Hat_Beany", Top = "Base.HoodieUP_WhiteTINT", Vest = "Base.Vest_BulletCivilian",
+      Pants = "Base.Trousers_JeanBaggy", Shoes = "Base.Shoes_ArmyBootsDesert" },
+    { Top = "Base.Tshirt_CamoGreen", Jacket = "Base.Jacket_ArmyCamoDesert", Pants = "Base.Trousers_CamoDesert",
+      Shoes = "Base.Shoes_ArmyBootsDesert", Hands = "Base.Gloves_LeatherGlovesBlack" },
+}
+local TINTES_BANDA = {
+    [2] = { Top = "0.12,0.12,0.12" },
+    [4] = { Hat = "0.55,0.08,0.08", Top = "0.18,0.18,0.20", Pants = "0.20,0.17,0.12" },
+    [5] = { Top = "0.22,0.24,0.20" },
+}
+local PELO_BANDA = { "CrewCut", "Messy", "Bald", "Grungey", "FlatTop", "Recede", "Mullet", "Short", "Spike", "Baldspot" }
+local BARBA_BANDA = { "Full", "Goatee", "Chops", "BeardOnly", "Moustache", "LongScruffy", "Chin" }
+
+do
+    local i = 0
+    for _, m in ipairs(Narrador.Facciones.narrador_pereira.miembros) do
+        if m.ropa == nil and not m.mujer and m.aspecto == nil then
+            i = i + 1
+            local n = (i - 1) % #ROPA_BANDA + 1
+            m.ropa = ROPA_BANDA[n]
+            m.tintes = TINTES_BANDA[n]
+            m.aspecto = { piel = (i * 3) % 5, pelo = PELO_BANDA[(i - 1) % #PELO_BANDA + 1],
+                barba = BARBA_BANDA[(i - 1) % #BARBA_BANDA + 1], color_pelo = "0.12,0.09,0.07", color_barba = "0.12,0.09,0.07" }
+        end
+    end
+    -- El desertor que solo traia chaqueta: el uniforme completo.
+    for _, m in ipairs(Narrador.Facciones.narrador_pereira.miembros) do
+        if m.id == "narrador_pereira_02" then
+            m.ropa = { Hat = "Base.Hat_BeretArmy", Top = "Base.Tshirt_ArmyGreen", Jacket = "Base.Jacket_ArmyCamoGreen",
+                Vest = "Base.Vest_BulletArmy", Pants = "Base.Trousers_ArmyService", Shoes = "Base.Shoes_ArmyBoots" }
+            m.aspecto = { piel = 1, pelo = "CrewCut", barba = "Chops", color_pelo = "0.10,0.08,0.06", color_barba = "0.10,0.08,0.06" }
+        end
+    end
+end
+
 local PEREIRA = "pereira"
 
--- Lo que dice el jefe del patio: la Sargento Pereira o Maulen Callupan, si lo dejaste ir en Sous
+-- Lo que dice el jefe del patio: la Sargento Pereira o Meulen Canupan, si lo dejaste ir en Sous
 -- y la mato (memoria "bandido_jefe" = "maulen"; las variables las pone NarradorBandido.lua).
 local function J(pereira, maulen) return { por_var = "bandido_jefe", textos = { maulen = maulen, otro = pereira } } end
 local GUARDIA_PATIO = { { "pereira", "var:jefe_perfil" }, { "desertor1", "narrador_pereira_02" }, { "desertor2", "narrador_pereira_03" } }
@@ -90,6 +151,12 @@ local BANDA_COMPLETA = {
     { "bandido1", "narrador_pereira_04" }, { "bandido2", "narrador_pereira_05" }, { "bandido3", "narrador_pereira_06" },
     { "bandido4", "narrador_pereira_07" },
 }
+
+-- El campamento del patio: diez bandidos repartidos por todo el patio cada vez que aparece el
+-- jefe (se agregan solos al final del archivo, junto a cada "npcs" de la guardia).
+local CAMPAMENTO = "campamento"
+local CAMPAMENTO_PATIO = {}
+for i = 8, 17 do CAMPAMENTO_PATIO[#CAMPAMENTO_PATIO + 1] = { "bandido" .. i, string.format("narrador_pereira_%02d", i) } end
 
 -- El patio (lo guarda el capitulo 1 y lo reusan los demas).
 local function patio()
@@ -319,7 +386,7 @@ registrar({
             al_entrar = {
                 { "lugar_contacto", id = "comisaria", contacto = "muldraugh" },
                 { "reloj", id = "plazo", horas = 72 },
-                { "diario", texto = J("Pereira me conto su version de la comisaria: ella ordeno cerrar, el Cabo Ramiro abrio. Quiere que le robe las reservas al Cabo, de noche.", "Maulen leyo en la libreta de la sargento la historia de la comisaria. No le importa quien tenia razon: quiere las reservas del Cabo, de noche.") },
+                { "diario", texto = J("Pereira me conto su version de la comisaria: ella ordeno cerrar, el Cabo Ramiro abrio. Quiere que le robe las reservas al Cabo, de noche.", "Meulen leyo en la libreta de la sargento la historia de la comisaria. No le importa quien tenia razon: quiere las reservas del Cabo, de noche.") },
             },
             salidas = { { ir = "acercarse" } },
         },
@@ -359,7 +426,7 @@ registrar({
         },
         avisado = {
             al_entrar = {
-                { "decir_contacto", texto = J("Pereira. Negativo a sorprenderme, civil: la esperaba. Llevele esto. Piedras y latas vacias. Que crea que gano. Yo anoto.", "Callupan? El de los chilenos? Negativo a sorprenderme, civil. Llevele esto: piedras y latas vacias. Que crea que gano. Yo anoto.") },
+                { "decir_contacto", texto = J("Pereira. Negativo a sorprenderme, civil: la esperaba. Llevele esto. Piedras y latas vacias. Que crea que gano. Yo anoto.", "Canupan? El de los chilenos? Negativo a sorprenderme, civil. Llevele esto: piedras y latas vacias. Que crea que gano. Yo anoto.") },
                 { "objeto", id = "caja", lugar = "comisaria", radio = 6, tipo = { "Base.Bag_DuffelBag" }, nombre = "Reservas del Cabo Ramiro" },
                 { "variable", nombre = "sabotaje", valor = true },
                 { "reputacion", contacto = "muldraugh", cantidad = 10, motivo = "le avisaste de Pereira" },
@@ -734,7 +801,7 @@ registrar({
             al_entrar = {
                 { "retirar", grupo = PEREIRA },
                 { "reloj", id = "plazo", horas = 96 },
-                { "diario", texto = J("Le di la espalda a {jefe_corto}. Manana iba a matar al Cabo y despues a todo Knox. Tengo que llegar antes. No voy a llegar solo si alguien todavia confia en mi.", "Le di la espalda a Maulen. Manana iba a matar a Sous, despues al Cabo, despues a todo Knox. Tengo que llegar antes. No voy a llegar solo si alguien todavia confia en mi.") },
+                { "diario", texto = J("Le di la espalda a {jefe_corto}. Manana iba a matar al Cabo y despues a todo Knox. Tengo que llegar antes. No voy a llegar solo si alguien todavia confia en mi.", "Le di la espalda a Meulen. Manana iba a matar a Sous, despues al Cabo, despues a todo Knox. Tengo que llegar antes. No voy a llegar solo si alguien todavia confia en mi.") },
             },
             salidas = {
                 { cuando = { { "horas", 6 }, { "cerca", "patio", 120 } }, ir = "asalto" },
@@ -774,11 +841,11 @@ registrar({
             { "memoria", clave = "bandido", valor = "pereira" },
             { "memoria", clave = "bandido_cap", valor = 5 },
             { "memoria", clave = "bandido_ultimo", valor = "hecho" },
-            { "diario", texto = J("Le dije a Pereira que si. Manana tomamos la comisaria del Cabo. Despues, Knox.", "Le dije a Maulen que si. Manana vamos por Sous. Despues el Cabo. Despues, Knox.") },
+            { "diario", texto = J("Le dije a Pereira que si. Manana tomamos la comisaria del Cabo. Despues, Knox.", "Le dije a Meulen que si. Manana vamos por Sous. Despues el Cabo. Despues, Knox.") },
         } },
         final_redencion = { final = true, al_entrar = {
             { "knox_reiniciar", texto = "La gente perdonara tus pecados del pasado, pero en tu mente sigue existiendo cada acto malvado que hiciste." },
-            { "huella", acto = "protegiste", texto = J("Acabe con la Sargento Pereira antes de que tomara la comisaria del Cabo.", "Acabe con Maulen Callupan antes de que fuera por Sous.") },
+            { "huella", acto = "protegiste", texto = J("Acabe con la Sargento Pereira antes de que tomara la comisaria del Cabo.", "Acabe con Meulen Canupan antes de que fuera por Sous.") },
             { "decir", grupo = "eduardo", rol = "eduardo", si = { "mem", "eduardo_conocido" },
               texto = "No se por que estuviste con ella. Se por que te diste vuelta. Con eso me basta, amigo." },
             { "decir", grupo = JULIO, rol = "julio", si = { "mem", "julio_vivo" },
@@ -787,14 +854,14 @@ registrar({
             { "memoria", clave = "bandido", valor = "redimido" },
             { "memoria", clave = "bandido_cap", valor = 5 },
             { "memoria", clave = "bandido_ultimo", valor = "hecho" },
-            { "diario", texto = J("La Sargento Pereira esta muerta en el patio de trenes. No lo hice solo. Me queda su fusil y una lista de nombres que voy a cargar siempre.", "Maulen Callupan esta muerto en el patio de trenes. Esta vez de verdad. Lo deje vivir una vez y me costo caro a mi y a todo Knox. No lo hice solo: vino gente que todavia creia en mi.") },
+            { "diario", texto = J("La Sargento Pereira esta muerta en el patio de trenes. No lo hice solo. Me queda su fusil y una lista de nombres que voy a cargar siempre.", "Meulen Canupan esta muerto en el patio de trenes. Esta vez de verdad. Lo deje vivir una vez y me costo caro a mi y a todo Knox. No lo hice solo: vino gente que todavia creia en mi.") },
         } },
         final_escapo = { final = true, al_entrar = {
             { "retirar", grupo = "banda" },
             { "memoria", clave = "bandido", valor = "pereira_escapo" },
             { "memoria", clave = "bandido_cap", valor = 5 },
             { "memoria", clave = "bandido_ultimo", valor = "hecho" },
-            { "diario", texto = J("Pereira se me escapo del patio. Sigue viva, en algun lado, y sabe mi cara.", "Maulen se me escapo del patio. Otra vez. Desaparecer es lo unico que siempre supo hacer bien.") },
+            { "diario", texto = J("Pereira se me escapo del patio. Sigue viva, en algun lado, y sabe mi cara.", "Meulen se me escapo del patio. Otra vez. Desaparecer es lo unico que siempre supo hacer bien.") },
         } },
         final_abandonado = abandonado(5),
     },
@@ -814,7 +881,7 @@ registrar({
             pista = "Sobrevivir a los cazadores de {jefe_corto}.",
             al_entrar = {
                 { "lugar_jugador", id = "aqui" },
-                { "aviso", texto = J("Un silbido corto. Despues otro. {jefe_corto} abrio la caja, conto las latas o encontro a alguien que no debia estar vivo. Viene su gente.", "Un silbido corto. Despues otro. Maulen hizo el inventario y no le cuadro. Te manda saludos con su gente. 'Aca todos somos amigos', decia.") },
+                { "aviso", texto = J("Un silbido corto. Despues otro. {jefe_corto} abrio la caja, conto las latas o encontro a alguien que no debia estar vivo. Viene su gente.", "Un silbido corto. Despues otro. Meulen hizo el inventario y no le cuadro. Te manda saludos con su gente. 'Aca todos somos amigos', decia.") },
                 { "bandidos", id = "cazadores", lugar = "aqui", radio = 60, modo = "hunt", cantidad = { 4, 6 } },
                 { "diario", texto = "{jefe_corto} descubrio lo que hice. Mando gente a matarme." },
             },
@@ -831,14 +898,14 @@ registrar({
 })
 
 -- ===========================================================================
--- Maulen toma el patio: si lo dejaste ir en Sous, termina en el patio de trenes, mata a la
+-- Meulen toma el patio: si lo dejaste ir en Sous, termina en el patio de trenes, mata a la
 -- Sargento Pereira y se queda con su banda. Te busca porque te debe la vida (sin importar tu
 -- Knox). Si ya estabas trabajando para Pereira, sigues con el desde el capitulo en que ibas.
 -- ===========================================================================
 registrar({
     id = "bandido_maulen",
-    titulo = "El camino del bandido: Maulen",
-    titulo_menu = "Bandido: Maulen toma el patio",
+    titulo = "El camino del bandido: Meulen",
+    titulo_menu = "Bandido: Meulen toma el patio",
     requiere_alife = true, automatico = false,
     inicio = "nota",
     etapas = {
@@ -850,19 +917,19 @@ registrar({
                 { "faccion", id = "narrador_pereira", postura = "friendly" },
                 { "nota", lugar = "casa", radio = 4, titulo = "Nota con olor a cigarro",
                   texto = "Peni: me dejaste vivir y no se me olvida. Encontre trabajo, y despues encontre algo mejor: el puesto de la jefa. Patio de trenes de Muldraugh. Ven, que aca todos somos amigos. Todos. -M." },
-                { "mapa", lugar = "patio", titulo = "Mapa de Maulen: el patio de trenes" },
+                { "mapa", lugar = "patio", titulo = "Mapa de Meulen: el patio de trenes" },
                 { "aviso", texto = "Alguien dejo una nota en {lugar:casa}. Huele a cigarro y a atun." },
-                { "diario", texto = "Me dejaron una nota firmada con una M. Huele a cigarro y a atun. Es Maulen. Me espera en {lugar:patio}." },
+                { "diario", texto = "Me dejaron una nota firmada con una M. Huele a cigarro y a atun. Es Meulen. Me espera en {lugar:patio}." },
             },
             salidas = { { ir = "citacion" } },
         },
         citacion = llegarAlPatio("reunion"),
         reunion = {
-            pista = "Hablar con Maulen Callupan en {lugar:patio} (clic derecho cerca).",
+            pista = "Hablar con Meulen Canupan en {lugar:patio} (clic derecho cerca).",
             ancla = "patio", ancla_grupo = PEREIRA, radio = 20,
             al_entrar = {
                 { "decir", grupo = PEREIRA, rol = "pereira", texto = "Peni! Pasa, pasa. Tranquilo, aca todos somos amigos. Todos. Bueno, la sargento ya no, pero ella se lo busco." },
-                -- Consecuencia de los Bell (bell_culpa): Maulen sabe lo de la pastilla.
+                -- Consecuencia de los Bell (bell_culpa): Meulen sabe lo de la pastilla.
                 { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.1, si = { "memoria", "bell_culpa", true },
                   texto = "Y lo de los Bell, peni... azucar por cura y te quedaste con la buena. Aca nadie te juzga. Aca eso se aplaude." },
                 { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.05, si = { "var", "venia_de_pereira", true },
@@ -871,7 +938,7 @@ registrar({
                   texto = "La sargento me recibio con un fusil. Yo la recibi con una sonrisa. Ahora el patio es mio. Y tu me dejaste vivir. Eso se paga." },
             },
             opciones = {
-                { id = "unirse", texto = "Que necesitas, Maulen?",
+                { id = "unirse", texto = "Que necesitas, Meulen?",
                   dice = { rol = "pereira", texto = "Eso queria escuchar, peni. Primero cosas chicas. Despues, lo grande. Vuelve manana." } },
                 { id = "rechazar", texto = "Te deje vivir. No te debo nada mas",
                   dice = { rol = "pereira", texto = "Tranquilo, peni. Tranquilo. La puerta queda abierta. Mi chuchu decia que todos vuelven." } },
@@ -884,12 +951,59 @@ registrar({
         },
         final_unido = { final = true, al_entrar = {
             { "memoria", clave = "bandido_ultimo", valor = "hecho" },
-            { "diario", texto = "Maulen mato a la Sargento Pereira y se quedo con su banda. Ahora trabajo para el. Lo deje vivir y el me lo devuelve asi." },
+            { "diario", texto = "Meulen mato a la Sargento Pereira y se quedo con su banda. Ahora trabajo para el. Lo deje vivir y el me lo devuelve asi." },
         } },
         final_rechazo = { final = true, al_entrar = {
             { "memoria", clave = "bandido", valor = "rechazado" },
-            { "diario", texto = "Le dije a Maulen que no le debo nada. Sonrio como siempre. Dijo que todos vuelven." },
+            { "diario", texto = "Le dije a Meulen que no le debo nada. Sonrio como siempre. Dijo que todos vuelven." },
         } },
-        final_abandonado = abandonado("de Maulen"),
+        final_abandonado = abandonado("de Meulen"),
     },
 })
+
+-- ===========================================================================
+-- Redimido: si en vez de trabajar para el jefe del patio lo atacas y matas a alguien de su
+-- banda (en los capitulos 1 a 4 o con Meulen), la rama del bandido se corta ahi: quedas
+-- "redimido" (memoria bandido = "redimido", ver BA.TERMINADA) y no salen mas capitulos.
+-- El capitulo 5 tiene su propio final de redencion.
+-- ===========================================================================
+local function finalRedimido()
+    return { final = true, al_entrar = {
+        { "retirar", grupo = PEREIRA },
+        { "retirar", grupo = CAMPAMENTO },
+        { "knox_reiniciar", texto = "La gente perdonara tus pecados del pasado, pero en tu mente sigue existiendo cada acto malvado que hiciste." },
+        { "huella", acto = "protegiste", texto = J("Le di la espalda a la Sargento Pereira a balazos en el patio de trenes.", "Le di la espalda a Meulen Canupan a balazos en el patio de trenes.") },
+        { "memoria", clave = "bandido", valor = "redimido" },
+        { "memoria", clave = "bandido_ultimo", valor = "redimido" },
+        { "aviso", texto = "Redimido. El camino del bandido se termino para ti." },
+        { "diario", texto = J("Redimido. Fui al patio de trenes y en vez de trabajar para Pereira abri fuego contra su banda. No vuelvo a ese camino.", "Redimido. Fui al patio de trenes y en vez de trabajar para Meulen abri fuego contra su banda. No vuelvo a ese camino.") },
+    } }
+end
+
+local function campamentoEnPatio()
+    -- No son inmortales: si matas a uno quedas redimido (ver salidas de abajo).
+    return { "npcs", id = CAMPAMENTO, lugar = "patio", radio = 70, no_mas_cerca = 12, modo = "guard", correa = 30,
+        postura = "friendly", perfiles = CAMPAMENTO_PATIO }
+end
+
+for _, id in ipairs({ "bandido_1", "bandido_2", "bandido_3", "bandido_4", "bandido_5", "bandido_maulen" }) do
+    local def = Narrador.Defs.get(id)
+    if def ~= nil and def.etapas ~= nil then
+        for _, etapa in pairs(def.etapas) do
+            -- El patio lleno de bandidos: donde aparece la guardia del jefe, aparece el campamento.
+            local lista = etapa.al_entrar or {}
+            for i = #lista, 1, -1 do
+                local a = lista[i]
+                if type(a) == "table" and a[1] == "npcs" and a.id == PEREIRA and a.lugar == "patio" then
+                    table.insert(lista, i + 1, campamentoEnPatio())
+                end
+            end
+            if id ~= "bandido_5" and not etapa.final then
+                etapa.salidas = etapa.salidas or {}
+                table.insert(etapa.salidas, 1, { cuando = { "mato_jugador", PEREIRA }, ir = "final_redimido" })
+                table.insert(etapa.salidas, 1, { cuando = { "mato_jugador", CAMPAMENTO }, ir = "final_redimido" })
+            end
+        end
+        if id ~= "bandido_5" then def.etapas.final_redimido = finalRedimido() end
+    end
+end

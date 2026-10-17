@@ -3,7 +3,7 @@ Narrador Co-op v0.11.0 (Build 42) - necesita Project A-Life (ProjectALifeNPCs) p
 El contenido del mod esta en la carpeta 42.
 
 Que trae:
-- Historia principal: Cap. 1 Los Bell -> Cap. 2 Sous y Maulen Callupan -> Cap. 3 La guerra con Sous
+- Historia principal: Cap. 1 Los Bell -> Cap. 2 Sous y Meulen Canupan -> Cap. 3 La guerra con Sous
   (solo si quedan enemigos) -> Cap. 4 El arsenal (premio legendario a eleccion).
 - 7 historias cortas que llegan por mensajero (nada por radio).
 - Misioneros en Muldraugh (Cabo Ramiro Mandados), West Point (Tia Chela Recados), Riverside (Padre Nacho
@@ -22,7 +22,7 @@ Que trae:
 Los admins tienen el menu "Admin (pruebas)", con el registro en texto plano.
 - Los dialogos no se repiten: cada personaje dice todas sus frases (en orden al azar) antes de volver a empezar.
 
-- Objetos propios con modelo 3D: botiquin de Sous, diario de Maulen, paquetes, planos, antibioticos,
+- Objetos propios con modelo 3D: botiquin de Sous, diario de Meulen, paquetes, planos, antibioticos,
   muestras del hospital, maletin militar, llaves de la boveda, expediente sellado y caja del arsenal.
 - Favores de Sous (si Sous queda aliado): clic derecho cerca de cada uno en la base -> "Preguntarle si
   necesita algo". Perdieron algo (la katana de Matric, el cuchillo de Zent, la pelota de Akagami, la foto
@@ -45,7 +45,7 @@ Los admins tienen el menu "Admin (pruebas)", con el registro en texto plano.
 Novedades 0.7.0:
 - Conversaciones entre personajes: los NPCs del Narrador conversan entre ellos (escenas de varios
   turnos) cuando hay alguien cerca. Sous aliado tiene tallas, discusiones, duelos y recuerdos de
-  Maulen; los Bell conversan en tu refugio; los misioneros con sus vecinos. Si llegan zombis, se
+  Meulen; los Bell conversan en tu refugio; los misioneros con sus vecinos. Si llegan zombis, se
   corta. A veces te piden opinion: clic derecho -> "[Conversa] ...". Tu respuesta se recuerda.
 - Confianza con los misioneros (0 a 100 por grupo): sube cumpliendo encargos, baja si los dejas
   vencer o los abandonas. Cada misionero tiene sus rangos (Recluta, Mijito, Monaguillo, Vecino...).
@@ -195,7 +195,7 @@ Novedades 0.11.0:
   familia, las latas y la decision); cada uno se puede cumplir o sabotear, y con cada sabotaje
   sube la chance de que te descubra y mande cazadores. Al final puedes quedarte a su lado o
   redimirte con un asalto al patio junto a los misioneros (Knox vuelve a 0).
-- Maulen: si en Sous lo dejas ir, 72 horas despues mata a Pereira y se queda con el patio.
+- Meulen: si en Sous lo dejas ir, 72 horas despues mata a Pereira y se queda con el patio.
 - La conquista de Knox: del lado de la banda, la base de Sous, la comisaria del Cabo, West Point,
   Riverside y Rosewood caen una por una. Los misioneros pierden la inmortalidad y los reemplazan
   capitanes que solo dan encargos inmorales (cobrar tributo, silenciar a un testigo, quemar un
@@ -224,11 +224,11 @@ Novedades 0.11.0:
 - Sous se parece a sus fotos: Martin Akagami con overol de obrero, casco, antiparras y
   pasamontanas; Martin Zent y Bastian Tati con el pelo crespo; Hanz Walita con barba y aro;
   Cristian Cristonks y Jorge Hasag con ropa de ski; Cristobal Wertres con poleron negro;
-  Benjamin Matric con lentes, buzo gris y mochila; David Shinbo con polera blanca; Maulen
-  Callupan con aspecto mapuche (pelo largo con trarilonco, chaleco de tejido y collar de plata).
+  Benjamin Matric con lentes, buzo gris y mochila; David Shinbo con polera blanca; Meulen
+  Canupan con aspecto mapuche (pelo largo con trarilonco, chaleco de tejido y collar de plata).
 - Cada personaje con nombre tiene un modelo de su sexo (antes la Hermana Lucia, el doctor
   Hartmann, el Diacono Reyes, el Capitan Duarte y otros salian con el cuerpo equivocado).
-- Consecuencias: Maulen sabe si engañaste a los Bell; el doctor Hartmann confiesa que les vendio
+- Consecuencias: Meulen sabe si engañaste a los Bell; el doctor Hartmann confiesa que les vendio
   las pastillas falsas; si sobreviviste a los cazadores de Pereira, te vigila mas; con la radio
   de la Chela arreglada las amenazas se avisan antes; con el estanque defendido la Misia Rosa
   te deja un bidon de bencina cada tres dias.

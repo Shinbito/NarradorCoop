@@ -148,6 +148,15 @@ Motor.inmediatas = {
         return true
     end,
     -- Recupera un lugar guardado por otro capitulo; si no existe, lo busca como "lugar".
+    -- {"lugar_base_sous", id, ...}: la base fija de Sous del pueblo mas cercano a quien empezo
+    -- la historia (Narrador.SousBases). Si no hay una para ese pueblo, busca como "lugar".
+    lugar_base_sous = function(inst, a)
+        local pueblo = inst.refX ~= nil and Mundo.puebloCercano(inst.refX, inst.refY) or nil
+        local b = pueblo ~= nil and Narrador.SousBases ~= nil and Narrador.SousBases[pueblo.label] or nil
+        if b == nil then return Motor.inmediatas.lugar(inst, a) end
+        inst.lugares[a.id] = { x = b.x, y = b.y, z = b.z or 0, etiqueta = b.etiqueta, sala = "warehouse" }
+        return true
+    end,
     lugar_memoria = function(inst, a)
         local l = Motor.estado().memoria["lugar." .. tostring(a.clave)]
         if type(l) == "table" then
@@ -170,6 +179,8 @@ Motor.inmediatas = {
         if ok then st.memoria[claveVer] = spec.version or 1 end
         if not ok then Mundo.log("no se pudo crear la faccion " .. tostring(a.id) .. ": " .. tostring(razon)) end
         Motor.estado().memoria["faccion." .. a.id] = copia.postura
+        -- Si la historia la vuelve amiga, se olvida la enemistad que A-Life guardo por golpes.
+        if copia.postura ~= "hostile" and Mundo.perdonarFaccion ~= nil then pcall(Mundo.perdonarFaccion, a.id) end
         return true
     end,
     -- Habla el contacto de la ciudad que dio el encargo.
@@ -293,6 +304,23 @@ Motor.inmediatas = {
 }
 
 -- Acciones que esperan a que un jugador este cerca y el lugar este cargado.
+-- Tamano de una horda segun el avance de la partida: de "minimo" el dia 3 a "maximo" el dia
+-- 30, mas 5 por cada campamento de misionero fundado. Nunca pasa del maximo.
+Motor.HORDA_DIAS = { 3, 30 }
+function Motor.tamanoHorda(minimo, maximo)
+    minimo, maximo = tonumber(minimo) or 25, tonumber(maximo) or 100
+    local dia = Mundo.horas() / 24
+    local avance = (dia - Motor.HORDA_DIAS[1]) / (Motor.HORDA_DIAS[2] - Motor.HORDA_DIAS[1])
+    avance = math.max(0, math.min(1, avance))
+    local campamentos = 0
+    for clave, valor in pairs(Motor.estado().memoria or {}) do
+        if type(clave) == "string" and string.sub(clave, 1, 11) == "campamento_" and valor == "fundado" then
+            campamentos = campamentos + 1
+        end
+    end
+    return math.min(maximo, floor(minimo + (maximo - minimo) * avance + 5 * campamentos + 0.5))
+end
+
 Motor.diferidas = {
     -- Opciones extra:
     --   fija = true: sin la escala del arco ni el descuento del rumor (cantidad exacta).
@@ -302,6 +330,8 @@ Motor.diferidas = {
     --   planta_baja = true: en el piso de la calle (z = 0).
     oleada = function(inst, p, l)
         local n = Motor.cantidad(p.cantidad, 12)
+        -- progreso = { min, max }: crece con los dias y los campamentos (ver Motor.tamanoHorda).
+        if type(p.progreso) == "table" then n = Motor.tamanoHorda(p.progreso[1], p.progreso[2]) end
         if not p.fija then
             n = n * (tonumber(inst.vars.escala) or 1)
             -- Si siguieron el rumor, llegaron preparados: menos muertos.
@@ -319,6 +349,23 @@ Motor.diferidas = {
         local z = p.planta_baja and 0 or l.z
         local total = Mundo.oleada(l.x, l.y, z, math.max(1, floor(n + 0.5)), p.min, p.max, { caminantes = p.caminantes })
         if p.meta ~= nil then inst.vars[p.meta] = math.max(1, floor(total * (tonumber(p.meta_frac) or 1))) end
+        return true
+    end,
+    -- {"ruido", lugar, radio, volumen, veces}: un ruido fuerte que atrae a los zombis hacia el
+    -- lugar (como una alarma). Se repite unas veces para que la horda no se disperse.
+    ruido = function(inst, p, l)
+        if addSound == nil then return true end
+        local radio, volumen = tonumber(p.radio) or 150, tonumber(p.volumen) or 100
+        for _ = 1, math.max(1, tonumber(p.veces) or 3) do
+            pcall(addSound, nil, floor(l.x), floor(l.y), floor(l.z or 0), radio, volumen)
+        end
+        return true
+    end,
+    -- {"quitar_zombis", lugar, radio}: saca los zombis que ya habia alrededor del lugar (no
+    -- los NPCs de A-Life), para que queden solo los que pone la historia.
+    quitar_zombis = function(inst, p, l)
+        local n = Mundo.quitarZombis(l.x, l.y, tonumber(p.radio) or 35)
+        Mundo.log(inst.id .. ": se quitaron " .. tostring(n) .. " zombis en " .. floor(l.x) .. "," .. floor(l.y))
         return true
     end,
     objeto = function(inst, p, l)

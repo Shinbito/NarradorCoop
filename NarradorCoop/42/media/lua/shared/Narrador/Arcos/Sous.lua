@@ -1,8 +1,8 @@
--- Historia principal, capitulos 2 a 4: Sous y Maulen Callupan.
+-- Historia principal, capitulos 2 a 4: Sous y Meulen Canupan.
 -- Se abre sola cuando terminan los Bell (capitulo 1).
 --
---   Cap. 2 "Sous": llegas a la base y les haces dos encargos. El tercero te lo da Maulen
---          Callupan, uno de los suyos: es una trampa para alejarte mientras se roba todo.
+--   Cap. 2 "Sous": llegas a la base y les haces dos encargos. El tercero te lo da Meulen
+--          Canupan, uno de los suyos: es una trampa para alejarte mientras se roba todo.
 --          Pistas -> lugar abandonado lleno de zombis -> escondite -> ir solo o con gente de
 --          Sous -> pelea -> quedarte con todo o devolverlo.
 --          Sous queda como faccion de A-Life amiga o enemiga segun lo que elijas.
@@ -23,7 +23,7 @@ Narrador.Facciones = Narrador.Facciones or {}
 -- Aspecto de los que tienen foto (ver Mundo.crearFaccion): colores "r,g,b" de 0 a 1.
 local PELO_OSCURO, NEGRO = "0.10,0.07,0.05", "0.09,0.09,0.10"
 
--- Maulen Callupan (apellido mapuche): piel morena, pelo largo con trarilonco (cintillo rojo
+-- Meulen Canupan (apellido mapuche): piel morena, pelo largo con trarilonco (cintillo rojo
 -- anudado), chaleco de tejido con rombos, trapelacucha (collar largo de plata) y botas de cuero.
 -- Igual en Sous.lua (narrador_sous_10, narrador_maulen_banda) y Bandido.lua (narrador_pereira_maulen).
 local MAULEN_ASPECTO = { piel = 3, pelo = "Grungey", color_pelo = "0.05,0.04,0.04" }
@@ -35,12 +35,12 @@ local STATS_SOUS = { healthHP = 160, strength = 10, endurance = 10, awareness = 
 
 Narrador.Facciones.narrador_sous = {
     id = "narrador_sous",
-    version = 5,
+    version = 6,
     nombre = "Sous",
     descripcion = "Grupo de sobrevivientes de amigos que se juntaban a jugar a la pelota y al LoL.",
     postura = "friendly",
     stats = STATS_SOUS,
-    -- La banda de Maulen es otra faccion: se odian (antes Maulen salia como Sous y su banda
+    -- La banda de Meulen es otra faccion: se odian (antes Meulen salia como Sous y su banda
     -- como otra faccion, y terminaban matandose entre ellos).
     relaciones = { narrador_banda_maulen = "hostile" },
     miembros = {
@@ -101,38 +101,46 @@ Narrador.Facciones.narrador_sous = {
           ropa = { Top = "Base.Tshirt_DefaultTEXTURE_TINT", Jacket = "Base.HoodieDOWN_WhiteTINT", Pants = "Base.Trousers_Denim",
                    Shoes = "Base.Shoes_TrainerTINT" },
           tintes = { Top = NEGRO, Jacket = "0.17,0.17,0.18", Shoes = NEGRO } },
-        { id = "narrador_sous_10", respaldo = "k93_truckstop_06", nombre = "Maulen Callupan", rol = "Encargado del deposito", arma = "Base.Pistol", cuerpo = "Base.Machete",
+        { id = "narrador_sous_10", respaldo = "k93_truckstop_06", nombre = "Meulen Canupan", rol = "Encargado del deposito", arma = "Base.Pistol", cuerpo = "Base.Machete",
           aspecto = MAULEN_ASPECTO, ropa = MAULEN_ROPA, tintes = MAULEN_TINTES },
     },
 }
 
--- Maulen ya traidor y los matones que junto. Todos de la misma faccion, asi no se pelean
+-- Meulen ya traidor y los matones que junto. Todos de la misma faccion, asi no se pelean
 -- entre ellos, y enemigos de Sous y de los jugadores.
 Narrador.Facciones.narrador_banda_maulen = {
     id = "narrador_banda_maulen",
-    version = 2,
-    nombre = "Banda de Maulen",
-    descripcion = "Los matones que junto Maulen Callupan despues de robarle a Sous.",
+    version = 3,
+    nombre = "Banda de Meulen",
+    descripcion = "Los matones que junto Meulen Canupan despues de robarle a Sous.",
     postura = "hostile",
     desconocidos = "hostile",
     relaciones = { narrador_sous = "hostile" },
     stats = { healthHP = 90, strength = 7, endurance = 7, awareness = 7, aiming = 6 },
     miembros = {
-        { id = "narrador_maulen_banda", respaldo = "narrador_sous_10", nombre = "Maulen Callupan", rol = "Traidor", arma = "Base.Pistol", cuerpo = "Base.Machete",
+        { id = "narrador_maulen_banda", respaldo = "narrador_sous_10", nombre = "Meulen Canupan", rol = "Traidor", arma = "Base.Pistol", cuerpo = "Base.Machete",
           stats = { healthHP = 200, strength = 8, endurance = 9, awareness = 9, aiming = 8 },
           aspecto = MAULEN_ASPECTO, ropa = MAULEN_ROPA, tintes = MAULEN_TINTES },
-        { id = "narrador_banda_01", nombre = "Maton", rol = "Banda de Maulen", nombre_al_azar = true, arma = "Base.Shotgun", cuerpo = "Base.BaseballBat" },
-        { id = "narrador_banda_02", nombre = "Maton", rol = "Banda de Maulen", nombre_al_azar = true, arma = "Base.Pistol", cuerpo = "Base.Crowbar" },
-        { id = "narrador_banda_03", nombre = "Maton", rol = "Banda de Maulen", nombre_al_azar = true, arma = "Base.HuntingRifle", cuerpo = "Base.HuntingKnife" },
-        { id = "narrador_banda_04", nombre = "Maton", rol = "Banda de Maulen", nombre_al_azar = true, arma = "Base.Pistol", cuerpo = "Base.Machete" },
-        { id = "narrador_banda_05", nombre = "Maton", rol = "Banda de Maulen", nombre_al_azar = true, arma = "Base.Revolver", cuerpo = "Base.Hammer" },
-        { id = "narrador_banda_06", nombre = "Maton", rol = "Banda de Maulen", nombre_al_azar = true, arma = "Base.Shotgun", cuerpo = "Base.Axe" },
-        { id = "narrador_banda_07", nombre = "Maton", rol = "Banda de Maulen", nombre_al_azar = true, arma = "Base.Pistol", cuerpo = "Base.BaseballBat" },
+        { id = "narrador_banda_01", nombre = "Maton", rol = "Banda de Meulen", nombre_al_azar = true, arma = "Base.Shotgun", cuerpo = "Base.BaseballBat" },
+        { id = "narrador_banda_02", nombre = "Maton", rol = "Banda de Meulen", nombre_al_azar = true, arma = "Base.Pistol", cuerpo = "Base.Crowbar" },
+        { id = "narrador_banda_03", nombre = "Maton", rol = "Banda de Meulen", nombre_al_azar = true, arma = "Base.HuntingRifle", cuerpo = "Base.HuntingKnife" },
+        { id = "narrador_banda_04", nombre = "Maton", rol = "Banda de Meulen", nombre_al_azar = true, arma = "Base.Pistol", cuerpo = "Base.Machete" },
+        { id = "narrador_banda_05", nombre = "Maton", rol = "Banda de Meulen", nombre_al_azar = true, arma = "Base.Revolver", cuerpo = "Base.Hammer" },
+        { id = "narrador_banda_06", nombre = "Maton", rol = "Banda de Meulen", nombre_al_azar = true, arma = "Base.Shotgun", cuerpo = "Base.Axe" },
+        { id = "narrador_banda_07", nombre = "Maton", rol = "Banda de Meulen", nombre_al_azar = true, arma = "Base.Pistol", cuerpo = "Base.BaseballBat" },
     },
 }
 
 local SOUS = "sous"
 local BASE = "base_sous"
+
+-- Donde esta la base de Sous segun el pueblo mas cercano a quien empieza la historia.
+Narrador.SousBases = {
+    ["Muldraugh"] = { x = 11612, y = 8844, z = 0, etiqueta = "la bodega del lado norte de Muldraugh" },
+    ["West Point"] = { x = 10095, y = 6650, z = 0, etiqueta = "la base de Sous en West Point" },
+    ["Riverside"] = { x = 7335, y = 6244, z = 0, etiqueta = "la base de Sous en Riverside" },
+    ["Rosewood"] = { x = 8046, y = 12032, z = 0, etiqueta = "la base de Sous en Rosewood" },
+}
 
 -- Sous en su base: inmortales, con el dano al maximo (para los pocos zombis que lleguen) y
 -- libres de moverse por el edificio y los alrededores, sin alejarse mas de la correa.
@@ -146,7 +154,7 @@ local function enBase(spec)
     return spec
 end
 
--- Los que estan en la base cuando llegas (todos, Maulen incluido).
+-- Los que estan en la base cuando llegas (todos, Meulen incluido).
 local EN_LA_BASE = {
     { "martin_a", "narrador_sous_01" }, { "martin_z", "narrador_sous_02" }, { "benjamin", "narrador_sous_03" },
     { "david", "narrador_sous_04" }, { "bastian", "narrador_sous_05" }, { "hanz", "narrador_sous_06" },
@@ -173,12 +181,14 @@ local DEFENSORES = {
 --   David Shinbo: sociologo, introvertido, directo. Pelota y calistenia. Yunta de Tati y de Zent.
 --   Bastian Tati: gym, pelota, ingeniero informatico. Carismatico, siempre bien vestido. "Oe", "po", "loco".
 --   Hanz Walita: nortino, chistoso, artesano. "Broder", "vale". Tercero del grupito con Aka y Zent.
+--                Nacio en Iquique y vivio ahi con su primo Waton Ju hasta los 12; despues se fue a
+--                Arica, donde tenia su taller. Nunca vivio en Antofagasta.
 --   Cristian Cristonks: piloto de aviones, extrovertido, primo de Hasag. Ama la montana con nieve.
 --   Jorge Hasag: ingeniero comercial, gym, simpatico. "Broder", "sangre", "manito". Yunta de Matric.
 --   Cristobal Wertres: 1.96, ingeniero, deportista, fan de Cristiano. Buena persona, carinoso
 --                      ("hermanito", "sangre"), frases cortas con "wn". Fanatico de la tecnologia.
 --                      Hace dupla con David Shinbo.
---   Maulen Callupan: mapuche, del sur, cerca de Temuco. Encargado del deposito. Educado y callado;
+--   Meulen Canupan: mapuche, del sur, cerca de Temuco. Encargado del deposito. Educado y callado;
 --                    siente que Sous nunca lo tomo en cuenta y les guarda rencor, pero lo disimula.
 --                    Usa algunas palabras en mapudungun (mari mari, peni, chaltu may, feley, pewkallal).
 --                    Come siempre lo mismo: atun con lechuga. Fuma marihuana desde los 10 anos y
@@ -189,7 +199,7 @@ local DEFENSORES = {
 Narrador.Charlas = Narrador.Charlas or {}
 
 -- ===========================================================================
--- Antes de la traicion (Maulen todavia es parte de Sous)
+-- Antes de la traicion (Meulen todavia es parte de Sous)
 -- ===========================================================================
 
 -- En la base, el dia a dia.
@@ -220,7 +230,7 @@ Narrador.Charlas.sous_base = {
     { "cristian", "Desde el cerro de atras se ve todo el valle. Si quieres te llevo un dia, compadre." },
     { "cristian", "Extrano volar. Alla arriba no hay ruido. Ni muertos." },
     { "cristian", "El primo dice que yo hablo mucho. Yo digo que el calcula mucho. Estamos a mano." },
-    { "jorge", "Que tal broder. Yo llevo las cuentas aca. Bueno, las cuentas que no lleva Maulen." },
+    { "jorge", "Que tal broder. Yo llevo las cuentas aca. Bueno, las cuentas que no lleva Meulen." },
     { "jorge", "Todo es oferta y demanda, manito. Hoy la oferta es cero y la demanda es todo." },
     { "jorge", "Con el Benja entrenamos en la manana. Te sumas cuando quieras, sangre." },
     { "cristobal", "Wn. Con mi altura me ven a una cuadra. Ventaja: yo tambien los veo." },
@@ -242,39 +252,57 @@ Narrador.Charlas.sous_base = {
     { "jorge", "El primo se fue a mirar el cerro otra vez. Yo me quedo con los numeros." },
     { "cristobal", "Hice una lista de lo que hay que arreglar en la base, wn. Es larga." },
     { "cristobal", "Con el Shinbo tenemos un saludo secreto. No te lo puedo mostrar, hermanito." },
-    { "hanz", "En Antofagasta tenia mi tallercito. Vendia llaveros a los turistas. Ahora no hay turistas, broder." },
+    { "hanz", "En Arica tenia mi tallercito. Vendia llaveros a los turistas. Ahora no hay turistas, broder." },
+    { "hanz", "Naci en Iquique, broder. Hasta los doce anduve pa todos lados con el primo, el Waton Ju." },
+    { "hanz", "El Waton Ju nunca llego a nivel 70 pa jugar DZ en PXG. Se lo recuerdo cada vez que puedo, vale." },
     { "hanz", "El Aka es serio, el Zent es pesado y yo soy el lindo del grupo. Equilibrio." },
     { "hanz", "Le estoy tallando un ajedrez al grupo. Ya tengo los peones. Faltan como treinta piezas." },
     { "cristian", "Primo, deja los numeros un rato. Sube conmigo al cerro, hay que ver la zona." },
     { "cristian", "En el aeropuerto deciamos: el que no mira el cielo, no vuela. Aca el que no mira el suelo, se muere." },
     { "cristian", "Igual, igual. Lo que digan ustedes, compadre." },
+    -- La talla eterna de Sous: que los primos Cristonks y Hasag "se comen" y que por eso se
+    -- van tanto juntos a la nieve. Matric es el que mas sospecha.
+    { "benjamin", "Yo no digo nada, pero los primos se fueron solos al cerro otra vez. Otra vez, bro." },
+    { "benjamin", "Mucha nieve, mucha nieve. Yo creo que en ese cerro no hace tanto frio, bro." },
+    { "benjamin", "Hasag, sangre, tu primo te mira raro cuando cuentas latas. Te lo digo como amigo." },
+    { "benjamin", "Una carpa para dos en la nieve. Para ahorrar calor, dicen. Ya, claro, bro." },
+    { "jorge", "Matric, por ultima vez: es mi PRIMO. Subimos al cerro a mirar la zona, manito." },
+    { "jorge", "Cada vez que vuelvo del cerro con el primo, Matric me hace la misma cara. Basta, sangre." },
+    { "cristian", "Que se comen, que se comen... Somos primos, wn. Bueno, primos lejanos. Igual no." },
+    { "cristian", "En la nieve uno se abraza para no morir congelado, compadre. Es supervivencia." },
+    { "martin_z", "Estadisticamente, ningun primo va tanto a la nieve con otro primo. Solo digo." },
+    { "martin_a", "Ya, dejen tranquilos a los primos. Cuando se casen, los padrinos los elijo yo, mi bro." },
+    { "hanz", "Le estoy tallando una figurita a los primos. Los dos juntitos en el cerro, broder." },
+    { "bastian", "Oe, primos, la proxima vez que suban al cerro avisen. Pa no interrumpir, po." },
+    { "david", "Los primos no se comen. Pero si se comen, que se coman en paz." },
+    { "cristobal", "Hermanito, yo los vi volver del cerro con la misma chaqueta. Wn." },
 }
 
--- Lo que dicen de Maulen sin darse cuenta de nada (algunos son pistas).
+-- Lo que dicen de Meulen sin darse cuenta de nada (algunos son pistas).
 Narrador.Charlas.sous_maulen = {
-    { "martin_a", "Maulen, te toca la olla otra vez. No pongas esa cara, alguien tiene que hacerlo." },
-    { "martin_a", "Maulen es callado, pero cumple. Eso es lo que importa." },
-    { "martin_z", "Maulen anda callado. Bueno, siempre anda callado. O esta tramando algo. Broma." },
-    { "martin_z", "Le pregunte a Maulen cuantas latas quedan. Me dijo 'suficientes'. Que respuesta es esa?" },
-    { "martin_z", "Maulen come atun con lechuga todos los dias. Le ofreci otra cosa una vez. Me miro como si lo hubiera insultado." },
-    { "martin_z", "Maulen siempre se sienta mirando la puerta. Como el que espera una visita que no quiere." },
-    { "benjamin", "Oe Maulen, sonrie un poco, hermano! Pareces guardia de banco." },
-    { "benjamin", "Maulen no se ha reido de ningun chiste mio. Ni uno, bro. Ni de los buenos." },
-    { "benjamin", "Bro, detras del galpon siempre hay olor a hierba. Y siempre a la hora en que desaparece Maulen. Coincidencia, hermano." },
-    { "david", "Maulen no se integra mucho. O nosotros no lo integramos. Es una buena pregunta." },
-    { "david", "Nadie le pregunta nada a Maulen. Nunca. Lo anote ayer y me quede pensando." },
-    { "david", "Maulen se va a fumar solo todas las tardes. Nadie lo acompana. Tambien lo anote." },
-    { "david", "Una vez Maulen dijo que antes lo buscaba la policia. Despues dijo que era broma. No sonaba a broma." },
-    { "bastian", "Maulen nunca quiere jugar a la pelota. Bueno, tampoco lo invitamos mucho, loco." },
-    { "hanz", "Maulen me pidio una gubia prestada. Pa que querra una gubia, broder?" },
-    { "hanz", "Le voy a tallar una lata de atun al Maulen pa su cumple. Es lo unico que le gusta, broder." },
-    { "cristian", "Maulen se sabe todos los caminos de la zona. Raro, si casi nunca sale." },
-    { "jorge", "Las cuentas del deposito las lleva Maulen. Yo igual las reviso, por si acaso, manito." },
-    { "jorge", "Raro, manito: Maulen come atun todos los dias y el atun nunca baja en el inventario." },
-    { "cristobal", "Maulen es buena onda, wn. Medio serio no mas. Hay que incluirlo mas, hermanito." },
+    { "martin_a", "Meulen, te toca la olla otra vez. No pongas esa cara, alguien tiene que hacerlo." },
+    { "martin_a", "Meulen es callado, pero cumple. Eso es lo que importa." },
+    { "martin_z", "Meulen anda callado. Bueno, siempre anda callado. O esta tramando algo. Broma." },
+    { "martin_z", "Le pregunte a Meulen cuantas latas quedan. Me dijo 'suficientes'. Que respuesta es esa?" },
+    { "martin_z", "Meulen come atun con lechuga todos los dias. Le ofreci otra cosa una vez. Me miro como si lo hubiera insultado." },
+    { "martin_z", "Meulen siempre se sienta mirando la puerta. Como el que espera una visita que no quiere." },
+    { "benjamin", "Oe Meulen, sonrie un poco, hermano! Pareces guardia de banco." },
+    { "benjamin", "Meulen no se ha reido de ningun chiste mio. Ni uno, bro. Ni de los buenos." },
+    { "benjamin", "Bro, detras del galpon siempre hay olor a hierba. Y siempre a la hora en que desaparece Meulen. Coincidencia, hermano." },
+    { "david", "Meulen no se integra mucho. O nosotros no lo integramos. Es una buena pregunta." },
+    { "david", "Nadie le pregunta nada a Meulen. Nunca. Lo anote ayer y me quede pensando." },
+    { "david", "Meulen se va a fumar solo todas las tardes. Nadie lo acompana. Tambien lo anote." },
+    { "david", "Una vez Meulen dijo que antes lo buscaba la policia. Despues dijo que era broma. No sonaba a broma." },
+    { "bastian", "Meulen nunca quiere jugar a la pelota. Bueno, tampoco lo invitamos mucho, loco." },
+    { "hanz", "Meulen me pidio una gubia prestada. Pa que querra una gubia, broder?" },
+    { "hanz", "Le voy a tallar una lata de atun al Meulen pa su cumple. Es lo unico que le gusta, broder." },
+    { "cristian", "Meulen se sabe todos los caminos de la zona. Raro, si casi nunca sale." },
+    { "jorge", "Las cuentas del deposito las lleva Meulen. Yo igual las reviso, por si acaso, manito." },
+    { "jorge", "Raro, manito: Meulen come atun todos los dias y el atun nunca baja en el inventario." },
+    { "cristobal", "Meulen es buena onda, wn. Medio serio no mas. Hay que incluirlo mas, hermanito." },
 }
 
--- Maulen al principio: amable, educado... con algo raro.
+-- Meulen al principio: amable, educado... con algo raro.
 Narrador.Charlas.maulen_piola = {
     { "maulen", "Mari mari, peni. Bienvenido a Sous. Bueno... a lo que Sous llama hogar." },
     { "maulen", "Yo me encargo del deposito. Alguien tiene que contar las latas mientras los demas juegan a la pelota." },
@@ -288,7 +316,7 @@ Narrador.Charlas.maulen_piola = {
     { "maulen", "Antes de todo esto me buscaba la PDI. No por algo que hice. Por algo que vi... Broma, peni. Broma." },
 }
 
--- Maulen despues del primer encargo: se le empiezan a notar las grietas.
+-- Meulen despues del primer encargo: se le empiezan a notar las grietas.
 Narrador.Charlas.maulen_grietas = {
     { "maulen", "Dos encargos y ya te quieren mas que a mi. Me alegro por ti, en serio." },
     { "maulen", "Cuando yo traje comida, nadie hizo fiesta. Pero bueno, no importa." },
@@ -352,15 +380,15 @@ Narrador.Charlas.sous_robados = {
     { "bastian", "Loco, se llevo hasta mi chaqueta buena. Esto ya es personal." },
     { "bastian", "Organizo lo que sea pa encontrarlo. Lo que sea, loco." },
     { "hanz", "Pa eso queria la gubia el desgraciado. Pa abrir el candado del deposito." },
-    { "hanz", "En el norte decimos que el que le roba al amigo se queda sin casa. Ahora Maulen no tiene casa, broder." },
+    { "hanz", "En el norte decimos que el que le roba al amigo se queda sin casa. Ahora Meulen no tiene casa, broder." },
     { "cristobal", "No puede ser, wn. Yo lo defendia cuando los demas lo molestaban." },
     { "cristobal", "Tranquilo, hermanito. Lo vamos a arreglar. Juntos." },
-    { "martin_z", "Maulen conto las latas durante meses. Ahora entiendo para que." },
+    { "martin_z", "Meulen conto las latas durante meses. Ahora entiendo para que." },
     { "benjamin", "Y yo que lo invitaba a todos los asados, hermano. Siempre decia que tenia su atun." },
-    { "jorge", "Revise las cuentas de Maulen. Estaban perfectas. Demasiado perfectas, manito." },
+    { "jorge", "Revise las cuentas de Meulen. Estaban perfectas. Demasiado perfectas, manito." },
     { "jorge", "Ya se por que el atun nunca bajaba. Lo iba guardando aparte. Meses, broder." },
     { "jorge", "Perdon, broder. Es que eran nuestras cosas. Meses juntandolas." },
-    { "cristobal", "Maulen me pidio que le ensenara a abrir candados. Le ensene, wn. Le ensene yo." },
+    { "cristobal", "Meulen me pidio que le ensenara a abrir candados. Le ensene, wn. Le ensene yo." },
     { "cristian", "Primo, vamos al cerro. Desde arriba lo vamos a ver, no puede haber ido lejos." },
 }
 
@@ -394,7 +422,7 @@ Narrador.Charlas.sous_aliados = {
     { "martin_a", "Mi bro. Aca siempre hay un plato pa ti. Y una barra pa colgarte." },
     { "martin_a", "Si alguien encuentra un PC que prenda, me avisan. Por motivos estrategicos." },
     { "martin_a", "Cabros, se viene visita. Ordenen un poco, no sean asi." },
-    { "martin_a", "Desde lo de Maulen, cada uno lleva su propia llave. Aprendimos, mi sangre." },
+    { "martin_a", "Desde lo de Meulen, cada uno lleva su propia llave. Aprendimos, mi sangre." },
     { "martin_z", "Volviste. Ya estaba apostando a que no." },
     -- Consecuencia de los Bell (bell_culpa): ellos no saben nada y hablan bien de ti.
     { "martin_z", "Pase por tu refugio. Los Bell hablan maravillas de ti. Que fuiste hasta el laboratorio por ellos y todo.", si = { "memoria", "bell_culpa", true } },
@@ -411,7 +439,7 @@ Narrador.Charlas.sous_aliados = {
     { "benjamin", "El Jorge dice que soy jote. Yo digo que soy optimista, bro." },
     { "david", "Llevo registro de quien hace que en la base. Hay datos que preocupan." },
     { "david", "Hay que armar un partido. Aunque sea con una pelota de trapo." },
-    { "david", "Despues de lo de Maulen ahora preguntamos como esta cada uno. Algo aprendimos." },
+    { "david", "Despues de lo de Meulen ahora preguntamos como esta cada uno. Algo aprendimos." },
     { "david", "Te puse en mi cuaderno. Capitulo aparte. Es un honor, creo." },
     { "bastian", "Oe, buena la chaqueta. Pa ser el fin del mundo, te ves bien." },
     { "bastian", "Aca estamos firmes, loco. Pasa cuando quieras." },
@@ -434,7 +462,7 @@ Narrador.Charlas.sous_aliados = {
     { "cristobal", "Me quedo de guardia. Con 1.96 soy la torre de vigilancia, wn." },
     { "cristobal", "Con el Shinbo hacemos dupla: el ve los patrones, yo veo por encima de la reja." },
     { "cristobal", "Si vuelve la luz algun dia, juego de todo. Todo, wn. Una semana sin dormir." },
-    -- Si alguien murio buscando a Maulen, los demas lo recuerdan.
+    -- Si alguien murio buscando a Meulen, los demas lo recuerdan.
     { "martin_z", "Akagami habria sabido que hacer. Yo solo hago calculos.", si = { "memoria", "sous_murio_martin_a", true } },
     { "hanz", "Le estoy tallando una figura al Aka. Pa que no se nos olvide la cara, broder.", si = { "memoria", "sous_murio_martin_a", true } },
     { "martin_a", "El Zent se reia de todos. Ahora nadie se rie de nada. Hace falta, mi bro.", si = { "memoria", "sous_murio_martin_z", true } },
@@ -447,7 +475,7 @@ Narrador.Charlas.sous_aliados = {
     { "cristobal", "Me quede sin dupla, wn. Se siente raro hacer la guardia solo.", si = { "memoria", "sous_murio_david", true } },
     { "bastian", "Al Shinbo no le gustaba salir. Y salio igual, por nosotros.", si = { "memoria", "sous_murio_david", true } },
     { "david", "Sin el Wertres la guardia se siente baja. Literal y no literal.", si = { "memoria", "sous_murio_cristobal", true } },
-    { "martin_z", "Todavia no entiendo como Maulen mato a todos y tu saliste sin un rasguno.", si = { "memoria", "sous_mentira", true } },
+    { "martin_z", "Todavia no entiendo como Meulen mato a todos y tu saliste sin un rasguno.", si = { "memoria", "sous_mentira", true } },
     { "jorge", "Hice las cuentas de esa noche varias veces, broder. No me cuadran.", si = { "memoria", "sous_mentira", true } },
     { "david", "El Zent dice que soy raro. Viniendo de el, es casi un cumplido." },
     { "benjamin", "Hermano, si te encuentras gente simpatica, invitala. A la base. Por la comunidad." },
@@ -477,7 +505,7 @@ Narrador.Charlas.sous_cazadores = {
 -- ...y los que defienden la base.
 Narrador.Charlas.sous_defensores = {
     { "martin_a", "Te dimos la mano y nos traicionaste. Esto se termina hoy." },
-    { "martin_a", "Eras igual que Maulen. Peor: a ti te queriamos." },
+    { "martin_a", "Eras igual que Meulen. Peor: a ti te queriamos." },
     { "martin_z", "Analisis rapido: tu contra seis. Malas probabilidades. Para ti." },
     { "benjamin", "Hermano, por que? Si eramos yuntas, bro." },
     { "david", "El que rompe con el grupo termina solo. Siempre pasa lo mismo." },
@@ -493,9 +521,9 @@ Narrador.Charlas.pelea_maulen = {
     { "maulen", "Ahora si me miran, ah? Tuve que robarles pa que me miraran." },
     { "maulen", "Nunca me guardaron un pedazo de asado. Atun con lechuga, meses enteros. Ahora como lo que quiero." },
     { "maulen", "Me busco la PDI y no me encontro. Y ustedes, que no encontraban ni la pelota, me encontraron a mi?" },
-    { "martin_a", "Se acabo, Maulen. Devuelve lo que no es tuyo y quizas te vas caminando." },
+    { "martin_a", "Se acabo, Meulen. Devuelve lo que no es tuyo y quizas te vas caminando." },
     { "martin_a", "Cabros, en formacion. Como en la cancha: nadie se queda atras." },
-    { "martin_z", "Cuento cuatro a la izquierda. Y uno muy enojado al medio. Ese es Maulen." },
+    { "martin_z", "Cuento cuatro a la izquierda. Y uno muy enojado al medio. Ese es Meulen." },
     { "martin_z", "Si muero aqui, borren mi historial. Es todo lo que pido." },
     { "hanz", "Devuelve la gubia, desgraciado!" },
     { "hanz", "Tranquilos, tranquilos. Igual estoy nervioso, pero tranquilos." },
@@ -504,14 +532,14 @@ Narrador.Charlas.pelea_maulen = {
     { "benjamin", "Bro, si muero aca, diganle a todas que las queria. A todas, hermano." },
     { "david", "Cubre la puerta, yo entro por el lado. Como en el futbolito." },
     { "david", "Respira. Contar hasta cuatro. Disparar. Ok." },
-    { "bastian", "Oe, Maulen! Devuelveme la chaqueta, loco!" },
+    { "bastian", "Oe, Meulen! Devuelveme la chaqueta, loco!" },
     { "bastian", "Vamos Sous, vamos! Como en los partidos que nunca jugamos!" },
-    { "bastian", "Oe Maulen, ni el humo de tu hierba te va a esconder, loco!" },
+    { "bastian", "Oe Meulen, ni el humo de tu hierba te va a esconder, loco!" },
     { "cristobal", "Atras mio, hermanito. Con 1.96 los tapo a todos, wn." },
     { "cristobal", "Por Sous, wn! SIUUU!" },
 }
 
--- Maulen en su escondite (si vas solo).
+-- Meulen en su escondite (si vas solo).
 Narrador.Charlas.maulen = {
     { "maulen", "Sous no me iba a durar el invierno. Yo si." },
     { "maulen", "Te mandaron a ti a hacer el trabajo sucio. Como siempre hacen." },
@@ -582,8 +610,8 @@ local CONVERSAR = {
         "Soy ingeniero, no doctor, pero aprendo rapido. Si alguien sale herido, traelo, hermanito.",
         "Cristiano se entrenaba aunque nadie lo viera. Aca hay que hacer lo mismo, sangre.",
         "Con el Shinbo hacemos dupla. Si lo cuidas a el, me cuidas a mi, wn." }),
-    conversar("maulen", "Maulen Callupan", {
-        "Yo soy Maulen. Llevo el deposito. Nadie me pregunta mucho mas que eso.",
+    conversar("maulen", "Meulen Canupan", {
+        "Yo soy Meulen. Llevo el deposito. Nadie me pregunta mucho mas que eso.",
         "Mi familia es del sur, de cerca de Temuco. Aca nadie sabe donde queda.",
         "Me caes bien. Eres el primero que me pregunta algo en semanas.",
         "Son buenos cabros. A su manera. Una manera bien especial.",
@@ -594,7 +622,7 @@ local CONVERSAR = {
 }
 
 -- ---------------------------------------------------------------------------
--- Ir por Maulen con gente de Sous. Cada escuadra cambia cuantos matones tiene Maulen.
+-- Ir por Meulen con gente de Sous. Cada escuadra cambia cuantos matones tiene Meulen.
 -- ---------------------------------------------------------------------------
 local PERFIL_DE = {}
 for _, par in ipairs(EN_LA_BASE) do PERFIL_DE[par[1]] = par[2] end
@@ -624,7 +652,7 @@ local ESCUADRAS = {
       dice = { rol = "cristobal", texto = "Vamos, hermanito. La dupla no se separa, wn." } },
     { id = "todos", texto = "Ir con todo Sous", nombres = "todo Sous (menos Cristian y Jorge, que siguen en el cerro)",
       roles = { "martin_a", "martin_z", "benjamin", "david", "bastian", "hanz", "cristobal" }, matones = { 5, 7 },
-      dice = { rol = "martin_a", texto = "Sous completo. Que se prepare Maulen, cabros. Hoy se termina." } },
+      dice = { rol = "martin_a", texto = "Sous completo. Que se prepare Meulen, cabros. Hoy se termina." } },
 }
 
 local function perfilesDe(roles)
@@ -633,7 +661,7 @@ local function perfilesDe(roles)
     return lista
 end
 
--- Maulen y (si va gente de Sous) su banda: un solo grupo de la faccion de la banda, asi
+-- Meulen y (si va gente de Sous) su banda: un solo grupo de la faccion de la banda, asi
 -- salen juntos y no se atacan entre ellos.
 local BANDA = {
     { "maulen", "narrador_maulen_banda" },
@@ -642,24 +670,24 @@ local BANDA = {
     { "maton7", "narrador_banda_07" },
 }
 
--- Lo que hay en el escondite siempre (Maulen, lo robado y su botin), mas lo que se agregue.
--- matones = nil (Maulen solo) o rango { min, max } de matones que lo acompanan.
+-- Lo que hay en el escondite siempre (Meulen, lo robado y su botin), mas lo que se agregue.
+-- matones = nil (Meulen solo) o rango { min, max } de matones que lo acompanan.
 local function esconditeComun(extra, matones)
     local lista = {
         { "bandidos", id = "maulen", lugar = "escondite", radio = 55, modo = "guard", salud = 200,
           perfiles = matones ~= nil and BANDA or { BANDA[1] }, fijos = 1, recortar = matones,
-          nombres = { maulen = { "Maulen", "Callupan" } } },
+          nombres = { maulen = { "Meulen", "Canupan" } } },
         { "objeto", id = "suministros", lugar = "escondite", radio = 55,
           tipo = { "Base.Bag_DuffelBag", "Base.Bag_Schoolbag" }, nombre = "Suministros robados de Sous" },
         { "recompensa", lugar = "escondite", radio = 55,
           items = { { "Base.TinnedBeans", "Base.CannedBeans" }, { "Base.TinnedBeans", "Base.CannedBeans" },
                     { "Base.TinnedSoup", "Base.CannedSoup" }, { "Base.Shotgun" }, { "Base.ShotgunShells" },
                     { "Base.HuntingRifle" }, { "Base.Pistol" }, { "Base.Bullets9mmBox", "Base.Bullets9mm" },
-                    -- El atun que Maulen fue guardando aparte durante meses.
+                    -- El atun que Meulen fue guardando aparte durante meses.
                     { "Base.TunaTin", "Base.TinnedBeans" }, { "Base.TunaTin", "Base.TinnedBeans" },
                     { "Base.TunaTin", "Base.TinnedBeans" } } },
         { "nota", lugar = "escondite", radio = 55, titulo = "Papel arrugado",
-          texto = "Lista de Maulen: atun (todo), lechuga (si hay), fosforos, papelillos. Lo demas que se lo queden ellos." },
+          texto = "Lista de Meulen: atun (todo), lechuga (si hay), fosforos, papelillos. Lo demas que se lo queden ellos." },
     }
     for _, a in ipairs(extra) do table.insert(lista, 1, a) end
     return lista
@@ -693,10 +721,10 @@ local function etapasEscuadras(etapas)
             },
         }
         etapas["escondite_" .. e.id] = {
-            pista = "Acabar con Maulen Callupan y su banda en {lugar:escondite}. Van contigo: " .. e.nombres .. ".",
+            pista = "Acabar con Meulen Canupan y su banda en {lugar:escondite}. Van contigo: " .. e.nombres .. ".",
             charla = { grupos = { "escuadra", "maulen" }, lista = "pelea_maulen", radio = 25, cada = 0.1 },
             al_entrar = esconditeComun({
-                { "aviso", texto = "Maulen no esta solo: sabia que Sous lo buscaba y junto una banda. Aqui ya nadie es inmortal: cuiden a los suyos." },
+                { "aviso", texto = "Meulen no esta solo: sabia que Sous lo buscaba y junto una banda. Aqui ya nadie es inmortal: cuiden a los suyos." },
                 -- La escuadra ya no es inmortal: si cae alguien, cae de verdad.
                 { "npcs", id = "escuadra", lugar = "encuentro", radio = 70, modo = "guard", postura = "friendly",
                   acompanar = true, perfiles = perfilesDe(e.roles) },
@@ -718,7 +746,7 @@ end
 Narrador.Defs.registrar({
     id = "sous",
     titulo = "Sous",
-    titulo_menu = "Cap. 2: Sous y Maulen Callupan",
+    titulo_menu = "Cap. 2: Sous y Meulen Canupan",
     requiere_alife = true,
     automatico = false,
     vars_desde_memoria = { "bell" },
@@ -731,7 +759,9 @@ Narrador.Defs.registrar({
             al_entrar = {
                 { "faccion", id = "narrador_sous", postura = "friendly" },
                 { "faccion", id = "narrador_banda_maulen", postura = "hostile" },
-                { "lugar", id = BASE, salas = { "farmstorage", "barn", "warehouse" },
+                -- La base queda en un lugar fijo segun el pueblo donde viven (Narrador.SousBases);
+                -- en otro pueblo se busca una bodega o un granero como antes.
+                { "lugar_base_sous", id = BASE, salas = { "farmstorage", "barn", "warehouse" },
                   respaldo = { "livingroom", "kitchen", "garagestorage" }, min = 300, max = 1200 },
                 { "mensajero", perfil = "narrador_sous_05",
                   llegada = "Un tipo sorprendentemente bien vestido para el fin del mundo llego a {lugar:aviso}. Dice que viene de parte de un grupo llamado Sous.",
@@ -859,9 +889,9 @@ Narrador.Defs.registrar({
             },
         },
 
-        -- Encargo 3: te lo da Maulen. Es una trampa para alejarte de la base.
+        -- Encargo 3: te lo da Meulen. Es una trampa para alejarte de la base.
         encargo3 = {
-            pista = "Revisar {lugar:senuelo}: Maulen dice que ahi hay de todo.",
+            pista = "Revisar {lugar:senuelo}: Meulen dice que ahi hay de todo.",
             charla = { grupo = SOUS, lista = { "sous_encargos", "maulen_grietas", "sous_maulen" }, radio = 12, cada = 0.4 },
             al_entrar = {
                 { "decir", grupo = SOUS, rol = "maulen", texto = "Lo guardo con lo demas. Todo junto, mas facil de cuidar." },
@@ -869,7 +899,7 @@ Narrador.Defs.registrar({
                   respaldo = { "garagestorage", "livingroom" }, min = 700, max = 1600 },
                 { "decir", grupo = SOUS, rol = "maulen", retraso = 0.05,
                   texto = "Akagami esta en la guardia y me pidio que te dijera: revisa {lugar:senuelo}, dicen que hay de todo. Anda tranquilo, peni. Yo cuido el deposito." },
-                { "diario", texto = "Maulen Callupan te pasa el tercer encargo de parte de Akagami: revisar {lugar:senuelo}." },
+                { "diario", texto = "Meulen Canupan te pasa el tercer encargo de parte de Akagami: revisar {lugar:senuelo}." },
             },
             salidas = {
                 { cuando = { "mato_jugador", SOUS }, ir = "final_traicion" },
@@ -878,7 +908,7 @@ Narrador.Defs.registrar({
             },
         },
 
-        -- La trampa: no hay nada. Mientras tanto, Maulen vacia el deposito y se va.
+        -- La trampa: no hay nada. Mientras tanto, Meulen vacia el deposito y se va.
         trampa = {
             pista = "Volver a {lugar:base_sous}: algo anda mal.",
             al_entrar = {
@@ -886,14 +916,14 @@ Narrador.Defs.registrar({
                 { "nota", lugar = "senuelo", radio = 50, titulo = "Nota doblada",
                   texto = "Peni: perdon por hacerte caminar tanto. No es contra ti. Es contra ellos. Chaltu may por todo. -M." },
                 { "retirar_miembros", grupo = SOUS, lugar = BASE, roles = { "maulen" }, radio = 60 },
-                { "aviso", texto = "En {lugar:senuelo} no hay nada. Solo muertos... y una nota doblada con la letra de Maulen." },
-                { "diario", texto = "El encargo de Maulen era mentira. En {lugar:senuelo} no habia nada. Hay que volver a la base de Sous." },
+                { "aviso", texto = "En {lugar:senuelo} no hay nada. Solo muertos... y una nota doblada con la letra de Meulen." },
+                { "diario", texto = "El encargo de Meulen era mentira. En {lugar:senuelo} no habia nada. Hay que volver a la base de Sous." },
             },
             salidas = { { cuando = { "cerca", BASE, 30 }, ir = "pistas" } },
         },
 
         pistas = {
-            pista = "Revisar el deposito de Sous buscando pistas de Maulen.",
+            pista = "Revisar el deposito de Sous buscando pistas de Meulen.",
             ancla = BASE,
             ancla_grupo = SOUS,
             charla = { grupo = SOUS, lista = "sous_robados", radio = 12, cada = 0.3 },
@@ -901,16 +931,16 @@ Narrador.Defs.registrar({
                 { "lugar", id = "abandonado", desde = BASE,
                   salas = { "factorystorage", "warehouse", "storageunit" },
                   respaldo = { "hospital*", "medical", "grocerystorage" }, min = 400, max = 1400 },
-                { "decir", grupo = SOUS, rol = "martin_a", texto = "Maulen se llevo todo, mi bro. La medicina, las armas, la comida. Todo. Mientras tu estabas afuera." },
-                { "decir", grupo = SOUS, rol = "david", retraso = 0.05, texto = "Maulen siempre hablaba de un lugar donde 'nadie lo iba a molestar'. Nunca dijo cual." },
-                { "diario", texto = "Maulen Callupan engano a todos: mientras te mandaba lejos, vacio el deposito de Sous y desaparecio con todo lo que trajiste." },
+                { "decir", grupo = SOUS, rol = "martin_a", texto = "Meulen se llevo todo, mi bro. La medicina, las armas, la comida. Todo. Mientras tu estabas afuera." },
+                { "decir", grupo = SOUS, rol = "david", retraso = 0.05, texto = "Meulen siempre hablaba de un lugar donde 'nadie lo iba a molestar'. Nunca dijo cual." },
+                { "diario", texto = "Meulen Canupan engano a todos: mientras te mandaba lejos, vacio el deposito de Sous y desaparecio con todo lo que trajiste." },
                 -- Cristian y Jorge salen al cerro a buscarlo (vuelven mas adelante).
                 { "retirar_miembros", grupo = SOUS, lugar = BASE, roles = { "cristian", "jorge" }, radio = 40 },
             },
             opciones = {
                 { id = "revisar", texto = "Revisar el deposito saqueado",
-                  respuesta = "Entre cajas vacias encuentras un recibo arrugado con una direccion: {lugar:abandonado}. Al lado hay una lata de atun abierta y colillas aplastadas: Maulen estuvo aca hasta el ultimo minuto. Hay huellas de botas con barro seco.",
-                  diario = "Primera pista: un recibo con la direccion de {lugar:abandonado}. Maulen paso por ahi." },
+                  respuesta = "Entre cajas vacias encuentras un recibo arrugado con una direccion: {lugar:abandonado}. Al lado hay una lata de atun abierta y colillas aplastadas: Meulen estuvo aca hasta el ultimo minuto. Hay huellas de botas con barro seco.",
+                  diario = "Primera pista: un recibo con la direccion de {lugar:abandonado}. Meulen paso por ahi." },
             },
             salidas = {
                 { cuando = { "mato_jugador", SOUS }, ir = "final_traicion" },
@@ -920,12 +950,12 @@ Narrador.Defs.registrar({
         },
 
         abandonado = {
-            pista = "Investigar {lugar:abandonado}: Maulen paso por ahi. Esta lleno de muertos.",
+            pista = "Investigar {lugar:abandonado}: Meulen paso por ahi. Esta lleno de muertos.",
             al_entrar = {
                 { "oleada", lugar = "abandonado", radio = 50, cantidad = { 35, 50 } },
                 { "oleada", lugar = "abandonado", radio = 50, cantidad = { 15, 25 }, retraso = 0.4 },
                 { "objeto", id = "diario_maulen", lugar = "abandonado", radio = 50,
-                  tipo = { "Base.Notebook", "Base.SheetPaper2" }, nombre = "Diario de Maulen Callupan" },
+                  tipo = { "Base.Notebook", "Base.SheetPaper2" }, nombre = "Diario de Meulen Canupan" },
                 { "nota", lugar = "abandonado", radio = 50, titulo = "Rayado en la pared",
                   texto = "M.C. estuvo aqui. Que nadie toque lo que es mio." },
                 { "nota", lugar = "abandonado", radio = 50, titulo = "Latas vacias",
@@ -942,14 +972,14 @@ Narrador.Defs.registrar({
                 { "faccion", id = "narrador_banda_maulen", postura = "hostile" },
                 { "lugar", id = "escondite", desde = "abandonado",
                   salas = { "livingroom", "kitchen", "garagestorage", "motelroom" }, min = 300, max = 1200 },
-                { "diario", texto = "En el diario, Maulen escribio: 'Nadie me va a buscar en {lugar:escondite}. Con lo de Sous me alcanza para el invierno.'" },
-                { "diario", texto = "Entre las paginas del diario hay una citacion vieja de la PDI, doblada en cuatro: buscaban a Maulen Callupan como testigo de un homicidio. Nunca se presento." },
-                { "aviso", texto = "El diario de Maulen dice donde se esconde: {lugar:escondite}. Puedes ir solo o volver a la base de Sous a pedir refuerzos." },
+                { "diario", texto = "En el diario, Meulen escribio: 'Nadie me va a buscar en {lugar:escondite}. Con lo de Sous me alcanza para el invierno.'" },
+                { "diario", texto = "Entre las paginas del diario hay una citacion vieja de la PDI, doblada en cuatro: buscaban a Meulen Canupan como testigo de un homicidio. Nunca se presento." },
+                { "aviso", texto = "El diario de Meulen dice donde se esconde: {lugar:escondite}. Puedes ir solo o volver a la base de Sous a pedir refuerzos." },
             },
             salidas = { { ir = "plan" } },
         },
 
-        -- Ir solo (Maulen te espera solo) o volver a la base por gente de Sous (Maulen tiene banda).
+        -- Ir solo (Meulen te espera solo) o volver a la base por gente de Sous (Meulen tiene banda).
         plan = {
             pista = "Ir solo a {lugar:escondite}, o volver a {lugar:base_sous} a pedir refuerzos.",
             salidas = {
@@ -960,12 +990,12 @@ Narrador.Defs.registrar({
         },
 
         reclutar = {
-            pista = "Elegir quien de Sous va contigo a buscar a Maulen (clic derecho cerca de ellos).",
+            pista = "Elegir quien de Sous va contigo a buscar a Meulen (clic derecho cerca de ellos).",
             ancla = BASE,
             ancla_grupo = SOUS,
             charla = { grupo = SOUS, lista = "sous_robados", radio = 12, cada = 0.4 },
             al_entrar = {
-                { "decir", grupo = SOUS, rol = "martin_a", texto = "Lo encontraste? Dime quien va contigo, mi bro. Pero ojo: si vamos varios, Maulen no va a estar solo. Ya debe saber que lo buscamos." },
+                { "decir", grupo = SOUS, rol = "martin_a", texto = "Lo encontraste? Dime quien va contigo, mi bro. Pero ojo: si vamos varios, Meulen no va a estar solo. Ya debe saber que lo buscamos." },
             },
             opciones = OPCIONES_ESCUADRA,
             salidas = SALIDAS_ESCUADRA,
@@ -979,9 +1009,9 @@ Narrador.Defs.registrar({
             },
         },
 
-        -- Solo: Maulen esta solo.
+        -- Solo: Meulen esta solo.
         escondite = {
-            pista = "Encontrar a Maulen Callupan en {lugar:escondite}. Esta solo.",
+            pista = "Encontrar a Meulen Canupan en {lugar:escondite}. Esta solo.",
             charla = { grupo = "maulen", lista = "maulen", radio = 20, cada = 0.15 },
             al_entrar = esconditeComun({}),
             salidas = {
@@ -991,18 +1021,18 @@ Narrador.Defs.registrar({
         },
 
         decision = {
-            pista = "Decidir que hacer con lo que robo Maulen.",
+            pista = "Decidir que hacer con lo que robo Meulen.",
             ancla = "escondite",
             radio = 25,
             al_entrar = {
                 { "contar_bajas", grupo = "escuadra", memoria = "sous", lider_orden = LIDERES },
-                { "diario", texto = "Maulen Callupan esta muerto. La comida y las armas de Sous estan ahi, en {lugar:escondite}." },
+                { "diario", texto = "Meulen Canupan esta muerto. La comida y las armas de Sous estan ahi, en {lugar:escondite}." },
                 { "diario", si = { "var", "hubo_bajas", true }, texto = "La pelea costo caro. Cayeron: {bajas_nombres}." },
                 { "diario", si = { { "var", "hubo_bajas", false }, { "no", { "var", "escuadra", nil } } },
                   texto = "Todos los de Sous que fueron contigo siguen vivos." },
             },
             opciones = {
-                { id = "quedarse", texto = "Quedarte con todo lo que robo Maulen",
+                { id = "quedarse", texto = "Quedarte con todo lo que robo Meulen",
                   respuesta = "Nadie tiene por que enterarse... o eso crees." },
                 { id = "devolver", texto = "Decidir devolverle las cosas a Sous",
                   respuesta = "Cargas los suministros. Sous esta esperando." },
@@ -1030,7 +1060,7 @@ Narrador.Defs.registrar({
                 -- Cristian y Jorge volvieron del cerro mientras tanto.
                 enBase({ "npcs", id = "recolectores", lugar = BASE, radio = 80, no_mas_cerca = 25,
                   postura = "friendly", perfiles = RECOLECTORES }),
-                { "diario", texto = "Cristian Cristonks y Jorge Hasag volvieron a la base: subieron al cerro buscando a Maulen y no encontraron nada." },
+                { "diario", texto = "Cristian Cristonks y Jorge Hasag volvieron a la base: subieron al cerro buscando a Meulen y no encontraron nada." },
             },
             opciones = {
                 { id = "entregar", texto = "Entregar los suministros a Sous", requiere = { "objeto", "suministros" },
@@ -1080,7 +1110,7 @@ Narrador.Defs.registrar({
             al_entrar = {
                 { "contar_bajas", grupo = "escuadra", memoria = "sous", lider_orden = LIDERES },
                 { "faccion", id = "narrador_sous", postura = "friendly" },
-                { "diario", texto = "Nadie de Sous quedo vivo para contar lo que paso en {lugar:escondite}. Volviste con una historia: Maulen mato a {bajas_nombres} y escapo con todo. Sous te creyo." },
+                { "diario", texto = "Nadie de Sous quedo vivo para contar lo que paso en {lugar:escondite}. Volviste con una historia: Meulen mato a {bajas_nombres} y escapo con todo. Sous te creyo." },
                 { "aviso", texto = "Sous te cree. Por ahora." },
                 { "residentes", id = "sous", grupos = { SOUS }, charla = "sous_aliados",
                   lugar = BASE, radio = 50, max_zombis = 3, banderas = BANDERAS_BASE },
@@ -1100,7 +1130,7 @@ Narrador.Defs.registrar({
                   texto = "Sous se entero de que te quedaste con sus cosas. Ya no son amigos." },
                 { "aviso", si = { "no", { "var", "escuadra", nil } },
                   texto = "{testigo} lo vio todo. Sous ya sabe que te quedaste con sus cosas." },
-                { "diario", texto = "Te quedaste con lo que Maulen le robo a Sous. Para ellos, ahora eres igual que el." },
+                { "diario", texto = "Te quedaste con lo que Meulen le robo a Sous. Para ellos, ahora eres igual que el." },
                 { "memoria", clave = "sous", valor = "enemigos" },
                 { "memoria_lugar", clave = "base_sous", lugar = BASE },
                 { "retirar_lejos", grupo = SOUS, lugar = BASE, radio = 60, retraso = 1 },
@@ -1143,7 +1173,7 @@ Narrador.Defs.registrar({
         final_maulen_escapa = {
             final = true,
             al_entrar = {
-                { "diario", texto = "Maulen Callupan se esfumo con todo. Sous nunca recupero lo suyo. Desaparecer era lo unico que siempre supo hacer bien." },
+                { "diario", texto = "Meulen Canupan se esfumo con todo. Sous nunca recupero lo suyo. Desaparecer era lo unico que siempre supo hacer bien." },
                 { "memoria", clave = "sous", valor = "maulen_escapa" },
             },
         },
@@ -1159,8 +1189,8 @@ Narrador.Defs.registrar({
 })
 
 -- ---------------------------------------------------------------------------
--- Perdonar a Maulen (solo si fuiste solo al escondite): si sigue vivo un cuarto de hora despues
--- de encontrarlo, se rinde. Si lo dejas ir, Sous nunca lo sabe (cree que se escapo) y Maulen
+-- Perdonar a Meulen (solo si fuiste solo al escondite): si sigue vivo un cuarto de hora despues
+-- de encontrarlo, se rinde. Si lo dejas ir, Sous nunca lo sabe (cree que se escapo) y Meulen
 -- termina en el patio de trenes de Muldraugh, matando a la Sargento Pereira y quedandose con su
 -- banda (ver Arcos/Bandido.lua, bandido_maulen).
 -- ---------------------------------------------------------------------------
@@ -1170,21 +1200,21 @@ do
     table.insert(et.escondite.salidas, 2,
         { cuando = { { "grupo_listo", "maulen" }, { "vivo", "maulen", "maulen" }, { "horas", 0.25 } }, ir = "rendicion" })
     et.rendicion = {
-        pista = "Maulen se rinde. Decidir que hacer con el (clic derecho cerca).",
+        pista = "Meulen se rinde. Decidir que hacer con el (clic derecho cerca).",
         ancla = "escondite", ancla_grupo = "maulen_rendido", radio = 20,
         al_entrar = {
             { "retirar", grupo = "maulen" },
             { "npcs", id = "maulen_rendido", lugar = "escondite", radio = 30, no_mas_cerca = 6, modo = "guard", quietos = true,
               correa = 3, inmortales = true, postura = "friendly", perfiles = { { "maulen", "narrador_sous_10" } },
-              nombres = { maulen = { "Maulen", "Callupan" } } },
-            { "aviso", texto = "Maulen sale de detras de un mueble con las manos arriba y el cigarro apagado en la boca." },
+              nombres = { maulen = { "Meulen", "Canupan" } } },
+            { "aviso", texto = "Meulen sale de detras de un mueble con las manos arriba y el cigarro apagado en la boca." },
         },
         opciones = {
             { id = "perdonar", texto = "Dejarlo ir. Sous va a creer que se escapo",
               dice = { rol = "maulen", texto = "Peni... no se te va a olvidar esto. A mi tampoco. Me voy lejos, donde nadie me conozca. Bueno, casi nadie." },
               acciones = { { "variable", nombre = "maulen_perdonado", valor = true } } },
             { id = "matar", texto = "Terminar con el",
-              respuesta = "Maulen cierra los ojos. 'Atun con lechuga, peni. Todos los dias.'",
+              respuesta = "Meulen cierra los ojos. 'Atun con lechuga, peni. Todos los dias.'",
               acciones = { { "banderas", grupo = "maulen_rendido", inmortales = false } } },
         },
         salidas = {
@@ -1197,7 +1227,7 @@ do
         al_entrar = {
             { "retirar_lejos", grupo = "maulen_rendido", lugar = "escondite", radio = 80, retraso = 0.2 },
             { "memoria", clave = "maulen_salvado", valor = true },
-            { "huella", acto = "perdonaste", texto = "Deje ir a Maulen Callupan. Sous cree que se escapo." },
+            { "huella", acto = "perdonaste", texto = "Deje ir a Meulen Canupan. Sous cree que se escapo." },
         },
         salidas = { { ir = "decision_perdonado" } },
     }
@@ -1206,7 +1236,7 @@ do
         pista = d.pista, ancla = d.ancla, radio = d.radio, opciones = d.opciones, salidas = d.salidas,
         al_entrar = {
             { "contar_bajas", grupo = "escuadra", memoria = "sous", lider_orden = LIDERES },
-            { "diario", texto = "Deje ir a Maulen. Las cosas de Sous estan en {lugar:escondite}. Cuando vuelva voy a decir que se escapo." },
+            { "diario", texto = "Deje ir a Meulen. Las cosas de Sous estan en {lugar:escondite}. Cuando vuelva voy a decir que se escapo." },
         },
     }
 end
