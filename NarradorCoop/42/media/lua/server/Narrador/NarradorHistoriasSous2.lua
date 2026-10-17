@@ -80,7 +80,12 @@ function H.haySousActiva()
     local n = string.len(H.PREFIJO)
     for _, id in ipairs(st.orden) do
         local inst = st.arcos[id]
-        if inst ~= nil and inst.final == nil and string.sub(tostring(inst.def), 1, n) == H.PREFIJO then return true end
+        if inst ~= nil and inst.final == nil then
+            local def = Narrador.Defs.get(inst.def)
+            -- Tambien las de la parte 1 (NarradorHistoriasSous1: ids "hsous_", campo historia_sous).
+            if string.sub(tostring(inst.def), 1, n) == H.PREFIJO or string.sub(tostring(inst.def), 1, 6) == "hsous_"
+                    or (def ~= nil and def.historia_sous ~= nil) then return true end
+        end
     end
     return false
 end
@@ -89,8 +94,11 @@ end
 function H.ultimoInicioSous()
     local st, n, ultima = Motor.estado(), string.len(H.PREFIJO), nil
     for defId, hora in pairs(st.director.ultimoPorDef or {}) do
-        if string.sub(tostring(defId), 1, n) == H.PREFIJO and (ultima == nil or hora > ultima) then ultima = hora end
+        if (string.sub(tostring(defId), 1, n) == H.PREFIJO or string.sub(tostring(defId), 1, 6) == "hsous_")
+                and (ultima == nil or hora > ultima) then ultima = hora end
     end
+    local otra = tonumber(st.memoria.hora_hsous)
+    if otra ~= nil and (ultima == nil or otra > ultima) then ultima = otra end
     return ultima
 end
 

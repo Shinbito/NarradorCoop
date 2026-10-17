@@ -41,6 +41,9 @@ MEMORIAS = {
     "cal.fonda": "Como salio la fonda del 18 de septiembre (hecha o sin).",
     "sous_historia_<rol>": "Modo historia de Sous, parte 2 (Walita, Cristonks, Hasag, Wertres): hecho, fallido, postergada o murio. El lanzador ofrece las nuevas y despues las postergadas.",
     "sous_historias2.ultima": "Hora en que el lanzador de HistoriasSous2 lanzo (o reintento) la ultima historia; marca la espera entre historias.",
+    "hsous_<rol>": "Historia personal de ese integrante de Sous (HistoriasSous1): hecho, fallido o murio. Con algo ya no se lanza.",
+    "hsous_primos": "Lo que le dijiste a Matric de los primos en su historia: contado, verdad o secreto (ecos en la base).",
+    "hora_hsous": "Hora en que se lanzo la ultima historia personal de Sous (horas entre una y otra).",
     # --- Misioneros y campamentos ---
     "campamento_<id>": "El campamento de ese misionero se fundo (Desbloqueos). Hoy el codigo mira C.desbloqueado().",
     "historia_<id>_<n>": "Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento.",

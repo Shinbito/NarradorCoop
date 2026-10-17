@@ -75,6 +75,10 @@ for rol in ["benjamin", "martin_z", "martin_a", "david", "bastian", "hanz", "cri
 for rol in ["hanz", "cristian", "jorge", "cristobal"]:
     LANZADORES["historia_sous_" + rol] = ("con Sous aliado, una a la vez y 30 horas entre historias de Sous (NarradorHistoriasSous2)",
                                           [("sous", "aliados")], [])
+# Historias personales de Sous, parte 1 (NarradorHistoriasSous1): de a una, en la base.
+for rol in ["martin_a", "martin_z", "benjamin", "david", "bastian"]:
+    LANZADORES["hsous_" + rol] = ("al pasar por la base de Sous, de a una y con horas entre una y otra (NarradorHistoriasSous1)",
+                                  [("sous", "aliados")], ["hsous_" + rol, "sous_murio_" + rol])
 
 # Memorias que deja el codigo del servidor (no una accion de un arco): clave -> arcos que la causan.
 SERVIDOR_DEJA = {

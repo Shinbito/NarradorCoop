@@ -57,6 +57,11 @@ flowchart LR
   historia_sous_cristobal["Los goles del Bicho"]
   historia_sous_hanz["El primo de Iquique"]
   historia_sous_jorge["La cabana del cerro"]
+  hsous_bastian["El partido con facha"]
+  hsous_benjamin["El expediente de los primos"]
+  hsous_david["Trabajo de campo"]
+  hsous_martin_a["La luz de Sous"]
+  hsous_martin_z["La Awp de SOUS"]
   leyenda_eduardo["Un cientifico que dice tener la cura"]
   reconquista_muldraugh["La reconquista: la comisaria de Muldraugh"]
   reconquista_patio["La reconquista: el patio de trenes"]
@@ -147,6 +152,11 @@ flowchart LR
   sous -->|final_aliados, final_mentira: sous = aliados| historia_sous_cristobal
   sous -->|final_aliados, final_mentira: sous = aliados| historia_sous_hanz
   sous -->|final_aliados, final_mentira: sous = aliados| historia_sous_jorge
+  sous -->|final_aliados, final_mentira: sous = aliados| hsous_bastian
+  sous -->|final_aliados, final_mentira: sous = aliados| hsous_benjamin
+  sous -->|final_aliados, final_mentira: sous = aliados| hsous_david
+  sous -->|final_aliados, final_mentira: sous = aliados| hsous_martin_a
+  sous -->|final_aliados, final_mentira: sous = aliados| hsous_martin_z
   sous -->|final_aliados: abre| sous_arsenal
   sous -->|final_mentira: abre| sous_arsenal
   sous -->|final_te_quedaste: abre| sous_guerra
@@ -509,7 +519,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_fallido` | "Hacerle caso a Cristonks: rodear por el cerro" o "Hacerle caso a Renato: rush B por el frente", y despues `muerto amigos`<br>"Hacerle caso a Cristonks: rodear por el cerro" o "Hacerle caso a Renato: rush B por el frente", y despues `pasan 96 h`<br>"Hacerle caso a Cristonks: rodear por el cerro", y despues `muerto amigos`<br>"Hacerle caso a Cristonks: rodear por el cerro", y despues `pasan 72 h`<br>"Ir con Cristonks a buscar a Clau y Renato", y despues `muerto amigos`<br>"Ir con Cristonks a buscar a Clau y Renato", y despues `pasan 96 h` | `sous_historia_cristian` = fallido | - |
+| `final_fallido` | "Hacerle caso a Cristonks: rodear por el cerro" o "Hacerle caso a Renato: rush B por el frente", y despues `muerto amigos clau`<br>"Hacerle caso a Cristonks: rodear por el cerro" o "Hacerle caso a Renato: rush B por el frente", y despues `pasan 96 h`<br>"Hacerle caso a Cristonks: rodear por el cerro", y despues `muerto amigos clau`<br>"Hacerle caso a Cristonks: rodear por el cerro", y despues `pasan 72 h`<br>"Ir con Cristonks a buscar a Clau y Renato", y despues `muerto amigos clau`<br>"Ir con Cristonks a buscar a Clau y Renato", y despues `pasan 96 h` | `sous_historia_cristian` = fallido | - |
 | `final_hecho` | "Hacerle caso a Cristonks: rodear por el cerro" o "Hacerle caso a Renato: rush B por el frente", y despues `npc_cerca amigos base 18` | `sous_historia_cristian` = hecho | - |
 | `final_murio` | `muerto pide cristian` | `sous_historia_cristian` = murio | - |
 | `final_postergada` | "Decirle que ahora no puedes"<br>`pasan 48 h` | `sous_historia_cristian` = postergada | - |
@@ -518,7 +528,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_fallido` | "Ir con Wertres y Shinbo por el generador", y despues `muerto amigos`<br>"Ir con Wertres y Shinbo por el generador", y despues `pasan 96 h`<br>"Llevarlo sin probar" o "Prenderlo aca para probarlo", y despues `muerto amigos`<br>"Llevarlo sin probar" o "Prenderlo aca para probarlo", y despues `pasan 96 h`<br>"Prenderlo aca para probarlo", y despues `muerto amigos` | `sous_historia_cristobal` = fallido | - |
+| `final_fallido` | "Ir con Wertres y Shinbo por el generador", y despues `muerto amigos renato`<br>"Ir con Wertres y Shinbo por el generador", y despues `pasan 96 h`<br>"Llevarlo sin probar" o "Prenderlo aca para probarlo", y despues `muerto amigos renato`<br>"Llevarlo sin probar" o "Prenderlo aca para probarlo", y despues `pasan 96 h`<br>"Prenderlo aca para probarlo", y despues `muerto amigos renato` | `sous_historia_cristobal` = fallido | - |
 | `final_hecho` | "Darle la bateria a Wertres"<br>"Prenderlo aca para probarlo", y despues `npc_cerca amigos base 18 y probado = true` | `sous_historia_cristobal` = hecho | - |
 | `final_murio` | "Llevarlo sin probar" o "Prenderlo aca para probarlo", y despues `muerto pide cristobal`<br>`muerto pide cristobal` | `sous_historia_cristobal` = murio | - |
 | `final_postergada` | "Decirle que ahora no puedes"<br>`pasan 48 h` | `sous_historia_cristobal` = postergada | - |
@@ -527,7 +537,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_fallido` | "Ir a buscar el computador del Waton Ju (hay saqueadores)" o "Volver directo a la base de Sous", y despues `muerto amigos`<br>"Ir a buscar el computador del Waton Ju (hay saqueadores)" o "Volver directo a la base de Sous", y despues `pasan 96 h`<br>"Ir a buscar el computador del Waton Ju (hay saqueadores)", y despues `muerto amigos`<br>"Ir a buscar el computador del Waton Ju (hay saqueadores)", y despues `pasan 96 h`<br>"Ir con Walita a buscar a su primo", y despues `muerto amigos`<br>"Ir con Walita a buscar a su primo", y despues `pasan 96 h` | `sous_historia_hanz` = fallido | - |
+| `final_fallido` | "Ir a buscar el computador del Waton Ju (hay saqueadores)" o "Volver directo a la base de Sous", y despues `muerto amigos waton`<br>"Ir a buscar el computador del Waton Ju (hay saqueadores)" o "Volver directo a la base de Sous", y despues `pasan 96 h`<br>"Ir a buscar el computador del Waton Ju (hay saqueadores)", y despues `muerto amigos waton`<br>"Ir a buscar el computador del Waton Ju (hay saqueadores)", y despues `pasan 96 h`<br>"Ir con Walita a buscar a su primo", y despues `muerto amigos waton`<br>"Ir con Walita a buscar a su primo", y despues `pasan 96 h` | `sous_historia_hanz` = fallido | - |
 | `final_hecho` | "Ir a buscar el computador del Waton Ju (hay saqueadores)" o "Volver directo a la base de Sous", y despues `npc_cerca amigos base 18` | `sous_historia_hanz` = hecho | - |
 | `final_murio` | `muerto pide hanz` | `sous_historia_hanz` = murio | - |
 | `final_postergada` | "Decirle que ahora no puedes"<br>`pasan 48 h` | `sous_historia_hanz` = postergada | - |
@@ -536,10 +546,55 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_fallido` | "Aceptar, y que Matric vaya de chaperon" o "Aceptar e ir solo con los primos", y despues `muerto amigos`<br>"Aceptar, y que Matric vaya de chaperon" o "Aceptar e ir solo con los primos", y despues `pasan 96 h`<br>"Repartir parejo con Luengo" o "Llevarse toda la despensa para Sous", y despues `muerto amigos`<br>"Repartir parejo con Luengo" o "Llevarse toda la despensa para Sous", y despues `pasan 96 h` | `sous_historia_jorge` = fallido | - |
+| `final_fallido` | "Aceptar, y que Matric vaya de chaperon" o "Aceptar e ir solo con los primos", y despues `muerto amigos luengo`<br>"Aceptar, y que Matric vaya de chaperon" o "Aceptar e ir solo con los primos", y despues `pasan 96 h`<br>"Repartir parejo con Luengo" o "Llevarse toda la despensa para Sous", y despues `muerto amigos luengo`<br>"Repartir parejo con Luengo" o "Llevarse toda la despensa para Sous", y despues `pasan 96 h` | `sous_historia_jorge` = fallido | - |
 | `final_hecho` | "Repartir parejo con Luengo" o "Llevarse toda la despensa para Sous", y despues `npc_cerca amigos base 18` | `sous_historia_jorge` = hecho | - |
 | `final_murio` | `muerto pide jorge` | `sous_historia_jorge` = murio | - |
 | `final_postergada` | "Decirle que ahora no puedes"<br>`pasan 48 h` | `sous_historia_jorge` = postergada | - |
+
+### El partido con facha (`hsous_bastian`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_despues` | "Ahora no"<br>`pasan 48 h` | - | - |
+| `final_fallido` | "Entregarle las camisetas a Tati", y despues `pasan 120 h`<br>"Escuchar la idea de Tati", y despues `pasan 120 h`<br>"Escuchar la idea de Tati", y despues `pasan 168 h`<br>"Hacerle un cano a Akagami" o "Entregarle las camisetas a Tati" o "Pasarsela a Tati para que la clave" o "Patear al arco y gritar SIUUU", y despues `pasan 120 h` | `hsous_bastian` = fallido | - |
+| `final_hecho` | "Hacerle un cano a Akagami" o "Entregarle las camisetas a Tati" o "Pasarsela a Tati para que la clave" o "Patear al arco y gritar SIUUU", y despues `bajas_en base 18 60`<br>"Hacerle un cano a Akagami" o "Entregarle las camisetas a Tati" o "Pasarsela a Tati para que la clave" o "Patear al arco y gritar SIUUU", y despues `pasan 8 h` | `hsous_bastian` = hecho | - |
+| `final_murio` | "Entregarle las camisetas a Tati", y despues `muerto pide bastian`<br>"Escuchar la idea de Tati", y despues `muerto pide bastian`<br>"Hacerle un cano a Akagami" o "Entregarle las camisetas a Tati" o "Pasarsela a Tati para que la clave" o "Patear al arco y gritar SIUUU", y despues `muerto pide bastian`<br>`muerto pide bastian` | `hsous_bastian` = murio | - |
+
+### El expediente de los primos (`hsous_benjamin`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_despues` | "Ahora no"<br>`pasan 48 h` | - | - |
+| `final_fallido` | "Escuchar la teoria de Matric" o "Leer la bitacora" o "No leerla: no es asunto tuyo", y despues `pasan 120 h`<br>"Escuchar la teoria de Matric" o "Leer la bitacora" o "No leerla: no es asunto tuyo", y despues `pasan 168 h`<br>"Escuchar la teoria de Matric", y despues `pasan 120 h` | `hsous_benjamin` = fallido | - |
+| `final_hecho` | "Mostrarle la bitacora: 'los primos se comen'" o "Decirle que no encontraste nada" o "Contarle la verdad: le preparan el cumpleanos" | `hsous_benjamin` = hecho | - |
+| `final_murio` | "Escuchar la teoria de Matric" o "Leer la bitacora" o "No leerla: no es asunto tuyo", y despues `muerto pide benjamin`<br>"Escuchar la teoria de Matric", y despues `muerto pide benjamin`<br>`muerto pide benjamin` | `hsous_benjamin` = murio | - |
+
+### Trabajo de campo (`hsous_david`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_despues` | "Ahora no"<br>`pasan 48 h` | - | - |
+| `final_fallido` | "Acercarte a hablar, como diria Shinbo", y despues `pasan 48 h`<br>"Atacarlos antes de que te vean" o "Darles 3 comidas" o "Acercarte a hablar, como diria Shinbo", y despues `pasan 168 h`<br>"Atacarlos antes de que te vean", y despues `pasan 120 h`<br>"Darles 3 comidas", y despues `pasan 120 h`<br>"Escuchar la propuesta de Shinbo", y despues `pasan 120 h`<br>"Escuchar la propuesta de Shinbo", y despues `pasan 48 h` | `hsous_david` = fallido | - |
+| `final_hecho` | "Contarle que tenia razon: tenian hambre" o "Contarle que no hubo conversacion" | `hsous_david` = hecho | - |
+| `final_murio` | "Acercarte a hablar, como diria Shinbo", y despues `muerto pide david`<br>"Atacarlos antes de que te vean" o "Darles 3 comidas" o "Acercarte a hablar, como diria Shinbo", y despues `muerto pide david`<br>"Atacarlos antes de que te vean", y despues `muerto pide david`<br>"Darles 3 comidas", y despues `muerto pide david`<br>"Escuchar la propuesta de Shinbo", y despues `muerto pide david`<br>`muerto pide david` | `hsous_david` = murio | - |
+
+### La luz de Sous (`hsous_martin_a`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_despues` | "Ahora no"<br>`pasan 48 h` | - | - |
+| `final_fallido` | "Entregarle las piezas a Akagami", y despues `pasan 120 h`<br>"Escuchar la lista de Akagami" o "La luz es para la base: guardia, radio y cocina" o "Apoyar el torneo de Counter de Renato", y despues `pasan 168 h`<br>"Escuchar la lista de Akagami", y despues `pasan 120 h` | `hsous_martin_a` = fallido | - |
+| `final_hecho` | "Entregarle las piezas a Akagami", y despues `bajas_en base 18 60`<br>"Entregarle las piezas a Akagami", y despues `pasan 8 h` | `hsous_martin_a` = hecho | - |
+| `final_murio` | "Entregarle las piezas a Akagami", y despues `muerto pide martin_a`<br>"Escuchar la lista de Akagami" o "La luz es para la base: guardia, radio y cocina" o "Apoyar el torneo de Counter de Renato", y despues `muerto pide martin_a`<br>"Escuchar la lista de Akagami", y despues `muerto pide martin_a`<br>`muerto pide martin_a` | `hsous_martin_a` = murio | - |
+
+### La Awp de SOUS (`hsous_martin_z`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_despues` | "Ahora no"<br>`pasan 48 h` | - | - |
+| `final_fallido` | "Preguntarle a Zent que necesita" o "Llevarsela directo a Zent" o "Prestarsela a Renato 'un ratito'", y despues `pasan 168 h`<br>"Preguntarle a Zent que necesita", y despues `pasan 120 h`<br>"Prestarsela a Renato 'un ratito'", y despues `pasan 120 h` | `hsous_martin_z` = fallido | - |
+| `final_hecho` | "Entregarle el estuche a Zent" | `hsous_martin_z` = hecho | - |
+| `final_murio` | "Preguntarle a Zent que necesita" o "Llevarsela directo a Zent" o "Prestarsela a Renato 'un ratito'", y despues `muerto pide martin_z`<br>"Preguntarle a Zent que necesita", y despues `muerto pide martin_z`<br>"Prestarsela a Renato 'un ratito'", y despues `muerto pide martin_z`<br>`muerto pide martin_z` | `hsous_martin_z` = murio | - |
 
 ### Un cientifico que dice tener la cura (`leyenda_eduardo`)
 
@@ -589,14 +644,14 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_aliados` | "Entregar la medicina" | `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, historia_sous_cristian, historia_sous_cristobal, historia_sous_hanz, historia_sous_jorge, sous_arsenal |
+| `final_aliados` | "Entregar los suministros a Sous" | `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, historia_sous_cristian, historia_sous_cristobal, historia_sous_hanz, historia_sous_jorge, hsous_bastian, hsous_benjamin, hsous_david, hsous_martin_a, hsous_martin_z, sous_arsenal |
 | `final_maulen_escapa` | "Ir con Akagami, Zent y Walita", y despues `pasan 120 h`<br>"Ir con Matric, Tati y David Shinbo", y despues `pasan 120 h`<br>"Ir con Tati, Shinbo y Zent", y despues `pasan 120 h`<br>"Ir con Wertres y David Shinbo", y despues `pasan 120 h`<br>"Ir con todo Sous", y despues `pasan 120 h`<br>"Mejor ir solo", y despues `pasan 120 h`<br>"Mejor ir solo", y despues `pasan 24 h`<br>"Revisar el deposito saqueado" o "Mejor ir solo", y despues `pasan 120 h`<br>"Revisar el deposito saqueado", y despues `pasan 120 h` | `sous` = maulen_escapa | Maulen escapa con todo |
-| `final_mentira` | "Quedarte con todo lo que robo Meulen", y despues `elige quedarse y todos_muertos escuadra` | `sous_mentira` = true, `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, historia_sous_cristian, historia_sous_cristobal, historia_sous_hanz, historia_sous_jorge, sous_arsenal |
-| `final_negado` | "Decir que no es tu problema"<br>"Entregar la medicina", y despues `pasan 120 h`<br>"Ofrecer tu ayuda a Sous", y despues `pasan 120 h` | `sous` = negado | Le dices que no a Sous |
+| `final_mentira` | "Quedarte con todo lo que robo Meulen", y despues `elige quedarse y todos_muertos escuadra` | `sous_mentira` = true, `sous` = aliados | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, historia_sous_cristian, historia_sous_cristobal, historia_sous_hanz, historia_sous_jorge, hsous_bastian, hsous_benjamin, hsous_david, hsous_martin_a, hsous_martin_z, sous_arsenal |
+| `final_negado` | "Decir que no es tu problema"<br>"Entregar los suministros a Sous", y despues `pasan 120 h`<br>"Ofrecer tu ayuda a Sous", y despues `pasan 120 h` | `sous` = negado | Le dices que no a Sous |
 | `final_nunca_fuiste` | `pasan 120 h`<br>`pasan 96 h` | `sous` = ignorados | - |
-| `final_sous_caidos` | "Entregar la medicina", y despues `todos_muertos sous`<br>`todos_muertos sous` | `sous` = caidos | Sous cae en su base |
+| `final_sous_caidos` | "Entregar los suministros a Sous", y despues `todos_muertos sous`<br>`todos_muertos sous` | `sous` = caidos | Sous cae en su base |
 | `final_te_quedaste` | "Decidir devolverle las cosas a Sous", y despues `pasan 72 h`<br>"Quedarte con todo lo que robo Meulen" | `sous` = enemigos | sous_guerra |
-| `final_traicion` | "Decidir devolverle las cosas a Sous", y despues `mato_jugador sous`<br>"Dejarlo ir. Sous va a creer que se escapo", y despues `mato_jugador escuadra`<br>"Entregar la medicina", y despues `mato_jugador sous`<br>"Ir con Akagami, Zent y Walita", y despues `mato_jugador escuadra`<br>"Ir con Matric, Tati y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo" o "Ir con Matric, Tati y David Shinbo" o "Mejor ir solo" o "Ir con todo Sous" o "Ir con Akagami, Zent y Walita" o "Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con todo Sous", y despues `mato_jugador escuadra`<br>"Ofrecer tu ayuda a Sous", y despues `mato_jugador sous`<br>"Revisar el deposito saqueado", y despues `mato_jugador sous`<br>`mato_jugador sous` | `sous` = enemigos | sous_guerra |
+| `final_traicion` | "Decidir devolverle las cosas a Sous", y despues `mato_jugador sous`<br>"Dejarlo ir. Sous va a creer que se escapo", y despues `mato_jugador escuadra`<br>"Entregar los suministros a Sous", y despues `mato_jugador sous`<br>"Ir con Akagami, Zent y Walita", y despues `mato_jugador escuadra`<br>"Ir con Matric, Tati y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo" o "Ir con Matric, Tati y David Shinbo" o "Mejor ir solo" o "Ir con todo Sous" o "Ir con Akagami, Zent y Walita" o "Ir con Tati, Shinbo y Zent", y despues `mato_jugador escuadra`<br>"Ir con Wertres y David Shinbo", y despues `mato_jugador escuadra`<br>"Ir con todo Sous", y despues `mato_jugador escuadra`<br>"Ofrecer tu ayuda a Sous", y despues `mato_jugador sous`<br>"Revisar el deposito saqueado", y despues `mato_jugador sous`<br>`mato_jugador sous` | `sous` = enemigos | sous_guerra |
 
 ### El arsenal (`sous_arsenal`)
 
@@ -674,6 +729,11 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | El primo de Iquique | `historia_sous_hanz` | con Sous aliado, una a la vez y 30 horas entre historias de Sous (NarradorHistoriasSous2) | `sous = aliados` | - | `sous_historia_hanz` = fallido (final_fallido)<br>`sous_historia_hanz` = hecho (final_hecho)<br>`sous_historia_hanz` = murio (final_murio)<br>`sous_historia_hanz` = postergada (final_postergada) |
 | La cabana del cerro | `historia_sous_jorge` | con Sous aliado, una a la vez y 30 horas entre historias de Sous (NarradorHistoriasSous2) | `sous = aliados` | - | `sous_historia_jorge` = fallido (final_fallido)<br>`sous_historia_jorge` = hecho (final_hecho)<br>`sous_historia_jorge` = murio (final_murio)<br>`sous_historia_jorge` = postergada (final_postergada) |
 | Horda en camino | `horda_en_camino` | el director (al azar, segun tension) | - | - | - |
+| El partido con facha | `hsous_bastian` | al pasar por la base de Sous, de a una y con horas entre una y otra (NarradorHistoriasSous1) | `sous = aliados` | `hsous_bastian`, `sous_murio_bastian` | `hsous_bastian` = fallido (final_fallido)<br>`hsous_bastian` = hecho (final_hecho)<br>`hsous_bastian` = murio (final_murio) |
+| El expediente de los primos | `hsous_benjamin` | al pasar por la base de Sous, de a una y con horas entre una y otra (NarradorHistoriasSous1) | `sous = aliados` | `hsous_benjamin`, `sous_murio_benjamin` | `hsous_benjamin` = fallido (final_fallido)<br>`hsous_benjamin` = hecho (final_hecho)<br>`hsous_benjamin` = murio (final_murio)<br>`hsous_primos` = contado (volver)<br>`hsous_primos` = secreto (volver)<br>`hsous_primos` = verdad (volver) |
+| Trabajo de campo | `hsous_david` | al pasar por la base de Sous, de a una y con horas entre una y otra (NarradorHistoriasSous1) | `sous = aliados` | `hsous_david`, `sous_murio_david` | `hsous_david` = fallido (final_fallido)<br>`hsous_david` = hecho (final_hecho)<br>`hsous_david` = murio (final_murio) |
+| La luz de Sous | `hsous_martin_a` | al pasar por la base de Sous, de a una y con horas entre una y otra (NarradorHistoriasSous1) | `sous = aliados` | `hsous_martin_a`, `sous_murio_martin_a` | `hsous_martin_a` = fallido (final_fallido)<br>`hsous_martin_a` = hecho (final_hecho)<br>`hsous_martin_a` = murio (final_murio) |
+| La Awp de SOUS | `hsous_martin_z` | al pasar por la base de Sous, de a una y con horas entre una y otra (NarradorHistoriasSous1) | `sous = aliados` | `hsous_martin_z`, `sous_murio_martin_z` | `hsous_martin_z` = fallido (final_fallido)<br>`hsous_martin_z` = hecho (final_hecho)<br>`hsous_martin_z` = murio (final_murio) |
 | Un cientifico que dice tener la cura | `leyenda_eduardo` | capitulo 3 de westpoint, entre sus ofertas (confianza 3+) | `curandero_falso`, `historia_westpoint_2` | - | `cientifico_hartmann` = en_west_point (final_cumplido)<br>`cientifico_hartmann` = muerto (final_muerto)<br>`eduardo_conocido` = true (caido)<br>`eduardo_conocido` = true (despedida)<br>`historia_westpoint_3` = true (final_cumplido)<br>`historia_westpoint_3` = true (final_muerto) |
 | La reconquista: la comisaria de Muldraugh | `reconquista_muldraugh` | al entrar a Muldraugh (NarradorBandido) | `misionero_muerto_muldraugh`, `reconquista = true` | `fin` | `reconquista_muldraugh` = true (final_reconquistado) |
 | La reconquista: el patio de trenes | `reconquista_patio` | con las 4 ciudades reconquistadas (NarradorBandido) | `reconquista_muldraugh`, `reconquista_riverside`, `reconquista_rosewood`, `reconquista_westpoint` | `fin` | `fin` = reconquista (final_luz) |
@@ -697,7 +757,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `<prefijo>_lider` | Quien lidera un grupo despues de las bajas (accion 'bajas' del motor, prefijo = 'sous'). | - | sous_arsenal | escribe: NarradorMotorAcciones; lee: Sous |
 | `<prefijo>_lider_nombre` | Nombre del lider del grupo (accion 'bajas'). | - | sous_arsenal, venganza_meulen | escribe: NarradorMotorAcciones; lee: Sous, VenganzaMeulen |
 | `<prefijo>_lider_perfil` | Perfil de A-Life del lider del grupo (accion 'bajas'). | - | sous_arsenal | escribe: NarradorMotorAcciones; lee: Sous |
-| `<prefijo>_murio_<rol>` | Ese rol del grupo murio (sous_murio_hanz...). Lo usan charlas, encuentros y 'sin_muertos_de'. | - | venganza_meulen | escribe: NarradorMotorAcciones; lee: ConversasSous, NarradorEncuentros, NarradorMotorAcciones, NarradorMotorGrupos, Sous, VenganzaMeulen |
+| `<prefijo>_murio_<rol>` | Ese rol del grupo murio (sous_murio_hanz...). Lo usan charlas, encuentros y 'sin_muertos_de'. | - | hsous_bastian, hsous_benjamin, hsous_david, hsous_martin_a, hsous_martin_z, venganza_meulen | escribe: NarradorMotorAcciones; lee: ConversasSous, NarradorEncuentros, NarradorHistoriasSous1, NarradorMotorAcciones, NarradorMotorGrupos, Sous, VenganzaMeulen |
 | `alijo` | El alijo custodiado: encontrado; despues compartido, negado o viuda_muerta (la viuda del dueno, ConsecuenciasExtra). | alijo_custodiado, eco_alijo_viuda | - | escribe: ConsecuenciasExtra, EventosCortos; lee: ConsecuenciasExtra |
 | `arsenal` | Que sacaste del arsenal de Louisville (arma, auto o traje). Un misionero te lo comenta (NarradorConsecuencias). | sous_arsenal | - | escribe: Sous; lee: NarradorConsecuencias |
 | `arsenal_comentado` | Que misionero ya te comento lo del arsenal (una sola vez). | - | - | escribe: NarradorConsecuencias; lee: NarradorConsecuencias |
@@ -741,6 +801,9 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `fin` | Final del juego: eduardo_muerto o reconquista. Corta el bandido y los eventos de Eduardo. | eduardo_fallas, reconquista_patio | eduardo_atentado, eduardo_evento, eduardo_fallas, reconquista_muldraugh, reconquista_patio, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | escribe: Eduardo; lee: NarradorBandido, NarradorEduardo, NarradorVenganzaMeulen |
 | `hija_cabo` | Valentina: salvada o muerta. Si murio, en la reconquista la reemplaza otro (NUEVO_MURIO). | hija_cabo | - | escribe: HijaCabo; lee: NarradorDominiosDefs |
 | `historia_<id>_<n>` | Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento. | cap_cabo_2, cap_chela_2, cap_nacho_2, cap_nacho_3, cap_rosa_2, cap_rosa_3, desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint, hija_cabo, leyenda_eduardo | bandido_2, cap_cabo_2, cap_chela_2, cap_nacho_2, cap_nacho_3, cap_rosa_2, cap_rosa_3, eduardo_vuelve, hija_cabo, leyenda_eduardo | escribe: Capitulos, Desbloqueos, HijaCabo, LeyendaEduardo, NarradorContactos, NarradorGenerador; lee: NarradorCampamentos, NarradorContactos, NarradorGenerador |
+| `hora_hsous` | Hora en que se lanzo la ultima historia personal de Sous (horas entre una y otra). | - | - | escribe: NarradorHistoriasSous1; lee: NarradorHistoriasSous1, NarradorHistoriasSous2 |
+| `hsous_<rol>` | Historia personal de ese integrante de Sous (HistoriasSous1): hecho, fallido o murio. Con algo ya no se lanza. | hsous_bastian, hsous_benjamin, hsous_david, hsous_martin_a, hsous_martin_z | hsous_bastian, hsous_benjamin, hsous_david, hsous_martin_a, hsous_martin_z | escribe: HistoriasSous1; lee: HistoriasSous1, NarradorHistoriasSous1 |
+| `hsous_primos` | Lo que le dijiste a Matric de los primos en su historia: contado, verdad o secreto (ecos en la base). | hsous_benjamin | - | escribe: HistoriasSous1; lee: HistoriasSous1, NarradorHistoriasSous1 |
 | `julio_vivo` | Dejaste ir a Julio Cardenas en el cap. 1. | bandido_1 | bandido_5 | escribe: Bandido; lee: Bandido |
 | `knox_bandido_<grupo>` | 'listo' la primera vez que el grupo llega a -5 de Knox (abre a Pereira). | - | bandido_1 | escribe: NarradorKnox; lee: NarradorKnox |
 | `knox_conquistado` | Las cinco conquistas terminaron: Knox es de la banda. | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_westpoint | eduardo_atentado | escribe: NarradorBandido; lee: NarradorBandido |
@@ -749,7 +812,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `lucia` | Que paso con la Hermana Lucia en el cap. 3 del Padre Nacho (en_riverside o muerta). Si murio, la reemplaza otro. | cap_nacho_3 | - | escribe: Capitulos; lee: NarradorDominiosDefs |
 | `lugar.<clave>` | Lugares guardados con memoria_lugar (ver lugar.base_sous y compania). | - | - | escribe: NarradorMotorAcciones; lee: NarradorMotorAcciones |
 | `lugar.bandido_patio` | Lugar de la casa de Pereira en el patio de trenes. | - | - | escribe: Bandido, NarradorMotorAcciones; lee: Bandido, Eduardo, NarradorBandido, NarradorMotorAcciones |
-| `lugar.base_sous` | Lugar de la base de Sous (memoria_lugar), lo reusan favores, conquista y calendario. | - | - | escribe: NarradorMotorAcciones, Sous; lee: Calendario, Conquista, FavoresSous, HistoriasSous2, NarradorBandido, NarradorCalendario, NarradorEncuentros, NarradorMotorAcciones, NarradorObjetosServer, NarradorSousBase, Sous |
+| `lugar.base_sous` | Lugar de la base de Sous (memoria_lugar), lo reusan favores, conquista y calendario. | - | - | escribe: NarradorMotorAcciones, Sous; lee: Calendario, Conquista, FavoresSous, HistoriasSous1, HistoriasSous2, NarradorBandido, NarradorCalendario, NarradorEncuentros, NarradorHistoriasSous1, NarradorMotorAcciones, NarradorObjetosServer, NarradorSousBase, Sous |
 | `lugar.eduardo_base` | Lugar de las casas de Fallas Lake. | - | - | escribe: Eduardo, NarradorMotorAcciones; lee: Eduardo, NarradorMotorAcciones |
 | `maulen_hora` | Hora en que se perdono a Maulen (72 horas despues toma el patio). | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `maulen_salvado` | Dejaste ir a Maulen en el escondite: abre su camino como jefe del patio. | sous | bandido_maulen, conquista_sous | escribe: Sous; lee: NarradorBandido, NarradorVenganzaMeulen |
@@ -768,10 +831,10 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `reconquista_<id>` | Esa ciudad ya fue reconquistada. | reconquista_muldraugh, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | reconquista_patio | escribe: Eduardo; lee: NarradorBandido |
 | `reconquista_aviso` | Ya se aviso que empieza la reconquista. | - | - | escribe: Eduardo, NarradorBandido; lee: NarradorBandido |
 | `reconquista_patio_lanzada` | Ya se lanzo el asalto final al patio. | - | - | escribe: Eduardo, NarradorBandido; lee: NarradorBandido |
-| `sous` | Relacion con Sous: aliados, enemigos, ignorados, negado, caidos, eliminado, conquistada, maulen_escapa. | conquista_sous, sous, sous_guerra | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, historia_sous_cristian, historia_sous_cristobal, historia_sous_hanz, historia_sous_jorge, sous_arsenal, venganza_meulen | escribe: Conquista, Sous; lee: ConversasSous, FavoresSous, NarradorBandido, NarradorCalendario, NarradorDirector, NarradorEncuentros, NarradorHistoriasSous2, NarradorSousBase, NarradorSousConfianza, Sous, VenganzaMeulen |
+| `sous` | Relacion con Sous: aliados, enemigos, ignorados, negado, caidos, eliminado, conquistada, maulen_escapa. | conquista_sous, sous, sous_guerra | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, historia_sous_cristian, historia_sous_cristobal, historia_sous_hanz, historia_sous_jorge, hsous_bastian, hsous_benjamin, hsous_david, hsous_martin_a, hsous_martin_z, sous_arsenal, venganza_meulen | escribe: Conquista, Sous; lee: ConversasSous, FavoresSous, NarradorBandido, NarradorCalendario, NarradorDirector, NarradorEncuentros, NarradorHistoriasSous1, NarradorHistoriasSous2, NarradorSousBase, NarradorSousConfianza, Sous, VenganzaMeulen |
 | `sous_base` | La base de Sous ya se amueblo (NarradorSousBase): sillas, generador, quien se sienta donde. | - | - | escribe: NarradorSousBase; lee: NarradorSousBase |
 | `sous_historia_<rol>` | Modo historia de Sous, parte 2 (Walita, Cristonks, Hasag, Wertres): hecho, fallido, postergada o murio. El lanzador ofrece las nuevas y despues las postergadas. | historia_sous_cristian, historia_sous_cristobal, historia_sous_hanz, historia_sous_jorge | - | escribe: HistoriasSous2; lee: NarradorHistoriasSous2 |
-| `sous_historias2.ultima` | Hora en que el lanzador de HistoriasSous2 lanzo (o reintento) la ultima historia; marca la espera entre historias. | - | - | escribe: NarradorHistoriasSous2; lee: NarradorHistoriasSous2 |
+| `sous_historias2.ultima` | Hora en que el lanzador de HistoriasSous2 lanzo (o reintento) la ultima historia; marca la espera entre historias. | - | - | escribe: NarradorHistoriasSous2; lee: NarradorHistoriasSous1, NarradorHistoriasSous2 |
 | `sous_mentira` | Le mentiste a Sous sobre la noche de Maulen (los misioneros sospechan). | sous | - | escribe: Sous; lee: ConversasSous, Sous |
 | `trueque` | El trueque trampa: ganado. Ganado: los hermanos de los emboscadores vienen a cobrar (ConsecuenciasExtra). | trueque_trampa | - | escribe: EventosCortos; lee: ConsecuenciasExtra |
 

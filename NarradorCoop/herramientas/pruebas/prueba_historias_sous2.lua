@@ -109,7 +109,7 @@ Motor.tick()
 reloj = reloj + 1.5
 Motor.tick()
 check(inst.etapa == "reencuentro", "reencuentro (" .. tostring(inst.etapa) .. ")")
-check(inst.grupos.amigos ~= nil and inst.grupos.amigos.roles[Narrador.SousAmigos.PERFILES.waton[1]] ~= nil, "aparecen Waton y Clau")
+check(inst.grupos.amigos ~= nil and inst.grupos.amigos.roles[Narrador.SousAmigos.PERFILES.waton[1][1]] ~= nil, "aparecen Waton y Clau")
 Motor.elegir("p1", inst.id, "directo")
 check(inst.etapa == "escolta" or inst.final == "final_hecho", "vuelve directo (" .. tostring(inst.etapa) .. ")")
 Motor.tick()

@@ -26,7 +26,9 @@ require "Narrador/Arcos/SousAmigos"
 Narrador = Narrador or {}
 local registrar = Narrador.Defs.registrar
 local AM = Narrador.SousAmigos
-local P = AM.PERFILES
+-- Un par {rol, perfil} por amigo (AM.PERFILES trae una lista de pares por amigo).
+local P = {}
+for clave, lista in pairs(AM.PERFILES or {}) do P[clave] = type(lista[1]) == "table" and lista[1] or lista end
 
 local HS = Narrador.HistoriasSous2 or {}
 Narrador.HistoriasSous2 = HS
