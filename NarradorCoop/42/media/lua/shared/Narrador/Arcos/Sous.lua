@@ -23,11 +23,19 @@ Narrador.Facciones = Narrador.Facciones or {}
 -- Aspecto de los que tienen foto (ver Mundo.crearFaccion): colores "r,g,b" de 0 a 1.
 local PELO_OSCURO, NEGRO = "0.10,0.07,0.05", "0.09,0.09,0.10"
 
+-- Maulen Callupan (apellido mapuche): piel morena, pelo largo con trarilonco (cintillo rojo
+-- anudado), chaleco de tejido con rombos, trapelacucha (collar largo de plata) y botas de cuero.
+-- Igual en Sous.lua (narrador_sous_10, narrador_maulen_banda) y Bandido.lua (narrador_pereira_maulen).
+local MAULEN_ASPECTO = { piel = 3, pelo = "Grungey", color_pelo = "0.05,0.04,0.04" }
+local MAULEN_ROPA = { Hat = "Base.Hat_BandanaTiedTINT", Top = "Base.Tshirt_DefaultTEXTURE_TINT", Jacket = "Base.Jumper_DiamondPatternTINT",
+                      LongNecklace = "Base.NecklaceLong_Silver", Pants = "Base.Trousers_DefaultTEXTURE_TINT", Shoes = "Base.Shoes_HideBoots" }
+local MAULEN_TINTES = { Hat = "0.65,0.08,0.08", Top = "0.10,0.09,0.09", Jacket = "0.45,0.10,0.10", Pants = "0.22,0.16,0.11" }
+
 local STATS_SOUS = { healthHP = 160, strength = 10, endurance = 10, awareness = 10, aiming = 9, aimZombiePercent = 100 }
 
 Narrador.Facciones.narrador_sous = {
     id = "narrador_sous",
-    version = 4,
+    version = 5,
     nombre = "Sous",
     descripcion = "Grupo de sobrevivientes de amigos que se juntaban a jugar a la pelota y al LoL.",
     postura = "friendly",
@@ -93,7 +101,8 @@ Narrador.Facciones.narrador_sous = {
           ropa = { Top = "Base.Tshirt_DefaultTEXTURE_TINT", Jacket = "Base.HoodieDOWN_WhiteTINT", Pants = "Base.Trousers_Denim",
                    Shoes = "Base.Shoes_TrainerTINT" },
           tintes = { Top = NEGRO, Jacket = "0.17,0.17,0.18", Shoes = NEGRO } },
-        { id = "narrador_sous_10", respaldo = "k93_truckstop_06", nombre = "Maulen Callupan", rol = "Encargado del deposito", arma = "Base.Pistol", cuerpo = "Base.Machete" },
+        { id = "narrador_sous_10", respaldo = "k93_truckstop_06", nombre = "Maulen Callupan", rol = "Encargado del deposito", arma = "Base.Pistol", cuerpo = "Base.Machete",
+          aspecto = MAULEN_ASPECTO, ropa = MAULEN_ROPA, tintes = MAULEN_TINTES },
     },
 }
 
@@ -101,7 +110,7 @@ Narrador.Facciones.narrador_sous = {
 -- entre ellos, y enemigos de Sous y de los jugadores.
 Narrador.Facciones.narrador_banda_maulen = {
     id = "narrador_banda_maulen",
-    version = 1,
+    version = 2,
     nombre = "Banda de Maulen",
     descripcion = "Los matones que junto Maulen Callupan despues de robarle a Sous.",
     postura = "hostile",
@@ -111,7 +120,7 @@ Narrador.Facciones.narrador_banda_maulen = {
     miembros = {
         { id = "narrador_maulen_banda", respaldo = "narrador_sous_10", nombre = "Maulen Callupan", rol = "Traidor", arma = "Base.Pistol", cuerpo = "Base.Machete",
           stats = { healthHP = 200, strength = 8, endurance = 9, awareness = 9, aiming = 8 },
-          ropa = { Jacket = "Base.Jacket_Padded" } },
+          aspecto = MAULEN_ASPECTO, ropa = MAULEN_ROPA, tintes = MAULEN_TINTES },
         { id = "narrador_banda_01", nombre = "Maton", rol = "Banda de Maulen", nombre_al_azar = true, arma = "Base.Shotgun", cuerpo = "Base.BaseballBat" },
         { id = "narrador_banda_02", nombre = "Maton", rol = "Banda de Maulen", nombre_al_azar = true, arma = "Base.Pistol", cuerpo = "Base.Crowbar" },
         { id = "narrador_banda_03", nombre = "Maton", rol = "Banda de Maulen", nombre_al_azar = true, arma = "Base.HuntingRifle", cuerpo = "Base.HuntingKnife" },

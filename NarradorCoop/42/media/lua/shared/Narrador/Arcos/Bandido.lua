@@ -42,9 +42,17 @@ Narrador.BandidoPatio = {
     respaldo = { "warehouse", "storageunit", "garagestorage", "storage", "garage" },
 }
 
+-- Maulen Callupan (apellido mapuche): piel morena, pelo largo con trarilonco (cintillo rojo
+-- anudado), chaleco de tejido con rombos, trapelacucha (collar largo de plata) y botas de cuero.
+-- Igual en Sous.lua (narrador_sous_10, narrador_maulen_banda) y Bandido.lua (narrador_pereira_maulen).
+local MAULEN_ASPECTO = { piel = 3, pelo = "Grungey", color_pelo = "0.05,0.04,0.04" }
+local MAULEN_ROPA = { Hat = "Base.Hat_BandanaTiedTINT", Top = "Base.Tshirt_DefaultTEXTURE_TINT", Jacket = "Base.Jumper_DiamondPatternTINT",
+                      LongNecklace = "Base.NecklaceLong_Silver", Pants = "Base.Trousers_DefaultTEXTURE_TINT", Shoes = "Base.Shoes_HideBoots" }
+local MAULEN_TINTES = { Hat = "0.65,0.08,0.08", Top = "0.10,0.09,0.09", Jacket = "0.45,0.10,0.10", Pants = "0.22,0.16,0.11" }
+
 Narrador.Facciones.narrador_pereira = {
     id = "narrador_pereira",
-    version = 2,
+    version = 3,
     nombre = "La banda de Pereira",
     descripcion = "Desertores de la Guardia Nacional y bandidos al mando de la Sargento Pereira.",
     postura = "friendly",
@@ -66,7 +74,7 @@ Narrador.Facciones.narrador_pereira = {
         { id = "narrador_pereira_maulen", respaldo = "k93_truckstop_06", nombre = "Maulen Callupan", rol = "Jefe del patio",
           arma = "Base.Pistol", cuerpo = "Base.Machete",
           stats = { healthHP = 200, strength = 8, endurance = 9, awareness = 9, aiming = 8 },
-          ropa = { Jacket = "Base.Jacket_Padded" } },
+          aspecto = MAULEN_ASPECTO, ropa = MAULEN_ROPA, tintes = MAULEN_TINTES },
         { id = "narrador_pereira_07", nombre = "Bandido", rol = "Banda de Pereira", nombre_al_azar = true, arma = "Base.Shotgun", cuerpo = "Base.Hammer" },
     },
 }
