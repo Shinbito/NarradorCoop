@@ -36,6 +36,7 @@ MEMORIAS = {
     "<prefijo>_murio_<rol>": "Ese rol del grupo murio (sous_murio_hanz...). Lo usan charlas, encuentros y 'sin_muertos_de'.",
     "favor_<rol>": "El favor de ese miembro de Sous: hecho o murio. Con 'hecho' ya no se ofrece.",
     "poster_sous": "Ya se entrego el poster de Sous.",
+    "sous_base": "La base de Sous ya se amueblo (NarradorSousBase): sillas, generador, quien se sienta donde.",
     "lugar.base_sous": "Lugar de la base de Sous (memoria_lugar), lo reusan favores, conquista y calendario.",
     "cal.fonda": "Como salio la fonda del 18 de septiembre (hecha o sin).",
     # --- Misioneros y campamentos ---
