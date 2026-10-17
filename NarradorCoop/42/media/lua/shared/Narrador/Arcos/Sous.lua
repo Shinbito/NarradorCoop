@@ -27,7 +27,7 @@ local STATS_SOUS = { healthHP = 160, strength = 10, endurance = 10, awareness = 
 
 Narrador.Facciones.narrador_sous = {
     id = "narrador_sous",
-    version = 3,
+    version = 4,
     nombre = "Sous",
     descripcion = "Grupo de sobrevivientes de amigos que se juntaban a jugar a la pelota y al LoL.",
     postura = "friendly",
@@ -48,9 +48,18 @@ Narrador.Facciones.narrador_sous = {
           ropa = { Top = "Base.Tshirt_DefaultDECAL_TINT", Pants = "Base.Trousers_DefaultTEXTURE_TINT",
                    RightWrist = "Base.Bracelet_RightFriendshipTINT", Shoes = "Base.Shoes_BlackBoots" },
           tintes = { Top = "0.13,0.27,0.18", Pants = NEGRO, RightWrist = NEGRO } },
-        { id = "narrador_sous_03", respaldo = "k93_red_cross_01", nombre = "Benjamin Matric", rol = "Informatico", arma = "Base.Pistol", cuerpo = "Base.BaseballBat" },
+        { id = "narrador_sous_03", respaldo = "k93_red_cross_01", nombre = "Benjamin Matric", rol = "Informatico", arma = "Base.Pistol", cuerpo = "Base.BaseballBat",
+          -- Pelo crespo, lentes, polera negra ajustada, buzo gris, mochila verde y reloj.
+          aspecto = { piel = 1, pelo = "MessyCurly", color_pelo = PELO_OSCURO },
+          ropa = { Eyes = "Base.Glasses_Normal", Top = "Base.Tshirt_DefaultTEXTURE_TINT", Pants = "Base.Trousers_DefaultTEXTURE_TINT",
+                   Back = "Base.Bag_ALICEpack_Army", LeftWrist = "Base.WristWatch_Left_DigitalBlack", Shoes = "Base.Shoes_TrainerTINT" },
+          tintes = { Top = NEGRO, Pants = "0.62,0.62,0.62", Shoes = NEGRO } },
         { id = "narrador_sous_04", respaldo = "k93_truckstop_01", nombre = "David Shinbo", rol = "Sociologo", arma = "Base.Pistol", cuerpo = "Base.Axe",
-          ropa = { Jacket = "Base.Jacket_ArmyOliveDrab" } },
+          -- Pelo oscuro desordenado, polera blanca, jeans y reloj negro.
+          aspecto = { piel = 1, pelo = "Messy", color_pelo = PELO_OSCURO },
+          ropa = { Top = "Base.Tshirt_WhiteTINT", Pants = "Base.Trousers_Denim", LeftWrist = "Base.WristWatch_Left_ClassicBlack",
+                   Shoes = "Base.Shoes_TrainerTINT" },
+          tintes = { Top = "0.95,0.95,0.95", Shoes = "0.90,0.90,0.90" } },
         { id = "narrador_sous_05", respaldo = "k93_hensley_family_06", nombre = "Bastian Tati", rol = "Enlace", arma = "Base.Pistol", cuerpo = "Base.HuntingKnife",
           -- Pelo crespo, lentes de sol, polera negra, pantalon cafe, reloj y pulsera roja.
           aspecto = { piel = 1, pelo = "MessyCurly", color_pelo = PELO_OSCURO },

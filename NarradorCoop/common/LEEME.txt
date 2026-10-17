@@ -223,7 +223,8 @@ Novedades 0.11.0:
   y te lamentas de en que te convertiste.
 - Sous se parece a sus fotos: Martin Akagami con overol de obrero, casco, antiparras y
   pasamontanas; Martin Zent y Bastian Tati con el pelo crespo; Hanz Walita con barba y aro;
-  Cristian Cristonks y Jorge Hasag con ropa de ski; Cristobal Wertres con poleron negro.
+  Cristian Cristonks y Jorge Hasag con ropa de ski; Cristobal Wertres con poleron negro;
+  Benjamin Matric con lentes, buzo gris y mochila; David Shinbo con polera blanca.
 - Cada personaje con nombre tiene un modelo de su sexo (antes la Hermana Lucia, el doctor
   Hartmann, el Diacono Reyes, el Capitan Duarte y otros salian con el cuerpo equivocado).
 - Para desarrollar: lista central de memorias de la partida con su chequeo

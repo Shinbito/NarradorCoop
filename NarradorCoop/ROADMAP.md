@@ -62,7 +62,7 @@ Todo lo de las versiones 0.10 y 0.11 está hecho pero sin probar. Lo que más ha
 - `Mundo.crearFaccion` acepta `aspecto` (piel 0 a 4, peinado, barba y sus colores, con los nombres
   de `hairStyles.xml` / `beardStyles.xml`) y `tintes` (color "r,g,b" por prenda) en cada integrante.
 - Sous (versión 3 de la facción, se reescriben los perfiles): Akagami, Zent, Tati, Walita,
-  Cristonks, Hasag y Wertres según sus fotos. Faltan fotos de Benjamín Matric, David Shinbo y Maulen.
+  Cristonks, Hasag, Wertres, Matric y Shinbo según sus fotos (versión 4). Falta la foto de Maulen.
 - Se revisaron todos los perfiles k93 del mod contra el catálogo de A-Life (`body.sex`): Lucía,
   Hartmann, el Diácono Reyes, el Capitán Duarte, Marta y Luis Ibáñez, Oscar Lagos, Benjamín
   Sotelo, Kevin Morales, el respaldo de Pereira y dos mercaderes tenían el sexo cambiado. Las
