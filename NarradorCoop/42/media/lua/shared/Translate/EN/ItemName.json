@@ -3,7 +3,7 @@
     "Narrador.Antibioticos": "Missionary's Antibiotics",
     "Narrador.PaqueteMisionero": "Sealed Package",
     "Narrador.PlanosPueblo": "Town Blueprints",
-    "Narrador.DiarioMaulen": "Maulen Callupan's Diary",
+    "Narrador.DiarioMeulen": "Meulen Canupan's Diary",
     "Narrador.MuestrasHospital": "Hospital Samples",
     "Narrador.MaletinMilitar": "Military Case",
     "Narrador.LlavesBoveda": "Vault Keys",
@@ -27,5 +27,8 @@
     "Narrador.PicotaCristonks": "Cristonks' Pickaxe",
     "Narrador.BalanceHasag": "Hasag's Bat",
     "Narrador.PalaWertres": "Wertres' Shovel",
-    "Narrador.CuraZ": "K-93 pill"
+    "Narrador.CuraZ": "K-93 pill",
+    "Narrador.MangoArma": "Weapon handle",
+    "Narrador.MangoLegendario": "Noble wood handle",
+    "Narrador.PaloEkko": "Ekko's Staff"
 }

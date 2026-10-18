@@ -1,5 +1,5 @@
 -- Conversaciones de Sous entre ellos (cuando quedaron aliados y viven en su base) y de la
--- base antes de la traicion de Maulen. Dialogos originales: solo imitan la forma de hablar
+-- base antes de la traicion de Meulen. Dialogos originales: solo imitan la forma de hablar
 -- de cada uno. Sin tildes ni enies a proposito.
 --
 -- Roles: martin_a (Akagami), martin_z (Zent), benjamin (Matric), david (Shinbo),
@@ -270,18 +270,18 @@ reg({
       } },
 
     -- -----------------------------------------------------------------------
-    -- Maulen, despues de todo
+    -- Meulen, despues de todo
     -- -----------------------------------------------------------------------
     { id = "sous_lo_que_nunca_vimos", tipo = "reaccion", si = ALIADOS, una_vez = true, cada = 24,
       turnos = {
-          { "cristobal", "Hermanito, te puedo decir algo? A veces pienso que igual le fallamos al Maulen." },
+          { "cristobal", "Hermanito, te puedo decir algo? A veces pienso que igual le fallamos al Meulen." },
           { "david", "Le fallamos. Lo que no se es si eso justifica lo que hizo." },
           { "cristobal", "No lo justifica, sangre. Pero explica harto." },
           { "david", "Explicar no es perdonar. Pero es un comienzo." },
       } },
     { id = "sous_maulen_atun", tipo = "ambiente", si = ALIADOS, una_vez = true,
       turnos = {
-          { "jorge", "Encontre una lata de atun en el deposito. La ultima de Maulen, creo." },
+          { "jorge", "Encontre una lata de atun en el deposito. La ultima de Meulen, creo." },
           { "martin_a", "Dejala ahi, mi bro. No se. Dejala." },
           { "martin_z", "Primera vez que nadie se pelea una lata." },
       } },
@@ -293,20 +293,20 @@ reg({
       } },
 
     -- -----------------------------------------------------------------------
-    -- Antes de la traicion: la base con Maulen (historia "sous", etapas de encargos)
+    -- Antes de la traicion: la base con Meulen (historia "sous", etapas de encargos)
     -- -----------------------------------------------------------------------
     { id = "sous_base_maulen_olla", tipo = "pista", fuente = "arco:sous",
       etapas = { "base", "encargo1", "volver1", "encargo2", "volver2" },
       turnos = {
-          { "martin_a", "Maulen, te toca la olla. Otra vez, ya se." },
+          { "martin_a", "Meulen, te toca la olla. Otra vez, ya se." },
           { "maulen", "Feley. No hay problema." },
-          { "martin_z", "Nunca hay problema con el Maulen. Eso es lo raro." },
+          { "martin_z", "Nunca hay problema con el Meulen. Eso es lo raro." },
           { "maulen", "Algunos aprendemos a no tener problemas en voz alta, peni." },
       } },
     { id = "sous_base_maulen_deposito", tipo = "pista", fuente = "arco:sous",
       etapas = { "encargo1", "volver1", "encargo2", "volver2" },
       turnos = {
-          { "jorge", "Maulen, me pasas la llave del deposito? Quiero contar." },
+          { "jorge", "Meulen, me pasas la llave del deposito? Quiero contar." },
           { "maulen", "Yo ya conte. Esta todo bien, Jorge." },
           { "jorge", "Igual, manito. Me gusta contar dos veces." },
           { "maulen", "Manana. Hoy esta todo ordenado. No lo desarmes." },
@@ -314,7 +314,7 @@ reg({
     { id = "sous_base_maulen_nombre", tipo = "pista", fuente = "arco:sous",
       etapas = { "volver1", "encargo2", "volver2" },
       turnos = {
-          { "benjamin", "Oe Maulen, nunca te pregunte. De donde eres, bro?" },
+          { "benjamin", "Oe Meulen, nunca te pregunte. De donde eres, bro?" },
           { "maulen", "Del sur. Cerca de Temuco." },
           { "benjamin", "Hermano, como no sabia eso? Llevamos meses juntos." },
           { "maulen", "Nunca preguntaron. Esta bien. Ya no importa." },

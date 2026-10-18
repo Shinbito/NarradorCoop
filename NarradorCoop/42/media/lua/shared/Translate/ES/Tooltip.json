@@ -3,7 +3,7 @@
     "Tooltip_Narrador_Antibioticos": "Alguien esta enfermo. Combate infecciones de heridas, no la mordida.",
     "Tooltip_Narrador_PaqueteMisionero": "Dice NO ABRIR. Mejor no abrirlo.",
     "Tooltip_Narrador_PlanosPueblo": "Planos enrollados. Alguien los necesita.",
-    "Tooltip_Narrador_DiarioMaulen": "Tapas de cuero gastado. Iniciales M.C.",
+    "Tooltip_Narrador_DiarioMeulen": "Tapas de cuero gastado. Iniciales M.C.",
     "Tooltip_Narrador_MuestrasHospital": "Peligro biologico. No abrir.",
     "Tooltip_Narrador_MaletinMilitar": "Clasificado. Esta cerrado con llave.",
     "Tooltip_Narrador_LlavesBoveda": "La etiqueta dice BOVEDA - MALL.",
@@ -26,5 +26,8 @@
     "Tooltip_Narrador_PicotaCristonks": "Metal azul hielo. Para subir cerros y bajar muertos. Akkakaka. Legendaria: se repara con cinta, pegamento o epoxi.",
     "Tooltip_Narrador_BalanceHasag": "Cada golpe queda anotado en el libro, manito. Legendaria: se repara con cinta, pegamento o epoxi.",
     "Tooltip_Narrador_PalaWertres": "Larga como el. Siuuu. Legendaria: se repara con cinta, pegamento o epoxi.",
-    "Tooltip_Narrador_CuraZ": "Una pastilla sin etiqueta. Dicen que una de cada tantas cura la mordida y las demas son azucar. Con Medicina 4 o mas puedes examinarla. Si no, solo queda probar."
+    "Tooltip_Narrador_CuraZ": "Una pastilla sin etiqueta. Dicen que una de cada tantas cura la mordida y las demas son azucar. Con Medicina 4 o mas puedes examinarla. Si no, solo queda probar.",
+    "Tooltip_Narrador_MangoArma": "Lo hizo el carpintero. Llevaselo al herrero para que te forje un arma.",
+    "Tooltip_Narrador_MangoLegendario": "Madera dura, curada por anos. Con esto el herrero forja un arma legendaria.",
+    "Tooltip_Narrador_PaloEkko": "Un palo largo, turquesa y dorado. Zent dice que con el se puede retroceder el tiempo. No se puede. Legendario: se repara con cinta, pegamento o epoxi."
 }

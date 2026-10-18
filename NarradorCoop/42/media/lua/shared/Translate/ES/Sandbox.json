@@ -50,5 +50,7 @@
     "Sandbox_Narrador.EventosEstacion": "Fechas y clima",
     "Sandbox_Narrador.EventosEstacion_tooltip": "Fonda del Dieciocho, noche de brujas, amigo secreto, fin de ano, corte de luz, tormentas, niebla y calor.",
     "Sandbox_Narrador.Ocupaciones": "Lugares ocupados",
-    "Sandbox_Narrador.Ocupaciones_tooltip": "Si alguien saca algo de una comisaria, armeria, base militar, hospital, farmacia, supermercado o mall, unos dias despues hay bandidos viviendo ahi (sin zombis, con autos quemados, cuerpos y grafitis). Si los matas, 20 dias despues llegan otros."
+    "Sandbox_Narrador.Ocupaciones_tooltip": "Si alguien saca algo de una comisaria, armeria, base militar, hospital, farmacia, supermercado o mall, unos dias despues hay bandidos viviendo ahi (sin zombis, con autos quemados, cuerpos y grafitis). Si los matas, 20 dias despues llegan otros.",
+    "Sandbox_Narrador.DesbloqueoMisioneros": "Misioneros se desbloquean",
+    "Sandbox_Narrador.DesbloqueoMisioneros_tooltip": "Cada misionero aparece cuando lo ayudas a limpiar su edificio para armar un campamento. Si esta apagado, estan desde el principio."
 }

@@ -67,10 +67,14 @@ registrar({
             salidas = { { cuando = { "reloj_vencido", "llegada" }, ir = "llega" } },
         },
         llega = {
-            pista = "Aguantar la horda.",
+            pista = "Aguantar la horda en {lugar:casa}.",
             al_entrar = {
-                { "oleada", lugar = "jugador", cantidad = { 25, 40 }, min = 25, max = 45 },
-                { "aviso", texto = "Se escucha el arrastrar de cientos de pies. Llegaron." },
+                -- La horda va a la casa (el refugio, o donde este el jugador si no tiene).
+                -- De 25 zombis el dia 3 hasta 100 el dia 30 (mas 5 por campamento fundado).
+                { "lugar_casa", id = "casa" },
+                { "oleada", lugar = "casa", progreso = { 25, 100 }, min = 30, max = 60 },
+                { "ruido", lugar = "casa", radio = 150, volumen = 100, veces = 3 },
+                { "aviso", texto = "Se escucha el arrastrar de cientos de pies. Algo hizo ruido en {lugar:casa} y vienen todos para aca." },
             },
             salidas = { { cuando = { "horas", 4 }, ir = "final_paso" } },
         },
@@ -560,6 +564,13 @@ registrar({
             al_entrar = {
                 { "diario", texto = "Rechazaste el asalto a {lugar:refugio}. Lo que traian ahora es tuyo." },
                 { "memoria", clave = "asalto", valor = "rechazado" },
+                -- La fama recorre Knox: una banda entera no pudo con tu refugio.
+                { "knox", cantidad = 10, motivo = "protegiste" },
+                { "aviso", retraso = 0.5, texto = "La noticia corre por Knox: una banda entera se estrello contra {lugar:refugio} y nadie volvio a contarlo." },
+                { "aviso", retraso = 6, si = { "memoria", "campamento_muldraugh", "fundado" },
+                  texto = "Por la radio, el Cabo Ramiro: 'Me contaron lo de su refugio, civil. Una banda entera. Queda anotado en la libreta. Bien hecho.'" },
+                { "aviso", retraso = 8, si = { "memoria", "campamento_westpoint", "fundado" },
+                  texto = "Por la radio, la Tia Chela: 'Mijo, en West Point no se habla de otra cosa. Cuidate igual, que los que quedan vivos se enojan.'" },
             },
         },
         final_se_retiraron = {

@@ -26,6 +26,7 @@ Ind.MODOS = { "auto", "flecha", "brujula", "mapa", "nada" }
 Ind.NOMBRES = { auto = "Automatico (flecha o brujula)", flecha = "Siempre flecha", brujula = "Siempre brujula",
     mapa = "Solo el mapa", nada = "Nada" }
 Ind.modo = Ind.modo or "auto"
+Ind.sigue = Ind.sigue or "camara"
 Ind.N_FLECHAS = 16
 Ind.texturas = Ind.texturas or {}
 
@@ -37,7 +38,8 @@ function Ind.guardar()
     pcall(function()
         local f = getFileWriter(Ind.ARCHIVO, true, false)
         if f == nil then return end
-        f:write("modo=" .. tostring(Ind.modo))
+        f:write("modo=" .. tostring(Ind.modo) .. "\n")
+        f:write("sigue=" .. tostring(Ind.sigue or "camara") .. "\n")
         f:close()
     end)
 end
@@ -47,9 +49,14 @@ function Ind.leer()
         local f = getFileReader(Ind.ARCHIVO, false)
         if f == nil then return end
         local linea = f:readLine()
+        while linea ~= nil do
+            local v = string.match(linea, "^modo=(%a+)")
+            if v ~= nil and Ind.NOMBRES[v] ~= nil then Ind.modo = v end
+            local s = string.match(linea, "^sigue=(%a+)")
+            if s == "camara" or s == "personaje" then Ind.sigue = s end
+            linea = f:readLine()
+        end
         f:close()
-        local v = linea ~= nil and string.match(linea, "^modo=(%a+)") or nil
-        if v ~= nil and Ind.NOMBRES[v] ~= nil then Ind.modo = v end
     end)
 end
 
@@ -94,7 +101,8 @@ function Ind.buscarApiVP()
     Ind._apiVP = false
     pcall(function()
         for k, v in pairs(_G) do
-            if type(k) == "string" and type(v) == "table" and string.find(string.lower(k), "viewpoint", 1, true) ~= nil then
+            if type(k) == "string" and type(v) == "table" and k ~= "NarradorViewpoint"
+                and string.find(string.lower(k), "viewpoint", 1, true) ~= nil then
                 Ind._apiVP = v
                 return
             end
@@ -105,6 +113,8 @@ end
 
 function Ind.primeraPersona()
     if not Ind.hayViewpoint() then return false end
+    local pp = Ind.primeraPersonaPuente()
+    if pp ~= nil then return pp end
     local api = Ind.buscarApiVP()
     if type(api) ~= "table" then return Ind.vpManual == true end
     local campos = { "isFirstPerson", "IsFirstPerson", "isFPS", "isEnabled", "isActive", "firstPerson", "FirstPerson",
@@ -268,7 +278,103 @@ end
 function NarradorBrujula:onMouseDown() return false end
 function NarradorBrujula:onMouseUp() return false end
 
+-- Hacia donde mira la camara de Project Viewpoint (rumbo del mundo en radianes, o nil si el
+-- mod no lo dice). Se prueban los nombres tipicos de "yaw" en su tabla global y en sus
+-- subtablas de camara. Si viene en grados (mas de una vuelta) se pasa a radianes.
+Ind.CAMPOS_YAW = { "getCameraYaw", "getYaw", "getCamYaw", "getHeading", "getCameraAngle", "getLookAngle",
+    "getRotation", "cameraYaw", "camYaw", "yaw", "heading", "cameraAngle", "lookAngle" }
+
+local function leerNumero(t, campo)
+    local v = t[campo]
+    if type(v) == "number" then return v end
+    if type(v) == "function" then
+        local ok, r = pcall(v)
+        if ok and type(r) == "number" then return r end
+        ok, r = pcall(v, t)
+        if ok and type(r) == "number" then return r end
+    end
+    return nil
+end
+
+-- Puente Java propio (NarradorCoop/java/NarradorViewpoint, cargado por ZombieBuddy): lee
+-- viewpoint.input.Look.yaw, el angulo real de la camara de Viewpoint. Devuelve radianes en la
+-- misma convencion que IC.rumbo (atan2(dy, dx) del mundo, x al este, y al sur), porque
+-- Viewpoint orienta al personaje con setForwardDirection(cos(yaw), sin(yaw)): no hay que
+-- convertir nada (ni grados, ni signo, ni los 45 grados de la vista isometrica).
+-- nil si el puente no esta (sin ZombieBuddy, jar no aprobado) o si no estas en primera persona.
+function Ind.yawPuente()
+    local puente = NarradorViewpoint
+    if puente == nil or puente.yaw == nil then return nil end
+    local ok, v = pcall(puente.yaw)
+    if ok and type(v) == "number" and v == v then return v end
+    return nil
+end
+
+function Ind.primeraPersonaPuente()
+    local puente = NarradorViewpoint
+    if puente == nil or puente.primeraPersona == nil then return nil end
+    local ok, v = pcall(puente.primeraPersona)
+    if ok and type(v) == "boolean" then return v end
+    return nil
+end
+
+function Ind.yawCamara()
+    local yp = Ind.yawPuente()
+    if yp ~= nil then return yp + (Ind.ajusteCamara or 0) end
+    -- Respaldo: buscar alguna tabla global de Viewpoint que diga el yaw (no suele haber).
+    local api = Ind.buscarApiVP()
+    if type(api) ~= "table" then return nil end
+    local tablas = { api }
+    for _, sub in ipairs({ "Camera", "camera", "Cam", "cam", "FirstPerson", "firstPerson" }) do
+        if type(api[sub]) == "table" then tablas[#tablas + 1] = api[sub] end
+    end
+    for _, t in ipairs(tablas) do
+        for _, campo in ipairs(Ind.CAMPOS_YAW) do
+            local v = leerNumero(t, campo)
+            if v ~= nil then
+                if math.abs(v) > 2 * math.pi + 0.1 then v = math.rad(v) end
+                return v + (Ind.ajusteCamara or 0)
+            end
+        end
+    end
+    return nil
+end
+
+-- La brujula sigue a la camara (si se sabe hacia donde mira) o al personaje.
 function Ind.mirada(jugador)
+    if Ind.sigue ~= "personaje" then
+        local yaw = Ind.yawCamara()
+        if yaw ~= nil then return yaw end
+    end
+    return Ind.miradaPersonaje(jugador)
+end
+
+-- Lista en la consola (console.txt) lo que expone Project Viewpoint, para saber de donde
+-- sacar la direccion de la camara si la brujula no la encuentra sola.
+function Ind.diagnostico()
+    local jugador = getPlayer()
+    print("[Narrador] brujula: viewpoint=" .. tostring(Ind.hayViewpoint()) .. " primeraPersona=" .. tostring(Ind.primeraPersona())
+        .. " yawCamara=" .. tostring(Ind.yawCamara()) .. " personaje=" .. tostring(jugador and Ind.miradaPersonaje(jugador)))
+    local puente = NarradorViewpoint
+    if puente ~= nil and puente.estado ~= nil then
+        local ok, e = pcall(puente.estado)
+        print("[Narrador] brujula: puente Java " .. tostring(ok and e or "error"))
+    else
+        print("[Narrador] brujula: puente Java NarradorViewpoint no cargado (ZombieBuddy ausente o jar sin aprobar)")
+    end
+    for k, v in pairs(_G) do
+        local n = type(k) == "string" and string.lower(k) or ""
+        if (string.find(n, "viewpoint", 1, true) or string.find(n, "camera", 1, true)) then
+            print("[Narrador] global " .. tostring(k) .. " (" .. type(v) .. ")")
+            if type(v) == "table" then
+                for k2, v2 in pairs(v) do print("[Narrador]   ." .. tostring(k2) .. " = " .. type(v2) .. " " .. tostring(v2)) end
+            end
+        end
+    end
+    if Cliente ~= nil and Cliente.halo ~= nil then Cliente.halo("Brujula: datos en console.txt") end
+end
+
+function Ind.miradaPersonaje(jugador)
     local ang
     pcall(function()
         local v = jugador:getForwardDirection()
@@ -382,6 +488,16 @@ function Ind.menu(numJugador, context, worldobjects, test)
         subM:addOption(Ind.vpManual and "Estoy en primera persona: si" or "Estoy en primera persona: no", nil, function()
             Ind.vpManual = not Ind.vpManual
         end)
+        local camara = Ind.sigue ~= "personaje"
+        subM:addOption(camara and "La brujula sigue a: la camara" or "La brujula sigue a: el personaje", nil, function()
+            Ind.sigue = camara and "personaje" or "camara"
+            Ind.guardar()
+            if camara == true or Ind.yawCamara() ~= nil then return end
+            if Cliente ~= nil and Cliente.halo ~= nil then
+                Cliente.halo("No encuentro la camara de Viewpoint: la brujula sigue al personaje")
+            end
+        end)
+        subM:addOption("Diagnostico de la brujula (console.txt)", nil, Ind.diagnostico)
     end
 end
 
@@ -412,7 +528,24 @@ function Ind.menuAdmin(destino)
     for _, c in ipairs({ { "muldraugh", "Cabo Ramiro" }, { "westpoint", "Tia Chela" }, { "riverside", "Padre Nacho" }, { "rosewood", "Misia Rosa" } }) do
         subRep:addOption(c[2], nil, function() Cliente.enviar("repSumar", { contacto = c[1], cantidad = 20 }) end)
     end
+    sub:addOption("Respawnear NPCs de las historias activas (muertos o perdidos)", nil, function() Cliente.enviar("reponerHistorias", {}) end)
+    local rp = sub:addOption("Reponer misionero (saca el NPC roto y lo crea de nuevo)", nil, nil)
+    local subRp = ISContextMenu:getNew(sub)
+    sub:addSubMenu(rp, subRp)
+    for _, c in ipairs({ { "muldraugh", "Cabo Ramiro" }, { "westpoint", "Tia Chela" }, { "riverside", "Padre Nacho" }, { "rosewood", "Misia Rosa" } }) do
+        subRp:addOption(c[2], nil, function() Cliente.enviar("reponerMisionero", { contacto = c[1] }) end)
+    end
+    local am2 = sub:addOption("Arma legendaria de un misionero (para mi grupo)", nil, nil)
+    local subAm2 = ISContextMenu:getNew(sub)
+    sub:addSubMenu(am2, subAm2)
+    for _, c in ipairs({ { "muldraugh", "Cabo Ramiro" }, { "westpoint", "Tia Chela" }, { "riverside", "Padre Nacho" }, { "rosewood", "Misia Rosa" } }) do
+        subAm2:addOption(c[2], nil, function() Cliente.enviar("armaMisionero", { contacto = c[1] }) end)
+    end
     sub:addOption("Estado del narrador (tension, rumores, fama)", nil, function() Cliente.enviar("estadoNarrador", {}) end)
+    sub:addOption("Acompanante: el NPC mas cercano me sigue (probar el auto)", nil, function() Cliente.enviar("acompananteAhora", {}) end)
+    sub:addOption("Soltar a los acompanantes", nil, function() Cliente.enviar("soltarAcompanantes", {}) end)
+    sub:addOption("Reputacion de Knox +30", nil, function() Cliente.enviar("knoxSumar", { cantidad = 30 }) end)
+    sub:addOption("Reputacion de Knox -30", nil, function() Cliente.enviar("knoxSumar", { cantidad = -30 }) end)
     local am = sub:addOption("Amenaza ahora", nil, nil)
     local subAm = ISContextMenu:getNew(sub)
     sub:addSubMenu(am, subAm)

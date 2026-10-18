@@ -48,7 +48,7 @@ O.ARMAS_SOUS = {
 -- Objetos de mision: { def (patron), id del objeto, item del mod }.
 O.CAMBIOS_OBJETOS = {
     { "^sous$", "medicina", "Narrador.BotiquinSous" },
-    { "^sous$", "diario_maulen", "Narrador.DiarioMaulen" },
+    { "^sous$", "diario_maulen", "Narrador.DiarioMeulen" },
     { "^sous_arsenal$", "caja", "Narrador.CajaArsenal" },
     { "^encargo_paquete_", "objeto", "Narrador.PaqueteMisionero" },
     { "^encargo_medicina_", "objeto", "Narrador.Antibioticos" },

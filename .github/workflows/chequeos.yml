@@ -1,0 +1,27 @@
+# Chequeos del mod en cada push y pull request (no necesitan el juego).
+name: Chequeos
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  chequeos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar lupa (interprete de Lua)
+        run: pip install lupa
+      - name: Todos los .lua compilan
+        run: python3 NarradorCoop/herramientas/pruebas/sintaxis.py
+      - name: Lista central de memorias
+        run: python3 NarradorCoop/herramientas/memorias.py
+      - name: Mapa de historias y lanzadores
+        run: python3 NarradorCoop/herramientas/mapa_historias.py
+      - name: El mapa de historias esta al dia
+        run: git diff --exit-code NarradorCoop/MAPA_HISTORIAS.md || (echo "Regenerar el mapa con python3 NarradorCoop/herramientas/mapa_historias.py" && exit 1)
+      - name: Pruebas con los modulos del servidor
+        run: python3 NarradorCoop/herramientas/pruebas/correr.py
