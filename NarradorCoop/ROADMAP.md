@@ -101,6 +101,8 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1 y 0.12.2 está hecho pero sin 
 - ~~Más consecuencias para las memorias "solo de registro" (encuentros, alijo, trueque...).~~ Hecho
   para arsenal, denise, lucas, trueque, alijo y desertor (ver "Consecuencias de las decisiones");
   quedan solo de registro cal.fonda, eduardo_vivo, bandido_ultimo, asalto y las del motor.
+  La fonda ya tiene su consecuencia dentro de la misma historia: el olor del asado atrae una
+  horda a la base de Sous (la memoria `cal.fonda` queda solo como registro).
   Despues (falta probar en el juego): la fonda se planea desde el 10 de septiembre; Eduardo vive
   en el campamento de la Chela, es reclutable ("sigueme") y si muere vuelve a los 3 dias
   (`NarradorEduardoResidente.lua`); el patio te recibe segun `bandido_ultimo` (abandonado: mas

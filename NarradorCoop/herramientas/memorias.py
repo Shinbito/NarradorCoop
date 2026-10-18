@@ -113,7 +113,7 @@ MEMORIAS = {
 
 # Memorias que se escriben y nadie lee, a proposito. El motivo dice para que estan.
 SIN_LECTOR = {
-    "cal.fonda": "registro",
+    "cal.fonda": "registro (su consecuencia es la horda que atrae el asado, dentro de la misma historia)",
     "asalto": "registro (la fama de Knox se da en el mismo final)",
     "faccion.<id>": "registro del motor",
     "conv.<conv>.quien": "registro",
