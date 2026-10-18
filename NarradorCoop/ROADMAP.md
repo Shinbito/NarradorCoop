@@ -9,7 +9,7 @@ memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias
 memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 
-## Pendiente (versión 0.12.0)
+## Pendiente (versión 0.12.1)
 
 ### 1. Probar en el juego (lo más importante)
 Todo lo de las versiones 0.10, 0.11 y 0.12 está hecho pero sin probar. Lo que más hay que mirar:
