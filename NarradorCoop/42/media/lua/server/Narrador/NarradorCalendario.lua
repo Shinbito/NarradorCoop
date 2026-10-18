@@ -1,7 +1,7 @@
 -- Narrador Co-op: calendario y clima.
 -- Condiciones nuevas para las historias (estacion, fecha, nieve, lluvia, tormenta, niebla,
 -- temperatura, luz y agua cortadas) y eventos de una vez por partida:
---   18 sep: la fonda de Sous (si son aliados).        31 oct: noche de brujas.
+--   10-18 sep: la fonda de Sous (si son aliados).        31 oct: noche de brujas.
 --   24 dic: el amigo secreto de Sous.                 31 dic: la ultima noche del 93.
 --   El dia que se corta la luz.  Tormentas, niebla y olas de calor (cada cierto tiempo).
 -- Sin tildes ni enies a proposito.
@@ -285,7 +285,8 @@ function Cal.tick()
     if Motor.minutosDesdeArranque % 10 ~= 0 then return end
     if not Cal.eventosActivos() then return end
     local d, m, h = Mundo.fecha()
-    if d == 18 and m == 9 and h >= 9 then Cal.una("fonda", Cal.fonda) end
+    -- La fonda se empieza a planear el 10 de septiembre (y se celebra el 18).
+    if m == 9 and d >= 10 and d <= 18 and h >= 9 then Cal.una("fonda", Cal.fonda) end
     if d == 24 and m == 12 and h >= 8 then Cal.una("amigo_secreto", Cal.amigoSecreto) end
     if d == 31 and m == 10 and h >= 17 then pcall(Cal.dulces) end
     if d == 31 and m == 10 and h >= 22 then Cal.una("brujas_noche", Cal.brujasNoche) end

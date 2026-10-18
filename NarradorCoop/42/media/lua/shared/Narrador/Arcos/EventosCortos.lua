@@ -564,6 +564,13 @@ registrar({
             al_entrar = {
                 { "diario", texto = "Rechazaste el asalto a {lugar:refugio}. Lo que traian ahora es tuyo." },
                 { "memoria", clave = "asalto", valor = "rechazado" },
+                -- La fama recorre Knox: una banda entera no pudo con tu refugio.
+                { "knox", cantidad = 10, motivo = "protegiste" },
+                { "aviso", retraso = 0.5, texto = "La noticia corre por Knox: una banda entera se estrello contra {lugar:refugio} y nadie volvio a contarlo." },
+                { "aviso", retraso = 6, si = { "memoria", "campamento_muldraugh", "fundado" },
+                  texto = "Por la radio, el Cabo Ramiro: 'Me contaron lo de su refugio, civil. Una banda entera. Queda anotado en la libreta. Bien hecho.'" },
+                { "aviso", retraso = 8, si = { "memoria", "campamento_westpoint", "fundado" },
+                  texto = "Por la radio, la Tia Chela: 'Mijo, en West Point no se habla de otra cosa. Cuidate igual, que los que quedan vivos se enojan.'" },
             },
         },
         final_se_retiraron = {

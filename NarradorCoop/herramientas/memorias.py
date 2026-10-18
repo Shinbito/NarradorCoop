@@ -74,6 +74,7 @@ MEMORIAS = {
     "bandido_jefe": "Quien manda el patio: nil = Pereira, 'maulen'.",
     "bandido_sospecha": "Sabotajes sin descubrir: cada uno suma 30% de que Pereira mande cazadores.",
     "bandido_aviso_cabo": "Ya se aviso que el cap. 2 espera el campamento del Cabo.",
+    "bandido_ultimo_visto": "Ultimo valor de bandido_ultimo que el patio ya te hizo sentir (NarradorBandido BA.consecuenciaUltimo).",
     "bandido_ultimo": "Como termino el ultimo capitulo del bandido (hecho o abandonado).",
     "pereira_desconfia": "Pereira descubrio un sabotaje (castigo): desde ahi cada sabotaje pesa 45% en vez de 30%.",
     "pereira_aviso_desconfia": "Ya se aviso que el jefe del patio te vigila.",
@@ -113,10 +114,7 @@ MEMORIAS = {
 # Memorias que se escriben y nadie lee, a proposito. El motivo dice para que estan.
 SIN_LECTOR = {
     "cal.fonda": "registro",
-    "campamento_<id>": "registro; el codigo mira C.desbloqueado() y historia_<id>_1",
-    "eduardo_vivo": "registro",
-    "bandido_ultimo": "registro",
-    "asalto": "registro (eventos cortos)",
+    "asalto": "registro (la fama de Knox se da en el mismo final)",
     "faccion.<id>": "registro del motor",
     "conv.<conv>.quien": "registro",
     "conv.<conv>.hora": "registro",

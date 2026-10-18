@@ -1,5 +1,6 @@
 -- Historias de fecha (una vez por partida). Las lanza server/Narrador/NarradorCalendario.lua.
---   La fonda de Sous (18 de septiembre, Sous aliado): carne y carbon, asado en la base.
+--   La fonda de Sous (Sous aliado): se planea desde el 10 de septiembre (carne y carbon) y
+--   el asado es el 18 en la base.
 --   El amigo secreto (24 de diciembre, Sous aliado): un regalo para un Sous sorteado.
 -- Dialogos originales, solo imitando la forma de hablar de cada uno. Sin tildes ni enies.
 
@@ -24,13 +25,13 @@ registrar({
             al_entrar = {
                 { "lugar_memoria", id = "base_sous", clave = "base_sous", salas = { "livingroom" }, min = 50, max = 400 },
                 { "conversar", id = "fonda_lista" },
-                { "aviso", texto = "Es 18 de septiembre. En la base de Sous estan armando la fonda." },
-                { "diario", texto = "Sous quiere celebrar el Dieciocho. Akagami hizo una lista: carne, carbon, y que Walita no baile." },
+                { "aviso", texto = "Se viene el 18 de septiembre. En la base de Sous ya estan planeando la fonda." },
+                { "diario", texto = "Sous quiere celebrar el Dieciocho. Akagami hizo una lista: carne, carbon, y que Walita no baile. Hay que llevarlo antes del 18." },
             },
             salidas = { { ir = "pedido" } },
         },
         pedido = {
-            pista = "Llevar 2 carnes y algo para el fuego (carbon o lena) a la base de Sous en {lugar:base_sous}.",
+            pista = "Llevar 2 carnes y algo para el fuego (carbon o lena) a la base de Sous en {lugar:base_sous}, antes del 18 de septiembre.",
             ancla = "base_sous", radio = 45,
             opciones = {
                 { id = "entregar", texto = "Entregar la carne y el carbon para la fonda",
@@ -38,8 +39,20 @@ registrar({
                   falta = "Faltan cosas: 2 carnes y algo para el fuego (carbon, lena o tablas)." },
             },
             salidas = {
-                { cuando = { "eleccion", "entregar" }, ir = "asado" },
-                { cuando = { "horas", 30 }, ir = "final_sin_fonda" },
+                { cuando = { "eleccion", "entregar" }, ir = "preparativos" },
+                { cuando = { "fecha", 19, 9 }, ir = "final_sin_fonda" },
+                { cuando = { "horas", 240 }, ir = "final_sin_fonda" },
+            },
+        },
+        -- Ya llevaste lo de la fonda: Sous espera el 18.
+        preparativos = {
+            pista = "La fonda de Sous es el 18 de septiembre en {lugar:base_sous}.",
+            al_entrar = {
+                { "aviso", texto = "Sous guardo la carne y el carbon. La fonda es el 18: Akagami ya esta ensayando la cueca. Mal." },
+            },
+            salidas = {
+                { cuando = { "fecha", 18, 9 }, ir = "asado" },
+                { cuando = { "fecha", 19, 9 }, ir = "asado" },
             },
         },
         asado = {

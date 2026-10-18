@@ -101,6 +101,11 @@ Todo lo de las versiones 0.10, 0.11 y 0.12 está hecho pero sin probar. Lo que m
 - ~~Más consecuencias para las memorias "solo de registro" (encuentros, alijo, trueque...).~~ Hecho
   para arsenal, denise, lucas, trueque, alijo y desertor (ver "Consecuencias de las decisiones");
   quedan solo de registro cal.fonda, eduardo_vivo, bandido_ultimo, asalto y las del motor.
+  Despues (falta probar en el juego): la fonda se planea desde el 10 de septiembre; Eduardo vive
+  en el campamento de la Chela, es reclutable ("sigueme") y si muere vuelve a los 3 dias
+  (`NarradorEduardoResidente.lua`); el patio te recibe segun `bandido_ultimo` (abandonado: mas
+  sospecha; hecho: una caja de balas; redimido: "traidor!"); rechazar el asalto da Knox +10 y
+  los misioneros lo comentan por radio.
 
 ## Versión 0.12.0: hecho el 17 de octubre (falta probar en el juego)
 - Mapa anotado que cerraba el juego (texto sin fuente en la API v1 de simbolos).

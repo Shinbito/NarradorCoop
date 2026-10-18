@@ -287,7 +287,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
 | `final_fonda` | "Entregar la carne y el carbon para la fonda", y despues `pasan 2.5 h` | `cal.fonda` = hecha | - |
-| `final_sin_fonda` | `pasan 30 h` | `cal.fonda` = sin | - |
+| `final_sin_fonda` | `fecha 19 9`<br>`pasan 240 h` | `cal.fonda` = sin | - |
 
 ### La puerta de atras (`cap_cabo_2`)
 
@@ -675,7 +675,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | Historia | Id | Como se lanza | Pide | Lo corta | Deja (memoria = valor, en que final) |
 | --- | --- | --- | --- | --- | --- |
 | El alijo | `alijo_custodiado` | el director (al azar, segun tension) | - | - | `alijo` = encontrado (final_encontrado) |
-| Asalto al refugio | `asalto_nocturno` | eco de trueque_trampa (final_escapaste) | - | - | `asalto` = rechazado (final_rechazado) |
+| Asalto al refugio | `asalto_nocturno` | eco de trueque_trampa (final_escapaste) | `campamento_muldraugh`, `campamento_westpoint` | - | `asalto` = rechazado (final_rechazado) |
 | El camino del bandido: el traidor | `bandido_1` | Knox llega a -5 (NarradorBandido) | `knox_bandido_<grupo>` | - | `bandido` = rechazado (final_rechazo)<br>`bandido` = redimido (final_redimido)<br>`bandido_cap` = 1 (final_cumplido)<br>`bandido_cap` = 1 (final_perdonado)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_cumplido)<br>`bandido_ultimo` = hecho (final_perdonado)<br>`bandido_ultimo` = redimido (final_redimido)<br>`julio_vivo` = true (huida) |
 | El camino del bandido: la comisaria | `bandido_2` | volver al patio de trenes, con el campamento del Cabo (NarradorBandido) | `bandido_cap = 1`, `historia_muldraugh_1` | - | `bandido` = redimido (final_redimido)<br>`bandido_cap` = 2 (final_cumplido)<br>`bandido_cap` = 2 (final_saboteado)<br>`bandido_sospecha` = ? (final_saboteado)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_cumplido)<br>`bandido_ultimo` = hecho (final_saboteado)<br>`bandido_ultimo` = redimido (final_redimido) |
 | El camino del bandido: la familia | `bandido_3` | volver al patio de trenes (NarradorBandido) | `bandido_cap = 2` | - | `bandido` = redimido (final_redimido)<br>`bandido_cap` = 3 (final_cumplido)<br>`bandido_cap` = 3 (final_saboteado)<br>`bandido_sospecha` = ? (final_saboteado)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_cumplido)<br>`bandido_ultimo` = hecho (final_saboteado)<br>`bandido_ultimo` = redimido (final_redimido) |
@@ -762,18 +762,19 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `arsenal` | Que sacaste del arsenal de Louisville (arma, auto o traje). Un misionero te lo comenta (NarradorConsecuencias). | sous_arsenal | - | escribe: Sous; lee: NarradorConsecuencias |
 | `arsenal_comentado` | Que misionero ya te comento lo del arsenal (una sola vez). | - | - | escribe: NarradorConsecuencias; lee: NarradorConsecuencias |
 | `asalto` | El asalto nocturno: rechazado. | asalto_nocturno | - | escribe: EventosCortos |
-| `bandido` | Camino del bandido: pereira, rechazado, redimido o pereira_escapo. | bandido_1, bandido_2, bandido_3, bandido_4, bandido_5, bandido_maulen | conquista_muldraugh, conquista_sous, eduardo_evento | escribe: Bandido, NarradorBandido; lee: NarradorBandido, NarradorEduardo, NarradorVenganzaMeulen |
+| `bandido` | Camino del bandido: pereira, rechazado, redimido o pereira_escapo. | bandido_1, bandido_2, bandido_3, bandido_4, bandido_5, bandido_maulen | conquista_muldraugh, conquista_sous, eduardo_evento | escribe: Bandido, NarradorBandido; lee: NarradorBandido, NarradorEduardo, NarradorEduardoResidente, NarradorVenganzaMeulen |
 | `bandido_aviso_cabo` | Ya se aviso que el cap. 2 espera el campamento del Cabo. | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `bandido_cap` | Ultimo capitulo del bandido hecho (1 a 5). | bandido_1, bandido_2, bandido_3, bandido_4, bandido_5 | bandido_2, bandido_3, bandido_4, bandido_5 | escribe: Bandido, NarradorBandido; lee: NarradorBandido |
 | `bandido_desde` | Hora del ultimo capitulo del bandido (12 horas entre uno y otro). | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `bandido_jefe` | Quien manda el patio: nil = Pereira, 'maulen'. | - | - | escribe: NarradorBandido; lee: NarradorBandido, NarradorVenganzaMeulen |
 | `bandido_sospecha` | Sabotajes sin descubrir: cada uno suma 30% de que Pereira mande cazadores. | bandido_2, bandido_3, bandido_4 | bandido_castigo | escribe: Bandido, NarradorBandido; lee: NarradorBandido |
-| `bandido_ultimo` | Como termino el ultimo capitulo del bandido (hecho o abandonado). | bandido_1, bandido_2, bandido_3, bandido_4, bandido_5, bandido_maulen | - | escribe: Bandido |
+| `bandido_ultimo` | Como termino el ultimo capitulo del bandido (hecho o abandonado). | bandido_1, bandido_2, bandido_3, bandido_4, bandido_5, bandido_maulen | - | escribe: Bandido; lee: NarradorBandido |
+| `bandido_ultimo_visto` | Ultimo valor de bandido_ultimo que el patio ya te hizo sentir (NarradorBandido BA.consecuenciaUltimo). | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `bell` | Como terminaron los Bell (salvados, enganados, abandonados, masacre...). Sous la lee. | familia_infectada | sous | escribe: FamiliaInfectada; lee: NarradorBell, Sous |
 | `bell_culpa` | Les diste una pastilla falsa a los Bell y te quedaste con la verdadera. Maulen lo sabe; en Sous oyen a los Bell hablar bien de ti. | familia_infectada | bandido_maulen | escribe: FamiliaInfectada; lee: Bandido, Sous |
-| `caido_<quien>` | Un NPC inmune (Eduardo) cayo: true; 'volvio' cuando reaparece en el cuartel. | eduardo_evento, leyenda_eduardo | eduardo_vuelve | escribe: NarradorContactos; lee: NarradorContactos |
+| `caido_<quien>` | Un NPC inmune (Eduardo) cayo: true; 'volvio' cuando reaparece en el cuartel. | eduardo_evento, leyenda_eduardo | eduardo_vuelve | escribe: NarradorContactos; lee: NarradorContactos, NarradorEduardoResidente |
 | `cal.fonda` | Como salio la fonda del 18 de septiembre (hecha o sin). | cal_fonda | - | escribe: Calendario |
-| `campamento_<id>` | El campamento de ese misionero se fundo (Desbloqueos). Hoy el codigo mira C.desbloqueado(). | desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint | - | escribe: Desbloqueos |
+| `campamento_<id>` | El campamento de ese misionero se fundo (Desbloqueos). Hoy el codigo mira C.desbloqueado(). | desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint | asalto_nocturno | escribe: Desbloqueos; lee: EventosCortos |
 | `cientifico_hartmann` | El doctor Hartmann: en_west_point o muerto. Muerto, el curandero de la Chela es un mercader. | leyenda_eduardo | - | escribe: LeyendaEduardo; lee: NarradorCampamentosDefs |
 | `conquista_<id>` | Esa ciudad (o 'sous') ya fue conquistada. | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_sous, conquista_westpoint | conquista_riverside, conquista_rosewood, conquista_westpoint | escribe: Conquista; lee: NarradorBandido |
 | `conquista_aviso` | Ya se aviso que empieza la conquista. | - | - | escribe: Conquista, NarradorBandido; lee: NarradorBandido |
@@ -786,14 +787,14 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `desertor` | El desertor: protegido, entregado, echado, muerto o asesinado. Protegido: Ray vuelve con la Guardia detras (ConsecuenciasExtra). | eco_desertor_vuelve, el_desertor | - | escribe: ConsecuenciasExtra, EventosCortos; lee: ConsecuenciasExtra |
 | `dominio_<id>` | De quien es la ciudad: nil = mision, 'bandido' o 'nuevo' (NarradorDominios). | - | - | escribe: NarradorDominios; lee: NarradorDominios |
 | `eduardo_atentados` | Atentados de Eduardo hechos (3). | - | - | escribe: NarradorBandido; lee: NarradorBandido |
-| `eduardo_conocido` | Ya conociste a Eduardo (cap. 3 de la Chela). Abre sus eventos fortuitos. | leyenda_eduardo | bandido_5, eduardo_evento | escribe: LeyendaEduardo; lee: Bandido, Encuentros, NarradorEduardo |
+| `eduardo_conocido` | Ya conociste a Eduardo (cap. 3 de la Chela). Abre sus eventos fortuitos. | leyenda_eduardo | bandido_5, eduardo_evento | escribe: LeyendaEduardo; lee: Bandido, Encuentros, NarradorEduardo, NarradorEduardoResidente |
 | `eduardo_desde` | Hora del ultimo atentado de Eduardo. | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `eduardo_ev_dia` | Ultimo dia en que se tiro el evento fortuito de Eduardo. | - | - | escribe: NarradorEduardo; lee: NarradorEduardo |
 | `eduardo_ev_hora` | Hora del ultimo evento fortuito de Eduardo. | - | - | escribe: NarradorEduardo; lee: NarradorEduardo |
 | `eduardo_fallas` | Ya se lanzo la historia de Fallas Lake. | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `eduardo_muerto_duelo` | Mataste a Eduardo en el duelo de Fallas Lake. Corta sus eventos. | eduardo_fallas | eduardo_evento | escribe: Eduardo; lee: NarradorEduardo |
 | `eduardo_nota` | Eduardo dejo la nota con el mapa a Fallas Lake. | eduardo_atentado | eduardo_fallas | escribe: Eduardo; lee: NarradorBandido |
-| `eduardo_vivo` | Eduardo volvio vivo al cuartel despues de caer. | eduardo_vuelve | - | escribe: LeyendaEduardo |
+| `eduardo_vivo` | Eduardo volvio vivo al cuartel despues de caer. | eduardo_vuelve | - | escribe: LeyendaEduardo; lee: NarradorEduardoResidente |
 | `estanque_rosewood` | El estanque de bencina de la Misia Rosa quedo defendido (cap. 3): cada 72 horas te deja un bidon lleno. | cap_rosa_3 | - | escribe: Capitulos; lee: NarradorConsecuencias |
 | `estanque_ultima` | Hora del ultimo bidon del estanque de la Misia Rosa (NarradorConsecuencias). | - | - | escribe: NarradorConsecuencias; lee: NarradorConsecuencias |
 | `faccion.<id>` | Postura de las facciones propias en A-Life (accion 'faccion'). | - | - | escribe: NarradorMotorAcciones |
@@ -806,7 +807,7 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `hsous_primos` | Lo que le dijiste a Matric de los primos en su historia: contado, verdad o secreto (ecos en la base). | hsous_benjamin | - | escribe: HistoriasSous1; lee: HistoriasSous1, NarradorHistoriasSous1 |
 | `julio_vivo` | Dejaste ir a Julio Cardenas en el cap. 1. | bandido_1 | bandido_5 | escribe: Bandido; lee: Bandido |
 | `knox_bandido_<grupo>` | 'listo' la primera vez que el grupo llega a -5 de Knox (abre a Pereira). | - | bandido_1 | escribe: NarradorKnox; lee: NarradorKnox |
-| `knox_conquistado` | Las cinco conquistas terminaron: Knox es de la banda. | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_westpoint | eduardo_atentado | escribe: NarradorBandido; lee: NarradorBandido |
+| `knox_conquistado` | Las cinco conquistas terminaron: Knox es de la banda. | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_westpoint | eduardo_atentado | escribe: NarradorBandido; lee: NarradorBandido, NarradorEduardoResidente |
 | `knox_conquistado_hora` | Hora en que Knox quedo conquistado (cuenta para el primer atentado). | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `lucas` | Lucas (hijo perdido): rescatado, muerto, asesinado o transformado. Rescatado: te marca una farmacia; asesinado: Loretta lo cuenta (Knox -15). | hijo_perdido | - | escribe: EventosCortos; lee: ConsecuenciasExtra |
 | `lucia` | Que paso con la Hermana Lucia en el cap. 3 del Padre Nacho (en_riverside o muerta). Si murio, la reemplaza otro. | cap_nacho_3 | - | escribe: Capitulos; lee: NarradorDominiosDefs |
@@ -843,6 +844,6 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 Se escriben y nadie las lee todavia (ver `SIN_LECTOR` en `memorias.py`).
 
 
-Solo de registro: `asalto`, `bandido_ultimo`, `cal.fonda`, `campamento_<id>`, `conv.<conv>.hora`, `conv.<conv>.quien`, `eduardo_vivo`, `faccion.<id>`.
+Solo de registro: `asalto`, `cal.fonda`, `campamento_<id>`, `conv.<conv>.hora`, `conv.<conv>.quien`, `faccion.<id>`.
 
 Encargos que se repiten (no son trama): `enc`, `encargo`, `encargo_alijo`, `encargo_gen`, `encargo_medicina`, `encargo_paquete`, `encargo_planos`, `encargo_radio`, `encargo_rescate`, `encargo_ultra`, `inmoral`, `recado`.

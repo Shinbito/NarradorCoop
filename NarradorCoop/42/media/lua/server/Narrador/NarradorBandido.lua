@@ -195,9 +195,32 @@ function BA.revisarEduardo(m)
     end
 end
 
+-- Como te recibe el patio segun como terminaste el ultimo capitulo (memoria "bandido_ultimo").
+-- Pasa una vez por cada valor nuevo, la proxima vez que alguien vuelve al patio.
+function BA.consecuenciaUltimo(m)
+    local ultimo = m.bandido_ultimo
+    if ultimo == nil or m.bandido_ultimo_visto == ultimo then return end
+    local j = jugadorEnPatio(m)
+    if j == nil then return end
+    m.bandido_ultimo_visto = ultimo
+    local jefe = BA.jefeCorto(m)
+    if ultimo == "abandonado" then
+        m.bandido_sospecha = (tonumber(m.bandido_sospecha) or 0) + 1
+        Motor.enviar(j, "aviso", { texto = jefe .. ": 'Me dejaste botada con lo ultimo que te pedi. Aca nadie deja nada a medias. Te estoy mirando.'" })
+        Mundo.log("bandido: el patio recuerda el capitulo abandonado (sospecha +1)")
+    elseif ultimo == "hecho" then
+        local caja = Mundo.crearItem({ "Base.Bullets9mmBox", "Base.ShotgunShellsBox", "Base.Bullets9mm" })
+        if caja ~= nil then Mundo.darItem(j, caja) end
+        Motor.enviar(j, "aviso", { texto = jefe .. " te tira una caja de balas sin mirarte: 'Cumpliste. Aca eso se paga.'" })
+    elseif ultimo == "redimido" then
+        Motor.enviar(j, "aviso", { texto = "Desde una ventana del patio alguien grita 'Traidor!' y suena un disparo al aire. Aca ya no eres bienvenido." })
+    end
+end
+
 function BA.revisar()
     local m = Motor.estado().memoria
     if BA.enCurso() then return end
+    pcall(BA.consecuenciaUltimo, m)
     if m.bandido == "pereira" then
         if m.knox_conquistado then BA.revisarEduardo(m) else BA.revisarConquista(m) end
         return
