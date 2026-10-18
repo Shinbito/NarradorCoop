@@ -984,15 +984,27 @@
     "semantic_hash": ""
   },
   "42/media/textures/Item_NarradorPaloEkko.png": {
-    "mtime": 1792262333.1059482,
-    "seen": 1792284883.2575712,
-    "ast_hash": "ba4a9626bd4a39c70467e8ed36ab4004",
+    "mtime": 1792285456.8985112,
+    "seen": 1792285515.1329134,
+    "ast_hash": "8b18f909e5bc6dbfd34a402cb4c86c9f",
     "semantic_hash": ""
   },
   "42/media/textures/Narrador/Armas/PaloEkko.png": {
-    "mtime": 1792262333.1059482,
-    "seen": 1792284883.2575803,
-    "ast_hash": "e7b2f1db0347fe902c94324c723886b9",
+    "mtime": 1792285456.8975112,
+    "seen": 1792285515.1329277,
+    "ast_hash": "f31b884bcd4eddea3f09a0f4a7ee2100",
+    "semantic_hash": ""
+  },
+  "42/media/lua/client/Narrador/NarradorRepararCliente.lua": {
+    "mtime": 1792285377.029474,
+    "seen": 1792285515.1327426,
+    "ast_hash": "bebe5b6d1c1fc239a3ae6da75696b765",
+    "semantic_hash": ""
+  },
+  "42/media/lua/server/Narrador/NarradorRepararLegendario.lua": {
+    "mtime": 1792285377.0274742,
+    "seen": 1792285515.1328018,
+    "ast_hash": "bec896b833a4ab14cb21251576285773",
     "semantic_hash": ""
   }
 }
