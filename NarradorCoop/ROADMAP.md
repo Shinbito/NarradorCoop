@@ -12,7 +12,7 @@ El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyi
 ## Pendiente (versión 0.12.1)
 
 ### 1. Probar en el juego (lo más importante)
-Todo lo de las versiones 0.10, 0.11 y 0.12 está hecho pero sin probar. Lo que más hay que mirar:
+Todo lo de las versiones 0.10, 0.11, 0.12 y 0.12.1 está hecho pero sin probar. Lo que más hay que mirar:
 - Perfiles de A-Life: Valentina (`k93_hensley_family_03`, que se vea como una muchacha), la
   Capitana Kell (`k93_vfd_05`, que sea mujer), la Hermana Lucía (`k93_red_cross_08`), Eduardo
   (`k93_stockyard_05`) y el doctor Hartmann (`k93_red_cross_02`); y si A-Life le deja el arma en
@@ -106,6 +106,19 @@ Todo lo de las versiones 0.10, 0.11 y 0.12 está hecho pero sin probar. Lo que m
   (`NarradorEduardoResidente.lua`); el patio te recibe segun `bandido_ultimo` (abandonado: mas
   sospecha; hecho: una caja de balas; redimido: "traidor!"); rechazar el asalto da Knox +10 y
   los misioneros lo comentan por radio.
+
+## Versión 0.12.1: hecho el 18 de octubre (falta probar en el juego)
+- Maniqui fijo de cada misionero junto a su puesto, vestido como el; si el NPC no esta, se le
+  piden misiones con clic derecho. No se puede recoger, desarmar ni desvestir (salvo admin con cheat).
+- Los Bell: inmortales hasta terminar lo de la cura; piden la cura al tiro si los dejas
+  quedarse; el padre tambien puede ser el infectado; al transformado lo remata el padre (o la
+  madre); rondan dentro del refugio y a ratos se sientan; al volver despues de 8 horas
+  limpiaron la casa o encontraron latas.
+- La fonda de Sous se planea desde el 10 de septiembre (asado el 18).
+- Eduardo vive en el campamento de la Chela, es reclutable y si muere vuelve a los 3 dias.
+- El patio del bandido te recibe segun como terminaste el ultimo capitulo.
+- Rechazar el asalto al refugio da Knox +10 y los misioneros lo comentan por radio.
+- Mapa de historias (72 historias) y grafo de graphify al dia.
 
 ## Versión 0.12.0: hecho el 17 de octubre (falta probar en el juego)
 - Mapa anotado que cerraba el juego (texto sin fuente en la API v1 de simbolos).
