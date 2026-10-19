@@ -178,6 +178,7 @@ Lore.arcos.sous = {
         final_te_quedaste = "Me quede con lo que Meulen le robo a Sous. Alguien lo supo. Para ellos ahora soy igual que el. Peor, porque a mi me querian.",
         final_traicion = "Hay sangre de Sous en mis manos. Los que quedan no lo van a olvidar. Yo tampoco.",
         final_negado = "Le dije a Sous que no era mi problema. Akagami asintio y no insistio. Cada uno ve por los suyos.",
+        final_no_volviste = "Le prometi a Sous que los ayudaba y no volvi con lo que me pidieron. Akagami no me mando a buscar. Supongo que dejaron de esperarme.",
         final_sous_caidos = "Los muertos llegaron a la base antes que yo. Sous cayo en su propia casa. Encontre la barra oxidada donde entrenaban, tirada en el patio.",
         final_maulen_escapa = "Meulen se esfumo con todo. Sous nunca recupero lo suyo, y yo nunca pude mirar a Akagami a la cara de nuevo.",
         final_nunca_fuiste = "Nunca fui a la base de Sous. A veces pienso en el tipo bien vestido que vino a buscarme. No volvi a saber de ellos.",

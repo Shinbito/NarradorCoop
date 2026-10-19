@@ -149,6 +149,7 @@ Lore.arcos.cap_rosa_3 = {
     },
     finales = {
         final_cumplido = "Defendimos la bencinera y el estanque. La Misia Rosa prendio la luz otra vez. Dice que el estanque es para el dia en que haya que sacar a todo el pueblo de una vez, y que yo voy a manejar el primer camion.",
+        final_saqueado = "No estuve en la bencinera esa noche. Los bandidos vaciaron el estanque. La Misia Rosa prendio la luz igual y dijo que estamos vivos, que eso no se lo llevan.",
     },
 }
 

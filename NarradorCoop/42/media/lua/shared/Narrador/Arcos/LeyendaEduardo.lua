@@ -188,7 +188,7 @@ Narrador.Defs.registrar({
                 { "soltar_acompanante", grupo = DOC, rol = "cientifico" },
                 { "decir_contacto", texto = "No llego, cierto? Ya, mijo. Hiciste lo que pudiste." },
                 { "memoria", clave = "cientifico_hartmann", valor = "muerto" },
-                { "memoria", clave = "historia_westpoint_3", valor = true },
+                { "memoria", clave = "historia_westpoint_3", valor = "fallido" },
                 { "diario", texto = "El doctor Hartmann murio antes de llegar donde la Chela. Si tenia la cura, se fue con el." },
             },
         },

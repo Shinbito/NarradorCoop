@@ -5,7 +5,10 @@ Lee los arcos (shared/Narrador/Arcos/*.lua) con un interprete de Lua (lupa) y sa
   - quien lo lanza (el director, otro arco con "abrir", un capitulo de G.ESPECIALES, un eco de
     NarradorEtiquetas o un lanzador del servidor de la lista LANZADORES de abajo, que hay que
     mantener a mano),
-  - las memorias que pide (condiciones "mem", "memoria", "misionero_muerto", vars_desde_memoria),
+  - las memorias que pide para lanzarse (la condicion "si" de la historia y las de LANZADORES),
+  - las memorias que mira por dentro sin necesitarlas (condiciones "mem", "memoria",
+    "misionero_muerto" de etapas y acciones, vars_desde_memoria): textos opcionales o lo que
+    decide un final,
   - las memorias que deja cada final ("memoria", "sumar_memoria"),
   - en las historias con varios finales, la ultima eleccion antes de cada final y la condicion
     que lo decide.
@@ -42,8 +45,8 @@ LANZADORES = {
     "bandido_4": ("volver al patio de trenes (NarradorBandido)", [("bandido_cap", "3")], []),
     "bandido_5": ("volver al patio de trenes (NarradorBandido)", [("bandido_cap", "4")], []),
     "bandido_castigo": ("al volver al patio, 30% por sabotaje (NarradorBandido)", ["bandido_sospecha"], []),
-    "bandido_maulen": ("72 horas despues de perdonar a Maulen (NarradorBandido)", ["maulen_salvado"], []),
-    "conquista_sous": ("con Maulen de jefe y Sous aliado (NarradorBandido)",
+    "bandido_maulen": ("72 horas despues de perdonar a Meulen (NarradorBandido)", ["maulen_salvado"], []),
+    "conquista_sous": ("con Meulen de jefe y Sous aliado (NarradorBandido)",
                        [("bandido", "pereira"), ("sous", "aliados"), "maulen_salvado"], []),
     "conquista_muldraugh": ("despues del cap. 5 con el jefe (NarradorBandido)", [("bandido", "pereira")], []),
     "conquista_westpoint": ("al entrar a West Point (NarradorBandido)", ["conquista_muldraugh"], []),
@@ -64,7 +67,7 @@ LANZADORES = {
     "desbloqueo_westpoint": ("al andar por West Point (NarradorContactos)", [], []),
     "desbloqueo_riverside": ("al andar por Riverside (NarradorContactos)", [], []),
     "desbloqueo_rosewood": ("al andar por Rosewood (NarradorContactos)", [], []),
-    "cal_fonda": ("18 de septiembre, con Sous aliado (NarradorCalendario)", [("sous", "aliados")], []),
+    "cal_fonda": ("del 10 al 18 de septiembre (asado el 18), con Sous aliado (NarradorCalendario)", [("sous", "aliados")], []),
     "cal_amigo_secreto": ("24 de diciembre, con Sous aliado (NarradorCalendario)", [("sous", "aliados")], []),
     "venganza_meulen": ("120 horas despues de que Meulen muere en Sous o en el patio (NarradorVenganzaMeulen)",
                         ["meulen_muerte_hora"], ["meulen_venganza", "meulen_final"]),
@@ -86,6 +89,17 @@ SERVIDOR_DEJA = {
     "caido_eduardo": ["leyenda_eduardo", "eduardo_evento"],
 }
 
+# Conexiones que el servidor arma por su cuenta y no salen de ninguna memoria de un arco:
+# (desde, hacia, "finales: que pasa"). Los finales van antes de ": " (como en las demas flechas).
+EXTRA_ARISTAS = [
+    # Con Meulen de jefe, despues de unirte sigue el camino del bandido (bandido_cap pasa a 1).
+    ("bandido_maulen", "bandido_2", "final_unido: sigue el camino con Meulen de jefe"),
+    # NarradorVenganzaMeulen: 120 horas despues de que Meulen muere.
+    ("sous", "venganza_meulen", "final_aliados, final_mentira, final_te_quedaste: Meulen murio en el escondite"),
+    ("bandido_maulen", "venganza_meulen", "final_redimido: Meulen muere (era el jefe)"),
+    ("reconquista_patio", "venganza_meulen", "final_luz: Meulen muere (si era el jefe)"),
+]
+
 # Desenlaces: memorias que cierran una linea de la historia. Salen en el diagrama como su propio
 # nodo, para que se vean las decisiones que no abren otra historia. (clave, valor) -> texto.
 DESENLACES = {
@@ -95,14 +109,15 @@ DESENLACES = {
     ("fin", "eduardo_muerto"): "FIN: Eduardo muerto, Knox es de la banda",
     ("fin", "reconquista"): "FIN: Knox vuelve a ser luz de esperanza",
     ("sous", "eliminado"): "Sous eliminado",
-    ("sous", "conquistada"): "La base de Sous es de Maulen",
+    ("sous", "conquistada"): "La base de Sous es de Meulen",
     ("sous", "caidos"): "Sous cae en su base",
     ("sous", "negado"): "Le dices que no a Sous",
-    ("sous", "maulen_escapa"): "Maulen escapa con todo",
+    ("sous", "maulen_escapa"): "Meulen escapa con todo",
     ("hija_cabo", "salvada"): "Valentina vuelve con el Cabo",
     ("hija_cabo", "muerta"): "Valentina muere",
     ("lucia", "en_riverside"): "Lucia vuelve a Riverside",
     ("estanque_rosewood", "defendido"): "El estanque queda a salvo",
+    ("estanque_rosewood", "saqueado"): "Los bandidos vacian el estanque",
 }
 
 # Arcos que se repiten sin fin y no son parte de la trama: van en una linea al final.
@@ -187,9 +202,24 @@ return function()
     local titulo = tostring(def.titulo or def.id)
     if string.find(titulo, "{", 1, true) then titulo = tostring(def.titulo_menu or def.id) end
     local d = { id = def.id, titulo = titulo, auto = def.automatico ~= false,
-                lee = {}, abre = {}, deja = {}, finales = {}, trans = {}, opciones = {} }
+                pide = {}, lee = {}, abre = {}, deja = {}, finales = {}, trans = {}, opciones = {} }
+    -- La condicion "si" de la historia: sin ella no se lanza (el director, los ecos...).
+    local function requisitos(c)
+      if type(c) ~= "table" then return end
+      if c[1] == "no" then return end
+      if (c[1] == "memoria" or c[1] == "mem") and type(c[2]) == "string" then
+        d.pide[#d.pide + 1] = { clave = c[2], valor = c[3] ~= nil and tostring(c[3]) or nil }
+        return
+      end
+      for _, x in ipairs(c) do requisitos(x) end
+    end
+    requisitos(def.si)
     for _, k in ipairs(def.vars_desde_memoria or {}) do d.lee[#d.lee + 1] = k end
-    for nombre, etapa in pairs(def.etapas) do
+    local nombres = {}
+    for nombre in pairs(def.etapas) do nombres[#nombres + 1] = nombre end
+    table.sort(nombres)
+    for _, nombre in ipairs(nombres) do
+      local etapa = def.etapas[nombre]
       local final = etapa.final == true
       if final then d.finales[#d.finales + 1] = nombre end
       recorrer(etapa, function(a)
@@ -208,7 +238,7 @@ return function()
         for _, a in ipairs(op.acciones or {}) do
           if a[1] == "variable" then pone[#pone + 1] = { nombre = a.nombre, valor = tostring(a.valor) } end
         end
-        d.opciones[#d.opciones + 1] = { id = op.id, texto = tostring(op.texto or op.id), pone = pone }
+        d.opciones[#d.opciones + 1] = { etapa = nombre, id = op.id, texto = tostring(op.texto or op.id), pone = pone }
       end
       for i, s in ipairs(etapa.salidas or {}) do
         d.trans[#d.trans + 1] = { desde = nombre, hasta = s.ir, orden = i, cond = fmt(s.cuando),
@@ -239,10 +269,11 @@ def cargar():
     for d in lista(lua.execute(ANALIZAR)()):
         opciones = {}
         for o in lista(d.opciones):
-            opciones[o.id] = (o.texto, {(p.nombre, p.valor) for p in lista(o.pone)})
+            opciones[(o.etapa, o.id)] = (o.texto, {(p.nombre, p.valor) for p in lista(o.pone)})
         arcos.append({
             "id": d.id, "titulo": d.titulo, "auto": d.auto,
             "lee": sorted(set(lista(d.lee))),
+            "si": sorted({(p.clave, p.valor) if p.valor is not None else p.clave for p in lista(d.pide)}, key=str),
             "abre": sorted({(x["def"], x.etapa) for x in lista(d.abre)}),
             "finales": sorted(lista(d.finales)),
             "deja": sorted({(x.clave, x.valor, x.etapa, x.final) for x in lista(d.deja)}),
@@ -267,7 +298,7 @@ def decisiones(a, final):
             nuevo = []
             for etapa, ids in frente:
                 if ids:
-                    halladas.update(ids)
+                    halladas.update((etapa, i) for i in ids)
                     continue
                 if etapa in vistos:
                     continue
@@ -280,7 +311,11 @@ def decisiones(a, final):
             halladas = pone
         halladas = {i for i in halladas
                     if not any(n == rn and v != rv for n, v in a["opciones"].get(i, ("", set()))[1] for rn, rv in req)}
-        textos = " o ".join(f'"{a["opciones"][i][0]}"' for i in sorted(halladas) if i in a["opciones"])
+        vistos_txt = []
+        for i in sorted(halladas):
+            if i in a["opciones"] and a["opciones"][i][0] not in vistos_txt:
+                vistos_txt.append(a["opciones"][i][0])
+        textos = " o ".join(f'"{t}"' for t in vistos_txt)
         decide = "" if solo_eleccion else f"`{cond}`"
         if textos and decide:
             caminos.add(textos + ", y despues " + decide)
@@ -343,7 +378,11 @@ def main():
         eco_de.setdefault(b, []).append((d, final))
 
     def lanzado(a):
-        """(como se lanza, memorias que pide, memorias que lo cortan)."""
+        """(como se lanza, memorias que pide, memorias que lo cortan). Suma la condicion "si"."""
+        como, pide, corta = lanzado_por(a)
+        return como, list(pide) + [p for p in a["si"] if p not in pide], corta
+
+    def lanzado_por(a):
         if a["id"] in caps:
             c, n, req, _, conf = caps[a["id"]]
             return (f"capitulo {n} de {c}, entre sus ofertas" + (f" (confianza {conf}+)" if conf else ""),
@@ -402,6 +441,11 @@ def main():
             aristas.add((a, b["id"], etapa + ": abre"))
         for a, final in eco_de.get(b["id"], ()):
             aristas.add((a, b["id"], final + ": eco"))
+    ids = {a["id"] for a in arcos}
+    for a, b, texto in EXTRA_ARISTAS:
+        if a not in ids or b not in ids:
+            raise SystemExit(f"EXTRA_ARISTAS: '{a}' o '{b}' no es ninguna historia")
+        aristas.add((a, b, texto))
     # Cortes: la memoria que deja A apaga el lanzador de B.
     cortes = set()
     for b in arcos:
@@ -457,30 +501,43 @@ def main():
             lineas.append(f"| `{f}` | {como} | {', '.join(dejas) or '-'} | {', '.join(lleva) or '-'} |")
         lineas.append("")
     lineas += ["## Historias", "",
-               "| Historia | Id | Como se lanza | Pide | Lo corta | Deja (memoria = valor, en que final) |",
-               "| --- | --- | --- | --- | --- | --- |"]
+               "\"Pide\" es lo que necesita para lanzarse. \"Mira\" es lo que lee por dentro sin necesitarlo:",
+               "un texto que cambia, una variante o lo que decide un final.", "",
+               "| Historia | Id | Como se lanza | Pide | Mira | Lo corta | Deja (memoria = valor, en que final) |",
+               "| --- | --- | --- | --- | --- | --- | --- |"]
+
+    def clave_de(p):
+        return p[0] if isinstance(p, tuple) else p
+
     for a in arcos:
         como, pide, corta = lanzado(a)
-        pide = sorted({nombre(p) for p in pide} | set(a["lee"]))
+        claves_pide = {clave_de(p) for p in pide}
+        mira = sorted(set(a["lee"]) - claves_pide)
+        pide = sorted({nombre(p) for p in pide})
         dejas = [f"`{c}` = {v} ({e})" for c, v, e, _ in a["deja"]]
         lineas.append(f"| {a['titulo']} | `{a['id']}` | {como} | {', '.join('`' + p + '`' for p in pide) or '-'} | "
+                      f"{', '.join('`' + p + '`' for p in mira) or '-'} | "
                       f"{', '.join('`' + nombre(p) + '`' for p in corta) or '-'} | {'<br>'.join(dejas) or '-'} |")
 
     # Memorias: lo que ven las historias mas lo que ve el escaner en todo el codigo.
     agrupado, _ = memorias.agrupar()
-    piden = {}
+    piden, miran = {}, {}
     for a in arcos:
         _, pide, corta = lanzado(a)
-        for clave in {p[0] if isinstance(p, tuple) else p for p in list(pide) + list(corta)} | set(a["lee"]):
+        claves = {clave_de(p) for p in list(pide) + list(corta)}
+        for clave in claves:
             piden.setdefault(clave, set()).add(a["id"])
+        for clave in set(a["lee"]) - claves:
+            miran.setdefault(clave, set()).add(a["id"])
     filas = {}
-    for clave in set(deja) | set(piden):
+    for clave in set(deja) | set(piden) | set(miran):
         e = memorias.entrada(clave) or clave
-        fila = filas.setdefault(e, [set(), set()])
+        fila = filas.setdefault(e, [set(), set(), set()])
         fila[0].update(deja.get(clave, ()))
         fila[1].update(piden.get(clave, ()))
+        fila[2].update(miran.get(clave, ()))
     for e in agrupado:
-        filas.setdefault(e, [set(), set()])
+        filas.setdefault(e, [set(), set(), set()])
 
     def fuera(archivos):
         return sorted({os.path.basename(x)[:-4] for x in archivos})
@@ -496,11 +553,13 @@ def main():
 
     lineas += ["", "## Memorias", "",
                "\"Archivos\" son todos los archivos del mod que la escriben o la leen (tambien servidor y conversaciones).", "",
-               "| Memoria | Que guarda | La dejan | La piden | Archivos |", "| --- | --- | --- | --- | --- |"]
+               "| Memoria | Que guarda | La dejan | La piden (para lanzarse o cortarse) | La miran (por dentro) | Archivos |",
+               "| --- | --- | --- | --- | --- | --- |"]
     for e in sorted(filas):
-        dejan, pidenla = filas[e]
+        dejan, pidenla, mirala = filas[e]
+        mirala = mirala - pidenla
         lineas.append(f"| `{e}` | {memorias.MEMORIAS.get(e, '?')} | {', '.join(sorted(dejan)) or '-'} | "
-                      f"{', '.join(sorted(pidenla)) or '-'} | {codigo(e)} |")
+                      f"{', '.join(sorted(pidenla)) or '-'} | {', '.join(sorted(mirala)) or '-'} | {codigo(e)} |")
     pendientes = sorted((e, m) for e, m in memorias.SIN_LECTOR.items() if m.startswith("pendiente"))
     lineas += ["", "### Memorias sin usar", "",
                "Se escriben y nadie las lee todavia (ver `SIN_LECTOR` en `memorias.py`).", ""]

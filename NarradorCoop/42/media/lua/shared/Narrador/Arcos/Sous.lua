@@ -835,7 +835,7 @@ Narrador.Defs.registrar({
             salidas = {
                 { cuando = { "mato_jugador", SOUS }, ir = "final_traicion" },
                 { cuando = { "alguien_tiene", "medicina" }, ir = "volver1" },
-                { cuando = { "horas", 120 }, ir = "final_negado" },
+                { cuando = { "horas", 120 }, ir = "final_no_volviste" },
             },
         },
         volver1 = {
@@ -872,7 +872,7 @@ Narrador.Defs.registrar({
             salidas = {
                 { cuando = { "mato_jugador", SOUS }, ir = "final_traicion" },
                 { cuando = { "alguien_tiene", "armas" }, ir = "volver2" },
-                { cuando = { "horas", 120 }, ir = "final_negado" },
+                { cuando = { "horas", 120 }, ir = "final_no_volviste" },
             },
         },
         volver2 = {
@@ -1159,6 +1159,16 @@ Narrador.Defs.registrar({
             al_entrar = {
                 { "diario", texto = "Sous tendra que arreglarselas sin ti." },
                 { "memoria", clave = "sous", valor = "negado" },
+                { "retirar_lejos", grupo = SOUS, lugar = BASE, radio = 60, retraso = 1 },
+            },
+        },
+
+        -- Dijiste que si y no volviste con el encargo a tiempo (no es lo mismo que negarte).
+        final_no_volviste = {
+            final = true,
+            al_entrar = {
+                { "diario", texto = "Le dije a Sous que lo ayudaba y nunca volvi con lo que me pidieron. Dejaron de esperarme." },
+                { "memoria", clave = "sous", valor = "ignorados" },
                 { "retirar_lejos", grupo = SOUS, lugar = BASE, radio = 60, retraso = 1 },
             },
         },

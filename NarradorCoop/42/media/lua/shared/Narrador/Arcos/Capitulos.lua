@@ -469,12 +469,18 @@ registrar({
             },
             salidas = {
                 { cuando = { "todos_muertos", "asaltantes" }, ir = "final_cumplido" },
-                { cuando = { "horas", 6 }, ir = "final_cumplido" },
+                -- Aguantar la noche cuenta si sigues en la bencinera; si te fuiste, se lo llevaron.
+                { cuando = { { "horas", 6 }, { "cerca", "contacto", 60 } }, ir = "final_cumplido" },
+                { cuando = { "horas", 6 }, ir = "final_saqueado" },
             },
         },
         final_cumplido = cierre("rosewood", 3,
             "Defendimos la bencinera y el estanque. Cuando se fue el ultimo, la Misia Rosa prendio la luz otra vez. Dijo que el estanque no es para ella: es para el dia que haya que sacar a todo el pueblo de una vez. Y que yo voy a manejar el primer camion.",
             { { "decir_contacto", texto = "Prendela, mijito. ... Ahi esta. Treinta anos y una noche. Toma, te lo ganaste. Y el primer camion que salga de aca lo manejas tu." },
               { "memoria", clave = "estanque_rosewood", valor = "defendido" } }),
+        final_saqueado = fracaso("rosewood", 3,
+            "No estuve en la bencinera cuando llegaron los bandidos. Se llevaron la bencina del estanque. La Misia Rosa no me reclamo nada: prendio la luz y se quedo mirando el taller vacio.",
+            { { "decir_contacto", texto = "Se la llevaron toda, mijito. Treinta anos guardandola. ... No importa. Estamos vivos. Eso no se lo llevan." },
+              { "memoria", clave = "estanque_rosewood", valor = "saqueado" } }),
     },
 })
