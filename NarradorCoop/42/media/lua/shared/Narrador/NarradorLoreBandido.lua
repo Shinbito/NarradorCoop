@@ -304,7 +304,20 @@ Lore.arcos.eduardo_evento = {
         final_escondido = "Eduardo peleo solo mientras yo me escondia. Cuando termino me dijo que a el tambien le da miedo. No le crei.",
         final_abandonado = "Me fui lejos mientras Eduardo peleaba por los dos. En Knox se va a saber. Siempre se sabe.",
         final_cayo = "Eduardo cayo peleando. Si es como dicen, va a aparecer en el cuartel de su mama, como si nada.",
+        final_nada = "Me parecio oir a alguien corriendo a lo lejos, y despues nada. Nadie llego. Me quede un rato mirando el camino.",
     },
 }
+
+-- Redimido: se puede llegar desde cualquier capitulo menos el 5 (ver finalRedimido en Arcos/Bandido.lua).
+for _, id in ipairs({ "bandido_1", "bandido_2", "bandido_3", "bandido_4", "bandido_maulen" }) do
+    local l = Lore.arcos[id]
+    if l ~= nil then
+        l.finales = l.finales or {}
+        l.finales.final_redimido = { por_var = "bandido_jefe", textos = {
+            maulen = "Fui al patio de trenes y en vez de trabajar para Meulen abri fuego contra su banda. En Knox dicen que me perdonan. Yo me acuerdo igual de todo lo que hice antes.",
+            otro = "Fui al patio de trenes y en vez de trabajar para Pereira abri fuego contra su banda. En Knox dicen que me perdonan. Yo me acuerdo igual de todo lo que hice antes.",
+        } }
+    end
+end
 
 return Lore

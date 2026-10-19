@@ -208,7 +208,7 @@ function E.lanzar(jugador, tipo, dirX, dirY)
     v.llegada = string.gsub(t.llegada, "{nombre}", v.nombre_completo)
     v.senal = string.gsub(string.gsub(t.senal, "{direccion}", E.direccion(px - x, py - y)), "{distancia}",
         tostring(floor(math.sqrt((px - x) ^ 2 + (py - y) ^ 2) / 10 + 0.5) * 10))
-    v.titulo = tipo == "sous" and ("{nombre_completo} en apuros") or "Alguien pide ayuda"
+    v.titulo = tipo == "sous" and (v.nombre_completo .. " en apuros") or "Alguien pide ayuda"
     local inst, razon = Motor.iniciar("enc_" .. tipo, jugador, { vars = v, lugares = { punto = punto } })
     if inst ~= nil then
         local e = E.estado()

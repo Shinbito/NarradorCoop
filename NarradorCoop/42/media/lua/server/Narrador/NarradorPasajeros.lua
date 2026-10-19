@@ -205,9 +205,20 @@ local function uidDe(inst, a)
     return g ~= nil and g.roles[tostring(a.rol)] or nil
 end
 
+-- Si el NPC todavia no aparece (A-Life lo rechazo o tarda), se reintenta cada minuto
+-- mientras la historia siga en la misma etapa. Si no, nunca te seguiria.
+local function acompanarLuego(inst, a)
+    inst.acompanar_luego = inst.acompanar_luego or {}
+    inst.acompanar_luego[#inst.acompanar_luego + 1] = { grupo = a.grupo, rol = a.rol, nombre = a.nombre,
+        inmortal = a.inmortal, etapa = inst.etapa }
+end
+
 Motor.inmediatas.acompanante = function(inst, a)
     local uid = uidDe(inst, a)
-    if uid == nil then return true end
+    if uid == nil or not Mundo.actorVivo(uid) then
+        acompanarLuego(inst, a)
+        return true
+    end
     local x, y = Mundo.posicionActor(uid)
     local j = x ~= nil and Mundo.jugadorCerca(x, y, 200) or Mundo.jugadorAlAzar()
     local g = inst.grupos[a.grupo]
@@ -217,10 +228,37 @@ Motor.inmediatas.acompanante = function(inst, a)
 end
 
 Motor.inmediatas.soltar_acompanante = function(inst, a)
+    for i = #(inst.acompanar_luego or {}), 1, -1 do
+        local e = inst.acompanar_luego[i]
+        if e.grupo == a.grupo and tostring(e.rol) == tostring(a.rol) then table.remove(inst.acompanar_luego, i) end
+    end
     local uid = uidDe(inst, a)
     if uid ~= nil then P.quitar(uid) end
     return true
 end
+
+function P.reintentar()
+    local st = Motor.estado()
+    for _, inst in pairs(st.arcos or {}) do
+        local l = inst.acompanar_luego
+        if l ~= nil and #l > 0 then
+            local quedan = {}
+            for _, e in ipairs(l) do
+                if inst.final == nil and inst.etapa == e.etapa then
+                    local uid = uidDe(inst, e)
+                    if uid ~= nil and Mundo.actorVivo(uid) then
+                        local ok = pcall(Motor.inmediatas.acompanante, inst, e)
+                        if not ok then quedan[#quedan + 1] = e end
+                    else
+                        quedan[#quedan + 1] = e
+                    end
+                end
+            end
+            inst.acompanar_luego = #quedan > 0 and quedan or nil
+        end
+    end
+end
+Motor.tickExtra.acompanantes = function() pcall(P.reintentar) end
 
 -- {"npc_cerca", grupo, lugar, radio}: algun miembro vivo del grupo llego cerca del lugar
 -- (si va "en el auto", cuenta donde esta su jugador).

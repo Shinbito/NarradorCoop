@@ -247,6 +247,9 @@ registrar({
             salidas = { { cuando = { { "cerca", "contacto", 25 }, { "hora_entre", 19, 23 } }, ir = "pelea" } },
         },
         pelea = {
+            -- Duggan aparece solo con alguien a 15 del ring, y a esta etapa se entra desde 25.
+            pista = "Acercarte al atrio de la iglesia, donde Frank Duggan espera para pelear.",
+            objetivo = "ring",
             al_entrar = {
                 { "lugar_cerca", id = "ring", de = "contacto", distancia = 6 },
                 { "npcs", id = DUGGAN .. "_ring", lugar = "ring", radio = 15, no_mas_cerca = 3, modo = "guard", quietos = true, correa = 3,

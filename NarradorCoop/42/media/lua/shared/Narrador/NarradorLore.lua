@@ -51,7 +51,7 @@ Lore.PERFILES = {
     },
     riverside = {
         "Pastor de la iglesia del pueblo. Bendice cada salida y admite que la mitad de sus encargos los inventa.",
-        "Antes de cura fue boxeador amateur en Lexington. Tiene la nariz quebrada dos veces y una derecha que no se le olvido. Dice que Dios le dio dos puños para que pudiera poner la otra mejilla con calma.",
+        "Antes de cura fue boxeador amateur en Lexington. Tiene la nariz quebrada dos veces y una derecha que no se le olvido. Dice que Dios le dio dos punos para que pudiera poner la otra mejilla con calma.",
         "Inventa encargos porque cree que la gente ociosa se muere. Que el que tiene algo que hacer manana tiene una razon para despertar. Lleva una lista de quien vino cada semana y se preocupa cuando alguien no aparece.",
         "No le queda mucha fe. Me lo dijo una noche, con una botella de vino de misa en la mano: 'Hijo, rezo por costumbre. Si Dios existe, se fue de vacaciones el 93.' Al otro dia hizo misa igual, para tres personas y un perro.",
         "Hace anos se fue un domingo sin decirle a nadie, y una muchacha que necesitaba ayuda se quedo esperandolo en la iglesia. Nunca supo que paso con ella. Por eso no cierra nunca la puerta y por eso sigue aqui. 'No me voy a ir de nuevo', dice. 'No otra vez.'",

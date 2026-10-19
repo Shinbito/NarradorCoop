@@ -113,7 +113,12 @@ local function juntar(...)
     return out
 end
 
+-- Epilogos para el diario (Lore.final), los mismos textos que anota cada final.
+local EPILOGOS = {}
+
 local function finales(rol, t)
+    EPILOGOS[rol] = { final_hecho = t.diario_hecho, final_fallido = t.diario_fallido,
+        final_postergada = t.diario_postergada, final_murio = t.diario_murio }
     return {
         final_hecho = { final = true, al_entrar = juntar(t.hecho, {
             { "arma_personaje2", rol = rol, de = HS.NOMBRES[rol] },
@@ -712,25 +717,25 @@ registrar({
 -- ---------------------------------------------------------------------------
 local Lore = Narrador.Lore
 if Lore ~= nil and Lore.arcos ~= nil then
-    Lore.arcos[HS.idDe("hanz")] = { etapas = {
+    Lore.arcos[HS.idDe("hanz")] = { finales = EPILOGOS.hanz, etapas = {
         viaje = "Walita salio antes que yo a buscar a su primo, el Waton Ju, encerrado en {lugar:tienda} con el Clau. Me conto que vivieron juntos en Iquique hasta los doce. Despues el se fue a Arica, a su taller. Me lo repitio tres veces: nunca vivio en Antofagasta.",
         sitio = "Llegue a {lugar:tienda}. Muertos golpeando las vitrinas y, adentro, alguien gritando el nombre de Hanz. Walita ya estaba repartiendo palos.",
         desvio = "El Waton Ju no se va sin su computador. Tiene una cuenta de PXG en nivel 69. Por eso vamos a {lugar:casa_waton}, con saqueadores adentro. Asi es la familia.",
         escolta = "Llevo de vuelta a la base al Waton Ju y al Clau. El Waton habla fuerte. Muy fuerte.",
     } }
-    Lore.arcos[HS.idDe("cristian")] = { etapas = {
+    Lore.arcos[HS.idDe("cristian")] = { finales = EPILOGOS.cristian, etapas = {
         viaje = "Cristonks vio tres bengalas rojas desde el cerro, sobre {lugar:campamento}. El Clau y el Renaaaaaato estan ahi. Matric pregunto por que el Hasag no venia. Nadie le contesto.",
         sitio = "Humo rojo y muertos mirando hacia arriba en {lugar:campamento}. El Renato gritaba algo de la B.",
         rodeo = "Le hicimos caso al piloto: rodear por el cerro, pasando por {lugar:mirador}. Mas largo. Mas silencioso.",
         escolta = "Llevo al Clau y al Renato a la base de Sous. Cristonks subio al cerro para mirarnos desde arriba.",
     } }
-    Lore.arcos[HS.idDe("jorge")] = { etapas = {
+    Lore.arcos[HS.idDe("jorge")] = { finales = EPILOGOS.jorge, etapas = {
         viaje = "Vamos con los primos a {lugar:cabana}, la cabana del cerro donde pasaban la temporada de nieve. Ahi deberian estar el Fucking Luengo y el Clau. Matric tiene opiniones sobre esa cabana.",
         sitio = "Hay bandidos en la cabana y el Luengo les esta cocinando. Huele bien. Eso es lo peor.",
         despensa = "La despensa de la cabana da para un mes. El Luengo dice que la mitad es suya porque la cocino. Hasag saco la calculadora mental.",
         escolta = "Llevo al Luengo y al Clau a la base. Los primos se quedaron a cerrar la cabana. Juntos. Por seguridad, dijeron.",
     } }
-    Lore.arcos[HS.idDe("cristobal")] = { etapas = {
+    Lore.arcos[HS.idDe("cristobal")] = { finales = EPILOGOS.cristobal, etapas = {
         viaje = "Wertres quiere ver los goles de Cristiano en una tele, con un generador de {lugar:taller}. Shinbo dice que es mala idea y va igual. La dupla no se separa.",
         sitio = "El taller de {lugar:taller} esta lleno de muertos. El Renato grita que esta plantando la bomba. No hay ninguna bomba.",
         defensa = "Wertres prendio el generador para probarlo. Prendio. Y todo lo que tenia oidos en kilometros vino a ver.",
