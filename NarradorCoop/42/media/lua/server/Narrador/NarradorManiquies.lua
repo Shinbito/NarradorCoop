@@ -111,7 +111,7 @@ Motor.vistaExtra[#Motor.vistaExtra + 1] = function(v)
         local e = C.estado(c.id)
         if e.maniqui ~= nil then
             lista[#lista + 1] = { id = c.id, x = e.maniqui.x, y = e.maniqui.y, z = e.maniqui.z, nombre = C.nombreCompleto(c),
-                npc = e.uid ~= nil and Mundo.cuerpoActor(e.uid) ~= nil }
+                npc = C.npcEnPuesto(c.id) }
         end
     end
     v.maniquies = lista

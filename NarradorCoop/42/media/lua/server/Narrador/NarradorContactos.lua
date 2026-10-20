@@ -164,6 +164,31 @@ function C.posicion(id)
     return e.x, e.y, e.z
 end
 
+-- Su NPC esta en su puesto (cargado y a menos de C.LEJOS_PUESTO casillas).
+C.LEJOS_PUESTO = 15
+function C.npcEnPuesto(id)
+    local e = C.estado(id)
+    if e.uid == nil or e.x == nil or Mundo.cuerpoActor(e.uid) == nil then return false end
+    local x, y = Mundo.posicionActor(e.uid)
+    return x ~= nil and math.sqrt((x - e.x) ^ 2 + (y - e.y) ^ 2) <= C.LEJOS_PUESTO
+end
+
+-- Distancia del jugador al misionero: a su NPC o a su puesto (donde esta su maniqui), la menor.
+-- Asi se le pueden pedir cosas al maniqui aunque el NPC se haya alejado.
+function C.distancia(id, jugador)
+    local px, py = Mundo.posicion(jugador)
+    if px == nil then return nil end
+    local e = C.estado(id)
+    local mejor
+    local x, y = C.posicion(id)
+    if x ~= nil then mejor = math.sqrt((x - px) ^ 2 + (y - py) ^ 2) end
+    if e.x ~= nil then
+        local d = math.sqrt((e.x - px) ^ 2 + (e.y - py) ^ 2)
+        if mejor == nil or d < mejor then mejor = d end
+    end
+    return mejor
+end
+
 function C.lugar(id)
     local c, e = C.def(id), C.estado(id)
     if c == nil or e.x == nil then return nil end
@@ -842,6 +867,9 @@ function C.cuerpoRoto(e, actor)
     if actor == nil then return true end
     local cuerpo = Mundo.cuerpoActor(e.uid)
     if cuerpo == nil then return true end
+    -- Se alejo de su puesto (A-Life lo dejo en otro lado): se repone en el puesto.
+    local x, y = Mundo.posicionActor(e.uid)
+    if x ~= nil and math.sqrt((x - e.x) ^ 2 + (y - e.y) ^ 2) > C.LEJOS_PUESTO then return true end
     local interop = ProjectALife ~= nil and ProjectALife.Interop or nil
     if interop ~= nil and type(interop.isNpc) == "function" then
         local ok, esNpc = pcall(interop.isNpc, cuerpo)
@@ -987,9 +1015,8 @@ function C.pedirTrabajo(jugador, id, nivel)
         return
     end
     local e = C.estado(c.id)
-    local x, y = C.posicion(c.id)
-    local px, py = Mundo.posicion(jugador)
-    if x == nil or px == nil or math.sqrt((x - px) ^ 2 + (y - py) ^ 2) > 10 then
+    local dist = C.distancia(c.id, jugador)
+    if dist == nil or dist > 10 then
         Motor.responder(jugador, "Estas muy lejos.")
         return
     end
@@ -1055,10 +1082,10 @@ C.KIT = {
 }
 
 C.ARMAS_KIT = {
-    muldraugh = { tipo = { "Base.Nightstick" }, nombre = "La Luma del Cabo Ramiro" },
-    westpoint = { tipo = { "Base.Axe" }, nombre = "El Hacha de la Tia Chela" },
-    riverside = { tipo = { "Base.Machete" }, nombre = "El Castigo Divino" },
-    rosewood = { tipo = { "Base.Crowbar" }, nombre = "La Palanqueta de la Misia Rosa" },
+    muldraugh = { tipo = { "Narrador.LumaRamiro", "Base.Nightstick" }, nombre = "La Luma del Cabo Ramiro" },
+    westpoint = { tipo = { "Narrador.HachaChela", "Base.Axe" }, nombre = "El Hacha de la Tia Chela" },
+    riverside = { tipo = { "Narrador.CastigoDivino", "Base.Machete" }, nombre = "El Castigo Divino" },
+    rosewood = { tipo = { "Narrador.PalanquetaRosa", "Base.Crowbar" }, nombre = "La Palanqueta de la Misia Rosa" },
 }
 
 -- Arma legendaria con nombre propio (o nil si el tipo no existe).

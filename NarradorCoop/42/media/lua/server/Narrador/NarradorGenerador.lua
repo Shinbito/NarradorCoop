@@ -625,9 +625,8 @@ end
 local function cerca(jugador, contactoId)
     -- Un misionero sin campamento todavia no da trabajo (ver C.desbloqueado).
     if C.desbloqueado ~= nil and not C.desbloqueado(contactoId) then return false end
-    local x, y = C.posicion(contactoId)
-    local px, py = Mundo.posicion(jugador)
-    return x ~= nil and px ~= nil and math.sqrt((x - px) ^ 2 + (y - py) ^ 2) <= 10
+    local d = C.distancia(contactoId, jugador)
+    return d ~= nil and d <= 10
 end
 
 -- Con muy mala fama en Knox (nivel -4 o peor) los misioneros ya no dan trabajo.

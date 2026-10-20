@@ -9,10 +9,10 @@ memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias
 memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 
-## Pendiente (versión 0.12.2)
+## Pendiente (versión 0.12.4)
 
 ### 1. Probar en el juego (lo más importante)
-Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1 y 0.12.2 está hecho pero sin probar. Lo que más hay que mirar:
+Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está hecho pero sin probar. Lo que más hay que mirar:
 - Perfiles de A-Life: Valentina (`k93_hensley_family_03`, que se vea como una muchacha), la
   Capitana Kell (`k93_vfd_05`, que sea mujer), la Hermana Lucía (`k93_red_cross_08`), Eduardo
   (`k93_stockyard_05`) y el doctor Hartmann (`k93_red_cross_02`); y si A-Life le deja el arma en
@@ -108,6 +108,22 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1 y 0.12.2 está hecho pero sin 
   (`NarradorEduardoResidente.lua`); el patio te recibe segun `bandido_ultimo` (abandonado: mas
   sospecha; hecho: una caja de balas; redimido: "traidor!"); rechazar el asalto da Knox +10 y
   los misioneros lo comentan por radio.
+
+## Versión 0.12.4: hecho el 20 de octubre (falta probar en el juego)
+- Misionero perdido por A-Life: el 2026-10-20 A-Life perdio el cuerpo de la Misia Rosa al
+  descargarse la zona y la volvio a crear en 8093,11636 (42 casillas fuera de su almacen), sin
+  que su cuerpo les llegara a los jugadores. Ahora, si un misionero esta a mas de 15 casillas de
+  su puesto (`C.LEJOS_PUESTO`) con alguien cerca, a los 3 minutos se retira y se crea de nuevo en
+  el puesto (`C.cuerpoRoto`).
+- Pedir trabajo, favores o curas vale estando cerca del NPC o de su puesto/maniqui
+  (`C.distancia`): antes salia "Estas muy lejos" si el NPC andaba perdido.
+- El maniqui ofrece "Pedir trabajo" si el NPC no esta en su puesto (`C.npcEnPuesto`), no solo
+  si no existe.
+
+## Versión 0.12.3: hecho el 19 de octubre (falta probar en el juego)
+- Armas legendarias propias de cada misionero (`NarradorArmasMisioneros.lua` y su script): la
+  Luma del Cabo Ramiro, el Hacha de la Tia Chela, el Castigo Divino y la Palanqueta de la Misia Rosa.
+- El Cabo Ramiro se repone una vez (`C.REPONER_UNA_VEZ`): habia quedado como zombi.
 
 ## Versión 0.12.2 (falta probar en el juego)
 - Palo de Ekko rehecho como la manecilla de reloj de Ekko: hoja plana turquesa, mango plateado,

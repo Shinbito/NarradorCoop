@@ -211,9 +211,8 @@ function R.pedirFavor(jugador, args)
         C.decir(contacto, G ~= nil and G.RECHAZO ~= nil and G.RECHAZO[contacto] or "Aca ya no eres bienvenido.")
         return
     end
-    local x, y = C.posicion(contacto)
-    local px, py = Mundo.posicion(jugador)
-    if x == nil or px == nil or math.sqrt((x - px) ^ 2 + (y - py) ^ 2) > 10 then
+    local d = C.distancia(contacto, jugador)
+    if d == nil or d > 10 then
         Motor.responder(jugador, "Estas muy lejos.")
         return
     end

@@ -45,9 +45,8 @@ end
 function CS.pedir(jugador, args)
     local c = C.def(tostring(args.contacto))
     if c == nil then return end
-    local x, y = C.posicion(c.id)
-    local px, py = Mundo.posicion(jugador)
-    if x == nil or px == nil or math.sqrt((x - px) ^ 2 + (y - py) ^ 2) > 10 then
+    local d = C.distancia(c.id, jugador)
+    if d == nil or d > 10 then
         Motor.responder(jugador, "Estas muy lejos.")
         return
     end
