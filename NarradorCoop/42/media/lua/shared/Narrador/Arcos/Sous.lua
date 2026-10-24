@@ -139,7 +139,9 @@ Narrador.SousBases = {
     ["Muldraugh"] = { x = 11612, y = 8844, z = 0, etiqueta = "la bodega del lado norte de Muldraugh" },
     ["West Point"] = { x = 10095, y = 6650, z = 0, etiqueta = "la base de Sous en West Point" },
     ["Riverside"] = { x = 7335, y = 6244, z = 0, etiqueta = "la base de Sous en Riverside" },
-    ["Rosewood"] = { x = 8046, y = 12032, z = 0, etiqueta = "la base de Sous en Rosewood" },
+    -- Rosewood: antes 8046,12032, que es campo abierto (ningun edificio a menos de 70 casillas).
+    -- Ahora la bodega del norte del pueblo (sala warehouse 8198-8218 x 11295-11303 en el mapa B42).
+    ["Rosewood"] = { x = 8208, y = 11299, z = 0, etiqueta = "la base de Sous en Rosewood" },
 }
 
 -- Sous en su base: inmortales, con el dano al maximo (para los pocos zombis que lleguen) y

@@ -112,6 +112,21 @@ function Motor.migrar(st)
             st.memoria.historia_abierta = true
         end
     end
+    -- 0.13.1: la base de Sous de Rosewood estaba en campo abierto (8046,12032). Las historias en
+    -- curso que la tenian como lugar pasan a la bodega nueva (Narrador.SousBases).
+    local nueva = Narrador.SousBases ~= nil and Narrador.SousBases["Rosewood"] or nil
+    if not st.migraciones.sous_rosewood and nueva ~= nil then
+        st.migraciones.sous_rosewood = true
+        do
+            for _, inst in pairs(st.arcos or {}) do
+                for _, l in pairs(inst.lugares or {}) do
+                    if type(l) == "table" and l.x ~= nil and math.sqrt((l.x - 8046) ^ 2 + (l.y - 12032) ^ 2) <= 60 then
+                        l.x, l.y, l.z = nueva.x, nueva.y, nueva.z or 0
+                    end
+                end
+            end
+        end
+    end
 end
 
 function Motor.reiniciar()
@@ -912,6 +927,13 @@ function Motor.forzarEtapa(instId, etapaId)
     local inst = Motor.estado().arcos[instId]
     if inst == nil then return false, "no existe" end
     inst.final, inst.terminado = nil, nil
+    -- Un admin que fuerza una etapa quiere seguir desde ahi: se olvida la traicion de los grupos.
+    -- (Si no, "mato_jugador" se cumple al tiro y vuelve al final de traicion, cobrando otra vez el
+    -- Knox: le paso a sous#107 el 24 de octubre.)
+    for _, g in pairs(inst.grupos or {}) do
+        g.traicion = nil
+        for _, m in pairs(g.miembros or {}) do if m.causa == "jugador" then m.causa = "forzado" end end
+    end
     return Motor.entrar(inst, etapaId, 0)
 end
 

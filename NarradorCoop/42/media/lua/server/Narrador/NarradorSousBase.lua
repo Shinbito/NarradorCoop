@@ -392,8 +392,17 @@ end
 -- Memoria propia y el tick
 -- ---------------------------------------------------------------------------
 
+-- La base vieja de Rosewood estaba en campo abierto: si se amueblo ahi, se olvida para que se
+-- vuelva a amueblar en la bodega nueva (Narrador.SousBases).
+SB.BASE_VIEJA_ROSEWOOD = { x = 8046, y = 12032, radio = 60 }
+
 function SB.memoria()
     local m = Motor.estado().memoria
+    local b, v = m.sous_base, SB.BASE_VIEJA_ROSEWOOD
+    if b ~= nil and b.x ~= nil and math.sqrt((b.x - v.x) ^ 2 + (b.y - v.y) ^ 2) <= v.radio then
+        m.sous_base = nil
+        Mundo.log("base de Sous: la de Rosewood estaba en campo abierto; se amuebla de nuevo en la bodega")
+    end
     return m.sous_base
 end
 

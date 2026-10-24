@@ -85,6 +85,49 @@ G.TIPOS = {
     defensa = { peso = 4, nec = { "defensa" }, titulo = "Defensa" },
     posta = { peso = 4, nec = {}, titulo = "La posta" },
     instalar = { peso = 5, nec = { "energia", "defensa" }, titulo = "Instalar algo" },
+    -- Solo en dificil (y todas las dificiles son esto): ver G.SAQUEOS.
+    saqueo = { peso = 0, nec = {}, titulo = "Saqueo" },
+}
+
+-- Saqueo (nivel dificil): ir a un edificio grande y conocido, lleno de muertos o tomado por
+-- bandidos armados, vaciarlo y quedarse con lo que hay adentro. Corto y directo: llegar,
+-- pelear, saquear y avisar. Salas tal como se llaman en el mapa de B42 (lotheader).
+G.SAQUEOS = {
+    { id = "gigamart", nombre = "el Gigamart", salas = { "gigamart*" }, que = "comida para semanas",
+      botin = { "Base.TinnedBeans", "Base.TinnedBeans", "Base.CannedChili", "Base.CannedCorn", "Base.TinnedSoup",
+                "Base.TinnedSoup", "Base.WaterBottle", "Base.WaterBottle", "Base.CigarettePack", "Base.Battery" } },
+    { id = "armeria", nombre = "la armeria", salas = { "gunstore", "gunstorestorage", "gunstorage" }, que = "armas y municion",
+      botin = { "Base.Pistol", "Base.Bullets9mmBox", "Base.Bullets9mmBox", "Base.Shotgun", "Base.ShotgunShellsBox",
+                "Base.ShotgunShellsBox", "Base.HuntingRifle", "Base.308Box", "Base.308Box" } },
+    { id = "comisaria", nombre = "la comisaria", salas = { "policegunstorage", "policelocker", "policestorage" },
+      que = "el armero de la policia",
+      botin = { "Base.Pistol", "Base.Bullets9mmBox", "Base.Bullets9mmBox", "Base.Shotgun", "Base.ShotgunShellsBox",
+                "Base.Vest_BulletPolice", "Base.HandTorch", "Base.Nightstick" } },
+    { id = "militar", nombre = "el deposito militar", salas = { "armystorage", "armysurplus", "oldarmy" }, que = "equipo militar",
+      botin = { "Base.AssaultRifle", "Base.556Box", "Base.556Box", "Base.556Box", "Base.Vest_BulletArmy", "Base.Hat_Army",
+                "Base.Bandage", "Base.Bandage" } },
+    { id = "hospital", nombre = "el hospital", salas = { "hospitalstorage", "hospitalroom", "hospitalhallway" }, que = "medicinas",
+      botin = { "Base.Antibiotics", "Base.Antibiotics", "Base.Bandage", "Base.Bandage", "Base.AlcoholBandage", "Base.Pills",
+                "Base.Disinfectant", "Base.SutureNeedle", "Base.PillsBeta" } },
+    { id = "bomberos", nombre = "el cuartel de bomberos", salas = { "firestorage", "firegarage" }, que = "herramientas y hachas",
+      botin = { "Base.Axe", "Base.Crowbar", "Base.Sledgehammer", "Base.Hat_Fireman", "Base.Jacket_Fireman",
+                "Base.Bandage", "Base.HandTorch" } },
+    { id = "spiffos", nombre = "el Spiffo's", salas = { "spiffoskitchen", "spiffosstorage", "spiffo_dining" }, que = "la despensa entera",
+      botin = { "Base.TinnedBeans", "Base.CannedChili", "Base.TinnedSoup", "Base.TinnedSoup", "Base.WaterBottle",
+                "Base.WaterBottle", "Base.Pot", "Base.KitchenKnife" } },
+    { id = "empeno", nombre = "la casa de empeno", salas = { "pawnshop", "pawnshopstorage" }, que = "armas empenadas y cosas de valor",
+      botin = { "Base.Revolver", "Base.Bullets45Box", "Base.Shotgun", "Base.ShotgunShellsBox", "Base.WalkieTalkie2",
+                "Base.Battery", "Base.Money" } },
+    { id = "fabrica", nombre = "la fabrica", salas = { "factorystorage", "factory", "loggingfactory", "loggingwarehouse" },
+      que = "herramientas y materiales",
+      botin = { "Base.Hammer", "Base.Saw", "Base.NailsBox", "Base.NailsBox", "Base.DuctTape", "Base.Sledgehammer",
+                "Base.PropaneTank" } },
+}
+-- Armas que llevan los bandidos de un saqueo (arma, municion).
+G.ARMAS_SAQUEO = {
+    { "Base.Pistol", "Base.Bullets9mmBox" }, { "Base.Pistol", "Base.Bullets9mmBox" },
+    { "Base.Shotgun", "Base.ShotgunShellsBox" }, { "Base.HuntingRifle", "Base.308Box" },
+    { "Base.AssaultRifle", "Base.556Box" },
 }
 
 G.SALAS_CASA = { "livingroom", "kitchen", "bedroom" }
@@ -231,6 +274,8 @@ G.PEDIDOS = {
         "Esta noche llegan. Quedate en {lugar:objetivo} y no dejes que pasen. {n_oleadas} oleadas, calculo yo." },
     posta = { "Este paquete tiene que dar la vuelta: {ruta_posta}. No preguntes que lleva.",
         "Una posta: llevas esto donde {nombre_c2}, y de ahi te mandan a otro lado. Ruta: {ruta_posta}." },
+    saqueo = { "{cliente}, {oficio}, sabe que en {lugar:objetivo} quedo {saqueo_que}. Nadie ha podido entrar. Entra tu, vacialo y lo que saques es tuyo.",
+        "En {lugar:objetivo} hay {saqueo_que} y nadie se atreve. Si lo saqueas, me avisas y te pago encima." },
     instalar = { "Hay que dejar {instalar_nombre} en {lugar:objetivo}. Lleva {instalar_lista}.",
         "{cliente}, {oficio}, quiere {instalar_nombre} en {lugar:objetivo}. Necesitas {instalar_lista}." },
 }
@@ -240,7 +285,7 @@ G.TITULOS = {
     entregar = "Un paquete para {cliente_corto}", rescate = "Rescatar a {cliente_corto}", investigar = "Que paso con {buscado}",
     alijo = "El alijo de {cliente_corto}", contrarreloj = "{remedio_nombre} para {cliente_corto}", limpieza = "Limpieza",
     reconocimiento = "Reconocimiento ({puntos} puntos)", defensa = "Aguantar la defensa", posta = "La posta",
-    instalar = "{instalar_nombre} para {cliente_corto}",
+    instalar = "{instalar_nombre} para {cliente_corto}", saqueo = "Saquear {saqueo_nombre}",
 }
 
 G.RECIBE_POSTA = {
@@ -253,7 +298,7 @@ G.REMATES = {
     "Mijito, dile al Cabo que la cafetera llego. Y que no se haga ilusiones.",
     "Ramiro tejiendo? No te creo. Bueno, si te creo. Es feo.",
     "Esto no se lee delante de nadie. Vete.",
-    "Una caja de municion con un mono. Que hombre mas raro.",
+    "Una caja de municion con un lazo de regalo. Que hombre mas raro.",
     "Un libro de recetas, con una pagina doblada. Mira tu.",
     "Puras semillas. Alguien esta pensando en la primavera.",
 }
@@ -346,6 +391,9 @@ end
 -- ---------------------------------------------------------------------------
 
 function G.elegirTipo(contacto, nivel)
+    -- Las dificiles ya no son las faciles agrandadas (postas de tres pueblos, seis horas de
+    -- defensa...): son siempre un saqueo a un edificio emblematico.
+    if nivel == "dificil" then return "saqueo" end
     local e = G.estado()
     local nec = G.necesidades(contacto)
     local ultimos = e.ultimos[contacto] or {}
@@ -532,6 +580,26 @@ function G.generar(contactoId, nivel, grupo, tipoForzado)
         v.remate = elegir(G.REMATES)
         v.pago_lugar = "c" .. (n + 1)
         v.plazo = 48 + 24 * n
+    elseif tipo == "saqueo" then
+        local t = elegir(G.SAQUEOS)
+        local respaldo = {}
+        for _, o in ipairs(G.SAQUEOS) do
+            if o.id ~= t.id then for _, sala in ipairs(o.salas) do respaldo[#respaldo + 1] = sala end end
+        end
+        v.saqueo_id, v.saqueo_nombre, v.saqueo_que, v.botin_saqueo = t.id, t.nombre, t.que, t.botin
+        v.salas, v.respaldo = t.salas, respaldo
+        v.min, v.max = 300, 3000
+        v.plazo = 72
+        v.variante = chance(50) and "horda" or "bandidos"
+        v.con_bandidos, v.comp = false, "ninguna"
+        if v.variante == "horda" then
+            v.zombis, v.refuerzo, v.bajas_meta = { 70, 100 }, { 20, 30 }, 60
+            local j = elegir(G.JEFES)
+            v.jefe_outfit, v.jefe_nombre = j.outfit, j.nombre
+        else
+            v.zombis, v.bandidos = { 8, 12 }, { 5, 8 }
+        end
+        v.necesidad = "defensa"
     elseif tipo == "instalar" then
         local b = G.porNecesidad(G.INSTALAR, contactoId)
         v.instalar_nombre, v.instalar_lista, v.instalar_req = b.nombre, b.lista, b.req
@@ -541,7 +609,7 @@ function G.generar(contactoId, nivel, grupo, tipoForzado)
 
     -- Condicion (no en todos los tipos).
     local conPlazo = tipo ~= "contrarreloj" and tipo ~= "defensa"
-    if chance(N.chanceCond) then
+    if tipo ~= "saqueo" and chance(N.chanceCond) then
         local opciones = { }
         if conPlazo then opciones[#opciones + 1] = "plazo" end
         if tipo == "buscar" or tipo == "recuerdo" or tipo == "recolectar" then opciones[#opciones + 1] = "noche" end
@@ -551,7 +619,7 @@ function G.generar(contactoId, nivel, grupo, tipoForzado)
     if v.cond == "plazo" then v.plazo = math.max(8, floor(v.plazo / 2)); v.bonus_cond = true end
 
     -- Complicacion.
-    if tipo ~= "recolectar" and tipo ~= "posta" and tipo ~= "defensa" and chance(N.chanceComp) then
+    if tipo ~= "recolectar" and tipo ~= "posta" and tipo ~= "defensa" and tipo ~= "saqueo" and chance(N.chanceComp) then
         v.comp = elegir(G.COMPLICACIONES)
         if nivel == "facil" and v.comp == "competencia" then v.comp = "horda" end
     end
@@ -593,11 +661,16 @@ function G.generar(contactoId, nivel, grupo, tipoForzado)
     if tipo == "posta" then linea("Ruta: " .. v.ruta_posta)
     elseif tipo == "recolectar" then linea("Donde: donde los encuentres")
     elseif tipo == "defensa" then linea("Donde: al lado de " .. c.nombre .. ", " .. v.n_oleadas .. " oleadas")
+    elseif tipo == "saqueo" then linea("Donde: " .. v.saqueo_nombre .. " (puede estar lejos)")
     else linea("Donde: " .. (tipo == "contrarreloj" and nivel == "dificil" and "otro pueblo" or N.txtDistancia)) end
     linea("Plazo: " .. v.plazo_txt)
     linea("Pago: botin " .. nivel .. " + lo que paga " .. v.oficio)
     if v.cond ~= "ninguna" then linea("Extra: " .. G.CONDICIONES[v.cond].resumen) end
     if v.con_bandidos then linea("Ojo: hay bandidos") end
+    if tipo == "saqueo" then
+        linea("Adentro: " .. v.saqueo_que)
+        linea(v.variante == "horda" and "Ojo: repleto de muertos, con uno grande" or "Ojo: tomado por bandidos armados")
+    end
 
     local lugares = { contacto = C.lugar(c.id) }
     if tipo == "posta" then
@@ -1051,6 +1124,37 @@ Motor.diferidas.pago_encargo = function(inst, p, l)
         Motor.avisar(inst, "Entre el pago viene algo especial: un arma en un estado increible.")
     end
     return true
+end
+
+-- {"armar_grupo", grupo, lugar}: a cada vivo del grupo le pone un arma de fuego en la mano (y su
+-- municion). Espera a que el grupo este listo y con cuerpo; si A-Life le cambia el arma, al
+-- menos la lleva encima (y queda de botin).
+Motor.diferidas.armar_grupo = function(inst, p, l)
+    local g = inst.grupos[p.grupo]
+    if g == nil or g.estado ~= "listo" then return false end
+    p.armados = p.armados or {}
+    local faltan = false
+    for uid, m in pairs(g.miembros or {}) do
+        if m.vivo and not p.armados[uid] then
+            local cuerpo = Mundo.cuerpoActor(uid)
+            if cuerpo == nil then
+                faltan = true
+            else
+                local par = elegir(G.ARMAS_SAQUEO)
+                pcall(function()
+                    local arma = Mundo.crearItem(par[1])
+                    if arma ~= nil then
+                        cuerpo:getInventory():AddItem(arma)
+                        cuerpo:setPrimaryHandItem(arma)
+                    end
+                    local balas = Mundo.crearItem(par[2])
+                    if balas ~= nil then cuerpo:getInventory():AddItem(balas) end
+                end)
+                p.armados[uid] = true
+            end
+        end
+    end
+    return not faltan
 end
 
 Motor.diferidas.zombi_jefe = function(inst, p, l)

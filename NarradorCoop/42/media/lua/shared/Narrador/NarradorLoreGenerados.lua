@@ -5,7 +5,7 @@ require "Narrador/NarradorLore"
 
 local Lore = Narrador.Lore
 
-local VOLVER = "Ya esta. Ahora hay que volver donde {contacto_nombre}, en {lugar:contacto}, antes de que se acabe el plazo."
+local VOLVER = "Ya esta. Ahora hay que volver con {contacto_nombre}, en {lugar:contacto}, antes de que se acabe el plazo."
 
 local FINALES = {
     final_cumplido = "Cumpli el encargo de {contacto_nombre}: {titulo}. {cliente} va a dormir mejor esta noche. Yo tambien, un poco.",
@@ -76,6 +76,12 @@ local TIPOS = {
         tramo2 = "Llevo un paquete en posta: ahora va para {nombre_c2}, en {lugar:c2}.",
         tramo3 = "La posta sigue. Ahora le toca a {nombre_c3}, en {lugar:c3}.",
         tramo4 = "Ultimo tramo de la posta: {nombre_c4}, en {lugar:c4}.",
+    },
+    saqueo = {
+        viaje = "{contacto_nombre} me mando a saquear {lugar:objetivo}. Dicen que adentro quedo {saqueo_que}. Nadie ha podido entrar.",
+        asalto_horda = "{lugar:objetivo} esta repleto de muertos. Llevo {bajas:objetivo}. Hay uno enorme dando vueltas.",
+        asalto_bandidos = "Hay bandidos armados en {lugar:objetivo}. O ellos o yo.",
+        volver = "{lugar:objetivo} quedo vacio y lo que habia es mio. Ahora a contarle a {contacto_nombre}.",
     },
     instalar = {
         viaje = "Tengo que dejar {instalar_nombre} en {lugar:objetivo}. Necesito {instalar_lista}.",

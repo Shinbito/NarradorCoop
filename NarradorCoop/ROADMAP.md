@@ -9,6 +9,16 @@ memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias
 memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 
+## Encargos dificiles = saqueo (hecho, falta probar en el juego)
+- Pedido: las dificiles eran las faciles agrandadas (postas de 3 pueblos, 6 h de defensa, 14
+  objetos) y quedaban fomes y largas. Ahora `G.elegirTipo` devuelve siempre "saqueo" en dificil.
+- `G.SAQUEOS` (NarradorGenerador.lua): 9 edificios con sus salas reales del mapa B42 y su botin.
+  Variante al 50%: horda (70-100 muertos, refuerzo corredor hacia el jugador, jefe; meta 60
+  bajas) o bandidos (5-8 en modo guard, armados con `armar_grupo`; meta: todos muertos).
+- Arco `encargo_gen_saqueo` (Arcos/Generados.lua): viaje -> llegada -> asalto -> botin en el
+  edificio -> volver con el misionero (cobra el pago dificil normal). Sin condiciones ni
+  complicaciones extra. Prueba: `herramientas/pruebas/prueba_saqueo.lua`.
+
 ## El modo historia parte con el refugio (hecho, falta probar en el juego)
 - `Motor.historiaAbierta()` (NarradorMotor.lua): hasta que alguien reclama un refugio (o marca una
   casa como base en A-Life) `Motor.iniciar` no lanza nada: historias del director, rumores,

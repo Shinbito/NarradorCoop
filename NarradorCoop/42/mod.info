@@ -1,7 +1,7 @@
 name=Narrador Co-op
 id=NarradorCoop
 author=Shinbo
-modversion=0.13.0
+modversion=0.13.1
 versionMin=42.21.0
 description=Narrador de historias para co-op: historia principal (Los Bell y Sous), eventos por mensajero, misioneros con campamentos que crecen, comerciantes y trueque, reputacion de Knox y premios legendarios. Usa Project A-Life para los NPCs.
 ZBVersionMin=2.3.0

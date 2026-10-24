@@ -443,6 +443,55 @@ do
 end
 
 -- ---------------------------------------------------------------------------
+-- Saqueo (todas las dificiles): un edificio emblematico lleno de muertos o tomado por
+-- bandidos armados. Llegar, pelear, saquear y avisar.
+-- ---------------------------------------------------------------------------
+do
+    local HORDA, BANDIDOS = { "var", "variante", "horda" }, { "var", "variante", "bandidos" }
+    local etapas = finales()
+    etapas.encargo = inicio(OBJETIVO)
+    etapas.viaje = {
+        pista = "Ir a {lugar:objetivo} y saquearlo.",
+        salidas = plazo({ { cuando = { "cerca", "objetivo", 70 }, ir = "llegada" } }),
+    }
+    etapas.llegada = {
+        al_entrar = {
+            { "oleada", lugar = "objetivo", radio = 40, cantidad = "var:zombis", si = HORDA },
+            { "oleada", lugar = "objetivo", radio = 60, cantidad = "var:refuerzo", min = 25, max = 40, retraso = 0.3,
+              correr = true, al_jugador = true, si = HORDA },
+            { "zombi_jefe", lugar = "objetivo", radio = 40, outfit = "var:jefe_outfit", si = HORDA },
+            { "aviso", texto = "{lugar:objetivo} esta repleto de muertos. Y entre ellos hay {jefe_nombre}, mas grande que los demas.", si = HORDA },
+            { "bandidos", id = "ocupantes", lugar = "objetivo", radio = 30, modo = "guard", cantidad = "var:bandidos", si = BANDIDOS },
+            { "armar_grupo", grupo = "ocupantes", lugar = "objetivo", radio = 90, retraso = 0.05, si = BANDIDOS },
+            { "oleada", lugar = "objetivo", radio = 50, cantidad = "var:zombis", si = BANDIDOS },
+            { "aviso", texto = "Hay gente armada adentro de {lugar:objetivo}. No vinieron a conversar.", si = BANDIDOS },
+            { "marcar_hora", nombre = "llegada" },
+        },
+        salidas = {
+            { cuando = HORDA, ir = "asalto_horda" },
+            { ir = "asalto_bandidos" },
+        },
+    }
+    etapas.asalto_horda = {
+        pista = "Vaciar {lugar:objetivo}: van {bajas:objetivo} de {bajas_meta} muertos.",
+        salidas = plazo({ { cuando = { "bajas_en", "objetivo", "var:bajas_meta", 50 }, ir = "botin" } }),
+    }
+    etapas.asalto_bandidos = {
+        pista = "Sacar a los bandidos armados de {lugar:objetivo}.",
+        salidas = plazo({ { cuando = { "todos_muertos", "ocupantes" }, ir = "botin" } }),
+    }
+    etapas.botin = {
+        al_entrar = {
+            { "recompensa", lugar = "objetivo", radio = 8, items = "var:botin_saqueo" },
+            { "aviso", texto = "{lugar:objetivo} es tuyo. Adentro quedo {saqueo_que}, a la vista. Despues avisale a {contacto_nombre}." },
+        },
+        salidas = { { ir = "volver" } },
+    }
+    etapas.volver = entregarAlMisionero(nil, "Contarle a {contacto_nombre} que saqueaste {lugar:objetivo}")
+    base("saqueo", "Saqueo", etapas)
+end
+
+-- ---------------------------------------------------------------------------
 -- Reconocimiento: pasar por varios puntos en orden y anotar lo que hay
 -- ---------------------------------------------------------------------------
 do

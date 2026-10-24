@@ -54,7 +54,11 @@ Novedades 0.7.0:
 - Encargos generados: cada encargo se arma al azar (cliente con nombre y oficio, tipo, lugar,
   objetivo, condicion, complicacion, giro y pago). 13 tipos: buscar, recuerdo, recolectar,
   entregar, rescate, investigar, alijo, contrarreloj, limpieza, reconocimiento, defensa, posta e
-  instalar. Los tipos pesan segun lo que necesita cada pueblo. Antes de aceptar ves la oferta en
+  instalar (en facil y medio). Los dificiles son siempre un saqueo: ir a un edificio conocido
+  (Gigamart, armeria, comisaria, deposito militar, hospital, bomberos, Spiffo's, casa de empeno
+  o fabrica) lleno de muertos con un jefe, o tomado por 5 a 8 bandidos armados; al vaciarlo
+  queda el botin del lugar a la vista y despues le cobras al misionero. Plazo: 3 dias.
+  Los tipos pesan segun lo que necesita cada pueblo. Antes de aceptar ves la oferta en
   la ventana del misionero; "Tienes otra cosa?" pide otra (cuesta una lata). Los clientes que
   vuelven tres veces se vienen a vivir al lado del misionero.
 - Encuentros al explorar: al entrar a zonas nuevas puedes escuchar a alguien pidiendo ayuda
