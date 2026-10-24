@@ -42,7 +42,7 @@ function CO.estanque()
     Mundo.llenarBencina(item)
     Mundo.dejarEnSuelo(l.x, l.y, l.z or 0, item)
     m.estanque_ultima = ahora
-    C.decir("rosewood", "Del estanque que defendiste, mijo. Lleno, como debe ser. Vuelve en unos dias que hay mas.")
+    C.decir("rosewood", "Del tanque que defendiste, mijo. Lleno, como debe ser. Vuelve en unos dias que hay mas.")
     Mundo.log("la Misia Rosa dejo un bidon del estanque")
 end
 
@@ -53,7 +53,7 @@ CO.ARSENAL = {
         muldraugh = "Me contaron que del arsenal de Louisville sacaste un fierro de esos que no se ven. Cuidalo, soldado. Y no me apuntes con el.",
         westpoint = "Asi que sacaste un arma del arsenal. Mi viejo decia que un arma buena no te hace bueno a ti. Pienso en eso.",
         riverside = "Supe lo del arma del arsenal. Que el Senor te guie la mano, hijo, porque esa cosa no perdona.",
-        rosewood = "Con esa arma que sacaste de Louisville ya nadie te va a venir a robar bencina, mijo.",
+        rosewood = "Con esa arma que sacaste de Louisville ya nadie te va a venir a robar gasolina, mijo.",
     },
     traje = {
         muldraugh = "Ese traje del arsenal es de los que usaban los de arriba, no la tropa. Te queda bien. Mejor que a ellos.",
@@ -65,7 +65,7 @@ CO.ARSENAL = {
         muldraugh = "Escuche el motor desde lejos. Asi que esas eran las llaves del arsenal. Ojala corra mas que los muertos.",
         westpoint = "Ese auto del arsenal mete un ruido... Pasa a verme mas seguido ahora que tienes ruedas.",
         riverside = "Un vehiculo del ejercito en manos de buena gente. Dios escribe derecho con renglones torcidos.",
-        rosewood = "Ese auto del arsenal tiene que tomar harta bencina. Ya sabes donde llenarlo, mijo.",
+        rosewood = "Ese auto del arsenal tiene que tomar mucha gasolina. Ya sabes donde llenarlo, mijo.",
     },
 }
 

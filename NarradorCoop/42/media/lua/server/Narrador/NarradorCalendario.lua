@@ -29,9 +29,9 @@ Cal.DULCES = { { "Base.CandyPackage", "Base.Chocolate", "Base.Lollipop", "Base.M
 
 Cal.BRUJAS = {
     muldraugh = "Noche de brujas. Le requise esto a unos ninos que ya no lo van a necesitar. Tome. Es una orden.",
-    westpoint = "Ay, mijito, dulce o travesura? Toma, toma, que hoy se regalonea.",
+    westpoint = "Ay, mijito, dulce o travesura? Toma, toma, que hoy toca consentirte.",
     riverside = "Hijo, en mi tiempo uno se disfrazaba de muerto. Ahora ni hace falta. Toma un dulce.",
-    rosewood = "Dulces de la bencinera, mijo. Vencidos, pero dulces igual.",
+    rosewood = "Dulces de la gasolinera, mijo. Vencidos, pero dulces igual.",
 }
 Cal.FIN_ANO = {
     muldraugh = "Fin del ano 93. Sin novedad. Bueno, con muchas novedades. Firme.",
@@ -270,7 +270,7 @@ function Cal.calor()
     if Mundo.estacion() ~= "verano" or (Mundo.clima().temperatura or 20) <= 32 then return end
     if e.ultCalor ~= nil and Mundo.horas() - e.ultCalor < 24 * 5 then return end
     e.ultCalor = Mundo.horas()
-    if C.estado("rosewood").uid ~= nil then C.decir("rosewood", "Con este calor el agua vale mas que la bencina, mijo. Y la bencina ya valia harto.") end
+    if C.estado("rosewood").uid ~= nil then C.decir("rosewood", "Con este calor el agua vale mas que la gasolina, mijo. Y la gasolina ya valia mucho.") end
     local G = Narrador.Generador
     if G ~= nil then
         for _, c in ipairs(C.LISTA) do

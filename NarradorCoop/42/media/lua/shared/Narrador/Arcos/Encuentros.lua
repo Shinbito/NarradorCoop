@@ -27,9 +27,9 @@ Narrador.Charlas.encuentro = {
     { "npc", "No me toques! Me salvas y despues que? Me matas tu?", si = { "knox_maximo", -90 } },
     { "npc2", "Es el. El de las historias. No lo mires a los ojos.", si = { "knox_maximo", -90 } },
     { "npc", "Escuche cosas de ti. Ojala no sean verdad.", si = { { "knox_maximo", -1 }, { "knox_minimo", -89 } } },
-    { "npc", "Eres tu! La nueva esperanza! Sabia que ibas a venir.", si = { "knox_minimo", 45 } },
+    { "npc", "Eres tu! Dicen que tu si cumples lo que prometes. Sabia que ibas a venir.", si = { "knox_minimo", 45 } },
     { "npc", "Todos hablan de lo que hiciste en Knox. Nunca pense que te iba a conocer.", si = { "knox_minimo", 90 } },
-    { "npc2", "El heroe de Knox, aca, por nosotros. Mi mama no me lo va a creer.", si = { "knox_minimo", 150 } },
+    { "npc2", "La leyenda de Knox, aca, por nosotros. Mi mama no me lo va a creer.", si = { "knox_minimo", 150 } },
 }
 
 -- Datos de cada tipo (el servidor los usa para sortear y armar el encuentro).
@@ -73,7 +73,7 @@ Narrador.EncuentrosTipos = {
         regalo = { { "Base.Pistol" }, { "Base.Bullets9mm" } }, giro = "emboscada", giroChance = 40 },
     comerciante = { zona = { "carretera" }, peso = 5, oleada = { 8, 12 }, bateria = true,
         senal = "Un motor que no arranca {direccion}, a unos {distancia} metros. Alguien insiste e insiste.",
-        llegada = "Un comerciante con su carro en panne. La bateria murio y los muertos se acercan.",
+        llegada = "Un comerciante con su carro averiado. La bateria murio y los muertos se acercan.",
         grito = "Si me ayudas, te pago bien! Lo que quieras del carro!", gracias = "Eres mi cliente favorito. Toma, va por la casa.",
         regalo = { { "Base.Cigarettes" }, { "Base.TinnedBeans", "Base.CannedBeans" }, { "Base.Battery" } } },
     bengala = { zona = { "ciudad", "rural", "carretera" }, peso = 5, oleada = { 10, 16 }, dos = true,
@@ -155,9 +155,9 @@ local function encuentro(id, t)
                   dice = { rol = "npc", texto = "Arranco! Toma, esto es tuyo. Vuelve cuando quieras comprar algo." },
                   acciones = { { "recompensa", lugar = "punto", radio = 30, items = "var:regalo_comerciante" },
                                { "variable", nombre = "bateria", valor = false } } },
-                { id = "llevar", texto = "Llevarlo donde {misionero}, que ahi hay gente",
+                { id = "llevar", texto = "Dile que vaya con {misionero}, que ahi hay gente; te espera alla",
                   si = { { "no", { "var", "cuerda", true } }, { "no", { "var", "misionero_id" } } },
-                  dice = { rol = "npc", texto = "Donde {misionero}? Ya. Te sigo, pero no me dejes atras." } },
+                  dice = { rol = "npc", texto = "Donde {misionero}? Ya. Me voy para alla. Nos vemos alla." } },
                 { id = "provisiones", texto = "Darle algo de comer y dejarlo ir", requiere = { "comida" }, si = { "no", { "var", "cuerda", true } },
                   falta = "No llevas comida.",
                   dice = { rol = "npc", texto = "Comida... de verdad? No me voy a olvidar de esto." } },
@@ -175,17 +175,16 @@ local function encuentro(id, t)
                 { cuando = { "horas", 3 }, ir = "final_despedida" },
             },
         },
-        -- Llevarlo sano y salvo al campamento del misionero: te sigue a pie y se sube al auto
-        -- contigo (ver server/Narrador/NarradorPasajeros.lua). Ya no es inmortal.
+        -- Va solo al campamento del misionero: espera donde esta y, cuando te alejas, aparece alla
+        -- (ver "va solo" en server/Narrador/NarradorPasajeros.lua). Ya no es inmortal.
         escolta = {
-            pista = "Llevar a {nombre} sano y salvo a {lugar:misionero}.",
+            pista = "{nombre} va por su cuenta a {lugar:misionero}. Vuelve donde {misionero}: te espera alla.",
             objetivo = "misionero",
             al_entrar = {
                 { "lugar_misionero", id = "misionero" },
                 { "acompanante", grupo = "npc", rol = "npc", inmortal = false },
                 { "acompanante", grupo = "npc", rol = "npc2", inmortal = false },
-                -- Suelto (sin quedarse quieto ni correa) para que pueda seguirte; el repaso
-                -- periodico de banderas del grupo respeta esto.
+                -- Mientras espera queda anclado (NarradorPasajeros manda sobre estas banderas).
                 { "banderas", grupo = "npc", inmortales = false, quietos = false, correa = 0 },
                 { "diario", texto = "{nombre} viene conmigo. Lo llevo donde {misionero}, en {lugar:misionero}." },
             },

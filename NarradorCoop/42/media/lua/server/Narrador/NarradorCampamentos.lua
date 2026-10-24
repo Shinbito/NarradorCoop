@@ -503,7 +503,7 @@ function S.comprar(jugador, args)
     if x == nil or px == nil or math.sqrt((x - px) ^ 2 + (y - py) ^ 2) > 6 then Motor.responder(jugador, "Estas muy lejos."); return end
     local art = K.OFICIOS[oficio].catalogo[tonumber(args.i) or 0]
     if art == nil then return end
-    -- Con fama de El destripador o peor no te venden nada (los recados siguen, ver S.recado).
+    -- Con fama de El carnicero de Knox o peor no te venden nada (los recados siguen, ver S.recado).
     local KX = Narrador.Knox
     if KX ~= nil and KX.despreciadoJugador(jugador) then
         local quien = K.persona(oficio, c.id, Motor.estado().memoria)

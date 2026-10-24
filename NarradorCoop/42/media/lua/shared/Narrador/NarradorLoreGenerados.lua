@@ -11,7 +11,7 @@ local FINALES = {
     final_cumplido = "Cumpli el encargo de {contacto_nombre}: {titulo}. {cliente} va a dormir mejor esta noche. Yo tambien, un poco.",
     final_vencido = "Se acabo el plazo del encargo de {contacto_nombre}. {cliente} ya no me necesita. O ya no puede necesitarme.",
     final_fallido = "El encargo de {contacto_nombre} salio mal. No todo se puede.",
-    final_abandonado = "Deje botado el encargo de {contacto_nombre}. Me lo va a recordar cada vez que pase por {ciudad}.",
+    final_abandonado = "Deje abandonado el encargo de {contacto_nombre}. Me lo va a recordar cada vez que pase por {ciudad}.",
     final_muerto = "{cliente} no salio vivo. Lo escribo para no olvidarme de su nombre.",
     final_dejaste = "No le quite nada a una familia que apenas tenia techo. {contacto_nombre} lo va a entender. Yo lo entiendo.",
 }
@@ -46,7 +46,7 @@ local TIPOS = {
         segundo_viaje = "{buscado} dejo una nota: se fue a {lugar:segundo}. La sigo.",
         en_segundo = "Llegue a {lugar:segundo}. Si {buscado} esta vivo, esta aqui.",
         volver = "{buscado} esta vivo. Tengo que contarselo a {contacto_nombre}.",
-        volver_triste = "Encontre a {buscado}. Lo que quedaba de {buscado}. Llevo su carnet. No se que le voy a decir a {contacto_nombre}.",
+        volver_triste = "Encontre a {buscado}. Lo que quedaba de {buscado}. Llevo su identificacion. No se que le voy a decir a {contacto_nombre}.",
     },
     alijo = {
         viaje = "{contacto_nombre} me paso el dato de un alijo en {lugar:objetivo}. Lo que encuentre es mio. Eso dicen siempre.",

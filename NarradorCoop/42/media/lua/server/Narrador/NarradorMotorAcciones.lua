@@ -330,7 +330,10 @@ Motor.diferidas = {
     --   caminantes = true: ningun corredor en esta oleada.
     --   meta = "var", meta_frac = 0.8: deja en inst.vars[meta] cuantos hay que matar.
     --   planta_baja = true: en el piso de la calle (z = 0).
-    oleada = function(inst, p, l)
+    --   correr = true: todos corredores (sprinters).
+    --   al_jugador = true: aparecen al tiro alrededor del lugar (entre min y max casillas, fuera
+    --     de la vista) y van directo a donde esta el jugador, con un ruido para que no se pierdan.
+    oleada = function(inst, p, l, jugador)
         local n = Motor.cantidad(p.cantidad, 12)
         -- progreso = { min, max }: crece con los dias y los campamentos (ver Motor.tamanoHorda).
         if type(p.progreso) == "table" then n = Motor.tamanoHorda(p.progreso[1], p.progreso[2]) end
@@ -349,7 +352,15 @@ Motor.diferidas = {
         end
         -- planta_baja: aparecen en la calle aunque el lugar este en un segundo piso.
         local z = p.planta_baja and 0 or l.z
-        local total = Mundo.oleada(l.x, l.y, z, math.max(1, floor(n + 0.5)), p.min, p.max, { caminantes = p.caminantes })
+        local opciones = { caminantes = p.caminantes, correr = p.correr == true }
+        if p.al_jugador and jugador ~= nil then
+            local jx, jy, jz = Mundo.posicion(jugador)
+            if jx ~= nil then
+                z = 0
+                opciones.destino, opciones.ruido = { x = jx, y = jy, z = jz or 0 }, true
+            end
+        end
+        local total = Mundo.oleada(l.x, l.y, z, math.max(1, floor(n + 0.5)), p.min, p.max, opciones)
         if p.meta ~= nil then inst.vars[p.meta] = math.max(1, floor(total * (tonumber(p.meta_frac) or 1))) end
         return true
     end,
@@ -409,7 +420,8 @@ Motor.diferidas = {
         local L = Narrador.Legendario
         if L == nil then return true end
         if p.clase == "auto" then return L.crearAuto(l.x, l.y, l.z) end
-        for _, item in ipairs(L.crear(p.clase, "legendaria")) do Mundo.dejarEnSuelo(l.x, l.y, l.z, item) end
+        -- clase = "fuego": el arsenal de armas de fuego con nombre (cantidad = cuantas, todas si no).
+        for _, item in ipairs(L.crear(p.clase, "legendaria", p.cantidad)) do Mundo.dejarEnSuelo(l.x, l.y, l.z, item) end
         return true
     end,
     zombi_en = function(inst, p, l)

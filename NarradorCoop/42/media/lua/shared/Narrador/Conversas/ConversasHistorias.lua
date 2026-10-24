@@ -83,7 +83,7 @@ reg({
       } },
     { id = "vecino_rosa", tipo = "cruzada",
       turnos = {
-          { "rosa", "Mijo, si vas a quedarte por aca, aprende una cosa: nunca le debas a una bencinera." },
+          { "rosa", "Mijo, si vas a quedarte por aca, aprende una cosa: nunca le debas a una gasolinera." },
           { "vecino", "Y si ya le debo?" },
           { "rosa", "Entonces trabajas para mi. Bienvenido." },
       } },

@@ -199,9 +199,9 @@ registrarInmoral("quemar", {
     titulo_menu = "Inmoral: quemar un refugio",
     diario_final = "Queme el refugio de {lugar:objetivo} para {contacto_nombre}. Todavia huelo a humo cuando escribo.",
     etapas = {
-        encargo = inicio("En {lugar:objetivo} se juntan sobrevivientes que no pagan. Quemalo. Que no quede donde volver. Lleva bencina.",
-            "{contacto_nombre} quiere que queme un refugio en {lugar:objetivo}. Necesito bencina."),
-        viaje = viaje("Ir al refugio de {lugar:objetivo}, con bencina."),
+        encargo = inicio("En {lugar:objetivo} se juntan sobrevivientes que no pagan. Quemalo. Que no quede donde volver. Lleva gasolina.",
+            "{contacto_nombre} quiere que queme un refugio en {lugar:objetivo}. Necesito gasolina."),
+        viaje = viaje("Ir al refugio de {lugar:objetivo}, con gasolina."),
         sitio = {
             pista = "Quemar el refugio de {lugar:objetivo}.",
             objetivo = "objetivo",
@@ -217,11 +217,11 @@ registrarInmoral("quemar", {
             pista = "Quemar el refugio de {lugar:objetivo} (clic derecho cerca).",
             ancla = "objetivo", ancla_grupo = "refugiados", radio = 15,
             al_entrar = {
-                { "decir", grupo = "refugiados", rol = "uno", texto = "Ese bidon es de bencina? ... Luis. Luis, saca a los ninos." },
+                { "decir", grupo = "refugiados", rol = "uno", texto = "Ese bidon es de gasolina? ... Luis. Luis, saca a los ninos." },
             },
             opciones = {
                 { id = "quemar", texto = "Echarlos y prenderle fuego al refugio",
-                  requiere = { "items", BENCINA, 1 }, falta = "Necesitas bencina (un bidon lleno).",
+                  requiere = { "items", BENCINA, 1 }, falta = "Necesitas gasolina (un bidon lleno).",
                   dice = { rol = "uno", texto = "Ojala que el fuego te siga hasta tu casa." } },
                 { id = "perdonar", texto = "Avisarles que se vayan y no quemar nada",
                   dice = { rol = "dos", texto = "Nos vamos esta noche. No vamos a decir que estuviste aqui." } },
@@ -279,7 +279,7 @@ registrarInmoral("fugitivo", {
                 { "decir", grupo = "fugitivo", rol = "fugitivo", texto = "No me lleves de vuelta. Me escape porque querian que matara a una familia. No pude." },
             },
             opciones = {
-                { id = "llevar", texto = "Llevarlo de vuelta con {contacto_nombre}",
+                { id = "llevar", texto = "Mandarlo de vuelta con {contacto_nombre}; te espera alla",
                   dice = { rol = "fugitivo", texto = "Ya. Ya. Camino. No me tires." } },
                 { id = "perdonar", texto = "Dejarlo ir",
                   dice = { rol = "fugitivo", texto = "Gracias. Me voy de Knox. Ojala tu tambien puedas algun dia." } },
@@ -291,7 +291,7 @@ registrarInmoral("fugitivo", {
             }),
         },
         escolta = {
-            pista = "Llevar a Benjamin Sotelo donde {contacto_nombre}.",
+            pista = "Benjamin Sotelo va por su cuenta donde {contacto_nombre}. Vuelve alla: te espera.",
             objetivo = "contacto",
             al_entrar = {
                 { "acompanante", grupo = "fugitivo", rol = "fugitivo", nombre = "Benjamin Sotelo", inmortal = false },

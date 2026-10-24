@@ -79,7 +79,7 @@ Lore.arcos.bandido_4 = {
     etapas = {
         pedido = "{jefe_corto} quiere la comida que un grupo de sobrevivientes junto para el invierno en {lugar:almacen}. Dice que el invierno es de los fuertes. Ella siempre dice cosas que suenan a letrero.",
         viaje = "Voy a {lugar:almacen}. Me pregunto cuanta gente come de lo que voy a cargar.",
-        almacen = "Llegue a {lugar:almacen}. Hay cajas apiladas con cuidado, contadas, con fechas escritas en plumon. Alguien aqui sabe lo que es pasar hambre.",
+        almacen = "Llegue a {lugar:almacen}. Hay cajas apiladas con cuidado, contadas, con fechas escritas en marcador. Alguien aqui sabe lo que es pasar hambre.",
         frente = "Ramon Quispe me corto el paso: son once, hay cuatro ninos, juntaron esto en tres meses. Su madre, Dona Elba, le pidio que me dejara hablar. Dice que tengo cara de cansado, no de malo. No se cual de las dos es verdad hoy.",
         carga = "Las provisiones estan en el suelo de {lugar:almacen}. Los Quispe se fueron sin mirar atras. Cargar es lo unico que queda.",
         volver = {
@@ -158,8 +158,8 @@ local CONQUISTA = {
                   pelea = "La Chela salio a la puerta con un hacha de bombero. Me vio. Bajo el hacha un segundo. Solo un segundo." },
     riverside = { viaje = "Hoy la banda va por la iglesia del Padre Nacho. La puerta nunca se cierra. Hoy la cerramos nosotros.",
                   pelea = "El Padre Nacho no corre. Se queda en la puerta, con los punos arriba, como cuando boxeaba en Lexington." },
-    rosewood = { viaje = "Hoy la banda va por la bencinera de la Misia Rosa. Tiene la luz prendida, como siempre. Para no tener miedo.",
-                 pelea = "La Misia Rosa apago la luz de la bencinera. Primera vez en treinta anos. Por eso supe que tenia miedo." },
+    rosewood = { viaje = "Hoy la banda va por la gasolinera de la Misia Rosa. Tiene la luz prendida, como siempre. Para no tener miedo.",
+                 pelea = "La Misia Rosa apago la luz de la gasolinera. Primera vez en treinta anos. Por eso supe que tenia miedo." },
 }
 for id, t in pairs(CONQUISTA) do
     Lore.arcos["conquista_" .. id] = {
@@ -172,7 +172,7 @@ end
 Lore.arcos.conquista_muldraugh.finales.final_conquistado = "La comisaria de Muldraugh es de la banda. El Cabo Ramiro murio en la oficina del segundo piso, con la libreta abierta. No quise leer la ultima pagina."
 Lore.arcos.conquista_westpoint.finales.final_conquistado = "El cuartel de West Point es de la banda. La Tia Chela murio diciendome mijo. La frazada de Eduardo sigue doblada en la silla."
 Lore.arcos.conquista_riverside.finales.final_conquistado = "La iglesia de Riverside es de la banda. El Padre Nacho no se fue: se quedo en la puerta, como dijo. La puerta ahora esta cerrada."
-Lore.arcos.conquista_rosewood.finales.final_conquistado = "La bencinera de Rosewood es de la banda. La Misia Rosa murio con la luz apagada. Dijo que ya no tenia miedo. Yo si."
+Lore.arcos.conquista_rosewood.finales.final_conquistado = "La gasolinera de Rosewood es de la banda. La Misia Rosa murio con la luz apagada. Dijo que ya no tenia miedo. Yo si."
 
 local INMORAL_FIN = {
     final_perdonado = "No hice lo que me pidio {contacto_nombre}. Me va a cobrar. Que cobre.",
@@ -196,11 +196,11 @@ Lore.arcos.inmoral_testigo = inmoral({
     viaje = "{contacto_nombre} quiere muerto a un testigo escondido en {lugar:objetivo}. Vio algo. Quiere contarlo.",
     sitio = "Llegue a {lugar:objetivo}. Alguien respira detras de una puerta.",
     frente = "Oscar Lagos vio lo que hicimos en la comisaria. Quiere que alguien lo sepa. Me lo dice sin pedir nada.",
-    volver = "Llevo el carnet de Oscar Lagos. La foto me mira.",
+    volver = "Llevo la identificacion de Oscar Lagos. La foto me mira.",
 }, "Silencie a Oscar Lagos para {contacto_nombre}. Lo ultimo que dijo fue un nombre que no conozco.")
 
 Lore.arcos.inmoral_quemar = inmoral({
-    viaje = "{contacto_nombre} quiere que queme un refugio en {lugar:objetivo}. Llevo bencina.",
+    viaje = "{contacto_nombre} quiere que queme un refugio en {lugar:objetivo}. Llevo gasolina.",
     sitio = "Llegue al refugio de {lugar:objetivo}. Hay ropa de nino colgada en una cuerda.",
     frente = "Marta Ibanez vio el bidon y supo. Le dijo a Luis que sacara a los ninos. No grito. Eso fue lo peor.",
     volver = "El refugio de {lugar:objetivo} ardio. Tengo que avisarle a {contacto_nombre}. Huelo a humo.",
@@ -211,7 +211,7 @@ Lore.arcos.inmoral_fugitivo = inmoral({
     sitio = "Llegue a {lugar:objetivo}. Hay muertos rondando. El fugitivo eligio mal donde esconderse. O no tenia donde elegir.",
     frente = "Benjamin Sotelo se escapo porque le pidieron matar a una familia y no pudo. Me lo cuenta como si yo fuera a entender. Entiendo.",
     escolta = "Benjamin Sotelo camina delante de mi, de vuelta donde {contacto_nombre}. No intenta escapar. Ya se canso.",
-    volver = "Llevo el carnet de Benjamin Sotelo para {contacto_nombre}.",
+    volver = "Llevo la identificacion de Benjamin Sotelo para {contacto_nombre}.",
 }, "Cace a Benjamin Sotelo para {contacto_nombre}. Vivo o muerto, da lo mismo para ellos. Para mi no.")
 
 -- ===========================================================================
@@ -248,7 +248,7 @@ Lore.arcos.eduardo_fallas = {
     },
     finales = {
         final_eduardo_muerto = "Mate a Eduardo Giovanns en el campo de Fallas Lake. Era el ultimo que quedaba. Knox es de la banda y de nadie mas. Me quede con su arma. El silencio me lo quede tambien. Fin.",
-        final_reconquista = "Le dije a Eduardo que quiero devolverle Knox a la gente. Me miro un rato largo. Despues me sirvio sopa y me reto, como hubiera hecho su mama. Vamos a sacar a los bandidos ciudad por ciudad.",
+        final_reconquista = "Le dije a Eduardo que quiero devolverle Knox a la gente. Me miro un rato largo. Despues me sirvio sopa y me regano, como hubiera hecho su mama. Vamos a sacar a los bandidos ciudad por ciudad.",
     },
 }
 

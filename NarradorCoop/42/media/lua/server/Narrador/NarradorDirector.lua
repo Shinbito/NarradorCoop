@@ -28,6 +28,7 @@ Narrador.Director = Director
 Director.CHANCE = 6
 Director.RUMOR_HORAS = { 24, 48 }
 Director.CHANCE_FALSO = 20
+Director.ESPERA_FALSO = 7 * 24
 
 -- 1 Pausado, 2 Equilibrado, 3 Implacable, 4 Volado
 Director.ESTILOS = {
@@ -331,25 +332,119 @@ function Director.contarRumores()
     end
 end
 
+-- Donde queda el premio de un rumor: una casilla libre DENTRO de la sala del rumor (el centro
+-- de la caja de la sala puede caer en una pared, en un mueble o fuera de una sala en L). Si la
+-- sala no esta cargada todavia devuelve nil (se vuelve a intentar en el proximo chequeo).
+Director.RADIO_SALA = 14
+function Director.casillaEnSala(l)
+    local x, y, z = floor(l.x), floor(l.y), floor(l.z or 0)
+    local sala = string.lower(tostring(l.sala or ""))
+    local mejor, mejorD, ocupada, ocupadaD
+    for dx = -Director.RADIO_SALA, Director.RADIO_SALA do
+        for dy = -Director.RADIO_SALA, Director.RADIO_SALA do
+            local sq = Mundo.cargado(x + dx, y + dy, z)
+            if sq ~= nil then
+                local ok, nombre = pcall(function()
+                    local r = sq:getRoom()
+                    return r ~= nil and string.lower(tostring(r:getName())) or nil
+                end)
+                if ok and nombre ~= nil and nombre == sala then
+                    local d = dx * dx + dy * dy
+                    local okL, libre = pcall(function() return sq:isFree(false) end)
+                    if okL and libre then
+                        if mejorD == nil or d < mejorD then mejor, mejorD = sq, d end
+                    elseif ocupadaD == nil or d < ocupadaD then
+                        ocupada, ocupadaD = sq, d
+                    end
+                end
+            end
+        end
+    end
+    return mejor or ocupada
+end
+
+-- Deja una lista de items en la sala del rumor. Con "bolsa" (rumores falsos) va todo junto en una
+-- mochila con nombre, que se ve en el suelo. Devuelve true si quedo algo puesto.
+function Director.dejarPremio(l, items, bolsa)
+    if #items == 0 then return true end
+    local sq = Director.casillaEnSala(l)
+    local puestos = 0
+    local function poner(item)
+        if sq ~= nil then
+            local ok = pcall(function() sq:AddWorldInventoryItem(item, 0.3 + Mundo.azar(5) * 0.1, 0.3 + Mundo.azar(5) * 0.1, 0) end)
+            if ok then return true end
+        end
+        return Mundo.dejarEnSuelo(l.x, l.y, l.z or 0, item)
+    end
+    if bolsa ~= nil then
+        local mochila = Mundo.crearItem({ "Base.Bag_Schoolbag", "Base.Bag_DuffelBag", "Base.Bag_Satchel", "Base.Plasticbag" })
+        local ok = mochila ~= nil and pcall(function()
+            local inv = mochila:getInventory()
+            for _, it in ipairs(items) do inv:AddItem(it) end
+        end)
+        if ok then
+            Mundo.nombrar(mochila, bolsa, "rumor_premio")
+            return poner(mochila)
+        end
+    end
+    for _, it in ipairs(items) do
+        if poner(it) then puestos = puestos + 1 end
+    end
+    return puestos > 0
+end
+
+-- Como se le dice a la sala por dentro, para la pista ("en una oficina de la planta baja").
+Director.SALA_ADENTRO = {
+    policeoffice = "una oficina", policestorage = "la bodega", gasstore = "la tienda", grocery = "el almacen",
+    grocerystorage = "la bodega", firestorage = "la bodega", classroom = "una sala de clases", church = "la nave",
+    livingroom = "la sala", kitchen = "la cocina", bedroom = "un dormitorio", warehouse = "la bodega",
+    garagestorage = "el taller", storageunit = "una de las bodegas", office = "una oficina",
+}
+function Director.dondeAdentro(l)
+    local z = floor(tonumber(l.z) or 0)
+    local piso = z == 0 and "la planta baja" or (z == 1 and "el segundo piso" or ("el piso " .. (z + 1)))
+    local sala = Director.SALA_ADENTRO[tostring(l.sala)] or "una de las salas"
+    return sala .. " de " .. piso
+end
+
 -- Si alguien va a mirar el lugar antes de tiempo: el rumor queda "seguido".
+-- Se espera a que el jugador este cerca (la sala tiene que estar cargada para dejar las cosas
+-- adentro); si la sala no carga en 30 chequeos, se deja igual cerca del punto.
 function Director.revisarVisitas()
     local d = Director.st()
     for i = #d.agenda, 1, -1 do
         local a = d.agenda[i]
         if a.lugar ~= nil and not a.seguido then
             local j = Mundo.jugadorCerca(a.lugar.x, a.lugar.y, 40)
-            if j ~= nil and Mundo.cargado(a.lugar.x, a.lugar.y, a.lugar.z) ~= nil then
-                a.seguido = true
+            local listo = j ~= nil and Mundo.cargado(a.lugar.x, a.lugar.y, 0) ~= nil
+            if listo and Director.casillaEnSala(a.lugar) == nil then
+                a.esperaSala = (a.esperaSala or 0) + 1
+                listo = a.esperaSala >= 30
+            end
+            if listo then
                 local premio = a.falso ~= nil and Rum.FALSOS[a.falso].premio or (Rum.HISTORIAS[a.def] or {}).premio
+                local items = {}
                 for _, tipos in ipairs(premio or {}) do
                     local item = Mundo.crearItem(tipos)
-                    if item ~= nil then Mundo.dejarEnSuelo(a.lugar.x, a.lugar.y, a.lugar.z, item) end
+                    if item ~= nil then items[#items + 1] = item end
                 end
-                if a.falso ~= nil then
-                    local nota = Mundo.crearNota("Nota", Rum.FALSOS[a.falso].nota)
-                    if nota ~= nil then Mundo.dejarEnSuelo(a.lugar.x, a.lugar.y, a.lugar.z, nota) end
-                    Motor.enviar(j, "aviso", { texto = "El rumor era puro cuento. Pero alguien estuvo aqui antes y dejo algo." })
-                    Director.anotar("Fui a ver un rumor a " .. tostring(a.lugar.etiqueta) .. ". Era cuento. Algo encontre igual.")
+                local falso = a.falso ~= nil and Rum.FALSOS[a.falso] or nil
+                if falso ~= nil then
+                    local nota = Mundo.crearNota("Nota", falso.nota)
+                    if nota ~= nil then items[#items + 1] = nota end
+                end
+                if Director.dejarPremio(a.lugar, items, falso ~= nil and (falso.bolsa or "Bolso olvidado") or nil) then
+                    a.seguido = true
+                end
+                local donde = Director.dondeAdentro(a.lugar)
+                if not a.seguido then
+                    -- No se pudo dejar nada todavia: se intenta en el proximo chequeo.
+                elseif falso ~= nil then
+                    local texto = falso.hallazgo or "El rumor era puro cuento. Pero alguien estuvo aqui antes y dejo un bolso en {donde}."
+                    texto = string.gsub(texto, "{donde}", donde)
+                    Motor.enviar(j, "aviso", { texto = texto })
+                    Director.anotar("Fui a ver un rumor a " .. tostring(a.lugar.etiqueta) .. ". Era cuento, pero alguien dejo un bolso en "
+                        .. donde .. ".")
                     table.remove(d.agenda, i)
                 else
                     Motor.enviar(j, "aviso", { texto = "Hay rastros recientes. El rumor era verdad: algo va a pasar aqui." })
@@ -372,7 +467,13 @@ function Director.procesarAgenda()
     local ahora = Mundo.horas()
     for i = #d.agenda, 1, -1 do
         local a = d.agenda[i]
-        if ahora >= a.lanzar then
+        -- Un rumor falso que alguien ya escucho espera hasta 7 dias a que vayan a mirar
+        -- (antes se borraba a las 48-72 horas y el que llegaba despues no encontraba nada).
+        local oido = false
+        for _ in pairs(a.oidos or {}) do oido = true end
+        local espera = a.falso ~= nil and oido and not a.seguido
+            and ahora - (tonumber(a.desde) or ahora) < Director.ESPERA_FALSO
+        if ahora >= a.lanzar and not espera then
             table.remove(d.agenda, i)
             if a.def ~= nil then
                 local ref
@@ -429,8 +530,34 @@ function Director.alIniciar(inst, def)
     Director.subirTension((tonumber(def.intensidad) or 3) * Director.estilo().sube)
 end
 
+-- Historias que no ocupan cupo del director (MaxActivos): el camino del bandido corre en
+-- paralelo a las demas (ver NarradorBandido.lua).
+-- Tampoco ocupan cupo las que no lanza el director (automatico = false): desbloqueos de
+-- misioneros ("mas rato" no tiene plazo), encargos, encuentros, capitulos. Antes contaban y con
+-- dos desbloqueos pendientes el director no lanzaba nada mas (ni a los Bell).
+function Director.cuentaEnCupo(inst)
+    local def = Defs.get(inst.def)
+    if def ~= nil and def.automatico == false then return false end
+    local BA = Narrador.Bandido
+    for _, id in ipairs(BA ~= nil and BA.IDS or {}) do
+        if inst.def == id then return false end
+    end
+    return true
+end
+
+function Director.activos()
+    local st, n = Motor.estado(), 0
+    for _, id in ipairs(st.orden) do
+        local inst = st.arcos[id]
+        if inst ~= nil and inst.final == nil and Director.cuentaEnCupo(inst) then n = n + 1 end
+    end
+    return n
+end
+
 function Director.tick()
     if Mundo.sandbox("Activado", true) == false then return end
+    -- Compuerta del modo historia: sin refugio no hay historias, rumores ni capitulos pendientes.
+    if not Motor.historiaAbierta() then return end
     Director.abrirPendientes()
     Director.bajarTension()
     pcall(Director.procesarAgenda)
@@ -442,7 +569,7 @@ function Director.tick()
     if ahora / 24 < (tonumber(Mundo.sandbox("DiaInicio", 1)) or 1) then return end
     local enAgenda = 0
     for _, a in ipairs(d.agenda) do if a.def ~= nil then enAgenda = enAgenda + 1 end end
-    if Motor.activos() + enAgenda >= (tonumber(Mundo.sandbox("MaxActivos", 2)) or 2) then return end
+    if Director.activos() + enAgenda >= (tonumber(Mundo.sandbox("MaxActivos", 2)) or 2) then return end
     local estilo = Director.estilo()
     local hueco = (tonumber(Mundo.sandbox("HorasEntreEventos", 20)) or 20) * estilo.hueco
     if estilo.volado then hueco = hueco * (0.4 + Mundo.azar(12) / 10) end

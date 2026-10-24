@@ -128,8 +128,8 @@ K.OFICIOS = {
         llega = "Llega al campamento un mecanico con las manos negras de grasa. Pregunta donde esta el taller.",
         catalogo = {
             { texto = "Bateria de auto", items = { { "Base.CarBattery1", "Base.CarBattery2", "Base.CarBattery3" } }, precio = 6 },
-            { texto = "Bidon de bencina", items = { { "Base.PetrolCan", "Base.JerryCan" } }, precio = 6 },
-            { texto = "Llave de ruedas y gata", items = { { "Base.LugWrench" }, { "Base.Jack" } }, precio = 4 },
+            { texto = "Bidon de gasolina", items = { { "Base.PetrolCan", "Base.JerryCan" } }, precio = 6 },
+            { texto = "Llave de ruedas y gato", items = { { "Base.LugWrench" }, { "Base.Jack" } }, precio = 4 },
             { texto = "Un auto en buen estado", servicio = "auto", precio = 40, confianza = 5 },
         },
     },
@@ -155,7 +155,7 @@ K.OFICIOS = {
 -- ("Quieres que la gente confie en ti? Ayudame con esto."). Te marca un lugar en un mapa,
 -- buscas la cosa ahi y se la llevas (shared/Narrador/Arcos/Recados.lua). Dan reputacion de
 -- Knox (KnoxDefs.RECADO) y un poco de confianza con el misionero. Uno cada 12 horas por grupo.
--- Con fama de El destripador o peor no te venden nada, pero los recados siguen.
+-- Con fama de El carnicero de Knox o peor no te venden nada, pero los recados siguen.
 K.RECADO_CADA = 12
 K.RECADO_CONFIANZA = 2
 -- Los recados se arman al azar: una cosa del oficio (de su lista), uno de los lugares donde
@@ -185,7 +185,7 @@ K.RECADOS_OBJETOS = {
     mecanico = {
         { tipos = { "Base.CarBattery1", "Base.CarBattery2", "Base.CarBattery3" }, nombre = "una bateria de auto", salas = { "garage", "garagestorage", "gasstore" } },
         { tipos = { "Base.Wrench" }, nombre = "una llave inglesa", salas = { "garage", "toolstore", "shed" } },
-        { tipos = { "Base.Jack" }, nombre = "una gata", salas = { "garage", "garagestorage" } },
+        { tipos = { "Base.Jack" }, nombre = "un gato", salas = { "garage", "garagestorage" } },
         { tipos = { "Base.LugWrench" }, nombre = "una llave de ruedas", salas = { "garage", "garagestorage", "gasstore" } },
         { tipos = { "Base.TirePump", "Base.Wrench" }, nombre = "un inflador", salas = { "garage", "gasstore", "shed" } },
         { tipos = { "Base.EmptyPetrolCan", "Base.PetrolCan" }, nombre = "un bidon", salas = { "garage", "shed", "gasstore" } },
@@ -206,11 +206,11 @@ K.RECADOS_OBJETOS = {
 
 -- Como se nombra cada sala en el pedido.
 K.RECADOS_LUGARES = {
-    garage = "el garage de esa casa", garagestorage = "esa bodega del garage", shed = "ese galpon",
+    garage = "el garage de esa casa", garagestorage = "esa bodega del garage", shed = "ese cobertizo",
     toolstore = "esa ferreteria", warehouse = "esa bodega", storageunit = "esa bodega de alquiler",
-    kitchen = "la cocina de esa casa", bathroom = "el bano de esa casa", bedroom = "esa pieza",
-    livingroom = "el living de esa casa", pharmacy = "esa farmacia", pharmacystorage = "la bodega de esa farmacia",
-    medicaloffice = "esa consulta", gasstore = "esa bencinera", grocery = "ese almacen",
+    kitchen = "la cocina de esa casa", bathroom = "el bano de esa casa", bedroom = "ese cuarto",
+    livingroom = "la sala de esa casa", pharmacy = "esa farmacia", pharmacystorage = "la bodega de esa farmacia",
+    medicaloffice = "esa consulta", gasstore = "esa gasolinera", grocery = "esa tienda",
 }
 K.RECADOS_RESPALDO = { "garage", "kitchen", "shed", "storageunit" }
 

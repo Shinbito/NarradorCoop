@@ -15,7 +15,7 @@ local DESBLOQUEO = {
         llegada = "Una senora con casco de bombero golpeo la puerta de {lugar:casa}. Me dijo mijo antes de saber mi nombre." },
     riverside = { quien = "El Padre Nacho", edificio = "la iglesia",
         llegada = "Tres golpes despacio en la puerta de {lugar:casa}. Era un cura con la nariz quebrada dos veces." },
-    rosewood = { quien = "La Misia Rosa", edificio = "la bencinera",
+    rosewood = { quien = "La Misia Rosa", edificio = "la gasolinera",
         llegada = "Una senora con delantal grito 'mijito, abre!' en la puerta de {lugar:casa}, como si me conociera de toda la vida." },
 }
 for id, d in pairs(DESBLOQUEO) do
@@ -23,7 +23,7 @@ for id, d in pairs(DESBLOQUEO) do
         etapas = {
             llegada = d.llegada,
             pedido = d.quien .. " quiere armar un campamento en " .. d.edificio .. ", pero esta lleno de muertos. Me pide ayuda para limpiarlo. Lo que encuentre adentro es mio.",
-            pendiente = "Le dije a " .. string.lower(string.sub(d.quien, 1, 1)) .. string.sub(d.quien, 2) .. " que mas rato. Me espera en {lugar:contacto}. No parece de los que se olvidan.",
+            pendiente = "Le dije a " .. string.lower(string.sub(d.quien, 1, 1)) .. string.sub(d.quien, 2) .. " que mas tarde. Me espera en {lugar:contacto}. No parece de los que se olvidan.",
             viaje = "Voy a {lugar:contacto} a ayudar a limpiar " .. d.edificio .. ". Despues de eso, ahi va a haber un campamento.",
             en_sitio = "Estoy limpiando {lugar:contacto}. Los muertos de adentro no saben que esto va a ser un campamento. Mejor asi.",
             horda = "El ruido trajo una horda a {lugar:contacto}. Si aguantamos esta, el lugar es nuestro.",
@@ -42,11 +42,11 @@ Lore.arcos.cap_chela_2 = {
         viaje = "La radio del cuartel de la Tia Chela se murio despues de treinta anos. Dice que quiere escuchar si queda alguien por ahi. Los repuestos estan en {lugar:tienda}.",
         tienda = "Estoy en {lugar:tienda}. Entre cables y cajas tiene que haber algo que sirva para una radio vieja.",
         volver = "Tengo los repuestos. La Chela me espera en el cuartel con la radio desarmada en la mesa de la cocina.",
-        subir = "La radio funciono un segundo. Una voz de hombre dijo 'Mama, si me oyes...' y se corto. Era Eduardo. La Chela no lloro delante mio. Hay que arreglar {lugar:antena}.",
+        subir = "La radio funciono un segundo. Una voz de hombre dijo 'Mama, si me oyes...' y se corto. Era Eduardo. La Chela no lloro delante de mi. Hay que arreglar {lugar:antena}.",
         arreglar = "Estoy en {lugar:antena}. La antena chirria y todo lo que tiene oidos en el cerro la escucho. Hay que aguantar hasta que quede firme.",
     },
     finales = {
-        final_cumplido = "Arregle la antena. La Chela escucho la voz entera: 'Mama, si me oyes, estoy bien. Hay un cientifico en Louisville que dice tener la cura. Voy a ayudarlo.' Lloro. Despues me reto por mirarla.",
+        final_cumplido = "Arregle la antena. La Chela escucho la voz entera: 'Mama, si me oyes, estoy bien. Hay un cientifico en Louisville que dice tener la cura. Voy a ayudarlo.' Lloro. Despues me regano por mirarla.",
     },
 }
 
@@ -57,7 +57,7 @@ Lore.arcos.leyenda_eduardo = {
         combate = "Peleo al lado del desconocido para salvar al cientifico. Pega como si cada muerto le debiera algo.",
         conocerlo = "El desconocido se presento: Eduardo Giovanns. El hijo de la Tia Chela. El de la radio. El que la gente nombra cuando cuenta como se salvo.",
         caido = "Eduardo cayo cubriendo al doctor. Su arma quedo en el suelo. No se levanto. Todavia.",
-        escolta = "Llevo al doctor Hartmann donde la Chela. Camina detras mio hablando de la cura que tiene. No le creo.",
+        escolta = "Llevo al doctor Hartmann donde la Chela. Camina detras de mi hablando de la cura que tiene. No le creo.",
     },
     finales = {
         final_cumplido = "El doctor Hartmann no tenia ninguna cura: era un charlatan. Pero sabe hacer remedios, y la Chela le va a poner una consulta. Y le conte de Eduardo, o no se lo conte. Eso lo se yo.",
@@ -133,23 +133,38 @@ Lore.arcos.cap_rosa_2 = {
     etapas = {
         viaje = "El Gordo Earl Whitaker, uno de los camioneros de las historias de la Misia Rosa, quedo varado en {lugar:camion} con la carga. Tres hijas y deudas con medio Kentucky.",
         sitio = "Encontre al Gordo Earl en {lugar:camion}, encerrado en la cabina, comiendo galletas como si fuera un dia cualquiera. Los muertos golpean el vidrio.",
-        escolta = "Llevo al Gordo Earl a la bencinera. No para de hablar de la Misia Rosa. Creo que la quiere. Creo que ella lo sabe.",
-        entrega = "Llegamos a la bencinera. Falta entregarle la carga a la Misia Rosa.",
+        escolta = "Llevo al Gordo Earl a la gasolinera. No para de hablar de la Misia Rosa. Creo que la quiere. Creo que ella lo sabe.",
+        entrega = "Llegamos a la gasolinera. Falta entregarle la carga a la Misia Rosa.",
     },
     finales = {
-        final_cumplido = "La Misia Rosa le sirvio cafe al Gordo Earl como a las tres de la manana de antes y le conto a quien le debe plata. Earl se rio tanto que se le cayo el cafe. Ella anoto que el seguia vivo.",
-        final_muerto = "El Gordo Earl no llego a la bencinera. La Misia Rosa lo anoto en pasado, con la misma letra de siempre. Despues apago la luz un minuto.",
+        final_cumplido = "La Misia Rosa le sirvio cafe al Gordo Earl como a las tres de la manana de antes y le conto a quien le debe dinero. Earl se rio tanto que se le cayo el cafe. Ella anoto que el seguia vivo.",
+        final_muerto = "El Gordo Earl no llego a la gasolinera. La Misia Rosa lo anoto en pasado, con la misma letra de siempre. Despues apago la luz un minuto.",
     },
 }
 
 Lore.arcos.cap_rosa_3 = {
     etapas = {
-        preparar = "Unos bandidos se enteraron del estanque escondido bajo el taller de la Misia Rosa. Vienen esta noche. Ella dice que no tiene miedo. Le tiemblan las manos.",
-        asalto = "Por primera vez en treinta anos la bencinera de Rosewood esta a oscuras. Los bandidos vienen. La Misia Rosa me pidio que apagara yo la luz.",
+        preparar = "Unos bandidos se enteraron del tanque escondido bajo el taller de la Misia Rosa. Vienen esta noche. Ella dice que no tiene miedo. Le tiemblan las manos.",
+        asalto = "Por primera vez en treinta anos la gasolinera de Rosewood esta a oscuras. Los bandidos vienen. La Misia Rosa me pidio que apagara yo la luz.",
     },
     finales = {
-        final_cumplido = "Defendimos la bencinera y el estanque. La Misia Rosa prendio la luz otra vez. Dice que el estanque es para el dia en que haya que sacar a todo el pueblo de una vez, y que yo voy a manejar el primer camion.",
-        final_saqueado = "No estuve en la bencinera esa noche. Los bandidos vaciaron el estanque. La Misia Rosa prendio la luz igual y dijo que estamos vivos, que eso no se lo llevan.",
+        final_cumplido = "Defendimos la gasolinera y el tanque. La Misia Rosa prendio la luz otra vez. Dice que el tanque es para el dia en que haya que sacar a todo el pueblo de una vez, y que yo voy a manejar el primer camion.",
+        final_saqueado = "No estuve en la gasolinera esa noche. Los bandidos vaciaron el tanque. La Misia Rosa prendio la luz igual y dijo que estamos vivos, que eso no se lo llevan.",
+    },
+}
+
+Lore.arcos.cap_rosa_4 = {
+    etapas = {
+        viaje = "Hank Morrow, un guardia que tomaba cafe en la gasolinera, le conto a la Misia Rosa que la armeria de la carcel de Rosewood quedo cerrada con todo adentro. Nadie ha limpiado esa carcel. Voy para alla.",
+        muro = "Las sirenas de la carcel siguen sonando. Del patio sale una marea de presos y guardias muertos. Hay que abrirse paso.",
+        pabellones = "Pasamos el patio. Desde los pabellones se oye el golpeteo de las rejas. Vienen mas, y mas rapido.",
+        limpieza = "Quedan pocos. Hay que dejar limpio el camino a la armeria antes de abrirla.",
+        armeria = "La armeria estaba cerrada, como dijo Hank. Fusiles, escopetas, pistolas y municion para un invierno entero.",
+        volver = "La carcel de Rosewood esta limpia. Falta contarselo a la Misia Rosa.",
+    },
+    finales = {
+        final_cumplido = "Limpiamos la carcel de Rosewood, la que nadie se atrevia a tocar. La Misia Rosa anoto a Hank Morrow en pasado y mi nombre al lado, en presente.",
+        final_abandono = "Nunca fui a la carcel de Rosewood. La Misia Rosa dijo que la armeria iba a seguir ahi, esperando a alguien mas valiente.",
     },
 }
 

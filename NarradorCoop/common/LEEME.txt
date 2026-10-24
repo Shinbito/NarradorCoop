@@ -35,7 +35,7 @@ Los admins tienen el menu "Admin (pruebas)", con el registro en texto plano.
 - Conversaciones (0.6.0): clic derecho cerca de un personaje -> "Hablar con <nombre>". Se abre una
   ventana abajo al centro con lo que se dicen y tus respuestas numeradas (las opciones de la historia,
   "Cuentame algo de ti", el favor de Sous si tiene uno, "Y, como va todo?" y "Nos vemos").
-  Con los misioneros: "Tienes pega para mi?" muestra cada dificultad con su distancia, peligro, plazo y
+  Con los misioneros: "Tienes trabajo para mi?" muestra cada dificultad con su distancia, peligro, plazo y
   pago antes de aceptar. Si hay que decidir algo en un lugar sin nadie, sale "[Historia] Que hacer aqui".
   Si te alejas, las respuestas se apagan hasta que vuelvas.
 - Misiones: pestana "Misiones" de la ventana (o clic derecho -> Narrador -> Misiones) con la historia,
@@ -68,7 +68,7 @@ Novedades 0.7.0:
 - Admins: Narrador -> Pruebas 0.7 (encuentros, encargos generados, confianza y conversaciones).
 
 Novedades 0.8.0:
-- Tipo de narrador (sandbox "Estilo del narrador"): Pausado, Equilibrado, Implacable o Volado. El
+- Tipo de narrador (sandbox "Estilo del narrador"): Pausado, Equilibrado, Implacable o Caotico. El
   narrador lleva una tension (0 a 100): sube con cada historia o amenaza y baja con el tiempo;
   con tension alta prefiere historias tranquilas y con tension baja busca lo fuerte.
 - Dificultad de los eventos (Facil, Normal, Dificil, Brutal). Todo escala con los dias, con las
@@ -79,7 +79,7 @@ Novedades 0.8.0:
   a menos de 150 casillas comparten la amenaza (mas dura); si estan lejos, cada uno tiene la suya
   (mas facil). Sandbox: Amenazas y Horas entre amenazas.
 - Rumores: los misioneros, los vecinos y la gente de Sous cuentan cosas que van a pasar. Si vas a
-  mirar antes, la historia te pilla con ventaja. Algunos rumores son falsos. Pagina "Lo que se dice
+  mirar antes, empiezas la historia con ventaja. Algunos rumores son falsos. Pagina "Lo que se dice
   por ahi" en el diario.
 - Fama y huellas: lo que haces queda anotado (salvaste, cumpliste, mentiste, traicionaste,
   cobraste...). Con el tiempo te ganas un titulo: El samaritano, El de palabra, El temido, El
@@ -114,9 +114,9 @@ Novedades 0.8.3:
 - Los misioneros se cuidan mejor: se les reponen las banderas cada 10 minutos, se les saca la
   infeccion y se limpian los zombis que sobran a su alrededor aunque haya jugadores (solo los
   que nadie esta viendo).
-- Si un misionero muere igual, no se levanta como zombi, su cuerpo se retira y vuelve a
+- Si un misionero muere de todos modos, no se levanta como zombi, su cuerpo se retira y vuelve a
   aparecer en su edificio cuando alguien pase cerca. Los encargos siguen valiendo.
-- El encargo ULTRA del mall ahora apunta al mall grande de Louisville (el grupo de tiendas mas
+- El encargo ULTRA del centro comercial ahora apunta al centro comercial grande de Louisville (el grupo de tiendas mas
   grande), no a cualquier tienda. Si ya tenias ese encargo y no habias llegado, el misionero
   te avisa y te deja un mapa nuevo.
 
@@ -130,7 +130,7 @@ Novedades 0.8.4:
 
 
 Novedades 0.8.5:
-- El encargo ULTRA del mall apunta a un mall de Louisville de verdad (dato de la comunidad): el
+- El encargo ULTRA del centro comercial apunta a un centro comercial de Louisville de verdad (dato de la comunidad): el
   grande en 13538,1273 o el mas chico en 13380,3053, al azar.
 - El encargo ULTRA del puesto militar y la mision de la cura en la base militar ahora van al
   campamento militar al sur de Louisville (12540,4250). Antes nunca lo encontraban y caian en una
@@ -139,7 +139,7 @@ Novedades 0.8.5:
 
 Novedades 0.9.0:
 - Lugares ocupados: si alguien saca aunque sea un objeto de una comisaria, armeria, base militar,
-  hospital, farmacia, supermercado o mall, 3 dias despues (cuando alguien vuelva a acercarse) hay
+  hospital, farmacia, supermercado o centro comercial, 3 dias despues (cuando alguien vuelva a acercarse) hay
   una faccion de bandidos viviendo ahi. La zona queda sin zombis, con autos quemados o chocados,
   cuerpos, basura y grafitis en las paredes. Los bandidos llevan botin segun el lugar (armas en la
   comisaria y la armeria, remedios en el hospital y la farmacia, comida en el supermercado).
@@ -150,7 +150,7 @@ Novedades 0.9.0:
 Novedades 0.10.0:
 - Misioneros desbloqueables: cada uno empieza sin campamento. Al andar por su pueblo llega a tu
   casa y te pide ayudarlo a limpiar su edificio (comisaria, cuartel de bomberos, iglesia o
-  bencinera). Solo puedes decir "Te ayudo" o "Mas rato". Primero 15 zombis y despues una horda
+  gasolinera). Solo puedes decir "Te ayudo" o "Mas tarde". Primero 15 zombis y despues una horda
   de 30 (+15 por jugador extra), sin corredores. Lo que encuentres adentro es tuyo. Opcion de
   sandbox "Misioneros se desbloquean" para apagarlo; en partidas viejas siguen desbloqueados.
 - El Cabo Ramiro vive en la oficina del segundo piso de la comisaria.
@@ -166,17 +166,17 @@ Novedades 0.10.0:
   fama y confianza.
 - Encuentros: "Llevarlo donde el misionero" ahora es una escolta: te sigue a pie y "se sube
   donde sea que haya espacio" cuando vas en auto. Si llega vivo, suma al campamento y a la confianza.
-- Reputacion de Knox: 5 niveles buenos (Desconocido, Mensajero, La nueva esperanza, El guerrero,
-  El heroe de Knox) y 5 malos (Poco confiable, Rumores negativos, La nube negra, El destripador,
-  El demonio de Knox), segun como te portas con la gente. La gente te habla distinto: con mala
+- Reputacion de Knox: 5 niveles buenos (Forastero, Cara conocida, Alguien de palabra,
+  Protector de Knox, Leyenda de Knox) y 5 malos (Sospechoso, Mala fama, Ave de mal aguero,
+  El carnicero de Knox, Peor que los muertos), segun como te portas con la gente. La gente te habla distinto: con mala
   fama te insultan y te temen; con buena te quieren y saben de tus hazanas. Desde El
-  destripador los misioneros ya no te dan trabajo y los comerciantes no te venden nada, pero
+  carnicero de Knox los misioneros ya no te dan trabajo y los comerciantes no te venden nada, pero
   siempre tienen un recado (una mision chica: buscar algo en un lugar que te marcan en un mapa)
   para que la gente vuelva a confiar en ti. Puntos: ayudar a alguien
   +4, recado +5, encargos y misiones segun dificultad (+4 / +6 / +10 / +15), matar a alguien
   fuera de una mision -5. Con mala fama solo se sube salvando gente, acabando con bandidos o
   haciendo recados.
-- Diario: letra manuscrita en lapiz pasta azul, titulos subrayados y menos texto. La
+- Diario: letra manuscrita en boligrafo azul, titulos subrayados y menos texto. La
   descripcion de cada misionero aparece al conocerlo y crece con su confianza (cinco capas).
 - Eduardo Giovanns, el hijo de la Tia Chela: una leyenda que anda ayudando gente por Knox. La
   gente lo nombra, hay rumores con sus pasos y un capitulo de la Chela donde lo conoces.
@@ -206,12 +206,12 @@ Novedades 0.11.0:
   con bandidos detras. Pelear con el sube la fama; abandonarlo la baja.
 - Capitulos 2 y 3 de cada misionero: la radio del cuartel y el cientifico (Tia Chela), la puerta
   de atras y Valentina (Cabo Ramiro), el ring de Lexington y Lucia (Padre Nacho), la ruta 31 y
-  el estanque (Misia Rosa). Fundar el campamento cuenta como capitulo 1.
+  el tanque (Misia Rosa). Fundar el campamento cuenta como capitulo 1.
 - La cura: entre 1 y 4 pastillas K-93 verdaderas, siempre al menos una.
 - Diario: entradas para las misiones que no tenian texto (la cura, las fechas de Sous, los
   encuentros, los favores, los desbloqueos y los capitulos).
 - Los Bell se quedan a vivir en tu refugio si sobreviven: son inmortales, ayudan a limpiar la
-  zona y, cuando ven venir una horda o un ataque, arrancan para salvarse. Vuelven unas horas
+  zona y, cuando ven venir una horda o un ataque, huyen para salvarse. Vuelven unas horas
   despues con algo chico que encontraron (comida, vendas, cartuchos...).
 - Reconquista: si Valentina, la Hermana Lucia o el sobrino de la Misia Rosa murieron antes, en
   su lugar queda a cargo un Bell que siga vivo (y deja tu refugio) o, si no queda ninguno, un
@@ -230,8 +230,8 @@ Novedades 0.11.0:
   Hartmann, el Diacono Reyes, el Capitan Duarte y otros salian con el cuerpo equivocado).
 - Consecuencias: Meulen sabe si engañaste a los Bell; el doctor Hartmann confiesa que les vendio
   las pastillas falsas; si sobreviviste a los cazadores de Pereira, te vigila mas; con la radio
-  de la Chela arreglada las amenazas se avisan antes; con el estanque defendido la Misia Rosa
-  te deja un bidon de bencina cada tres dias.
+  de la Chela arreglada las amenazas se avisan antes; con el tanque defendido la Misia Rosa
+  te deja un bidon de gasolina cada tres dias.
 - Para desarrollar: lista central de memorias de la partida con su chequeo
   (herramientas/memorias.py), mapa de historias mas completo (herramientas/mapa_historias.py)
   y grafo de graphify solo con el codigo. Pruebas sin el juego (herramientas/pruebas) y chequeo

@@ -36,7 +36,7 @@ O.TIPOS = {
       botin = { "Base.Antibiotics", "Base.Bandage", "Base.AlcoholBandage", "Base.Pills", "Base.Disinfectant", "Base.SutureNeedle" } },
     { id = "farmacia", nombre = "la farmacia", salas = { "pharmacy", "pharmacystorage" },
       botin = { "Base.Antibiotics", "Base.Pills", "Base.PillsBeta", "Base.PillsAntiDep", "Base.Bandage", "Base.Disinfectant" } },
-    { id = "mall", nombre = "el mall", minimo_tiendas = 5,
+    { id = "mall", nombre = "el centro comercial", minimo_tiendas = 5,
       botin = { "Base.Money", "Base.CigarettePack", "Base.Battery", "Base.DuctTape", "Base.TinnedBeans", "Base.WaterBottle" } },
     { id = "super", nombre = "el supermercado", salas = { "grocery", "grocerystorage", "gigamart" },
       botin = { "Base.TinnedBeans", "Base.CannedChili", "Base.CannedCorn", "Base.TinnedSoup", "Base.WaterBottle", "Base.CigarettePack" } },
@@ -358,7 +358,7 @@ function O.revisarOcupado(e, k)
     local j = Mundo.jugadorCerca(e.cx, e.cy, 70)
     if j ~= nil and not e.avisado then
         e.avisado = true
-        Motor.enviar(j, "aviso", { texto = "Hay gente viviendo en " .. tostring(e.etiqueta) .. ". Autos quemados, cuerpos y rayados en las paredes. No parecen amistosos." })
+        Motor.enviar(j, "aviso", { texto = "Hay gente viviendo en " .. tostring(e.etiqueta) .. ". Autos quemados, cuerpos y grafitis en las paredes. No parecen amistosos." })
     elseif j == nil and Mundo.jugadorCerca(e.cx, e.cy, 150) == nil then
         e.avisado = nil
     end

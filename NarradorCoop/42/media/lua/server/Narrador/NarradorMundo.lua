@@ -180,7 +180,7 @@ Mundo.nombresSala = {
     pharmacy = "la farmacia",
     pharmacystorage = "la farmacia",
     warehouse = "la bodega",
-    storageunit = "las bodegas de arriendo",
+    storageunit = "las bodegas de alquiler",
     factorystorage = "la fabrica",
     policestorage = "la comisaria",
     policeoffice = "la comisaria",
@@ -191,6 +191,7 @@ Mundo.nombresSala = {
     kitchen = "una casa",
     motelroom = "el motel",
     classroom = "la escuela",
+    schoolstorage = "la escuela",
     grocery = "el almacen",
     gasstore = "la gasolinera",
     grocerystorage = "el almacen",
@@ -242,10 +243,87 @@ local function calza(nombreSala, buscadas)
     return nil
 end
 
+-- ---------------------------------------------------------------------------
+-- Lugares excluidos: la carcel (y en general zonas que no son lo que dice la historia).
+-- La carcel de Rosewood tiene salas "classroom" y "office": sin esto "una escuela" podia
+-- terminar siendo la carcel, llena de zombis. Se usa por defecto en toda busqueda de lugar;
+-- una historia que de verdad quiere ir a la carcel pone spec.permitir_carcel = true
+-- (o busca salas que ya son de carcel, como "prison*").
+-- ---------------------------------------------------------------------------
+
+-- Zonas del mapa que nunca se eligen (centro y radio en cuadros). Sacado de los lotheader del
+-- mapa (B42): las salas prison* de la carcel van de x 7351 a 7677 e y 11702 a 11919.
+Mundo.ZONAS_EXCLUIDAS = {
+    { nombre = "la carcel de Rosewood", x = 7515, y = 11810, radio = 220 },
+}
+-- Si un edificio tiene alguna sala con estos nombres, el edificio entero queda fuera.
+-- Ojo: "prisoncells" NO va aqui, porque las comisarias (la de Rosewood, por ejemplo) tienen
+-- calabozos con ese nombre y no deben quedar fuera.
+Mundo.SALAS_EXCLUIDAS = { "prisonlaundry", "prisonerbelongings", "prisonlocker", "prisonstorage", "cellblock*" }
+-- Punto conocido de la carcel de Rosewood, para las historias que si van ahi.
+Mundo.CARCEL_ROSEWOOD = { 7515, 11810, 220 }
+
+-- La zona excluida en (x, y), o nil.
+function Mundo.zonaExcluida(x, y)
+    for _, z in ipairs(Mundo.ZONAS_EXCLUIDAS) do
+        if math.sqrt((x - z.x) ^ 2 + (y - z.y) ^ 2) <= z.radio then return z end
+    end
+    return nil
+end
+
+-- Filtro de una busqueda: excluir carcel (por defecto si) y, si se pide, que el edificio
+-- tenga al menos spec.min_iguales salas del tipo buscado (una escuela de verdad tiene varias
+-- salas de clases; una carcel o una oficina con una sola "classroom", no).
+function Mundo.filtroLugar(spec, buscadas, principal)
+    spec = spec or {}
+    local f = { excluir = spec.permitir_carcel ~= true }
+    if f.excluir then
+        for _, b in ipairs(buscadas or {}) do
+            local limpio = string.gsub(string.lower(tostring(b)), "%*", "")
+            if calza(limpio, Mundo.SALAS_EXCLUIDAS) ~= nil then f.excluir = false end
+        end
+    end
+    if principal and tonumber(spec.min_iguales) ~= nil then f.min_iguales = tonumber(spec.min_iguales) end
+    return f
+end
+
+-- Revisa las salas del edificio: si es de carcel y cuantas calzan con lo buscado.
+local edificiosVistos = {}
+local function revisarEdificio(b, buscadas)
+    local clave = tostring(b:getX()) .. "," .. tostring(b:getY()) .. "," .. table.concat(buscadas, "|")
+    local r = edificiosVistos[clave]
+    if r ~= nil then return r end
+    r = { carcel = false, iguales = 0 }
+    pcall(function()
+        local salas = b:getRooms()
+        for i = 0, salas:size() - 1 do
+            local nombre = string.lower(tostring(salas:get(i):getName() or ""))
+            if calza(nombre, Mundo.SALAS_EXCLUIDAS) ~= nil then r.carcel = true end
+            if calza(nombre, buscadas) ~= nil then r.iguales = r.iguales + 1 end
+        end
+    end)
+    edificiosVistos[clave] = r
+    return r
+end
+
+-- true si la sala s (con su edificio def:getBuilding()) pasa el filtro.
+local function pasaFiltro(s, def, buscadas, filtro)
+    if filtro == nil then return true end
+    if filtro.excluir and Mundo.zonaExcluida(s.x, s.y) ~= nil then return false end
+    if not filtro.excluir and filtro.min_iguales == nil then return true end
+    local ok, b = pcall(function() return def:getBuilding() end)
+    if not ok or b == nil then return filtro.min_iguales == nil end
+    local r = revisarEdificio(b, buscadas)
+    if filtro.excluir and r.carcel then return false end
+    if filtro.min_iguales ~= nil and r.iguales < filtro.min_iguales then return false end
+    return true
+end
+
 -- Salas que calzan dentro de un rectangulo (x0, y0, ancho, alto).
 -- En Build 42 getRoomsIntersecting solo responde bien por celda de 256x256: se recorren
 -- todas las celdas que cubre la caja, sin repetir salas, y se filtra por el centro de cada una.
-local function salasEnCaja(x0, y0, ancho, alto, buscadas, tope)
+-- filtro (opcional): el de Mundo.filtroLugar.
+local function salasEnCaja(x0, y0, ancho, alto, buscadas, tope, filtro)
     local encontradas = {}
     if getWorld == nil or ArrayList == nil then return encontradas end
     tope = tope or 600
@@ -266,7 +344,8 @@ local function salasEnCaja(x0, y0, ancho, alto, buscadas, tope)
                         local sx = def:getX() + floor((def:getW() or 2) / 2)
                         local sy = def:getY() + floor((def:getH() or 2) / 2)
                         local nombre = string.lower(tostring(def:getName() or ""))
-                        if sx >= x0 and sx <= x1 and sy >= y0 and sy <= y1 and calza(nombre, buscadas) ~= nil then
+                        if sx >= x0 and sx <= x1 and sy >= y0 and sy <= y1 and calza(nombre, buscadas) ~= nil
+                            and pasaFiltro({ x = sx, y = sy }, def, buscadas, filtro) then
                             local s = { sala = nombre, x = sx, y = sy, z = def:getZ() or 0 }
                             -- Contorno del edificio entero (para que la flecha llegue hasta la puerta).
                             pcall(function()
@@ -323,7 +402,8 @@ function Mundo.elegirAgrupada(p, salas, spec)
     local radio = tonumber(spec.agrupado) or 45
     local vecinas = salas
     if type(spec.densidad) == "table" then
-        vecinas = salasEnCaja(p.minX, p.minY, p.maxX - p.minX, p.maxY - p.minY, spec.densidad, 30000)
+        vecinas = salasEnCaja(p.minX, p.minY, p.maxX - p.minX, p.maxY - p.minY, spec.densidad, 30000,
+            Mundo.filtroLugar(spec, spec.densidad, false))
         if #vecinas == 0 then vecinas = salas end
     end
     local cx, cy = centro(p)
@@ -371,9 +451,10 @@ function Mundo.buscarCercaDe(spec)
         local px, py = tonumber(pt[1]), tonumber(pt[2])
         local radio = tonumber(pt[3]) or 120
         if px ~= nil and py ~= nil then
-            for _, buscadas in ipairs(listas) do
+            for li, buscadas in ipairs(listas) do
                 local mejor, elegida
-                for _, s in ipairs(salasEnCaja(px - radio, py - radio, radio * 2, radio * 2, buscadas, 5000)) do
+                for _, s in ipairs(salasEnCaja(px - radio, py - radio, radio * 2, radio * 2, buscadas, 5000,
+                    Mundo.filtroLugar(spec, buscadas, li == 1))) do
                     local d = math.sqrt((s.x - px) ^ 2 + (s.y - py) ^ 2)
                     if d <= radio then
                         d = d + (s.z ~= 0 and 1000 or 0)
@@ -393,13 +474,24 @@ end
 function Mundo.buscarEnPueblo(spec)
     local cerca = Mundo.buscarCercaDe(spec)
     if cerca ~= nil then return cerca end
+    -- spec.solo_cerca: si no hay sala alrededor del punto conocido, se usa el punto mismo (y no
+    -- una sala cualquiera del pueblo, que no seria el lugar que nombra la historia).
+    if spec.solo_cerca and type(spec.cerca_de) == "table" then
+        local pt = type(spec.cerca_de[1]) == "number" and spec.cerca_de or spec.cerca_de[1]
+        local px, py = tonumber(pt[1]), tonumber(pt[2])
+        if px ~= nil and py ~= nil then
+            Mundo.log("sin salas cerca de " .. px .. "," .. py .. ": se usa el punto conocido")
+            return { x = px, y = py, z = 0, sala = "", etiqueta = Mundo.describir(px, py, nil, spec.nombre) }
+        end
+    end
     local p = Mundo.puebloPorNombre(spec.pueblo)
     if p == nil then return nil end
     local listas = { spec.salas or {} }
     if spec.respaldo ~= nil then listas[#listas + 1] = spec.respaldo end
     local cx, cy = centro(p)
-    for _, buscadas in ipairs(listas) do
-        local salas = salasEnCaja(p.minX, p.minY, p.maxX - p.minX, p.maxY - p.minY, buscadas, 30000)
+    for li, buscadas in ipairs(listas) do
+        local salas = salasEnCaja(p.minX, p.minY, p.maxX - p.minX, p.maxY - p.minY, buscadas, 30000,
+            Mundo.filtroLugar(spec, buscadas, li == 1))
         if #salas > 0 then
             local elegida
             if spec.agrupado ~= nil then
@@ -447,10 +539,11 @@ function Mundo.buscarLugar(spec, desdeX, desdeY, relajado)
         pueblos[i], pueblos[j] = pueblos[j], pueblos[i]
     end
 
-    for _, buscadas in ipairs(listas) do
+    for li, buscadas in ipairs(listas) do
         for i = 1, math.min(4, #pueblos) do
             local p = pueblos[i]
-            local s = elegirSala(salasEnCaja(p.minX, p.minY, p.maxX - p.minX, p.maxY - p.minY, buscadas, 20000),
+            local s = elegirSala(salasEnCaja(p.minX, p.minY, p.maxX - p.minX, p.maxY - p.minY, buscadas, 20000,
+                Mundo.filtroLugar(spec, buscadas, li == 1)),
                 spec, desdeX, desdeY, minD, maxD)
             if s ~= nil then return s end
         end
@@ -458,7 +551,8 @@ function Mundo.buscarLugar(spec, desdeX, desdeY, relajado)
             local angulo = (Mundo.azar(360) / 180) * math.pi
             local dist = minD + Mundo.azar(math.max(1, maxD - minD))
             local px, py = desdeX + math.cos(angulo) * dist, desdeY + math.sin(angulo) * dist
-            local s = elegirSala(salasEnCaja(px - 150, py - 150, 300, 300, buscadas, 1500),
+            local s = elegirSala(salasEnCaja(px - 150, py - 150, 300, 300, buscadas, 1500,
+                Mundo.filtroLugar(spec, buscadas, li == 1)),
                 spec, desdeX, desdeY, minD, maxD)
             if s ~= nil then return s end
         end
@@ -478,31 +572,62 @@ function Mundo.sinCorrer(zombi)
     pcall(function() zombi:changeSpeed(2) end)
 end
 
+-- Lo vuelve corredor (sprinter): distintas formas segun la version del juego.
+function Mundo.hacerCorredor(zombi)
+    pcall(function() zombi:changeSpeed(1) end)
+    pcall(function() zombi:setWalkType("sprint" .. tostring(Mundo.azar(5))) end)
+    pcall(function() zombi:setVariable("zombieWalkType", "sprint1") end)
+    pcall(function() zombi:setSpeedMod(1.6) end)
+    pcall(function() zombi:getModData().NarradorCorredor = true end)
+end
+
+-- Un ruido fuerte en el punto para que los zombis de alrededor vayan para alla.
+function Mundo.atraer(x, y, z, radio, veces)
+    if addSound == nil then return end
+    for _ = 1, math.max(1, veces or 3) do
+        pcall(addSound, nil, floor(x), floor(y), floor(z or 0), radio or 80, 100)
+    end
+end
+
 function Mundo.oleada(x, y, z, cantidad, distMin, distMax, opciones)
     if addZombiesInOutfit == nil then return 0 end
     local mult = (tonumber(Mundo.sandbox("MultiplicadorZombis", 100)) or 100) / 100
     local total = math.max(1, floor((tonumber(cantidad) or 10) * mult + 0.5))
     distMin, distMax = distMin or 14, distMax or 30
+    -- opciones.destino = { x, y, z }: adonde caminan (por defecto el centro de la oleada).
+    -- opciones.correr = true: todos corredores. opciones.angulo: salen de ese lado (+-60 grados).
+    -- opciones.ruido = true: ademas un ruido en el destino para que no se dispersen.
+    opciones = opciones or {}
+    local d = opciones.destino or {}
+    local dx, dy, dz = floor(d.x or d[1] or x), floor(d.y or d[2] or y), floor(d.z or d[3] or z or 0)
     local creados = 0
     while creados < total do
         local n = math.min(4, total - creados)
-        local angulo = (Mundo.azar(360) / 180) * math.pi
-        local dist = distMin + Mundo.azar(math.max(1, distMax - distMin))
-        local px, py = floor(x + math.cos(angulo) * dist), floor(y + math.sin(angulo) * dist)
+        -- Busca una casilla cargada (si no, addZombiesInOutfit no pone a nadie).
+        local px, py
+        for _ = 1, 6 do
+            local angulo = (Mundo.azar(360) / 180) * math.pi
+            if opciones.angulo ~= nil then angulo = opciones.angulo + ((Mundo.azar(121) - 61) / 180) * math.pi end
+            local dist = distMin + Mundo.azar(math.max(1, distMax - distMin))
+            px, py = floor(x + math.cos(angulo) * dist), floor(y + math.sin(angulo) * dist)
+            if Mundo.cargado(px, py, z) ~= nil then break end
+        end
         local ok, lista = pcall(addZombiesInOutfit, px, py, floor(z or 0), n, nil, 50)
         if ok and lista ~= nil then
             pcall(function()
                 for i = 0, lista:size() - 1 do
                     local zombi = lista:get(i)
                     if zombi ~= nil then
-                        if opciones ~= nil and opciones.caminantes then Mundo.sinCorrer(zombi) end
-                        pcall(function() zombi:pathToLocation(floor(x), floor(y), floor(z or 0)) end)
+                        if opciones.correr then Mundo.hacerCorredor(zombi)
+                        elseif opciones.caminantes then Mundo.sinCorrer(zombi) end
+                        pcall(function() zombi:pathToLocation(dx, dy, dz) end)
                     end
                 end
             end)
         end
         creados = creados + n
     end
+    if opciones.ruido then Mundo.atraer(dx, dy, dz, distMax + 30, 3) end
     return total
 end
 
@@ -791,11 +916,7 @@ function Mundo.corredores(x, y, z, cantidad, distMin, distMax)
                 for i = 0, lista:size() - 1 do
                     local zombi = lista:get(i)
                     if zombi ~= nil then
-                        -- Corredores: distintas formas segun la version del juego.
-                        pcall(function() zombi:setWalkType("sprint" .. tostring(Mundo.azar(5))) end)
-                        pcall(function() zombi:setVariable("zombieWalkType", "sprint1") end)
-                        pcall(function() zombi:setSpeedMod(1.6) end)
-                        pcall(function() zombi:getModData().NarradorCorredor = true end)
+                        Mundo.hacerCorredor(zombi)
                         pcall(function() zombi:pathToLocation(floor(x), floor(y), floor(z or 0)) end)
                     end
                 end

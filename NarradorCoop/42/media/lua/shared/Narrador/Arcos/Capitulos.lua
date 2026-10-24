@@ -5,7 +5,7 @@
 --   Tia Chela  2: La radio del cuartel        (3: el cientifico, LeyendaEduardo.lua)
 --   Cabo       2: La puerta de atras          (3: Valentina, HijaCabo.lua)
 --   Padre Nacho 2: El ring de Lexington       3: La muchacha que esperaba
---   Misia Rosa 2: La ruta 31                  3: El estanque
+--   Misia Rosa 2: La ruta 31                  3: El tanque      4: La carcel de Rosewood
 -- Textos sin tildes a proposito.
 
 require "Narrador/NarradorDefs"
@@ -101,8 +101,8 @@ registrar({
                 ir = "final_cumplido" } },
         },
         final_cumplido = cierre("westpoint", 2,
-            "Arregle la antena. La Chela escucho la voz entera: 'Mama, si me oyes, estoy bien. Hay un cientifico en Louisville que dice tener la cura. Voy a ayudarlo.' Lloro. Despues me reto por mirarla.",
-            { { "decir_contacto", texto = "Esta bien. Mi Eduardo esta bien. Y anda ayudando gente, el cabro porfiado. Toma, mijo. Y no me mires, que se me metio algo en el ojo." },
+            "Arregle la antena. La Chela escucho la voz entera: 'Mama, si me oyes, estoy bien. Hay un cientifico en Louisville que dice tener la cura. Voy a ayudarlo.' Lloro. Despues se enojo conmigo por mirarla.",
+            { { "decir_contacto", texto = "Esta bien. Mi Eduardo esta bien. Y anda ayudando gente, el muchacho terco. Toma, mijo. Y no me mires, que se me metio algo en el ojo." },
               { "memoria", clave = "radio_westpoint", valor = true } }),
     },
 })
@@ -153,7 +153,7 @@ registrar({
             al_entrar = {
                 { "decir", grupo = GLADYS, rol = "gladys", texto = "Te manda el cabo? Claro que te manda el cabo. Esa noche una sargento grito que cerraran todo. El abrio la puerta de atras igual. Nunca le di las gracias." },
             },
-            opciones = { { id = "llevar", texto = "Llevarla donde el Cabo",
+            opciones = { { id = "llevar", texto = "Dile que vaya con el Cabo; te espera alla",
                 dice = { rol = "gladys", texto = "Vamos. Esta vez se las doy en la cara." } } },
             salidas = {
                 { cuando = { "todos_muertos", GLADYS }, ir = "final_muerta" },
@@ -161,7 +161,7 @@ registrar({
             },
         },
         escolta = {
-            pista = "Llevar a Gladys Moreno sana y salva donde el Cabo Ramiro.",
+            pista = "Gladys Moreno va por su cuenta con el Cabo Ramiro. Vuelve con el Cabo: te espera alla.",
             objetivo = "contacto",
             al_entrar = {
                 { "acompanante", grupo = GLADYS, rol = "gladys", nombre = "Gladys Moreno", inmortal = false },
@@ -173,13 +173,13 @@ registrar({
             },
         },
         final_cumplido = cierre("muldraugh", 2,
-            "Lleve a Gladys Moreno donde el Cabo. Le dio las gracias en la cara, diecinueve meses tarde. El Cabo tacho un signo de pregunta en su libreta y escribio 'viva'. Me nombro a una sargento que grito que cerraran: Pereira. La anoto aparte.",
+            "Lleve a Gladys Moreno con el Cabo. Le dio las gracias en la cara, diecinueve meses tarde. El Cabo tacho un signo de pregunta en su libreta y escribio 'viva'. Me nombro a una sargento que grito que cerraran: Pereira. La anoto aparte.",
             { { "soltar_acompanante", grupo = GLADYS, rol = "gladys" },
               { "decir", grupo = GLADYS, rol = "gladys", texto = "Cabo. Gracias. Por la puerta. Por todo." },
               { "decir_contacto", retraso = 0.05, texto = "Negativo a agradecer, civil. Era mi deber. ... Gracias a usted por venir. Quedan seis signos de pregunta. Uno menos." },
               { "retirar_lejos", grupo = GLADYS, lugar = "contacto", radio = 40, retraso = 1 } }),
         final_muerta = fracaso("muldraugh", 2,
-            "Gladys Moreno no llego donde el Cabo. El la saco de la comisaria la primera noche y yo no pude sacarla de una casa. Puso una cruz en su libreta sin decir nada.",
+            "Gladys Moreno no llego con el Cabo. El la saco de la comisaria la primera noche y yo no pude sacarla de una casa. Puso una cruz en su libreta sin decir nada.",
             { { "soltar_acompanante", grupo = GLADYS, rol = "gladys" },
               { "decir_contacto", texto = "Entendido, civil. Una cruz. ... Retirese." } }),
     },
@@ -326,7 +326,7 @@ registrar({
                 { "decir", grupo = LUCIA, rol = "lucia", texto = "Pegas? Nacho Pegas? ... Lo espere toda una tarde. Despues me quede a vivir en iglesias. Siempre con la puerta abierta. Por si alguien llegaba tarde." },
             },
             opciones = {
-                { id = "convencer", texto = "Decirle que el Padre la espera y que ya no se va",
+                { id = "convencer", texto = "Decirle que vaya con el Padre, que la espera y ya no se va",
                   dice = { rol = LUCIA, texto = "Que no se va. ... Ya. Vamos. Pero me siento en la primera fila y el me mira a la cara." } },
             },
             salidas = {
@@ -335,7 +335,7 @@ registrar({
             },
         },
         escolta = {
-            pista = "Llevar a Lucia sana y salva a la iglesia del Padre Nacho.",
+            pista = "Lucia va por su cuenta a la iglesia del Padre Nacho. Vuelve con el Padre: te espera alla.",
             objetivo = "contacto",
             al_entrar = {
                 { "acompanante", grupo = LUCIA, rol = "lucia", nombre = "Lucia", inmortal = false },
@@ -377,7 +377,7 @@ registrar({
             al_entrar = {
                 { "lugar", id = "camion", desde = "contacto", salas = { "gasstore", "motelroom", "garagestorage" },
                   respaldo = { "livingroom", "kitchen" }, min = 600, max = 1500 },
-                { "decir_contacto", texto = "Mijito, Earl Whitaker, el Gordo Earl, quedo varado en {lugar:camion} con el camion lleno. Treinta anos parando aca a las tres de la manana. Tiene tres hijas y le debe plata a medio Kentucky. Traemelo. Y la carga tambien, que es lo que paga su deuda." },
+                { "decir_contacto", texto = "Mijito, Earl Whitaker, el Gordo Earl, quedo varado en {lugar:camion} con el camion lleno. Treinta anos parando aca a las tres de la manana. Tiene tres hijas y le debe dinero a medio Kentucky. Traemelo. Y la carga tambien, que es lo que paga su deuda." },
                 { "mapa", lugar = "camion", titulo = "Mapa de la Misia Rosa: el Gordo Earl" },
                 { "diario", texto = "La Misia Rosa me mando a buscar al Gordo Earl Whitaker, un camionero de sus historias, varado en {lugar:camion} con su carga." },
             },
@@ -404,7 +404,7 @@ registrar({
             },
         },
         escolta = {
-            pista = "Llevar al Gordo Earl y su carga a la bencinera de la Misia Rosa.",
+            pista = "El Gordo Earl va por su cuenta a la gasolinera de la Misia Rosa. Llevale la carga: te espera alla.",
             objetivo = "contacto",
             al_entrar = {
                 { "decir", grupo = EARL, rol = "earl", texto = "La Rosa te mando? Esa mujer me tiene anotado hasta los suspiros. Vamos, que tengo hambre." },
@@ -424,12 +424,12 @@ registrar({
             salidas = { { cuando = { "eleccion", "entregar" }, ir = "final_cumplido" } },
         },
         final_cumplido = cierre("rosewood", 2,
-            "Traje al Gordo Earl y su carga a la bencinera. La Misia Rosa le sirvio cafe como a las tres de la manana de antes y le conto a quien le debe plata. Earl se rio tanto que se le cayo el cafe. Ella anoto que el seguia vivo.",
+            "Traje al Gordo Earl y su carga a la gasolinera. La Misia Rosa le sirvio cafe como a las tres de la manana de antes y le conto a quien le debe dinero. Earl se rio tanto que se le cayo el cafe. Ella anoto que el seguia vivo.",
             { { "decir", grupo = EARL, rol = "earl", texto = "Rosa. Cafe. Como antes." },
               { "decir_contacto", retraso = 0.05, texto = "Como antes no, Earl. Ahora pagas. ... Es broma. Sientate. Mijito, gracias. Uno menos que contar en pasado." },
               { "retirar_lejos", grupo = EARL, lugar = "contacto", radio = 40, retraso = 1.5 } }),
         final_muerto = fracaso("rosewood", 2,
-            "El Gordo Earl no llego a la bencinera. La Misia Rosa lo anoto en pasado, con la misma letra de siempre. Despues apago la luz un minuto.",
+            "El Gordo Earl no llego a la gasolinera. La Misia Rosa lo anoto en pasado, con la misma letra de siempre. Despues apago la luz un minuto.",
             { { "soltar_acompanante", grupo = EARL, rol = "earl" },
               { "decir_contacto", texto = "Ya. Earl Whitaker. Treinta anos. Lo voy a contar bien, mijito. Para que no se pierda." } }),
     },
@@ -440,47 +440,157 @@ registrar({
 -- ===========================================================================
 registrar({
     id = "cap_rosa_3",
-    titulo = "El estanque",
-    titulo_menu = "Historia de la Misia Rosa, cap. 3: el estanque",
+    titulo = "El tanque",
+    titulo_menu = "Historia de la Misia Rosa, cap. 3: el tanque",
     requiere_alife = true, automatico = false,
     inicio = "aviso",
     etapas = {
         aviso = {
             al_entrar = {
-                { "decir_contacto", texto = "Mijito, ven aca. Bajito. Se enteraron del estanque. El de abajo del taller, el que te mostre. Un camionero hablo de mas. Esta noche vienen. Muchos." },
-                { "diario", texto = "Unos bandidos se enteraron del estanque escondido de la Misia Rosa. Vienen esta noche a la bencinera." },
+                { "decir_contacto", texto = "Mijito, ven aca. Bajito. Se enteraron del tanque. El de abajo del taller, el que te mostre. Un camionero hablo de mas. Esta noche vienen. Muchos." },
+                { "diario", texto = "Unos bandidos se enteraron del tanque escondido de la Misia Rosa. Vienen esta noche a la gasolinera." },
             },
             salidas = { { ir = "preparar" } },
         },
         preparar = {
-            pista = "Prepararte para defender la bencinera de la Misia Rosa. Vienen de noche (desde las 22).",
+            pista = "Prepararte para defender la gasolinera de la Misia Rosa. Vienen de noche (desde las 22).",
             ancla = "contacto",
             salidas = { { cuando = { { "cerca", "contacto", 40 }, { "hora_entre", 22, 5 } }, ir = "asalto" } },
         },
         asalto = {
-            pista = "Defender la bencinera de la Misia Rosa.",
+            pista = "Defender la gasolinera de la Misia Rosa.",
             objetivo = "contacto",
             al_entrar = {
                 { "decir_contacto", texto = "Voy a apagar la luz. Treinta anos y nunca la apague. Que no nos vean. ... Tengo miedo, mijito. Pero apagala tu, que a mi me tiemblan las manos." },
-                { "aviso", texto = "Por primera vez en treinta anos, la bencinera de Rosewood esta a oscuras.", retraso = 0.05 },
+                { "aviso", texto = "Por primera vez en treinta anos, la gasolinera de Rosewood esta a oscuras.", retraso = 0.05 },
                 { "lugar_cerca", id = "llegada", de = "contacto", distancia = 35 },
                 { "bandidos", id = "asaltantes", lugar = "llegada", radio = 40, modo = "hunt", cantidad = { 6, 8 }, retraso = 0.15 },
                 { "oleada", lugar = "contacto", radio = 60, cantidad = { 10, 16 }, min = 25, max = 45, retraso = 0.3 },
             },
             salidas = {
                 { cuando = { "todos_muertos", "asaltantes" }, ir = "final_cumplido" },
-                -- Aguantar la noche cuenta si sigues en la bencinera; si te fuiste, se lo llevaron.
+                -- Aguantar la noche cuenta si sigues en la gasolinera; si te fuiste, se lo llevaron.
                 { cuando = { { "horas", 6 }, { "cerca", "contacto", 60 } }, ir = "final_cumplido" },
                 { cuando = { "horas", 6 }, ir = "final_saqueado" },
             },
         },
         final_cumplido = cierre("rosewood", 3,
-            "Defendimos la bencinera y el estanque. Cuando se fue el ultimo, la Misia Rosa prendio la luz otra vez. Dijo que el estanque no es para ella: es para el dia que haya que sacar a todo el pueblo de una vez. Y que yo voy a manejar el primer camion.",
+            "Defendimos la gasolinera y el tanque. Cuando se fue el ultimo, la Misia Rosa prendio la luz otra vez. Dijo que el tanque no es para ella: es para el dia que haya que sacar a todo el pueblo de una vez. Y que yo voy a manejar el primer camion.",
             { { "decir_contacto", texto = "Prendela, mijito. ... Ahi esta. Treinta anos y una noche. Toma, te lo ganaste. Y el primer camion que salga de aca lo manejas tu." },
               { "memoria", clave = "estanque_rosewood", valor = "defendido" } }),
         final_saqueado = fracaso("rosewood", 3,
-            "No estuve en la bencinera cuando llegaron los bandidos. Se llevaron la bencina del estanque. La Misia Rosa no me reclamo nada: prendio la luz y se quedo mirando el taller vacio.",
+            "No estuve en la gasolinera cuando llegaron los bandidos. Se llevaron la gasolina del tanque. La Misia Rosa no me reclamo nada: prendio la luz y se quedo mirando el taller vacio.",
             { { "decir_contacto", texto = "Se la llevaron toda, mijito. Treinta anos guardandola. ... No importa. Estamos vivos. Eso no se lo llevan." },
               { "memoria", clave = "estanque_rosewood", valor = "saqueado" } }),
+    },
+})
+
+-- ===========================================================================
+-- Misia Rosa, capitulo 4: La carcel de Rosewood
+-- La carcel es el lugar mas dificil de limpiar del condado: por eso guarda el mejor botin.
+-- La Misia Rosa sabe (por un guardia que paraba en la gasolinera) que la armeria del penal
+-- quedo cerrada con todo adentro. Hay que entrar, aguantar dos oleadas grandes y dejar el
+-- patio limpio: el premio es el arsenal legendario (L.ARMAS_FUEGO, clase "fuego") y mucha
+-- municion. El lugar se busca alrededor del punto conocido de la carcel (Mundo.CARCEL_ROSEWOOD)
+-- con permitir_carcel, porque toda otra busqueda de lugar la excluye.
+-- ===========================================================================
+registrar({
+    id = "cap_rosa_4",
+    titulo = "La carcel de Rosewood",
+    titulo_menu = "Historia de la Misia Rosa, cap. 4: la carcel de Rosewood",
+    requiere_alife = true, automatico = false,
+    inicio = "encargo",
+    etapas = {
+        encargo = {
+            al_entrar = {
+                { "lugar", id = "carcel", pueblo = "Rosewood", nombre = "la carcel",
+                  cerca_de = { 7515, 11810, 220 }, solo_cerca = true, permitir_carcel = true,
+                  salas = { "prison*", "cell*" }, respaldo = { "office", "classroom", "kitchen", "security*" } },
+                { "decir_contacto", texto = "Mijito, sientate. Hank Morrow era guardia del penal. Paraba aca todas las noches, cafe sin azucar. La ultima vez me dijo que cerraron la armeria con todo adentro y que nadie alcanzo a sacar nada. Nadie ha limpiado esa carcel. Nadie. Si alguien puede, eres tu. Y lo que haya adentro, es tuyo." },
+                { "mapa", lugar = "carcel", titulo = "Mapa de la Misia Rosa: la carcel de Rosewood" },
+                { "diario", texto = "La Misia Rosa me hablo de la armeria de {lugar:carcel}: Hank Morrow, un guardia, le dijo que la cerraron con todo adentro. Nadie ha limpiado esa carcel." },
+            },
+            salidas = { { ir = "viaje" } },
+        },
+        viaje = {
+            pista = "Ir a {lugar:carcel}. Lleva todo lo que tengas: es el lugar mas dificil del condado.",
+            objetivo = "carcel",
+            salidas = {
+                { cuando = { "cerca", "carcel", 90 }, ir = "muro" },
+                { cuando = { "horas", 96 }, ir = "final_abandono" },
+            },
+        },
+        -- 1. El patio: la primera oleada sale de los pabellones al escuchar el ruido.
+        muro = {
+            pista = "Abrirte paso en el patio de {lugar:carcel}: van {bajas:carcel} de {meta_patio}.",
+            objetivo = "carcel",
+            al_entrar = {
+                { "variable", nombre = "meta_patio", valor = 9999 },
+                { "aviso", texto = "Las sirenas de {lugar:carcel} siguen sonando despues de tanto tiempo. Del patio sale una marea de presos y guardias muertos." },
+                { "oleada", lugar = "carcel", radio = 120, cantidad = 45, por_jugador = 15, fija = true, caminantes = true,
+                  planta_baja = true, min = 15, max = 45, meta = "meta_patio", meta_frac = 0.75 },
+                { "oleada", lugar = "carcel", radio = 120, cantidad = 20, por_jugador = 8, fija = true,
+                  planta_baja = true, min = 20, max = 50, retraso = 0.3 },
+                { "ruido", lugar = "carcel", radio = 120, volumen = 100, veces = 3, retraso = 0.05 },
+            },
+            salidas = {
+                { cuando = { "bajas_en", "carcel", "var:meta_patio", 140 }, ir = "pabellones" },
+            },
+        },
+        -- 2. Los pabellones: la segunda oleada, mas grande, viene de adentro.
+        pabellones = {
+            pista = "Limpiar los pabellones de {lugar:carcel}: van {bajas:carcel} de {meta_pabellones}.",
+            objetivo = "carcel",
+            al_entrar = {
+                { "variable", nombre = "meta_pabellones", valor = 9999 },
+                { "aviso", texto = "Del fondo de los pabellones se oye un golpeteo de rejas. Vienen mas." },
+                { "oleada", lugar = "carcel", radio = 120, cantidad = 55, por_jugador = 20, fija = true,
+                  planta_baja = true, min = 12, max = 40, meta = "meta_pabellones", meta_frac = 0.8 },
+                { "oleada", lugar = "carcel", radio = 120, cantidad = 15, por_jugador = 5, fija = true, correr = true,
+                  planta_baja = true, min = 25, max = 50, retraso = 0.4 },
+            },
+            salidas = {
+                { cuando = { "bajas_en", "carcel", "var:meta_pabellones", 140 }, ir = "limpieza" },
+            },
+        },
+        -- 3. Terminar de limpiar: que no quede ninguno cerca de la armeria.
+        limpieza = {
+            pista = "Terminar de limpiar {lugar:carcel}: que no quede ningun muerto cerca de la armeria.",
+            objetivo = "carcel",
+            salidas = {
+                { cuando = { "o", { "sin_zombis", "carcel", 25 }, { { "horas", 2 }, { "sin_zombis", "carcel", 12 } } }, ir = "armeria" },
+            },
+        },
+        -- 4. La armeria: el arsenal legendario y mucha municion.
+        armeria = {
+            pista = "Recoger el arsenal de la armeria de {lugar:carcel}.",
+            objetivo = "carcel",
+            al_entrar = {
+                { "aviso", texto = "La armeria de {lugar:carcel} sigue cerrada, tal como dijo Hank Morrow. Adentro esta todo." },
+                { "legendario", lugar = "carcel", radio = 8, clase = "fuego" },
+                { "recompensa", lugar = "carcel", radio = 8,
+                  items = { { "Base.556Box", "Base.556Bullets" }, { "Base.556Box", "Base.556Bullets" },
+                            { "Base.308Box", "Base.308Bullets" }, { "Base.308Box", "Base.308Bullets" },
+                            { "Base.ShotgunShellsBox", "Base.ShotgunShells" }, { "Base.ShotgunShellsBox", "Base.ShotgunShells" },
+                            { "Base.Bullets9mmBox", "Base.Bullets9mm" }, { "Base.Bullets9mmBox", "Base.Bullets9mm" },
+                            { "Base.Bullets45Box", "Base.Bullets45" }, { "Base.Bullets44Box", "Base.Bullets44" },
+                            { "Base.Vest_BulletPolice", "Base.Vest_BulletArmy" }, { "Base.Hat_RiotHelmet", "Base.Hat_CrashHelmet_Police" } } },
+                { "diario", texto = "Limpiamos {lugar:carcel}. Nadie lo habia hecho. La armeria estaba cerrada con todo adentro, como dijo Hank Morrow: fusiles, escopetas, pistolas y municion para un invierno entero." },
+            },
+            salidas = { { cuando = { "horas", 0.1 }, ir = "volver" } },
+        },
+        volver = {
+            pista = "Volver a la gasolinera y contarle a la Misia Rosa.",
+            ancla = "contacto",
+            opciones = { { id = "contar", texto = "Contarle que limpiaste la carcel" } },
+            salidas = { { cuando = { "eleccion", "contar" }, ir = "final_cumplido" } },
+        },
+        final_cumplido = cierre("rosewood", 4,
+            "Le conte a la Misia Rosa que limpiamos la carcel de Rosewood. Saco su cuaderno y anoto a Hank Morrow en pasado, con letra bonita. Despues anoto mi nombre al lado, en presente.",
+            { { "decir_contacto", texto = "La carcel. Limpia. ... Hank decia que ni el ejercito se atrevia. Toma, mijito, esto tambien. Y cuidame esas armas, que con eso se saca a un pueblo entero." },
+              { "memoria", clave = "carcel_rosewood", valor = "limpiada" } }),
+        final_abandono = fracaso("rosewood", 4,
+            "Nunca fui a la carcel de Rosewood. La Misia Rosa no me lo reclamo. Solo dijo que la armeria iba a seguir ahi, esperando a alguien mas valiente.",
+            { { "decir_contacto", texto = "No importa, mijito. Esa carcel no se va a ninguna parte. Los muertos tampoco." } }),
     },
 })

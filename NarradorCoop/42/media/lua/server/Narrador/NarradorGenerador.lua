@@ -173,17 +173,17 @@ G.COMPLICACIONES = { "horda", "bandidos", "competencia", "alarma" }
 -- ---------------------------------------------------------------------------
 G.VOZ = {
     muldraugh = {
-        saludo = { "Soldado, a la orden.", "Firme. Hay mision.", "Atencion, civil.", "Tengo pega. Escuche bien.", "Al pie, que esto es serio." },
+        saludo = { "Soldado, a la orden.", "Firme. Hay mision.", "Atencion, civil.", "Tengo trabajo. Escuche bien.", "Al pie, que esto es serio." },
         plazo = { "Tiene {plazo_txt}. Ni un minuto mas.", "Plazo: {plazo_txt}. Lo anoto en la libreta.", "{plazo_txt}. Despues no me sirve." },
         despedida = { "Retirese.", "Vuelva entero, es una orden.", "Eso es todo.", "Mueva esas piernas." },
-        gracias = { "Mision cumplida. Lo anoto con lapiz pasta.", "Buen trabajo, soldado. Su pago.", "Cumplio. Eso es lo unico que pido.",
+        gracias = { "Mision cumplida. Lo anoto con tinta.", "Buen trabajo, soldado. Su pago.", "Cumplio. Eso es lo unico que pido.",
             "Afirmativo. Aqui tiene lo suyo." },
         frecuente = { "{cliente_corto} otra vez. Ya tiene expediente propio.", "Usted ya conoce a {cliente_corto}. Repite pedido." },
     },
     westpoint = {
         saludo = { "Mijito, ven, ven.", "Ay, que bueno que llegaste.", "Pasa, que tengo un recado.", "Mijo, sientate un poquito.", "No me pongas esa cara, que es facil." },
         plazo = { "Tienes {plazo_txt}, no mas.", "Y apurate, que en {plazo_txt} ya no sirve.", "Te doy {plazo_txt}. Si te demoras, me preocupo." },
-        despedida = { "Cuidate harto.", "Y toma agua antes de salir.", "Anda con Dios. O con escopeta.", "Vuelve entero, que te quiero." },
+        despedida = { "Cuidate mucho.", "Y toma agua antes de salir.", "Anda con Dios. O con escopeta.", "Vuelve entero, que te quiero." },
         gracias = { "Ay, mijito, gracias. Toma, te lo ganaste.", "Sabia que podia contar contigo.", "Eres un sol. Toma tu pago.",
             "Esto es pa ti. No me discutas." },
         frecuente = { "La {cliente_corto} otra vez, mijito. Ya es de la casa.", "Otro recado de {cliente_corto}. Esa no para." },
@@ -197,8 +197,8 @@ G.VOZ = {
         frecuente = { "{cliente_corto} vuelve a pedir. Es de los fieles, hijo.", "Otra vez {cliente_corto}. El Senor le dio muchas necesidades." },
     },
     rosewood = {
-        saludo = { "Mijo, llegaste justo.", "Ven pa aca, que hay pega.", "Bienvenido a la bencinera. Hay encargo.", "No hay bencina, pero hay trabajo.", "Mira lo que tengo pa ti." },
-        plazo = { "Tienes {plazo_txt}. Despues se pone rancio, como el pan.", "Y apurate, que esto no espera ni a la bencina: {plazo_txt}.", "Te doy {plazo_txt}. Ni un dia mas." },
+        saludo = { "Mijo, llegaste justo.", "Ven pa aca, que hay trabajo.", "Bienvenido a la gasolinera. Hay encargo.", "No hay gasolina, pero hay trabajo.", "Mira lo que tengo pa ti." },
+        plazo = { "Tienes {plazo_txt}. Despues se pone rancio, como el pan.", "Y apurate, que esto no espera ni a la gasolina: {plazo_txt}.", "Te doy {plazo_txt}. Ni un dia mas." },
         despedida = { "Anda, mijo.", "Y si ves cigarros, son mios.", "Cuidate, que no tengo otro como tu.", "Ya, anda, que se hace tarde." },
         gracias = { "Ese es mi mijo. Toma lo tuyo.", "Pagado y bien pagado.", "Ves que eres bueno pa esto? Toma.", "Lo prometido es deuda. Aca esta." },
         frecuente = { "Otra vez {cliente_corto}, mijo. Cliente fiel.", "{cliente_corto} vuelve a pedir. Ya le abri cuenta." },
@@ -209,7 +209,7 @@ G.VOZ = {
 G.PEDIDOS = {
     buscar = { "{cliente}, {oficio} del pueblo, necesita {objeto_que}. Deberia haber en {lugar:objetivo}.",
         "Me pidieron {objeto_que} para {cliente}, {oficio}. La ultima vez que alguien vio algo asi fue en {lugar:objetivo}." },
-    recuerdo = { "{cliente} perdio {objeto_que} cuando arranco de su casa. Quedo en {lugar:objetivo}. No es comida, no es bala, pero para {cliente} es todo.",
+    recuerdo = { "{cliente} perdio {objeto_que} cuando huyo de su casa. Quedo en {lugar:objetivo}. No es comida, no es bala, pero para {cliente} es todo.",
         "Hay un encargo raro: {objeto_que} de {cliente}. Esta en {lugar:objetivo}. Me dijo que sin eso no duerme." },
     recolectar = { "{cliente}, {oficio}, necesita {cantidad} {recolectar_nombre}. De donde los saques es asunto tuyo.",
         "Hacen falta {cantidad} {recolectar_nombre} para {cliente}. Junta y me los traes." },
@@ -252,7 +252,7 @@ G.RECIBE_POSTA = {
 G.REMATES = {
     "Mijito, dile al Cabo que la cafetera llego. Y que no se haga ilusiones.",
     "Ramiro tejiendo? No te creo. Bueno, si te creo. Es feo.",
-    "Esto no se lee delante de nadie. Andate.",
+    "Esto no se lee delante de nadie. Vete.",
     "Una caja de municion con un mono. Que hombre mas raro.",
     "Un libro de recetas, con una pagina doblada. Mira tu.",
     "Puras semillas. Alguien esta pensando en la primavera.",
@@ -632,9 +632,9 @@ end
 -- Con muy mala fama en Knox (nivel -4 o peor) los misioneros ya no dan trabajo.
 G.RECHAZO = {
     muldraugh = "Usted aca ya no es bienvenido, civil. Con todo el dano que ha hecho, ni un mandado le doy. Retirese de mi comisaria.",
-    westpoint = "No, mijo. Ya no. Con todo el dano que has hecho, aca no hay recados pa ti. Andate antes de que me arrepienta.",
+    westpoint = "No, mijo. Ya no. Con todo el dano que has hecho, aca no hay recados pa ti. Vete antes de que me arrepienta.",
     riverside = "Esta puerta nunca se cierra, hijo. Salvo para ti. Lo que has hecho no lo perdona ni el Senor ni yo.",
-    rosewood = "Para ti la bencinera esta cerrada, mijito. Primera vez en treinta anos que cierro. Ya sabes por que.",
+    rosewood = "Para ti la gasolinera esta cerrada, mijito. Primera vez en treinta anos que cierro. Ya sabes por que.",
 }
 
 -- Ojo: NarradorDominios.lua envuelve esta funcion (cambia lo que hace segun quien manda en la ciudad).
@@ -721,9 +721,14 @@ G.ESPECIALES = {
                   "Donde: lejos, en la ruta", "Pago: botin medio", "Ojo: hay que traerlo vivo" } },
     { def = "cap_rosa_3", contacto = "rosewood", capitulo = 3, requiere = "historia_rosewood_2",
       hecho = "historia_rosewood_3", confianza = 3, pago = "dificil", chance = 1,
-      titulo = "El estanque",
-      resumen = { "Historia de la Misia Rosa, cap. 3", "Para: defender el estanque escondido",
-                  "Donde: la bencinera, de noche", "Pago: botin dificil", "Ojo: vienen bandidos" } },
+      titulo = "El tanque",
+      resumen = { "Historia de la Misia Rosa, cap. 3", "Para: defender el tanque escondido",
+                  "Donde: la gasolinera, de noche", "Pago: botin dificil", "Ojo: vienen bandidos" } },
+    { def = "cap_rosa_4", contacto = "rosewood", capitulo = 4, requiere = "historia_rosewood_3",
+      hecho = "historia_rosewood_4", confianza = 4, pago = "dificil", chance = 1,
+      titulo = "La carcel de Rosewood",
+      resumen = { "Historia de la Misia Rosa, cap. 4", "Para: la armeria cerrada del penal",
+                  "Donde: la carcel de Rosewood", "Pago: arsenal legendario y municion", "Ojo: es el lugar mas dificil del condado" } },
     -- Tia Chela, capitulo 3.
     { def = "leyenda_eduardo", contacto = "westpoint", capitulo = 3, requiere = "historia_westpoint_2",
       hecho = "historia_westpoint_3", confianza = 3, pago = "dificil", chance = 1,

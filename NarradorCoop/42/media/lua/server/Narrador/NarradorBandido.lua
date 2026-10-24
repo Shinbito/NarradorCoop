@@ -30,6 +30,11 @@ BA.CHANCE_SOSPECHA = 30
 BA.DESCONFIANZA = 1.5    -- con pereira_desconfia, cada sabotaje pesa 45% en vez de 30%
 BA.RADIO_PATIO = 40
 BA.ESPERA_MAULEN = 72
+-- Si un capitulo queda botado (final_abandonado), el patio no relanza nada en BA.ENFRIAMIENTO
+-- horas. Si era el primero (la nota), despues de eso la puerta queda abierta en el patio y la
+-- nota solo vuelve sola pasadas BA.ESPERA_NOTA horas.
+BA.ENFRIAMIENTO = 48
+BA.ESPERA_NOTA = 168
 BA.IDS = { "bandido_1", "bandido_2", "bandido_3", "bandido_4", "bandido_5", "bandido_castigo", "bandido_maulen",
     "conquista_sous", "conquista_muldraugh", "conquista_westpoint", "conquista_riverside", "conquista_rosewood",
     "eduardo_atentado", "eduardo_fallas", "reconquista_muldraugh", "reconquista_westpoint", "reconquista_riverside",
@@ -217,10 +222,24 @@ function BA.consecuenciaUltimo(m)
     end
 end
 
+function BA.esDelBandido(defId)
+    for _, id in ipairs(BA.IDS) do if id == defId then return true end end
+    return false
+end
+
+-- Anota cuando se boto un capitulo del bandido (para el enfriamiento).
+function BA.alTerminar(inst, def, final)
+    if final ~= "final_abandonado" or not BA.esDelBandido(inst.def) then return end
+    Motor.estado().memoria.bandido_abandono_hora = Mundo.horas()
+end
+
 function BA.revisar()
     local m = Motor.estado().memoria
     if BA.enCurso() then return end
+    if Motor.historiaAbierta ~= nil and not Motor.historiaAbierta() then return end
     pcall(BA.consecuenciaUltimo, m)
+    local abandono = tonumber(m.bandido_abandono_hora)
+    if abandono ~= nil and Mundo.horas() - abandono < BA.ENFRIAMIENTO then return end
     if m.bandido == "pereira" then
         if m.knox_conquistado then BA.revisarEduardo(m) else BA.revisarConquista(m) end
         return
@@ -239,6 +258,12 @@ function BA.revisar()
         return
     end
     if cap == 0 then
+        -- Botaste la nota: vuelve si vas al patio, o sola despues de BA.ESPERA_NOTA horas.
+        if m.bandido_ultimo == "abandonado" and abandono ~= nil and Mundo.horas() - abandono < BA.ESPERA_NOTA then
+            local jp = jugadorEnPatio(m)
+            if jp ~= nil then BA.lanzar(BA.jefe() == "maulen" and "bandido_maulen" or "bandido_1", jp) end
+            return
+        end
         local j = jugadorConGancho(m)
         if j ~= nil then BA.lanzar("bandido_1", j) end
         return
@@ -276,6 +301,7 @@ function BA.tick()
 end
 
 Motor.tickExtra.bandido = BA.tick
+Motor.alTerminar[#Motor.alTerminar + 1] = BA.alTerminar
 
 -- {"sumar_memoria", clave, cantidad}
 Motor.inmediatas.sumar_memoria = function(inst, a)

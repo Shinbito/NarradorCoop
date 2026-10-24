@@ -89,7 +89,7 @@ Et.ECOS = {
       nota = "Somos Denise y Lonnie. Te debemos todo. Esto es poco, pero es lo que juntamos. Cuidate.",
       texto = "Denise y Lonnie Hensley te dejaron un paquete con una nota." },
     { def = "sobreviviente_acorralada", final = "final_tarde", horas = { 48, 120 }, tipo = "aviso",
-      texto = "Un viajero cuenta que vio a un muchacho llamado Lonnie llorando sentado en una vereda. No dijo por que." },
+      texto = "Un viajero cuenta que vio a un muchacho llamado Lonnie llorando sentado en una acera. No dijo por que." },
     { def = "el_desertor", final = "final_protegido", horas = { 72, 168 }, tipo = "regalo",
       items = { { "Base.Bullets9mmBox", "Base.Bullets9mm" }, { "Base.ShotgunShells" } },
       nota = "Me fui antes de que me encuentren. Te dejo lo que me sobraba. No olvido lo que hiciste. -Ray",

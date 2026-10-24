@@ -158,7 +158,7 @@ registrar({
                   llegada = "Un muchacho llego a {lugar:aviso} gritando por ayuda.",
                   texto = { "Mi hermana Denise esta atrapada en {lugar:casa}! La casa esta rodeada. Yo no pude hacer nada... por favor!",
                             "Por favor, ayudame! Denise, mi hermana, sigue en {lugar:casa}. Son demasiados, yo solo no puedo!",
-                            "Me arranque y la deje sola. Soy un cobarde. Denise esta en {lugar:casa}. Por favor, sacala de ahi." },
+                            "Hui y la deje sola. Soy un cobarde. Denise esta en {lugar:casa}. Por favor, sacala de ahi." },
                   diario = "Lonnie Hensley pide ayuda: su hermana Denise esta atrapada en {lugar:casa}." },
             },
             salidas = {
@@ -185,7 +185,7 @@ registrar({
                 { "oleada", lugar = "casa", radio = 50, cantidad = { 12, 20 }, min = 8, max = 20 },
             },
             opciones = {
-                { id = "calmar", texto = "Decirle que se quede detras tuyo", una_vez = true,
+                { id = "calmar", texto = "Decirle que se quede detras de ti", una_vez = true,
                   dice = { rol = "denise", texto = "Si... si. No me dejes sola." } },
             },
             salidas = {
@@ -436,7 +436,10 @@ registrar({
     etapas = {
         mensaje = {
             al_entrar = {
-                { "lugar", id = "escuela", salas = { "classroom" }, respaldo = { "office", "livingroom" }, min = 200, max = 900 },
+                -- Una escuela de verdad: varias salas de clases en el mismo edificio y nunca la carcel
+                -- (la de Rosewood tiene "classroom"; ver Mundo.ZONAS_EXCLUIDAS).
+                { "lugar", id = "escuela", salas = { "classroom" }, min_iguales = 2,
+                  respaldo = { "schoolstorage", "office", "livingroom" }, min = 200, max = 900 },
                 { "mensajero", perfil = "k93_red_cross_04", nombre = { "Loretta", "Pike" },
                   llegada = "Una mujer llego a {lugar:aviso} con una foto en la mano.",
                   texto = { "Mi hijo Lucas fue a {lugar:escuela} a buscar comida hace dos dias. No volvio. Por favor, encuentrenlo.",

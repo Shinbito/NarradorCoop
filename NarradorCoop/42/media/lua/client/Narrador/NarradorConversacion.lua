@@ -414,7 +414,7 @@ function Conv.opciones(obj, estado, modo, nivelElegido)
             op({ tipo = "estado_encargo", arco = mio.arco, texto = "Como va lo de mi encargo?" })
             op({ tipo = "abandonar", texto = "Quiero dejar el encargo.", suave = true })
         else
-            op({ tipo = "niveles", texto = "Tienes pega para mi?" })
+            op({ tipo = "niveles", texto = "Tienes trabajo para mi?" })
             if estado.cura ~= nil then op({ tipo = "cura", texto = "Tienes algo especial?" }) end
         end
         local rep = Conv.miReputacion(estado, obj.id)
@@ -455,19 +455,19 @@ function Conv.misiones(estado, miGrupo)
                 historia[#historia + 1] = item
             elseif a.tipo == "encargo" then
                 if a.dueno == nil or a.dueno == miGrupo then
-                    item.tab = "secundarias"
+                    item.tab = "pedidos"
                     item.sub = (a.contacto_nombre ~= nil and (tostring(a.contacto_nombre) .. ", " .. tostring(a.ciudad or "")) or nil)
                     encargo[#encargo + 1] = item
                 end
             else
-                item.tab = "secundarias"
+                item.tab = a.def == "recado_comerciante" and "pedidos" or "secundarias"
                 secundarias[#secundarias + 1] = item
             end
         end
     end
     table.sort(historia, function(x, y) return x.orden < y.orden end)
     for _, f in ipairs(estado.favores or {}) do
-        favores[#favores + 1] = { favor = f.rol, titulo = tostring(f.nombre or f.corto), tab = "secundarias",
+        favores[#favores + 1] = { favor = f.rol, titulo = tostring(f.nombre or f.corto), tab = "pedidos",
             pista = "Tiene algo que pedirte. Esta en la base de Sous." }
     end
     if #historia > 0 then secciones[#secciones + 1] = { titulo = "Historia", items = historia } end
@@ -692,7 +692,7 @@ function NarradorConversacionVentana:armarMisiones()
     local hm = Conv.altoFuente(UIFont.Medium) + 2
     if #secciones == 0 then
         bloques[#bloques + 1] = { tipo = "vacio", y = 0,
-            lineas = Conv.envolver("No tienes nada pendiente. Los misioneros siempre tienen pega, y la historia sigue cuando alguien golpee la puerta.", w - 20, UIFont.Small) }
+            lineas = Conv.envolver("No tienes nada pendiente. Los misioneros siempre tienen trabajo, y la historia sigue cuando alguien golpee la puerta.", w - 20, UIFont.Small) }
         y = #bloques[1].lineas * hs
     end
     for _, s in ipairs(secciones) do

@@ -113,3 +113,9 @@ option Narrador.DesbloqueoMisioneros = {
     page = Narrador, translation = Narrador.DesbloqueoMisioneros,
     _tooltip = Narrador.DesbloqueoMisioneros_tooltip,
 }
+
+option Narrador.HistoriaConRefugio = {
+    type = boolean, default = true,
+    page = Narrador, translation = Narrador.HistoriaConRefugio,
+    _tooltip = Narrador.HistoriaConRefugio_tooltip,
+}

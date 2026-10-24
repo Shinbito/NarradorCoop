@@ -1271,7 +1271,7 @@ Narrador.Defs.registrar({
                 { "faccion", id = "narrador_sous", postura = "hostile" },
                 { "lugar_memoria", id = BASE, clave = "base_sous",
                   salas = { "farmstorage", "barn", "warehouse" }, respaldo = { "livingroom", "kitchen" }, min = 300, max = 1200 },
-                { "aviso", texto = "Escuchas silbidos que no son de pajaros. Sous viene por ti." },
+                { "aviso", texto = "Escuchas silbidos que no son de aves. Sous viene por ti." },
                 { "bandidos", id = "cazadores", lugar = "aviso", radio = 70, modo = "hunt", retraso = 1,
                   perfiles = CAZADORES, sin_muertos_de = "sous" },
             },

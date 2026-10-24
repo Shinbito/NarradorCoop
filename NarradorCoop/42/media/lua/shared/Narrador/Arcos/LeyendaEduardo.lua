@@ -32,7 +32,7 @@ Narrador.Defs.registrar({
             al_entrar = {
                 { "lugar", id = "objetivo", desde = "contacto", salas = { "laboratory", "medical", "hospital*" },
                   respaldo = { "pharmacy", "pharmacystorage", "medicaloffice", "office" }, min = 300, max = 1300 },
-                { "decir_contacto", texto = "Mijo, por la radio pide ayuda un cientifico. Dice que tiene la cura. Yo no le creo ni el saludo, pero un doctor nos vendria bien igual. Anda a buscarlo a {lugar:objetivo}. Y me lo traes vivo, ah?" },
+                { "decir_contacto", texto = "Mijo, por la radio pide ayuda un cientifico. Dice que tiene la cura. Yo no le creo ni una palabra, pero un doctor nos vendria bien igual. Anda a buscarlo a {lugar:objetivo}. Y me lo traes vivo, ah?" },
                 { "mapa", lugar = "objetivo", titulo = "Mapa de la Tia Chela: el cientifico" },
                 { "diario", texto = "La Tia Chela me mando a buscar a un cientifico que dice tener la cura. Esta en {lugar:objetivo}." },
             },
@@ -142,9 +142,9 @@ Narrador.Defs.registrar({
             },
         },
 
-        -- Llevar al cientifico vivo donde la Chela (te sigue y se sube al auto contigo).
+        -- El cientifico va solo donde la Chela y te espera alla (NarradorPasajeros, "va solo").
         escolta = {
-            pista = "Llevar al cientifico sano y salvo donde {contacto_nombre}.",
+            pista = "El cientifico va por su cuenta donde {contacto_nombre}. Vuelve alla: te espera.",
             objetivo = "contacto",
             al_entrar = {
                 { "acompanante", grupo = DOC, rol = "cientifico", nombre = "El doctor Hartmann", inmortal = false },
@@ -169,10 +169,10 @@ Narrador.Defs.registrar({
                   texto = "...Yo te conozco. Fuiste a buscar el suero para la familia del refugio, los Bell. Si. Las pastillas las vendi yo. Agua, azucar y colorante. Pense que nadie iba a llegar tan lejos por una caja de pastillas." },
                 { "diario", si = { "memoria", "curandero_falso", true },
                   texto = "El doctor Hartmann es el que vendio las pastillas falsas de los Bell. Lo traje vivo igual. Todavia no se si hice bien." },
-                { "decir_contacto", retraso = 0.05, texto = "Charlatan. Pero un charlatan que hace remedios sirve. Cuando el campamento crezca, te pongo una consulta. Por mientras, te lavas las manos." },
-                { "decir_contacto", texto = "Lo viste? A mi Eduardo? Y esta bien? ... Ese cabro porfiado. Ya. Ya. No me mires, que se me metio algo en el ojo.",
+                { "decir_contacto", retraso = 0.05, texto = "Charlatan. Pero un charlatan que hace remedios sirve. Cuando el campamento crezca, te pongo una consulta. Mientras tanto, te lavas las manos." },
+                { "decir_contacto", texto = "Lo viste? A mi Eduardo? Y esta bien? ... Ese muchacho porfiado. Ya. Ya. No me mires, que se me metio algo en el ojo.",
                   si = { "var", "dijo_eduardo", true } },
-                { "decir_contacto", texto = "Lo trajiste vivo, mijo. Ya veremos si lo de la cura es verdad. Por mientras, que coma algo.",
+                { "decir_contacto", texto = "Lo trajiste vivo, mijo. Ya veremos si lo de la cura es verdad. Mientras tanto, que coma algo.",
                   si = { "no", { "var", "dijo_eduardo", true } } },
                 { "pago_encargo", lugar = "contacto", radio = 35 },
                 { "retirar_lejos", grupo = DOC, lugar = "contacto", radio = 40, retraso = 1 },
@@ -224,11 +224,11 @@ Narrador.Defs.registrar({
             ancla = "contacto", ancla_grupo = EDUARDO, radio = 20,
             al_entrar = {
                 { "inmune", grupo = EDUARDO, rol = "eduardo", quien = "eduardo" },
-                { "decir", grupo = EDUARDO, rol = "eduardo", texto = "Uff... pense que la palmaba. Esta vez si, de verdad." },
+                { "decir", grupo = EDUARDO, rol = "eduardo", texto = "Uff... pense que no la contaba. Esta vez si, de verdad." },
                 { "decir", grupo = EDUARDO, rol = "eduardo", retraso = 0.05, texto = "Me arrastre hasta un sotano y dormi dos dias. Siempre hay un sotano. Gracias por terminar lo que yo no pude." },
-                { "decir_contacto", retraso = 0.1, texto = "Otra vez casi te matai, cabro porfiado. Sientate, que hay sopa. Y no me discutas." },
+                { "decir_contacto", retraso = 0.1, texto = "Otra vez casi te matas, muchacho porfiado. Sientate, que hay sopa. Y no me discutas." },
                 { "aviso", texto = "Eduardo Giovanns esta en {lugar:contacto}, con la ropa rota y una sonrisa cansada." },
-                { "diario", texto = "Eduardo esta vivo. Aparecio en {lugar:contacto} como si nada: 'pense que la palmaba'. Siempre se salva por las minimas." },
+                { "diario", texto = "Eduardo esta vivo. Aparecio en {lugar:contacto} como si nada: 'pense que no la contaba'. Siempre se salva por poco." },
             },
             opciones = {
                 { id = "muerto", texto = "Te vi caer. Pense que estabas muerto.",

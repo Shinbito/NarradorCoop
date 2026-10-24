@@ -380,14 +380,21 @@ function Motor.banderasDe(inst, a)
     for clave, valor in pairs(a.banderas or {}) do f[clave] = valor end
     local l = a.lugar ~= nil and inst.lugares[a.lugar] or nil
     local ancla = l ~= nil and { x = l.x, y = l.y, z = l.z or 0 } or nil
+    -- Donde quedo despues de una escolta (ver NarradorPasajeros): ya no donde aparecio.
+    if type(a.ancla_pos) == "table" then ancla = { x = a.ancla_pos.x, y = a.ancla_pos.y, z = a.ancla_pos.z or 0 } end
     return f, ancla
 end
 
 function Motor.banderasGrupo(inst, g)
     local flags, ancla = Motor.banderasDe(inst, g.accion)
-    if flags == nil then return end
+    local P = Narrador.Pasajeros
     for uid, m in pairs(g.miembros) do
-        if m.vivo then pcall(Mundo.banderas, uid, flags, ancla) end
+        if m.vivo then
+            -- Acompanantes y rescatados que van solos al misionero tienen sus propias banderas.
+            local f, a = flags, ancla
+            if P ~= nil and P.banderasPropias ~= nil then f, a = P.banderasPropias(uid, flags, ancla) end
+            if f ~= nil then pcall(Mundo.banderas, uid, f, a) end
+        end
     end
 end
 

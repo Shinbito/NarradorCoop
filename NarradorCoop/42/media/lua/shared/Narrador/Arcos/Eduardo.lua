@@ -149,7 +149,7 @@ registrar({
             },
             opciones = {
                 { id = "hablar", texto = "Vengo a hablar. Quiero devolverle Knox a la gente",
-                  dice = { rol = "eduardo", texto = "Devolverselo. Despues de quitarselo. ... Ya. Mi mama te hubiera dado sopa y un reto. Yo te doy las dos cosas: la sopa despues." } },
+                  dice = { rol = "eduardo", texto = "Devolverselo. Despues de quitarselo. ... Ya. Mi mama te hubiera dado sopa y un sermon. Yo te doy las dos cosas: la sopa despues." } },
                 { id = "terminar", texto = "Vengo a terminar esto",
                   dice = { rol = "eduardo", texto = "Lo sabia. Igual tenia que preguntar. Ella lo hubiera preguntado." } },
             },
@@ -208,8 +208,8 @@ local CIUDADES = {
         eduardo = "Es la casa de mi mama. Yo entro primero. No me discutas." },
     riverside = { titulo = "la iglesia de Riverside", nuevo = "{nuevo:riverside}",
         eduardo = "Hay que abrir esa puerta otra vez. Y que no se cierre nunca mas." },
-    rosewood = { titulo = "la bencinera de Rosewood", nuevo = "{nuevo:rosewood}",
-        eduardo = "La luz de esa bencinera estuvo prendida treinta anos. Vamos a prenderla." },
+    rosewood = { titulo = "la gasolinera de Rosewood", nuevo = "{nuevo:rosewood}",
+        eduardo = "La luz de esa gasolinera estuvo prendida treinta anos. Vamos a prenderla." },
 }
 
 for id, cd in pairs(CIUDADES) do

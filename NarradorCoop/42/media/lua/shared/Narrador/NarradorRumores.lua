@@ -1,7 +1,10 @@
 -- Narrador Co-op: rumores. Antes de lanzar una historia, el Director la siembra como rumor
 -- durante 24 a 48 horas: los misioneros, los vecinos y Sous (si son aliados) lo comentan cuando
 -- tienes cerca. Si vas a mirar el lugar antes, encuentras algo y la historia parte con ventaja.
--- Uno de cada cinco rumores es falso: igual hay algo en el lugar.
+-- Uno de cada cinco rumores es falso: igual hay algo en el lugar (una mochila o bolso en el suelo
+-- de la sala del rumor, con el premio y la nota adentro; ver Director.revisarVisitas).
+--   bolsa     nombre del bolso que queda en la sala (falsos)
+--   hallazgo  aviso al llegar; {donde} = la sala y el piso ("una oficina de la planta baja")
 --
 --   lugar   el mismo spec de la accion "lugar" de la historia (se elige antes y se respeta)
 --   id      id del lugar en la historia
@@ -19,7 +22,7 @@ Rum.HISTORIAS = {
             misionero = { "Dicen que al norte se esta juntando una horda grande. De esas que barren pueblos.",
                           "Un explorador paso corriendo esta manana. No quiso parar. Mala senal." },
             vecino = { "Anoche se escuchaba un ruido raro al norte. Como un rio, pero no era agua.",
-                       "Vi pajaros arrancando todos para el mismo lado. Algo viene." },
+                       "Vi aves huyendo todas para el mismo lado. Algo viene." },
             sous = { { "cristian", "Compadre, desde el cerro se ve polvo al norte. Mucho polvo. Eso no es viento." },
                      { "martin_z", "Hay mas muertos caminando juntos que de costumbre. Lo anoto, por si acaso." },
                      { "jorge", "Manito, si viene algo grande, hay que tener latas guardadas. Ya conte." } },
@@ -44,7 +47,7 @@ Rum.HISTORIAS = {
             misionero = { "Anoche se escuchaban gritos por {lugar}. Una mujer, creo." },
             vecino = { "Hay una casa en {lugar} con muertos golpeando la puerta. Alguien sigue adentro." },
             sous = { { "david", "Escuche gritos para el lado de {lugar}. No se si alguien fue." },
-                     { "cristobal", "Hermanito, hay alguien atrapado por {lugar}. Ojala alguien la saque, wn." } },
+                     { "cristobal", "Hermanito, hay alguien atrapado por {lugar}. Ojala alguien la saque, oye." } },
         },
     },
     trueque_trampa = {
@@ -60,7 +63,7 @@ Rum.HISTORIAS = {
     },
     el_desertor = {
         lineas = {
-            misionero = { "La Guardia anda buscando a uno de los suyos. Se les arranco. Lo quieren de vuelta. O muerto.",
+            misionero = { "La Guardia anda buscando a uno de los suyos. Se les escapo. Lo quieren de vuelta. O muerto.",
                           "Vi una patrulla de la Guardia pasar. Preguntaban por un soldado joven." },
             vecino = { "Paso un camion militar preguntando por un desertor. No me gusto como preguntaban." },
             sous = { { "martin_a", "Cabros, la Guardia anda buscando a alguien. Uno, no nos metemos. Dos, si viene, vemos." },
@@ -68,7 +71,7 @@ Rum.HISTORIAS = {
         },
     },
     hijo_perdido = {
-        id = "escuela", lugar = { salas = { "classroom" }, respaldo = { "office", "livingroom" }, min = 200, max = 900 },
+        id = "escuela", lugar = { salas = { "classroom" }, min_iguales = 2, respaldo = { "schoolstorage", "office", "livingroom" }, min = 200, max = 900 },
         premio = { { "Base.Bandage" }, { "Base.TinnedBeans", "Base.CannedBeans" } },
         lineas = {
             misionero = { "Un nino fue solo a {lugar} a buscar comida. No lo han visto volver.",
@@ -114,13 +117,17 @@ Rum.FALSOS = {
                  vecino = { "Un tal Eduardo limpio {lugar} solo, la semana pasada. Mi primo lo vio. Bueno, mi primo dice." },
                  sous = { { "cristian", "Wn, dicen que Eduardo, el leyenda, estuvo en {lugar}. Hay que ir, po." } } },
       premio = { { "Base.Bullets9mmBox", "Base.Bullets9mm" }, { "Base.Bandage" }, { "Base.TinnedBeans", "Base.CannedBeans" } },
-      nota = "Si llegaste hasta aca, vas por buen camino. Deje esto para el que venga detras. Cuida a la gente. - E.G." },
+      nota = "Si llegaste hasta aca, vas por buen camino. Deje esto para el que venga detras. Cuida a la gente. - E.G.",
+      bolsa = "Mochila de E.G.",
+      hallazgo = "Ni rastro de Eduardo. Pero alguien dejo una mochila marcada E.G. en el suelo de {donde}. Revisala." },
     { lugar = { salas = { "classroom", "church", "livingroom" }, min = 250, max = 900 },
       lineas = { misionero = { "Una senora juraba que Eduardo, el de las historias, la saco de {lugar}. Yo le creo." },
                  vecino = { "En {lugar} hay una pared con nombres. Al final dice 'Eduardo estuvo aqui'." },
                  sous = { { "martin_a", "Bro, en {lugar} dicen que hay una firma de Eduardo. El leyenda. Raro pero ya." } } },
       premio = { { "Base.FirstAidKit", "Base.Bandage" }, { "Base.WaterBottleFull", "Base.WaterBottle" } },
-      nota = "Aca dormimos siete. Se fueron todos al norte, vivos. Si encuentras gente, sacala. Alguien tiene que hacerlo. - E.G." },
+      nota = "Aca dormimos siete. Se fueron todos al norte, vivos. Si encuentras gente, sacala. Alguien tiene que hacerlo. - E.G.",
+      bolsa = "Mochila de E.G.",
+      hallazgo = "La pared con nombres no esta, pero hay una mochila marcada E.G. en el suelo de {donde}. Revisala." },
 }
 
 return Rum

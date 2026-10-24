@@ -27,7 +27,7 @@ C.LISTA = {
           "Aca se trabaja con orden. Encargo, cumplimiento, pago. Y nada de preguntas.",
           "El que no cumple un encargo queda anotado. Tengo una libreta. Una libreta muy larga.",
           "Antes multaba autos mal estacionados. Ahora los autos estan todos mal estacionados.",
-          "Tengo pega pa usted. Siempre tengo pega. Es lo unico que sobra en este pueblo.",
+          "Tengo trabajo pa usted. Siempre tengo trabajo. Es lo unico que sobra en este pueblo.",
           "No me diga Cabo. Bueno, si, digame Cabo. Me gusta.",
           "Si vuelve con las manos vacias, no se preocupe: el castigo es otro encargo.",
       },
@@ -49,7 +49,7 @@ C.LISTA = {
           "Tengo un recado facil y uno dificil. Elige con el corazon, no con las piernas.",
           "Si te muerden, no vuelvas. Te quiero, pero no tanto.",
           "Mis encargos nunca se acaban, mijo. Como la ropa sucia.",
-          "Cuidate harto. Y trae algo dulce si encuentras, que aca no hay nada.",
+          "Cuidate mucho. Y trae algo dulce si encuentras, que aca no hay nada.",
       },
       salas = { "firestorage", "firegarage" }, respaldo = { "policeoffice", "church", "office" } },
     { id = "riverside", rol = "nacho", ciudad = "Riverside", nombre = "Padre Nacho", apellido = "Pegas",
@@ -60,22 +60,22 @@ C.LISTA = {
           "Rezo por ti cada vez que sales. Bueno, cuando me acuerdo.",
           "La fe mueve montanas. Los encargos mueven latas. Ambos son importantes.",
           "No es pecado saquear si es por una buena causa. Lo busque en la Biblia. Mas o menos.",
-          "Tengo pega para todos los fieles. Y para los que no, tambien.",
+          "Tengo trabajo para todos los fieles. Y para los que no, tambien.",
           "Ve en paz, hijo. Y si no hay paz, ve con escopeta.",
           "Confesion rapida: a veces invento la mitad de los encargos para que la gente se mantenga ocupada.",
       },
       salas = { "church" }, respaldo = { "policeoffice", "office", "motelroom" } },
     { id = "rosewood", rol = "rosa", ciudad = "Rosewood", nombre = "Misia Rosa", apellido = "Bencina",
-      perfil = "k93_truckstop_04", oficio = "duena de la bencinera",
+      perfil = "k93_truckstop_04", oficio = "duena de la gasolinera",
       frases = {
-          "Bienvenido a la bencinera. No hay bencina, pero hay encargos.",
+          "Bienvenido a la gasolinera. No hay gasolina, pero hay encargos.",
           "Lleno o normal? Es broma, mijito. Hace meses que no sale ni una gota.",
           "Treinta anos atendiendo camioneros. Un zombi no me asusta, he visto cosas peores a las tres de la manana.",
           "Si encuentras cigarros, son mios. Si encuentras chicle, tambien.",
           "Aca todo tiene precio. Tu trabajo, por ejemplo, vale un encargo.",
           "Ay, que gusto ver una cara viva. Toma, aca tengo algo pa ti.",
           "No te demores, que los encargos se ponen rancios igual que el pan.",
-          "La bencinera nunca cierra. Ni con el fin del mundo.",
+          "La gasolinera nunca cierra. Ni con el fin del mundo.",
       },
       salas = { "gasstore", "grocery" }, respaldo = { "firestorage", "policeoffice", "church" } },
 }
@@ -93,7 +93,7 @@ C.FRASES_KNOX = {
                          "Lo tengo vigilado. Que no se le olvide." },
         aprecio = { "Me contaron lo que hizo por la gente. No se lo voy a decir dos veces: bien hecho.",
                     "Todo Knox habla de usted. Bueno, despues del tal Eduardo. Pero habla." },
-        amor = { "El heroe de Knox en mi comisaria. Firmes todos, carajo.",
+        amor = { "La leyenda de Knox en mi comisaria. Firmes todos, carajo.",
                  "Le guarde el mejor catre, soldado. No le diga a nadie.",
                  "Lo que hizo usted no lo hizo ni Eduardo. Y eso que me cuesta decirlo." },
     },
@@ -101,7 +101,7 @@ C.FRASES_KNOX = {
         odio = { "No me mires, mijo. Ya no eres mi mijo.", "Me da pena en lo que te convertiste. Y rabia. Mas rabia." },
         desconfianza = { "Andan diciendo cosas feas de ti. Ojala sean mentiras, mijo." },
         aprecio = { "Me contaron que salvaste a otra familia. Toma, sopa caliente, te la ganaste." },
-        amor = { "Mi Eduardo y tu. Los dos con la misma porfia de ayudar. Me haces llorar, cabro.",
+        amor = { "Mi Eduardo y tu. Los dos con la misma porfia de ayudar. Me haces llorar, muchacho.",
                  "Te teji un gorro. Feo, pero calientito. Pa mi heroe." },
     },
     riverside = {
@@ -117,7 +117,7 @@ C.FRASES_KNOX = {
                  "Los camioneros contaban historias de monstruos. Ahora las cuentan de ti." },
         desconfianza = { "Cuidado, mijito, que en la ruta se habla. Y de ti se habla feo." },
         aprecio = { "Los camioneros que quedan te nombran. Cosas buenas, mijito." },
-        amor = { "Mijito, eres la luz prendida de todo Knox.", "Te guarde el ultimo chocolate de la bencinera. El ultimo, ah." },
+        amor = { "Mijito, eres la luz prendida de todo Knox.", "Te guarde el ultimo chocolate de la gasolinera. El ultimo, ah." },
     },
 }
 
@@ -757,6 +757,8 @@ C.CHANCE_DESBLOQUEO = 3
 
 function C.revisarDesbloqueo(c, e)
     if e.x == nil or C.desbloqueado(c.id) then return end
+    -- El modo historia (y los misioneros) parte cuando alguien reclama un refugio.
+    if Motor.historiaAbierta ~= nil and not Motor.historiaAbierta() then return end
     local defId = "desbloqueo_" .. c.id
     if Defs.get(defId) == nil or Motor.activos(defId) > 0 then return end
     local j = C.jugadorEnPueblo(c)
@@ -912,11 +914,14 @@ function C.encargoActivo(id)
 end
 
 -- Encargo en curso de un grupo de jugadores (faccion del juego, o el jugador si no tiene).
+-- Solo cuentan los encargos de misioneros (vars.contacto): las historias con dueno que no son
+-- de un misionero (el camino del bandido, Eduardo, la venganza de Meulen...) corren en paralelo
+-- y no ocupan el cupo de "un encargo a la vez" ni se abandonan desde el misionero.
 function C.encargoDelGrupo(clave)
     local st = Motor.estado()
     for _, arcoId in ipairs(st.orden) do
         local inst = st.arcos[arcoId]
-        if inst ~= nil and inst.final == nil and inst.vars.dueno == clave then return inst end
+        if inst ~= nil and inst.final == nil and inst.vars.dueno == clave and inst.vars.contacto ~= nil then return inst end
     end
     return nil
 end
@@ -926,7 +931,7 @@ function C.encargosActivos()
     local st, lista = Motor.estado(), {}
     for _, arcoId in ipairs(st.orden) do
         local inst = st.arcos[arcoId]
-        if inst ~= nil and inst.final == nil and inst.vars.dueno ~= nil then
+        if inst ~= nil and inst.final == nil and inst.vars.dueno ~= nil and inst.vars.contacto ~= nil then
             lista[#lista + 1] = { dueno = inst.vars.dueno, contacto = inst.vars.contacto, arco = inst.id }
         end
     end

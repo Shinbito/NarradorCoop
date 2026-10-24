@@ -188,7 +188,7 @@ end
 local function abandonado(cap)
     return { final = true, al_entrar = {
         { "memoria", clave = "bandido_ultimo", valor = "abandonado" },
-        { "diario", texto = "No volvi donde Pereira con lo del capitulo " .. cap .. ". Ella no olvida. Yo tampoco." },
+        { "diario", texto = "No volvi con Pereira con lo del capitulo " .. cap .. ". Ella no olvida. Yo tampoco." },
     } }
 end
 
@@ -312,7 +312,7 @@ registrar({
             salidas = { { ir = "volver" } },
         },
         volver = {
-            pista = "Volver donde la Sargento Pereira, en {lugar:patio}.",
+            pista = "Volver con la Sargento Pereira, en {lugar:patio}.",
             objetivo = "patio",
             al_entrar = { pereiraEnPatio() },
             salidas = { { cuando = { { "grupo_listo", PEREIRA }, { "cerca", "patio", 20 } }, ir = "informe" } },
@@ -570,7 +570,7 @@ registrar({
             salidas = { { ir = "volver" } },
         },
         volver = {
-            pista = "Volver donde {jefe_nombre}, en {lugar:patio}.",
+            pista = "Volver con {jefe_nombre}, en {lugar:patio}.",
             objetivo = "patio",
             al_entrar = { pereiraEnPatio() },
             salidas = { { cuando = { { "grupo_listo", PEREIRA }, { "cerca", "patio", 20 } }, ir = "informe" } },
@@ -788,7 +788,7 @@ registrar({
                 { id = "con_pereira", texto = "A tu derecha, {jefe_corto}",
                   dice = { rol = "pereira", texto = J("Eso queria escuchar. Duerme. Manana empieza Knox.", "Sabia que no me ibas a fallar, peni. Tu me dejaste vivir. Ahora vivimos los dos.") } },
                 { id = "contra_pereira", texto = "Irte en silencio. Esto se termina, pero no como ella quiere",
-                  respuesta = "Asientes, te das vuelta y caminas sin apuro. Ya sabes a quien le vas a pedir ayuda." },
+                  respuesta = "Asientes, te das la vuelta y caminas sin apuro. Ya sabes a quien le vas a pedir ayuda." },
             },
             salidas = {
                 { cuando = { "eleccion", "con_pereira" }, ir = "final_con_pereira" },
@@ -847,7 +847,7 @@ registrar({
             { "knox_reiniciar", texto = "La gente perdonara tus pecados del pasado, pero en tu mente sigue existiendo cada acto malvado que hiciste." },
             { "huella", acto = "protegiste", texto = J("Acabe con la Sargento Pereira antes de que tomara la comisaria del Cabo.", "Acabe con Meulen Canupan antes de que fuera por Sous.") },
             { "decir", grupo = "eduardo", rol = "eduardo", si = { "mem", "eduardo_conocido" },
-              texto = "No se por que estuviste con ella. Se por que te diste vuelta. Con eso me basta, amigo." },
+              texto = "No se por que estuviste con ella. Se por que cambiaste de lado. Con eso me basta, amigo." },
             { "decir", grupo = JULIO, rol = "julio", si = { "mem", "julio_vivo" },
               texto = "Te debia una. Marisol esta bien. Ahora estamos a mano." },
             { "legendario", lugar = "patio", radio = 30, clase = "arma" },

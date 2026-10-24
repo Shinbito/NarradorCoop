@@ -151,7 +151,7 @@ registrar({
         },
         final_encontrado = {
             final = true,
-            al_entrar = { { "diario", texto = "La farmacia de Lucas estaba como el dijo. Ese cabro va a llegar lejos." } },
+            al_entrar = { { "diario", texto = "La farmacia de Lucas estaba como el dijo. Ese chico va a llegar lejos." } },
         },
         final_nadie = {
             final = true,

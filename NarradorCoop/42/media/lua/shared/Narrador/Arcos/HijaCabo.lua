@@ -26,7 +26,7 @@ Narrador.Defs.registrar({
         pedido = {
             al_entrar = {
                 { "lugar_contacto", id = "contacto", contacto = "muldraugh" },
-                { "lugar", id = "escuela", pueblo = "Louisville", salas = { "classroom" },
+                { "lugar", id = "escuela", pueblo = "Louisville", salas = { "classroom" }, min_iguales = 2,
                   respaldo = { "schoolstorage", "gym", "office" } },
                 { "decir_contacto", texto = "Soldado. Le tengo que pedir algo que no es un encargo. Mi hija, Valentina, estaba en Louisville. Una radio dijo que hay gente viva en una escuela. Traigamela. Por favor." },
                 { "mapa", lugar = "escuela", titulo = "Mapa del Cabo Ramiro: la escuela" },
@@ -103,9 +103,9 @@ Narrador.Defs.registrar({
             },
         },
 
-        -- 6. Traerla de vuelta: te sigue y se sube al auto contigo.
+        -- 6. Traerla de vuelta: va sola donde el Cabo y te espera alla (NarradorPasajeros, "va solo").
         escolta = {
-            pista = "Llevar a Valentina sana y salva a {lugar:contacto}.",
+            pista = "Valentina va por su cuenta a {lugar:contacto}. Vuelve con el Cabo: te espera alla.",
             objetivo = "contacto",
             al_entrar = {
                 { "acompanante", grupo = HIJA, rol = "hija", nombre = "Valentina", inmortal = false },
@@ -124,7 +124,7 @@ Narrador.Defs.registrar({
                 { "soltar_acompanante", grupo = HIJA, rol = "hija" },
                 { "banderas", grupo = HIJA, inmortales = true },
                 { "decir", grupo = HIJA, rol = "hija", texto = "Papa! Te planchaste el uniforme. Claro que te planchaste el uniforme." },
-                { "decir_contacto", retraso = 0.05, texto = "Valentina... Atencion. Atencion, soldado. Yo... Gracias. A contar de hoy usted no me debe nada. Nunca." },
+                { "decir_contacto", retraso = 0.05, texto = "Valentina... Atencion. Atencion, soldado. Yo... Gracias. A partir de hoy usted no me debe nada. Nunca." },
                 { "reputacion", contacto = "muldraugh", cantidad = 25, motivo = "le traje a su hija" },
                 { "residentes", id = "valentina", grupos = { HIJA }, lugar = "contacto", radio = 20, max_zombis = 2 },
                 { "recompensa", lugar = "contacto", radio = 20,

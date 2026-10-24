@@ -24,9 +24,9 @@ R.FAVOR_CADA = 24 * 7
 
 R.RANGOS = {
     muldraugh = { "Civil", "Recluta", "Soldado", "Sargento", "Mi General" },
-    westpoint = { "Desconocido", "Mijito", "Regalon", "Sobrino", "Hijo de la casa" },
+    westpoint = { "Desconocido", "Mijito", "Consentido", "Sobrino", "Hijo de la casa" },
     riverside = { "Oveja perdida", "Feligres", "Monaguillo", "Diacono", "Santo varon" },
-    rosewood = { "Afuerino", "Vecino", "Compadre", "Socio de la bomba", "Dueno de la bencinera" },
+    rosewood = { "Forastero", "Vecino", "Compadre", "Socio de la bomba", "Dueno de la gasolinera" },
 }
 
 -- Lo que dice cada misionero al subir a cada rango (2..5).
@@ -39,7 +39,7 @@ R.ASCENSOS = {
     },
     westpoint = {
         [2] = "Ya, mijito, ya te reconozco. Pasa sin tocar.",
-        [3] = "Mi regalon. No le digas a los otros, que se ponen celosos.",
+        [3] = "Mi consentido. No le digas a los otros, que se ponen celosos.",
         [4] = "Ay, mijito, ya eres como de la familia. Pasa, pasa, que hay sopa.",
         [5] = "Hijo de la casa. Si me pasa algo, la olla es tuya.",
     },
@@ -50,10 +50,10 @@ R.ASCENSOS = {
         [5] = "Santo varon. Si hubiera canonizaciones, te propongo. No hay. Pero te propongo.",
     },
     rosewood = {
-        [2] = "Ya no eres afuerino, mijo. Ahora eres vecino. Eso cuesta caro aca.",
+        [2] = "Ya no eres forastero, mijo. Ahora eres vecino. Eso cuesta caro aca.",
         [3] = "Compadre. Desde hoy te saludo de beso. Bueno, de mano.",
-        [4] = "Desde hoy cargas bencina gratis. Bueno, cuando haya. Pero la intencion es lo que cuenta.",
-        [5] = "La bencinera es tuya tambien. Yo sigo mandando, eso si.",
+        [4] = "Desde hoy cargas gasolina gratis. Bueno, cuando haya. Pero la intencion es lo que cuenta.",
+        [5] = "La gasolinera es tuya tambien. Yo sigo mandando, eso si.",
     },
 }
 

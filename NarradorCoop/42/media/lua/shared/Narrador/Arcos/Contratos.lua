@@ -286,12 +286,12 @@ local ULTRA = {
         -- esto nunca se encontraba y caia en una comisaria o una armeria.
         cerca_de = { 12540, 4250, 150 },
         objeto = "Maletin militar", pedido = "El ejercito dejo un maletin en {lugar:objetivo}. Nadie que haya ido volvio." },
-    mall = { titulo = "El mall", nombre_lugar = "el mall de Louisville",
+    mall = { titulo = "El centro comercial", nombre_lugar = "el centro comercial de Louisville",
         salas = { "clothesstore", "shoestore", "jewelrystore", "electronicsstore" }, respaldo = { "grocery", "grocerystorage" },
         -- Los malls de Louisville (dato de la comunidad): el grande en 13538,1273 y uno mas chico
         -- en 13380,3053; se sortea cual. Si no hay tiendas ahi, el grupo de tiendas mas grande.
         cerca_de = { { 13538, 1273, 120 }, { 13380, 3053, 100 } }, agrupado = 50, densidad = { "store*", "mall*" },
-        objeto = "Llaves de la boveda del mall", pedido = "En {lugar:objetivo} hay una boveda. Las llaves estan adentro, con miles de muertos." },
+        objeto = "Llaves de la boveda del centro comercial", pedido = "En {lugar:objetivo} hay una boveda. Las llaves estan adentro, con miles de muertos." },
     comisaria = { titulo = "La comisaria central", nombre_lugar = "la comisaria central de Louisville",
         salas = { "policeoffice", "policestorage", "policehall" }, respaldo = { "office" },
         objeto = "Expediente sellado", pedido = "En {lugar:objetivo} hay un expediente que explica como empezo todo." },

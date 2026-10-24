@@ -146,7 +146,7 @@ local ENCUENTROS = {
     },
     comerciante = {
         aviso = "Un motor que no arranca cerca de {lugar:punto}. Alguien insiste e insiste con la llave. Cada intento es una invitacion para los muertos.",
-        llegada = "Un comerciante, {nombre}, con su carro en panne en {lugar:punto}. La bateria murio y los muertos se acercan a su mercaderia. Me grita que si lo ayudo me paga bien. Primero los muertos.",
+        llegada = "Un comerciante, {nombre}, con su carro averiado en {lugar:punto}. La bateria murio y los muertos se acercan a su mercaderia. Me grita que si lo ayudo me paga bien. Primero los muertos.",
         salvado = "Los muertos ya no estan. El carro de {nombre} sigue muerto en {lugar:punto}. Si le consigo una bateria de auto, dice, puedo sacar lo que quiera de atras. Si no, tendra que dejar todo ahi.",
     },
     bengala = {

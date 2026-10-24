@@ -38,6 +38,12 @@ def correr(ruta):
     """)
     for m in modulos():
         lua.require(m)
+    # Las pruebas no tienen refugios: el modo historia queda abierto (la compuerta real queda en
+    # Motor._historiaAbiertaReal, la usa prueba_refugio.lua).
+    lua.execute("""
+    Narrador.Motor._historiaAbiertaReal = Narrador.Motor.historiaAbierta
+    Narrador.Motor.historiaAbierta = function() return true end
+    """)
     lua.execute(open(ruta, encoding="utf-8").read())
     return salida
 

@@ -117,7 +117,7 @@ Narrador.CuraGracias = {
     muldraugh = "Recibido. El hombre de la bodega le debe la vida. Yo tambien. Firme, soldado.",
     westpoint = "Ay, mijito. Ay, mijito. Ven aca que te abrazo. Toma, todo esto es tuyo.",
     riverside = "Esto si es un milagro, hijo. Y lo trajiste tu. Toma, te lo ganaste.",
-    rosewood = "Mi sobrino va a vivir. Mijo, la bencinera es tuya. Bueno, casi. Toma.",
+    rosewood = "Mi sobrino va a vivir. Mijo, la gasolinera es tuya. Bueno, casi. Toma.",
 }
 
 Narrador.CuraMuerte = {

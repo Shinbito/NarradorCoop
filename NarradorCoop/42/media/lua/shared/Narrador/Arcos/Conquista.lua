@@ -146,12 +146,12 @@ local CIUDADES = {
         diario = "La iglesia de Riverside es de la banda. El Padre Nacho no se fue. Se quedo en la puerta, como dijo. La puerta ahora esta cerrada.",
     },
     rosewood = {
-        titulo = "la bencinera de la Misia Rosa",
+        titulo = "la gasolinera de la Misia Rosa",
         defensores = { { "camionero1", "k93_truckstop_01" }, { "camionero2", "k93_truckstop_03" }, { "camionero3", "k93_truckstop_09" } },
-        llegada = J("Pereira mira la bencinera. 'La vieja tiene bencina escondida. Todos lo saben menos ella.'",
+        llegada = J("Pereira mira la gasolinera. 'La vieja tiene gasolina escondida. Todos lo saben menos ella.'",
                     "Meulen mira la bencinera. 'Bencina escondida y cigarros, peni. El paraiso.'"),
         ultimas = "Mijito... se apago la luz. Ya no tengo miedo. Que raro, no? Ya no tengo miedo.",
-        diario = "La bencinera de Rosewood es de la banda. La Misia Rosa murio con la luz apagada. Dijo que ya no tenia miedo. Yo si.",
+        diario = "La gasolinera de Rosewood es de la banda. La Misia Rosa murio con la luz apagada. Dijo que ya no tenia miedo. Yo si.",
     },
 }
 

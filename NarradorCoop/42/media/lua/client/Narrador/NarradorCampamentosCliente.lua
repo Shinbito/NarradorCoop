@@ -28,7 +28,7 @@ function KC.miConfianza(estado, contactoId)
     return tonumber(r ~= nil and r.nivel or 1) or 1
 end
 
--- Con fama de El destripador o peor no te venden.
+-- Con fama de El carnicero de Knox o peor no te venden.
 function KC.despreciado(estado)
     local C = Narrador.Cliente
     local grupo = C ~= nil and C.miGrupo() or nil

@@ -31,8 +31,8 @@ CD.PERSONAJES = {
       homenaje = "El Padre Nacho murio en su iglesia, con la puerta abierta. Siempre decia que la puerta no se cierra. No la voy a cerrar.",
       lamento = "El Padre Nacho murio por lo que yo hice. Me abrio la puerta de su iglesia cuando nadie me la abria. Yo le traje a los que se la cerraron para siempre. En que me converti." },
     { clave = "misia_rosa", nombre = "Misia Rosa Bencina", contacto = "rosa",
-      homenaje = "Se apago la luz de la bencinera de Rosewood. La Misia Rosa la tuvo prendida treinta anos. Lleno o normal, me preguntaba. Normal, Misia. Normal.",
-      lamento = "La Misia Rosa murio en su bencinera y la luz se apago por mi culpa. Treinta anos prendida, y yo la apague. En que me converti." },
+      homenaje = "Se apago la luz de la gasolinera de Rosewood. La Misia Rosa la tuvo prendida treinta anos. Lleno o normal, me preguntaba. Normal, Misia. Normal.",
+      lamento = "La Misia Rosa murio en su gasolinera y la luz se apago por mi culpa. Treinta anos prendida, y yo la apague. En que me converti." },
     -- Los Bell
     { clave = "daniel_bell", nombre = "Daniel Bell", def = "familia_infectada", rol = "padre",
       homenaje = "Daniel Bell golpeo mi puerta pidiendo techo unos dias. Cuido a su familia hasta el final. Eso es lo que voy a recordar de el.",

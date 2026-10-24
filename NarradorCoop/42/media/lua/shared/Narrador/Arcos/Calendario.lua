@@ -92,7 +92,7 @@ Narrador.GustosSous = {
     david = { nombre = "un libro o una revista", tipos = { "Base.Book", "Base.Magazine", "Base.ComicBook", "Base.Notebook" },
         gracias = "Gracias. Lo voy a leer dos veces y despues lo voy a anotar en el cuaderno." },
     bastian = { nombre = "ropa de marca o lentes de sol", tipos = { "Base.Glasses_Sun", "Base.Glasses_Aviators", "Base.Jacket_LeatherBlack", "Base.Jacket_Leather", "Base.Shoes_TrainerTINT" },
-        gracias = "Oe, loco! Esto tiene estilo, po. Sabias perfecto." },
+        gracias = "Oye, loco! Esto tiene estilo. Sabias perfecto." },
     hanz = { nombre = "un formon o madera", tipos = { "Base.Chisel", "Base.HuntingKnife", "Base.Plank", "Base.Log", "Base.TreeBranch" },
         gracias = "Broder! Con esto te tallo algo a ti tambien, vale. Ya veras." },
     cristian = { nombre = "ropa de abrigo", tipos = { "Base.Jacket_Padded", "Base.Hat_WinterHat", "Base.Scarf_White", "Base.Gloves_WoolyGloves", "Base.Jumper_RoundNeck" },
@@ -100,7 +100,7 @@ Narrador.GustosSous = {
     jorge = { nombre = "una libreta o una calculadora", tipos = { "Base.Notebook", "Base.Calculator", "Base.Notepad", "Base.Pencil", "Base.Pen" },
         gracias = "Manito, justo lo que necesitaba. Ahora el inventario queda impecable, broder." },
     cristobal = { nombre = "algo electronico", tipos = { "Base.ElectronicsScrap", "Base.Radio", "Base.WalkieTalkie2", "Base.RemoteCraftedV1", "Base.Battery", "Base.Earbuds" },
-        gracias = "Hermanito! Con esto armo algo, wn. Te quiero, sangre." },
+        gracias = "Hermanito! Con esto armo algo, loco. Te quiero, sangre." },
 }
 
 registrar({
@@ -186,7 +186,7 @@ Narrador.Conversas.varias({
       } },
     { id = "corte_luz", forzada = true, tipo = "reaccion",
       turnos = {
-          { "cristobal", "Wn. Se corto la luz. De todo el condado, hermanito." },
+          { "cristobal", "Loco. Se corto la luz. De todo el condado, hermanito." },
           { "bastian", "Oe, y ahora como cargamos las cosas, loco?" },
           { "cristobal", "Generador y gasolina, sangre. Hay que conseguir los dos. Yo lo armo." },
           { "martin_a", "Lista nueva. Uno, generador. Dos, gasolina. Tres, nadie llora por el refri." },

@@ -20,9 +20,11 @@ end
 -- Acciones de una complicacion al llegar al sitio (segun var "comp").
 local function complicaciones(lugar)
     return {
-        { "oleada", lugar = lugar, radio = 60, cantidad = "var:zombis_comp", min = 25, max = 40, retraso = 0.4,
-          si = { "var", "comp", "horda" } },
-        { "aviso", texto = "Se escucha una horda acercandose a {lugar:" .. lugar .. "}.", si = { "var", "comp", "horda" }, retraso = 0.4 },
+        -- Horda: al tiro, alrededor del lugar pero fuera de la vista, corriendo hacia el jugador.
+        -- (Antes llegaba con retraso y solo si seguias cerca: si te ibas, nunca aparecia.)
+        { "oleada", lugar = lugar, radio = 60, cantidad = "var:zombis_comp", min = 25, max = 40,
+          correr = true, al_jugador = true, si = { "var", "comp", "horda" } },
+        { "aviso", texto = "Se escucha una horda acercandose a {lugar:" .. lugar .. "}. Vienen corriendo.", si = { "var", "comp", "horda" } },
         { "bandidos", id = "de_paso", lugar = lugar, radio = 70, modo = "hunt", cantidad = { 2, 3 }, retraso = 0.2,
           si = { "var", "comp", "bandidos" } },
         { "bandidos", id = "competencia", lugar = lugar, radio = 60, modo = "guard", cantidad = { 2, 4 },
@@ -70,7 +72,7 @@ local function finales(extra)
         } },
         final_abandonado = { final = true, al_entrar = {
             { "cerrar_gen", resultado = "abandonado" },
-            { "diario", texto = "Deje botado el encargo de {contacto_nombre}. Lo anoto en su libreta, seguro." },
+            { "diario", texto = "Abandone el encargo de {contacto_nombre}. Lo anoto en su libreta, seguro." },
         } },
     }
     for k, v in pairs(extra or {}) do f[k] = v end
@@ -105,7 +107,7 @@ end
 -- Opcion de entregar en el misionero (con bonus de noche si corresponde).
 local function entregarAlMisionero(requiere, texto)
     return {
-        pista = "Volver donde {contacto_nombre} en {lugar:contacto}.",
+        pista = "Volver con {contacto_nombre} en {lugar:contacto}.",
         ancla = "contacto",
         opciones = {
             { id = "entregar", texto = texto or "Entregarle el encargo a {contacto_nombre}", requiere = requiere,
@@ -138,7 +140,7 @@ local function buscar(id, titulo)
               nombres = "var:nombres_ocupantes", si = { "var", "giro", "ocupada" } },
             { "aviso", texto = "Hay una familia viviendo en {lugar:objetivo}. Te miran con miedo.", si = { "var", "giro", "ocupada" } },
             { "nota", lugar = "objetivo", radio = 50, titulo = "Nota detras de la foto",
-              texto = "Para la Peggy, con carino. Verano del 89.", si = { "var", "giro", "otra_duena" } },
+              texto = "Para Peggy, con carino. Verano del 89.", si = { "var", "giro", "otra_duena" } },
         }),
         opciones = {
             { id = "permiso", texto = "Pedirles permiso para buscar (darles comida)", requiere = { "comida" }, una_vez = true,
@@ -146,7 +148,7 @@ local function buscar(id, titulo)
               dice = { rol = "ocupante", texto = "Busca lo que quieras. Gracias por la comida. De verdad." },
               acciones = { { "variable", nombre = "trato", valor = "bueno" }, { "huella", acto = "compartiste" } } },
             { id = "mala", texto = "Buscar igual, sin preguntar", una_vez = true, si = { "var", "giro", "ocupada" },
-              dice = { rol = "ocupante2", texto = "Llevate lo que quieras y andate. Por favor." },
+              dice = { rol = "ocupante2", texto = "Llevate lo que quieras y vete. Por favor." },
               acciones = { { "variable", nombre = "trato", valor = "malo" }, { "huella", acto = "intimidaste" } } },
             { id = "dejar", texto = "Dejarlos tranquilos e irte", una_vez = true, si = { "var", "giro", "ocupada" },
               acciones = { { "huella", acto = "perdonaste" } } },
@@ -277,7 +279,7 @@ do
     }
     etapas.rescatado = {
         al_entrar = {
-            { "decir", grupo = "rehen", rol = "rehen", texto = "Voy donde {contacto_nombre}. Avisale que estoy bien.",
+            { "decir", grupo = "rehen", rol = "rehen", texto = "Voy con {contacto_nombre}. Avisale que estoy bien.",
               si = { "no", { "eleccion", "dejar" } } },
             { "retirar_lejos", grupo = "rehen", lugar = "objetivo", radio = 50, retraso = 0.5 },
         },
@@ -311,7 +313,7 @@ do
             -- Convertido: su zombi y su carnet.
             { "zombi_en", lugar = "objetivo", radio = 50, si = { "var", "giro", "convertido" } },
             { "objeto", id = "carnet", lugar = "objetivo", radio = 50, tipo = { "Base.IDcard", "Base.Wallet", "Base.Notebook" },
-              nombre = "Carnet de {buscado}", si = { "var", "giro", "convertido" } },
+              nombre = "Identificacion de {buscado}", si = { "var", "giro", "convertido" } },
             -- Se fue: deja una nota con su nuevo paradero.
             { "lugar", id = "segundo", desde = "objetivo", salas = { "livingroom", "kitchen", "motelroom", "church" },
               min = 150, max = 500, si = { "var", "giro", "se_fue" } },
@@ -348,14 +350,14 @@ do
     }
     etapas.volver = entregarAlMisionero(nil, "Contarle a {contacto_nombre} que {buscado} esta vivo")
     etapas.volver_triste = {
-        pista = "Volver donde {contacto_nombre} con el carnet de {buscado}.",
+        pista = "Volver con {contacto_nombre} con la identificacion de {buscado}.",
         ancla = "contacto",
         opciones = {
-            { id = "verdad", texto = "Contarle la verdad y darle el carnet", requiere = { "objeto", "carnet" }, falta = "No llevas el carnet.",
+            { id = "verdad", texto = "Contarle la verdad y darle la identificacion", requiere = { "objeto", "carnet" }, falta = "No llevas la identificacion.",
               acciones = { { "huella", acto = "verdad" } } },
             { id = "mentir", texto = "Decirle que no lo encontraste",
               acciones = { { "huella", acto = "mentiste" }, { "variable", nombre = "diario_fin",
-                  valor = "Le dije a {contacto_nombre} que no encontre a {buscado}. Guarde su carnet. Algun dia se lo voy a tener que contar." } } },
+                  valor = "Le dije a {contacto_nombre} que no encontre a {buscado}. Guarde su identificacion. Algun dia se lo voy a tener que contar." } } },
         },
         salidas = plazo({ { cuando = { "o", { "eleccion", "verdad" }, { "eleccion", "mentir" } }, ir = "final_cumplido" } }),
     }

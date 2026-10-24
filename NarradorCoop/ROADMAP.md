@@ -9,6 +9,21 @@ memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias
 memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 
+## El modo historia parte con el refugio (hecho, falta probar en el juego)
+- `Motor.historiaAbierta()` (NarradorMotor.lua): hasta que alguien reclama un refugio (o marca una
+  casa como base en A-Life) `Motor.iniciar` no lanza nada: historias del director, rumores,
+  capitulos pendientes, encargos de misioneros, desbloqueos, encuentros, calendario y el camino
+  del bandido. Abierta una vez, queda abierta (memoria `historia_abierta`).
+- Queda afuera de la compuerta: el aviso cada 24 h que pide reclamar un refugio, amenazas y
+  hordas, el mundo (ocupaciones, campamentos ya armados) y los comandos de admin (`_forzando`).
+  Una definicion con `antes_del_refugio = true` tambien se la salta.
+- Partidas viejas: si ya habia historias (en curso, historial o veces del director) se abre sola
+  (migracion `refugio`). Sandbox "Historia parte con refugio" para apagarlo.
+- El camino del bandido corre en paralelo: no ocupa el cupo de "un encargo a la vez" de los
+  misioneros (`C.encargoDelGrupo` solo mira encargos con `vars.contacto`) ni el `MaxActivos` del
+  director, y no se abandona desde el misionero. Si un capitulo se bota, el patio espera 48 h
+  (`BA.ENFRIAMIENTO`); si era la nota del capitulo 1, vuelve al ir al patio o sola en 7 dias.
+
 ## Pendiente (versión 0.12.4)
 
 ### 1. Probar en el juego (lo más importante)
@@ -49,7 +64,7 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está
 
 ### Los que ya no están (hecho en 0.11.0, falta probar en el juego)
 - Archivos: `shared/Narrador/NarradorCaidosDefs.lua` (quién es importante y qué se escribe) y
-  `server/Narrador/NarradorCaidos.lua`. Diario: Notas -> "Los que ya no están".
+  `server/Narrador/NarradorCaidos.lua`. Diario: Historias -> "Los que ya no están".
 - Cuando muere de verdad un personaje importante (no si se retira o se descarga), sale su nombre
   tachado, la fecha y un homenaje. Si lo mató el jugador, o es un misionero que murió en la
   conquista, va en rojo con un lamento ("en qué me convertí"). Deja también una línea en el
@@ -275,6 +290,12 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está
 - Menos texto: sin las frases bajo los títulos, la introducción del capítulo solo al empezar,
   2 anotaciones viejas por historia (antes 4), 3 historias cerradas (antes 6), 3 rumores
   (antes 6) y 8 entradas en el registro (antes 25). Más aire entre renglones.
+- Libreta reordenada en 8 cintas: Principal, Secundarias, Pedidos (encargos, recados y
+  favores de Sous), Rumores, Knox (nivel, barra, escalera de niveles, qué sube y baja),
+  Historias (capítulos cerrados, lo que ya pasó, lo que hice, los caídos), Contactos
+  (misioneros, campamentos, confianza) y Notas (registro). Arriba de todo, siempre, la barra
+  de Knox (clic para ir a su cinta); parpadea y sale un halo al subir o bajar de nivel.
+  Colores y medidas en `Diario.ESTILO` (client/Narrador/NarradorDiario.lua).
 
 ## Misioneros y campamentos (hecho, falta probar en el juego)
 - Cada misionero empieza bloqueado. Al andar por su pueblo, llega a tu casa (refugio, o donde
@@ -409,16 +430,16 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está
   -5 (las muertes dentro de una misión no cuentan, pueden ser accidentes; los bandidos hostiles
   tampoco); cada misión para los bandidos -15 (`KD.BANDIDOS_MISION`); limpiar un lugar tomado
   por bandidos +15.
-- Positivo: 1 Desconocido (0 a 20), 2 Mensajero (20 a 45), 3 La nueva esperanza (45 a 90),
-  4 El guerrero (90 a 150), 5 El héroe de Knox (150 o más).
-- Negativo, igual: 1 Poco confiable (bajo 0), 2 Rumores negativos (-20), 3 La nube negra
-  (-45), 4 El destripador (-90), 5 El demonio de Knox (-150).
-- Aviso y entrada en el diario al cambiar de nivel; el diario (Notas -> Lo que hice) muestra
-  el título. Admin: Pruebas -> "Reputacion de Knox +30 / -30".
-- Con nivel -4 o peor (El destripador, El demonio de Knox): los misioneros no te dan encargos
+- Positivo: 1 Forastero (0 a 20), 2 Cara conocida (20 a 45), 3 Alguien de palabra (45 a 90),
+  4 Protector de Knox (90 a 150), 5 Leyenda de Knox (150 o más).
+- Negativo, igual: 1 Sospechoso (bajo 0), 2 Mala fama (-20), 3 Ave de mal agüero
+  (-45), 4 El carnicero de Knox (-90), 5 Peor que los muertos (-150).
+- Aviso y entrada en el diario al cambiar de nivel; el diario muestra el nivel siempre arriba
+  (barra de Knox) y tiene su pestaña "Knox". Admin: Pruebas -> "Reputacion de Knox +30 / -30".
+- Con nivel -4 o peor (El carnicero de Knox, Peor que los muertos): los misioneros no te dan encargos
   ni capítulos ("ya no eres bienvenido por el daño que has hecho") y los comerciantes no te
   venden nada. Pesa más Knox que la confianza: aunque el misionero te tenga confianza 5, si tu
-  fama en Knox es de El destripador o peor te sigue despreciando (sin encargos, sin favor
+  fama en Knox es de El carnicero de Knox o peor te sigue despreciando (sin encargos, sin favor
   semanal, sin felicitaciones al subir de rango).
 - Los comerciantes siempre tienen un recado ("Quieres que la gente confíe en ti? Ayúdame con
   esto"): una misión chica que te marca un lugar en un mapa ("ayúdame a buscar los clavos,
@@ -536,7 +557,7 @@ frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
     orden que quieras (al entrar a cada pueblo, +15 de Knox cada una) y al final al jefe del
     patio. En cada ciudad vuelve un misionero nuevo: Valentina Mandados (la hija del Cabo),
     Eduardo (West Point), la Hermana Lucia (la que esperaba al Padre Nacho) y Hector Bencina Jr.
-    (el sobrino de la Misia Rosa). Al final: Knox a 45 ("La nueva esperanza"), confianza maxima
+    (el sobrino de la Misia Rosa). Al final: Knox a 45 ("Alguien de palabra"), confianza maxima
     con todos y memoria `fin` = "reconquista".
 - Las casas de Fallas Lake estan en 7440,7946 (`Narrador.EduardoBase.cerca_de`).
 - PENDIENTE: revisar en el juego el perfil de la Hermana Lucia (`k93_red_cross_08`).
@@ -558,7 +579,14 @@ frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
 - Padre Nacho: 2 El ring de Lexington (reto a puno limpio con el Martillo Duggan) -> 3 La
   muchacha que esperaba (traer a Lucia de una iglesia de otro pueblo).
 - Misia Rosa: 2 La ruta 31 (traer al Gordo Earl y su carga) -> 3 El estanque (defender la
-  bencinera de noche, con la luz apagada por primera vez).
+  bencinera de noche, con la luz apagada por primera vez) -> 4 La carcel de Rosewood (confianza
+  4: limpiar la carcel, dos oleadas grandes con meta de bajas y el patio sin zombis; premio: el
+  arsenal legendario de armas de fuego con nombre, `L.ARMAS_FUEGO` / clase "fuego", y mucha
+  municion; deja `carcel_rosewood` = limpiada). Falta probar las coordenadas de la carcel
+  (`Mundo.CARCEL_ROSEWOOD`, aproximadas: se busca la sala mas cercana en 260 casillas).
+- Las busquedas de lugar excluyen la carcel (`Mundo.ZONAS_EXCLUIDAS` y edificios con salas
+  `prison*`, en `NarradorMundo.lua`); `permitir_carcel = true` para ir a proposito.
+  `min_iguales = n`: el edificio debe tener n salas del tipo buscado (una escuela de verdad).
 - Los capitulos que salen mal tambien cuentan como hechos (memoria = "fallido"), para no trabar
   el campamento.
 - Por escribir: capitulos 4 en adelante.
@@ -568,6 +596,10 @@ frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
   planta_baja = true, meta = "var", meta_frac = 0.8 }`.
 - Acompañantes que te siguen y se suben al auto: `{ "acompanante", grupo, rol }`,
   `{ "soltar_acompanante", grupo, rol }` y la condición `{ "npc_cerca", grupo, lugar, radio }`.
+  Si la salida de la etapa es `npc_cerca` a "contacto" o "misionero" (o la accion trae
+  `destino = "lugar"`), el rescatado "va solo": espera anclado donde esta, cuando no hay nadie
+  cerca aparece junto al misionero y la etapa avanza cuando llega un jugador. `seguir = true`
+  obliga a que te siga.
 - NPC inmune a la zombificación: `{ "inmune", grupo, rol, quien }`; con arma legendaria en la
   mano: `{ "armar_legendario", grupo, rol }`.
 - El edificio de un misionero como lugar: `{ "lugar_contacto", id, contacto }`.

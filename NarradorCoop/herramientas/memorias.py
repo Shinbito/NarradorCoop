@@ -53,6 +53,7 @@ MEMORIAS = {
     "radio_westpoint": "La radio del cuartel de la Chela quedo arreglada (cap. 2): las amenazas se avisan antes y por la radio.",
     "lucia": "Que paso con la Hermana Lucia en el cap. 3 del Padre Nacho (en_riverside o muerta). Si murio, la reemplaza otro.",
     "estanque_rosewood": "El estanque de bencina de la Misia Rosa (cap. 3): defendido (cada 72 horas te deja un bidon lleno) o saqueado (no estabas cuando llegaron).",
+    "carcel_rosewood": "La carcel de Rosewood (Misia Rosa, cap. 4): limpiada, con el arsenal legendario de la armeria.",
     "estanque_ultima": "Hora del ultimo bidon del estanque de la Misia Rosa (NarradorConsecuencias).",
     "hija_cabo": "Valentina: salvada o muerta. Si murio, en la reconquista la reemplaza otro (NUEVO_MURIO).",
     "cura_<contacto>": "Como termino la primera mision de la cura de ese misionero: salvo o murio (cura_rosewood = el sobrino de la Misia Rosa).",
@@ -76,6 +77,9 @@ MEMORIAS = {
     "bandido_aviso_cabo": "Ya se aviso que el cap. 2 espera el campamento del Cabo.",
     "bandido_ultimo_visto": "Ultimo valor de bandido_ultimo que el patio ya te hizo sentir (NarradorBandido BA.consecuenciaUltimo).",
     "bandido_ultimo": "Como termino el ultimo capitulo del bandido (hecho o abandonado).",
+    "bandido_abandono_hora": "Hora en que se boto el ultimo capitulo del bandido (enfriamiento en NarradorBandido BA.revisar).",
+    "historia_abierta": "true desde que alguien reclamo un refugio: abre el modo historia (Motor.historiaAbierta).",
+    "historia_abierta_hora": "Hora en que se abrio el modo historia (solo para mirar).",
     "pereira_desconfia": "Pereira descubrio un sabotaje (castigo): desde ahi cada sabotaje pesa 45% en vez de 30%.",
     "pereira_aviso_desconfia": "Ya se aviso que el jefe del patio te vigila.",
     "julio_vivo": "Dejaste ir a Julio Cardenas en el cap. 1.",
@@ -118,6 +122,7 @@ SIN_LECTOR = {
     "faccion.<id>": "registro del motor",
     "conv.<conv>.quien": "registro",
     "conv.<conv>.hora": "registro",
+    "carcel_rosewood": "registro (para un capitulo futuro de la carcel ya limpia)",
 }
 
 

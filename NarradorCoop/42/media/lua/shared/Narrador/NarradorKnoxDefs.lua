@@ -1,8 +1,9 @@
 -- Narrador Co-op: reputacion global en Knox (datos compartidos por servidor y cliente).
 -- Un solo eje por grupo: sube ayudando gente y cumpliendo, baja haciendo dano.
---   Positivo: 1 Desconocido, 2 Mensajero, 3 La nueva esperanza, 4 El guerrero, 5 El heroe de Knox
---   Negativo: 1 Poco confiable, 2 Rumores negativos, 3 La nube negra, 4 El destripador,
---             5 El demonio de Knox
+--   Positivo: 1 Forastero, 2 Cara conocida, 3 Alguien de palabra, 4 Protector de Knox,
+--             5 Leyenda de Knox
+--   Negativo: 1 Sospechoso, 2 Mala fama, 3 Ave de mal aguero, 4 El carnicero de Knox,
+--             5 Peor que los muertos
 -- El servidor la lleva en server/Narrador/NarradorKnox.lua.
 -- Textos sin tildes a proposito.
 
@@ -13,22 +14,22 @@ Narrador.KnoxDefs = KD
 KD.MIN, KD.MAX = -200, 200
 
 -- Niveles: 1 de 0 a 20, 2 de 20 a 45, 3 de 45 a 90, 4 de 90 a 150 y 5 desde 150. Igual en
--- negativo (cualquier valor bajo 0 ya es "Poco confiable").
+-- negativo (cualquier valor bajo 0 ya es "Sospechoso").
 -- { desde (valor minimo), nivel (-5..5), titulo }. Se usa el ultimo que se cumple.
 KD.POSITIVOS = {
-    { desde = 0, nivel = 1, titulo = "Desconocido" },
-    { desde = 20, nivel = 2, titulo = "Mensajero" },
-    { desde = 45, nivel = 3, titulo = "La nueva esperanza" },
-    { desde = 90, nivel = 4, titulo = "El guerrero" },
-    { desde = 150, nivel = 5, titulo = "El heroe de Knox" },
+    { desde = 0, nivel = 1, titulo = "Forastero" },
+    { desde = 20, nivel = 2, titulo = "Cara conocida" },
+    { desde = 45, nivel = 3, titulo = "Alguien de palabra" },
+    { desde = 90, nivel = 4, titulo = "Protector de Knox" },
+    { desde = 150, nivel = 5, titulo = "Leyenda de Knox" },
 }
 -- { hasta (valor maximo), nivel, titulo }.
 KD.NEGATIVOS = {
-    { hasta = -1, nivel = -1, titulo = "Poco confiable" },
-    { hasta = -20, nivel = -2, titulo = "Rumores negativos" },
-    { hasta = -45, nivel = -3, titulo = "La nube negra" },
-    { hasta = -90, nivel = -4, titulo = "El destripador" },
-    { hasta = -150, nivel = -5, titulo = "El demonio de Knox" },
+    { hasta = -1, nivel = -1, titulo = "Sospechoso" },
+    { hasta = -20, nivel = -2, titulo = "Mala fama" },
+    { hasta = -45, nivel = -3, titulo = "Ave de mal aguero" },
+    { hasta = -90, nivel = -4, titulo = "El carnicero de Knox" },
+    { hasta = -150, nivel = -5, titulo = "Peor que los muertos" },
 }
 
 -- Puntos por cada acto que deja huella (ver H.ACTOS en server/Narrador/NarradorHuellas.lua).
@@ -61,7 +62,7 @@ KD.BANDIDOS = 15
 
 -- Tono de la gente segun el nivel: "odio" (-5..-4, muy mala fama), "desconfianza" (-3..-1),
 -- "aprecio" (2..3),
--- "amor" (4..5). Nivel 1 (Desconocido): nada especial.
+-- "amor" (4..5). Nivel 1 (Forastero): nada especial.
 function KD.tono(nivel)
     nivel = tonumber(nivel) or 1
     if nivel <= KD.DESPRECIO then return "odio" end
@@ -73,15 +74,16 @@ end
 
 -- Lo que se dice al cambiar de nivel.
 KD.AVISOS = {
-    [2] = "Tu nombre empieza a correr de boca en boca. En Knox te dicen: Mensajero.",
-    [3] = "La gente habla de ti con esperanza. En Knox te dicen: La nueva esperanza.",
-    [4] = "Los que salvaste cuentan como peleas. En Knox te dicen: El guerrero.",
-    [5] = "En todo Knox se cuenta lo que hiciste. Te dicen: El heroe de Knox.",
-    [-1] = "Hay gente que ya no te abre la puerta. En Knox te dicen: Poco confiable.",
-    [-2] = "Corren rumores sobre lo que haces. En Knox te dicen: Rumores negativos.",
-    [-3] = "Donde llegas, la gente se esconde. En Knox te dicen: La nube negra.",
-    [-4] = "Las madres asustan a los ninos con tu nombre. En Knox te dicen: El destripador.",
-    [-5] = "Ya no eres una persona para ellos. En Knox te dicen: El demonio de Knox.",
+    [1] = "Lo que hiciste se va olvidando. En Knox vuelves a ser: Forastero.",
+    [2] = "Ya te saludan en los caminos. En Knox te dicen: Cara conocida.",
+    [3] = "Lo que prometes, lo cumples, y eso se sabe. En Knox te dicen: Alguien de palabra.",
+    [4] = "Los que salvaste cuentan tus peleas. En Knox te dicen: Protector de Knox.",
+    [5] = "En todo el condado se cuenta lo que hiciste. Te dicen: Leyenda de Knox.",
+    [-1] = "Hay gente que ya no te abre la puerta. En Knox te dicen: Sospechoso.",
+    [-2] = "Corren historias feas sobre lo que haces. En Knox te dicen: Mala fama.",
+    [-3] = "Donde llegas, la gente se esconde. En Knox te dicen: Ave de mal aguero.",
+    [-4] = "Las madres asustan a los ninos con tu nombre. En Knox te dicen: El carnicero de Knox.",
+    [-5] = "Ya no eres una persona para ellos. En Knox te dicen: Peor que los muertos.",
 }
 
 -- Nivel (-5..5, sin 0) y titulo para un valor.
@@ -95,6 +97,42 @@ function KD.nivel(valor)
     local r = KD.POSITIVOS[1]
     for _, n in ipairs(KD.POSITIVOS) do if valor >= n.desde then r = n end end
     return r.nivel, r.titulo
+end
+
+-- Donde esta un valor dentro de su nivel, para la barra del diario.
+-- Devuelve { valor, nivel, titulo, frac (0..1, avance hacia el nivel de arriba),
+--   mejor = { nivel, titulo, falta } o nil (ya en lo mas alto),
+--   peor = { nivel, titulo, falta } o nil (ya en lo mas bajo) }.
+-- "falta" es cuanto hay que subir (mejor) o bajar (peor) para cambiar de nivel.
+function KD.progreso(valor)
+    valor = tonumber(valor) or 0
+    local nivel, titulo = KD.nivel(valor)
+    local P, N = KD.POSITIVOS, KD.NEGATIVOS
+    local r = { valor = valor, nivel = nivel, titulo = titulo, frac = 1 }
+    if valor >= 0 then
+        local i = 1
+        for k, n in ipairs(P) do if valor >= n.desde then i = k end end
+        local sig = P[i + 1]
+        if sig ~= nil then
+            r.mejor = { nivel = sig.nivel, titulo = sig.titulo, falta = sig.desde - valor }
+            r.frac = (valor - P[i].desde) / math.max(1, sig.desde - P[i].desde)
+        else
+            r.frac = 1
+        end
+        local ant = i > 1 and P[i - 1] or N[1]
+        r.peor = { nivel = ant.nivel, titulo = ant.titulo, falta = valor - P[i].desde + 1 }
+    else
+        local i = 1
+        for k, n in ipairs(N) do if valor <= n.hasta then i = k end end
+        local arriba = i > 1 and N[i - 1] or P[1]
+        r.mejor = { nivel = arriba.nivel, titulo = arriba.titulo, falta = N[i].hasta + 1 - valor }
+        local abajo = N[i + 1]
+        local piso = abajo ~= nil and (abajo.hasta + 1) or KD.MIN
+        r.frac = (valor - piso) / math.max(1, N[i].hasta + 1 - piso)
+        if abajo ~= nil then r.peor = { nivel = abajo.nivel, titulo = abajo.titulo, falta = valor - abajo.hasta } end
+    end
+    r.frac = math.max(0, math.min(1, r.frac))
+    return r
 end
 
 return KD

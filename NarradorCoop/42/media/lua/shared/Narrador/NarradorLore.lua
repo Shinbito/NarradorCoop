@@ -20,15 +20,15 @@ Lore.VACIO = {
     principal = "Las paginas siguen en blanco. Por ahora la unica historia es la de siempre: comer, dormir, no hacer ruido. Algo me dice que eso no va a durar.",
     principal_cerrada = "Lo que tenia que pasar, paso. El resto de este cuaderno es mio.",
     secundaria = "Nadie ha golpeado la puerta pidiendo nada. Todavia. En este condado eso nunca dura mucho.",
-    encargo = "Ningun encargo pendiente. Los misioneros siempre tienen pega, si me acerco a pedirla.",
+    encargo = "Ningun encargo pendiente. Los misioneros siempre tienen trabajo, si me acerco a pedirla.",
 }
 
 -- Texto corto que acompana a cada misionero en la seccion de notas.
 Lore.CONTACTOS = {
     muldraugh = "Ex cabo de policia. Anota todo en una libreta y habla como si yo estuviera detenido. Paga lo que promete.",
-    westpoint = "Bombera voluntaria de toda la vida. Me reta como si fuera mi tia y despues me pasa trabajo. No le discuto.",
+    westpoint = "Bombera voluntaria de toda la vida. Me regana como si fuera mi tia y despues me pasa trabajo. No le discuto.",
     riverside = "Pastor de la iglesia del pueblo. Bendice cada salida y admite que la mitad de sus encargos los inventa.",
-    rosewood = "Atiende una bencinera sin bencina. Dice que nunca cierra. Le debo un par de cigarros.",
+    rosewood = "Atiende una gasolinera sin gasolina. Dice que nunca cierra. Le debo un par de cigarros.",
 }
 
 -- Lo que voy sabiendo de cada misionero: una entrada por nivel de confianza (1 = recien lo
@@ -43,11 +43,11 @@ Lore.PERFILES = {
         "Tiene una hija en Louisville. Le escribe cartas que nunca manda y las guarda al final de la libreta. Me pidio que, si un dia no vuelve de una ronda, se las lleve. Le dije que si. No me dio las gracias: me hizo un saludo militar perfecto, que le temblo un poco.",
     },
     westpoint = {
-        "Bombera voluntaria de toda la vida. Me reta como si fuera mi tia y despues me pasa trabajo. No le discuto.",
-        "Treinta anos en el cuartel de West Point y nunca la dejaron manejar el carro bomba: 'cosa de hombres', le decian. Ahora lo maneja ella, sin licencia y sin frenos. Dice que es lo mejor que le ha pasado en la vida.",
+        "Bombera voluntaria de toda la vida. Me regana como si fuera mi tia y despues me pasa trabajo. No le discuto.",
+        "Treinta anos en el cuartel de West Point y nunca la dejaron manejar el camion de bomberos: 'cosa de hombres', le decian. Ahora lo maneja ella, sin licencia y sin frenos. Dice que es lo mejor que le ha pasado en la vida.",
         "Cocina para todos aunque no haya nada. Cuenta las porciones en voz baja y siempre le falta una: la suya. Cuando le pregunte, me dijo que ya habia comido. No habia comido.",
-        "La primera noche hubo un incendio en la calle Main. Ella entro sola a buscar a una vecina. Salio con la vecina en brazos y la vecina ya estaba mordida. La tuvo que dejar en la vereda. Desde ese dia no apaga ningun fuego: dice que el fuego, por lo menos, avisa.",
-        "Tuvo un hijo, Eduardo. Se fue a Louisville el 92, peleados, y no se hablaban. Ella le guarda una frazada doblada en el cuartel, por si vuelve. A mi me dice mijo porque asi le decia a el. Me lo conto llorando y despues me reto por mirarla.",
+        "La primera noche hubo un incendio en la calle Main. Ella entro sola a buscar a una vecina. Salio con la vecina en brazos y la vecina ya estaba mordida. La tuvo que dejar en la acera. Desde ese dia no apaga ningun fuego: dice que el fuego, por lo menos, avisa.",
+        "Tuvo un hijo, Eduardo. Se fue a Louisville el 92, peleados, y no se hablaban. Ella le guarda una frazada doblada en el cuartel, por si vuelve. A mi me dice mijo porque asi le decia a el. Me lo conto llorando y despues me regano por mirarla.",
     },
     riverside = {
         "Pastor de la iglesia del pueblo. Bendice cada salida y admite que la mitad de sus encargos los inventa.",
@@ -57,10 +57,10 @@ Lore.PERFILES = {
         "Hace anos se fue un domingo sin decirle a nadie, y una muchacha que necesitaba ayuda se quedo esperandolo en la iglesia. Nunca supo que paso con ella. Por eso no cierra nunca la puerta y por eso sigue aqui. 'No me voy a ir de nuevo', dice. 'No otra vez.'",
     },
     rosewood = {
-        "Atiende una bencinera sin bencina. Dice que nunca cierra. Le debo un par de cigarros.",
-        "Heredo la bencinera de su marido, Hector, que murio de un infarto en el 88 llenando el estanque de un camion. Ella siguio atendiendo al dia siguiente. 'La bomba no se para', dice. Tiene su foto pegada en la caja registradora.",
-        "Se sabe la vida de todos los camioneros de la ruta 31: quien engana a quien, quien debe plata, quien llora en el bano. Antes era chisme. Ahora es lo unico que queda de ellos, y lo cuenta para que no se pierdan.",
-        "Esconde un estanque de bencina bajo el piso del taller. No es para ella: es para el dia en que haga falta sacar a la gente del pueblo de una vez. Me lo mostro una sola vez y me hizo jurar. Le jure.",
+        "Atiende una gasolinera sin gasolina. Dice que nunca cierra. Le debo un par de cigarros.",
+        "Heredo la gasolinera de su marido, Hector, que murio de un infarto en el 88 llenando el tanque de un camion. Ella siguio atendiendo al dia siguiente. 'La bomba no se para', dice. Tiene su foto pegada en la caja registradora.",
+        "Se sabe la vida de todos los camioneros de la ruta 31: quien engana a quien, quien debe dinero, quien llora en el bano. Antes era chisme. Ahora es lo unico que queda de ellos, y lo cuenta para que no se pierdan.",
+        "Esconde un tanque de gasolina bajo el piso del taller. No es para ella: es para el dia en que haga falta sacar a la gente del pueblo de una vez. Me lo mostro una sola vez y me hizo jurar. Le jure.",
         "Tiene miedo. Siempre tuvo. De la oscuridad, de los asaltos, de quedarse sola. Por eso nunca cerro de noche: con la luz prendida y alguien al otro lado del mostrador, el miedo se le olvida. 'Tu eres mi luz prendida ahora, mijito', me dijo. Y se rio para que no se notara.",
     },
 }
@@ -191,7 +191,7 @@ Lore.arcos.sous = {
 Lore.arcos.sous_guerra = {
     intro = "Sous ya no me abre la puerta. Ahora me busca.",
     etapas = {
-        represalia = "Silbidos que no son de pajaros. Pasos que se detienen cuando yo me detengo. Sous mando a los suyos a cazarme. Conozco sus voces, y eso lo hace peor.",
+        represalia = "Silbidos que no son de aves. Pasos que se detienen cuando yo me detengo. Sous mando a los suyos a cazarme. Conozco sus voces, y eso lo hace peor.",
         asalto = "Lo que queda de Sous se encerro en {lugar:base_sous}. No van a dejar de buscarme mientras sigan vivos. Tengo que ir yo. Tengo que terminar esto.",
     },
     finales = {

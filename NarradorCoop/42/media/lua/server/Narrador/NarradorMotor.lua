@@ -104,6 +104,14 @@ function Motor.migrar(st)
         Motor.migrarEduardo(st, vistos)
         st.migraciones.eduardo = true
     end
+    -- 0.12: el modo historia parte al reclamar un refugio (Motor.historiaAbierta). Las partidas
+    -- que ya tenian historias (en curso o terminadas) quedan abiertas, sin aviso.
+    if not st.migraciones.refugio then
+        st.migraciones.refugio = true
+        if #st.orden > 0 or not Motor.vacia(st.historial) or not Motor.vacia(st.director.veces) then
+            st.memoria.historia_abierta = true
+        end
+    end
 end
 
 function Motor.reiniciar()
@@ -790,9 +798,64 @@ function Motor.escala()
     return math.floor(e * 100 + 0.5) / 100
 end
 
+-- ---------------------------------------------------------------------------
+-- Compuerta del modo historia: nada parte hasta que alguien reclama un refugio
+-- ---------------------------------------------------------------------------
+-- Antes de que algun jugador tenga refugio (un refugio reclamado del juego o una casa marcada
+-- como base en A-Life) Motor.iniciar no lanza ninguna historia: ni capitulos, ni encargos de
+-- misioneros, ni desbloqueos, ni encuentros, ni el camino del bandido. El director tampoco
+-- siembra rumores. Lo que queda afuera: el aviso que pide reclamar un refugio, las amenazas y
+-- hordas, el mundo (ocupaciones, campamentos ya armados) y los comandos de admin.
+-- Una vez abierta queda abierta (memoria "historia_abierta"), aunque se pierda el refugio.
+-- Partidas de antes: si ya habia historias en curso o terminadas, se abre sola sin aviso
+-- (migracion "refugio" en Motor.migrar).
+-- Una definicion con antes_del_refugio = true se salta la compuerta.
+-- Sandbox "HistoriaConRefugio" = false la apaga.
+Motor.SIN_REFUGIO = "la historia empieza cuando reclamas un refugio (o marcas una casa como base en A-Life)"
+Motor.AVISO_REFUGIO_CADA = 24
+
+function Motor.historiaAbierta()
+    if Mundo.sandbox("HistoriaConRefugio", true) == false then return true end
+    local st = Motor.estado()
+    if st.memoria.historia_abierta == true then return true end
+    local quien = Mundo.jugadorConRefugio()
+    if quien == nil then return false end
+    st.memoria.historia_abierta = true
+    st.memoria.historia_abierta_hora = floor(Mundo.horas())
+    local texto = "Ya tengo refugio. Desde aqui empieza todo: la radio, los misioneros, los rumores."
+    st.diario[#st.diario + 1] = { h = floor(Mundo.horas()), t = texto, arco = "El refugio" }
+    while #st.diario > Motor.MAX_DIARIO_GLOBAL do table.remove(st.diario, 1) end
+    Motor.enviar(nil, "diario", { texto = texto, arco = "El refugio" })
+    for _, p in ipairs(Mundo.jugadores()) do
+        Motor.enviar(p, "aviso", { texto = "Tienes refugio. Knox empieza a moverse: atento a la radio, a los misioneros y a lo que se dice por ahi." })
+    end
+    Mundo.log("modo historia abierto (refugio de " .. tostring(Mundo.nombreJugador(quien)) .. ")")
+    return true
+end
+
+-- Cada 10 minutos, mientras la historia no parte: a cada jugador sin refugio le recuerda (una
+-- vez al conectarse y despues cada Motor.AVISO_REFUGIO_CADA horas) que reclame uno.
+Motor._avisoRefugio = Motor._avisoRefugio or {}
+function Motor.revisarRefugio()
+    if Motor.minutosDesdeArranque % 10 ~= 0 then return end
+    if Mundo.sandbox("Activado", true) == false or Motor.historiaAbierta() then return end
+    local ahora = Mundo.horas()
+    for _, p in ipairs(Mundo.jugadores()) do
+        local nombre = Mundo.nombreJugador(p)
+        local antes = Motor._avisoRefugio[nombre]
+        if Mundo.vivo(p) and (antes == nil or ahora - antes >= Motor.AVISO_REFUGIO_CADA) then
+            Motor._avisoRefugio[nombre] = ahora
+            Motor.enviar(p, "aviso", { texto = "Todavia no tienes donde caerte muerto. Reclama una casa como refugio (o marcala como base en A-Life): desde ahi empieza la historia." })
+        end
+    end
+end
+
 function Motor.iniciar(defId, jugadorRef, extra)
     local def = Defs.get(defId)
     if def == nil then return nil, "no existe el arco " .. tostring(defId) end
+    if not Motor._forzando and def.antes_del_refugio ~= true and not Motor.historiaAbierta() then
+        return nil, Motor.SIN_REFUGIO
+    end
     if def.requiere_alife and not Mundo.hayALife() then return nil, "este arco necesita Project A-Life" end
     local ref = jugadorRef or Mundo.jugadorAlAzar()
     if def.requiere_refugio then
@@ -825,7 +888,9 @@ function Motor.iniciar(defId, jugadorRef, extra)
         Motor.publicar()
         return nil, razon
     end
-    st.director.ultimoInicio = ahora
+    -- Solo las historias del director corren su reloj: encuentros, encargos, desbloqueos y
+    -- capitulos (automatico = false) no atrasan la proxima historia (por ejemplo, los Bell).
+    if def.automatico ~= false then st.director.ultimoInicio = ahora end
     for _, f in ipairs(Motor.alIniciar) do pcall(f, inst, def) end
     st.director.veces[defId] = (st.director.veces[defId] or 0) + 1
     st.director.ultimoPorDef[defId] = ahora
@@ -1056,6 +1121,7 @@ end
 
 -- Otros modulos agregan aca lo que tiene que correr cada minuto: Motor.tickExtra[nombre] = f
 Motor.tickExtra = Motor.tickExtra or {}
+Motor.tickExtra.refugio = Motor.revisarRefugio
 
 function Motor.tick()
     Motor.minutosDesdeArranque = Motor.minutosDesdeArranque + 1
@@ -1123,7 +1189,10 @@ function Motor.alComando(modulo, comando, jugador, args)
     if comando == "iniciar" then
         local def = Defs.get(tostring(args.def))
         if def ~= nil and def.generado ~= nil and Motor.comandosAdmin.encargoGenerado ~= nil then
+            -- Los comandos de admin se saltan la compuerta del refugio (para probar).
+            Motor._forzando = true
             local ok, r = pcall(Motor.comandosAdmin.encargoGenerado, jugador, { tipo = def.generado, nivel = args.nivel or "medio" })
+            Motor._forzando = false
             Motor.responder(jugador, ok and tostring(r) or ("Error: " .. tostring(r)))
             return
         end
@@ -1136,7 +1205,10 @@ function Motor.alComando(modulo, comando, jugador, args)
                 return
             end
         end
-        local inst, razon = Motor.iniciar(args.def, jugador, extra)
+        Motor._forzando = true
+        local okI, inst, razon = pcall(Motor.iniciar, args.def, jugador, extra)
+        Motor._forzando = false
+        if not okI then inst, razon = nil, inst end
         Motor.responder(jugador, inst ~= nil and ("Iniciado: " .. inst.id) or ("No se pudo: " .. tostring(razon)))
     elseif comando == "forzarEtapa" then
         local ok, razon = Motor.forzarEtapa(args.arco, args.etapa)
@@ -1151,7 +1223,10 @@ function Motor.alComando(modulo, comando, jugador, args)
         Motor.responder(jugador, "Narrador reiniciado.")
     elseif comando == "eventoAhora" then
         local Director = Narrador.Director
-        local inst = Director ~= nil and Director.lanzar(true) or nil
+        Motor._forzando = true
+        local okL, inst = pcall(function() return Director ~= nil and Director.lanzar(true) or nil end)
+        Motor._forzando = false
+        if not okL then inst = nil end
         Motor.responder(jugador, inst ~= nil and ("Iniciado: " .. inst.id) or "No habia ningun evento disponible.")
     elseif comando == "info" then
         Motor.responder(jugador, Motor.infoAdmin(args.arco))

@@ -25,6 +25,31 @@ L.ARMAS = {
     { tipo = { "Base.Crowbar" } },
 }
 
+-- Armas de fuego legendarias con nombre propio: el arsenal de la carcel de Rosewood (Misia
+-- Rosa, cap. 4). L.crear("fuego") las crea todas (o "cantidad" de ellas, al azar), cada una con
+-- su cargador y varias cajas de municion. Son armas del juego marcadas como legendarias, con el
+-- nombre guardado en la memoria del objeto (no necesitan script ni traduccion propia).
+L.ARMAS_FUEGO = {
+    { nombre = "El Fusil del Alcaide", tipo = { "Base.AssaultRifle", "Base.AssaultRifle2" },
+      cargador = { "Base.556Clip", "Base.M14Clip" },
+      municion = { { "Base.556Box", "Base.556Bullets" }, { "Base.556Box", "Base.556Bullets" }, { "Base.556Box", "Base.556Bullets" } } },
+    { nombre = "La Escopeta de la Torre Norte", tipo = { "Base.Shotgun" },
+      municion = { { "Base.ShotgunShellsBox", "Base.ShotgunShells" }, { "Base.ShotgunShellsBox", "Base.ShotgunShells" }, { "Base.ShotgunShellsBox", "Base.ShotgunShells" } } },
+    { nombre = "La Recortada del Motin", tipo = { "Base.ShotgunSawnoff", "Base.DoubleBarrelShotgunSawnoff", "Base.Shotgun" },
+      municion = { { "Base.ShotgunShellsBox", "Base.ShotgunShells" }, { "Base.ShotgunShellsBox", "Base.ShotgunShells" } } },
+    { nombre = "El Rifle de la Garita", tipo = { "Base.HuntingRifle", "Base.VarmintRifle" },
+      cargador = { "Base.308Clip", "Base.223Clip" },
+      municion = { { "Base.308Box", "Base.308Bullets" }, { "Base.308Box", "Base.308Bullets" }, { "Base.308Box", "Base.308Bullets" } } },
+    { nombre = "La Pistola del Jefe de Guardia", tipo = { "Base.Pistol", "Base.Pistol2" },
+      cargador = { "Base.9mmClip" },
+      municion = { { "Base.Bullets9mmBox", "Base.Bullets9mm" }, { "Base.Bullets9mmBox", "Base.Bullets9mm" }, { "Base.Bullets9mmBox", "Base.Bullets9mm" } } },
+    { nombre = "El Magnum del Pabellon C", tipo = { "Base.Revolver_Long", "Base.Revolver" },
+      municion = { { "Base.Bullets44Box", "Base.Bullets44" }, { "Base.Bullets44Box", "Base.Bullets44" } } },
+    { nombre = "La 45 del Alcaide", tipo = { "Base.Pistol2", "Base.Pistol" },
+      cargador = { "Base.45Clip", "Base.9mmClip" },
+      municion = { { "Base.Bullets45Box", "Base.Bullets45" }, { "Base.Bullets45Box", "Base.Bullets45" } } },
+}
+
 L.TRAJE = {
     { "Base.Vest_BulletArmy", "Base.Vest_BulletPolice" },
     { "Base.Hat_CrashHelmet_Police", "Base.Hat_RiotHelmet", "Base.Hat_Army" },
@@ -117,9 +142,41 @@ function L.marcar(item, nivelId)
     L.aplicar(item)
 end
 
--- Crea los objetos de una recompensa. clase: "arma" o "traje". Devuelve una lista de items.
-function L.crear(clase, nivelId)
+-- Crea los objetos de una recompensa. clase: "arma", "traje" o "fuego" (el arsenal de
+-- L.ARMAS_FUEGO; cantidad = cuantas, todas si no se dice). Devuelve una lista de items.
+function L.crear(clase, nivelId, cantidad)
     local items = {}
+    if clase == "fuego" then
+        local orden = {}
+        for i = 1, #L.ARMAS_FUEGO do orden[i] = L.ARMAS_FUEGO[i] end
+        for i = #orden, 2, -1 do
+            local j = azar(i)
+            orden[i], orden[j] = orden[j], orden[i]
+        end
+        local n = math.min(#orden, tonumber(cantidad) or #orden)
+        for i = 1, n do
+            local arma = orden[i]
+            local item = crearItem(arma.tipo)
+            if item ~= nil then
+                L.marcar(item, nivelId)
+                local md = llamar(item, "getModData")
+                if type(md) == "table" and type(md.NarradorLegendario) == "table" and arma.nombre ~= nil then
+                    md.NarradorLegendario.nombre = arma.nombre .. " [" .. (L.NIVELES[nivelId] or L.NIVELES.legendaria).etiqueta .. "]"
+                    L.aplicar(item)
+                end
+                items[#items + 1] = item
+                if arma.cargador ~= nil then
+                    local c = crearItem(arma.cargador)
+                    if c ~= nil then items[#items + 1] = c end
+                end
+                for _, tipos in ipairs(arma.municion or {}) do
+                    local bala = crearItem(tipos)
+                    if bala ~= nil then items[#items + 1] = bala end
+                end
+            end
+        end
+        return items
+    end
     if clase == "traje" then
         for _, tipos in ipairs(L.TRAJE) do
             local item = crearItem(tipos)

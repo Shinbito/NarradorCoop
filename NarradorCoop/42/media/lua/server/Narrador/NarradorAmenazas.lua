@@ -30,7 +30,7 @@ A.EXTRA_RADIO = 0.25      -- con la radio del cuartel de la Chela arreglada, el 
 A.TIPOS = {
     horda = { peso = 10, avisos = {
         "Se escucha un murmullo {dir}. Cientos de pies arrastrandose. Viene una horda.",
-        "Los pajaros arrancan {dir}. Algo grande viene caminando para aca." } },
+        "Las aves huyen {dir}. Algo grande viene caminando para aca." } },
     bandidos = { peso = 6, dia_min = 4, avisos = {
         "Se ven siluetas armadas {dir}. No son muertos. Vienen por ustedes.",
         "Alguien grita ordenes {dir}. Un grupo armado se acerca." } },
@@ -173,25 +173,28 @@ function A.lanzar(pend)
     if #grupo == 0 then return true end
     local x, y = centro(grupo)
     local _, _, z = Mundo.posicion(grupo[1])
-    -- Llegan desde la direccion del aviso.
+    -- Llegan desde la direccion del aviso: aparecen en un anillo a 25-40 casillas de los
+    -- jugadores (cerca pero fuera de la vista) y caminan directo hacia ellos. Antes aparecian
+    -- alrededor de un punto a 35 casillas y caminaban hacia ESE punto, asi que nunca llegaban.
+    if Mundo.cargado(x, y, 0) == nil then return false end
     local d = 35
     local ox, oy = floor(x + math.cos(pend.ang) * d), floor(y + math.sin(pend.ang) * d)
-    if Mundo.cargado(ox, oy, 0) == nil then return false end
+    local hacia = { destino = { x = x, y = y, z = z or 0 }, angulo = pend.ang, ruido = true }
     local puntos = pend.puntos
     local resumen
     if pend.tipo == "horda" then
         local n = floor(puntos * 1.6 + 0.5)
-        Mundo.oleada(ox, oy, 0, n, 4, 16)
+        Mundo.oleada(x, y, 0, n, 25, 40, hacia)
         resumen = n .. " muertos"
     elseif pend.tipo == "corredores" then
         local n = math.max(2, floor(puntos / 2.5 + 0.5))
-        Mundo.corredores(ox, oy, 0, n, 4, 12)
+        Mundo.oleada(x, y, 0, n, 25, 40, { destino = hacia.destino, angulo = pend.ang, ruido = true, correr = true })
         resumen = n .. " corredores"
     elseif pend.tipo == "mixta" then
         local n = floor(puntos * 1.2 + 0.5)
         local c = math.max(2, floor(puntos / 5))
-        Mundo.oleada(ox, oy, 0, n, 4, 16)
-        Mundo.corredores(ox, oy, 0, c, 4, 12)
+        Mundo.oleada(x, y, 0, n, 25, 40, hacia)
+        Mundo.oleada(x, y, 0, c, 25, 40, { destino = hacia.destino, angulo = pend.ang, correr = true })
         resumen = n .. " muertos y " .. c .. " corredores"
     elseif pend.tipo == "bandidos" then
         local n = math.max(1, math.min(8, floor(puntos / 6 + 0.5)))
@@ -202,7 +205,7 @@ function A.lanzar(pend)
             targetUsername = Mundo.nombreJugador(grupo[1]) }
         local ok = Mundo.spawnGrupo(grupo[1], args, nil)
         if not ok then
-            Mundo.oleada(ox, oy, 0, floor(puntos * 1.6), 4, 16)
+            Mundo.oleada(x, y, 0, floor(puntos * 1.6), 25, 40, hacia)
             resumen = "una horda (los bandidos no llegaron)"
         else
             resumen = n .. " bandidos"

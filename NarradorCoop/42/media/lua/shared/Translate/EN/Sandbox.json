@@ -52,5 +52,7 @@
     "Sandbox_Narrador.Ocupaciones": "Occupied places",
     "Sandbox_Narrador.Ocupaciones_tooltip": "If someone takes anything from a police station, gun store, military base, hospital, pharmacy, grocery or mall, a few days later bandits live there (no zombies, burnt cars, bodies and graffiti). Kill them and others arrive 20 days later.",
     "Sandbox_Narrador.DesbloqueoMisioneros": "Unlockable missionaries",
-    "Sandbox_Narrador.DesbloqueoMisioneros_tooltip": "Each missionary shows up after you help them clear their building to set up a camp. If off, they are there from the start."
+    "Sandbox_Narrador.DesbloqueoMisioneros_tooltip": "Each missionary shows up after you help them clear their building to set up a camp. If off, they are there from the start.",
+    "Sandbox_Narrador.HistoriaConRefugio": "Story starts with a safehouse",
+    "Sandbox_Narrador.HistoriaConRefugio_tooltip": "Stories, missionaries, rumors and events start once someone claims a safehouse (or marks a house as base in A-Life). If off, they start right away."
 }

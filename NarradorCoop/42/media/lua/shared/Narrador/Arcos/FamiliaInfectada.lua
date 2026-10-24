@@ -58,11 +58,11 @@ Narrador.Charlas.bell_refugio = {
     { "padre", "Si viene algo grande, nos vamos. No es cobardia, es que ya perdimos bastante." },
     { "padre", "Arregle la reja de atras. No va a aguantar una horda, pero algo es algo." },
     { "madre", "Hay sopa. Poca, pero hay. Come antes de salir." },
-    { "madre", "Cuando nos vamos corriendo, siempre volvemos. Aunque sea con una lata de porotos." },
+    { "madre", "Cuando nos vamos corriendo, siempre volvemos. Aunque sea con una lata de frijoles." },
     { "madre", "Lave tu ropa. Bueno, la que no estaba rota." },
     { "hijo", "Mate a uno con la pala! Bueno, papa me ayudo. Un poco." },
     { "hijo", "Encontre una pila en el auto de la esquina. Funciona!" },
-    { "hijo", "Cuando arrancamos me escondo en la bodega de la bencinera. Nadie me encuentra ahi." },
+    { "hijo", "Cuando huimos me escondo en la bodega de la gasolinera. Nadie me encuentra ahi." },
 }
 
 -- Lo que dicen los Bell que quedan despues del engano. Nunca lo supieron.
@@ -145,7 +145,7 @@ Narrador.Defs.registrar({
                       nadie = "Wade tiene fiebre hace dos dias. Tose, pero come. No lo mordio nada, lo juro.",
                   } } },
                   respuesta = { por_var = "infectado", textos = {
-                      hijo = "Wade tose envuelto en una frazada y no te mira a los ojos.",
+                      hijo = "Wade tose envuelto en una manta y no te mira a los ojos.",
                       madre = "Yvonne se baja la manga sin que nadie se lo pida.",
                       padre = "Daniel suda aunque hace frio, y esconde la mano izquierda en el bolsillo.",
                       nadie = "Wade se encoge de hombros. Parece una gripe comun.",

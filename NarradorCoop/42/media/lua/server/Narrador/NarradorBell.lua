@@ -37,7 +37,7 @@ B.BOTIN = {
     { "Base.TinnedBeans", "Base.CannedBeans" }, { "Base.Bandage" }, { "Base.Pills" },
     { "Base.ShotgunShells" }, { "Base.NailsBox", "Base.Nails" }, { "Base.Disinfectant", "Base.AlcoholBandage" },
 }
-B.AVISO_HUYEN = "Los Bell vieron venir el peligro y arrancaron del refugio. Daniel dejo dicho que vuelven cuando se calme."
+B.AVISO_HUYEN = "Los Bell vieron venir el peligro y huyeron del refugio. Daniel dejo dicho que vuelven cuando se calme."
 B.AVISO_VUELVEN = "Los Bell volvieron al refugio. Trajeron algo que encontraron en el camino."
 
 -- Finales de los Bell en que se quedan en el refugio, y quienes quedan en partidas de antes
