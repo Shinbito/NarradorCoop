@@ -9,6 +9,14 @@ memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias
 memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 
+## Diario de Meulen con modelo nuevo (0.13.2, falta mirarlo en el juego)
+- El script pedia `Narrador/DiarioMeulen` pero los archivos se llamaban `DiarioMaulen` (nombre
+  viejo): el servidor avisaba `no such mesh`. Ahora todo dice Meulen (modelo, textura e icono);
+  el id `Narrador.DiarioMeulen` no cambia.
+- Modelo nuevo: libreta de cuero cafe claro con lomo, esquinas y costuras cafe oscuro, hojas crema
+  por el canto y cierre a presion (correa que da la vuelta por el canto hasta un broche metalico).
+  Se genera con `python3 NarradorCoop/herramientas/modelo_diario_meulen.py [carpeta_vistas]`.
+
 ## Encargos dificiles = saqueo (hecho, falta probar en el juego)
 - Pedido: las dificiles eran las faciles agrandadas (postas de 3 pueblos, 6 h de defensa, 14
   objetos) y quedaban fomes y largas. Ahora `G.elegirTipo` devuelve siempre "saqueo" en dificil.
