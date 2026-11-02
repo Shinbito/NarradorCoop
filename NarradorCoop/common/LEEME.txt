@@ -215,6 +215,9 @@ Novedades 0.11.0:
   Pruitt y los Ortiz, que se quedan de guardias en la comisaria), la calle Main (Tia Chela: la
   vecina que dejo en la vereda la primera noche y su hija Doris) y las campanas de Riverside
   (Padre Nacho: una misa de verdad, defendiendo la iglesia mientras llegan los feligreses).
+- Capitulo 5 de la Misia Rosa: el primer camion. Una marea baja por la ruta 31 y hay que juntar
+  a dos familias en la gasolinera; lo que pasa depende de si defendiste el tanque y de si
+  limpiaste la carcel.
 - La cura: entre 1 y 4 pastillas K-93 verdaderas, siempre al menos una.
 - Diario: entradas para las misiones que no tenian texto (la cura, las fechas de Sous, los
   encuentros, los favores, los desbloqueos y los capitulos).

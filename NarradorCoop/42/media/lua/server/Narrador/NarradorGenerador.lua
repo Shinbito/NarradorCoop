@@ -812,6 +812,11 @@ G.ESPECIALES = {
       titulo = "La carcel de Rosewood",
       resumen = { "Historia de la Misia Rosa, cap. 4", "Para: la armeria cerrada del penal",
                   "Donde: la carcel de Rosewood", "Pago: arsenal legendario y municion", "Ojo: es el lugar mas dificil del condado" } },
+    { def = "cap_rosa_5", contacto = "rosewood", capitulo = 5, requiere = "historia_rosewood_4",
+      hecho = "historia_rosewood_5", confianza = 4, pago = "dificil", chance = 1,
+      titulo = "El primer camion",
+      resumen = { "Historia de la Misia Rosa, cap. 5", "Para: sacar a dos familias antes de la marea",
+                  "Donde: dos casas de Rosewood y la gasolinera", "Pago: botin dificil", "Ojo: baja una marea por la ruta 31" } },
     -- Tia Chela, capitulo 3.
     { def = "leyenda_eduardo", contacto = "westpoint", capitulo = 3, requiere = "historia_westpoint_2",
       hecho = "historia_westpoint_3", confianza = 3, pago = "dificil", chance = 1,

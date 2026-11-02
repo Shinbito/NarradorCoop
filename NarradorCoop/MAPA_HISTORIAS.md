@@ -34,6 +34,7 @@ flowchart LR
   cap_rosa_2["La ruta 31"]
   cap_rosa_3["El tanque"]
   cap_rosa_4["La carcel de Rosewood"]
+  cap_rosa_5["El primer camion"]
   conquista_muldraugh["La conquista: la comisaria del Cabo Ramiro"]
   conquista_riverside["La conquista: la iglesia del Padre Nacho"]
   conquista_rosewood["La conquista: la gasolinera de la Misia Rosa"]
@@ -121,6 +122,7 @@ flowchart LR
   cap_nacho_3 -->|final_cumplido, final_muerta: historia_riverside_3| cap_nacho_4
   cap_rosa_2 -->|final_cumplido, final_muerto: historia_rosewood_2| cap_rosa_3
   cap_rosa_3 -->|final_cumplido, final_saqueado: historia_rosewood_3| cap_rosa_4
+  cap_rosa_4 -->|final_abandono, final_cumplido: historia_rosewood_4| cap_rosa_5
   conquista_muldraugh -->|final_conquistado: conquista_muldraugh| conquista_riverside
   conquista_muldraugh -->|final_conquistado: conquista_muldraugh| conquista_rosewood
   conquista_muldraugh -->|final_conquistado: conquista_muldraugh| conquista_westpoint
@@ -377,8 +379,16 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_abandono` | `pasan 96 h` | `historia_rosewood_4` = fallido | - |
-| `final_cumplido` | "Contarle que limpiaste la carcel" | `carcel_rosewood` = limpiada, `historia_rosewood_4` = true | - |
+| `final_abandono` | `pasan 96 h` | `historia_rosewood_4` = fallido | cap_rosa_5 |
+| `final_cumplido` | "Contarle que limpiaste la carcel" | `carcel_rosewood` = limpiada, `historia_rosewood_4` = true | cap_rosa_5 |
+
+### El primer camion (`cap_rosa_5`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_carcel` | `memoria carcel_rosewood = limpiada` | `historia_rosewood_5` = true | - |
+| `final_gasolinera` | `nil` | `historia_rosewood_5` = true | - |
+| `final_perdidos` | `todos_muertos turner y todos_muertos mercer` | `historia_rosewood_5` = fallido | - |
 
 ### La conquista: la comisaria del Cabo Ramiro (`conquista_muldraugh`)
 
@@ -769,6 +779,7 @@ un texto que cambia, una variante o lo que decide un final.
 | La ruta 31 | `cap_rosa_2` | capitulo 2 de rosewood, entre sus ofertas (confianza 2+) | `historia_rosewood_1` | - | - | `historia_rosewood_2` = fallido (final_muerto)<br>`historia_rosewood_2` = true (final_cumplido) |
 | El tanque | `cap_rosa_3` | capitulo 3 de rosewood, entre sus ofertas (confianza 3+) | `historia_rosewood_2` | - | - | `estanque_rosewood` = defendido (final_cumplido)<br>`estanque_rosewood` = saqueado (final_saqueado)<br>`historia_rosewood_3` = fallido (final_saqueado)<br>`historia_rosewood_3` = true (final_cumplido) |
 | La carcel de Rosewood | `cap_rosa_4` | capitulo 4 de rosewood, entre sus ofertas (confianza 4+) | `historia_rosewood_3` | - | - | `carcel_rosewood` = limpiada (final_cumplido)<br>`historia_rosewood_4` = fallido (final_abandono)<br>`historia_rosewood_4` = true (final_cumplido) |
+| El primer camion | `cap_rosa_5` | capitulo 5 de rosewood, entre sus ofertas (confianza 4+) | `historia_rosewood_4` | `carcel_rosewood`, `estanque_rosewood` | - | `historia_rosewood_5` = fallido (final_perdidos)<br>`historia_rosewood_5` = true (final_carcel)<br>`historia_rosewood_5` = true (final_gasolinera) |
 | La conquista: la comisaria del Cabo Ramiro | `conquista_muldraugh` | despues del cap. 5 con el jefe (NarradorBandido) | `bandido = pereira` | `misionero_muerto_muldraugh` | - | `conquista_muldraugh` = true (final_conquistado) |
 | La conquista: la iglesia del Padre Nacho | `conquista_riverside` | al entrar a Riverside (NarradorBandido) | `conquista_muldraugh` | `misionero_muerto_riverside` | - | `conquista_riverside` = true (final_conquistado) |
 | La conquista: la gasolinera de la Misia Rosa | `conquista_rosewood` | al entrar a Rosewood (NarradorBandido) | `conquista_muldraugh` | `misionero_muerto_rosewood` | - | `conquista_rosewood` = true (final_conquistado) |
@@ -854,7 +865,7 @@ un texto que cambia, una variante o lo que decide un final.
 | `caido_<quien>` | Un NPC inmune (Eduardo) cayo: true; 'volvio' cuando reaparece en el cuartel. | eduardo_evento, leyenda_eduardo | eduardo_vuelve | - | escribe: NarradorContactos; lee: NarradorContactos, NarradorEduardoResidente |
 | `cal.fonda` | Como salio la fonda del 18 de septiembre (hecha o sin). | cal_fonda | - | - | escribe: Calendario |
 | `campamento_<id>` | El campamento de ese misionero se fundo (Desbloqueos). Hoy el codigo mira C.desbloqueado(). | desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint | - | asalto_nocturno | escribe: Desbloqueos; lee: EventosCortos |
-| `carcel_rosewood` | La carcel de Rosewood (Misia Rosa, cap. 4): limpiada, con el arsenal legendario de la armeria. | cap_rosa_4 | - | - | escribe: Capitulos |
+| `carcel_rosewood` | La carcel de Rosewood (Misia Rosa, cap. 4): limpiada, con el arsenal legendario de la armeria. En el cap. 5 el camion lleva a las familias a vivir alla. | cap_rosa_4 | - | cap_rosa_5 | escribe: Capitulos; lee: Capitulos |
 | `cientifico_hartmann` | El doctor Hartmann: en_west_point o muerto. Muerto, el curandero de la Chela es un mercader. | leyenda_eduardo | - | - | escribe: LeyendaEduardo; lee: NarradorCampamentosDefs |
 | `conquista_<id>` | Esa ciudad (o 'sous') ya fue conquistada. | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_sous, conquista_westpoint | conquista_riverside, conquista_rosewood, conquista_westpoint | - | escribe: Conquista; lee: NarradorBandido |
 | `conquista_aviso` | Ya se aviso que empieza la conquista. | - | - | - | escribe: Conquista, NarradorBandido; lee: NarradorBandido |
@@ -875,13 +886,13 @@ un texto que cambia, una variante o lo que decide un final.
 | `eduardo_muerto_duelo` | Mataste a Eduardo en el duelo de Fallas Lake. Corta sus eventos. | eduardo_fallas | eduardo_evento | - | escribe: Eduardo; lee: NarradorEduardo |
 | `eduardo_nota` | Eduardo dejo la nota con el mapa a Fallas Lake. | eduardo_atentado | eduardo_fallas | - | escribe: Eduardo; lee: NarradorBandido |
 | `eduardo_vivo` | Eduardo volvio vivo al cuartel despues de caer. | eduardo_vuelve | - | - | escribe: LeyendaEduardo; lee: NarradorEduardoResidente |
-| `estanque_rosewood` | El estanque de bencina de la Misia Rosa (cap. 3): defendido (cada 72 horas te deja un bidon lleno) o saqueado (no estabas cuando llegaron). | cap_rosa_3 | - | - | escribe: Capitulos; lee: NarradorConsecuencias |
+| `estanque_rosewood` | El estanque de bencina de la Misia Rosa (cap. 3): defendido (cada 72 horas te deja un bidon lleno) o saqueado (no estabas cuando llegaron; en el cap. 5 hay que buscar bencina para el camion). | cap_rosa_3 | - | cap_rosa_5 | escribe: Capitulos; lee: Capitulos, NarradorConsecuencias |
 | `estanque_ultima` | Hora del ultimo bidon del estanque de la Misia Rosa (NarradorConsecuencias). | - | - | - | escribe: NarradorConsecuencias; lee: NarradorConsecuencias |
 | `faccion.<id>` | Postura de las facciones propias en A-Life (accion 'faccion'). | - | - | - | escribe: NarradorMotorAcciones |
 | `favor_<rol>` | El favor de ese miembro de Sous: hecho o murio. Con 'hecho' ya no se ofrece. | favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z | - | - | escribe: FavoresSous; lee: FavoresSous |
 | `fin` | Final del juego: eduardo_muerto o reconquista. Corta el bandido y los eventos de Eduardo. | eduardo_fallas, reconquista_patio | eduardo_atentado, eduardo_evento, eduardo_fallas, reconquista_muldraugh, reconquista_patio, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | - | escribe: Eduardo; lee: NarradorBandido, NarradorEduardo, NarradorVenganzaMeulen |
 | `hija_cabo` | Valentina: salvada o muerta. Si murio, en la reconquista la reemplaza otro (NUEVO_MURIO). | hija_cabo | - | cap_cabo_4 | escribe: HijaCabo; lee: Capitulos, NarradorDominiosDefs |
-| `historia_<id>_<n>` | Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento. | cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint, hija_cabo, leyenda_eduardo | bandido_2, cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, eduardo_vuelve, hija_cabo, leyenda_eduardo | - | escribe: Capitulos, Desbloqueos, HijaCabo, LeyendaEduardo, NarradorContactos, NarradorGenerador; lee: Capitulos, NarradorCampamentos, NarradorContactos, NarradorGenerador |
+| `historia_<id>_<n>` | Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento. | cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint, hija_cabo, leyenda_eduardo | bandido_2, cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, eduardo_vuelve, hija_cabo, leyenda_eduardo | - | escribe: Capitulos, Desbloqueos, HijaCabo, LeyendaEduardo, NarradorContactos, NarradorGenerador; lee: Capitulos, NarradorCampamentos, NarradorContactos, NarradorGenerador |
 | `historia_abierta` | true desde que alguien reclamo un refugio: abre el modo historia (Motor.historiaAbierta). | - | - | - | escribe: NarradorMotor; lee: NarradorMotor |
 | `historia_abierta_hora` | Hora en que se abrio el modo historia (solo para mirar). | - | - | - | escribe: Capitulos, NarradorMotor; lee: NarradorCampamentos |
 | `hora_hsous` | Hora en que se lanzo la ultima historia personal de Sous (horas entre una y otra). | - | - | - | escribe: NarradorHistoriasSous1; lee: NarradorHistoriasSous1, NarradorHistoriasSous2 |
@@ -926,6 +937,6 @@ un texto que cambia, una variante o lo que decide un final.
 Se escriben y nadie las lee todavia (ver `SIN_LECTOR` en `memorias.py`).
 
 
-Solo de registro: `asalto`, `cal.fonda`, `carcel_rosewood`, `conv.<conv>.hora`, `conv.<conv>.quien`, `faccion.<id>`.
+Solo de registro: `asalto`, `cal.fonda`, `conv.<conv>.hora`, `conv.<conv>.quien`, `faccion.<id>`.
 
 Encargos que se repiten (no son trama): `enc`, `encargo`, `encargo_alijo`, `encargo_gen`, `encargo_medicina`, `encargo_paquete`, `encargo_planos`, `encargo_radio`, `encargo_rescate`, `encargo_ultra`, `inmoral`, `recado`.

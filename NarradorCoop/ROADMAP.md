@@ -9,6 +9,22 @@ memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias
 memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 
+## Capitulo 5 de la Misia Rosa: el primer camion (0.13.6, falta probar en el juego)
+- `cap_rosa_5` (Arcos/Capitulos.lua): sale con el capitulo 4 (la carcel) hecho, aunque haya
+  salido mal, y confianza 4. Pago dificil. Cierra lo que venia de la capa 4 de su perfil y del
+  cap. 3: el tanque era "para el dia en que haya que sacar a todo el pueblo", y el primer camion
+  lo manejas tu.
+- Una marea baja por la ruta 31 hacia Rosewood. Hay que sacar a los Turner (Ellen y su tio Roy) y
+  a los Mercer (Andre y Laura) de sus casas (horda chica en cada una); se van solos a la
+  gasolinera. Ahi llega la marea: 50 +15 por jugador extra, sin corredores, y 10 a 15 corredores.
+- Lee dos memorias que venian de antes: con `estanque_rosewood` = saqueado, antes hay que
+  conseguir bencina para el camion en otra bencinera; con `carcel_rosewood` = limpiada (que era
+  solo de registro), el camion lleva a las familias a vivir a la carcel (cuentan como salvadas,
+  sin quedarse de guardias). Si la carcel no se limpio, se quedan de guardias en la gasolinera.
+  Si no llega nadie, el capitulo queda fallido.
+- Los cuatro estan en "Los que ya no estan". Prueba: `prueba_capitulos.lua` (las dos ramas del
+  tanque y de la carcel, y el final sin nadie).
+
 ## Capitulo 4 del Padre Nacho: las campanas de Riverside (0.13.5, falta probar en el juego)
 - `cap_nacho_4` (Arcos/Capitulos.lua): sale con el capitulo 3 (Lucia) hecho y confianza 4. Pago
   dificil. Con esto los cuatro misioneros tienen su capitulo 4.
@@ -183,7 +199,8 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está
 ### 4. Contenido
 - Capítulos 5 en adelante de cada misionero. Los cuatro tienen ya su capitulo 4: Misia Rosa (la
   carcel, 0.13.0), Cabo Ramiro (los signos de pregunta, 0.13.3), Tia Chela (la calle Main,
-  0.13.4) y Padre Nacho (las campanas de Riverside, 0.13.5).
+  0.13.4) y Padre Nacho (las campanas de Riverside, 0.13.5). La Misia Rosa tiene tambien el 5
+  (el primer camion, 0.13.6); faltan los capitulos 5 del Cabo, la Chela y el Padre.
 - ~~Más consecuencias para las memorias "solo de registro" (encuentros, alijo, trueque...).~~ Hecho
   para arsenal, denise, lucas, trueque, alijo y desertor (ver "Consecuencias de las decisiones");
   quedan solo de registro cal.fonda, eduardo_vivo, bandido_ultimo, asalto y las del motor.
@@ -468,8 +485,8 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está
 - Cada misionero tiene sus capitulos. Capitulo 1 = su desbloqueo (fundar el campamento).
   Los siguientes salen entre sus ofertas cuando el anterior ya se hizo (`G.ESPECIALES` en
   `server/Narrador/NarradorGenerador.lua`; cada capitulo deja la memoria `historia_<id>_<n>`).
-- Hechos los capitulos 1 a 4 de los cuatro (detalle en "C. Modo historia de los misioneros").
-  Por escribir: capitulos 5 en adelante.
+- Hechos los capitulos 1 a 4 de los cuatro y el 5 de la Misia Rosa (detalle en "C. Modo historia
+  de los misioneros"). Por escribir: capitulos 5 en adelante del Cabo, la Chela y el Padre.
 - Falta revisar en el juego los perfiles de Eduardo (`k93_stockyard_05`) y del doctor
   (`k93_red_cross_02`), y si A-Life le deja el arma en la mano.
 
@@ -656,14 +673,16 @@ frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
   bencinera de noche, con la luz apagada por primera vez) -> 4 La carcel de Rosewood (confianza
   4: limpiar la carcel, dos oleadas grandes con meta de bajas y el patio sin zombis; premio: el
   arsenal legendario de armas de fuego con nombre, `L.ARMAS_FUEGO` / clase "fuego", y mucha
-  municion; deja `carcel_rosewood` = limpiada). Falta probar las coordenadas de la carcel
+  municion; deja `carcel_rosewood` = limpiada) -> 5 El primer camion (sacar a dos familias antes
+  de la marea de la ruta 31; sin tanque hay que buscar bencina; con la carcel limpia se van a
+  vivir alla). Falta probar las coordenadas de la carcel
   (`Mundo.CARCEL_ROSEWOOD`, aproximadas: se busca la sala mas cercana en 260 casillas).
 - Las busquedas de lugar excluyen la carcel (`Mundo.ZONAS_EXCLUIDAS` y edificios con salas
   `prison*`, en `NarradorMundo.lua`); `permitir_carcel = true` para ir a proposito.
   `min_iguales = n`: el edificio debe tener n salas del tipo buscado (una escuela de verdad).
 - Los capitulos que salen mal tambien cuentan como hechos (memoria = "fallido"), para no trabar
   el campamento.
-- Por escribir: capitulos 5 en adelante.
+- Por escribir: capitulos 5 en adelante (la Misia Rosa ya tiene el 5).
 
 ### Piezas listas para armar historias
 - Oleadas: `{ "oleada", cantidad, fija = true, por_jugador = n, caminantes = true,

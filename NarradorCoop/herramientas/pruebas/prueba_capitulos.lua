@@ -344,6 +344,87 @@ ahora = ahora + 1.5
 Motor.revisarSalidas(inst, 0)
 check(inst.final == "final_vacia" and m.historia_riverside_4 == "fallido" and #guardias == 0, "se fue una hora: nadie llego, fallido")
 
+-- ---------------------------------------------------------------------------
+-- 6. Misia Rosa, capitulo 5
+-- ---------------------------------------------------------------------------
+local function familias(inst, vivos)
+    inst.grupos.turner = { estado = "listo", nombres = {}, roles = { ellen = "t1", roy = "t2" },
+        miembros = { t1 = { rol = "ellen", vivo = vivos.ellen ~= false }, t2 = { rol = "roy", vivo = vivos.roy ~= false } } }
+    inst.grupos.mercer = { estado = "listo", nombres = {}, roles = { andre = "m1", laura = "m2" },
+        miembros = { m1 = { rol = "andre", vivo = vivos.andre ~= false }, m2 = { rol = "laura", vivo = vivos.laura ~= false } } }
+end
+limpiar()
+local eo = C.estado("rosewood")
+eo.x, eo.y, eo.z, eo.etiqueta = 8000, 8000, 0, "la gasolinera"
+local BOMBA = { x = 8000, y = 8000 }
+m.historia_rosewood_1, m.historia_rosewood_2, m.historia_rosewood_3, m.historia_rosewood_4 = true, true, true, true
+m.estanque_rosewood, m.carcel_rosewood = "saqueado", "limpiada"
+o = G.ofertaEspecial("rosewood", "facil", "g1")
+check(o ~= nil and o.def == "cap_rosa_5", "con la carcel hecha sale el cap. 5 de la Misia Rosa")
+lugares.casa_turner, lugares.casa_mercer, lugares.bencinera = { x = 8200, y = 8000 }, { x = 8400, y = 8000 }, { x = 8800, y = 8000 }
+px, py = BOMBA.x, BOMBA.y
+inst = G.iniciarOferta(J, "rosewood", "facil", o)
+check(inst ~= nil and inst.etapa == "bencina", "sin tanque: primero hay que buscar bencina")
+px, py = 8800, 8000
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "bencinera", "llega a la bencinera")
+tiene[1] = { etiqueta = inst.id .. ":bidon" }
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "bencina_volver", "con el bidon: volver")
+px, py = BOMBA.x, BOMBA.y
+Motor.elegir(J, inst.id, "bidon")
+check(inst.etapa == "viaje_turner", "con bencina: a buscar a los Turner")
+px, py = 8200, 8000
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "casa_turner", "llega donde los Turner")
+familias(inst, {})
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "casa_turner", "con zombis cerca, todavia no salen")
+Mundo.zombiCerca = function() return false end
+ahora = ahora + 0.3
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "viaje_mercer", "los Turner van solos; ahora los Mercer")
+px, py = 8400, 8000
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "casa_mercer", "llega donde los Mercer")
+ahora = ahora + 0.3
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "reunion", "los Mercer tambien van solos")
+Mundo.posicionActor = function() return BOMBA.x + 2, BOMBA.y end
+px, py = BOMBA.x, BOMBA.y
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "marea", "llegan todos: la marea")
+inst.vars.meta_marea = 40
+bajas = 40
+Motor.revisarSalidas(inst, 0)
+check(inst.final == "final_carcel" and m.historia_rosewood_5 == true, "con la carcel limpia, el camion los lleva alla")
+local conPerfil = 0
+for _, g2 in ipairs(guardias) do if g2[3] ~= nil then conPerfil = conPerfil + 1 end end
+check(#guardias == 4 and conPerfil == 0, "los cuatro cuentan como salvados, sin quedarse de guardias")
+
+-- Con el tanque defendido y la carcel sin limpiar: directo a las familias y se quedan de guardias.
+limpiar()
+m.historia_rosewood_5 = nil
+m.estanque_rosewood, m.carcel_rosewood = "defendido", nil
+inst = G.iniciarOferta(J, "rosewood", "facil", G.ofertaEspecial("rosewood", "facil", "g1"))
+check(inst.etapa == "viaje_turner", "con el tanque: directo a los Turner")
+familias(inst, { roy = false })
+Motor.entrar(inst, "marea", 0)
+inst.vars.meta_marea = 10
+bajas = 10
+Motor.revisarSalidas(inst, 0)
+check(inst.final == "final_gasolinera" and inst.vars.vinieron == "algunos", "sin carcel: se quedan en la gasolinera; murio Roy")
+check(#guardias == 3 and guardias[1][3] ~= nil and guardias[1][4] ~= nil, "los tres vivos quedan de guardias en la gasolinera")
+
+-- Si no llega nadie: fallido.
+limpiar()
+m.historia_rosewood_5 = nil
+inst = G.iniciarOferta(J, "rosewood", "facil", G.ofertaEspecial("rosewood", "facil", "g1"))
+familias(inst, { ellen = false, roy = false, andre = false, laura = false })
+Motor.entrar(inst, "reunion", 0)
+Motor.revisarSalidas(inst, 0)
+check(inst.final == "final_perdidos" and m.historia_rosewood_5 == "fallido" and #guardias == 0, "no llega nadie: fallido")
+
 -- El guardia no aparece mientras el NPC de la historia siga en el mundo.
 st.arcos["x#1"] = { grupos = { ortiz = { roles = { celia = "u1" }, miembros = { u1 = { vivo = true } } } } }
 local g = { esperar = { arco = "x#1", grupo = "ortiz", rol = "celia", hasta = ahora + 24 } }

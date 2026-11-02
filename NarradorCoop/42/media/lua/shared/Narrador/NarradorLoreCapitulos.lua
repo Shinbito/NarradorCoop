@@ -224,4 +224,27 @@ Lore.arcos.cap_rosa_4 = {
     },
 }
 
+Lore.arcos.cap_rosa_5 = {
+    etapas = {
+        bencina = "Una marea de muertos baja por la ruta 31 hacia Rosewood y la Misia Rosa quiere sacar al pueblo en camion. Pero el tanque esta vacio: hay que conseguir bencina en {lugar:bencinera}.",
+        bencinera = "Estoy en {lugar:bencinera}. Tiene que quedar algun bidon lleno. La marea no espera.",
+        bencina_volver = "Tengo la bencina para el camion. La Misia Rosa me espera en la gasolinera con las llaves en la mano.",
+        viaje_turner = "Una marea de muertos baja por la ruta 31. La Misia Rosa quiere juntar a las familias del pueblo en la gasolinera. Primero, los Turner, en {lugar:casa_turner}.",
+        casa_turner = "Llegue donde los Turner, en {lugar:casa_turner}. Ellen y su tio Roy estan atrincherados en el living. Los muertos ya los olieron.",
+        viaje_mercer = "Los Turner van solos a la gasolinera. Ahora los Mercer, en {lugar:casa_mercer}.",
+        casa_mercer = "Llegue donde los Mercer, en {lugar:casa_mercer}. Andre tiene una llave inglesa en cada mano. Laura, una escopeta sin cartuchos.",
+        reunion = "Las familias van a la gasolinera por su cuenta. Tengo que llegar antes que la marea.",
+        marea = "La marea de la 31 llego a la gasolinera. La Misia Rosa carga el camion. Yo no los dejo pasar del surtidor.",
+    },
+    finales = {
+        final_carcel = { por_var = "vinieron", textos = {
+            todos = "Maneje el primer camion de la Misia Rosa hasta la carcel que limpiamos. Los Turner y los Mercer viven ahora detras de los muros. La Misia Rosa dice que la carcel ya no es carcel: es el pueblo.",
+            otro = "Maneje el primer camion de la Misia Rosa hasta la carcel. No llegaron todos. Los que llegaron viven detras de los muros." } },
+        final_gasolinera = { por_var = "vinieron", textos = {
+            todos = "Aguantamos la marea en la gasolinera. La carcel sigue llena de muertos, asi que el camion no salio. Los Turner y los Mercer se quedan con la Misia Rosa, de guardias.",
+            otro = "Aguantamos la marea en la gasolinera, pero no llegaron todos. Los que quedaron se quedan con la Misia Rosa, de guardias." } },
+        final_perdidos = "Los Turner y los Mercer no llegaron a la gasolinera. El primer camion salio vacio y la Misia Rosa no prendio la luz esa noche.",
+    },
+}
+
 return Lore

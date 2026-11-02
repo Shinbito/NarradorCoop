@@ -5,7 +5,7 @@
 --   Tia Chela  2: La radio del cuartel        (3: el cientifico, LeyendaEduardo.lua)  4: La calle Main
 --   Cabo       2: La puerta de atras          (3: Valentina, HijaCabo.lua)  4: Los signos de pregunta
 --   Padre Nacho 2: El ring de Lexington       3: La muchacha que esperaba  4: Las campanas de Riverside
---   Misia Rosa 2: La ruta 31                  3: El tanque      4: La carcel de Rosewood
+--   Misia Rosa 2: La ruta 31                  3: El tanque      4: La carcel de Rosewood  5: El primer camion
 -- Textos sin tildes a proposito.
 
 require "Narrador/NarradorDefs"
@@ -1049,4 +1049,201 @@ registrar({
             { { "decir_contacto", texto = "No vino nadie, hijo. ... Igual hacemos misa. Para eso esta la puerta abierta." },
               { "retirar_lejos", grupo = FIELES, lugar = "contacto", radio = 40, retraso = 1 } }),
     },
+})
+
+-- ===========================================================================
+-- Misia Rosa, capitulo 5: El primer camion
+-- El tanque escondido era "para el dia en que haya que sacar a todo el pueblo de una vez", y el
+-- primer camion lo manejas tu (cap. 3). Ese dia llega: una marea de muertos baja por la ruta
+-- 31 hacia Rosewood. Hay que juntar en la gasolinera a dos familias escondidas en el pueblo y
+-- aguantar la marea. Si el tanque se lo llevaron los bandidos (estanque_rosewood = saqueado),
+-- primero hay que conseguir bencina para el camion. Si la carcel quedo limpia (cap. 4,
+-- carcel_rosewood = limpiada), el camion las lleva a vivir alla; si no, se quedan de guardias
+-- en la gasolinera.
+-- ===========================================================================
+local FAM1, FAM2 = "turner", "mercer"
+local FAMILIAS = {
+    { grupo = FAM1, rol = "ellen", perfil = "k93_turner_family_04", nombre = "Ellen", apellido = "Turner", mujer = true },
+    { grupo = FAM1, rol = "roy", perfil = "k93_turner_family_10", nombre = "Roy", apellido = "Turner" },
+    { grupo = FAM2, rol = "andre", perfil = "k93_mercer_family_01", nombre = "Andre", apellido = "Mercer" },
+    { grupo = FAM2, rol = "laura", perfil = "k93_mercer_family_06", nombre = "Laura", apellido = "Mercer", mujer = true },
+}
+
+local function familia(grupo)
+    local perfiles, nombres, femeninos = {}, {}, {}
+    for _, f in ipairs(FAMILIAS) do
+        if f.grupo == grupo then
+            perfiles[#perfiles + 1] = { f.rol, f.perfil }
+            nombres[f.rol] = { f.nombre, f.apellido }
+            if f.mujer then femeninos[#femeninos + 1] = f.rol end
+        end
+    end
+    return perfiles, nombres, femeninos
+end
+
+-- Rescate de una familia en su casa: aparecen, llega una horda chica y, cuando se calma, se
+-- van solos a la gasolinera.
+local function etapasFamilia(etapas, grupo, casa, siguiente, saludo, texto_casa)
+    local perfiles, nombres, femeninos = familia(grupo)
+    etapas["viaje_" .. grupo] = {
+        pista = texto_casa,
+        objetivo = casa,
+        salidas = { { cuando = { "cerca", casa, 40 }, ir = "casa_" .. grupo } },
+    }
+    etapas["casa_" .. grupo] = {
+        pista = "Sacar a los " .. nombres[perfiles[1][1]][2] .. " de {lugar:" .. casa .. "}.",
+        objetivo = casa,
+        al_entrar = {
+            { "npcs", id = grupo, lugar = casa, radio = 35, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 4,
+              postura = "friendly", perfiles = perfiles, nombres = nombres, femeninos = femeninos },
+            { "oleada", lugar = casa, radio = 45, cantidad = { 10, 14 }, min = 12, max = 30 },
+        },
+        salidas = {
+            { cuando = { "todos_muertos", grupo }, ir = siguiente },
+            { cuando = { { "grupo_listo", grupo }, { "o", { { "horas", 0.25 }, { "sin_zombis", casa, 15 } }, { "horas", 1 } } },
+              ir = "sale_" .. grupo },
+        },
+    }
+    local sale = { { "decir", grupo = grupo, rol = perfiles[1][1], texto = saludo } }
+    for _, p in ipairs(perfiles) do
+        sale[#sale + 1] = { "acompanante", grupo = grupo, rol = p[1], nombre = nombres[p[1]][1] .. " " .. nombres[p[1]][2], inmortal = false }
+    end
+    sale[#sale + 1] = { "banderas", grupo = grupo, quietos = false, correa = 0 }
+    etapas["sale_" .. grupo] = { al_entrar = sale, salidas = { { ir = siguiente } } }
+end
+
+-- Las familias que llegaron vivas: con la carcel limpia se van alla (cuentan como salvadas,
+-- sin quedarse de guardias); si no, se quedan de guardias en la gasolinera.
+local function familiasSeQuedan(enCarcel)
+    local l = {}
+    for _, f in ipairs(FAMILIAS) do
+        l[#l + 1] = { "soltar_acompanante", grupo = f.grupo, rol = f.rol }
+    end
+    for _, f in ipairs(FAMILIAS) do
+        if enCarcel then
+            l[#l + 1] = { "salvado_campamento", contacto = "rosewood", nombre = f.nombre, apellido = f.apellido,
+                si = { "vivo", f.grupo, f.rol } }
+        else
+            l[#l + 1] = { "salvado_campamento", contacto = "rosewood", nombre = f.nombre, apellido = f.apellido, perfil = f.perfil,
+                grupo = f.grupo, rol = f.rol, si = { "vivo", f.grupo, f.rol } }
+        end
+    end
+    l[#l + 1] = { "retirar_lejos", grupo = FAM1, lugar = "contacto", radio = 40, retraso = 1.5 }
+    l[#l + 1] = { "retirar_lejos", grupo = FAM2, lugar = "contacto", radio = 40, retraso = 1.5 }
+    return l
+end
+
+local LLEGO = function(grupo) return { "o", { "npc_cerca", grupo, "contacto", 20 }, { "todos_muertos", grupo } } end
+local TODOS_PERDIDOS = { { "todos_muertos", FAM1 }, { "todos_muertos", FAM2 } }
+
+local etapasCamion = {
+    encargo = {
+        al_entrar = {
+            { "lugar", id = "casa_turner", desde = "contacto", salas = { "livingroom", "bedroom", "kitchen" }, min = 150, max = 700 },
+            { "lugar", id = "casa_mercer", desde = "contacto", salas = { "garagestorage", "livingroom", "kitchen" },
+              respaldo = { "bedroom" }, min = 200, max = 800 },
+            { "decir_contacto", texto = "Mijito. Llego el dia. Por la radio de West Point avisan que una marea de muertos baja por la 31, derecho a Rosewood. Hay dos familias escondidas en el pueblo: los Turner, en {lugar:casa_turner}, y los Mercer, en {lugar:casa_mercer}. Traelas aca. Y el primer camion lo manejas tu, como te prometi." },
+            { "decir_contacto", retraso = 0.05, si = { "memoria", "estanque_rosewood", "saqueado" },
+              texto = "Lo malo es que el tanque esta vacio, mijito. Se lo llevaron esos desgraciados. Sin bencina no sale ni una carretilla." },
+            { "mapa", lugar = "casa_turner", titulo = "Mapa de la Misia Rosa: los Turner" },
+            { "mapa", lugar = "casa_mercer", titulo = "Mapa de la Misia Rosa: los Mercer" },
+            { "diario", texto = "Una marea de muertos baja por la ruta 31 hacia Rosewood. La Misia Rosa quiere juntar en la gasolinera a los Turner ({lugar:casa_turner}) y a los Mercer ({lugar:casa_mercer}) y sacarlos en camion. El primer camion lo manejo yo." },
+        },
+        salidas = {
+            { cuando = { "memoria", "estanque_rosewood", "saqueado" }, ir = "bencina" },
+            { ir = "viaje_" .. FAM1 },
+        },
+    },
+    -- Sin tanque: primero, bencina para el camion.
+    bencina = {
+        pista = "Conseguir bencina para el camion en {lugar:bencinera}.",
+        objetivo = "bencinera",
+        al_entrar = {
+            { "lugar", id = "bencinera", desde = "contacto", salas = { "gasstore", "garagestorage" }, respaldo = { "garage", "kitchen" },
+              min = 400, max = 1200 },
+            { "mapa", lugar = "bencinera", titulo = "Mapa de la Misia Rosa: la bencina" },
+        },
+        salidas = { { cuando = { "cerca", "bencinera", 40 }, ir = "bencinera" } },
+    },
+    bencinera = {
+        pista = "Encontrar un bidon lleno en {lugar:bencinera}.",
+        objetivo = "bencinera",
+        al_entrar = {
+            { "oleada", lugar = "bencinera", radio = 45, cantidad = { 10, 16 }, min = 12, max = 30 },
+            { "objeto", id = "bidon", lugar = "bencinera", radio = 30, tipo = { "Base.PetrolCan" }, nombre = "Bencina para el camion" },
+        },
+        salidas = { { cuando = { "alguien_tiene", "bidon" }, ir = "bencina_volver" } },
+    },
+    bencina_volver = {
+        pista = "Llevarle la bencina a la Misia Rosa.",
+        ancla = "contacto",
+        opciones = { { id = "bidon", texto = "Darle la bencina a la Misia Rosa", requiere = { "objeto", "bidon" }, falta = "No llevas la bencina." } },
+        salidas = { { cuando = { "eleccion", "bidon" }, ir = "viaje_" .. FAM1 } },
+    },
+    -- Las dos familias van solas a la gasolinera; se espera a que lleguen (o a que no quede nadie).
+    reunion = {
+        pista = "Volver a la gasolinera: las familias van por su cuenta. La marea viene en camino.",
+        objetivo = "contacto",
+        salidas = {
+            { cuando = TODOS_PERDIDOS, ir = "final_perdidos" },
+            { cuando = { { "cerca", "contacto", 30 }, LLEGO(FAM1), LLEGO(FAM2) }, ir = "marea" },
+        },
+    },
+    marea = {
+        pista = "Aguantar la marea en la gasolinera hasta que salga el camion: van {bajas:contacto} de {meta_marea}.",
+        objetivo = "contacto",
+        al_entrar = {
+            { "variable", nombre = "meta_marea", valor = 9999 },
+            { "decir_contacto", texto = "Ahi viene, mijito. Toda la 31. ... Yo cargo el camion. Tu no los dejes pasar del surtidor." },
+            { "aviso", texto = "Por la ruta 31 baja una marea de muertos. No se le ve el final.", retraso = 0.05 },
+            { "oleada", lugar = "contacto", radio = 80, cantidad = 50, por_jugador = 15, fija = true, caminantes = true,
+              min = 30, max = 60, meta = "meta_marea", meta_frac = 0.75, retraso = 0.1 },
+            { "oleada", lugar = "contacto", radio = 80, cantidad = { 10, 15 }, correr = true, min = 35, max = 60, retraso = 0.6 },
+        },
+        salidas = {
+            { cuando = TODOS_PERDIDOS, ir = "final_perdidos" },
+            { cuando = { "o", { "bajas_en", "contacto", "var:meta_marea", 90 }, { { "horas", 4 }, { "sin_zombis", "contacto", 20 } } },
+              ir = "camion" },
+        },
+    },
+    camion = {
+        al_entrar = {
+            { "variable", nombre = "vinieron", valor = "todos" },
+            { "variable", nombre = "vinieron", valor = "algunos", si = { "o", { "muerto", FAM1, "ellen" }, { "muerto", FAM1, "roy" },
+                { "muerto", FAM2, "andre" }, { "muerto", FAM2, "laura" } } },
+            { "aviso", texto = "La marea se deshace contra la gasolinera. El camion de la Misia Rosa arranca a la primera, como si la hubiera estado esperando treinta anos." },
+        },
+        salidas = {
+            { cuando = { "memoria", "carcel_rosewood", "limpiada" }, ir = "final_carcel" },
+            { ir = "final_gasolinera" },
+        },
+    },
+    final_carcel = cierre("rosewood", 5, { por_var = "vinieron", textos = {
+        todos = "Maneje el primer camion de la Misia Rosa hasta la carcel de Rosewood, la que limpiamos. Los Turner y los Mercer se quedaron a vivir detras de los muros. La Misia Rosa dijo que la carcel ya no es carcel: ahora es el pueblo.",
+        otro = "Maneje el primer camion de la Misia Rosa hasta la carcel de Rosewood. No llegaron todos. Los que llegaron se quedaron detras de los muros, y la Misia Rosa anoto a los otros en pasado, con letra bonita." } },
+        unir({ { "decir_contacto", texto = "Lo manejaste tu, mijito, como te prometi. ... La carcel. Quien me iba a decir que el lugar mas seguro de Rosewood iba a ser la carcel. Toma. Y el segundo camion tambien lo manejas tu." } },
+            familiasSeQuedan(true))),
+    final_gasolinera = cierre("rosewood", 5, { por_var = "vinieron", textos = {
+        todos = "Aguantamos la marea en la gasolinera. El camion no tenia adonde ir: la carcel sigue llena de muertos. Los Turner y los Mercer se quedan con la Misia Rosa, de guardias, con la luz prendida.",
+        otro = "Aguantamos la marea en la gasolinera, pero no llegaron todos. Los que quedaron se quedan con la Misia Rosa, de guardias, con la luz prendida." } },
+        unir({ { "decir_contacto", texto = "No hay adonde llevarlos, mijito: esa carcel sigue llena. Se quedan aca, conmigo y con la luz prendida. Toma. Algun dia sale ese camion." } },
+            familiasSeQuedan(false))),
+    final_perdidos = fracaso("rosewood", 5,
+        "Los Turner y los Mercer no llegaron a la gasolinera. El primer camion salio vacio. La Misia Rosa los anoto en pasado y no prendio la luz esa noche.",
+        { { "decir_contacto", texto = "Ninguno, mijito. Ninguno. ... Apaga tu la luz, que a mi me tiemblan las manos." } }),
+}
+etapasFamilia(etapasCamion, FAM1, "casa_turner", "viaje_" .. FAM2,
+    "La Rosa nos manda a buscar? Esa mujer sabe donde vive cada alma de este pueblo. Vamos, tio Roy.",
+    "Ir a {lugar:casa_turner}, donde se esconden los Turner.")
+etapasFamilia(etapasCamion, FAM2, "casa_mercer", "reunion",
+    "El camion de la Rosa? Ese motor lo arregle yo el 91. Vamos, Laura, que ese no falla.",
+    "Ir a {lugar:casa_mercer}, donde se esconden los Mercer.")
+
+registrar({
+    id = "cap_rosa_5",
+    titulo = "El primer camion",
+    titulo_menu = "Historia de la Misia Rosa, cap. 5: el primer camion",
+    requiere_alife = true, automatico = false,
+    inicio = "encargo",
+    etapas = etapasCamion,
 })
