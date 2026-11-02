@@ -164,6 +164,24 @@ Lore.arcos.cap_nacho_3 = {
     },
 }
 
+Lore.arcos.cap_nacho_4 = {
+    etapas = {
+        viaje = "El Padre Nacho quiere tocar las campanas por primera vez en dos anos: una misa de verdad, para que venga el que quede vivo en Riverside. La cuerda se pudrio. Hay una en {lugar:ferreteria}.",
+        ferreteria = "Estoy en {lugar:ferreteria}, buscando una cuerda que aguante una campana. Los muertos de aca no van a misa.",
+        volver = "Tengo la cuerda. El Padre me espera en la iglesia, mirando el campanario como si fuera un ring.",
+        esperar = "La misa es al mediodia. El Padre dice que traiga todo lo que dispare. Sabe lo que trae el ruido.",
+        campanario = "Estoy al pie del campanario con la cuerda nueva. El Padre me hace una sena: tocala tu.",
+        defensa = "Las campanas suenan y todo Riverside las escucha: los vivos y los muertos. Hay que aguantar en la iglesia hasta que lleguen los feligreses.",
+        misa = "Los que llegaron estan sentados en los bancos, con las armas en las rodillas. El Padre se arregla la estola.",
+    },
+    finales = {
+        final_cumplido = { por_var = "vinieron", textos = {
+            todos = "Tocamos las campanas de Riverside y vino gente de todo el pueblo. El Padre dijo la misa sin hablar de Dios: dijo que la fe es venir. Otis, Ruth y Helen se quedan en la iglesia.",
+            otro = "Tocamos las campanas de Riverside. No todos los que venian llegaron. El Padre rezo por ellos y dijo que la fe es venir. Los que quedaron se quedan en la iglesia." } },
+        final_vacia = "Las campanas de Riverside sonaron y a la iglesia no llego nadie vivo. El Padre hizo la misa igual, para los bancos vacios y para mi.",
+    },
+}
+
 -- ===========================================================================
 -- Misia Rosa
 -- ===========================================================================

@@ -4,7 +4,7 @@
 -- uno deja la memoria "historia_<id>_<n>" (requisito para subir el campamento de nivel).
 --   Tia Chela  2: La radio del cuartel        (3: el cientifico, LeyendaEduardo.lua)  4: La calle Main
 --   Cabo       2: La puerta de atras          (3: Valentina, HijaCabo.lua)  4: Los signos de pregunta
---   Padre Nacho 2: El ring de Lexington       3: La muchacha que esperaba
+--   Padre Nacho 2: El ring de Lexington       3: La muchacha que esperaba  4: Las campanas de Riverside
 --   Misia Rosa 2: La ruta 31                  3: El tanque      4: La carcel de Rosewood
 -- Textos sin tildes a proposito.
 
@@ -906,5 +906,147 @@ registrar({
             "Doris Kemper murio antes de llegar al cuartel. La Chela no pregunto como. Guardo su nombre al lado del de Irma, en la pared de la cocina, y esa noche tampoco apago el fuego de la estufa.",
             { { "soltar_acompanante", grupo = DORIS, rol = "doris" },
               { "decir_contacto", texto = "Las dos, mijo. La mama y la hija. ... Anda a descansar. Yo me quedo un rato aca." } }),
+    },
+})
+
+-- ===========================================================================
+-- Padre Nacho, capitulo 4: Las campanas de Riverside
+-- El Padre lleva lista de quien viene a misa y se preocupa cuando alguien falta (capa 3); hace
+-- misa para tres personas y un perro (capa 4). Ahora quiere una misa de verdad: tocar las
+-- campanas para que venga el que quede vivo. La cuerda se pudrio (hay que traer una nueva) y
+-- el ruido trae a todos los muertos del pueblo: hay que defender la iglesia mientras llegan
+-- tres feligreses. Los que sobreviven se quedan de guardias en la iglesia.
+-- ===========================================================================
+local FIELES = "feligreses"
+local PERFILES_FIELES = {
+    { "otis", "k93_survivor_commune_01", "Otis", "Barker" },
+    { "ruth", "k93_survivor_commune_11", "Ruth", "Haney" },
+    { "helen", "k93_refugee_walkers_08", "Helen", "Pike" },
+}
+
+local function fielesPerfiles()
+    local perfiles, nombres = {}, {}
+    for _, f in ipairs(PERFILES_FIELES) do
+        perfiles[#perfiles + 1] = { f[1], f[2] }
+        nombres[f[1]] = { f[3], f[4] }
+    end
+    return perfiles, nombres
+end
+
+-- Al terminar la misa, los feligreses vivos se quedan de guardias en la iglesia.
+local function fielesSeQuedan()
+    local l = {}
+    for _, f in ipairs(PERFILES_FIELES) do
+        l[#l + 1] = { "salvado_campamento", contacto = "riverside", nombre = f[3], apellido = f[4], perfil = f[2],
+            grupo = FIELES, rol = f[1], si = { "vivo", FIELES, f[1] } }
+    end
+    l[#l + 1] = { "retirar_lejos", grupo = FIELES, lugar = "contacto", radio = 40, retraso = 1.5 }
+    return l
+end
+
+local PERFILES_F, NOMBRES_F = fielesPerfiles()
+local ALGUN_FIEL_MUERTO = { "o", { "muerto", FIELES, "otis" }, { "muerto", FIELES, "ruth" }, { "muerto", FIELES, "helen" } }
+
+registrar({
+    id = "cap_nacho_4",
+    titulo = "Las campanas de Riverside",
+    titulo_menu = "Historia del Padre Nacho, cap. 4: las campanas de Riverside",
+    requiere_alife = true, automatico = false,
+    inicio = "encargo",
+    etapas = {
+        encargo = {
+            al_entrar = {
+                { "lugar", id = "ferreteria", desde = "contacto", salas = { "toolstore", "garagestorage" },
+                  respaldo = { "garage", "kitchen" }, min = 200, max = 900 },
+                { "decir_contacto", texto = "Hijo, hace dos anos que no toco las campanas. Hago misa para tres personas y un perro, y el perro se duerme. Quiero una misa de verdad: que suenen las campanas y venga el que quede vivo en Riverside. La cuerda se pudrio. En {lugar:ferreteria} tiene que quedar una buena." },
+                { "decir_contacto", retraso = 0.05, texto = "Y si, ya se lo que trae el ruido. Por eso te lo pido a ti y no a Dios: tu contestas." },
+                { "mapa", lugar = "ferreteria", titulo = "Mapa del Padre Nacho: la cuerda" },
+                { "diario", texto = "El Padre Nacho quiere tocar las campanas de la iglesia por primera vez en dos anos, para que venga a misa el que quede vivo. La cuerda se pudrio: hay una nueva en {lugar:ferreteria}." },
+            },
+            salidas = { { ir = "viaje" } },
+        },
+        viaje = {
+            pista = "Buscar una cuerda para la campana en {lugar:ferreteria}.",
+            objetivo = "ferreteria",
+            salidas = { { cuando = { "cerca", "ferreteria", 40 }, ir = "ferreteria" } },
+        },
+        ferreteria = {
+            pista = "Encontrar la cuerda para la campana en {lugar:ferreteria}.",
+            objetivo = "ferreteria",
+            al_entrar = {
+                { "oleada", lugar = "ferreteria", radio = 45, cantidad = { 10, 14 }, min = 12, max = 30 },
+                { "objeto", id = "cuerda", lugar = "ferreteria", radio = 35, tipo = { "Base.Rope" }, nombre = "Cuerda para la campana" },
+            },
+            salidas = { { cuando = { "alguien_tiene", "cuerda" }, ir = "volver" } },
+        },
+        volver = {
+            pista = "Llevarle la cuerda al Padre Nacho.",
+            ancla = "contacto",
+            opciones = { { id = "entregar", texto = "Darle la cuerda al Padre Nacho", requiere = { "objeto", "cuerda" }, falta = "No llevas la cuerda." } },
+            salidas = { { cuando = { "eleccion", "entregar" }, ir = "esperar" } },
+        },
+        esperar = {
+            pista = "La misa es al mediodia. Estar en la iglesia del Padre Nacho entre las 11 y las 14.",
+            objetivo = "contacto",
+            al_entrar = {
+                { "decir_contacto", texto = "Buena cuerda, hijo. Aguanta un ahorcado y un campanario. ... Mala broma. Manana al mediodia. Trae todo lo que dispare." },
+                { "decir_contacto", retraso = 0.05, si = { "memoria", "lucia", "en_riverside" },
+                  texto = "Lucia ya aparto la primera fila. Dice que esta vez el que llega tarde es el pueblo, no yo." },
+            },
+            salidas = { { cuando = { { "cerca", "contacto", 25 }, { "hora_entre", 11, 14 } }, ir = "campanario" } },
+        },
+        campanario = {
+            pista = "Tocar las campanas de la iglesia (clic derecho cerca del Padre Nacho).",
+            ancla = "contacto",
+            opciones = { { id = "tocar", texto = "Tocar las campanas de Riverside" } },
+            salidas = { { cuando = { "eleccion", "tocar" }, ir = "defensa" } },
+        },
+        defensa = {
+            pista = "Defender la iglesia mientras llegan los feligreses: van {bajas:contacto} de {meta_misa}.",
+            objetivo = "contacto",
+            al_entrar = {
+                { "variable", nombre = "meta_misa", valor = 9999 },
+                { "aviso", texto = "Las campanas de Riverside suenan por primera vez en dos anos. Se escuchan hasta el rio. Todo lo que camina en el pueblo da vuelta la cabeza." },
+                { "ruido", lugar = "contacto", radio = 200, volumen = 100, veces = 3 },
+                { "lugar_cerca", id = "atrio", de = "contacto", distancia = 8 },
+                { "npcs", id = FIELES, lugar = "atrio", radio = 12, no_mas_cerca = 3, modo = "guard", quietos = true, correa = 6,
+                  postura = "friendly", perfiles = PERFILES_F, nombres = NOMBRES_F, femeninos = { "ruth", "helen" }, retraso = 0.15 },
+                { "oleada", lugar = "contacto", radio = 70, cantidad = 40, por_jugador = 12, fija = true, caminantes = true,
+                  min = 25, max = 50, meta = "meta_misa", meta_frac = 0.8 },
+                { "oleada", lugar = "contacto", radio = 70, cantidad = { 8, 12 }, correr = true, min = 30, max = 50, retraso = 0.4 },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", FIELES }, ir = "final_vacia" },
+                { cuando = { "ausente", "contacto", 80, 1 }, ir = "final_vacia" },
+                { cuando = { { "grupo_listo", FIELES }, { "o", { "bajas_en", "contacto", "var:meta_misa", 80 },
+                    { { "horas", 3 }, { "sin_zombis", "contacto", 20 } } } }, ir = "misa" },
+            },
+        },
+        misa = {
+            al_entrar = {
+                { "variable", nombre = "vinieron", valor = "todos" },
+                { "variable", nombre = "vinieron", valor = "algunos", si = ALGUN_FIEL_MUERTO },
+                { "aviso", texto = "Despues de la ultima campanada, la iglesia de Riverside tiene mas gente que nunca desde el 93. Huele a polvora y a velas." },
+                { "decir_contacto", retraso = 0.03, texto = { por_var = "vinieron", textos = {
+                    todos = "Hermanos. No les voy a hablar de Dios, que anda de vacaciones. Les voy a hablar de ustedes: vinieron. Con el mundo como esta, vinieron. Eso es la fe. Lo demas es latin.",
+                    otro = "Hermanos. Hoy no llegaron todos los que venian. Vamos a rezar por ellos, aunque sea por costumbre. Y por los que si llegaron: vinieron. Eso es la fe. Lo demas es latin." } } },
+                { "decir", grupo = FIELES, rol = "otis", retraso = 0.06, texto = "Cuarenta anos viniendo a esta iglesia, Padre. No me iba a perder la mejor misa." },
+                { "decir", grupo = FIELES, rol = "ruth", retraso = 0.08, texto = "Amen. Y que alguien cierre esa puerta. ... No, verdad. Esta puerta no se cierra." },
+                { "aviso", retraso = 0.1, si = { "memoria", "lucia", "en_riverside" },
+                  texto = "En la primera fila, Lucia mira al Padre a la cara, como pidio. El tambien la mira." },
+                { "aviso", retraso = 0.12, si = { "memoria", "historia_riverside_2", true },
+                  texto = "Al fondo, de pie, con el sombrero en la mano, esta Frank Duggan. Escucho las campanas desde el camino. Se va antes de la bendicion." },
+            },
+            salidas = { { cuando = { "horas", 0.3 }, ir = "final_cumplido" } },
+        },
+        final_cumplido = cierre("riverside", 4, { por_var = "vinieron", textos = {
+            todos = "Tocamos las campanas de Riverside y vino gente de todo el pueblo, entre los muertos. Defendimos la iglesia hasta que llegaron. El Padre dijo la misa sin hablar de Dios: dijo que la fe es venir. Otis, Ruth y Helen se quedan en la iglesia.",
+            otro = "Tocamos las campanas de Riverside. No todos los que venian llegaron. El Padre rezo por ellos por costumbre y por los que llegaron con ganas. Dijo que la fe es venir. Los que quedaron se quedan en la iglesia." } },
+            unir({ { "decir_contacto", texto = "Hijo, toma. Y vuelve el domingo, que la proxima la tocas tu sin que yo te lo pida." } },
+                fielesSeQuedan())),
+        final_vacia = fracaso("riverside", 4,
+            "Las campanas de Riverside sonaron, pero a la iglesia no llego nadie vivo. El Padre Nacho hizo la misa igual, para los bancos vacios y para mi. Dijo que el que toca la campana no elige quien viene.",
+            { { "decir_contacto", texto = "No vino nadie, hijo. ... Igual hacemos misa. Para eso esta la puerta abierta." },
+              { "retirar_lejos", grupo = FIELES, lugar = "contacto", radio = 40, retraso = 1 } }),
     },
 })

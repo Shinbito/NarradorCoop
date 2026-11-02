@@ -47,7 +47,7 @@ for cid, caps in pairs(porContacto) do
     for i, _ in pairs(caps) do n = math.max(n, i) end
     local seguidos = true
     for i = 2, n do if caps[i] == nil then seguidos = false end end
-    check(seguidos and n >= 3, cid .. ": capitulos 2 a " .. n .. " sin saltos")
+    check(seguidos and n >= 4, cid .. ": capitulos 2 a " .. n .. " sin saltos")
 end
 
 -- ---------------------------------------------------------------------------
@@ -278,6 +278,71 @@ Motor.entrar(inst, "escolta", 0)
 inst.grupos.doris = { estado = "listo", miembros = { d1 = { rol = "doris", vivo = false } }, roles = { doris = "d1" }, nombres = {} }
 Motor.revisarSalidas(inst, 0)
 check(inst.final == "final_muerta" and m.historia_westpoint_4 == "fallido" and #guardias == 0, "Doris muere: fallido y sin guardia")
+
+-- ---------------------------------------------------------------------------
+-- 5. Padre Nacho, capitulo 4
+-- ---------------------------------------------------------------------------
+limpiar()
+local er = C.estado("riverside")
+er.x, er.y, er.z, er.etiqueta = 6000, 6000, 0, "la iglesia"
+local IGLESIA = { x = 6000, y = 6000 }
+m.historia_riverside_1, m.historia_riverside_2, m.historia_riverside_3 = true, true, true
+m.lucia = "en_riverside"
+o = G.ofertaEspecial("riverside", "facil", "g1")
+check(o ~= nil and o.def == "cap_nacho_4", "con Lucia de vuelta sale el cap. 4 del Padre")
+lugares.ferreteria = { x = 6300, y = 6000 }
+inst = G.iniciarOferta(J, "riverside", "facil", o)
+check(inst ~= nil and inst.etapa == "viaje", "arranca: a la ferreteria")
+px, py = 6300, 6000
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "ferreteria", "llega a la ferreteria")
+tiene[1] = { etiqueta = inst.id .. ":cuerda" }
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "volver", "con la cuerda: volver")
+px, py = IGLESIA.x, IGLESIA.y
+Motor.elegir(J, inst.id, "entregar")
+check(inst.etapa == "esperar", "le da la cuerda: esperar el mediodia")
+ahora = ahora + 0.1
+Motor.procesarPendientes(inst)
+local nombraLucia = false
+for _, d in ipairs(dichos) do if d:find("Lucia", 1, true) then nombraLucia = true end end
+check(nombraLucia, "con Lucia en Riverside, el Padre la nombra")
+ahora = 24 * 50 + 9
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "esperar", "a las 9 todavia no")
+ahora = 24 * 50 + 12
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "campanario", "al mediodia: al campanario")
+Motor.elegir(J, inst.id, "tocar")
+check(inst.etapa == "defensa", "toca las campanas: defender la iglesia")
+local hayRuido, hayFieles = false, false
+for _, p in ipairs(inst.pendientes) do
+    if p[1] == "ruido" then hayRuido = true end
+    if p[1] == "npcs" and p.id == "feligreses" and #p.perfiles == 3 then hayFieles = true end
+end
+check(hayRuido and hayFieles, "las campanas hacen ruido y llegan tres feligreses")
+inst.grupos.feligreses = { estado = "listo", nombres = {}, roles = { otis = "f1", ruth = "f2", helen = "f3" },
+    miembros = { f1 = { rol = "otis", vivo = true }, f2 = { rol = "ruth", vivo = true }, f3 = { rol = "helen", vivo = false } } }
+inst.vars.meta_misa = 30
+bajas = 30
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "misa" and inst.vars.vinieron == "algunos", "aguantan: misa, sin uno de los feligreses")
+ahora = ahora + 0.5
+Motor.revisarSalidas(inst, 0)
+check(inst.final == "final_cumplido" and m.historia_riverside_4 == true, "despues de la misa: final_cumplido")
+check(#guardias == 2, "los dos feligreses vivos quedan de guardias en la iglesia")
+
+-- Si el jugador se va mientras suenan las campanas: no llega nadie.
+limpiar()
+m.historia_riverside_4 = nil
+inst = G.iniciarOferta(J, "riverside", "facil", G.ofertaEspecial("riverside", "facil", "g1"))
+Motor.entrar(inst, "defensa", 0)
+px, py = 0, 0
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "defensa", "recien se fue: sigue la defensa")
+ahora = ahora + 1.5
+Motor.revisarSalidas(inst, 0)
+check(inst.final == "final_vacia" and m.historia_riverside_4 == "fallido" and #guardias == 0, "se fue una hora: nadie llego, fallido")
 
 -- El guardia no aparece mientras el NPC de la historia siga en el mundo.
 st.arcos["x#1"] = { grupos = { ortiz = { roles = { celia = "u1" }, miembros = { u1 = { vivo = true } } } } }

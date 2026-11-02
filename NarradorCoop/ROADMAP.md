@@ -9,6 +9,21 @@ memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias
 memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 
+## Capitulo 4 del Padre Nacho: las campanas de Riverside (0.13.5, falta probar en el juego)
+- `cap_nacho_4` (Arcos/Capitulos.lua): sale con el capitulo 3 (Lucia) hecho y confianza 4. Pago
+  dificil. Con esto los cuatro misioneros tienen su capitulo 4.
+- El Padre quiere tocar las campanas por primera vez en dos anos, para una misa de verdad. Hay
+  que traer una cuerda de una ferreteria, estar en la iglesia entre las 11 y las 14 y tocarlas:
+  ruido fuerte, horda de 40 +12 por jugador extra (sin corredores) y 8 a 12 corredores, mientras
+  llegan tres feligreses (Otis Barker, Ruth Haney y Helen Pike) que hay que mantener vivos.
+- Si el jugador se va lejos de la iglesia una hora, o mueren los tres, el capitulo queda fallido
+  (el Padre hace la misa para los bancos vacios).
+- La misa: el sermon cambia si murio alguno; si Lucia volvio (`lucia` = en_riverside) esta en la
+  primera fila, y si el Padre le gano a Duggan (cap. 2) Duggan escucha desde el fondo. Los
+  feligreses vivos se quedan de guardias en la iglesia (`salvado_campamento`).
+- Los tres estan en "Los que ya no estan". Prueba: `prueba_capitulos.lua` (de punta a punta y el
+  final sin nadie). La prueba exige ahora capitulos 2 a 4 para todos los misioneros.
+
 ## Capitulo 4 de la Tia Chela: la calle Main (0.13.4, falta probar en el juego)
 - `cap_chela_4` (Arcos/Capitulos.lua): sale con el capitulo 3 (el cientifico) hecho y confianza 4.
   Pago dificil. Cierra la capa 4 de su perfil: la vecina que saco del incendio ya mordida y dejo
@@ -166,8 +181,9 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está
   historia). Partirlos no tiene mucha ganancia; se puede ver más adelante.
 
 ### 4. Contenido
-- Capítulos 4 en adelante de cada misionero. Hechos: Misia Rosa (la carcel, 0.13.0), Cabo
-  Ramiro (los signos de pregunta, 0.13.3) y Tia Chela (la calle Main, 0.13.4).
+- Capítulos 5 en adelante de cada misionero. Los cuatro tienen ya su capitulo 4: Misia Rosa (la
+  carcel, 0.13.0), Cabo Ramiro (los signos de pregunta, 0.13.3), Tia Chela (la calle Main,
+  0.13.4) y Padre Nacho (las campanas de Riverside, 0.13.5).
 - ~~Más consecuencias para las memorias "solo de registro" (encuentros, alijo, trueque...).~~ Hecho
   para arsenal, denise, lucas, trueque, alijo y desertor (ver "Consecuencias de las decisiones");
   quedan solo de registro cal.fonda, eduardo_vivo, bandido_ultimo, asalto y las del motor.
@@ -448,12 +464,12 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está
   (14). El herrero forja un arma con el mango que lleves: con el normal sale excepcional, con
   el noble, legendaria (machete, hacha, katana, lanza o hacha de mano).
 
-### Modo historia de cada misionero (hecho hasta el capitulo 3, falta probar)
+### Modo historia de cada misionero (hecho hasta el capitulo 4, falta probar)
 - Cada misionero tiene sus capitulos. Capitulo 1 = su desbloqueo (fundar el campamento).
   Los siguientes salen entre sus ofertas cuando el anterior ya se hizo (`G.ESPECIALES` en
   `server/Narrador/NarradorGenerador.lua`; cada capitulo deja la memoria `historia_<id>_<n>`).
-- Hechos los capitulos 1 a 3 de los cuatro (detalle en "C. Modo historia de los misioneros").
-  Por escribir: capitulos 4 en adelante.
+- Hechos los capitulos 1 a 4 de los cuatro (detalle en "C. Modo historia de los misioneros").
+  Por escribir: capitulos 5 en adelante.
 - Falta revisar en el juego los perfiles de Eduardo (`k93_stockyard_05`) y del doctor
   (`k93_red_cross_02`), y si A-Life le deja el arma en la mano.
 
@@ -634,7 +650,8 @@ frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
   Pereira) -> 3 Valentina (la mision que estaba desactivada, ahora con confianza 4) -> 4 Los
   signos de pregunta (Amos Pruitt y los Ortiz; los que llegan quedan de guardias).
 - Padre Nacho: 2 El ring de Lexington (reto a puno limpio con el Martillo Duggan) -> 3 La
-  muchacha que esperaba (traer a Lucia de una iglesia de otro pueblo).
+  muchacha que esperaba (traer a Lucia de una iglesia de otro pueblo) -> 4 Las campanas de
+  Riverside (una misa de verdad; defender la iglesia mientras llegan los feligreses).
 - Misia Rosa: 2 La ruta 31 (traer al Gordo Earl y su carga) -> 3 El estanque (defender la
   bencinera de noche, con la luz apagada por primera vez) -> 4 La carcel de Rosewood (confianza
   4: limpiar la carcel, dos oleadas grandes con meta de bajas y el patio sin zombis; premio: el
@@ -646,7 +663,7 @@ frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
   `min_iguales = n`: el edificio debe tener n salas del tipo buscado (una escuela de verdad).
 - Los capitulos que salen mal tambien cuentan como hechos (memoria = "fallido"), para no trabar
   el campamento.
-- Por escribir: capitulos 4 en adelante.
+- Por escribir: capitulos 5 en adelante.
 
 ### Piezas listas para armar historias
 - Oleadas: `{ "oleada", cantidad, fija = true, por_jugador = n, caminantes = true,

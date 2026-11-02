@@ -212,8 +212,9 @@ Novedades 0.11.0:
   de atras y Valentina (Cabo Ramiro), el ring de Lexington y Lucia (Padre Nacho), la ruta 31 y
   el tanque (Misia Rosa). Fundar el campamento cuenta como capitulo 1.
 - Capitulos 4: la carcel de Rosewood (Misia Rosa), los signos de pregunta (Cabo Ramiro: Amos
-  Pruitt y los Ortiz, que se quedan de guardias en la comisaria) y la calle Main (Tia Chela: la
-  vecina que dejo en la vereda la primera noche y su hija Doris).
+  Pruitt y los Ortiz, que se quedan de guardias en la comisaria), la calle Main (Tia Chela: la
+  vecina que dejo en la vereda la primera noche y su hija Doris) y las campanas de Riverside
+  (Padre Nacho: una misa de verdad, defendiendo la iglesia mientras llegan los feligreses).
 - La cura: entre 1 y 4 pastillas K-93 verdaderas, siempre al menos una.
 - Diario: entradas para las misiones que no tenian texto (la cura, las fechas de Sous, los
   encuentros, los favores, los desbloqueos y los capitulos).
