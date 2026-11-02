@@ -760,7 +760,7 @@ end
 -- del capitulo 1. Los capitulos tambien son requisito para subir el campamento de nivel
 -- (shared/Narrador/NarradorCampamentosDefs.lua).
 G.ESPECIALES = {
-    -- Capitulos 2 y 3 (shared/Narrador/Arcos/Capitulos.lua, HijaCabo.lua y LeyendaEduardo.lua).
+    -- Capitulos 2 en adelante (shared/Narrador/Arcos/Capitulos.lua, HijaCabo.lua y LeyendaEduardo.lua).
     -- El capitulo 1 de cada uno es su desbloqueo y deja "historia_<id>_1".
     { def = "cap_chela_2", contacto = "westpoint", capitulo = 2, requiere = "historia_westpoint_1",
       hecho = "historia_westpoint_2", confianza = 2, pago = "medio", chance = 1,
@@ -777,6 +777,11 @@ G.ESPECIALES = {
       titulo = "Valentina",
       resumen = { "Historia del Cabo Ramiro, cap. 3", "Para: Valentina, la hija del Cabo",
                   "Donde: una escuela de Louisville", "Pago: botin dificil", "Ojo: hay una horda" } },
+    { def = "cap_cabo_4", contacto = "muldraugh", capitulo = 4, requiere = "historia_muldraugh_3",
+      hecho = "historia_muldraugh_4", confianza = 4, pago = "dificil", chance = 1,
+      titulo = "Los signos de pregunta",
+      resumen = { "Historia del Cabo Ramiro, cap. 4", "Para: dos signos de pregunta de su libreta",
+                  "Donde: dos casas, una lejos de la otra", "Pago: botin dificil", "Ojo: los Ortiz tienen que llegar vivos" } },
     { def = "cap_nacho_2", contacto = "riverside", capitulo = 2, requiere = "historia_riverside_1",
       hecho = "historia_riverside_2", confianza = 2, pago = "medio", chance = 1,
       titulo = "El ring de Lexington",

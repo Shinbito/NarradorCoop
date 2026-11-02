@@ -9,6 +9,26 @@ memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias
 memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 
+## Capitulo 4 del Cabo Ramiro: los signos de pregunta (0.13.3, falta probar en el juego)
+- `cap_cabo_4` (Arcos/Capitulos.lua): sale entre sus ofertas con el capitulo 3 (Valentina) hecho,
+  aunque haya salido mal, y confianza 4. Pago dificil.
+- El Cabo manda a revisar dos signos de pregunta de su libreta: Amos Pruitt (se transformo en su
+  cocina: un zombi, una nota y su reloj para el censo) y Celia Ortiz con su hijo Joaquin (vivos,
+  rodeados; horda de 20 +8 por jugador extra, sin corredores, y un refuerzo). Van solos a la
+  comisaria y se le entrega el reloj al Cabo (o se le cuenta, si se perdio).
+- Los Ortiz que llegan vivos se quedan de guardias en la comisaria y cuentan como salvados para
+  el nivel del campamento: accion nueva `{ "salvado_campamento", contacto, nombre, apellido,
+  perfil, grupo, rol }` (NarradorCampamentos.lua); con grupo y rol, el guardia aparece recien
+  cuando el NPC de la historia se fue (asi no hay dos iguales). Si llega uno solo, el Cabo escribe una cruz y un "vivo";
+  si mueren los dos, el capitulo queda fallido.
+- Valentina (si esta en la comisaria) le pide al jugador que los traiga; si murio, el Cabo dice
+  que desde entonces no ha tachado a nadie.
+- Los finales de los capitulos (`cierre`/`fracaso`) ahora hacen sus acciones extra en el orden en
+  que estan escritas (antes iban al reves).
+- Celia y Joaquin Ortiz estan en "Los que ya no estan". Prueba: `herramientas/pruebas/prueba_capitulos.lua`
+  (todos los capitulos de `G.ESPECIALES` tienen diario y memoria, la cadena no tiene saltos, y el
+  capitulo 4 del Cabo de punta a punta).
+
 ## Diario de Meulen con modelo nuevo (0.13.2, falta mirarlo en el juego)
 - El script pedia `Narrador/DiarioMeulen` pero los archivos se llamaban `DiarioMaulen` (nombre
   viejo): el servidor avisaba `no such mesh`. Ahora todo dice Meulen (modelo, textura e icono);
@@ -130,7 +150,8 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está
   historia). Partirlos no tiene mucha ganancia; se puede ver más adelante.
 
 ### 4. Contenido
-- Capítulos 4 en adelante de cada misionero.
+- Capítulos 4 en adelante de cada misionero. Hechos: Misia Rosa (la carcel, 0.13.0) y Cabo
+  Ramiro (los signos de pregunta, 0.13.3).
 - ~~Más consecuencias para las memorias "solo de registro" (encuentros, alijo, trueque...).~~ Hecho
   para arsenal, denise, lucas, trueque, alijo y desertor (ver "Consecuencias de las decisiones");
   quedan solo de registro cal.fonda, eduardo_vivo, bandido_ultimo, asalto y las del motor.
@@ -593,7 +614,8 @@ frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
   `historia_<id>_1`, tambien en partidas viejas).
 - Tia Chela: 2 La radio del cuartel (repuestos, antena y la voz de Eduardo) -> 3 el cientifico.
 - Cabo Ramiro: 2 La puerta de atras (rescatar a Gladys Moreno, una de los once; nombra a
-  Pereira) -> 3 Valentina (la mision que estaba desactivada, ahora con confianza 4).
+  Pereira) -> 3 Valentina (la mision que estaba desactivada, ahora con confianza 4) -> 4 Los
+  signos de pregunta (Amos Pruitt y los Ortiz; los que llegan quedan de guardias).
 - Padre Nacho: 2 El ring de Lexington (reto a puno limpio con el Martillo Duggan) -> 3 La
   muchacha que esperaba (traer a Lucia de una iglesia de otro pueblo).
 - Misia Rosa: 2 La ruta 31 (traer al Gordo Earl y su carga) -> 3 El estanque (defender la
@@ -624,6 +646,8 @@ frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
 - La casa del jugador (refugio o donde esté): `{ "lugar_casa", id }`.
 - Reputación con un misionero: `{ "reputacion", contacto, cantidad }`; con Knox: `{ "knox", cantidad }`.
 - Mapas de papel: `{ "mapa", lugar, titulo }`.
+- Alguien con nombre se queda de guardia en un campamento (cuenta para su nivel):
+  `{ "salvado_campamento", contacto, nombre, apellido, perfil, grupo, rol }`.
 
 ### Qué ya existe en el código y sirve de base
 - Misioneros fijos por ciudad y encargos: `server/Narrador/NarradorContactos.lua`.

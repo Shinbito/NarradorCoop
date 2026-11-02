@@ -211,6 +211,8 @@ Novedades 0.11.0:
 - Capitulos 2 y 3 de cada misionero: la radio del cuartel y el cientifico (Tia Chela), la puerta
   de atras y Valentina (Cabo Ramiro), el ring de Lexington y Lucia (Padre Nacho), la ruta 31 y
   el tanque (Misia Rosa). Fundar el campamento cuenta como capitulo 1.
+- Capitulos 4: la carcel de Rosewood (Misia Rosa) y los signos de pregunta (Cabo Ramiro: Amos
+  Pruitt y los Ortiz, que se quedan de guardias en la comisaria).
 - La cura: entre 1 y 4 pastillas K-93 verdaderas, siempre al menos una.
 - Diario: entradas para las misiones que no tenian texto (la cura, las fechas de Sous, los
   encuentros, los favores, los desbloqueos y los capitulos).

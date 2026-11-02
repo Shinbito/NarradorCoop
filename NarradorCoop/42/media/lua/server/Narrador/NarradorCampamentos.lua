@@ -76,7 +76,7 @@ function S.sumarSalvado(contactoId, persona)
         if #k.guardias < S.MAX_GUARDIAS then
             -- Aparece como guardia un rato despues (cuando la persona del encuentro ya se fue).
             k.guardias[#k.guardias + 1] = { nombre = persona.nombre, apellido = persona.apellido, perfil = persona.perfil,
-                desde = Mundo.horas() + 0.5 }
+                desde = Mundo.horas() + 0.5, esperar = persona.esperar }
             avisarTodos(nombre .. " se queda en el campamento de " .. (c ~= nil and c.nombre or "?") .. " como guardia ("
                 .. #k.guardias .. " de " .. S.MAX_GUARDIAS .. ").")
         else
@@ -85,6 +85,39 @@ function S.sumarSalvado(contactoId, persona)
         end
     end
     pcall(S.revisar, c, C.estado(contactoId))
+end
+
+-- Accion de las historias: una persona con nombre llego al campamento y se queda de guardia
+-- (cuenta como salvada para el nivel). { "salvado_campamento", contacto = "muldraugh",
+-- nombre = "Celia", apellido = "Ortiz", perfil = "k93_...", grupo = "ortiz", rol = "celia" };
+-- sin contacto, el del arco. Con grupo y rol, el guardia no aparece mientras el NPC de la
+-- historia siga ahi (para que no haya dos iguales; se va con "retirar_lejos").
+Motor.inmediatas.salvado_campamento = function(inst, a)
+    local cid = a.contacto or (inst ~= nil and inst.vars ~= nil and inst.vars.contacto) or nil
+    if cid == nil or C.def(tostring(cid)) == nil then return true end
+    local esperar = nil
+    if inst ~= nil and inst.id ~= nil and a.grupo ~= nil and a.rol ~= nil then
+        esperar = { arco = inst.id, grupo = a.grupo, rol = a.rol, hasta = Mundo.horas() + S.ESPERA_MAXIMA }
+    end
+    S.sumarSalvado(tostring(cid), { nombre = a.nombre, apellido = a.apellido, perfil = a.perfil, esperar = esperar })
+    return true
+end
+
+-- Cuanto espera como maximo el guardia a que se vaya el NPC de la historia (horas).
+S.ESPERA_MAXIMA = 24
+
+-- El NPC de la historia que se va a convertir en este guardia sigue en el mundo?
+function S.esperaAlDeLaHistoria(g)
+    local e = g.esperar
+    if type(e) ~= "table" then return false end
+    if Mundo.horas() >= (tonumber(e.hasta) or 0) then g.esperar = nil; return false end
+    local inst = Motor.estado().arcos[tostring(e.arco)]
+    local gr = inst ~= nil and inst.grupos ~= nil and inst.grupos[e.grupo] or nil
+    local uid = gr ~= nil and gr.roles ~= nil and gr.roles[e.rol] or nil
+    local m = uid ~= nil and gr.miembros[uid] or nil
+    if m ~= nil and m.vivo and not m.retirado then return true end
+    g.esperar = nil
+    return false
 end
 
 local function banderasGuardia(e, inmortal)
@@ -136,7 +169,8 @@ function S.cuidarGuardias(c, e)
             if g.uid ~= nil then
                 pcall(Mundo.banderas, g.uid, banderasGuardia(e, k.ataque == nil), { x = e.x, y = e.y, z = 0 })
                 pcall(C.curar, g.uid)
-            elseif not pidio and Mundo.horas() >= (g.desde or 0) and (g.pidiendo == nil or Mundo.horas() - g.pidiendo > 0.25) then
+            elseif not pidio and Mundo.horas() >= (g.desde or 0) and (g.pidiendo == nil or Mundo.horas() - g.pidiendo > 0.25)
+                    and not S.esperaAlDeLaHistoria(g) then
                 g.pidiendo = nil
                 local j = Mundo.jugadorCerca(e.x, e.y, 70)
                 if j ~= nil and Mundo.cargado(e.x, e.y, 0) ~= nil then

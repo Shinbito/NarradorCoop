@@ -95,6 +95,27 @@ Lore.arcos.hija_cabo = {
     },
 }
 
+Lore.arcos.cap_cabo_4 = {
+    etapas = {
+        amos = "El Cabo me paso dos nombres de su libreta. El primero es Amos Pruitt, en {lugar:casa_amos}. Quiere una cruz o un 'vivo'. No un 'no se'.",
+        amos_casa = "Estoy en {lugar:casa_amos}. La puerta de la cocina esta trancada desde adentro. Alguien la tranco para que nadie entrara, no para que nadie saliera.",
+        ortiz = "Amos Pruitt se transformo en su cocina. Dejo una nota y su reloj para el censo del Cabo. Ahora voy por Celia Ortiz y su hijo Joaquin, a {lugar:casa_ortiz}.",
+        sitio = "Encontre a los Ortiz en {lugar:casa_ortiz}. Celia tiene un fierro en la mano y al hijo detras. Los muertos ya saben que estan aqui.",
+        hablar = "Los Ortiz estan vivos. Celia pensaba que el Cabo ya los habia tachado. El hijo nunca lo creyo.",
+        escolta = "Celia y Joaquin Ortiz van a la comisaria. Joaquin pregunta si el Cabo sigue planchandose el uniforme. Le digo que todos los dias.",
+        entrega = "Llegamos a la comisaria. Falta lo mas dificil: darle al Cabo el dato de Amos Pruitt.",
+    },
+    finales = {
+        final_cumplido = { por_var = "llegaron", textos = {
+            dos = "El Cabo le dio cuerda al reloj de Amos Pruitt y escribio una cruz con letra derecha. Al lado de los Ortiz escribio 'vivos', en mayusculas. Quedan cuatro signos de pregunta.",
+            otro = "El Cabo le dio cuerda al reloj de Amos Pruitt. De los Ortiz llego uno solo. En la misma pagina quedaron dos cruces y un 'vivo'." } },
+        final_sin_reloj = { por_var = "llegaron", textos = {
+            dos = "Le conte al Cabo lo de Amos Pruitt sin el reloj. Escribio la cruz igual, mas despacio que nunca. Al lado de los Ortiz escribio 'vivos'.",
+            otro = "Le conte al Cabo lo de Amos Pruitt sin el reloj. De los Ortiz llego uno solo. Escribio dos cruces y un 'vivo', mas despacio que nunca." } },
+        final_cruces = "Celia y Joaquin Ortiz murieron antes de llegar a la comisaria. El Cabo escribio dos cruces en la misma linea. Esa noche no se plancho el uniforme.",
+    },
+}
+
 -- ===========================================================================
 -- Padre Nacho
 -- ===========================================================================

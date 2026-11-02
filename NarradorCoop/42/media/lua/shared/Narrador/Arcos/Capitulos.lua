@@ -3,7 +3,7 @@
 -- cuando el anterior ya se hizo (G.ESPECIALES en server/Narrador/NarradorGenerador.lua) y cada
 -- uno deja la memoria "historia_<id>_<n>" (requisito para subir el campamento de nivel).
 --   Tia Chela  2: La radio del cuartel        (3: el cientifico, LeyendaEduardo.lua)
---   Cabo       2: La puerta de atras          (3: Valentina, HijaCabo.lua)
+--   Cabo       2: La puerta de atras          (3: Valentina, HijaCabo.lua)  4: Los signos de pregunta
 --   Padre Nacho 2: El ring de Lexington       3: La muchacha que esperaba
 --   Misia Rosa 2: La ruta 31                  3: El tanque      4: La carcel de Rosewood
 -- Textos sin tildes a proposito.
@@ -19,7 +19,8 @@ local function cierre(id, n, diario, extra)
         { "memoria", clave = "historia_" .. id .. "_" .. n, valor = true },
         { "diario", texto = diario },
     }
-    for _, a in ipairs(extra or {}) do table.insert(l, 1, a) end
+    -- Las acciones extra van antes, en el orden en que se escriben.
+    for i, a in ipairs(extra or {}) do table.insert(l, i, a) end
     return { final = true, al_entrar = l }
 end
 
@@ -28,7 +29,7 @@ local function fracaso(id, n, diario, extra)
         { "memoria", clave = "historia_" .. id .. "_" .. n, valor = "fallido" },
         { "diario", texto = diario },
     }
-    for _, a in ipairs(extra or {}) do table.insert(l, 1, a) end
+    for i, a in ipairs(extra or {}) do table.insert(l, i, a) end
     return { final = true, al_entrar = l }
 end
 
@@ -592,5 +593,169 @@ registrar({
         final_abandono = fracaso("rosewood", 4,
             "Nunca fui a la carcel de Rosewood. La Misia Rosa no me lo reclamo. Solo dijo que la armeria iba a seguir ahi, esperando a alguien mas valiente.",
             { { "decir_contacto", texto = "No importa, mijito. Esa carcel no se va a ninguna parte. Los muertos tampoco." } }),
+    },
+})
+
+-- ===========================================================================
+-- Cabo Ramiro, capitulo 4: Los signos de pregunta
+-- Despues de Gladys (cap. 2) y Valentina (cap. 3), el Cabo manda a revisar dos signos de
+-- pregunta de su libreta: Amos Pruitt (se transformo: queda su reloj y una nota) y Celia
+-- Ortiz con su hijo Joaquin (vivos y rodeados). Los Ortiz que llegan se quedan de guardias en
+-- la comisaria (salvado_campamento, NarradorCampamentos.lua).
+-- ===========================================================================
+local ORTIZ = "ortiz"
+local PERFIL_CELIA, PERFIL_JOAQUIN = "k93_ortiz_family_05", "k93_ortiz_family_04"
+
+-- Al llegar a la comisaria: los Ortiz vivos se quedan de guardias y el grupo se retira.
+local function ortizSeQuedan()
+    return {
+        { "soltar_acompanante", grupo = ORTIZ, rol = "celia" },
+        { "soltar_acompanante", grupo = ORTIZ, rol = "joaquin" },
+        { "decir", grupo = ORTIZ, rol = "celia", texto = "Cabo. Nos saco por la puerta de atras y nunca le dijimos nada. Gracias." },
+        { "decir", grupo = ORTIZ, rol = "joaquin", retraso = 0.03, texto = "Le dije a mi mama que usted iba a mandar a alguien. Se lo dije." },
+        { "salvado_campamento", contacto = "muldraugh", nombre = "Celia", apellido = "Ortiz", perfil = PERFIL_CELIA,
+          grupo = ORTIZ, rol = "celia", si = { "vivo", ORTIZ, "celia" } },
+        { "salvado_campamento", contacto = "muldraugh", nombre = "Joaquin", apellido = "Ortiz", perfil = PERFIL_JOAQUIN,
+          grupo = ORTIZ, rol = "joaquin", si = { "vivo", ORTIZ, "joaquin" } },
+        { "retirar_lejos", grupo = ORTIZ, lugar = "contacto", radio = 40, retraso = 1 },
+    }
+end
+
+local function unir(a, b)
+    local l = {}
+    for _, x in ipairs(a) do l[#l + 1] = x end
+    for _, x in ipairs(b) do l[#l + 1] = x end
+    return l
+end
+
+registrar({
+    id = "cap_cabo_4",
+    titulo = "Los signos de pregunta",
+    titulo_menu = "Historia del Cabo Ramiro, cap. 4: los signos de pregunta",
+    requiere_alife = true, automatico = false,
+    inicio = "encargo",
+    etapas = {
+        encargo = {
+            al_entrar = {
+                { "lugar", id = "casa_amos", desde = "contacto", salas = { "livingroom", "kitchen", "bedroom" }, min = 150, max = 700 },
+                { "lugar", id = "casa_ortiz", desde = "casa_amos", salas = { "bedroom", "livingroom", "kitchen" }, min = 400, max = 1100 },
+                { "decir_contacto", texto = "Civil. Quedan seis signos de pregunta en mi libreta. Dos tienen direccion: Amos Pruitt, en {lugar:casa_amos}, y Celia Ortiz con su hijo Joaquin, en {lugar:casa_ortiz}. Vaya, mire y vuelva con un dato. Una cruz o un 'vivo'. No me traiga un 'no se'." },
+                { "decir_residente", rol = "hija", retraso = 0.05, si = { "memoria", "hija_cabo", "salvada" },
+                  texto = "Lleva tres noches mirando esa pagina. Traelos, por favor. O traele algo para tachar, que tambien le sirve." },
+                { "decir_contacto", retraso = 0.05, si = { "memoria", "hija_cabo", "muerta" },
+                  texto = "Desde lo de Valentina no he tachado a nadie. No me deje la pagina en blanco, civil." },
+                { "mapa", lugar = "casa_amos", titulo = "Mapa del Cabo Ramiro: Amos Pruitt" },
+                { "mapa", lugar = "casa_ortiz", titulo = "Mapa del Cabo Ramiro: los Ortiz" },
+                { "diario", texto = "El Cabo me paso dos nombres de su libreta: Amos Pruitt, en {lugar:casa_amos}, y Celia Ortiz con su hijo, en {lugar:casa_ortiz}. Quiere una cruz o un 'vivo'. No un 'no se'." },
+            },
+            salidas = { { ir = "amos" } },
+        },
+        amos = {
+            pista = "Ir a {lugar:casa_amos} y averiguar que paso con Amos Pruitt.",
+            objetivo = "casa_amos",
+            salidas = { { cuando = { "cerca", "casa_amos", 40 }, ir = "amos_casa" } },
+        },
+        amos_casa = {
+            pista = "Buscar a Amos Pruitt en {lugar:casa_amos}.",
+            objetivo = "casa_amos",
+            al_entrar = {
+                { "oleada", lugar = "casa_amos", radio = 45, cantidad = { 8, 12 }, min = 12, max = 30 },
+                { "zombi_en", lugar = "casa_amos" },
+                { "nota", lugar = "casa_amos", titulo = "Nota en la mesa de la cocina",
+                  texto = "Cabo: me mordieron el martes, sacando agua del pozo. No abra la puerta. Le dejo mi reloj para su censo, asi sabe que fui yo y no otro. Gracias por los meses de mas. A. P." },
+                { "objeto", id = "reloj", lugar = "casa_amos", tipo = { "Base.Pocketwatch", "Base.WristWatch_Left_ClassicBrown" },
+                  nombre = "El reloj de Amos Pruitt" },
+            },
+            salidas = { { cuando = { "alguien_tiene", "reloj" }, ir = "ortiz" } },
+        },
+        ortiz = {
+            pista = "Ir a {lugar:casa_ortiz}, donde se esconden Celia Ortiz y su hijo Joaquin.",
+            objetivo = "casa_ortiz",
+            al_entrar = {
+                { "diario", texto = "Amos Pruitt se transformo en su cocina. Dejo una nota para el Cabo y su reloj, para que el censo no se equivoque. Me lo llevo." },
+            },
+            salidas = { { cuando = { "cerca", "casa_ortiz", 45 }, ir = "sitio" } },
+        },
+        sitio = {
+            pista = "Mantener vivos a Celia y Joaquin Ortiz en {lugar:casa_ortiz}: van {bajas:casa_ortiz} de {meta_ortiz}.",
+            objetivo = "casa_ortiz",
+            al_entrar = {
+                { "variable", nombre = "meta_ortiz", valor = 9999 },
+                { "npcs", id = ORTIZ, lugar = "casa_ortiz", radio = 40, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 4,
+                  postura = "friendly", perfiles = { { "celia", PERFIL_CELIA }, { "joaquin", PERFIL_JOAQUIN } },
+                  nombres = { celia = { "Celia", "Ortiz" }, joaquin = { "Joaquin", "Ortiz" } }, femeninos = { "celia" } },
+                { "oleada", lugar = "casa_ortiz", radio = 50, cantidad = 20, por_jugador = 8, fija = true, caminantes = true,
+                  min = 14, max = 32, meta = "meta_ortiz", meta_frac = 0.8 },
+                { "oleada", lugar = "casa_ortiz", radio = 50, cantidad = { 8, 12 }, min = 18, max = 35, retraso = 0.4 },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", ORTIZ }, ir = "final_cruces" },
+                { cuando = { { "grupo_listo", ORTIZ }, { "o", { "bajas_en", "casa_ortiz", "var:meta_ortiz", 60 },
+                    { { "horas", 1 }, { "sin_zombis", "casa_ortiz", 15 } } } }, ir = "hablar" },
+            },
+        },
+        hablar = {
+            pista = "Hablar con Celia Ortiz (clic derecho cerca).",
+            ancla = "casa_ortiz", ancla_grupo = ORTIZ, radio = 20,
+            al_entrar = {
+                { "decir", grupo = ORTIZ, rol = "celia", texto = "Te manda el Cabo? Ese hombre nos saco de la comisaria con una linterna y una lista. Pense que ya nos habia tachado." },
+                { "decir", grupo = ORTIZ, rol = "joaquin", retraso = 0.03, texto = "Te dije que iba a mandar a alguien, mama. Te dije." },
+            },
+            opciones = { { id = "llevar", texto = "Decirles que vayan con el Cabo; te espera en la comisaria",
+                dice = { rol = "celia", texto = "Vamos, Joaquin. Y peinate, que es el Cabo." } } },
+            salidas = {
+                { cuando = { "todos_muertos", ORTIZ }, ir = "final_cruces" },
+                { cuando = { "eleccion", "llevar" }, ir = "escolta" },
+            },
+        },
+        escolta = {
+            pista = "Celia y Joaquin Ortiz van por su cuenta a la comisaria. Vuelve con el Cabo Ramiro: te esperan alla.",
+            objetivo = "contacto",
+            al_entrar = {
+                { "acompanante", grupo = ORTIZ, rol = "celia", nombre = "Celia Ortiz", inmortal = false },
+                { "acompanante", grupo = ORTIZ, rol = "joaquin", nombre = "Joaquin Ortiz", inmortal = false },
+                { "banderas", grupo = ORTIZ, quietos = false, correa = 0 },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", ORTIZ }, ir = "final_cruces" },
+                { cuando = { "npc_cerca", ORTIZ, "contacto", 15 }, ir = "entrega" },
+            },
+        },
+        entrega = {
+            pista = "Darle al Cabo Ramiro el reloj de Amos Pruitt.",
+            ancla = "contacto",
+            al_entrar = {
+                -- Cuantos Ortiz llegaron (cambia lo que escribe el Cabo).
+                { "variable", nombre = "llegaron", valor = "dos" },
+                { "variable", nombre = "llegaron", valor = "uno", si = { "o", { "muerto", ORTIZ, "celia" }, { "muerto", ORTIZ, "joaquin" } } },
+            },
+            opciones = {
+                { id = "reloj", texto = "Darle al Cabo el reloj de Amos Pruitt", requiere = { "objeto", "reloj" }, falta = "No llevas el reloj de Amos." },
+                { id = "contar", texto = "Contarle lo de Amos (el reloj se perdio)" },
+            },
+            salidas = {
+                { cuando = { "eleccion", "reloj" }, ir = "final_cumplido" },
+                { cuando = { "eleccion", "contar" }, ir = "final_sin_reloj" },
+            },
+        },
+        final_cumplido = cierre("muldraugh", 4, { por_var = "llegaron", textos = {
+            dos = "Le di al Cabo el reloj de Amos Pruitt y le lleve a los Ortiz. Dio cuerda al reloj, lo escucho un rato y escribio una cruz al lado de Amos, con letra derecha. Al lado de Celia y Joaquin escribio 'vivos', en mayusculas. Quedan cuatro signos de pregunta.",
+            otro = "Le di al Cabo el reloj de Amos Pruitt. De los Ortiz llego solo uno. El Cabo escribio dos cruces y un 'vivo' en la misma pagina, y le dio cuerda al reloj sin decir nada. Quedan cuatro signos de pregunta." } },
+            unir(ortizSeQuedan(), {
+                { "decir_contacto", retraso = 0.05, texto = { por_var = "llegaron", textos = {
+                    dos = "Amos Pruitt. Le dio cuerda todos los dias de su vida. ... Cruz. Y aqui: vivos. En mayusculas, civil, mire. Quedan cuatro. Retirese y descanse. Es una orden.",
+                    otro = "Amos Pruitt. Le dio cuerda todos los dias de su vida. ... Cruz. Y aqui, una cruz y un vivo. Se hizo lo que se pudo, civil. Quedan cuatro." } } } })),
+        final_sin_reloj = cierre("muldraugh", 4, { por_var = "llegaron", textos = {
+            dos = "Le conte al Cabo lo de Amos Pruitt y le lleve a los Ortiz. Me pregunto dos veces si estaba seguro. Despues escribio la cruz igual, mas despacio que nunca. Al lado de Celia y Joaquin escribio 'vivos'.",
+            otro = "Le conte al Cabo lo de Amos Pruitt. De los Ortiz llego solo uno. Me pregunto dos veces si estaba seguro de todo. Despues escribio dos cruces y un 'vivo', mas despacio que nunca." } },
+            unir(ortizSeQuedan(), {
+                { "decir_contacto", retraso = 0.05, texto = { por_var = "llegaron", textos = {
+                    dos = "Esta seguro, civil? ... Esta seguro. Cruz, entonces. Y aqui: vivos. Quedan cuatro.",
+                    otro = "Esta seguro, civil? ... Esta seguro. Cruz, entonces. Y aqui, una cruz y un vivo. Quedan cuatro." } } } })),
+        final_cruces = fracaso("muldraugh", 4,
+            "Celia y Joaquin Ortiz murieron antes de llegar a la comisaria. El Cabo escribio dos cruces en la misma linea y cerro la libreta. Esa noche no se plancho el uniforme.",
+            { { "soltar_acompanante", grupo = ORTIZ, rol = "celia" },
+              { "soltar_acompanante", grupo = ORTIZ, rol = "joaquin" },
+              { "decir_contacto", texto = "Dos cruces. En la misma linea. ... Entendido, civil. Retirese." } }),
     },
 })
