@@ -161,4 +161,13 @@ Motor.propiosExtra.eduardo_residente = function(lista)
     if ed.uid ~= nil then lista[tostring(ed.uid)] = true end
 end
 
+-- Accion de las historias: habla Eduardo, si esta en el campamento de la Chela (o te sigue).
+-- { "decir_eduardo", texto = "..." }. Si no esta, no pasa nada.
+Motor.inmediatas.decir_eduardo = function(inst, a)
+    local ed = ED.st()
+    if ed.uid == nil or not Mundo.actorVivo(ed.uid) then return true end
+    Motor.decirUid(ed.uid, "Eduardo", Motor.texto(inst, a.texto or ""))
+    return true
+end
+
 return ED

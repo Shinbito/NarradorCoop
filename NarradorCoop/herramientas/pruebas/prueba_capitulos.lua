@@ -201,6 +201,84 @@ Motor.revisarSalidas(inst, 0)
 check(inst.final == "final_cruces" and m.historia_muldraugh_4 == "fallido", "mueren los dos: fallido")
 check(#guardias == 0, "nadie queda de guardia")
 
+-- ---------------------------------------------------------------------------
+-- 4. Tia Chela, capitulo 4
+-- ---------------------------------------------------------------------------
+limpiar()
+local ew = C.estado("westpoint")
+ew.x, ew.y, ew.z, ew.etiqueta = 2000, 2000, 0, "el cuartel"
+local CUARTEL = { x = 2000, y = 2000 }
+m.historia_westpoint_1, m.historia_westpoint_2, m.historia_westpoint_3 = true, true, true
+o = G.ofertaEspecial("westpoint", "medio", "g1")
+check(o ~= nil and o.def == "cap_chela_4", "con el cientifico hecho sale el cap. 4 de la Chela")
+-- Eduardo en el cuartel: habla. Sin Eduardo, no pasa nada.
+local ED = Narrador.EduardoResidente
+local habloEduardo = {}
+local decirUid = Motor.decirUid
+Motor.decirUid = function(uid, nombre, texto) if nombre == "Eduardo" then habloEduardo[#habloEduardo + 1] = texto end end
+Mundo.actorVivo = function(uid) return uid == "edu" end
+ED.st().uid = "edu"
+check(Motor.inmediatas.decir_eduardo({ vars = {}, lugares = {}, def = "cap_chela_4" }, { "decir_eduardo", texto = "Hola" }) == true
+    and habloEduardo[1] == "Hola", "decir_eduardo: habla si esta")
+ED.st().uid = nil
+Motor.inmediatas.decir_eduardo({ vars = {}, lugares = {}, def = "cap_chela_4" }, { "decir_eduardo", texto = "Chao" })
+check(#habloEduardo == 1, "decir_eduardo: sin Eduardo no pasa nada")
+Motor.decirUid = decirUid
+
+lugares.calle_main, lugares.refugio_doris = { x = 2100, y = 2000 }, { x = 4000, y = 2000 }
+inst = G.iniciarOferta(J, "westpoint", "medio", o)
+check(inst ~= nil and inst.etapa == "irma" and inst.vars.pueblo_doris ~= nil, "arranca en la calle Main, con el pueblo de Doris sorteado")
+local nombraIrma = false
+for _, d in ipairs(dichos) do if d:find("Irma", 1, true) then nombraIrma = true end end
+check(nombraIrma, "la Chela cuenta lo de Irma")
+px, py = 2100, 2000
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "irma_calle", "llega a la calle Main")
+local zombiMujer, relicario = false, false
+for _, p in ipairs(inst.pendientes) do
+    if p[1] == "zombi_en" and p.femenino then zombiMujer = true end
+    if p[1] == "objeto" and p.id == "relicario" then relicario = true end
+end
+check(zombiMujer and relicario, "Irma transformada y su relicario")
+tiene[1] = { etiqueta = inst.id .. ":relicario" }
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "doris", "con el relicario: a buscar a Doris")
+px, py = 4000, 2000
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "sitio", "llega donde Doris")
+inst.grupos.doris = { estado = "listo", miembros = { d1 = { rol = "doris", vivo = true } }, roles = { doris = "d1" }, nombres = {} }
+inst.vars.meta_doris = 20
+bajas = 20
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "hablar", "aguanta la horda: hablar con Doris")
+Motor.elegir(J, inst.id, "llevar")
+check(inst.etapa == "escolta", "Doris va al cuartel")
+Mundo.posicionActor = function() return CUARTEL.x + 2, CUARTEL.y end
+px, py = CUARTEL.x, CUARTEL.y
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "cuartel", "Doris y la Chela frente a frente")
+Motor.elegir(J, inst.id, "relicario")
+check(inst.final == "final_relicario" and m.historia_westpoint_4 == true, "le da el relicario: final_relicario")
+check(#guardias == 1 and guardias[1][1] == "westpoint" and guardias[1][2] == "Doris", "Doris se queda de guardia en el cuartel")
+
+-- Sin el relicario se puede cerrar igual; si Doris muere, fallido.
+limpiar()
+m.historia_westpoint_4 = nil
+inst = G.iniciarOferta(J, "westpoint", "medio", G.ofertaEspecial("westpoint", "medio", "g1"))
+inst.grupos.doris = { estado = "listo", miembros = { d1 = { rol = "doris", vivo = true } }, roles = { doris = "d1" }, nombres = {} }
+Motor.entrar(inst, "cuartel", 0)
+Motor.elegir(J, inst.id, "relicario")
+check(inst.final == nil, "sin el relicario no se puede dar")
+Motor.elegir(J, inst.id, "descansa")
+check(inst.final == "final_descansa" and m.historia_westpoint_4 == true, "le dice que descansa: final_descansa")
+limpiar()
+m.historia_westpoint_4 = nil
+inst = G.iniciarOferta(J, "westpoint", "medio", G.ofertaEspecial("westpoint", "medio", "g1"))
+Motor.entrar(inst, "escolta", 0)
+inst.grupos.doris = { estado = "listo", miembros = { d1 = { rol = "doris", vivo = false } }, roles = { doris = "d1" }, nombres = {} }
+Motor.revisarSalidas(inst, 0)
+check(inst.final == "final_muerta" and m.historia_westpoint_4 == "fallido" and #guardias == 0, "Doris muere: fallido y sin guardia")
+
 -- El guardia no aparece mientras el NPC de la historia siga en el mundo.
 st.arcos["x#1"] = { grupos = { ortiz = { roles = { celia = "u1" }, miembros = { u1 = { vivo = true } } } } }
 local g = { esperar = { arco = "x#1", grupo = "ortiz", rol = "celia", hasta = ahora + 24 } }

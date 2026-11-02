@@ -65,6 +65,23 @@ Lore.arcos.leyenda_eduardo = {
     },
 }
 
+Lore.arcos.cap_chela_4 = {
+    etapas = {
+        irma = "La primera noche la Chela saco a su vecina Irma Kemper de un incendio en la calle Main, ya mordida, y la dejo en la vereda. Irma sigue ahi. La Chela me pidio darle descanso.",
+        irma_calle = "Estoy en {lugar:calle_main}. Hay una muerta con delantal de flores en la vereda, justo donde la Chela la dejo. Lleva un relicario al cuello.",
+        doris = "Le di descanso a Irma Kemper. Tengo su relicario. Ahora voy por su hija, Doris, a {lugar:refugio_doris}.",
+        sitio = "Llegue a {lugar:refugio_doris}. Doris Kemper aguanta adentro con una radio y una pala. Los muertos ya la encontraron.",
+        hablar = "Doris esta viva. Su mama le decia que la Chela fue la unica que entro a buscarla esa noche.",
+        escolta = "Llevo a Doris al cuartel de West Point. Dice que tiene que preguntarle algo a la Chela, y que no lo va a hacer por radio.",
+        cuartel = "Doris y la Chela estan frente a frente en el cuartel. La Chela le conto lo de la vereda. Yo tengo el relicario de Irma en el bolsillo.",
+    },
+    finales = {
+        final_relicario = "Le di a Doris el relicario de su mama: adentro, una foto de Irma y la Chela jovenes en una fiesta del cuartel. Doris le dijo que no la dejo, que la saco del fuego. La Chela lloro delante de mi y no me regano. Dice que vuelve a apagar fuegos.",
+        final_descansa = "Le dije a Doris que su mama ya descansa y me guarde el relicario. Doris le dio las gracias a la Chela por entrar esa noche. La Chela salio con el camion a dar una vuelta larga, sola.",
+        final_muerta = "Doris Kemper murio antes de llegar al cuartel. La Chela escribio su nombre al lado del de Irma, en la pared de la cocina.",
+    },
+}
+
 -- ===========================================================================
 -- Cabo Ramiro
 -- ===========================================================================

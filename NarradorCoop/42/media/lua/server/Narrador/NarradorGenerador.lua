@@ -813,6 +813,11 @@ G.ESPECIALES = {
       titulo = "Un cientifico que dice tener la cura",
       resumen = { "Historia de la Tia Chela, cap. 3", "Para: un cientifico que pide ayuda por la radio",
                   "Donde: un hospital o laboratorio", "Pago: botin dificil", "Ojo: hay una horda" } },
+    { def = "cap_chela_4", contacto = "westpoint", capitulo = 4, requiere = "historia_westpoint_3",
+      hecho = "historia_westpoint_4", confianza = 4, pago = "dificil", chance = 1,
+      titulo = "La calle Main",
+      resumen = { "Historia de la Tia Chela, cap. 4", "Para: Irma y Doris Kemper, la vecina y su hija",
+                  "Donde: la calle Main y otro pueblo", "Pago: botin dificil", "Ojo: hay que traer a Doris viva" } },
 }
 
 -- El capitulo que deja esa memoria ("historia_<id>_<n>") ya esta escrito? Si no, no se pide.

@@ -9,6 +9,22 @@ memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias
 memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 
+## Capitulo 4 de la Tia Chela: la calle Main (0.13.4, falta probar en el juego)
+- `cap_chela_4` (Arcos/Capitulos.lua): sale con el capitulo 3 (el cientifico) hecho y confianza 4.
+  Pago dificil. Cierra la capa 4 de su perfil: la vecina que saco del incendio ya mordida y dejo
+  en la vereda.
+- La radio agarra la voz de Doris Kemper, la hija de Irma, rodeada en Muldraugh, Valley Station o
+  Riverside (sorteado). Antes hay que darle descanso a Irma en la calle Main de West Point (una
+  zombi con delantal y su relicario en el suelo). Con Doris: horda de 25 +10 por jugador extra,
+  sin corredores, y despues 6 a 9 corredores.
+- En el cuartel la Chela le confiesa lo de la vereda y uno elige: darle a Doris el relicario de su
+  mama (adentro, una foto de Irma y la Chela jovenes; la Chela vuelve a apagar fuegos) o decirle
+  que su mama ya descansa. Doris se queda de guardia en el cuartel (`salvado_campamento`).
+- Si Eduardo esta en el cuartel, habla: accion nueva `{ "decir_eduardo", texto }`
+  (NarradorEduardoResidente.lua; si no esta, no pasa nada).
+- Doris Kemper esta en "Los que ya no estan". Prueba: `prueba_capitulos.lua` (de punta a punta,
+  los dos finales buenos y el malo).
+
 ## Capitulo 4 del Cabo Ramiro: los signos de pregunta (0.13.3, falta probar en el juego)
 - `cap_cabo_4` (Arcos/Capitulos.lua): sale entre sus ofertas con el capitulo 3 (Valentina) hecho,
   aunque haya salido mal, y confianza 4. Pago dificil.
@@ -150,8 +166,8 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está
   historia). Partirlos no tiene mucha ganancia; se puede ver más adelante.
 
 ### 4. Contenido
-- Capítulos 4 en adelante de cada misionero. Hechos: Misia Rosa (la carcel, 0.13.0) y Cabo
-  Ramiro (los signos de pregunta, 0.13.3).
+- Capítulos 4 en adelante de cada misionero. Hechos: Misia Rosa (la carcel, 0.13.0), Cabo
+  Ramiro (los signos de pregunta, 0.13.3) y Tia Chela (la calle Main, 0.13.4).
 - ~~Más consecuencias para las memorias "solo de registro" (encuentros, alijo, trueque...).~~ Hecho
   para arsenal, denise, lucas, trueque, alijo y desertor (ver "Consecuencias de las decisiones");
   quedan solo de registro cal.fonda, eduardo_vivo, bandido_ultimo, asalto y las del motor.
@@ -612,7 +628,8 @@ frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
 - Archivos: `shared/Narrador/Arcos/Capitulos.lua` y `shared/Narrador/NarradorLoreCapitulos.lua`;
   se registran en `G.ESPECIALES`. Fundar el campamento es el capitulo 1 (memoria
   `historia_<id>_1`, tambien en partidas viejas).
-- Tia Chela: 2 La radio del cuartel (repuestos, antena y la voz de Eduardo) -> 3 el cientifico.
+- Tia Chela: 2 La radio del cuartel (repuestos, antena y la voz de Eduardo) -> 3 el cientifico
+  -> 4 La calle Main (darle descanso a Irma Kemper y traer a su hija Doris).
 - Cabo Ramiro: 2 La puerta de atras (rescatar a Gladys Moreno, una de los once; nombra a
   Pereira) -> 3 Valentina (la mision que estaba desactivada, ahora con confianza 4) -> 4 Los
   signos de pregunta (Amos Pruitt y los Ortiz; los que llegan quedan de guardias).
@@ -648,6 +665,7 @@ frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
 - Mapas de papel: `{ "mapa", lugar, titulo }`.
 - Alguien con nombre se queda de guardia en un campamento (cuenta para su nivel):
   `{ "salvado_campamento", contacto, nombre, apellido, perfil, grupo, rol }`.
+- Que hable Eduardo si esta en el cuartel de la Chela: `{ "decir_eduardo", texto }`.
 
 ### Qué ya existe en el código y sirve de base
 - Misioneros fijos por ciudad y encargos: `server/Narrador/NarradorContactos.lua`.

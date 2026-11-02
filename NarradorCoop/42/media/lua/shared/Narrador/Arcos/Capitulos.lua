@@ -2,7 +2,7 @@
 -- desbloqueo (fundar el campamento, Arcos/Desbloqueos.lua). Estos salen entre sus ofertas
 -- cuando el anterior ya se hizo (G.ESPECIALES en server/Narrador/NarradorGenerador.lua) y cada
 -- uno deja la memoria "historia_<id>_<n>" (requisito para subir el campamento de nivel).
---   Tia Chela  2: La radio del cuartel        (3: el cientifico, LeyendaEduardo.lua)
+--   Tia Chela  2: La radio del cuartel        (3: el cientifico, LeyendaEduardo.lua)  4: La calle Main
 --   Cabo       2: La puerta de atras          (3: Valentina, HijaCabo.lua)  4: Los signos de pregunta
 --   Padre Nacho 2: El ring de Lexington       3: La muchacha que esperaba
 --   Misia Rosa 2: La ruta 31                  3: El tanque      4: La carcel de Rosewood
@@ -757,5 +757,154 @@ registrar({
             { { "soltar_acompanante", grupo = ORTIZ, rol = "celia" },
               { "soltar_acompanante", grupo = ORTIZ, rol = "joaquin" },
               { "decir_contacto", texto = "Dos cruces. En la misma linea. ... Entendido, civil. Retirese." } }),
+    },
+})
+
+-- ===========================================================================
+-- Tia Chela, capitulo 4: La calle Main
+-- La primera noche la Chela saco a su vecina Irma Kemper de un incendio en la calle Main, ya
+-- mordida, y la tuvo que dejar en la vereda (capa 4 de su perfil). Desde ese dia no apaga
+-- fuegos. La radio del cuartel (cap. 2) agarra la voz de Doris, la hija de Irma, rodeada en
+-- otro pueblo. Primero hay que darle descanso a Irma (sigue en la calle Main) y despues traer
+-- a Doris. En el cuartel se decide si Doris recibe el relicario de su mama.
+-- ===========================================================================
+local DORIS = "doris"
+local PERFIL_DORIS = "k93_survivor_commune_09"
+local PUEBLOS_DORIS = { "Muldraugh", "Valley Station", "Riverside" }
+
+local function dorisSeQueda()
+    return {
+        { "salvado_campamento", contacto = "westpoint", nombre = "Doris", apellido = "Kemper", perfil = PERFIL_DORIS,
+          grupo = DORIS, rol = "doris", si = { "vivo", DORIS, "doris" } },
+        { "retirar_lejos", grupo = DORIS, lugar = "contacto", radio = 40, retraso = 1.5 },
+    }
+end
+
+registrar({
+    id = "cap_chela_4",
+    titulo = "La calle Main",
+    titulo_menu = "Historia de la Tia Chela, cap. 4: la calle Main",
+    requiere_alife = true, automatico = false,
+    sorteo = { pueblo_doris = { valores = PUEBLOS_DORIS } },
+    inicio = "encargo",
+    etapas = {
+        encargo = {
+            al_entrar = {
+                { "lugar", id = "calle_main", desde = "contacto", nombre = "la calle Main", salas = { "livingroom", "kitchen", "bedroom" },
+                  min = 40, max = 300 },
+                { "lugar", id = "refugio_doris", pueblo = "var:pueblo_doris", salas = { "firestorage", "office", "livingroom" },
+                  respaldo = { "kitchen", "bedroom" }, cerca_del_centro = true },
+                { "decir_contacto", texto = "Mijo, sientate. Anoche la radio agarro una voz. Doris Kemper. La hija de la Irma, mi vecina de la calle Main. La que saque del incendio la primera noche, ya mordida, y deje en la vereda. Doris esta viva en {lugar:refugio_doris}, con los muertos encima. Traemela." },
+                { "decir_contacto", retraso = 0.05, texto = "Y otra cosa. La Irma sigue en la calle Main, mijo. La veo cada vez que salgo con el camion. Dale descanso. Yo no puedo. No la puedo dejar asi otra vez." },
+                { "decir_eduardo", retraso = 0.1, texto = "La Irma? La del queque de los domingos? ... Anda tu, amigo. Yo me quedo con la vieja." },
+                { "mapa", lugar = "calle_main", titulo = "Mapa de la Tia Chela: la calle Main" },
+                { "mapa", lugar = "refugio_doris", titulo = "Mapa de la Tia Chela: Doris Kemper" },
+                { "diario", texto = "La Tia Chela me conto lo de la calle Main: la primera noche saco a su vecina Irma Kemper de un incendio, ya mordida, y la dejo en la vereda. La hija, Doris, esta viva en {lugar:refugio_doris}. Antes, la Chela me pidio darle descanso a Irma." },
+            },
+            salidas = { { ir = "irma" } },
+        },
+        irma = {
+            pista = "Ir a {lugar:calle_main} y darle descanso a Irma Kemper.",
+            objetivo = "calle_main",
+            salidas = { { cuando = { "cerca", "calle_main", 35 }, ir = "irma_calle" } },
+        },
+        irma_calle = {
+            pista = "Darle descanso a Irma Kemper en {lugar:calle_main} y recoger su relicario.",
+            objetivo = "calle_main",
+            al_entrar = {
+                { "aviso", texto = "En la vereda de la calle Main hay una muerta con delantal de flores y un relicario al cuello. No se ha movido de ahi en todo este tiempo." },
+                { "zombi_en", lugar = "calle_main", femenino = true },
+                { "oleada", lugar = "calle_main", radio = 40, cantidad = { 5, 8 }, min = 15, max = 30, retraso = 0.05 },
+                { "objeto", id = "relicario", lugar = "calle_main", tipo = { "Base.Locket", "Base.Necklace_Silver" },
+                  nombre = "El relicario de Irma Kemper" },
+            },
+            salidas = { { cuando = { "alguien_tiene", "relicario" }, ir = "doris" } },
+        },
+        doris = {
+            pista = "Ir a {lugar:refugio_doris}, donde Doris Kemper aguanta con los muertos encima.",
+            objetivo = "refugio_doris",
+            al_entrar = {
+                { "diario", texto = "Le di descanso a Irma Kemper en la calle Main. Llevaba un relicario al cuello; me lo guarde para su hija." },
+            },
+            salidas = { { cuando = { "cerca", "refugio_doris", 50 }, ir = "sitio" } },
+        },
+        sitio = {
+            pista = "Mantener viva a Doris Kemper en {lugar:refugio_doris}: van {bajas:refugio_doris} de {meta_doris}.",
+            objetivo = "refugio_doris",
+            al_entrar = {
+                { "variable", nombre = "meta_doris", valor = 9999 },
+                { "npcs", id = DORIS, lugar = "refugio_doris", radio = 40, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 4,
+                  postura = "friendly", perfiles = { { "doris", PERFIL_DORIS } }, nombres = { doris = { "Doris", "Kemper" } }, femeninos = { "doris" } },
+                { "oleada", lugar = "refugio_doris", radio = 50, cantidad = 25, por_jugador = 10, fija = true, caminantes = true,
+                  min = 14, max = 35, meta = "meta_doris", meta_frac = 0.8 },
+                { "oleada", lugar = "refugio_doris", radio = 50, cantidad = { 6, 9 }, correr = true, min = 25, max = 40, retraso = 0.5 },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", DORIS }, ir = "final_muerta" },
+                { cuando = { { "grupo_listo", DORIS }, { "o", { "bajas_en", "refugio_doris", "var:meta_doris", 60 },
+                    { { "horas", 1 }, { "sin_zombis", "refugio_doris", 15 } } } }, ir = "hablar" },
+            },
+        },
+        hablar = {
+            pista = "Hablar con Doris Kemper (clic derecho cerca).",
+            ancla = "refugio_doris", ancla_grupo = DORIS, radio = 20,
+            al_entrar = {
+                { "decir", grupo = DORIS, rol = "doris", texto = "La Chela? La Chela Recados, la bombera? Mi mama decia que fue la unica que entro a buscarla esa noche. La unica. Nunca supe que paso despues." },
+            },
+            opciones = { { id = "llevar", texto = "Decirle que la Chela la espera en el cuartel de West Point",
+                dice = { rol = "doris", texto = "Vamos. Tengo que preguntarle algo y no lo voy a hacer por radio." } } },
+            salidas = {
+                { cuando = { "todos_muertos", DORIS }, ir = "final_muerta" },
+                { cuando = { "eleccion", "llevar" }, ir = "escolta" },
+            },
+        },
+        escolta = {
+            pista = "Doris Kemper va por su cuenta al cuartel de la Tia Chela. Vuelve con la Chela: te espera alla.",
+            objetivo = "contacto",
+            al_entrar = {
+                { "acompanante", grupo = DORIS, rol = "doris", nombre = "Doris Kemper", inmortal = false },
+                { "banderas", grupo = DORIS, quietos = false, correa = 0 },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", DORIS }, ir = "final_muerta" },
+                { cuando = { "npc_cerca", DORIS, "contacto", 15 }, ir = "cuartel" },
+            },
+        },
+        cuartel = {
+            pista = "Doris Kemper y la Tia Chela, frente a frente en el cuartel. Decide que le dices a Doris.",
+            ancla = "contacto",
+            al_entrar = {
+                { "soltar_acompanante", grupo = DORIS, rol = "doris" },
+                { "decir", grupo = DORIS, rol = "doris", texto = "Usted es la Chela. ... Que paso con mi mama esa noche?" },
+                { "decir_contacto", retraso = 0.05, texto = "La saque del fuego, hija. Ya estaba mordida. Y la deje en la vereda. Treinta anos de bombera y la deje en la vereda. Desde ese dia no apago un fuego." },
+            },
+            opciones = {
+                { id = "relicario", texto = "Darle a Doris el relicario de su mama", requiere = { "objeto", "relicario" },
+                  falta = "No llevas el relicario de Irma." },
+                { id = "descansa", texto = "Decirle a Doris que su mama ya descansa" },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", DORIS }, ir = "final_muerta" },
+                { cuando = { "eleccion", "relicario" }, ir = "final_relicario" },
+                { cuando = { "eleccion", "descansa" }, ir = "final_descansa" },
+            },
+        },
+        final_relicario = cierre("westpoint", 4,
+            "Le di a Doris el relicario de su mama. Adentro habia una foto vieja: Irma y la Chela, jovenes, en una fiesta del cuartel. Doris le dijo a la Chela que no la dejo: que la saco del fuego, y que lo otro lo hizo el mundo. La Chela lloro delante de mi por primera vez y no me regano.",
+            unir({
+                { "decir", grupo = DORIS, rol = "doris", texto = "Son ustedes dos. En el cuartel. ... Usted no la dejo, Chela. La saco del fuego. Lo otro lo hizo el mundo." },
+                { "decir_contacto", retraso = 0.05, texto = "Ay, mijita. ... Mijo, no me mires. Mirame nomas, ya da lo mismo. Desde hoy vuelvo a apagar fuegos. Toma, te lo ganaste." },
+                { "decir_eduardo", retraso = 0.1, texto = "Hace anos que no la veia llorar asi, amigo. Gracias." },
+            }, dorisSeQueda())),
+        final_descansa = cierre("westpoint", 4,
+            "Le dije a Doris que su mama ya descansa. No le di el relicario. Doris le dio la mano a la Chela y le dijo gracias por entrar esa noche. La Chela no dijo nada; esa tarde salio con el camion a dar una vuelta larga, sola.",
+            unir({
+                { "decir", grupo = DORIS, rol = "doris", texto = "Ya descansa. ... Gracias por entrar esa noche, Chela. Usted fue la unica." },
+                { "decir_contacto", retraso = 0.05, texto = "Gracias a ti, hija. Quedate aca, que aca se come. Mijo, toma. Y gracias por lo de la calle Main." },
+            }, dorisSeQueda())),
+        final_muerta = fracaso("westpoint", 4,
+            "Doris Kemper murio antes de llegar al cuartel. La Chela no pregunto como. Guardo su nombre al lado del de Irma, en la pared de la cocina, y esa noche tampoco apago el fuego de la estufa.",
+            { { "soltar_acompanante", grupo = DORIS, rol = "doris" },
+              { "decir_contacto", texto = "Las dos, mijo. La mama y la hija. ... Anda a descansar. Yo me quedo un rato aca." } }),
     },
 })
