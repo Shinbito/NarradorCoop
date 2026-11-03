@@ -14,6 +14,7 @@ Que leer:
 - `rol/ronda1.md` a `rol/ronda4.md`: los registros completos del rol, por si se quiere la escena original.
   Ronda 1: antes de todo. Ronda 2: la primera noche. Ronda 3: hoy en Knox. Ronda 4: los encuentros.
   `rol/diferenciar.md`: los motivos que ya tienen dueno (para no repetir secretos entre personajes).
+- `secundarios/`: los 100 vecinos de los encargos generados (vida antes y despues, y sus textos para el juego).
 
 Lo que se fijo para todos:
 - El brote en Knox es el viernes 9 de julio de 1993. El presente del rol es fines de noviembre y diciembre de 1993.

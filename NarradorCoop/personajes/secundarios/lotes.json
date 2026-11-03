@@ -1,0 +1,1002 @@
+[
+ {
+  "id": "s001",
+  "nombre": "Eugene",
+  "apellido": "Patrick",
+  "sexo": "h",
+  "edad_1993": 18,
+  "pueblo": "Muldraugh",
+  "oficio": "mecanico",
+  "semilla": "sobreviviente de cancer, en remision desde 1990"
+ },
+ {
+  "id": "s002",
+  "nombre": "Winnie",
+  "apellido": "Caldwell",
+  "sexo": "m",
+  "edad_1993": 55,
+  "pueblo": "West Point",
+  "oficio": "costurera",
+  "semilla": "dueno de una tienda de cebo y pesca"
+ },
+ {
+  "id": "s003",
+  "nombre": "Ike",
+  "apellido": "Justice",
+  "sexo": "h",
+  "edad_1993": 30,
+  "pueblo": "Riverside",
+  "oficio": "electricista",
+  "semilla": "ex convicto que salio en 1991 y trabaja de lo que pueda"
+ },
+ {
+  "id": "s004",
+  "nombre": "Bernice",
+  "apellido": "Marchetti",
+  "sexo": "m",
+  "edad_1993": 67,
+  "pueblo": "Rosewood",
+  "oficio": "policia",
+  "semilla": "vendia biblias y seguros funerarios"
+ },
+ {
+  "id": "s005",
+  "nombre": "Chester",
+  "apellido": "Zornes",
+  "sexo": "h",
+  "edad_1993": 42,
+  "pueblo": "Muldraugh",
+  "oficio": "profesora",
+  "semilla": "ex boxeador de la armada"
+ },
+ {
+  "id": "s006",
+  "nombre": "Halina",
+  "apellido": "Nunley",
+  "sexo": "m",
+  "edad_1993": 79,
+  "pueblo": "West Point",
+  "oficio": "enfermera",
+  "semilla": "bibliotecaria del condado"
+ },
+ {
+  "id": "s007",
+  "nombre": "Ferrell",
+  "apellido": "Underwood",
+  "sexo": "h",
+  "edad_1993": 54,
+  "pueblo": "Riverside",
+  "oficio": "cocinera",
+  "semilla": "ex minero de carbon de Harlan con los pulmones malos"
+ },
+ {
+  "id": "s008",
+  "nombre": "Alma",
+  "apellido": "Isom",
+  "sexo": "m",
+  "edad_1993": 29,
+  "pueblo": "Rosewood",
+  "oficio": "pastora",
+  "semilla": "telefonista de la central de Brandenburg"
+ },
+ {
+  "id": "s009",
+  "nombre": "Mose",
+  "apellido": "LeBlanc",
+  "sexo": "h",
+  "edad_1993": 66,
+  "pueblo": "Muldraugh",
+  "oficio": "carpintero",
+  "semilla": "trabajaba de noche en una fabrica de whisky"
+ },
+ {
+  "id": "s010",
+  "nombre": "Sybil",
+  "apellido": "Hall",
+  "sexo": "m",
+  "edad_1993": 41,
+  "pueblo": "West Point",
+  "oficio": "cazador",
+  "semilla": "ordenaba vacas en una lecheria"
+ },
+ {
+  "id": "s011",
+  "nombre": "Clint",
+  "apellido": "Kincaid",
+  "sexo": "h",
+  "edad_1993": 78,
+  "pueblo": "Riverside",
+  "oficio": "granjero",
+  "semilla": "chofer de bus escolar por 30 anos"
+ },
+ {
+  "id": "s012",
+  "nombre": "Flossie",
+  "apellido": "Middleton",
+  "sexo": "m",
+  "edad_1993": 53,
+  "pueblo": "Rosewood",
+  "oficio": "camionero",
+  "semilla": "polaca de Chicago que llego por un novio"
+ },
+ {
+  "id": "s013",
+  "nombre": "Duc",
+  "apellido": "Halcomb",
+  "sexo": "h",
+  "edad_1993": 28,
+  "pueblo": "Muldraugh",
+  "oficio": "mecanico",
+  "semilla": "payaso de cumpleanos los fines de semana"
+ },
+ {
+  "id": "s014",
+  "nombre": "Minnie",
+  "apellido": "Creech",
+  "sexo": "m",
+  "edad_1993": 65,
+  "pueblo": "West Point",
+  "oficio": "costurera",
+  "semilla": "cosia uniformes para el Fuerte Knox"
+ },
+ {
+  "id": "s015",
+  "nombre": "Felix",
+  "apellido": "Dupree",
+  "sexo": "h",
+  "edad_1993": 40,
+  "pueblo": "Riverside",
+  "oficio": "electricista",
+  "semilla": "radioaficionado que habla con medio mundo"
+ },
+ {
+  "id": "s016",
+  "nombre": "Ora",
+  "apellido": "Click",
+  "sexo": "m",
+  "edad_1993": 77,
+  "pueblo": "Rosewood",
+  "oficio": "policia",
+  "semilla": "viuda tres veces; el pueblo dice que trae mala suerte"
+ },
+ {
+  "id": "s017",
+  "nombre": "Ezra",
+  "apellido": "Freeman",
+  "sexo": "h",
+  "edad_1993": 52,
+  "pueblo": "Muldraugh",
+  "oficio": "profesora",
+  "semilla": "refugiado cubano del Mariel (1980)"
+ },
+ {
+  "id": "s018",
+  "nombre": "Lacey",
+  "apellido": "Swafford",
+  "sexo": "m",
+  "edad_1993": 27,
+  "pueblo": "West Point",
+  "oficio": "enfermera",
+  "semilla": "embarazada de siete meses en julio de 1993"
+ },
+ {
+  "id": "s019",
+  "nombre": "Irvin",
+  "apellido": "Dotson",
+  "sexo": "h",
+  "edad_1993": 64,
+  "pueblo": "Riverside",
+  "oficio": "cocinera",
+  "semilla": "piloto de carreras de autos en pista de tierra"
+ },
+ {
+  "id": "s020",
+  "nombre": "Lula",
+  "apellido": "Rose",
+  "sexo": "m",
+  "edad_1993": 39,
+  "pueblo": "Rosewood",
+  "oficio": "pastora",
+  "semilla": "granjera de tabaco que heredo la tierra del padre"
+ },
+ {
+  "id": "s021",
+  "nombre": "Terrell",
+  "apellido": "Strunk",
+  "sexo": "h",
+  "edad_1993": 76,
+  "pueblo": "Muldraugh",
+  "oficio": "carpintero",
+  "semilla": "dueno de un autocine"
+ },
+ {
+  "id": "s022",
+  "nombre": "Ruby",
+  "apellido": "Duncan",
+  "sexo": "m",
+  "edad_1993": 51,
+  "pueblo": "West Point",
+  "oficio": "cazador",
+  "semilla": "trabajaba en el deposito de oro de Fort Knox"
+ },
+ {
+  "id": "s023",
+  "nombre": "Willis",
+  "apellido": "Prater",
+  "sexo": "h",
+  "edad_1993": 26,
+  "pueblo": "Riverside",
+  "oficio": "granjero",
+  "semilla": "padre soltero de mellizos"
+ },
+ {
+  "id": "s024",
+  "nombre": "Thelma",
+  "apellido": "Collins",
+  "sexo": "m",
+  "edad_1993": 63,
+  "pueblo": "Rosewood",
+  "oficio": "camionero",
+  "semilla": "recien casado en junio de 1993"
+ },
+ {
+  "id": "s025",
+  "nombre": "Odell",
+  "apellido": "Branham",
+  "sexo": "h",
+  "edad_1993": 38,
+  "pueblo": "Muldraugh",
+  "oficio": "mecanico",
+  "semilla": "vaquero de rodeo"
+ },
+ {
+  "id": "s026",
+  "nombre": "Lan",
+  "apellido": "Turpin",
+  "sexo": "m",
+  "edad_1993": 75,
+  "pueblo": "West Point",
+  "oficio": "costurera",
+  "semilla": "adoptado, busca a su madre biologica desde hace anos"
+ },
+ {
+  "id": "s027",
+  "nombre": "Tobias",
+  "apellido": "Gilley",
+  "sexo": "h",
+  "edad_1993": 50,
+  "pueblo": "Riverside",
+  "oficio": "electricista",
+  "semilla": "viudo que todavia le habla a su esposa muerta"
+ },
+ {
+  "id": "s028",
+  "nombre": "Ina",
+  "apellido": "Lyons",
+  "sexo": "m",
+  "edad_1993": 25,
+  "pueblo": "Rosewood",
+  "oficio": "policia",
+  "semilla": "campeona estatal de ortografia en 1962"
+ },
+ {
+  "id": "s029",
+  "nombre": "Thaddeus",
+  "apellido": "Hacker",
+  "sexo": "h",
+  "edad_1993": 62,
+  "pueblo": "Muldraugh",
+  "oficio": "profesora",
+  "semilla": "carnicero del pueblo"
+ },
+ {
+  "id": "s030",
+  "nombre": "Etta",
+  "apellido": "Castle",
+  "sexo": "m",
+  "edad_1993": 37,
+  "pueblo": "West Point",
+  "oficio": "enfermera",
+  "semilla": "profesora de piano de medio pueblo"
+ },
+ {
+  "id": "s031",
+  "nombre": "Luther",
+  "apellido": "Sandoval",
+  "sexo": "h",
+  "edad_1993": 74,
+  "pueblo": "Riverside",
+  "oficio": "cocinera",
+  "semilla": "hijo de un predicador que manejaba serpientes"
+ },
+ {
+  "id": "s032",
+  "nombre": "Jolene",
+  "apellido": "Hatfield",
+  "sexo": "m",
+  "edad_1993": 49,
+  "pueblo": "Rosewood",
+  "oficio": "pastora",
+  "semilla": "ex monja que colgo los habitos en 1970"
+ },
+ {
+  "id": "s033",
+  "nombre": "Jimmy",
+  "apellido": "Burkhart",
+  "sexo": "h",
+  "edad_1993": 24,
+  "pueblo": "Muldraugh",
+  "oficio": "carpintero",
+  "semilla": "taxidermista"
+ },
+ {
+  "id": "s034",
+  "nombre": "Rhoda",
+  "apellido": "Griffith",
+  "sexo": "m",
+  "edad_1993": 61,
+  "pueblo": "West Point",
+  "oficio": "cazador",
+  "semilla": "madre de nueve hijos"
+ },
+ {
+  "id": "s035",
+  "nombre": "Jethro",
+  "apellido": "Thibodeaux",
+  "sexo": "h",
+  "edad_1993": 36,
+  "pueblo": "Riverside",
+  "oficio": "granjero",
+  "semilla": "operador de radio de la policia estatal"
+ },
+ {
+  "id": "s036",
+  "nombre": "Aurelia",
+  "apellido": "Gayheart",
+  "sexo": "m",
+  "edad_1993": 73,
+  "pueblo": "Rosewood",
+  "oficio": "camionero",
+  "semilla": "campeona de tiro al plato"
+ },
+ {
+  "id": "s037",
+  "nombre": "Marvin",
+  "apellido": "Stacy",
+  "sexo": "h",
+  "edad_1993": 48,
+  "pueblo": "Muldraugh",
+  "oficio": "mecanico",
+  "semilla": "musico de bluegrass que casi graba un disco en Nashville"
+ },
+ {
+  "id": "s038",
+  "nombre": "Mabel",
+  "apellido": "Farmer",
+  "sexo": "m",
+  "edad_1993": 23,
+  "pueblo": "West Point",
+  "oficio": "costurera",
+  "semilla": "crecio en un orfanato catolico de Louisville"
+ },
+ {
+  "id": "s039",
+  "nombre": "Silas",
+  "apellido": "Carver",
+  "sexo": "h",
+  "edad_1993": 60,
+  "pueblo": "Riverside",
+  "oficio": "electricista",
+  "semilla": "campeon estatal de lucha libre en la secundaria"
+ },
+ {
+  "id": "s040",
+  "nombre": "Pansy",
+  "apellido": "Rosales",
+  "sexo": "m",
+  "edad_1993": 35,
+  "pueblo": "Rosewood",
+  "oficio": "policia",
+  "semilla": "duena de un motel de carretera"
+ },
+ {
+  "id": "s041",
+  "nombre": "Elmo",
+  "apellido": "Pace",
+  "sexo": "h",
+  "edad_1993": 72,
+  "pueblo": "Muldraugh",
+  "oficio": "profesora",
+  "semilla": "reparador de relojes"
+ },
+ {
+  "id": "s042",
+  "nombre": "Sadie",
+  "apellido": "Petrov",
+  "sexo": "m",
+  "edad_1993": 47,
+  "pueblo": "West Point",
+  "oficio": "enfermera",
+  "semilla": "actriz del teatro comunitario"
+ },
+ {
+  "id": "s043",
+  "nombre": "Ozzie",
+  "apellido": "Ward",
+  "sexo": "h",
+  "edad_1993": 22,
+  "pueblo": "Riverside",
+  "oficio": "cocinera",
+  "semilla": "piloto de avioneta fumigadora"
+ },
+ {
+  "id": "s044",
+  "nombre": "Krystyna",
+  "apellido": "Trujillo",
+  "sexo": "m",
+  "edad_1993": 59,
+  "pueblo": "Rosewood",
+  "oficio": "pastora",
+  "semilla": "sordo de nacimiento, lee los labios"
+ },
+ {
+  "id": "s045",
+  "nombre": "Burl",
+  "apellido": "Meade",
+  "sexo": "h",
+  "edad_1993": 34,
+  "pueblo": "Muldraugh",
+  "oficio": "carpintero",
+  "semilla": "hacia mapas para el condado"
+ },
+ {
+  "id": "s046",
+  "nombre": "Twila",
+  "apellido": "Fairchild",
+  "sexo": "m",
+  "edad_1993": 71,
+  "pueblo": "West Point",
+  "oficio": "cazador",
+  "semilla": "enfermera veterana de Vietnam"
+ },
+ {
+  "id": "s047",
+  "nombre": "Delmer",
+  "apellido": "Hurt",
+  "sexo": "h",
+  "edad_1993": 46,
+  "pueblo": "Riverside",
+  "oficio": "granjero",
+  "semilla": "gano la loteria estatal en 1985 y lo perdio todo"
+ },
+ {
+  "id": "s048",
+  "nombre": "Ofelia",
+  "apellido": "Cantrell",
+  "sexo": "m",
+  "edad_1993": 21,
+  "pueblo": "Rosewood",
+  "oficio": "camionero",
+  "semilla": "duena de un salon de belleza, sabe los secretos de todas"
+ },
+ {
+  "id": "s049",
+  "nombre": "Stanislaw",
+  "apellido": "McCoy",
+  "sexo": "h",
+  "edad_1993": 58,
+  "pueblo": "Muldraugh",
+  "oficio": "mecanico",
+  "semilla": "ex marine, Beirut 1983"
+ },
+ {
+  "id": "s050",
+  "nombre": "Verna",
+  "apellido": "Rice",
+  "sexo": "m",
+  "edad_1993": 33,
+  "pueblo": "West Point",
+  "oficio": "costurera",
+  "semilla": "criador de caballos en quiebra"
+ },
+ {
+  "id": "s051",
+  "nombre": "Ned",
+  "apellido": "Perkins",
+  "sexo": "h",
+  "edad_1993": 70,
+  "pueblo": "Riverside",
+  "oficio": "electricista",
+  "semilla": "rescataba perros abandonados"
+ },
+ {
+  "id": "s052",
+  "nombre": "Nadine",
+  "apellido": "Yonts",
+  "sexo": "m",
+  "edad_1993": 45,
+  "pueblo": "Rosewood",
+  "oficio": "policia",
+  "semilla": "cantante de un bar de carretera"
+ },
+ {
+  "id": "s053",
+  "nombre": "Emmett",
+  "apellido": "Stamper",
+  "sexo": "h",
+  "edad_1993": 20,
+  "pueblo": "Muldraugh",
+  "oficio": "profesora",
+  "semilla": "ex jockey"
+ },
+ {
+  "id": "s054",
+  "nombre": "Thuy",
+  "apellido": "Cavanaugh",
+  "sexo": "m",
+  "edad_1993": 57,
+  "pueblo": "West Point",
+  "oficio": "enfermera",
+  "semilla": "apicultor"
+ },
+ {
+  "id": "s055",
+  "nombre": "Ralph",
+  "apellido": "Spencer",
+  "sexo": "h",
+  "edad_1993": 32,
+  "pueblo": "Riverside",
+  "oficio": "cocinera",
+  "semilla": "de una familia que destila whisky ilegal hace tres generaciones"
+ },
+ {
+  "id": "s056",
+  "nombre": "Hester",
+  "apellido": "Tolliver",
+  "sexo": "m",
+  "edad_1993": 69,
+  "pueblo": "Rosewood",
+  "oficio": "pastora",
+  "semilla": "cojea por la polio que le dio de nino"
+ },
+ {
+  "id": "s057",
+  "nombre": "Benny",
+  "apellido": "Watts",
+  "sexo": "h",
+  "edad_1993": 44,
+  "pueblo": "Muldraugh",
+  "oficio": "carpintero",
+  "semilla": "estrella de futbol americano de la secundaria que se lesiono la rodilla"
+ },
+ {
+  "id": "s058",
+  "nombre": "Maxine",
+  "apellido": "Sloan",
+  "sexo": "m",
+  "edad_1993": 19,
+  "pueblo": "West Point",
+  "oficio": "cazador",
+  "semilla": "huyo de un marido violento en 1989 y se cambio el apellido"
+ },
+ {
+  "id": "s059",
+  "nombre": "Quincy",
+  "apellido": "Wisniewski",
+  "sexo": "h",
+  "edad_1993": 56,
+  "pueblo": "Riverside",
+  "oficio": "granjero",
+  "semilla": "de una familia de funerarios"
+ },
+ {
+  "id": "s060",
+  "nombre": "Kay",
+  "apellido": "Harmon",
+  "sexo": "m",
+  "edad_1993": 31,
+  "pueblo": "Rosewood",
+  "oficio": "camionero",
+  "semilla": "testigo protegido con otro nombre"
+ },
+ {
+  "id": "s061",
+  "nombre": "Waylon",
+  "apellido": "Damron",
+  "sexo": "h",
+  "edad_1993": 68,
+  "pueblo": "Muldraugh",
+  "oficio": "mecanico",
+  "semilla": "presidente del club de los Elks"
+ },
+ {
+  "id": "s062",
+  "nombre": "Goldie",
+  "apellido": "Helton",
+  "sexo": "m",
+  "edad_1993": 43,
+  "pueblo": "West Point",
+  "oficio": "costurera",
+  "semilla": "cartera rural, conoce cada camino de tierra"
+ },
+ {
+  "id": "s063",
+  "nombre": "Norris",
+  "apellido": "Terry",
+  "sexo": "h",
+  "edad_1993": 18,
+  "pueblo": "Riverside",
+  "oficio": "electricista",
+  "semilla": "estudiante de veterinaria"
+ },
+ {
+  "id": "s064",
+  "nombre": "Elsie",
+  "apellido": "Blevins",
+  "sexo": "m",
+  "edad_1993": 55,
+  "pueblo": "Rosewood",
+  "oficio": "policia",
+  "semilla": "chef de un restaurante elegante de Louisville"
+ },
+ {
+  "id": "s065",
+  "nombre": "Milo",
+  "apellido": "Kidd",
+  "sexo": "h",
+  "edad_1993": 30,
+  "pueblo": "Muldraugh",
+  "oficio": "profesora",
+  "semilla": "coleccionista de discos de jazz"
+ },
+ {
+  "id": "s066",
+  "nombre": "Reba",
+  "apellido": "Elam",
+  "sexo": "m",
+  "edad_1993": 67,
+  "pueblo": "West Point",
+  "oficio": "enfermera",
+  "semilla": "apostador de carreras de caballos en Churchill Downs"
+ },
+ {
+  "id": "s067",
+  "nombre": "Forrest",
+  "apellido": "Hollon",
+  "sexo": "h",
+  "edad_1993": 42,
+  "pueblo": "Riverside",
+  "oficio": "cocinera",
+  "semilla": "organista de la iglesia"
+ },
+ {
+  "id": "s068",
+  "nombre": "Beulah",
+  "apellido": "Okonkwo",
+  "sexo": "m",
+  "edad_1993": 79,
+  "pueblo": "Rosewood",
+  "oficio": "pastora",
+  "semilla": "ex modelo de catalogo Sears"
+ },
+ {
+  "id": "s069",
+  "nombre": "Homer",
+  "apellido": "Reynolds",
+  "sexo": "h",
+  "edad_1993": 54,
+  "pueblo": "Muldraugh",
+  "oficio": "carpintero",
+  "semilla": "guardabosques del bosque estatal"
+ },
+ {
+  "id": "s070",
+  "nombre": "Imogene",
+  "apellido": "Pham",
+  "sexo": "m",
+  "edad_1993": 29,
+  "pueblo": "West Point",
+  "oficio": "cazador",
+  "semilla": "enfermera de un asilo de ancianos"
+ },
+ {
+  "id": "s071",
+  "nombre": "Rollie",
+  "apellido": "Dixon",
+  "sexo": "h",
+  "edad_1993": 66,
+  "pueblo": "Riverside",
+  "oficio": "granjero",
+  "semilla": "tiene un nino con sindrome de Down"
+ },
+ {
+  "id": "s072",
+  "nombre": "Eula",
+  "apellido": "Keeton",
+  "sexo": "m",
+  "edad_1993": 41,
+  "pueblo": "Rosewood",
+  "oficio": "camionero",
+  "semilla": "falsificaba firmas y documentos por encargo"
+ },
+ {
+  "id": "s073",
+  "nombre": "Stanley",
+  "apellido": "Schaefer",
+  "sexo": "h",
+  "edad_1993": 78,
+  "pueblo": "Muldraugh",
+  "oficio": "mecanico",
+  "semilla": "testigo de Jehova que golpeaba puertas en todo el condado"
+ },
+ {
+  "id": "s074",
+  "nombre": "Selma",
+  "apellido": "Uribe",
+  "sexo": "m",
+  "edad_1993": 53,
+  "pueblo": "West Point",
+  "oficio": "costurera",
+  "semilla": "tiene epilepsia y nunca pudo sacar licencia"
+ },
+ {
+  "id": "s075",
+  "nombre": "Orval",
+  "apellido": "Quintero",
+  "sexo": "h",
+  "edad_1993": 28,
+  "pueblo": "Riverside",
+  "oficio": "electricista",
+  "semilla": "nino prodigio de ajedrez que no llego a nada"
+ },
+ {
+  "id": "s076",
+  "nombre": "Yolanda",
+  "apellido": "Crabtree",
+  "sexo": "m",
+  "edad_1993": 65,
+  "pueblo": "Rosewood",
+  "oficio": "policia",
+  "semilla": "nieta de una partera de los Apalaches, sabe de hierbas"
+ },
+ {
+  "id": "s077",
+  "nombre": "Vance",
+  "apellido": "Bowman",
+  "sexo": "h",
+  "edad_1993": 40,
+  "pueblo": "Muldraugh",
+  "oficio": "profesora",
+  "semilla": "predicador laico de una iglesia de garaje"
+ },
+ {
+  "id": "s078",
+  "nombre": "Vonda",
+  "apellido": "Lindgren",
+  "sexo": "m",
+  "edad_1993": 77,
+  "pueblo": "West Point",
+  "oficio": "enfermera",
+  "semilla": "coreana casada con un soldado del Fuerte Knox"
+ },
+ {
+  "id": "s079",
+  "nombre": "Cletus",
+  "apellido": "Gabbard",
+  "sexo": "h",
+  "edad_1993": 52,
+  "pueblo": "Riverside",
+  "oficio": "cocinera",
+  "semilla": "veterano de la Segunda Guerra, desembarco en Normandia"
+ },
+ {
+  "id": "s080",
+  "nombre": "Mai",
+  "apellido": "Hammonds",
+  "sexo": "m",
+  "edad_1993": 27,
+  "pueblo": "Rosewood",
+  "oficio": "granjero",
+  "semilla": "tiene un hermano gemelo al que no habla hace 20 anos"
+ },
+ {
+  "id": "s081",
+  "nombre": "Gideon",
+  "apellido": "Kowalczyk",
+  "sexo": "h",
+  "edad_1993": 64,
+  "pueblo": "Muldraugh",
+  "oficio": "carpintero",
+  "semilla": "tartamudo desde nino"
+ },
+ {
+  "id": "s082",
+  "nombre": "Cassie",
+  "apellido": "Bryant",
+  "sexo": "m",
+  "edad_1993": 39,
+  "pueblo": "West Point",
+  "oficio": "cazador",
+  "semilla": "vietnamita que llego en barco en 1979"
+ },
+ {
+  "id": "s083",
+  "nombre": "Hans",
+  "apellido": "Thacker",
+  "sexo": "h",
+  "edad_1993": 76,
+  "pueblo": "Riverside",
+  "oficio": "granjero",
+  "semilla": "sindicalista de la Ford en Louisville"
+ },
+ {
+  "id": "s084",
+  "nombre": "Charlene",
+  "apellido": "Cooksey",
+  "sexo": "m",
+  "edad_1993": 51,
+  "pueblo": "Rosewood",
+  "oficio": "camionero",
+  "semilla": "hija de un sheriff corrupto"
+ },
+ {
+  "id": "s085",
+  "nombre": "Cornelius",
+  "apellido": "Minix",
+  "sexo": "h",
+  "edad_1993": 26,
+  "pueblo": "Muldraugh",
+  "oficio": "mecanico",
+  "semilla": "cobrador de deudas"
+ },
+ {
+  "id": "s086",
+  "nombre": "Geneva",
+  "apellido": "Lawson",
+  "sexo": "m",
+  "edad_1993": 63,
+  "pueblo": "West Point",
+  "oficio": "costurera",
+  "semilla": "vivio en una comuna hippie en los 70"
+ },
+ {
+  "id": "s087",
+  "nombre": "Harvey",
+  "apellido": "Kirby",
+  "sexo": "h",
+  "edad_1993": 38,
+  "pueblo": "Riverside",
+  "oficio": "electricista",
+  "semilla": "jugo beisbol en ligas menores"
+ },
+ {
+  "id": "s088",
+  "nombre": "Juanita",
+  "apellido": "Jablonski",
+  "sexo": "m",
+  "edad_1993": 75,
+  "pueblo": "Rosewood",
+  "oficio": "policia",
+  "semilla": "bailarina que quiso ser profesional"
+ },
+ {
+  "id": "s089",
+  "nombre": "Quentin",
+  "apellido": "Tipton",
+  "sexo": "h",
+  "edad_1993": 50,
+  "pueblo": "Muldraugh",
+  "oficio": "profesora",
+  "semilla": "nunca salio del condado en su vida"
+ },
+ {
+  "id": "s090",
+  "nombre": "Inez",
+  "apellido": "Wells",
+  "sexo": "m",
+  "edad_1993": 25,
+  "pueblo": "West Point",
+  "oficio": "enfermera",
+  "semilla": "madre adolescente a los 15"
+ },
+ {
+  "id": "s091",
+  "nombre": "Pete",
+  "apellido": "Taulbee",
+  "sexo": "h",
+  "edad_1993": 62,
+  "pueblo": "Riverside",
+  "oficio": "cocinera",
+  "semilla": "vendedor de enciclopedias puerta a puerta"
+ },
+ {
+  "id": "s092",
+  "nombre": "Odette",
+  "apellido": "Jent",
+  "sexo": "m",
+  "edad_1993": 37,
+  "pueblo": "Rosewood",
+  "oficio": "pastora",
+  "semilla": "alcoholica en recuperacion, cuenta los dias sobria"
+ },
+ {
+  "id": "s093",
+  "nombre": "Newt",
+  "apellido": "Arnett",
+  "sexo": "h",
+  "edad_1993": 74,
+  "pueblo": "Muldraugh",
+  "oficio": "carpintero",
+  "semilla": "se fue a Canada para no ir a Vietnam y volvio con la amnistia"
+ },
+ {
+  "id": "s094",
+  "nombre": "Ivy",
+  "apellido": "Bailey",
+  "sexo": "m",
+  "edad_1993": 49,
+  "pueblo": "West Point",
+  "oficio": "cazador",
+  "semilla": "abuela que crio a seis nietos"
+ },
+ {
+  "id": "s095",
+  "nombre": "Arlo",
+  "apellido": "Conley",
+  "sexo": "h",
+  "edad_1993": 24,
+  "pueblo": "Riverside",
+  "oficio": "granjero",
+  "semilla": "coleccionista de armas antiguas"
+ },
+ {
+  "id": "s096",
+  "nombre": "Josie",
+  "apellido": "Mackey",
+  "sexo": "m",
+  "edad_1993": 61,
+  "pueblo": "Rosewood",
+  "oficio": "camionero",
+  "semilla": "perdio a un hijo en un accidente de auto en 1987"
+ },
+ {
+  "id": "s097",
+  "nombre": "Kenny",
+  "apellido": "Pennington",
+  "sexo": "h",
+  "edad_1993": 36,
+  "pueblo": "Muldraugh",
+  "oficio": "mecanico",
+  "semilla": "cuidaba la represa del rio"
+ },
+ {
+  "id": "s098",
+  "nombre": "Odessa",
+  "apellido": "Goforth",
+  "sexo": "m",
+  "edad_1993": 73,
+  "pueblo": "West Point",
+  "oficio": "costurera",
+  "semilla": "curandera de hierbas a la que van los que no confian en doctores"
+ },
+ {
+  "id": "s099",
+  "nombre": "Isaac",
+  "apellido": "Owens",
+  "sexo": "h",
+  "edad_1993": 48,
+  "pueblo": "Riverside",
+  "oficio": "electricista",
+  "semilla": "veterano de Corea que nunca hablo de la guerra"
+ },
+ {
+  "id": "s100",
+  "nombre": "Dottie",
+  "apellido": "Hoskins",
+  "sexo": "m",
+  "edad_1993": 23,
+  "pueblo": "Rosewood",
+  "oficio": "policia",
+  "semilla": "profesor universitario despedido por un escandalo"
+ }
+]
