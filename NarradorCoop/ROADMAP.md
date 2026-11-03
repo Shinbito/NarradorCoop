@@ -8,6 +8,7 @@ Memorias de la partida (que guarda cada una): `NarradorCoop/herramientas/memoria
 memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias.py`: falla si una
 memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
+Personajes (fichas definitivas, canon de nombres y registros del rol): `NarradorCoop/personajes/README.md`.
 
 ## Capitulo 5 de la Misia Rosa: el primer camion (0.13.6, falta probar en el juego)
 - `cap_rosa_5` (Arcos/Capitulos.lua): sale con el capitulo 4 (la carcel) hecho, aunque haya
