@@ -8,7 +8,8 @@
 --   lucas = asesinado    -> Loretta Pike cuenta en todo Knox lo que hiciste (Knox -15).
 --   trueque = ganado     -> los hermanos de los del trueque vienen a cobrar.
 --   alijo = encontrado   -> la viuda del moribundo pide su parte: compartir o negarse.
---   desertor = protegido -> Ray Doyle vuelve con la Guardia pisandole los talones.
+--   desertor = protegido -> Ray Doyle vuelve con la Guardia pisandole los talones (si no se quedo
+--                           ya de mecanico: ray_mecanico, Arcos/PlacasPope.lua).
 -- Textos sin tildes a proposito.
 
 require "Narrador/NarradorDefs"
@@ -347,7 +348,9 @@ registrar({
     titulo = "Ray vuelve",
     requiere_alife = true,
     requiere_refugio = true,
-    si = { "memoria", "desertor", "protegido" },
+    -- Si Ray ya se quedo de mecanico en un campamento (Las placas de Pope), no vuelve a huir.
+    si = { { "memoria", "desertor", "protegido" }, { "no", { "mem", "ray_mecanico" } } },
+    excluye = { "placas_pope" },
     max_veces = 1,
     peso = 5,
     dia_minimo = 12,

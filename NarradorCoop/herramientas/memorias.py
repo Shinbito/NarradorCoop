@@ -102,7 +102,11 @@ MEMORIAS = {
     # --- Eventos cortos ---
     "denise": "Denise (sobreviviente acorralada): rescatada, muerta o asesinada. Rescatada: Lonnie te trae su comida; asesinada: Lonnie te caza (ConsecuenciasExtra).",
     "lucas": "Lucas (hijo perdido): rescatado, muerto, asesinado o transformado. Rescatado: te marca una farmacia; asesinado: Loretta lo cuenta (Knox -15).",
-    "desertor": "El desertor: protegido, entregado, echado, muerto o asesinado. Protegido: Ray vuelve con la Guardia detras (ConsecuenciasExtra).",
+    "desertor": "El desertor: protegido, entregado, echado, muerto o asesinado. Protegido: Ray vuelve con la Guardia detras (ConsecuenciasExtra), avisa la noche del tanque (cap. 3 de la Misia Rosa) y abre Las placas de Pope.",
+    "placas_pope": "Las placas de Pope (Ray Doyle): con_carta, sin_carta, contado (se perdieron pero Loretta supo), tumba (Loretta ya no estaba) o perdidas. Con algo ya no se lanza.",
+    "ray_mecanico": "Campamento donde Ray Doyle se quedo de mecanico (rosewood, muldraugh, westpoint o riverside; Las placas de Pope). K.persona lo hace el mecanico; corta 'Ray vuelve'; en el cap. 3 de la Misia Rosa avisa en persona.",
+    "tanque_ray": "Ray aviso por el 19 la noche del tanque (cap. 3 de la Misia Rosa): aviso o emboscada (le salieron al paso en la curva). Ray lo nombra en Las placas de Pope.",
+    "earl_tanque": "Que paso con Earl despues de confesar lo del tanque (cap. 3 de la Misia Rosa): perdonado, echado (a dormir al camion) o callado (nunca lo dijo). Lo lee el cap. 5.",
     "trueque": "El trueque trampa: ganado. Ganado: los hermanos de los emboscadores vienen a cobrar (ConsecuenciasExtra).",
     "asalto": "El asalto nocturno: rechazado.",
     "alijo": "El alijo custodiado: encontrado; despues compartido, negado o viuda_muerta (la viuda del dueno, ConsecuenciasExtra).",

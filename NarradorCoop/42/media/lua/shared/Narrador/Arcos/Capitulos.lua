@@ -5,7 +5,8 @@
 --   Tia Chela  2: La radio del cuartel        (3: el cientifico, LeyendaEduardo.lua)  4: La calle Main
 --   Cabo       2: La puerta de atras          (3: Valentina, HijaCabo.lua)  4: Los signos de pregunta
 --   Padre Nacho 2: El ring de Lexington       3: La muchacha que esperaba  4: Las campanas de Riverside
---   Misia Rosa 2: La ruta 31                  3: El tanque      4: La carcel de Rosewood  5: El primer camion
+--   Misia Rosa 2: La ruta 31                  3: El tanque (con el aviso de Ray y la confesion de Earl)
+--              4: La carcel de Rosewood  5: El primer camion
 -- Textos sin tildes a proposito.
 
 require "Narrador/NarradorDefs"
@@ -31,6 +32,14 @@ local function fracaso(id, n, diario, extra)
     }
     for i, a in ipairs(extra or {}) do table.insert(l, i, a) end
     return { final = true, al_entrar = l }
+end
+
+-- Junta dos listas de acciones (en orden).
+local function unir(a, b)
+    local l = {}
+    for _, x in ipairs(a) do l[#l + 1] = x end
+    for _, x in ipairs(b) do l[#l + 1] = x end
+    return l
 end
 
 -- ===========================================================================
@@ -437,8 +446,42 @@ registrar({
 })
 
 -- ===========================================================================
--- Misia Rosa, capitulo 3: El estanque
+-- Misia Rosa, capitulo 3: El tanque
+-- Earl le solto al Tecolote, en broma y por dos frascos de insulina, donde guarda Rosa el tanque
+-- ("bajo el taller, donde Hector guardaba el whisky"), y despues aviso por el 19: "si bajan por
+-- la 31 sin focos, no es casualidad". Esta noche bajan.
+-- Sin focos: si escondiste a Ray Doyle (el desertor, desertor = protegido), Ray ("Gerald" en el
+-- 19) los ve desde el cerro y avisa antes: de donde vienen, cuantos son y a que hora. Con eso se
+-- los puede esperar en la gasolinera (llegan menos: Ray espanta a dos con un tiro al techo) o
+-- salirles al paso en la curva de la 31. Si no, el capitulo sigue como antes.
+-- Despues del asalto, si Earl llego vivo en el cap. 2, le confiesa a Rosa lo del tanque y ella lo
+-- perdona o lo manda a dormir al camion (earl_tanque, lo lee el cap. 5). Si nadie vuelve a la
+-- gasolinera en 48 horas, Earl se lo calla.
+-- Partidas a medio camino: preparar, asalto y los dos finales siguen con el mismo nombre; una
+-- partida que ya estaba en preparar o en asalto sigue sin el aviso de Ray.
 -- ===========================================================================
+local RAY_AYUDADO = { "memoria", "desertor", "protegido" }
+local RAY_MECANICO = { "memoria", "ray_mecanico", "rosewood" }
+local JUNIOR_MURIO = { "memoria", "cura_rosewood", "murio" }
+local EARL_VIVO = { "memoria", "historia_rosewood_2", true }
+local CON_RAY = { "var", "aviso_ray", true }
+
+-- Despues de la confesion de Earl, al final que corresponde a como salio la noche.
+local SEGUN_LA_NOCHE = {
+    { cuando = { "var", "resultado", "defendido" }, ir = "final_cumplido" },
+    { ir = "final_saqueado" },
+}
+
+-- Lo que queda anotado en los dos finales: el aviso de Ray y como se defendio.
+local function finalTanque(estanque)
+    return {
+        { "memoria", clave = "estanque_rosewood", valor = estanque },
+        { "memoria", clave = "tanque_ray", valor = "aviso", si = CON_RAY },
+        { "memoria", clave = "tanque_ray", valor = "emboscada", si = { "var", "emboscada", true } },
+        { "retirar_lejos", grupo = EARL, lugar = "contacto", radio = 40, retraso = 1.5, si = { "grupo_listo", EARL } },
+    }
+end
+
 registrar({
     id = "cap_rosa_3",
     titulo = "El tanque",
@@ -450,13 +493,43 @@ registrar({
             al_entrar = {
                 { "decir_contacto", texto = "Mijito, ven aca. Bajito. Se enteraron del tanque. El de abajo del taller, el que te mostre. Un camionero hablo de mas. Esta noche vienen. Muchos." },
                 { "diario", texto = "Unos bandidos se enteraron del tanque escondido de la Misia Rosa. Vienen esta noche a la gasolinera." },
+                -- Sin focos: el aviso de Ray por el 19 (o en persona, si ya es el mecanico de Rosewood).
+                { "variable", nombre = "aviso_ray", valor = true, si = RAY_AYUDADO },
+                { "lugar_cerca", id = "curva", de = "contacto", distancia = 70, si = RAY_AYUDADO },
+                { "aviso", retraso = 0.05, si = { RAY_AYUDADO, { "no", RAY_MECANICO }, { "no", JUNIOR_MURIO } },
+                  texto = "La radio de Junior chicharrea en la bodega: 'Breaker diecinueve. Aqui Gerald, para el Bencinita. Copie lo del Gordo. Los vi desde el cerro: un Peterbilt rojo y una camioneta, sin focos, cargando palas en el cruce de la 31. Seis, puede que siete. Escopetas. Esperan noche cerrada: bajan a las dos. Dejan los camiones en la curva antes de la gasolinera y siguen a pie. Cambio.'" },
+                { "aviso", retraso = 0.05, si = { RAY_AYUDADO, { "no", RAY_MECANICO }, JUNIOR_MURIO },
+                  texto = "La radio de la gasolinera chicharrea: 'Breaker diecinueve. Aqui Gerald, para la senora de la luz prendida. Copie lo del Gordo. Los vi desde el cerro: un Peterbilt rojo y una camioneta, sin focos, cargando palas en el cruce de la 31. Seis, puede que siete. Escopetas. Esperan noche cerrada: bajan a las dos. Dejan los camiones en la curva antes de la gasolinera y siguen a pie. Cambio.'" },
+                { "aviso", retraso = 0.07, si = { RAY_AYUDADO, { "no", RAY_MECANICO } },
+                  texto = "Conoces esa voz seca, de botas. Es Ray Doyle, el soldado que escondiste en tu refugio. 'Y digale a quien me escondio que estoy en el cerro. Le devuelvo el favor. Fuera.'" },
+                { "aviso", retraso = 0.05, si = { RAY_AYUDADO, RAY_MECANICO },
+                  texto = "Ray Doyle, el mecanico del campamento, subio al cerro con su radio apenas oyo lo del Gordo. Vuelve con las botas embarradas: 'Senora. Los vi. Un Peterbilt rojo y una camioneta, sin focos, cargando palas en el cruce de la 31. Seis, puede que siete. Escopetas. Bajan a las dos. Dejan los camiones en la curva y siguen a pie. Yo vuelvo al cerro.'" },
+                { "decir_contacto", retraso = 0.1, si = { RAY_AYUDADO, { "no", RAY_MECANICO } },
+                  texto = "Gerald? Quien sera ese Gerald, por Dios? ... No lo conozco y ya lo quiero, fijate. Escuchaste, mijito? A las dos, y por la curva. Mi papa decia que el que avisa no es traidor." },
+                { "decir_contacto", retraso = 0.1, si = { RAY_AYUDADO, RAY_MECANICO },
+                  texto = "Ese es mi mecanico, mijito. Me arreglo la bomba del agua en una tarde y ahora esto. A las dos, y por la curva. Ahora si que sabemos." },
+                { "mapa", lugar = "curva", titulo = "Lo que vio Gerald: la curva de la 31", si = RAY_AYUDADO },
+                { "diario", retraso = 0.1, si = RAY_AYUDADO,
+                  texto = "Ray Doyle, el soldado que escondi, los vio desde el cerro: seis o siete, sin focos, bajan a las dos y dejan los camiones en la curva de la 31. Los puedo esperar en la gasolinera o salirles al paso en la curva." },
             },
-            salidas = { { ir = "preparar" } },
+            salidas = {
+                { cuando = CON_RAY, ir = "preparar_ray" },
+                { ir = "preparar" },
+            },
         },
         preparar = {
             pista = "Prepararte para defender la gasolinera de la Misia Rosa. Vienen de noche (desde las 22).",
             ancla = "contacto",
             salidas = { { cuando = { { "cerca", "contacto", 40 }, { "hora_entre", 22, 5 } }, ir = "asalto" } },
+        },
+        -- Con el aviso de Ray: se sabe la hora y el lugar.
+        preparar_ray = {
+            pista = "Ray aviso: bajan a las dos de la manana y dejan los camiones en la curva de la 31. Esperarlos en la gasolinera de la Misia Rosa o salirles al paso en la curva (desde la una).",
+            objetivo = "curva",
+            salidas = {
+                { cuando = { { "cerca", "curva", 25 }, { "hora_entre", 1, 4 } }, ir = "emboscada" },
+                { cuando = { { "cerca", "contacto", 40 }, { "hora_entre", 2, 5 } }, ir = "asalto" },
+            },
         },
         asalto = {
             pista = "Defender la gasolinera de la Misia Rosa.",
@@ -465,24 +538,130 @@ registrar({
                 { "decir_contacto", texto = "Voy a apagar la luz. Treinta anos y nunca la apague. Que no nos vean. ... Tengo miedo, mijito. Pero apagala tu, que a mi me tiemblan las manos." },
                 { "aviso", texto = "Por primera vez en treinta anos, la gasolinera de Rosewood esta a oscuras.", retraso = 0.05 },
                 { "lugar_cerca", id = "llegada", de = "contacto", distancia = 35 },
-                { "bandidos", id = "asaltantes", lugar = "llegada", radio = 40, modo = "hunt", cantidad = { 6, 8 }, retraso = 0.15 },
+                { "bandidos", id = "asaltantes", lugar = "llegada", radio = 40, modo = "hunt", cantidad = { 6, 8 }, retraso = 0.15,
+                  si = { "no", CON_RAY } },
+                -- Con el aviso de Ray llegan menos: dos se van con su tiro al techo.
+                { "bandidos", id = "asaltantes", lugar = "llegada", radio = 40, modo = "hunt", cantidad = { 4, 5 }, retraso = 0.15,
+                  si = CON_RAY },
+                { "aviso", retraso = 0.2, si = CON_RAY,
+                  texto = "Un tiro seco desde el cerro, contra el techo del galpon de la curva. Dos de los que bajaban se dan vuelta y corren por la 31. Los otros llegan a pie, a oscuras, tropezando. Como dijo Ray." },
                 { "oleada", lugar = "contacto", radio = 60, cantidad = { 10, 16 }, min = 25, max = 45, retraso = 0.3 },
             },
             salidas = {
-                { cuando = { "todos_muertos", "asaltantes" }, ir = "final_cumplido" },
+                { cuando = { "todos_muertos", "asaltantes" }, ir = "defendido" },
                 -- Aguantar la noche cuenta si sigues en la gasolinera; si te fuiste, se lo llevaron.
-                { cuando = { { "horas", 6 }, { "cerca", "contacto", 60 } }, ir = "final_cumplido" },
-                { cuando = { "horas", 6 }, ir = "final_saqueado" },
+                { cuando = { { "horas", 6 }, { "cerca", "contacto", 60 } }, ir = "defendido" },
+                { cuando = { "horas", 6 }, ir = "saqueo" },
             },
         },
-        final_cumplido = cierre("rosewood", 3,
-            "Defendimos la gasolinera y el tanque. Cuando se fue el ultimo, la Misia Rosa prendio la luz otra vez. Dijo que el tanque no es para ella: es para el dia que haya que sacar a todo el pueblo de una vez. Y que yo voy a manejar el primer camion.",
-            { { "decir_contacto", texto = "Prendela, mijito. ... Ahi esta. Treinta anos y una noche. Toma, te lo ganaste. Y el primer camion que salga de aca lo manejas tu." },
-              { "memoria", clave = "estanque_rosewood", valor = "defendido" } }),
-        final_saqueado = fracaso("rosewood", 3,
-            "No estuve en la gasolinera cuando llegaron los bandidos. Se llevaron la gasolina del tanque. La Misia Rosa no me reclamo nada: prendio la luz y se quedo mirando el taller vacio.",
-            { { "decir_contacto", texto = "Se la llevaron toda, mijito. Treinta anos guardandola. ... No importa. Estamos vivos. Eso no se lo llevan." },
-              { "memoria", clave = "estanque_rosewood", valor = "saqueado" } }),
+        -- Salirles al paso en la curva, antes de que lleguen a la gasolinera.
+        emboscada = {
+            pista = "Emboscar en la curva de la 31 a los que vienen por el tanque, antes de que lleguen a la gasolinera.",
+            objetivo = "curva",
+            al_entrar = {
+                { "variable", nombre = "emboscada", valor = true },
+                { "aviso", texto = "Un Peterbilt rojo y una camioneta bajan por la 31 con los focos apagados y paran en la curva, como dijo Ray. Bajan hombres con palas." },
+                { "bandidos", id = "asaltantes", lugar = "curva", radio = 35, modo = "hunt", cantidad = { 4, 5 }, retraso = 0.05 },
+                { "aviso", retraso = 0.1,
+                  texto = "Un tiro seco desde el cerro, contra el techo del galpon de la curva. Dos de los que bajaban corren por la 31 y el Peterbilt da la vuelta sin prender los focos. Atras, la luz de la gasolinera se apaga: por primera vez en treinta anos." },
+                { "oleada", lugar = "curva", radio = 50, cantidad = { 6, 10 }, min = 25, max = 45, retraso = 0.3 },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", "asaltantes" }, ir = "defendido" },
+                { cuando = { { "horas", 6 }, { "o", { "cerca", "contacto", 60 }, { "cerca", "curva", 60 } } }, ir = "defendido" },
+                { cuando = { "horas", 6 }, ir = "saqueo" },
+            },
+        },
+        defendido = {
+            al_entrar = { { "variable", nombre = "resultado", valor = "defendido" } },
+            salidas = { { cuando = EARL_VIVO, ir = "amanecer" }, { ir = "final_cumplido" } },
+        },
+        saqueo = {
+            al_entrar = { { "variable", nombre = "resultado", valor = "saqueado" } },
+            salidas = { { cuando = EARL_VIVO, ir = "amanecer" }, { ir = "final_saqueado" } },
+        },
+        -- Earl llego vivo en el cap. 2: le debe una confesion a Rosa.
+        amanecer = {
+            pista = "El Gordo Earl quiere hablar con la Misia Rosa. Acercate al mostrador de la gasolinera.",
+            objetivo = "contacto",
+            al_entrar = {
+                { "lugar_cerca", id = "mostrador", de = "contacto", distancia = 3 },
+                { "npcs", id = EARL, lugar = "mostrador", radio = 12, no_mas_cerca = 2, modo = "guard", quietos = true, correa = 3,
+                  inmortales = true, postura = "friendly", perfiles = { { "earl", "k93_truckstop_08" } }, nombres = { earl = { "Earl", "Whitaker" } } },
+            },
+            salidas = {
+                { cuando = { { "grupo_listo", EARL }, { "cerca", "contacto", 20 } }, ir = "confesion" },
+                { cuando = { "horas", 48 }, ir = "earl_callado" },
+            },
+        },
+        confesion = {
+            pista = "El Gordo Earl le confiesa a la Misia Rosa de donde salio el dato del tanque. Decide si te metes (clic derecho cerca).",
+            ancla = "contacto", ancla_grupo = EARL, radio = 15,
+            al_entrar = {
+                { "decir", grupo = EARL, rol = "earl", texto = "Rosita. No, no te sientes, que sentada pegas mas facil. ... El camionero que hablo de mas soy yo." },
+                { "decir", grupo = EARL, rol = "earl", retraso = 0.03, texto = "El Tecolote llego a la bascula con dos frascos de insulina y me pregunto por lo que guardas. Yo me rei y le dije: bajo el taller, donde Hector guardaba el whisky. No sabia, Rosita. Adivine. Y acerte." },
+                { "decir", grupo = EARL, rol = "earl", retraso = 0.06, texto = "Debo plata a medio Kentucky, pero nunca le debi una mentira a nadie. Hasta ahora. Por eso avise por el 19: la 31 sin focos." },
+                { "decir_contacto", retraso = 0.09, texto = "Insulina. ... Insulina, Earl? Y yo echandote tres cucharadas de azucar en cada cafe, como una tonta. Desde cuando?" },
+                { "decir", grupo = EARL, rol = "earl", retraso = 0.11, texto = "Desde el 91. Me comi dos Moon Pies para celebrar." },
+            },
+            opciones = {
+                { id = "interceder", texto = "Decirle a la Misia Rosa que Earl aviso por el 19 y que sin ese aviso no lo contaban" },
+                { id = "callar", texto = "No meterte: es cosa de ellos dos" },
+                { id = "acusar", texto = "Decirle a la Misia Rosa que eso no se perdona" },
+            },
+            salidas = {
+                { cuando = { "eleccion", "interceder" }, ir = "earl_perdonado" },
+                { cuando = { "eleccion", "acusar" }, ir = "earl_echado" },
+                -- Si nadie se mete, Rosa decide sola segun como salio la noche.
+                { cuando = { { "eleccion", "callar" }, { "var", "resultado", "defendido" } }, ir = "earl_perdonado" },
+                { cuando = { "eleccion", "callar" }, ir = "earl_echado" },
+            },
+        },
+        earl_perdonado = {
+            al_entrar = {
+                { "variable", nombre = "earl", valor = "perdonado" },
+                { "memoria", clave = "earl_tanque", valor = "perdonado" },
+                { "decir_contacto", texto = { por_var = "resultado", textos = {
+                    defendido = "Treinta anos tarde para todo, Gordo. Hasta para decir la verdad llegas tarde. Pero llegas. ... Lleno o normal?",
+                    otro = "Se llevaron la bencina de treinta anos por un chiste tuyo, Gordo. ... Era bencina. Tu no. Lleno o normal?" } } },
+                { "decir", grupo = EARL, rol = "earl", retraso = 0.03, texto = "Lleno." },
+                { "decir_contacto", retraso = 0.05, texto = "Sin azucar, entonces, que ahora se. Pasa. Por detras del mostrador. Y tu no me mires asi, mijito, que se me corre el rimel que no tengo." },
+            },
+            salidas = SEGUN_LA_NOCHE,
+        },
+        earl_echado = {
+            al_entrar = {
+                { "variable", nombre = "earl", valor = "echado" },
+                { "memoria", clave = "earl_tanque", valor = "echado" },
+                { "decir_contacto", texto = "Anda a dormir a tu camion, Gordo. Esta noche no te caliento cafe. Y no me hables por el 19 hasta que yo te hable." },
+                { "decir", grupo = EARL, rol = "earl", retraso = 0.03, texto = "Copiado, Rosita." },
+                { "decir_contacto", retraso = 0.05, texto = "La luz la dejo prendida igual. No vaya a ser que te pierdas, que eres capaz." },
+            },
+            salidas = SEGUN_LA_NOCHE,
+        },
+        earl_callado = {
+            al_entrar = {
+                { "variable", nombre = "earl", valor = "callado" },
+                { "memoria", clave = "earl_tanque", valor = "callado" },
+                { "aviso", texto = "El Gordo Earl anduvo toda la manana dando vueltas alrededor del mostrador. No dijo nada. Se fue a dormir a su camion." },
+            },
+            salidas = SEGUN_LA_NOCHE,
+        },
+        final_cumplido = cierre("rosewood", 3, { por_var = "earl", textos = {
+            perdonado = "Defendimos la gasolinera y el tanque. Al amanecer el Gordo Earl le confeso a la Misia Rosa que el dato lo dio el, en broma, por insulina. Ella le pregunto lleno o normal. El dijo lleno. Ahora le sirve el cafe sin azucar. Y el primer camion que salga de aca lo manejo yo.",
+            echado = "Defendimos la gasolinera y el tanque. Al amanecer el Gordo Earl confeso que el dato lo dio el, por insulina. La Misia Rosa lo mando a dormir a su camion sin cafe, pero dejo la luz prendida. Dice que el primer camion que salga de aca lo manejo yo.",
+            callado = "Defendimos la gasolinera y el tanque. El Gordo Earl anduvo toda la manana rondando el mostrador sin decir nada. La Misia Rosa prendio la luz otra vez y dijo que el primer camion que salga de aca lo manejo yo.",
+            otro = "Defendimos la gasolinera y el tanque. Cuando se fue el ultimo, la Misia Rosa prendio la luz otra vez. Dijo que el tanque no es para ella: es para el dia que haya que sacar a todo el pueblo de una vez. Y que yo voy a manejar el primer camion." } },
+            unir({ { "decir_contacto", texto = "Prendela, mijito. ... Ahi esta. Treinta anos y una noche. Toma, te lo ganaste. Y el primer camion que salga de aca lo manejas tu." },
+                   { "diario", si = CON_RAY, texto = "Ray Doyle aviso desde el cerro y espanto a dos con un tiro al techo. No le apunto a nadie. Le debo una, y el dice que me la estaba pagando." } },
+                finalTanque("defendido"))),
+        final_saqueado = fracaso("rosewood", 3, { por_var = "earl", textos = {
+            perdonado = "No estuve en la gasolinera cuando llegaron los bandidos. Se llevaron la gasolina del tanque. Al amanecer el Gordo Earl confeso que el dato lo dio el. La Misia Rosa le pregunto lleno o normal igual, y le sirvio el cafe sin azucar.",
+            echado = "No estuve en la gasolinera cuando llegaron los bandidos. Se llevaron la gasolina del tanque. El Gordo Earl confeso que el dato lo dio el y la Misia Rosa lo mando a dormir a su camion. La luz la dejo prendida.",
+            callado = "No estuve en la gasolinera cuando llegaron los bandidos. Se llevaron la gasolina del tanque. El Gordo Earl no le dijo nada a nadie. La Misia Rosa prendio la luz y se quedo mirando el taller vacio.",
+            otro = "No estuve en la gasolinera cuando llegaron los bandidos. Se llevaron la gasolina del tanque. La Misia Rosa no me reclamo nada: prendio la luz y se quedo mirando el taller vacio." } },
+            unir({ { "decir_contacto", texto = "Se la llevaron toda, mijito. Treinta anos guardandola. ... No importa. Estamos vivos. Eso no se lo llevan." } },
+                finalTanque("saqueado"))),
     },
 })
 
@@ -619,13 +798,6 @@ local function ortizSeQuedan()
           grupo = ORTIZ, rol = "joaquin", si = { "vivo", ORTIZ, "joaquin" } },
         { "retirar_lejos", grupo = ORTIZ, lugar = "contacto", radio = 40, retraso = 1 },
     }
-end
-
-local function unir(a, b)
-    local l = {}
-    for _, x in ipairs(a) do l[#l + 1] = x end
-    for _, x in ipairs(b) do l[#l + 1] = x end
-    return l
 end
 
 registrar({
@@ -1196,6 +1368,13 @@ local etapasCamion = {
             { "variable", nombre = "meta_marea", valor = 9999 },
             { "decir_contacto", texto = "Ahi viene, mijito. Toda la 31. ... Yo cargo el camion. Tu no los dejes pasar del surtidor." },
             { "aviso", texto = "Por la ruta 31 baja una marea de muertos. No se le ve el final.", retraso = 0.05 },
+            -- Lo que paso con Earl despues del tanque (cap. 3, earl_tanque).
+            { "aviso", retraso = 0.15, si = { "memoria", "earl_tanque", "perdonado" },
+              texto = "Contra la marea, por la 31, aparece Lucille con los focos prendidos. El Gordo Earl toca la bocina dos veces y grita por la ventana: 'El segundo camion es mio, Rosita! Lleno!'" },
+            { "aviso", retraso = 0.15, si = { "memoria", "earl_tanque", "echado" },
+              texto = "Por el 19, la voz del Gordo Earl: 'Rosita, no me contestes. Deje a Lucille con el motor caliente en la salida de la 31, por si tu camion no alcanza.' La Misia Rosa no contesta. Despues aprieta el microfono dos veces: copiado." },
+            { "aviso", retraso = 0.15, si = { "memoria", "earl_tanque", "callado" },
+              texto = "El Gordo Earl llega en Lucille y carga cajas al camion de la Misia Rosa sin decir nada, como si le debiera algo. Le debe." },
             { "oleada", lugar = "contacto", radio = 80, cantidad = 50, por_jugador = 15, fija = true, caminantes = true,
               min = 30, max = 60, meta = "meta_marea", meta_frac = 0.75, retraso = 0.1 },
             { "oleada", lugar = "contacto", radio = 80, cantidad = { 10, 15 }, correr = true, min = 35, max = 60, retraso = 0.6 },
