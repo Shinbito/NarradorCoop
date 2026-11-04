@@ -166,7 +166,8 @@ CD.PERSONAJES = {
       homenaje = "Cristobal Wertres construia lo que hiciera falta. Se va dejando cosas en pie." },
     -- Encuentros y la gente de los encargos inmorales: solo si los mataste tu.
     { clave = "denise", nombre = "Denise Hensley", rol = "denise", solo_si_jugador = true },
-    { clave = "lucas_pike", nombre = "Lucas Pike", rol = "lucas", solo_si_jugador = true },
+    -- La clave sigue diciendo "pike" por las partidas guardadas: antes se llamaba Lucas Pike.
+    { clave = "lucas_pike", nombre = "Lucas Harrod", rol = "lucas", solo_si_jugador = true },
     { clave = "ray_doyle", nombre = "Ray Doyle", def = "el_desertor", rol = "ray", solo_si_jugador = true },
     -- Ray despues de que lo escondiste (Ray vuelve, Las placas de Pope): ya tiene nombre en la trama.
     { clave = "ray_doyle", nombre = "Ray Doyle", rol = "ray",

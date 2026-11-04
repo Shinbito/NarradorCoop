@@ -5,7 +5,7 @@
 --   denise = rescatada   -> Lonnie trae la comida que Denise prometio cocinarte.
 --   denise = asesinada   -> Lonnie Hensley y unos amigos te salen a cazar.
 --   lucas = rescatado    -> Lucas encontro una farmacia intacta y te la marca.
---   lucas = asesinado    -> Loretta Pike cuenta en todo Knox lo que hiciste (Knox -15).
+--   lucas = asesinado    -> Glennis Harrod cuenta en todo Knox lo que hiciste (Knox -15).
 --   trueque = ganado     -> los hermanos de los del trueque vienen a cobrar.
 --   alijo = encontrado   -> la viuda del moribundo pide su parte: compartir o negarse.
 --   desertor = protegido -> Ray Doyle vuelve con la Guardia pisandole los talones (si no se quedo
@@ -120,11 +120,11 @@ registrar({
             al_entrar = {
                 { "lugar", id = "botica", salas = { "pharmacy", "pharmacystorage" }, respaldo = { "medical", "office" },
                   min = 200, max = 900 },
-                { "mensajero", perfil = "k93_hensley_family_04", nombre = { "Lucas", "Pike" },
-                  llegada = "Lucas Pike llego a {lugar:aviso}, sin aire y orgulloso.",
+                { "mensajero", perfil = "k93_hensley_family_04", nombre = { "Lucas", "Harrod" },
+                  llegada = "Lucas Harrod llego a {lugar:aviso}, sin aire y orgulloso.",
                   texto = { "Hice lo que tu harias: explore. Hay una farmacia que nadie ha tocado en {lugar:botica}. No entre, lo prometo. Mi mama me mata.",
                             "Te debo una, asi que mire por ahi. En {lugar:botica} hay remedios todavia. Ve tu, que yo no puedo." },
-                  diario = "Lucas Pike encontro una farmacia intacta en {lugar:botica} y te la guardo." },
+                  diario = "Lucas Harrod encontro una farmacia intacta en {lugar:botica} y te la guardo." },
             },
             salidas = {
                 { cuando = { "mensaje_entregado" }, ir = "ir" },
@@ -146,7 +146,7 @@ registrar({
                   items = { { "Base.Antibiotics", "Base.Pills" }, { "Base.PillsBeta", "Base.Pills" },
                             { "Base.Bandage" }, { "Base.Disinfectant", "Base.AlcoholWipes", "Base.Bandage" } } },
                 { "nota", lugar = "botica", radio = 40, titulo = "Papel doblado",
-                  texto = "Esto lo encontre yo. Lucas Pike, 4to B. (No le digas a mi mama que vine hasta la puerta.)" },
+                  texto = "Esto lo encontre yo. Lucas Harrod, 4to B. (No le digas a mi mama que vine hasta la puerta.)" },
             },
             salidas = { { cuando = { "horas", 2 }, ir = "final_encontrado" } },
         },
@@ -162,7 +162,7 @@ registrar({
 })
 
 -- ---------------------------------------------------------------------------
--- La madre de Lucas: lo mataste y Loretta lo cuenta en todos lados.
+-- La madre de Lucas: lo mataste y Glennis lo cuenta en todos lados.
 -- ---------------------------------------------------------------------------
 registrar({
     id = "eco_lucas_loretta",
@@ -178,11 +178,11 @@ registrar({
     etapas = {
         mensaje = {
             al_entrar = {
-                { "mensajero", perfil = "k93_red_cross_04", nombre = { "Loretta", "Pike" },
-                  llegada = "Loretta Pike llego a {lugar:aviso}. No trae la foto. Trae los ojos secos.",
+                { "mensajero", perfil = "k93_red_cross_04", nombre = { "Glennis", "Harrod" },
+                  llegada = "Glennis Harrod llego a {lugar:aviso}. No trae la foto. Trae los ojos secos.",
                   texto = { "Tenia doce anos. Doce. Voy a ir a cada campamento de Knox a contar lo que hiciste. Que todos sepan quien eres.",
                             "No vengo a pelear. Ya no me queda nada por que pelear. Solo vengo a mirarte la cara para contarle a todos como es." },
-                  diario = "Loretta Pike sabe que mataste a Lucas. Lo va a contar en todo Knox." },
+                  diario = "Glennis Harrod sabe que mataste a Lucas. Lo va a contar en todo Knox." },
             },
             salidas = {
                 { cuando = { "mensaje_entregado" }, ir = "final_contado" },
@@ -193,7 +193,7 @@ registrar({
             final = true,
             al_entrar = {
                 { "knox", cantidad = -15, motivo = "lucas" },
-                { "diario", texto = "En los campamentos ya cuentan lo de Lucas Pike. Algunos se dan vuelta cuando pasas." },
+                { "diario", texto = "En los campamentos ya cuentan lo de Lucas Harrod. Algunos se dan vuelta cuando pasas." },
             },
         },
     },

@@ -289,15 +289,15 @@ Lore.arcos.el_desertor = {
 
 Lore.arcos.hijo_perdido = {
     etapas = {
-        busqueda = "Loretta Pike llego con una foto arrugada: su hijo Lucas fue a {lugar:escuela} a buscar comida hace dos dias y no volvio. Tiene doce. Dice que sabe que esta vivo. Voy a buscarlo.",
+        busqueda = "Glennis Harrod llego con una foto arrugada: su hijo Lucas fue a {lugar:escuela} a buscar comida hace dos dias y no volvio. Tiene doce. Dice que sabe que esta vivo. Voy a buscarlo.",
         escuela = "Estoy en {lugar:escuela}. Pasillos largos, casilleros abiertos, demasiado silencio. Si Lucas sigue aqui, esta escondido. Tengo que encontrarlo antes que ellos.",
     },
     finales = {
-        final_reunidos = "Lucas volvio con su madre. Loretta lloro tanto que no pudo darme las gracias. No hacia falta.",
+        final_reunidos = "Lucas volvio con su madre. Glennis lloro tanto que no pudo darme las gracias. No hacia falta.",
         final_lo_encontraste_tarde = "Encontre a Lucas en {lugar:escuela}. Ya no era Lucas. Su mochila tenia una nota para su mama. Se la voy a llevar.",
         final_lo_perdiste = "Lucas estaba vivo cuando llegue. No alcance a sacarlo.",
         final_tragedia = "Lucas murio en {lugar:escuela}. Fue {quien_mato}.",
-        final_tarde = "Nadie fue a buscar a Lucas. Pienso en la foto de Loretta mas de lo que quisiera.",
+        final_tarde = "Nadie fue a buscar a Lucas. Pienso en la foto de Glennis mas de lo que quisiera.",
     },
 }
 

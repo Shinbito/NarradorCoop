@@ -226,3 +226,6 @@ En la ronda 3, nadie suma secretos nuevos de puertas.
   que el cree, no un hecho.
 - Cuando la hora de un secundario choca con la de un personaje principal, manda la del principal (el reloj del dia 0
   esta en rol/reloj_dia0.md).
+- Nombres repetidos: la mama de Pope (ficha de Ray) es Loretta Pope. La mama de Lucas, del evento corto de la escuela,
+  pasa a ser Glennis Harrod y el nino Lucas Harrod (antes Loretta y Lucas Pike: chocaban con Loretta Pope y con Helen
+  Pike, la feligresa del Padre).
