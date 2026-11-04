@@ -529,7 +529,7 @@ registrar({
                 { "npcs", id = FAMILIA, lugar = "casa", radio = 40, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 4,
                   inmortales = true, postura = "friendly", femeninos = { "madre" },
                   perfiles = { { "padre", "k93_hensley_family_01" }, { "madre", "k93_hensley_family_03" }, { "hijo", "k93_hensley_family_04" } },
-                  nombres = { padre = { "Arturo", "Salinas" }, madre = { "Rosario", "Salinas" }, hijo = { "Tomasito", "Salinas" } } },
+                  nombres = { padre = { "Arturo", "Salinas" }, madre = { "Rosario", "Salinas" }, hijo = { "Pablito", "Salinas" } } },
             },
             salidas = {
                 { cuando = { { "grupo_listo", FAMILIA }, { "cerca", "casa", 15 } }, ir = "frente" },

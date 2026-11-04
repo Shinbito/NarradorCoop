@@ -148,15 +148,26 @@ Lore.arcos.cap_nacho_2 = {
         esperar = "Tengo que estar en la iglesia al anochecer. El Padre se esta vendando las manos con una estola.",
         pelea = "Duggan llego a la iglesia al anochecer, solo, como prometio. El Padre se saco la sotana y la doblo con cuidado.",
         round = "Dos viejos se pegan en el atrio de una iglesia en el fin del mundo. Nadie del pueblo se pierde un segundo.",
+        despensa_aviso = "Duggan pregunto por Curtis, que siempre viene a mirar y no vino. Lazaro se fue ladrando hacia la despensa. El Padre me pidio que mirara la pelea: sin arbitro, alguien tiene que mirar. No dijo nada de la despensa. Miro para alla un segundo, nada mas.",
+        despensa = "Deje la pelea a mis espaldas y fui a la despensa. La puerta estaba forzada y adentro alguien llenaba sacos de harina con las latas de la iglesia.",
+        curtis = "Era Curtis Mabry, el que anota con tiza lo que cobra la banda del Martillo. Los que venian con el ya no estan. El esta contra la pared con un saco en cada mano.",
+        vuelta = "Vuelvo al atrio. Ya no se oyen golpes. Me perdi la pelea.",
     },
     finales = {
-        final_cumplido = "El Padre Nacho peleo con Duggan en el atrio, sin guantes, como en el 79. Duggan se fue de Riverside con su banda. El Padre se curo los nudillos con vino de misa y dijo que Dios le dio dos punos por algo.",
+        final_cumplido = { por_var = "despensa", textos = {
+            mirar = "Mire la pelea del Padre con Duggan, como me pidio: sin arbitro, el que mira es el que cuenta. Duggan se fue de Riverside. Mientras tanto Curtis Mabry se llevo las latas de la despensa por el callejon. El Padre dijo que Dios da y Curtis quita, y que con un testigo le bastaba.",
+            otro = "El Padre Nacho peleo con Duggan en el atrio, sin guantes, como en el 79. Duggan se fue de Riverside con su banda. El Padre se curo los nudillos con vino de misa y dijo que Dios le dio dos punos por algo." } },
+        final_cumplido_despensa = { por_var = "curtis", textos = {
+            agua = "Me perdi la pelea del Padre con Duggan por defender la despensa. Me la contaron despues, en la escalera. A Curtis Mabry lo traje con el Padre: desde manana carga agua para la iglesia, a la vista de todos. El Padre me dijo que no me lo podia pedir. Creo que me lo agradecio dos veces.",
+            echado = "Me perdi la pelea del Padre con Duggan por defender la despensa. Me la contaron despues, en la escalera. Eche a Curtis Mabry de Riverside con las manos vacias. El Padre dijo que fui donde el no podia ir.",
+            mataste = "Me perdi la pelea del Padre con Duggan por defender la despensa, y alla mate a Curtis Mabry. El Padre me dio las gracias por las latas. Despues me dijo que al que esta en el suelo se le da la mano o un balde, no una tumba. Lo dijo mirando para otro lado.",
+            otro = "Me perdi la pelea del Padre con Duggan por defender la despensa. Curtis Mabry murio ahi, entre los suyos. El Padre lo enterro el, y dijo que para eso estaba." } },
     },
 }
 
 Lore.arcos.cap_nacho_3 = {
     etapas = {
-        viaje = "El Padre me conto lo de Lucia: la muchacha que lo espero toda una tarde de domingo cuando el se fue sin avisar. Dicen que esta viva en {lugar:iglesia}.",
+        viaje = "El Padre me conto lo de Lucia: la muchacha que lo espero toda una tarde de domingo, el 86, cuando el se fue sin avisar. Esta en {lugar:iglesia}. Le llevo una carta: que el se queda, venga o no venga. Y que el pulgar va afuera.",
         iglesia = "Llegue a {lugar:iglesia}. La puerta esta abierta y hay muertos golpeando las ventanas. Alguien adentro canta para no escucharlos.",
         hablar = "Lucia se quedo a vivir en iglesias, siempre con la puerta abierta, por si alguien llegaba tarde. Le digo que el Padre la espera. Que ya no se va.",
         escolta = "Llevo a Lucia a Riverside. Dice que se va a sentar en la primera fila y que el la va a mirar a la cara.",

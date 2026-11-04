@@ -406,7 +406,8 @@ end
 
 -- Pone a cada miembro el nombre de su rol en A-Life (y los presenta a los jugadores conectados).
 -- Nombres que cambiaron (las partidas guardadas todavia tienen el viejo).
-Motor.NOMBRES_NUEVOS = { Maulen = "Meulen", Callupan = "Canupan" }
+-- Tomasito Salinas (bandido_3) paso a Pablito: el unico Tomas del canon es Tomas Ferrada.
+Motor.NOMBRES_NUEVOS = { Maulen = "Meulen", Callupan = "Canupan", Tomasito = "Pablito" }
 
 function Motor.corregirNombres(g)
     for _, par in pairs(g.nombres or {}) do
