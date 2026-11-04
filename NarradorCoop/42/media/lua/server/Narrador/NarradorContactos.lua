@@ -84,6 +84,13 @@ C.NIVELES = { facil = "facil", medio = "medio", dificil = "dificil", ultra = "ul
 
 -- Lo que dicen segun tu fama en Knox (ver KnoxDefs.tono): mientras peor, mas te insultan;
 -- mientras mejor, mas te quieren y mas saben de lo que hiciste.
+-- Frases que el misionero de esa ciudad dice solo si se cumple una condicion del motor
+-- (memorias de la partida): C.FRASES_EXTRA[id] = { { "texto", si = condicion }, ... }. Las llenan
+-- otros modulos (por ejemplo NarradorHollis). Valen para quien mande en la ciudad: la condicion
+-- puede pedir { "dominio", id, "mision" }.
+C.FRASES_EXTRA = C.FRASES_EXTRA or {}
+C.SIN_INST = { vars = {}, lugares = {}, grupos = {}, relojes = {}, elecciones = {}, usadas = {} }
+
 C.FRASES_KNOX = {
     muldraugh = {
         odio = { "Usted me da asco, civil. En veintidos anos no vi a nadie hacer lo que usted hizo.",
@@ -676,6 +683,10 @@ function C.tick()
                         local lineas = {}
                         for _, f in ipairs(c.frases or {}) do lineas[#lineas + 1] = { "contacto", f } end
                         for _, f in ipairs(c.frases_eduardo or {}) do lineas[#lineas + 1] = { "contacto", f } end
+                        -- Frases que dependen de lo que paso en la partida (C.FRASES_EXTRA).
+                        for _, f in ipairs(C.FRASES_EXTRA[c.id] or {}) do
+                            if Motor.cumple(C.SIN_INST, f.si) then lineas[#lineas + 1] = { "contacto", f[1] } end
+                        end
                         -- Segun la fama en Knox de quien esta cerca: con mala fama, solo desprecio.
                         local tono = C.tonoKnox(e.x, e.y)
                         local porTono = tono ~= nil and C.FRASES_KNOX[c.id] ~= nil and C.FRASES_KNOX[c.id][tono] or nil

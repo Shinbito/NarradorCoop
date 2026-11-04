@@ -802,6 +802,12 @@ function G.verOfertas(jugador, args)
     end
     local especial = G.ofertaEspecial(contactoId, nivel, grupo)
     if especial ~= nil then lista[#lista + 1] = especial end
+    -- Misiones con historia que no son capitulos (por ejemplo NarradorHollis): salen ademas del
+    -- capitulo. Cada una: function(contactoId, nivel, grupo) -> oferta o nil.
+    for _, f in ipairs(G.OFERTAS_EXTRA) do
+        local ok, o = pcall(f, contactoId, nivel, grupo)
+        if ok and o ~= nil then lista[#lista + 1] = o end
+    end
     G.estado().ofertas[grupo] = { contacto = contactoId, nivel = nivel, lista = lista, hora = Mundo.horas() }
     G.enviarOfertas(jugador, grupo)
 end
@@ -812,6 +818,9 @@ end
 -- pago y chance (1 en n; 1 = siempre). El desbloqueo (fundar el campamento) va aparte, antes
 -- del capitulo 1. Los capitulos tambien son requisito para subir el campamento de nivel
 -- (shared/Narrador/NarradorCampamentosDefs.lua).
+-- Ofertas extra de otros modulos (ver G.verOfertas).
+G.OFERTAS_EXTRA = G.OFERTAS_EXTRA or {}
+
 G.ESPECIALES = {
     -- Capitulos 2 en adelante (shared/Narrador/Arcos/Capitulos.lua, HijaCabo.lua y LeyendaEduardo.lua).
     -- El capitulo 1 de cada uno es su desbloqueo y deja "historia_<id>_1".

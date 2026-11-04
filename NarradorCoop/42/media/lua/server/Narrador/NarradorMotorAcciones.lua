@@ -387,9 +387,33 @@ Motor.diferidas = {
         Mundo.nombrar(item, p.nombre ~= nil and Motor.texto(inst, p.nombre) or nil, inst.id .. ":" .. tostring(p.id))
         return Mundo.dejarEnSuelo(l.x, l.y, l.z, item)
     end,
+    -- {"nota", lugar, titulo, texto, id}: una nota que se puede leer. Con id queda ademas como
+    -- objeto de la historia (para "alguien_tiene" y requiere = { "objeto", id }).
     nota = function(inst, p, l)
         local nota = Mundo.crearNota(Motor.texto(inst, p.titulo or "Nota"), Motor.texto(inst, p.texto))
+        if p.id ~= nil then Mundo.nombrar(nota, nil, inst.id .. ":" .. tostring(p.id)) end
         return Mundo.dejarEnSuelo(l.x, l.y, l.z, nota)
+    end,
+    -- {"vehiculo", lugar, scripts, bencina, blanco}: deja un vehiculo en el lugar (el primero de
+    -- scripts que se pueda), con esa fraccion del estanque (0 a 1) y, con blanco = true, pintado
+    -- de blanco. Queda marcado con el id de la historia para "llaves_vehiculo".
+    vehiculo = function(inst, p, l)
+        local v = Mundo.crearVehiculo(l.x, l.y, l.z, p.scripts, inst.id, p)
+        return v ~= nil or addVehicleDebug == nil
+    end,
+    -- {"llaves_vehiculo", lugar, nombre, scripts...}: las llaves del vehiculo que dejo esta
+    -- historia, para el jugador que esta cerca. Si el vehiculo no se pudo poner antes, se prueba
+    -- de nuevo con los mismos campos que "vehiculo"; si tampoco, no pasa nada.
+    llaves_vehiculo = function(inst, p, l, jugador)
+        local llave = Mundo.llavesVehiculo(inst.id)
+        if llave == nil and Mundo.crearVehiculo(l.x, l.y, l.z, p.scripts, inst.id, p) ~= nil then
+            llave = Mundo.llavesVehiculo(inst.id)
+        end
+        if llave ~= nil then
+            Mundo.nombrar(llave, p.nombre ~= nil and Motor.texto(inst, p.nombre) or nil, inst.id .. ":llaves")
+            if not Mundo.darItem(jugador, llave) then Mundo.dejarEnSuelo(l.x, l.y, l.z, llave) end
+        end
+        return true
     end,
     recompensa = function(inst, p, l)
         for _, tipos in ipairs(p.items or {}) do

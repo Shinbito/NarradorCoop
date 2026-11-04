@@ -76,6 +76,10 @@ LANZADORES = {
     "encargo_cura": ("pedirle 'algo especial' a un misionero, cada 20 dias (NarradorCuraServer)", [], []),
     "hartmann_k93": ("al pasar cerca de la Chela con el doctor en el cuartel y una K-93 falsa vista (NarradorCuraServer)",
                      [("k93_falsa_vista", "true"), ("cientifico_hartmann", "en_west_point")], ["hartmann_k93"]),
+    # La panaderia Hollis: ofertas de la Misia Rosa que no son capitulos (G.OFERTAS_EXTRA). Lo que
+    # piden sale de su condicion "si".
+    "camioneta_pan": ("oferta de la Misia Rosa, ademas de sus capitulos, con confianza 3 (NarradorHollis)", [], ["camioneta_pan"]),
+    "iglesia_shively": ("oferta de la Misia Rosa, ademas de sus capitulos, con confianza 4 (NarradorHollis)", [], ["shively"]),
 }
 for rol in ["benjamin", "martin_z", "martin_a", "david", "bastian", "hanz", "cristian", "jorge", "cristobal"]:
     LANZADORES["favor_" + rol] = ("pedirle el favor en la base de Sous (FavoresSous)", [("sous", "aliados")], [])
