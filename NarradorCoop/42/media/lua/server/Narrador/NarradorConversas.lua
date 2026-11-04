@@ -67,6 +67,14 @@ function CS.hablantes()
             end
         end
     end
+    -- Los Bell que viven en tu refugio despues de su historia (NarradorBell): fuente "res:bell".
+    local B = Narrador.Bell
+    local b = B ~= nil and B.st ~= nil and B.st() or nil
+    if b ~= nil and b.escondidos == nil then
+        for rol, m in pairs(b.miembros or {}) do
+            if m.uid ~= nil and B.NOMBRES[rol] ~= nil then agregar(m.uid, rol, B.NOMBRES[rol][1], "res:bell", nil, {}) end
+        end
+    end
     local C = Narrador.Contactos
     if C ~= nil then
         for _, c in ipairs(C.LISTA) do

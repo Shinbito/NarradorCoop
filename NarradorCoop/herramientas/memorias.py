@@ -44,6 +44,13 @@ MEMORIAS = {
     "hsous_<rol>": "Historia personal de ese integrante de Sous (HistoriasSous1): hecho, fallido o murio. Con algo ya no se lanza.",
     "hsous_primos": "Lo que le dijiste a Matric de los primos en su historia: contado, verdad o secreto (ecos en la base).",
     "hora_hsous": "Hora en que se lanzo la ultima historia personal de Sous (horas entre una y otra).",
+    # --- La panaderia Hollis (Arcos/Hollis.lua, NarradorHollis, NarradorBell) ---
+    "harina": "El raton de la harina: callado, secreto, confeso, daniel o wade (que hiciste cuando la trampa de Wade pillo a Yvonne). Cambia las charlas y conversas de los Bell y como se pide el primer pan.",
+    "pan_bell": "El horno de Yvonne del primer pan: vieja o walt (con la libreta de Walt). Desde ahi Yvonne deja pan en el refugio cada dos dias (B.hornear).",
+    "pan_bell_ultima": "Hora del ultimo pan que dejo Yvonne en el refugio (NarradorBell B.hornear).",
+    "camioneta_pan": "La camioneta del pan: que te llevaste de la camioneta de Walt (receta, foto o llaves). Abre la iglesia de Shively; la foto convence a Linda; la Misia Rosa lo comenta.",
+    "receta_walt": "Le diste a Yvonne la libreta de recetas de Walt (camioneta del pan): el primer pan sale con la receta de Hazel y el horno da tambien rollos de canela.",
+    "shively": "La iglesia de Shively: vivos, uno (llego solo Linda o solo Nico), nota, trampa o muertos. La Misia Rosa (o Hector, en la reconquista) lo comenta.",
     # --- Misioneros y campamentos ---
     "campamento_<id>": "El campamento de ese misionero se fundo (Desbloqueos). Hoy el codigo mira C.desbloqueado().",
     "historia_<id>_<n>": "Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento.",

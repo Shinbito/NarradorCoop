@@ -72,6 +72,10 @@ LANZADORES = {
     "venganza_meulen": ("120 horas despues de que Meulen muere en Sous o en el patio (NarradorVenganzaMeulen)",
                         ["meulen_muerte_hora"], ["meulen_venganza", "meulen_final"]),
     "encargo_cura": ("pedirle 'algo especial' a un misionero, cada 20 dias (NarradorCuraServer)", [], []),
+    # La panaderia Hollis: ofertas de la Misia Rosa que no son capitulos (G.OFERTAS_EXTRA). Lo que
+    # piden sale de su condicion "si".
+    "camioneta_pan": ("oferta de la Misia Rosa, ademas de sus capitulos, con confianza 3 (NarradorHollis)", [], ["camioneta_pan"]),
+    "iglesia_shively": ("oferta de la Misia Rosa, ademas de sus capitulos, con confianza 4 (NarradorHollis)", [], ["shively"]),
 }
 for rol in ["benjamin", "martin_z", "martin_a", "david", "bastian", "hanz", "cristian", "jorge", "cristobal"]:
     LANZADORES["favor_" + rol] = ("pedirle el favor en la base de Sous (FavoresSous)", [("sous", "aliados")], [])

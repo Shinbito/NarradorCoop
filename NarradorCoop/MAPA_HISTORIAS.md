@@ -24,6 +24,7 @@ flowchart LR
   bandido_maulen["El camino del bandido: Meulen"]
   cal_amigo_secreto["El amigo secreto de Sous"]
   cal_fonda["La fonda de Sous"]
+  camioneta_pan["La camioneta del pan"]
   cap_cabo_2["La puerta de atras"]
   cap_cabo_4["Los signos de pregunta"]
   cap_chela_2["La radio del cuartel"]
@@ -77,7 +78,10 @@ flowchart LR
   hsous_david["Trabajo de campo"]
   hsous_martin_a["La luz de Sous"]
   hsous_martin_z["La Awp de SOUS"]
+  iglesia_shively["La iglesia de Shively"]
   leyenda_eduardo["Un cientifico que dice tener la cura"]
+  primer_pan["El primer pan"]
+  raton_harina["El raton de la harina"]
   reconquista_muldraugh["La reconquista: la comisaria de Muldraugh"]
   reconquista_patio["La reconquista: el patio de trenes"]
   reconquista_riverside["La reconquista: la iglesia de Riverside"]
@@ -116,10 +120,12 @@ flowchart LR
   bandido_5 -->|final_con_pereira: bandido = pereira| conquista_sous
   bandido_maulen -->|final_unido: sigue el camino con Meulen de jefe| bandido_2
   bandido_maulen -->|final_redimido: Meulen muere (era el jefe)| venganza_meulen
+  camioneta_pan -->|contado: camioneta_pan| iglesia_shively
   cap_cabo_2 -->|final_cumplido, final_muerta: historia_muldraugh_2| hija_cabo
   cap_chela_2 -->|final_cumplido: historia_westpoint_2| leyenda_eduardo
   cap_nacho_2 -->|final_cumplido: historia_riverside_2| cap_nacho_3
   cap_nacho_3 -->|final_cumplido, final_muerta: historia_riverside_3| cap_nacho_4
+  cap_rosa_2 -->|final_cumplido, final_muerto: historia_rosewood_2| camioneta_pan
   cap_rosa_2 -->|final_cumplido, final_muerto: historia_rosewood_2| cap_rosa_3
   cap_rosa_3 -->|final_cumplido, final_saqueado: historia_rosewood_3| cap_rosa_4
   cap_rosa_4 -->|final_abandono, final_cumplido: historia_rosewood_4| cap_rosa_5
@@ -159,6 +165,11 @@ flowchart LR
   leyenda_eduardo -->|final_cumplido, final_muerto: historia_westpoint_3| cap_chela_4
   leyenda_eduardo -->|caido, despedida: eduardo_conocido| eduardo_evento
   leyenda_eduardo -->|caido_eduardo| eduardo_vuelve
+  raton_harina -->|final_callado: abre| primer_pan
+  raton_harina -->|final_confeso: abre| primer_pan
+  raton_harina -->|final_daniel: abre| primer_pan
+  raton_harina -->|final_secreto: abre| primer_pan
+  raton_harina -->|final_wade: abre| primer_pan
   reconquista_muldraugh -->|final_reconquistado: reconquista_muldraugh| reconquista_patio
   reconquista_patio -->|final_luz: Meulen muere (si era el jefe)| venganza_meulen
   reconquista_riverside -->|final_reconquistado: reconquista_riverside| reconquista_patio
@@ -324,6 +335,15 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `final_fonda` | "Entregar la carne y el carbon para la fonda", y despues `pasan 2.5 h` | `cal.fonda` = hecha | - |
 | `final_sin_fonda` | `fecha 19 9`<br>`pasan 240 h` | `cal.fonda` = sin | - |
 
+### La camioneta del pan (`camioneta_pan`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandono` | `pasan 168 h` | - | - |
+| `final_receta` | "Contarle y darle la libreta de recetas de Walt" | `receta_walt` = true | - |
+| `final_rosa` | "Contarle lo de Walt y la camioneta", y despues `nil`<br>"Contarle lo de Walt y la camioneta", y despues `no bell_vive madre` | - | - |
+| `final_yvonne` | "Contarle a Yvonne que encontraste a Walt" | - | - |
+
 ### La puerta de atras (`cap_cabo_2`)
 
 | Final | Como se llega | Deja | Lleva a |
@@ -365,8 +385,8 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_cumplido` | "Entregarle la carga del Gordo Earl" | `historia_rosewood_2` = true | cap_rosa_3 |
-| `final_muerto` | `todos_muertos earl` | `historia_rosewood_2` = fallido | cap_rosa_3 |
+| `final_cumplido` | "Entregarle la carga del Gordo Earl" | `historia_rosewood_2` = true | camioneta_pan, cap_rosa_3 |
+| `final_muerto` | `todos_muertos earl` | `historia_rosewood_2` = fallido | camioneta_pan, cap_rosa_3 |
 
 ### El tanque (`cap_rosa_3`)
 
@@ -676,12 +696,41 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `final_hecho` | "Entregarle el estuche a Zent" | `hsous_martin_z` = hecho | - |
 | `final_murio` | "Preguntarle a Zent que necesita" o "Llevarsela directo a Zent" o "Prestarsela a Renato 'un ratito'", y despues `muerto pide martin_z`<br>"Preguntarle a Zent que necesita", y despues `muerto pide martin_z`<br>"Prestarsela a Renato 'un ratito'", y despues `muerto pide martin_z`<br>`muerto pide martin_z` | `hsous_martin_z` = murio | - |
 
+### La iglesia de Shively (`iglesia_shively`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandono` | `pasan 168 h` | - | - |
+| `final_cebo` | "Contarle a Junior que era cebo" | `shively` = trampa | - |
+| `final_huida` | `pasan 3 h y no cerca iglesia 100` | `shively` = trampa | - |
+| `final_muertos` | "Mostrarle la foto del parasol de Walt" o "Decirle que la manda Junior: 'Lleno o normal?', como dice la Misia Rosa", y despues `todos_muertos hollis`<br>`todos_muertos hollis` | `shively` = muertos | - |
+| `final_nota` | "Darle a Junior la nota de su mama" | `shively` = nota | - |
+| `final_vivos` | "Mostrarle la foto del parasol de Walt" o "Decirle que la manda Junior: 'Lleno o normal?', como dice la Misia Rosa", y despues `(grupo_listo hector o pasan 0.5 h)` | `shively` = uno, `shively` = vivos | - |
+
 ### Un cientifico que dice tener la cura (`leyenda_eduardo`)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
 | `final_cumplido` | "No decirle nada" o "Giovanns... Eduardo? Tu mama, la Tia Chela, te espera en el cuartel de West Point.", y despues `npc_cerca cientifico contacto 15` | `cientifico_hartmann` = en_west_point, `historia_westpoint_3` = true | cap_chela_4 |
 | `final_muerto` | "No decirle nada" o "Giovanns... Eduardo? Tu mama, la Tia Chela, te espera en el cuartel de West Point.", y despues `todos_muertos cientifico`<br>`todos_muertos cientifico` | `cientifico_hartmann` = muerto, `historia_westpoint_3` = fallido | cap_chela_4 |
+
+### El primer pan (`primer_pan`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_primer_pan` | "Darles la puerta del horno a los Bell", y despues `pasan 6 h y cerca refugio 25 y hora_entre 3 6 y bell_presente madre` | `pan_bell` = vieja, `pan_bell` = walt | - |
+| `final_sin_ti` | "Darles la puerta del horno a los Bell", y despues `pasan 96 h` | `pan_bell` = vieja, `pan_bell` = walt | - |
+| `final_sin_yvonne` | "Darles la puerta del horno a los Bell", y despues `no bell_vive madre`<br>`no bell_vive madre` | - | - |
+
+### El raton de la harina (`raton_harina`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_callado` | "Hacer como que no viste nada y volver a dormir" | `harina` = callado | primer_pan |
+| `final_confeso` | "Decirle que se lo cuente ella a su familia: bien, no bonito" | `harina` = confeso | primer_pan |
+| `final_daniel` | "Despertar a Daniel" | `harina` = daniel | primer_pan |
+| `final_secreto` | "Guardarle el secreto"<br>"Preguntarle a Yvonne para que es la harina", y despues `pasan 2 h` | `harina` = secreto | primer_pan |
+| `final_wade` | `pasan 2 h`<br>`pasan 72 h` | `harina` = wade | primer_pan |
 
 ### La reconquista: la comisaria de Muldraugh (`reconquista_muldraugh`)
 
@@ -769,6 +818,7 @@ un texto que cambia, una variante o lo que decide un final.
 | El camino del bandido: Meulen | `bandido_maulen` | 72 horas despues de perdonar a Meulen (NarradorBandido) | `maulen_salvado` | `bell_culpa` | - | `bandido` = rechazado (final_rechazo)<br>`bandido` = redimido (final_redimido)<br>`bandido_ultimo` = abandonado (final_abandonado)<br>`bandido_ultimo` = hecho (final_unido)<br>`bandido_ultimo` = redimido (final_redimido) |
 | El amigo secreto de Sous | `cal_amigo_secreto` | 24 de diciembre, con Sous aliado (NarradorCalendario) | `sous = aliados` | - | - | - |
 | La fonda de Sous | `cal_fonda` | del 10 al 18 de septiembre (asado el 18), con Sous aliado (NarradorCalendario) | `sous = aliados` | - | - | `cal.fonda` = hecha (final_fonda)<br>`cal.fonda` = sin (final_sin_fonda) |
+| La camioneta del pan | `camioneta_pan` | oferta de la Misia Rosa, ademas de sus capitulos, con confianza 3 (NarradorHollis) | `historia_rosewood_2` | `cura_rosewood` | `camioneta_pan` | `camioneta_pan` = var:recuerdo (contado)<br>`receta_walt` = true (final_receta) |
 | La puerta de atras | `cap_cabo_2` | capitulo 2 de muldraugh, entre sus ofertas (confianza 2+) | `historia_muldraugh_1` | - | - | `historia_muldraugh_2` = fallido (final_muerta)<br>`historia_muldraugh_2` = true (final_cumplido) |
 | Los signos de pregunta | `cap_cabo_4` | capitulo 4 de muldraugh, entre sus ofertas (confianza 4+) | `historia_muldraugh_3` | `hija_cabo` | - | `historia_muldraugh_4` = fallido (final_cruces)<br>`historia_muldraugh_4` = true (final_cumplido)<br>`historia_muldraugh_4` = true (final_sin_reloj) |
 | La radio del cuartel | `cap_chela_2` | capitulo 2 de westpoint, entre sus ofertas (confianza 2+) | `historia_westpoint_1` | - | - | `historia_westpoint_2` = true (final_cumplido)<br>`radio_westpoint` = true (final_cumplido) |
@@ -823,7 +873,10 @@ un texto que cambia, una variante o lo que decide un final.
 | Trabajo de campo | `hsous_david` | al pasar por la base de Sous, de a una y con horas entre una y otra (NarradorHistoriasSous1) | `sous = aliados` | - | `hsous_david`, `sous_murio_david` | `hsous_david` = fallido (final_fallido)<br>`hsous_david` = hecho (final_hecho)<br>`hsous_david` = murio (final_murio) |
 | La luz de Sous | `hsous_martin_a` | al pasar por la base de Sous, de a una y con horas entre una y otra (NarradorHistoriasSous1) | `sous = aliados` | - | `hsous_martin_a`, `sous_murio_martin_a` | `hsous_martin_a` = fallido (final_fallido)<br>`hsous_martin_a` = hecho (final_hecho)<br>`hsous_martin_a` = murio (final_murio) |
 | La Awp de SOUS | `hsous_martin_z` | al pasar por la base de Sous, de a una y con horas entre una y otra (NarradorHistoriasSous1) | `sous = aliados` | - | `hsous_martin_z`, `sous_murio_martin_z` | `hsous_martin_z` = fallido (final_fallido)<br>`hsous_martin_z` = hecho (final_hecho)<br>`hsous_martin_z` = murio (final_murio) |
+| La iglesia de Shively | `iglesia_shively` | oferta de la Misia Rosa, ademas de sus capitulos, con confianza 4 (NarradorHollis) | `camioneta_pan`, `cura_rosewood = salvo` | `radio_westpoint` | `shively` | `shively` = muertos (final_muertos)<br>`shively` = nota (final_nota)<br>`shively` = trampa (final_cebo)<br>`shively` = trampa (final_huida)<br>`shively` = uno (final_vivos)<br>`shively` = vivos (final_vivos) |
 | Un cientifico que dice tener la cura | `leyenda_eduardo` | capitulo 3 de westpoint, entre sus ofertas (confianza 3+) | `historia_westpoint_2` | `curandero_falso` | - | `cientifico_hartmann` = en_west_point (final_cumplido)<br>`cientifico_hartmann` = muerto (final_muerto)<br>`eduardo_conocido` = true (caido)<br>`eduardo_conocido` = true (despedida)<br>`historia_westpoint_3` = fallido (final_muerto)<br>`historia_westpoint_3` = true (final_cumplido) |
+| El primer pan | `primer_pan` | lo abre raton_harina | - | `harina`, `receta_walt` | - | `pan_bell` = vieja (final_primer_pan)<br>`pan_bell` = vieja (final_sin_ti)<br>`pan_bell` = walt (final_primer_pan)<br>`pan_bell` = walt (final_sin_ti) |
+| El raton de la harina | `raton_harina` | el director (al azar, segun tension) | - | - | - | `harina` = callado (final_callado)<br>`harina` = confeso (final_confeso)<br>`harina` = daniel (final_daniel)<br>`harina` = secreto (final_secreto)<br>`harina` = wade (final_wade) |
 | La reconquista: la comisaria de Muldraugh | `reconquista_muldraugh` | al entrar a Muldraugh (NarradorBandido) | `reconquista = true` | `misionero_muerto_muldraugh` | `fin` | `reconquista_muldraugh` = true (final_reconquistado) |
 | La reconquista: el patio de trenes | `reconquista_patio` | con las 4 ciudades reconquistadas (NarradorBandido) | `reconquista_muldraugh`, `reconquista_riverside`, `reconquista_rosewood`, `reconquista_westpoint` | - | `fin` | `fin` = reconquista (final_luz) |
 | La reconquista: la iglesia de Riverside | `reconquista_riverside` | al entrar a Riverside (NarradorBandido) | `reconquista = true` | `misionero_muerto_riverside` | `fin` | `reconquista_riverside` = true (final_reconquistado) |
@@ -864,6 +917,7 @@ un texto que cambia, una variante o lo que decide un final.
 | `bell_culpa` | Les diste una pastilla falsa a los Bell y te quedaste con la verdadera. Meulen lo sabe; en Sous oyen a los Bell hablar bien de ti. | familia_infectada | - | bandido_maulen | escribe: FamiliaInfectada; lee: Bandido, Sous |
 | `caido_<quien>` | Un NPC inmune (Eduardo) cayo: true; 'volvio' cuando reaparece en el cuartel. | eduardo_evento, leyenda_eduardo | eduardo_vuelve | - | escribe: NarradorContactos; lee: NarradorContactos, NarradorEduardoResidente |
 | `cal.fonda` | Como salio la fonda del 18 de septiembre (hecha o sin). | cal_fonda | - | - | escribe: Calendario |
+| `camioneta_pan` | La camioneta del pan: que te llevaste de la camioneta de Walt (receta, foto o llaves). Abre la iglesia de Shively; la foto convence a Linda; la Misia Rosa lo comenta. | camioneta_pan | camioneta_pan, iglesia_shively | - | escribe: Hollis; lee: Hollis, NarradorHollis |
 | `campamento_<id>` | El campamento de ese misionero se fundo (Desbloqueos). Hoy el codigo mira C.desbloqueado(). | desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint | - | asalto_nocturno | escribe: Desbloqueos; lee: EventosCortos |
 | `carcel_rosewood` | La carcel de Rosewood (Misia Rosa, cap. 4): limpiada, con el arsenal legendario de la armeria. En el cap. 5 el camion lleva a las familias a vivir alla. | cap_rosa_4 | - | cap_rosa_5 | escribe: Capitulos; lee: Capitulos |
 | `cientifico_hartmann` | El doctor Hartmann: en_west_point o muerto. Muerto, el curandero de la Chela es un mercader. | leyenda_eduardo | - | - | escribe: LeyendaEduardo; lee: NarradorCampamentosDefs |
@@ -872,7 +926,7 @@ un texto que cambia, una variante o lo que decide un final.
 | `conv.<conv>` | Respuesta elegida en una conversacion de 'pregunta' (NarradorConversas). | - | - | - | escribe: NarradorConversas; lee: ConversasSous |
 | `conv.<conv>.hora` | A que hora se respondio. | - | - | - | escribe: NarradorConversas |
 | `conv.<conv>.quien` | Quien respondio esa conversacion. | - | - | - | escribe: NarradorConversas |
-| `cura_<contacto>` | Como termino la primera mision de la cura de ese misionero: salvo o murio (cura_rosewood = el sobrino de la Misia Rosa). | - | - | - | escribe: Cura; lee: NarradorDominiosDefs |
+| `cura_<contacto>` | Como termino la primera mision de la cura de ese misionero: salvo o murio (cura_rosewood = el sobrino de la Misia Rosa). | - | iglesia_shively | camioneta_pan | escribe: Cura; lee: Hollis, NarradorDominiosDefs, NarradorHollis |
 | `curandero_falso` | Los Bell compraron pastillas a un curandero falso: era el doctor Hartmann (te lo confiesa en el cap. 3 de la Chela). | familia_infectada | - | leyenda_eduardo | escribe: FamiliaInfectada; lee: LeyendaEduardo |
 | `denise` | Denise (sobreviviente acorralada): rescatada, muerta o asesinada. Rescatada: Lonnie te trae su comida; asesinada: Lonnie te caza (ConsecuenciasExtra). | sobreviviente_acorralada | eco_denise_lonnie, eco_denise_olla | - | escribe: EventosCortos; lee: ConsecuenciasExtra |
 | `desertor` | El desertor: protegido, entregado, echado, muerto o asesinado. Protegido: Ray vuelve con la Guardia detras (ConsecuenciasExtra). | eco_desertor_vuelve, el_desertor | eco_desertor_vuelve | - | escribe: ConsecuenciasExtra, EventosCortos; lee: ConsecuenciasExtra |
@@ -891,8 +945,9 @@ un texto que cambia, una variante o lo que decide un final.
 | `faccion.<id>` | Postura de las facciones propias en A-Life (accion 'faccion'). | - | - | - | escribe: NarradorMotorAcciones |
 | `favor_<rol>` | El favor de ese miembro de Sous: hecho o murio. Con 'hecho' ya no se ofrece. | favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z | - | - | escribe: FavoresSous; lee: FavoresSous |
 | `fin` | Final del juego: eduardo_muerto o reconquista. Corta el bandido y los eventos de Eduardo. | eduardo_fallas, reconquista_patio | eduardo_atentado, eduardo_evento, eduardo_fallas, reconquista_muldraugh, reconquista_patio, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | - | escribe: Eduardo; lee: NarradorBandido, NarradorEduardo, NarradorVenganzaMeulen |
+| `harina` | El raton de la harina: callado, secreto, confeso, daniel o wade (que hiciste cuando la trampa de Wade pillo a Yvonne). Cambia las charlas y conversas de los Bell y como se pide el primer pan. | raton_harina | - | primer_pan | escribe: Hollis; lee: ConversasHollis, Hollis |
 | `hija_cabo` | Valentina: salvada o muerta. Si murio, en la reconquista la reemplaza otro (NUEVO_MURIO). | hija_cabo | - | cap_cabo_4 | escribe: HijaCabo; lee: Capitulos, NarradorDominiosDefs |
-| `historia_<id>_<n>` | Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento. | cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint, hija_cabo, leyenda_eduardo | bandido_2, cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, eduardo_vuelve, hija_cabo, leyenda_eduardo | - | escribe: Capitulos, Desbloqueos, HijaCabo, LeyendaEduardo, NarradorContactos, NarradorGenerador; lee: Capitulos, NarradorCampamentos, NarradorContactos, NarradorGenerador |
+| `historia_<id>_<n>` | Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento. | cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint, hija_cabo, leyenda_eduardo | bandido_2, camioneta_pan, cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, eduardo_vuelve, hija_cabo, leyenda_eduardo | - | escribe: Capitulos, Desbloqueos, HijaCabo, LeyendaEduardo, NarradorContactos, NarradorGenerador; lee: Capitulos, Hollis, NarradorCampamentos, NarradorContactos, NarradorGenerador |
 | `historia_abierta` | true desde que alguien reclamo un refugio: abre el modo historia (Motor.historiaAbierta). | - | - | - | escribe: NarradorMotor; lee: NarradorMotor |
 | `historia_abierta_hora` | Hora en que se abrio el modo historia (solo para mirar). | - | - | - | escribe: Capitulos, NarradorMotor; lee: NarradorCampamentos |
 | `hora_hsous` | Hora en que se lanzo la ultima historia personal de Sous (horas entre una y otra). | - | - | - | escribe: NarradorHistoriasSous1; lee: NarradorHistoriasSous1, NarradorHistoriasSous2 |
@@ -917,14 +972,18 @@ un texto que cambia, una variante o lo que decide un final.
 | `meulen_venganza` | La venganza de Meulen ya se lanzo ('lanzada'): no se repite. | - | venganza_meulen | - | escribe: NarradorVenganzaMeulen; lee: NarradorVenganzaMeulen |
 | `misionero_muerto_<id>` | El misionero de esa ciudad murio en la conquista. | - | - | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_westpoint, reconquista_muldraugh, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | escribe: NarradorDominios; lee: NarradorDominios |
 | `nuevo_<id>` | Quien reemplaza al misionero nuevo de la reconquista que murio antes: bell_padre, bell_madre, bell_hijo o forastero. | - | - | - | escribe: NarradorDominios; lee: NarradorDominios |
+| `pan_bell` | El horno de Yvonne del primer pan: vieja o walt (con la libreta de Walt). Desde ahi Yvonne deja pan en el refugio cada dos dias (B.hornear). | primer_pan | - | - | escribe: Hollis; lee: ConversasHollis, Hollis, NarradorBell |
+| `pan_bell_ultima` | Hora del ultimo pan que dejo Yvonne en el refugio (NarradorBell B.hornear). | - | - | - | escribe: NarradorBell; lee: NarradorBell |
 | `pereira_aviso_desconfia` | Ya se aviso que el jefe del patio te vigila. | - | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `pereira_desconfia` | Pereira descubrio un sabotaje (castigo): desde ahi cada sabotaje pesa 45% en vez de 30%. | bandido_castigo | - | - | escribe: Bandido; lee: NarradorBandido |
 | `poster_sous` | Ya se entrego el poster de Sous. | - | - | - | escribe: NarradorObjetosServer; lee: NarradorObjetosServer |
-| `radio_westpoint` | La radio del cuartel de la Chela quedo arreglada (cap. 2): las amenazas se avisan antes y por la radio. | cap_chela_2 | - | - | escribe: Capitulos; lee: NarradorAmenazas |
+| `radio_westpoint` | La radio del cuartel de la Chela quedo arreglada (cap. 2): las amenazas se avisan antes y por la radio. | cap_chela_2 | - | iglesia_shively | escribe: Capitulos; lee: Hollis, NarradorAmenazas |
+| `receta_walt` | Le diste a Yvonne la libreta de recetas de Walt (camioneta del pan): el primer pan sale con la receta de Hazel y el horno da tambien rollos de canela. | camioneta_pan | - | primer_pan | escribe: Hollis; lee: ConversasHollis, Hollis |
 | `reconquista` | Elegiste hablar con Eduardo: empieza la reconquista. | eduardo_fallas | reconquista_muldraugh, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | - | escribe: Eduardo; lee: NarradorBandido |
 | `reconquista_<id>` | Esa ciudad ya fue reconquistada. | reconquista_muldraugh, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | reconquista_patio | - | escribe: Eduardo; lee: NarradorBandido |
 | `reconquista_aviso` | Ya se aviso que empieza la reconquista. | - | - | - | escribe: Eduardo, NarradorBandido; lee: NarradorBandido |
 | `reconquista_patio_lanzada` | Ya se lanzo el asalto final al patio. | - | - | - | escribe: Eduardo, NarradorBandido; lee: NarradorBandido |
+| `shively` | La iglesia de Shively: vivos, uno (llego solo Linda o solo Nico), nota, trampa o muertos. La Misia Rosa (o Hector, en la reconquista) lo comenta. | iglesia_shively | iglesia_shively | - | escribe: Hollis; lee: Hollis, NarradorHollis |
 | `sous` | Relacion con Sous: aliados, enemigos, ignorados (nunca fuiste, o dijiste que si y no volviste), negado, caidos, eliminado, conquistada, maulen_escapa (Meulen escapa). | conquista_sous, sous, sous_guerra | cal_amigo_secreto, cal_fonda, conquista_sous, favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z, historia_sous_cristian, historia_sous_cristobal, historia_sous_hanz, historia_sous_jorge, hsous_bastian, hsous_benjamin, hsous_david, hsous_martin_a, hsous_martin_z | sous_arsenal, venganza_meulen | escribe: Conquista, Sous; lee: ConversasSous, FavoresSous, NarradorBandido, NarradorCalendario, NarradorDirector, NarradorEncuentros, NarradorHistoriasSous1, NarradorHistoriasSous2, NarradorSousBase, NarradorSousConfianza, Sous, VenganzaMeulen |
 | `sous_base` | La base de Sous ya se amueblo (NarradorSousBase): sillas, generador, quien se sienta donde. | - | - | - | escribe: NarradorSousBase; lee: NarradorSousBase |
 | `sous_historia_<rol>` | Modo historia de Sous, parte 2 (Walita, Cristonks, Hasag, Wertres): hecho, fallido, postergada o murio. El lanzador ofrece las nuevas y despues las postergadas. | historia_sous_cristian, historia_sous_cristobal, historia_sous_hanz, historia_sous_jorge | - | - | escribe: HistoriasSous2; lee: NarradorHistoriasSous2 |

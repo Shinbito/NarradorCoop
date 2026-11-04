@@ -96,6 +96,13 @@ CD.PERSONAJES = {
     { clave = "laura_mercer", nombre = "Laura Mercer", def = "cap_rosa_5", rol = "laura",
       homenaje = "Laura Mercer salio de su casa con una escopeta sin cartuchos y la cabeza en alto.",
       lamento = "Mate a Laura Mercer. En que me converti." },
+    -- La panaderia Hollis (Arcos/Hollis.lua)
+    { clave = "linda_hollis", nombre = "Linda Hollis", def = "iglesia_shively", rol = "linda",
+      homenaje = "Linda Hollis aguanto en una iglesia de Shively golpeando una olla para que no entraran. Era la hija de Walt y la mama de Junior. No alcanzo a ver la luz de la gasolinera.",
+      lamento = "Mate a Linda Hollis, la mama de Junior. Fui a buscarla para traerla a casa. En que me converti." },
+    { clave = "nico_bencina", nombre = "Nico Bencina", def = "iglesia_shively", rol = "nico",
+      homenaje = "Nico Bencina tenia catorce anos y las orejas de los Bencina. Se quedo en el camino entre Louisville y Rosewood.",
+      lamento = "Mate a Nico Bencina, el hermano chico de Junior. Tenia catorce anos. En que me converti." },
     -- El camino del bandido
     { clave = "julio", nombre = "Julio Cardenas", rol = "julio",
       homenaje = "Julio Cardenas desobedecio cuando importaba. Lo voy a recordar por eso.",

@@ -1045,6 +1045,63 @@ function Mundo.zombiJefe(x, y, z, outfit, femenino)
     return jefe
 end
 
+-- Un vehiculo cerca del punto: prueba los scripts en orden y unas casillas al lado (necesita la
+-- zona cargada y espacio libre). Lo marca con "marca" (ModData NarradorMarca) para encontrarlo
+-- despues (Mundo.llavesVehiculo). opciones.bencina: fraccion del estanque (0 a 1);
+-- opciones.blanco = true: lo pinta de blanco. Devuelve el vehiculo o nil.
+Mundo.VEHICULOS_DEFECTO = { "Base.Van", "Base.StepVan", "Base.PickUpVan" }
+function Mundo.crearVehiculo(x, y, z, scripts, marca, opciones)
+    if addVehicleDebug == nil or getCell == nil then return nil end
+    opciones = opciones or {}
+    local vehiculo
+    for intento = 0, 6 do
+        local sq
+        pcall(function() sq = getCell():getGridSquare(floor(x) + intento * 3, floor(y) + 3, floor(z or 0)) end)
+        if sq ~= nil then
+            local direccion
+            pcall(function() direccion = IsoDirections.S end)
+            for _, script in ipairs(scripts or Mundo.VEHICULOS_DEFECTO) do
+                local ok, v = pcall(addVehicleDebug, script, direccion, nil, sq)
+                if ok and v ~= nil then vehiculo = v; break end
+            end
+        end
+        if vehiculo ~= nil then break end
+    end
+    if vehiculo == nil then return nil end
+    pcall(function() vehiculo:getModData().NarradorMarca = marca end)
+    if opciones.blanco then
+        pcall(function() vehiculo:setColorHSV(0, 0, 0.95) end)
+        pcall(function() vehiculo:transmitColorHSV() end)
+    end
+    if tonumber(opciones.bencina) ~= nil then
+        pcall(function()
+            local tanque = vehiculo:getPartById("GasTank")
+            if tanque ~= nil then
+                tanque:setContainerContentAmount(tanque:getContainerCapacity() * tonumber(opciones.bencina))
+                vehiculo:transmitPartModData(tanque)
+            end
+        end)
+    end
+    return vehiculo
+end
+
+-- Una llave nueva del vehiculo marcado con "marca" (si esta en la zona cargada), o nil.
+function Mundo.llavesVehiculo(marca)
+    if getCell == nil or marca == nil then return nil end
+    local llave
+    pcall(function()
+        local lista = getCell():getVehicles()
+        for i = 0, lista:size() - 1 do
+            local v = lista:get(i)
+            if v ~= nil and v:getModData().NarradorMarca == marca then
+                llave = v:createVehicleKey()
+                return
+            end
+        end
+    end)
+    return llave
+end
+
 -- ---------------------------------------------------------------------------
 -- Para los otros modulos: lo que antes llamaban directo a la API del juego
 -- ---------------------------------------------------------------------------

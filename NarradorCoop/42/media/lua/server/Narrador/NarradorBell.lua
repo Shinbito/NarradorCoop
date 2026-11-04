@@ -6,6 +6,9 @@
 -- cerca, con algo chico que encontraron en el camino.
 -- Un Bell puede irse para siempre: en la reconquista reemplaza a un misionero que murio
 -- (B.sacar, ver NarradorDominios).
+-- Las historias del refugio (Arcos/Hollis.lua) hablan con ellos con "decir_bell" y preguntan
+-- por ellos con las condiciones "bell_vive", "bell_presente" y "bell_hace" (al final). Con el
+-- horno del primer pan, Yvonne hornea cada B.CADA_PAN horas (B.hornear).
 -- Estado: Motor.estado().bell = { x, y, z, charla, memoria, miembros = { [rol] = { uid } },
 --   escondidos = { vuelven = hora }, alertas = { { x, y, h } } }.
 -- Textos sin tildes a proposito.
@@ -76,7 +79,8 @@ Motor.inmediatas.bell_quedarse = function(inst, a)
     local g = inst.grupos[a.grupo]
     local l = inst.lugares[a.lugar or "refugio"]
     if l == nil then return true end
-    local b = { x = floor(l.x), y = floor(l.y), z = floor(l.z or 0), charla = a.charla, memoria = {}, miembros = {}, alertas = {} }
+    local b = { x = floor(l.x), y = floor(l.y), z = floor(l.z or 0), charla = a.charla, memoria = {}, miembros = {}, alertas = {},
+        desde = Mundo.horas() }
     for uid, m in pairs(g ~= nil and g.miembros or {}) do
         if m.vivo and B.NOMBRES[m.rol] ~= nil then b.miembros[m.rol] = { uid = uid } end
     end
@@ -234,6 +238,7 @@ function B.tick()
         end
     end
     pcall(B.alVolver, b, #presentes)
+    pcall(B.hornear, b)
     local charla, texto = Motor.charlaElegir(Narrador.Charlas ~= nil and Narrador.Charlas[b.charla] or nil, presentes, b.memoria, 10, 1.5)
     if charla ~= nil then Motor.decirUid(charla[1], charla[3], texto) end
     if Motor.minutosDesdeArranque % 10 == 0 and #presentes > 0 then
@@ -416,6 +421,84 @@ Motor.diferidas.bell_rematar = function(inst, p, l)
         or "Daniel se pone delante de su familia. Un golpe seco. Despues, silencio.")
     Mundo.log(inst.id .. ": " .. quien .. " remato al transformado")
     return true
+end
+
+-- ---------------------------------------------------------------------------
+-- Para las historias que pasan en el refugio con los Bell (Arcos/Hollis.lua: el raton de la
+-- harina, el primer pan y la camioneta del pan). Los Bell de st.bell no son de ningun arco, asi
+-- que las historias hablan con ellos y preguntan por ellos con esto.
+-- ---------------------------------------------------------------------------
+
+-- {"bell_vive", rol}: ese Bell vive en el refugio (aunque ahora este escondido de una horda).
+Motor.condiciones.bell_vive = function(inst, c)
+    local b = B.st()
+    return b ~= nil and b.miembros[tostring(c[2])] ~= nil
+end
+
+-- {"bell_presente", rol}: ese Bell esta ahora en el refugio, con cuerpo (no arranco de una horda).
+Motor.condiciones.bell_presente = function(inst, c)
+    local b = B.st()
+    local m = b ~= nil and b.miembros[tostring(c[2])] or nil
+    return m ~= nil and m.uid ~= nil and b.escondidos == nil
+end
+
+-- {"bell_hace", horas}: los Bell viven en el refugio desde hace al menos esas horas (en las
+-- partidas de antes no se sabe desde cuando: cuenta como hace mucho).
+Motor.condiciones.bell_hace = function(inst, c)
+    local b = B.st()
+    if b == nil then return false end
+    return b.desde == nil or Mundo.horas() - b.desde >= (tonumber(c[2]) or 0)
+end
+
+-- {"lugar_bell", id}: el rincon de los Bell en el refugio, como lugar del arco.
+Motor.inmediatas.lugar_bell = function(inst, a)
+    local b = B.st()
+    if b == nil or b.x == nil then return false, "los Bell no viven en ningun refugio" end
+    inst.lugares[a.id or "refugio"] = { x = b.x, y = b.y, z = b.z or 0, etiqueta = "el refugio", sala = "livingroom" }
+    return true
+end
+
+-- {"decir_bell", rol, texto}: habla ese Bell si esta en el refugio (si no, no pasa nada).
+Motor.inmediatas.decir_bell = function(inst, a)
+    local b = B.st()
+    local rol = tostring(Motor.valor(inst, a.rol))
+    local m = b ~= nil and b.escondidos == nil and b.miembros[rol] or nil
+    if m == nil or m.uid == nil or B.NOMBRES[rol] == nil then return true end
+    Motor.decirUid(m.uid, B.NOMBRES[rol][1], Motor.texto(inst, a.texto))
+    return true
+end
+
+-- El horno de Yvonne (el primer pan, memoria pan_bell = "vieja" o "walt"): cada B.CADA_PAN
+-- horas, si Yvonne esta en el refugio y hay alguien en casa, deja pan recien hecho. Con la
+-- libreta de Walt ("walt") tambien rollos de canela, como los sabados en Riverside.
+B.CADA_PAN = 48
+B.PAN = { "Base.Bread", "Base.BreadSlices" }
+B.CANELA = { "Base.CinnamonRoll", "Base.Bread" }
+function B.hornear(b)
+    local mem = Motor.estado().memoria
+    if mem.pan_bell == nil then return end
+    local madre = b.miembros.madre
+    if madre == nil or madre.uid == nil or b.escondidos ~= nil then return end
+    if Mundo.jugadorCerca(b.x, b.y, B.RADIO_CASA) == nil then return end
+    local ahora = Mundo.horas()
+    -- La primera vez solo empieza a contar (el primer pan ya lo dio la historia).
+    if mem.pan_bell_ultima == nil then mem.pan_bell_ultima = ahora; return end
+    if ahora - mem.pan_bell_ultima < B.CADA_PAN then return end
+    mem.pan_bell_ultima = ahora
+    for _ = 1, 2 do
+        local item = Mundo.crearItem(B.PAN)
+        if item ~= nil then Mundo.dejarEnSuelo(b.x, b.y, b.z or 0, item) end
+    end
+    local walt = mem.pan_bell == "walt"
+    if walt then
+        local item = Mundo.crearItem(B.CANELA)
+        if item ~= nil then Mundo.dejarEnSuelo(b.x, b.y, b.z or 0, item) end
+    end
+    Motor.decirUid(madre.uid, B.NOMBRES.madre[1], walt
+        and "Pan de la Vieja y rollos de canela, como los sabados en Riverside. Le deje los suyos en la entrada, corazon."
+        or "Pan de la Vieja, corazon. Entero y caliente. Le deje el suyo en la entrada.")
+    avisarTodos(b, "Yvonne horneo en el refugio. Hay pan tibio envuelto en un pano en la entrada.")
+    Mundo.log("Yvonne horneo pan en el refugio")
 end
 
 Motor.tickExtra.bell = B.tick
