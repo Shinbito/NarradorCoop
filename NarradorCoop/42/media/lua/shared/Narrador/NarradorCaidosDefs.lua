@@ -147,6 +147,13 @@ CD.PERSONAJES = {
     { clave = "denise", nombre = "Denise Hensley", rol = "denise", solo_si_jugador = true },
     { clave = "lucas_pike", nombre = "Lucas Pike", rol = "lucas", solo_si_jugador = true },
     { clave = "ray_doyle", nombre = "Ray Doyle", def = "el_desertor", rol = "ray", solo_si_jugador = true },
+    -- Ray despues de que lo escondiste (Ray vuelve, Las placas de Pope): ya tiene nombre en la trama.
+    { clave = "ray_doyle", nombre = "Ray Doyle", rol = "ray",
+      homenaje = "Ray Doyle ya no esta. Bajo el fusil cuando le ordenaron disparar y despues cargo las placas de otro en la bota. En el papel ya estaba muerto desde julio. Ahora lo anoto yo, con su nombre.",
+      lamento = "Mate a Ray Doyle. Me pidio trabajo, no que lo rescatara. En que me converti." },
+    { clave = "loretta_pope", nombre = "Loretta Pope", def = "placas_pope", rol = "loretta",
+      homenaje = "Loretta Pope espero a su hijo en Louisville hasta el final. Nunca le creyo a los de uniforme.",
+      lamento = "Mate a Loretta Pope en su casa. Esperaba a su hijo. En que me converti." },
     { clave = "benjamin_sotelo", nombre = "Benjamin Sotelo", def = "inmoral_fugitivo", rol = "fugitivo", solo_si_jugador = true },
     { clave = "oscar_lagos", nombre = "Oscar Lagos", def = "inmoral_testigo", rol = "testigo", solo_si_jugador = true },
     { clave = "marta_ibanez", nombre = "Marta Ibanez", def = "inmoral_quemar", rol = "uno", solo_si_jugador = true },

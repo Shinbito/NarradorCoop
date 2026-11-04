@@ -281,11 +281,27 @@ local function mercader(oficio, contactoId, memoria, titulo)
                  .. ", que andaba de paso vendiendo cosas. De remedios sabe lo justo, pero algo sabe." }
 end
 
+-- Gente de las historias que se queda con un oficio en un campamento: si memoria[clave] es el id
+-- del campamento, el del oficio es esa persona (lo anota la historia; la accion
+-- "oficio_campamento" de NarradorCampamentos.lua abre el oficio y retira al que habia).
+--   Ray Doyle, de mecanico: Las placas de Pope (Arcos/PlacasPope.lua), memoria ray_mecanico.
+K.OFICIOS_HISTORIA = {
+    mecanico = {
+        { clave = "ray_mecanico", perfil = "k93_deserters_02", nombre = { "Ray", "Doyle" },
+          llega = "Ray Doyle abre el taller del campamento. Lo primero que arregla es la bomba de agua. Lo segundo, la radio." },
+    },
+}
+
 -- Quien es el del oficio en un campamento (perfil, nombre, texto de llegada). memoria es la
 -- de la partida (solo el servidor la pasa): sirve para ver si el propio del campamento murio.
 function K.persona(oficio, contactoId, memoria)
     local o = K.OFICIOS[oficio]
     if o == nil then return nil end
+    for _, h in ipairs(K.OFICIOS_HISTORIA[oficio] or {}) do
+        if memoria ~= nil and memoria[h.clave] == contactoId then
+            return { perfil = h.perfil, nombre = h.nombre, llega = h.llega, titulo = o.titulo }
+        end
+    end
     local propio = o.por_contacto ~= nil and o.por_contacto[contactoId] or nil
     if propio ~= nil and propio.murio ~= nil and memoria ~= nil
             and memoria[propio.murio[1]] == propio.murio[2] then

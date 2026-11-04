@@ -255,4 +255,36 @@ for rol, f in pairs(FAVORES) do
     }
 end
 
+
+-- ===========================================================================
+-- Las placas de Pope (Ray Doyle, ver Arcos/PlacasPope.lua)
+-- ===========================================================================
+Lore.arcos.placas_pope = {
+    intro = "Ray Doyle, el soldado que escondi, carga en la bota las placas de otro. Darnell Pope murio a su lado en la barricada, y en el papel quedo como que se fue.",
+    etapas = {
+        pedido = "Ray Doyle volvio a {lugar:refugio}. No quiere que lo rescate: quiere trabajo, uno solo. Me conto lo de la barricada y lo de las placas. Dice que le robo la muerte a Pope.",
+        camino = "Voy a Louisville con Ray, a {lugar:casa_pope}, la casa de los Pope. Llevo las placas de Darnell y una carta de Ray doblada en cuatro. El dice que la puerta la toco yo.",
+        camino_solo = "Ray murio en el camino. Las placas de Pope las llevo yo solo a {lugar:casa_pope}. Ahora tambien cargo lo que me conto.",
+        casa_viva = "Loretta Pope sigue viva en {lugar:casa_pope}, encerrada, con los muertos en la puerta. Primero hay que sacarselos de encima.",
+        loretta = "Loretta Pope dice que su hijo no se fue de ninguna parte. Tengo en la mano lo que lo prueba. Tengo que decidir cuanto le cuento.",
+        casa_muerta = "La puerta de los Pope estaba entornada. Loretta ya no espera a nadie. En la cocina hay una muerta con vestido de iglesia, mirando la ventana.",
+        tumba = "Loretta Pope dejo una nota en el refrigerador para su hijo: que no le creia a los de uniforme. Le debo una despedida.",
+        volver = "Ray espera en la esquina, con las botas puestas. Me pidio que no le cuente en la calle.",
+        quedarse = "Ray dice que esta vez no se va caminando. Quiere un taller. Tengo que decidir adonde lo mando.",
+    },
+    finales = {
+        final_mecanico = { por_var = "entrega", textos = {
+            con_carta = "Loretta Pope tiene las placas de su hijo y la carta de Ray. No lo perdona, todavia. Ray se quedo de mecanico en un campamento. Dice que todavia es una palabra con puerta.",
+            sin_carta = "Loretta Pope tiene las placas de su hijo; la carta de Ray me la guarde. Ray se quedo de mecanico en un campamento. Dice que es justo.",
+            contado = "Perdi las placas, pero Loretta Pope me creyo igual. Ray se quedo de mecanico en un campamento.",
+            otro = "Le deje a Loretta Pope las placas de su hijo, junto a su nota. Ray se quedo de mecanico en un campamento: Pope llego a la casa, tarde, pero llego." } },
+        final_se_fue = "Ray Doyle se fue caminando por una calle de Louisville, con las botas puestas. No mire para donde.",
+        final_sin_ray = "Ray Doyle murio antes de saber como termino lo de Pope. Lo anoto yo, que soy el unico que lo sabe entero.",
+        final_lo_mataste = "Ray Doyle murio. Fue {quien_mato}. Las placas de Pope se quedaron en su bota.",
+        final_mataste_loretta = "Loretta Pope murio en su casa. Fue {quien_mato}. Esperaba a su hijo.",
+        final_despues = "Le dije a Ray que ahora no. Sigue cargando las placas de Pope en la bota.",
+        final_no_llego = "Alguien con botas paso cerca de mi refugio y no golpeo la puerta.",
+    },
+}
+
 return Lore

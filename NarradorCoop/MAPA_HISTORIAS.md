@@ -78,6 +78,7 @@ flowchart LR
   hsous_martin_a["La luz de Sous"]
   hsous_martin_z["La Awp de SOUS"]
   leyenda_eduardo["Un cientifico que dice tener la cura"]
+  placas_pope["Las placas de Pope"]
   reconquista_muldraugh["La reconquista: la comisaria de Muldraugh"]
   reconquista_patio["La reconquista: el patio de trenes"]
   reconquista_riverside["La reconquista: la iglesia de Riverside"]
@@ -143,6 +144,7 @@ flowchart LR
   eduardo_fallas -->|final_reconquista: reconquista = true| reconquista_rosewood
   eduardo_fallas -->|final_reconquista: reconquista = true| reconquista_westpoint
   el_desertor -->|final_protegido, final_se_rindieron: desertor = protegido| eco_desertor_vuelve
+  el_desertor -->|final_protegido, final_se_rindieron: desertor = protegido| placas_pope
   familia_infectada -->|final_abandonados: abre| sous
   familia_infectada -->|final_engano: abre| sous
   familia_infectada -->|final_era_gripe: abre| sous
@@ -372,8 +374,8 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_cumplido` | `pasan 6 h y cerca contacto 60`<br>`todos_muertos asaltantes` | `estanque_rosewood` = defendido, `historia_rosewood_3` = true | El estanque queda a salvo, cap_rosa_4 |
-| `final_saqueado` | `pasan 6 h` | `estanque_rosewood` = saqueado, `historia_rosewood_3` = fallido | Los bandidos vacian el estanque, cap_rosa_4 |
+| `final_cumplido` | "Decirle a la Misia Rosa que eso no se perdona" o "No meterte: es cosa de ellos dos", y despues `resultado = defendido`<br>"No meterte: es cosa de ellos dos" o "Decirle a la Misia Rosa que Earl aviso por el 19 y que sin ese aviso no lo contaban", y despues `resultado = defendido`<br>`nil`<br>`resultado = defendido` | `estanque_rosewood` = defendido, `historia_rosewood_3` = true, `tanque_ray` = aviso, `tanque_ray` = emboscada | El estanque queda a salvo, cap_rosa_4 |
+| `final_saqueado` | "Decirle a la Misia Rosa que eso no se perdona" o "No meterte: es cosa de ellos dos", y despues `nil`<br>"No meterte: es cosa de ellos dos" o "Decirle a la Misia Rosa que Earl aviso por el 19 y que sin ese aviso no lo contaban", y despues `nil`<br>`nil` | `estanque_rosewood` = saqueado, `historia_rosewood_3` = fallido, `tanque_ray` = aviso, `tanque_ray` = emboscada | Los bandidos vacian el estanque, cap_rosa_4 |
 
 ### La carcel de Rosewood (`cap_rosa_4`)
 
@@ -496,8 +498,8 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `final_echado` | "Decirle que se vaya" | `desertor` = echado | - |
 | `final_entregado` | "Entregarlo a los soldados" | `desertor` = entregado | - |
 | `final_lo_mataste` | "Esconderlo en el refugio", y despues `mato_jugador soldado`<br>`mato_jugador soldado` | `desertor` = asesinado | - |
-| `final_protegido` | "Esconderlo en el refugio", y despues `todos_muertos guardia` | `desertor` = protegido | eco_desertor_vuelve |
-| `final_se_rindieron` | "Esconderlo en el refugio", y despues `pasan 18 h` | `desertor` = protegido | eco_desertor_vuelve |
+| `final_protegido` | "Esconderlo en el refugio", y despues `todos_muertos guardia` | `desertor` = protegido | eco_desertor_vuelve, placas_pope |
+| `final_se_rindieron` | "Esconderlo en el refugio", y despues `pasan 18 h` | `desertor` = protegido | eco_desertor_vuelve, placas_pope |
 | `final_siguio_de_largo` | `pasan 72 h` | - | - |
 
 ### Los Bell (`familia_infectada`)
@@ -683,6 +685,18 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `final_cumplido` | "No decirle nada" o "Giovanns... Eduardo? Tu mama, la Tia Chela, te espera en el cuartel de West Point.", y despues `npc_cerca cientifico contacto 15` | `cientifico_hartmann` = en_west_point, `historia_westpoint_3` = true | cap_chela_4 |
 | `final_muerto` | "No decirle nada" o "Giovanns... Eduardo? Tu mama, la Tia Chela, te espera en el cuartel de West Point.", y despues `todos_muertos cientifico`<br>`todos_muertos cientifico` | `cientifico_hartmann` = muerto, `historia_westpoint_3` = fallido | cap_chela_4 |
 
+### Las placas de Pope (`placas_pope`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_despues` | "Decirle que ahora no"<br>`pasan 48 h` | - | - |
+| `final_lo_mataste` | "Contarle a Ray lo que paso con Loretta Pope", y despues `mato_jugador ray`<br>"Darle las placas de Darnell y la carta de Ray" o "Contarle lo de Darnell (las placas se perdieron en el camino)" o "Darle las placas y guardarte la carta de Ray" o "Dejarle a Loretta las placas de Darnell, junto a la nota" o "Irte sin dejarle nada (las placas se perdieron)", y despues `mato_jugador ray`<br>"Llevarle las placas de Pope a su mama, en Louisville, con Ray", y despues `mato_jugador ray`<br>`mato_jugador ray` | `desertor` = asesinado | - |
+| `final_mataste_loretta` | "Llevarle las placas de Pope a su mama, en Louisville, con Ray", y despues `mato_jugador loretta`<br>`mato_jugador loretta` | `placas_pope` = perdidas | - |
+| `final_mecanico` | "Mandarlo a la comisaria del Cabo Ramiro, en Muldraugh" o "Mandarlo a la iglesia del Padre Nacho, en Riverside" o "Mandarlo a la gasolinera de la Misia Rosa, en Rosewood" o "Mandarlo al cuartel de la Tia Chela, en West Point" | `placas_pope` = var:entrega, `ray_mecanico` = var:campamento | - |
+| `final_no_llego` | `pasan 48 h` | - | - |
+| `final_se_fue` | "Contarle a Ray lo que paso con Loretta Pope", y despues `elige contar y entrega = perdidas`<br>"Decirle que no tienes donde mandarlo" | `placas_pope` = var:entrega | - |
+| `final_sin_ray` | "Contarle a Ray lo que paso con Loretta Pope", y despues `todos_muertos ray`<br>"Darle las placas de Darnell y la carta de Ray" o "Contarle lo de Darnell (las placas se perdieron en el camino)" o "Darle las placas y guardarte la carta de Ray" o "Dejarle a Loretta las placas de Darnell, junto a la nota" o "Irte sin dejarle nada (las placas se perdieron)", y despues `todos_muertos ray`<br>"Darle las placas de Darnell y la carta de Ray" o "Contarle lo de Darnell (las placas se perdieron en el camino)" o "Darle las placas y guardarte la carta de Ray", y despues `ray_murio = true`<br>"Dejarle a Loretta las placas de Darnell, junto a la nota" o "Irte sin dejarle nada (las placas se perdieron)", y despues `ray_murio = true` | `desertor` = muerto, `placas_pope` = var:entrega | - |
+
 ### La reconquista: la comisaria de Muldraugh (`reconquista_muldraugh`)
 
 | Final | Como se llega | Deja | Lleva a |
@@ -777,9 +791,9 @@ un texto que cambia, una variante o lo que decide un final.
 | La muchacha que esperaba | `cap_nacho_3` | capitulo 3 de riverside, entre sus ofertas (confianza 3+) | `historia_riverside_2` | - | - | `historia_riverside_3` = fallido (final_muerta)<br>`historia_riverside_3` = true (final_cumplido)<br>`lucia` = en_riverside (final_cumplido)<br>`lucia` = muerta (final_muerta) |
 | Las campanas de Riverside | `cap_nacho_4` | capitulo 4 de riverside, entre sus ofertas (confianza 4+) | `historia_riverside_3` | `historia_riverside_2`, `lucia` | - | `historia_riverside_4` = fallido (final_vacia)<br>`historia_riverside_4` = true (final_cumplido) |
 | La ruta 31 | `cap_rosa_2` | capitulo 2 de rosewood, entre sus ofertas (confianza 2+) | `historia_rosewood_1` | - | - | `historia_rosewood_2` = fallido (final_muerto)<br>`historia_rosewood_2` = true (final_cumplido) |
-| El tanque | `cap_rosa_3` | capitulo 3 de rosewood, entre sus ofertas (confianza 3+) | `historia_rosewood_2` | - | - | `estanque_rosewood` = defendido (final_cumplido)<br>`estanque_rosewood` = saqueado (final_saqueado)<br>`historia_rosewood_3` = fallido (final_saqueado)<br>`historia_rosewood_3` = true (final_cumplido) |
+| El tanque | `cap_rosa_3` | capitulo 3 de rosewood, entre sus ofertas (confianza 3+) | `historia_rosewood_2` | `cura_rosewood`, `desertor`, `ray_mecanico` | - | `earl_tanque` = callado (earl_callado)<br>`earl_tanque` = echado (earl_echado)<br>`earl_tanque` = perdonado (earl_perdonado)<br>`estanque_rosewood` = defendido (final_cumplido)<br>`estanque_rosewood` = saqueado (final_saqueado)<br>`historia_rosewood_3` = fallido (final_saqueado)<br>`historia_rosewood_3` = true (final_cumplido)<br>`tanque_ray` = aviso (final_cumplido)<br>`tanque_ray` = aviso (final_saqueado)<br>`tanque_ray` = emboscada (final_cumplido)<br>`tanque_ray` = emboscada (final_saqueado) |
 | La carcel de Rosewood | `cap_rosa_4` | capitulo 4 de rosewood, entre sus ofertas (confianza 4+) | `historia_rosewood_3` | - | - | `carcel_rosewood` = limpiada (final_cumplido)<br>`historia_rosewood_4` = fallido (final_abandono)<br>`historia_rosewood_4` = true (final_cumplido) |
-| El primer camion | `cap_rosa_5` | capitulo 5 de rosewood, entre sus ofertas (confianza 4+) | `historia_rosewood_4` | `carcel_rosewood`, `estanque_rosewood` | - | `historia_rosewood_5` = fallido (final_perdidos)<br>`historia_rosewood_5` = true (final_carcel)<br>`historia_rosewood_5` = true (final_gasolinera) |
+| El primer camion | `cap_rosa_5` | capitulo 5 de rosewood, entre sus ofertas (confianza 4+) | `historia_rosewood_4` | `carcel_rosewood`, `earl_tanque`, `estanque_rosewood` | - | `historia_rosewood_5` = fallido (final_perdidos)<br>`historia_rosewood_5` = true (final_carcel)<br>`historia_rosewood_5` = true (final_gasolinera) |
 | La conquista: la comisaria del Cabo Ramiro | `conquista_muldraugh` | despues del cap. 5 con el jefe (NarradorBandido) | `bandido = pereira` | `misionero_muerto_muldraugh` | - | `conquista_muldraugh` = true (final_conquistado) |
 | La conquista: la iglesia del Padre Nacho | `conquista_riverside` | al entrar a Riverside (NarradorBandido) | `conquista_muldraugh` | `misionero_muerto_riverside` | - | `conquista_riverside` = true (final_conquistado) |
 | La conquista: la gasolinera de la Misia Rosa | `conquista_rosewood` | al entrar a Rosewood (NarradorBandido) | `conquista_muldraugh` | `misionero_muerto_rosewood` | - | `conquista_rosewood` = true (final_conquistado) |
@@ -824,6 +838,7 @@ un texto que cambia, una variante o lo que decide un final.
 | La luz de Sous | `hsous_martin_a` | al pasar por la base de Sous, de a una y con horas entre una y otra (NarradorHistoriasSous1) | `sous = aliados` | - | `hsous_martin_a`, `sous_murio_martin_a` | `hsous_martin_a` = fallido (final_fallido)<br>`hsous_martin_a` = hecho (final_hecho)<br>`hsous_martin_a` = murio (final_murio) |
 | La Awp de SOUS | `hsous_martin_z` | al pasar por la base de Sous, de a una y con horas entre una y otra (NarradorHistoriasSous1) | `sous = aliados` | - | `hsous_martin_z`, `sous_murio_martin_z` | `hsous_martin_z` = fallido (final_fallido)<br>`hsous_martin_z` = hecho (final_hecho)<br>`hsous_martin_z` = murio (final_murio) |
 | Un cientifico que dice tener la cura | `leyenda_eduardo` | capitulo 3 de westpoint, entre sus ofertas (confianza 3+) | `historia_westpoint_2` | `curandero_falso` | - | `cientifico_hartmann` = en_west_point (final_cumplido)<br>`cientifico_hartmann` = muerto (final_muerto)<br>`eduardo_conocido` = true (caido)<br>`eduardo_conocido` = true (despedida)<br>`historia_westpoint_3` = fallido (final_muerto)<br>`historia_westpoint_3` = true (final_cumplido) |
+| Las placas de Pope | `placas_pope` | el director (al azar, segun tension) | `desertor = protegido` | `tanque_ray` | - | `desertor` = asesinado (final_lo_mataste)<br>`desertor` = muerto (final_sin_ray)<br>`desertor` = muerto (ray_cayo)<br>`placas_pope` = perdidas (final_mataste_loretta)<br>`placas_pope` = var:entrega (final_mecanico)<br>`placas_pope` = var:entrega (final_se_fue)<br>`placas_pope` = var:entrega (final_sin_ray)<br>`ray_mecanico` = var:campamento (final_mecanico) |
 | La reconquista: la comisaria de Muldraugh | `reconquista_muldraugh` | al entrar a Muldraugh (NarradorBandido) | `reconquista = true` | `misionero_muerto_muldraugh` | `fin` | `reconquista_muldraugh` = true (final_reconquistado) |
 | La reconquista: el patio de trenes | `reconquista_patio` | con las 4 ciudades reconquistadas (NarradorBandido) | `reconquista_muldraugh`, `reconquista_riverside`, `reconquista_rosewood`, `reconquista_westpoint` | - | `fin` | `fin` = reconquista (final_luz) |
 | La reconquista: la iglesia de Riverside | `reconquista_riverside` | al entrar a Riverside (NarradorBandido) | `reconquista = true` | `misionero_muerto_riverside` | `fin` | `reconquista_riverside` = true (final_reconquistado) |
@@ -872,11 +887,12 @@ un texto que cambia, una variante o lo que decide un final.
 | `conv.<conv>` | Respuesta elegida en una conversacion de 'pregunta' (NarradorConversas). | - | - | - | escribe: NarradorConversas; lee: ConversasSous |
 | `conv.<conv>.hora` | A que hora se respondio. | - | - | - | escribe: NarradorConversas |
 | `conv.<conv>.quien` | Quien respondio esa conversacion. | - | - | - | escribe: NarradorConversas |
-| `cura_<contacto>` | Como termino la primera mision de la cura de ese misionero: salvo o murio (cura_rosewood = el sobrino de la Misia Rosa). | - | - | - | escribe: Cura; lee: NarradorDominiosDefs |
+| `cura_<contacto>` | Como termino la primera mision de la cura de ese misionero: salvo o murio (cura_rosewood = el sobrino de la Misia Rosa). | - | - | cap_rosa_3 | escribe: Cura; lee: Capitulos, NarradorDominiosDefs |
 | `curandero_falso` | Los Bell compraron pastillas a un curandero falso: era el doctor Hartmann (te lo confiesa en el cap. 3 de la Chela). | familia_infectada | - | leyenda_eduardo | escribe: FamiliaInfectada; lee: LeyendaEduardo |
 | `denise` | Denise (sobreviviente acorralada): rescatada, muerta o asesinada. Rescatada: Lonnie te trae su comida; asesinada: Lonnie te caza (ConsecuenciasExtra). | sobreviviente_acorralada | eco_denise_lonnie, eco_denise_olla | - | escribe: EventosCortos; lee: ConsecuenciasExtra |
-| `desertor` | El desertor: protegido, entregado, echado, muerto o asesinado. Protegido: Ray vuelve con la Guardia detras (ConsecuenciasExtra). | eco_desertor_vuelve, el_desertor | eco_desertor_vuelve | - | escribe: ConsecuenciasExtra, EventosCortos; lee: ConsecuenciasExtra |
+| `desertor` | El desertor: protegido, entregado, echado, muerto o asesinado. Protegido: Ray vuelve con la Guardia detras (ConsecuenciasExtra), avisa la noche del tanque (cap. 3 de la Misia Rosa) y abre Las placas de Pope. | eco_desertor_vuelve, el_desertor, placas_pope | eco_desertor_vuelve, placas_pope | cap_rosa_3 | escribe: ConsecuenciasExtra, EventosCortos, PlacasPope; lee: Capitulos, ConsecuenciasExtra, PlacasPope |
 | `dominio_<id>` | De quien es la ciudad: nil = mision, 'bandido' o 'nuevo' (NarradorDominios). | - | - | - | escribe: NarradorDominios; lee: NarradorDominios |
+| `earl_tanque` | Que paso con Earl despues de confesar lo del tanque (cap. 3 de la Misia Rosa): perdonado, echado (a dormir al camion) o callado (nunca lo dijo). Lo lee el cap. 5. | cap_rosa_3 | - | cap_rosa_5 | escribe: Capitulos; lee: Capitulos |
 | `eduardo_atentados` | Atentados de Eduardo hechos (3). | - | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `eduardo_conocido` | Ya conociste a Eduardo (cap. 3 de la Chela). Abre sus eventos fortuitos. | leyenda_eduardo | eduardo_evento | bandido_5 | escribe: LeyendaEduardo; lee: Bandido, Encuentros, NarradorEduardo, NarradorEduardoResidente |
 | `eduardo_desde` | Hora del ultimo atentado de Eduardo. | - | - | - | escribe: NarradorBandido; lee: NarradorBandido |
@@ -919,8 +935,10 @@ un texto que cambia, una variante o lo que decide un final.
 | `nuevo_<id>` | Quien reemplaza al misionero nuevo de la reconquista que murio antes: bell_padre, bell_madre, bell_hijo o forastero. | - | - | - | escribe: NarradorDominios; lee: NarradorDominios |
 | `pereira_aviso_desconfia` | Ya se aviso que el jefe del patio te vigila. | - | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `pereira_desconfia` | Pereira descubrio un sabotaje (castigo): desde ahi cada sabotaje pesa 45% en vez de 30%. | bandido_castigo | - | - | escribe: Bandido; lee: NarradorBandido |
+| `placas_pope` | Las placas de Pope (Ray Doyle): con_carta, sin_carta, contado (se perdieron pero Loretta supo), tumba (Loretta ya no estaba) o perdidas. Con algo ya no se lanza. | placas_pope | - | - | escribe: PlacasPope; lee: PlacasPope |
 | `poster_sous` | Ya se entrego el poster de Sous. | - | - | - | escribe: NarradorObjetosServer; lee: NarradorObjetosServer |
 | `radio_westpoint` | La radio del cuartel de la Chela quedo arreglada (cap. 2): las amenazas se avisan antes y por la radio. | cap_chela_2 | - | - | escribe: Capitulos; lee: NarradorAmenazas |
+| `ray_mecanico` | Campamento donde Ray Doyle se quedo de mecanico (rosewood, muldraugh, westpoint o riverside; Las placas de Pope). K.persona lo hace el mecanico; corta 'Ray vuelve'; en el cap. 3 de la Misia Rosa avisa en persona. | placas_pope | - | cap_rosa_3 | escribe: PlacasPope; lee: Capitulos, ConsecuenciasExtra, PlacasPope |
 | `reconquista` | Elegiste hablar con Eduardo: empieza la reconquista. | eduardo_fallas | reconquista_muldraugh, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | - | escribe: Eduardo; lee: NarradorBandido |
 | `reconquista_<id>` | Esa ciudad ya fue reconquistada. | reconquista_muldraugh, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | reconquista_patio | - | escribe: Eduardo; lee: NarradorBandido |
 | `reconquista_aviso` | Ya se aviso que empieza la reconquista. | - | - | - | escribe: Eduardo, NarradorBandido; lee: NarradorBandido |
@@ -930,6 +948,7 @@ un texto que cambia, una variante o lo que decide un final.
 | `sous_historia_<rol>` | Modo historia de Sous, parte 2 (Walita, Cristonks, Hasag, Wertres): hecho, fallido, postergada o murio. El lanzador ofrece las nuevas y despues las postergadas. | historia_sous_cristian, historia_sous_cristobal, historia_sous_hanz, historia_sous_jorge | - | - | escribe: HistoriasSous2; lee: NarradorHistoriasSous2 |
 | `sous_historias2.ultima` | Hora en que el lanzador de HistoriasSous2 lanzo (o reintento) la ultima historia; marca la espera entre historias. | - | - | - | escribe: NarradorHistoriasSous2; lee: NarradorHistoriasSous1, NarradorHistoriasSous2 |
 | `sous_mentira` | Le mentiste a Sous sobre la noche de Meulen (los misioneros sospechan). | sous | - | - | escribe: Sous; lee: ConversasSous, Sous |
+| `tanque_ray` | Ray aviso por el 19 la noche del tanque (cap. 3 de la Misia Rosa): aviso o emboscada (le salieron al paso en la curva). Ray lo nombra en Las placas de Pope. | cap_rosa_3 | - | placas_pope | escribe: Capitulos; lee: PlacasPope |
 | `trueque` | El trueque trampa: ganado. Ganado: los hermanos de los emboscadores vienen a cobrar (ConsecuenciasExtra). | trueque_trampa | eco_trueque_cobro | - | escribe: EventosCortos; lee: ConsecuenciasExtra |
 
 ### Memorias sin usar

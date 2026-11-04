@@ -106,6 +106,43 @@ end
 -- Cuanto espera como maximo el guardia a que se vaya el NPC de la historia (horas).
 S.ESPERA_MAXIMA = 24
 
+-- Accion de las historias: alguien de la historia toma un oficio en el campamento de un
+-- misionero. { "oficio_campamento", contacto = "rosewood", oficio = "mecanico", grupo = "ray",
+-- rol = "ray" }. Quien es lo dice K.OFICIOS_HISTORIA (la historia anota antes su memoria, por
+-- ejemplo ray_mecanico = "rosewood"). Abre el oficio aunque el campamento no tenga ese nivel
+-- todavia (si el campamento no se ha fundado, aparece cuando se funde), retira al que atendia
+-- para que aparezca el nuevo y cuenta como una persona salvada. Con grupo y rol, no aparece
+-- mientras el NPC de la historia siga en el mundo (como los guardias).
+Motor.inmediatas.oficio_campamento = function(inst, a)
+    local cid = tostring(a.contacto or (inst ~= nil and inst.vars ~= nil and inst.vars.contacto) or "")
+    local oficio = tostring(a.oficio or "")
+    if C.def(cid) == nil or K.OFICIOS[oficio] == nil then return true end
+    local k = S.estado(cid)
+    k.oficios = k.oficios or {}
+    local o = k.oficios[oficio] or {}
+    k.oficios[oficio] = o
+    if o.uid ~= nil then
+        pcall(Mundo.retirar, o.uid)
+        o.uid = nil
+    end
+    o.pidiendo, o.recadoGen = nil, nil
+    if inst ~= nil and inst.id ~= nil and a.grupo ~= nil and a.rol ~= nil then
+        o.esperar = { arco = inst.id, grupo = a.grupo, rol = a.rol, hasta = Mundo.horas() + S.ESPERA_MAXIMA }
+    end
+    S.sumarSalvado(cid, nil)
+    Motor.publicar()
+    return true
+end
+
+-- {"campamento_abierto", id}: el campamento de ese misionero esta fundado y lo manda el
+-- misionero (no un capitan de la banda ni el nuevo de la reconquista).
+Motor.condiciones.campamento_abierto = function(inst, c)
+    local id = tostring(c[2])
+    if C.def(id) == nil or not C.desbloqueado(id) then return false end
+    local D = Narrador.Dominios
+    return D == nil or D.dominio(id) == "mision"
+end
+
 -- El NPC de la historia que se va a convertir en este guardia sigue en el mundo?
 function S.esperaAlDeLaHistoria(g)
     local e = g.esperar
@@ -362,7 +399,8 @@ function S.cuidar(c, e)
                     pcall(C.curar, o.uid)
                 end
             end
-            if o.uid == nil and (o.pidiendo == nil or Mundo.horas() - o.pidiendo > 0.25) then
+            if o.uid == nil and (o.pidiendo == nil or Mundo.horas() - o.pidiendo > 0.25)
+                    and not S.esperaAlDeLaHistoria(o) then
                 o.pidiendo = nil
                 local j = Mundo.jugadorCerca(e.x, e.y, 70)
                 if j ~= nil and Mundo.cargado(e.x, e.y, e.z) ~= nil then S.aparecer(c, e, oficio, o, j) end

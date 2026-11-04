@@ -201,11 +201,23 @@ Lore.arcos.cap_rosa_2 = {
 Lore.arcos.cap_rosa_3 = {
     etapas = {
         preparar = "Unos bandidos se enteraron del tanque escondido bajo el taller de la Misia Rosa. Vienen esta noche. Ella dice que no tiene miedo. Le tiemblan las manos.",
+        preparar_ray = "Ray Doyle, el soldado que escondi, hablo por el 19 desde el cerro: un Peterbilt rojo y una camioneta, sin focos, seis o siete hombres. Bajan a las dos y dejan los camiones en la curva de la 31. Esta vez se a que hora vienen. Los espero en la gasolinera o les salgo al paso en la curva.",
         asalto = "Por primera vez en treinta anos la gasolinera de Rosewood esta a oscuras. Los bandidos vienen. La Misia Rosa me pidio que apagara yo la luz.",
+        emboscada = "Les sali al paso en la curva de la 31, como dijo Ray. Bajan a pie, a oscuras, con palas. Atras se apago la luz de la gasolinera.",
+        amanecer = "Paso la noche. El Gordo Earl anda dando vueltas alrededor del mostrador como quien tiene algo atravesado. Quiere hablar con la Misia Rosa.",
+        confesion = "El Gordo Earl le confeso a la Misia Rosa que el dato del tanque lo dio el: el Tecolote le llevo insulina a la bascula y el se rio y lo adivino. Rosa no sabia ni que era diabetico. Los dos me miran, como si yo tuviera que decir algo.",
     },
     finales = {
-        final_cumplido = "Defendimos la gasolinera y el tanque. La Misia Rosa prendio la luz otra vez. Dice que el tanque es para el dia en que haya que sacar a todo el pueblo de una vez, y que yo voy a manejar el primer camion.",
-        final_saqueado = "No estuve en la gasolinera esa noche. Los bandidos vaciaron el tanque. La Misia Rosa prendio la luz igual y dijo que estamos vivos, que eso no se lo llevan.",
+        final_cumplido = { por_var = "earl", textos = {
+            perdonado = "Defendimos la gasolinera y el tanque. Earl confeso que el dato lo dio el, por insulina. La Misia Rosa le pregunto lleno o normal, el dijo lleno, y ahora le sirve el cafe sin azucar. El primer camion lo manejo yo.",
+            echado = "Defendimos la gasolinera y el tanque. Earl confeso que el dato lo dio el, por insulina, y la Misia Rosa lo mando a dormir a su camion sin cafe. Dejo la luz prendida igual, por si se pierde.",
+            callado = "Defendimos la gasolinera y el tanque. El Gordo Earl anduvo rondando el mostrador y no dijo nada. El primer camion lo manejo yo.",
+            otro = "Defendimos la gasolinera y el tanque. La Misia Rosa prendio la luz otra vez. Dice que el tanque es para el dia en que haya que sacar a todo el pueblo de una vez, y que yo voy a manejar el primer camion." } },
+        final_saqueado = { por_var = "earl", textos = {
+            perdonado = "No estuve en la gasolinera esa noche. Los bandidos vaciaron el tanque. Earl confeso que el dato lo dio el; la Misia Rosa le sirvio el cafe sin azucar igual. Dijo que se llevaron bencina, no a el.",
+            echado = "No estuve en la gasolinera esa noche. Los bandidos vaciaron el tanque. Earl confeso que el dato lo dio el y la Misia Rosa lo mando a dormir a su camion. La luz la dejo prendida.",
+            callado = "No estuve en la gasolinera esa noche. Los bandidos vaciaron el tanque. Earl no dijo nada. La Misia Rosa prendio la luz igual.",
+            otro = "No estuve en la gasolinera esa noche. Los bandidos vaciaron el tanque. La Misia Rosa prendio la luz igual y dijo que estamos vivos, que eso no se lo llevan." } },
     },
 }
 
