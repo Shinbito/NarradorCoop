@@ -218,3 +218,11 @@ En la ronda 3, nadie suma secretos nuevos de puertas.
 - Renombres: Forrest Hollon pasa a Forrest Stanfill (s067), Jolene Hatfield a Johanna Hatfield (s032) y Odette Jent a
   Orlena Jent (s092).
 - Los secundarios pueden tener parientes en la banda de Pereira antes de la caida de Knox.
+
+## Dia 0 (decisiones del creador)
+- Walt Hollis: salio de la panaderia hacia las 7:30 del sabado 10 de julio, mordido, pero la camioneta blanca dejo
+  Riverside recien en la tarde (el Cabo la vio al sur de Muldraugh entre las 16 y las 17). La barricada sur de la ruta
+  31 no lo dejo pasar: la camioneta quedo en la 31, cerca de la barricada. Hector Jr. cree que no paso por la 31; es lo
+  que el cree, no un hecho.
+- Cuando la hora de un secundario choca con la de un personaje principal, manda la del principal (el reloj del dia 0
+  esta en rol/reloj_dia0.md).
