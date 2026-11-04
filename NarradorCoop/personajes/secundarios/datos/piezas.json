@@ -101,18 +101,16 @@
   {
    "id": "l01_ori_aparceros",
    "etapa": "origen",
-   "texto": "Soy {hijo} de aparceros de tabaco. Nunca tuvimos tierra propia: arrendabamos el sudor y nos pagaban en deudas con el almacen.",
+   "texto": "Soy {hijo} de la familia con la cuota de tabaco mas vieja de {pueblo}: tierra propia y deudas propias, lo unico que heredamos parejo entre los hermanos.",
    "da": [
-    "rural",
     "tabaco",
-    "pobre",
-    "familia_grande"
+    "granja",
+    "rural"
    ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [
-    "urbano",
-    "acomodado"
+    "urbano"
    ],
    "quita": [],
    "edad_min": 18,
@@ -196,7 +194,7 @@
   {
    "id": "l01_inf_inundacion",
    "etapa": "infancia",
-   "texto": "Me acuerdo de la gran inundacion del Ohio: el agua llego al segundo piso y mi papa nos saco por la ventana en un bote prestado.",
+   "texto": "Me acuerdo del invierno en que se congelo el Ohio: mi papa nos cruzo caminando a Indiana para ver a la abuela, con un palo largo por si el hielo se rompia.",
    "da": [
     "rio"
    ],
@@ -210,7 +208,9 @@
    "oficios": null,
    "pueblos": null,
    "lazo": null,
-   "peso": 10
+   "peso": 10,
+   "emin": 62,
+   "emax": 85
   },
   {
    "id": "l01_inf_techo_mina",
@@ -332,7 +332,7 @@
   {
    "id": "l01_inf_asma",
    "etapa": "infancia",
-   "texto": "De {nino} pase mas tiempo en cama que en la escuela. El asma no me dejaba correr ni detras de un perro.",
+   "texto": "El asma me daba con los gatos y en mi casa habia once. Mi mama eligio a los gatos: yo dormia en el porche cerrado, con tres frazadas y la ventana abierta.",
    "da": [
     "enfermizo_nino",
     "asma"
@@ -488,10 +488,10 @@
   {
    "id": "l01_juv_ollies",
    "etapa": "juventud",
-   "texto": "En Louisville trabaje de noche en el Ollie's Diner de Bardstown Road. Habia una mesera de Muldraugh que daba el vuelto diciendo la hora exacta.",
+   "texto": "A los dieciocho entre de peon al patio de la L&N en Louisville. El guardagujas, un portugues de las Azores, sabia la hora de cada tren por un Hamilton de bolsillo que no dejaba tocar.",
    "da": [
     "louisville",
-    "trabajo_nocturno"
+    "fabrica"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -502,13 +502,15 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "valentina",
-   "peso": 10
+   "lazo": "pereira",
+   "peso": 10,
+   "emin": 38,
+   "emax": 55
   },
   {
    "id": "l01_juv_cohetes",
    "etapa": "juventud",
-   "texto": "Cada verano le compraba cohetes a una muchacha flaca de Brandenburg que tenia un puesto en la 31W. Dicen que ahora es la que quema casas.",
+   "texto": "A los dieciseis vendia sandias en la 31W desde la camioneta de mi tio. Un camionero flaco, el Tito, me compraba diez para revenderlas en Tennessee. Aprendi a mentir sobre el dulce.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -519,8 +521,10 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "kell",
-   "peso": 10
+   "lazo": "duarte",
+   "peso": 10,
+   "emin": 18,
+   "emax": 33
   },
   {
    "id": "l01_juv_supero_asma",
@@ -614,7 +618,7 @@
   {
    "id": "l01_adu_seguro_bell",
    "etapa": "adultez",
-   "texto": "Un vendedor de seguros de camisa celeste, un tal Bell, me vendio una poliza de vida en mi cocina. Era tan amable que me dio verguenza decirle que no.",
+   "texto": "En Ekron conoci a Orville Tibbs. Cuando se ahorco en el granero en el 88, la compania no le pago a la viuda. El vendedor le llevo la carta en persona y se quedo a tomarse el cafe.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -626,7 +630,8 @@
    "oficios": null,
    "pueblos": null,
    "lazo": "daniel_bell",
-   "peso": 10
+   "peso": 10,
+   "emin": 30
   },
   {
    "id": "l01_adu_destileria",
@@ -716,9 +721,9 @@
   {
    "id": "l01_adu_vestido",
    "etapa": "adultez",
-   "texto": "El vestido de mi boda me lo entallo la costurera mexicana de la calle principal de Muldraugh. Me hacia rezar mientras me clavaba los alfileres.",
+   "texto": "Hice cinco temporadas de tabaco en una granja cerca de Ekron con un mexicano flaco, Julio, que cortaba sin hablar y cantaba bajito al final de cada fila.",
    "da": [
-    "casado"
+    "tabaco"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -726,11 +731,13 @@
    "quita": [],
    "edad_min": 25,
    "edad_max": 50,
-   "sexo": "m",
+   "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "gladys",
-   "peso": 10
+   "lazo": "julio",
+   "peso": 10,
+   "emin": 28,
+   "emax": 85
   },
   {
    "id": "l01_adu_gordo_ruta",
@@ -769,7 +776,7 @@
   {
    "id": "l01_adu_rollos_canela",
    "etapa": "adultez",
-   "texto": "Todos los sabados iba a la panaderia Hollis de Riverside por los rollos de canela. La panadera me guardaba los de la orilla, que tienen mas azucar.",
+   "texto": "Los remedios los compraba en la farmacia de Rosewood. La senora Hollis me daba el vuelto con caramelos de menta y me preguntaba por mi madre antes que por la receta.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -780,9 +787,9 @@
    "sexo": null,
    "oficios": null,
    "pueblos": [
-    "Riverside"
+    "Rosewood"
    ],
-   "lazo": "yvonne_bell",
+   "lazo": "hector",
    "peso": 10
   },
   {
@@ -876,13 +883,14 @@
   {
    "id": "l01_vej_catarata",
    "etapa": "vejez",
-   "texto": "Me operaron una catarata y la otra la deje para despues. Despues nunca llego. Ahora enhebro con lupa y leo con la luz de la ventana.",
+   "texto": "De viej{o} aprendi a leer bien, en la mesa de la cocina, con los libros de mi nieto. El primero que lei entero fue un manual de tractores.",
    "da": [
-    "vista_mala",
     "viejo_fragil"
    ],
    "pide": [],
-   "pide_alguno": [],
+   "pide_alguno": [
+    "sin_estudios"
+   ],
    "prohibe": [],
    "quita": [],
    "edad_min": 65,
@@ -1022,7 +1030,7 @@
   {
    "id": "l01_ofi_enfermera_joven",
    "etapa": "oficio",
-   "texto": "Soy {oficio} de un hogar de ancianos. Se tomar la presion con los ojos cerrados y cambiar una sabana sin despertar a nadie.",
+   "texto": "Soy {oficio} escolar: rodillas, piojos y ninos que fingen dolor de panza para irse a la casa. Se distinguir al que miente del que tiene miedo.",
    "da": [
     "oficio_aprendido"
    ],
@@ -1196,7 +1204,7 @@
   {
    "id": "l01_ofi_camionero_tecolote",
    "etapa": "oficio",
-   "texto": "Soy {oficio} de la 31W, de Louisville a Nashville. Los Marlboro baratos se los compraba en un estacionamiento a un tal Tito, que en la radio se hacia llamar Tecolote.",
+   "texto": "Soy {oficio}. En junio traia fuegos artificiales de Tennessee para los puestos de la 31W. Una muchacha de Brandenburg me revisaba cada caja como si fuera dinamita.",
    "da": [
     "camionero_pasado"
    ],
@@ -1211,13 +1219,13 @@
     "camionero"
    ],
    "pueblos": null,
-   "lazo": "duarte",
+   "lazo": "kell",
    "peso": 10
   },
   {
    "id": "l01_ofi_camionero_luz",
    "etapa": "oficio",
-   "texto": "Soy {oficio}. De noche, en la 31, la unica luz segura era la gasolinera de Rosewood. La Misia Rosa me preguntaba lleno o normal aunque llegara a pie.",
+   "texto": "Soy {oficio}. Hice la ruta de Memphis con Ruben Mandados, un veterano de Muldraugh que manejaba con el reglamento pegado en el parasol. Su hermano es el Cabo.",
    "da": [
     "camionero_pasado"
    ],
@@ -1232,7 +1240,7 @@
     "camionero"
    ],
    "pueblos": null,
-   "lazo": "rosa",
+   "lazo": "cabo",
    "peso": 10
   },
   {
@@ -1396,7 +1404,7 @@
   {
    "id": "l01_pn_calle_main",
    "etapa": "primera_noche",
-   "texto": "La primera noche vi arder la calle Main de West Point desde mi ventana. Nadie la apago, con el cuartel a unas cuadras. Ahi entendi que no era un incendio.",
+   "texto": "Al amanecer del 10 vi a Cody Turner, el amigo del sobrino de la Misia Rosa, correr hacia la gasolinera de los Bencina. No salio de ahi en todo el dia.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -1407,15 +1415,15 @@
    "sexo": null,
    "oficios": null,
    "pueblos": [
-    "West Point"
+    "Rosewood"
    ],
-   "lazo": "chela",
+   "lazo": "hector",
    "peso": 10
   },
   {
    "id": "l01_pn_megafono",
    "etapa": "primera_noche",
-   "texto": "La primera noche corri a la comisaria de Muldraugh. Una sargento de verde gritaba por megafono que nadie salia. Me devolvi a mi casa por las calles de atras.",
+   "texto": "Antes de las ocho paso el comisario Bishop con el altavoz de la patrulla: vecinos, dirijanse a la comisaria. No fui. Me quede mirando como doblaba por la calle Hill.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -1428,13 +1436,13 @@
    "pueblos": [
     "Muldraugh"
    ],
-   "lazo": "pereira",
+   "lazo": "cabo",
    "peso": 10
   },
   {
    "id": "l01_pn_radio_casa",
    "etapa": "primera_noche",
-   "texto": "La primera noche la radio repetia que nos quedaramos en casa con las puertas cerradas. Me quede. Conte los tiros hasta las tres y despues deje de contar.",
+   "texto": "La noche del 9 esperaba en la parada de la 31 el bus del turno de noche, con la lonchera. Pasaron ambulancias sin sirena, una cada cinco minutos. El bus no paso.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -1468,7 +1476,7 @@
   {
    "id": "l01_pn_bascula",
    "etapa": "primera_noche",
-   "texto": "La primera noche quede atrapad{o} en la 31, cerca de la bascula. Detras de la caseta habia un Peterbilt escondido con las luces apagadas. Hice lo mismo.",
+   "texto": "La noche del 9, en el canal 19, un camionero de voz gruesa pedia por su mama entre los gritos y despues se callo de golpe. Todavia oigo ese clic.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -1485,7 +1493,7 @@
   {
    "id": "l01_pn_iglesia_abierta",
    "etapa": "primera_noche",
-   "texto": "Al amanecer del sabado vi la iglesia de piedra de Riverside con las puertas abiertas de par en par. Entre a sentarme y el cura me puso a cargar agua.",
+   "texto": "El sabado 10 a media manana fui a la panaderia Hollis. Estaba cerrada con llave, olia a pan quemado y por la vitrina se veian las bandejas negras.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -1498,7 +1506,7 @@
    "pueblos": [
     "Riverside"
    ],
-   "lazo": "nacho",
+   "lazo": "yvonne_bell",
    "peso": 10
   },
   {
@@ -1586,9 +1594,9 @@
   {
    "id": "l01_des_radio_domingo",
    "etapa": "despues",
-   "texto": "Los domingos en la noche escucho la radio por si habla el muchacho de West Point que saca gente. Dice estoy bien, mama, y yo le creo como si fuera mio.",
+   "texto": "Dona Gladys le cose al campamento de la comisaria de Muldraugh. Me cambio el cierre de la chaqueta por media vela y me dijo que la proxima trajera una entera.",
    "da": [
-    "sin_noticias"
+    "trueque"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -1598,14 +1606,16 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": null,
-   "lazo": "eduardo",
+   "pueblos": [
+    "Muldraugh"
+   ],
+   "lazo": "gladys",
    "peso": 10
   },
   {
    "id": "l01_des_canal19",
    "etapa": "despues",
-   "texto": "Por el canal 19 hablo con el Bencinita de Rosewood. El me dice donde hay muertos en la 31 y yo le digo donde quedan baterias.",
+   "texto": "Cambio pilas por noticias en el puente: el que me trae dos pilas se lleva todo lo que se de los caminos, y el que me trae una, la mitad.",
    "da": [
     "trueque"
    ],
@@ -1618,16 +1628,14 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "hector",
+   "lazo": null,
    "peso": 10
   },
   {
    "id": "l01_des_cobro_viernes",
    "etapa": "despues",
-   "texto": "Los viernes pasan los del Martillo a cobrar. Les doy dos latas y me dejan tranquil{o}. Todo Riverside lo sabe y nadie lo dice.",
-   "da": [
-    "hambre"
-   ],
+   "texto": "En agosto la Guardia agarro a una pelirroja con un bidon junto al cordon de la 31W. La soltaron. Dicen que una sargento dijo ordenada y nada mas.",
+   "da": [],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
@@ -1636,10 +1644,8 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "Riverside"
-   ],
-   "lazo": "duggan",
+   "pueblos": null,
+   "lazo": "kell",
    "peso": 10
   },
   {
@@ -1704,10 +1710,10 @@
   {
    "id": "l01_sec_radio",
    "etapa": "secreto",
-   "texto": "Tengo una radio a pilas que funciona y digo que se rompio. De noche oigo sol{o} lo que dice la Guardia, para que nadie se ilusione ni se desespere.",
+   "texto": "En una libreta llevo cuantos muertos mata cada uno del grupo. Al que mata menos le sirvo menos sopa. Nadie sabe que la olla lleva cuenta.",
    "da": [
-    "mentiroso",
-    "solitario"
+    "lider",
+    "rencoroso"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -1720,7 +1726,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "diario": "La radio rota funciona. {el} decide sol{o} que noticias merece oir el resto. Hasta ahora, ninguna."
+   "diario": "La olla de {el} lleva cuenta: menos muertos, menos sopa. Revise mi plato de anoche y me dio verguenza."
   },
   {
    "id": "l01_sec_diarios",
@@ -1865,7 +1871,7 @@
   {
    "id": "l01_dese_campanas",
    "etapa": "deseo",
-   "texto": "Quiero oir sonar las campanas de la iglesia de piedra de Riverside, que estan calladas desde que se rajo la viga en el 91.",
+   "texto": "Quiero que alguien me corte el pelo como se debe, con tijera de peluqueria y una toalla caliente en el cuello.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -1875,10 +1881,8 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "Riverside"
-   ],
-   "lazo": "nacho",
+   "pueblos": null,
+   "lazo": null,
    "peso": 10
   },
   {
@@ -1903,13 +1907,10 @@
   {
    "id": "l01_dese_carta",
    "etapa": "deseo",
-   "texto": "Quiero una carta, una sola, de los que quedaron afuera del cordon. Aunque diga que estan bien y nada mas.",
+   "texto": "Quiero ver nevar desde una ventana con vidrio, con una taza caliente, sin tener que salir a buscar lena despues.",
    "da": [],
    "pide": [],
-   "pide_alguno": [
-    "sin_noticias",
-    "hijos_lejos"
-   ],
+   "pide_alguno": [],
    "prohibe": [],
    "quita": [],
    "edad_min": 18,
@@ -1954,10 +1955,10 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "llegada": "Aja. Las manos donde las vea. Si viene por comida, hablamos. Si viene a ayudar, pase y cierre.",
-   "rescate": "Como sea. Me salvo el pellejo. Se lo debo, y yo pago lo que debo.",
+   "llegada": "Aja. Quedese ahi, donde lo vea. Si viene por comida, hablamos. Si viene a ayudar, pase y cierre.",
+   "rescate": "Como sea. Me saco del barro. No lo voy a olvidar, aunque no lo diga dos veces.",
    "gracias": "Justo lo que hacia falta. Le guardo algo, todavia no se que.",
-   "muerte": "Murio sin dar las gracias, como vivio. Pero se le notaba en la cara que las daba."
+   "muerte": "Se fue sin dar las gracias. Pero tenia la cara de estar dandolas."
   },
   {
    "id": "l01_voz_vendedor",
@@ -1976,7 +1977,7 @@
    "peso": 10,
    "llegada": "Pase, sientese. Primero cuenteme de su familia, despues hablamos de lo que vino a buscar.",
    "rescate": "Fijese usted. Esto no lo cubria ninguna poliza.",
-   "gracias": "Dios se lo pague, que yo ya no cobro ni pago.",
+   "gracias": "Esto no lo cubria ninguna poliza, y aqui esta igual. Lo anoto a su favor.",
    "muerte": "Se fue con la libreta al dia. La fecha se la anote yo, con su lapiz."
   },
   {
@@ -2068,22 +2069,23 @@
    "id": "l02_ori_medieros",
    "etapa": "origen",
    "da": [
-    "rural",
-    "tabaco",
-    "pobre"
+    "pobre",
+    "forastero"
    ],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [],
+   "prohibe": [
+    "nunca_salio"
+   ],
    "quita": [],
    "edad_min": 18,
-   "edad_max": 85,
+   "edad_max": 30,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": null,
+   "lazo": "julio",
    "peso": 10,
-   "texto": "Mis padres eran medieros de tabaco en una loma de {pueblo}. Nada era nuestro: ni la casa, ni la mula, ni la cosecha."
+   "texto": "Mis padres eran temporeros: tabaco en Kentucky, manzanas en Virginia, naranjas en Florida. En Ekron cosechamos al lado de un mexicano joven, el Julio. Nos quedamos en {pueblo}: se nos rompio el auto."
   },
   {
    "id": "l02_ori_saigon",
@@ -2236,7 +2238,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "texto": "Desde los ocho colgaba tabaco en el galpon. Cada agosto la hoja mojada me tumbaba con vomitos, y al otro dia volvia a la soga."
+   "texto": "A los ocho mi papa me llevaba a la subasta de tabaco de Lexington. Me sentaba en un fardo y oia cantar al subastador como si fuera la radio."
   },
   {
    "id": "l02_inf_bus",
@@ -2323,7 +2325,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "texto": "Mi papa tomaba los sabados y nos pegaba los domingos, despues de misa. Aprendi a leerle la cara desde la puerta antes de entrar."
+   "texto": "Mi papa nunca nos pego a nosotros: le pegaba al perro, y nosotros mirabamos desde la mesa. Aprendi temprano que eso tambien era para uno."
   },
   {
    "id": "l02_inf_tia",
@@ -2721,14 +2723,14 @@
     "divorciado"
    ],
    "quita": [],
-   "edad_min": 35,
+   "edad_min": 38,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "texto": "Me quede viud{o} un martes cualquiera, a medio desayuno. Deje su taza colgada del mismo gancho y no la he movido."
+   "texto": "Enviude en la crecida del 78: el agua se llevo la camioneta en el vado de siempre, con mi pareja adentro. Desde entonces doy la vuelta larga, aunque sea de noche."
   },
   {
    "id": "l02_adu_nevazon",
@@ -2764,7 +2766,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "texto": "Me hice cargo de mi mama cuando le dio el derrame. Doce inviernos le cambie las sabanas y le lei el diario de Louisville en voz alta."
+   "texto": "Cuide diez inviernos a un vecino ciego que no era nada mio. Le leia las carreras del diario y apostabamos fosforos; todavia me debe ciento doce."
   },
   {
    "id": "l02_adu_sobrio",
@@ -2787,7 +2789,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "texto": "Deje de tomar el dia que desperte en la cuneta de la 31 con la camioneta en el arroyo. Desde entonces, cafe negro y nada mas."
+   "texto": "Deje de tomar el dia que mi perro no se quiso subir a la camioneta conmigo. Los animales saben. Al otro dia lo deje subir, y yo iba sobri{o}."
   },
   {
    "id": "l02_adu_hijos_lejos",
@@ -2818,14 +2820,14 @@
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 25,
+   "edad_min": 40,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
    "lazo": "daniel_bell",
    "peso": 10,
-   "texto": "Un vendedor de seguros de camisa celeste, el Bell, me vendio una poliza en la puerta de mi casa. La pague dos temporadas y la deje."
+   "texto": "Veinte inviernos compre los clavos en la ferreteria Lusk de Brandenburg. La cajera, la senora Peggy Bell, me fiaba y lo anotaba en un cuaderno con tapas de hule."
   },
   {
    "id": "l02_adu_tonico",
@@ -2835,14 +2837,14 @@
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 35,
+   "edad_min": 30,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
    "lazo": "hartmann",
    "peso": 5,
-   "texto": "Oia la hora de la salud del doctor Hartmann en la AM de Louisville y le compre tres frascos de tonico. Sabia a fierro, pero dormia mejor."
+   "texto": "En el 86 fui al entierro de Agnes Pruitt en Muldraugh. Habia dejado la quimioterapia por el tonico de la radio. El viudo, Amos, no le dio la mano a nadie."
   },
   {
    "id": "l02_adu_hijos",
@@ -2885,7 +2887,7 @@
    "id": "l02_vej_catarata",
    "etapa": "vejez",
    "da": [
-    "vista_mala"
+    "bromista"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -2898,7 +2900,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "texto": "Me operaron la catarata de un ojo en Louisville; el otro lo deje para cuando hubiera plata. Nunca hubo."
+   "texto": "De viej{o} me quede con un solo diente de arriba y me niego a la placa. Como sopa y opino de todo."
   },
   {
    "id": "l02_vej_cadera",
@@ -2923,10 +2925,7 @@
   {
    "id": "l02_vej_campanas",
    "etapa": "vejez",
-   "da": [
-    "religioso",
-    "catolico"
-   ],
+   "da": [],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
@@ -2938,9 +2937,9 @@
    "pueblos": [
     "Riverside"
    ],
-   "lazo": "nacho",
+   "lazo": "duggan",
    "peso": 10,
-   "texto": "Los domingos voy a la iglesia de piedra de Riverside y me siento atras. Cuando se rajo la viga del campanario en el 91 fue como quedarme sord{o}."
+   "texto": "De viej{o} veia desde el porche al boxeador del taller de Riverside sentado en el techo, mirando con binoculares la iglesia de piedra como quien mira a un rival."
   },
   {
    "id": "l02_vej_cb",
@@ -3000,9 +2999,9 @@
     "mecanico"
    ],
    "pueblos": null,
-   "lazo": "duggan",
+   "lazo": null,
    "peso": 10,
-   "texto": "Soy {oficio}. Trabaje un tiempo en el taller del Martillo Duggan en Riverside; ahi aprendi motores y a no preguntar de donde venian los autos."
+   "texto": "Soy {oficio} de tractores y cosechadoras. Si un John Deere tose, yo se si es pena o es el filtro."
   },
   {
    "id": "l02_ofi_mecanico2",
@@ -3090,7 +3089,7 @@
    "pueblos": null,
    "lazo": "cabo",
    "peso": 10,
-   "texto": "Soy {oficio}. Hice la academia de Richmond, igual que el Cabo de Muldraugh, pero muchas promociones despues. Dirijo funerales, entrego citaciones y ahora reparto el agua."
+   "texto": "Soy {oficio}. Entre a la comisaria de Muldraugh con el comisario Bishop: si el sobrino manejaba borracho, el parte decia otra hora. Uno solo se nego, y nunca paso de cabo."
   },
   {
    "id": "l02_ofi_constable",
@@ -3132,7 +3131,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "texto": "Soy {oficio}: mido dos veces y corto una. Hacia repisas y cajones; ahora hago puertas que aguanten y ataudes que no se pidan."
+   "texto": "Soy {oficio} de escaleras de caracol y barandas. Los ricos de Louisville me pagaban para subir sin cansarse; yo vivo en una casa de un piso."
   },
   {
    "id": "l02_ofi_costurera",
@@ -3221,22 +3220,22 @@
    "etapa": "oficio",
    "da": [
     "camionero_pasado",
-    "radio_cb"
+    "fort_knox"
    ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 22,
+   "edad_min": 27,
    "edad_max": 60,
    "sexo": null,
    "oficios": [
     "camionero"
    ],
    "pueblos": null,
-   "lazo": "duarte",
+   "lazo": "gladys",
    "peso": 10,
-   "texto": "Soy {oficio} de rutas cortas. Por el canal 19 le compraba los chismes al Tecolote, que sabia donde estaba cada bascula y cada patrulla."
+   "texto": "Soy {oficio} de mudanzas militares del Fuerte. Una vez cargue la casa del sargento Moreno en Muldraugh, y la senora no dejo que nadie tocara la Singer: la bajo ella sola."
   },
   {
    "id": "l02_ofi_profesora",
@@ -3248,18 +3247,16 @@
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 25,
-   "edad_max": 70,
+   "edad_min": 22,
+   "edad_max": 40,
    "sexo": null,
    "oficios": [
     "profesora"
    ],
-   "pueblos": [
-    "Riverside"
-   ],
-   "lazo": "wade_bell",
+   "pueblos": null,
+   "lazo": "valentina",
    "peso": 10,
-   "texto": "Fui {oficio} de la escuela de Riverside. El hijo de los Bell, el que cuenta todo, me corregia las cuentas en sexto y tenia razon."
+   "texto": "Soy {oficio}. Hice la practica en Crescent Hill, en Louisville, con una profesora nueva que les ponia multas de mentira a los ninos. Yo pague una con un dibujo."
   },
   {
    "id": "l02_ofi_profesora2",
@@ -3397,12 +3394,10 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "West Point"
-   ],
+   "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "texto": "Desde mi ventana vi arder la calle Main de West Point de punta a punta. Nadie la apagaba. Conte las casas para no oir los gritos."
+   "texto": "El 9 estaba en el autocine de Radcliff. A media pelicula los autos empezaron a irse con las luces apagadas, tocando la bocina; yo me quede hasta que se corto la pantalla."
   },
   {
    "id": "l02_pn_comisaria",
@@ -3421,7 +3416,7 @@
    ],
    "lazo": "pereira",
    "peso": 10,
-   "texto": "Fui a la comisaria de Muldraugh a pedir ayuda. Una sargento de verde gritaba por megafono que nadie salia. Me devolvi por los patios."
+   "texto": "La tarde del 9 vi a la Guardia armar la barricada de la entrada norte de Muldraugh: dos camiones, alambre y sacos, y una sargento que media la ruta a pasos."
   },
   {
    "id": "l02_pn_gasolinera",
@@ -3457,7 +3452,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "texto": "Tome la camioneta para salir del condado y en la 31W habia una barricada de la Guardia. Un soldado me apunto y me grito que me devolviera."
+   "texto": "El 9 venia en el Greyhound de Louisville. En la 31 el chofer paro, abrio la puerta y se bajo corriendo. Nos quedamos sentados, sin hablar, hasta que aclaro."
   },
   {
    "id": "l02_pn_iglesia",
@@ -3476,7 +3471,7 @@
    ],
    "lazo": "nacho",
    "peso": 10,
-   "texto": "En Riverside la iglesia de piedra tenia la puerta abierta. Me quede en una banca de atras hasta que amanecio, sin rezar, solo mirando la puerta."
+   "texto": "Pase la noche debajo del puente. En Riverside, a las seis, el cura abrio de par en par la iglesia de piedra. Me sente en una banca de atras, sin rezar, mirando la puerta."
   },
   {
    "id": "l02_pn_canal19",
@@ -3579,7 +3574,8 @@
    "id": "l02_des_eduardo",
    "etapa": "despues",
    "da": [
-    "sin_noticias"
+    "religioso",
+    "trueque"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -3590,9 +3586,9 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "eduardo",
+   "lazo": "reyes",
    "peso": 10,
-   "texto": "Los domingos oigo por la radio a un bombero que le habla a su mama: si me oyes, estoy bien. No es para mi, pero me hace bien."
+   "texto": "En agosto me volvi a bautizar en el rio con el predicador de la camioneta blanca. Me cobro dos latas y me hundio tres veces, por si la primera no contaba."
   },
   {
    "id": "l02_des_bencinita",
@@ -3678,7 +3674,7 @@
    "id": "l02_des_sanjudas",
    "etapa": "despues",
    "da": [
-    "perdio_familia"
+    "trueque"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -3691,7 +3687,7 @@
    "pueblos": null,
    "lazo": "lucia",
    "peso": 10,
-   "texto": "Dicen que en San Judas de March Ridge una monja canta los recados que le dejan en la puerta. Fui a dejar el nombre de mi hermana."
+   "texto": "En agosto paso por mi puerta una familia polaca de March Ridge, los Ostrowski, rumbo a Ekron a buscar a una hija. Les di agua y ellos me dieron la mitad de un pan."
   },
   {
    "id": "l02_sec_leer",
@@ -3950,9 +3946,9 @@
    "pueblos": [
     "Riverside"
    ],
-   "lazo": "nacho",
+   "lazo": "duggan",
    "peso": 5,
-   "texto": "Quiero oir otra vez las campanas de la iglesia de piedra de Riverside, que estan mudas desde que se rajo la viga."
+   "texto": "Quiero ver pelear otra vez al Martillo y al cura, con guantes y arbitro, como en Lexington. Esta vez que nadie pare la pelea."
   },
   {
    "id": "l02_voz_seco",
@@ -3969,10 +3965,10 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "llegada": "Diga lo que quiere y rapido, que se me enfria el agua.",
-   "rescate": "Bueno. Me salvo. No le voy a hacer un discurso.",
-   "gracias": "Gracias. Lo anoto. No se me olvida.",
-   "muerte": "Murio sin decir mucho, como vivio. Dejo todo ordenado en una caja."
+   "llegada": "Ah, otro. Pase. No duermo desde julio, asi que da lo mismo la hora.",
+   "rescate": "Gracias. A ver si ahora duermo un rato. Lo dudo.",
+   "gracias": "Esto sirve. Esta noche tampoco voy a dormir, pero voy a comer.",
+   "muerte": "Murio dormido, por fin. La primera noche de un tiron desde julio."
   },
   {
    "id": "l02_voz_chistoso",
@@ -3992,9 +3988,9 @@
    "lazo": null,
    "peso": 10,
    "llegada": "Pasa, pasa, que en el fin del mundo no se cobra la entrada. Todavia.",
-   "rescate": "Uy, ese estuvo cerca. Te debo una, y yo pago: tarde, pero pago.",
+   "rescate": "Uy, ese estuvo cerca. Si me hubiera muerto, te iba a penar por puro gusto.",
    "gracias": "Gracias, de verdad. Si tuviera una medalla te la daba. Tengo una lata.",
-   "muerte": "Murio contando un chiste. No alcanzo a decir el final."
+   "muerte": "Murio haciendo una mueca para que nos rieramos. Nos reimos."
   },
   {
    "id": "l02_voz_creyente",
@@ -4018,10 +4014,10 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "llegada": "Paz, hermano. Si viene con hambre, primero coma; despues hablamos.",
-   "rescate": "Dios proveyo, y esta vez tenia sus manos.",
-   "gracias": "Bendito sea. Que el Senor se lo pague, porque yo no tengo con que.",
-   "muerte": "Murio rezando bajito. Pidio que no le cerraran los ojos todavia."
+   "llegada": "Pase. Estoy discutiendo con Dios, pero puede escuchar: El no contesta igual.",
+   "rescate": "Si existe, que me explique por que mando a usted y no a un angel. Gracias, de todas formas.",
+   "gracias": "Esto me lo trajo usted, no el cielo. A usted le doy las gracias; con El hablo despues.",
+   "muerte": "Murio pidiendole explicaciones a Dios en voz alta. Al final se callo, como si le hubieran contestado."
   },
   {
    "id": "l02_voz_miedo",
@@ -4154,10 +4150,10 @@
   {
    "id": "l03_ori_hijo_cuartel",
    "etapa": "origen",
-   "texto": "Me crie en las casas del Fuerte Knox. Mi padre era sargento: cada dos inviernos otra escuela, otra casa, otra bandera en la puerta.",
+   "texto": "Soy {hijo} de una cocinera del casino de oficiales del Fuerte. Comi con cubiertos de plata sobrantes hasta que a mi mama la echaron por llevarselos a la casa.",
    "da": [
     "fort_knox",
-    "forastero"
+    "pobre"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -4214,7 +4210,7 @@
   {
    "id": "l03_inf_asma_cama",
    "etapa": "infancia",
-   "texto": "De {nino} pase mas tiempo en cama que en la escuela. El asma no me dejaba correr ni detras de un perro, y mi madre me ponia vapor de eucalipto.",
+   "texto": "El asma me la trataban con cigarrillos de estramonio de la botica. A los nueve los fumaba en el porche, tosiendo, mientras mis hermanos se reian de mi.",
    "da": [
     "enfermizo_nino",
     "asma"
@@ -4226,7 +4222,7 @@
     "fuerte"
    ],
    "quita": [],
-   "edad_min": 18,
+   "edad_min": 40,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
@@ -4406,10 +4402,9 @@
   {
    "id": "l03_juv_asma_se_fue",
    "etapa": "juventud",
-   "texto": "A los diecisiete el asma se me fue con el trabajo de campo, o el campo me la saco a golpes. Desde entonces cargo sacos como cualquiera.",
+   "texto": "A los dieciseis un doctor nuevo de Elizabethtown me dio un inhalador de verdad. La primera vez que subi la loma corriendo me puse a llorar arriba.",
    "da": [
-    "supero_enfermedad",
-    "fuerte"
+    "supero_enfermedad"
    ],
    "pide": [],
    "pide_alguno": [
@@ -4557,30 +4552,26 @@
   {
    "id": "l03_juv_guantes_oro",
    "etapa": "juventud",
-   "texto": "Boxee en los Guantes de Oro. En la final de Lexington del 79 vi pelear al que hoy es el cura de Riverside; le quebraron la nariz y gano igual.",
+   "texto": "A los veinte entre a la Guardia Nacional, Compania Bravo. En mi escuadra habia un muchacho de Frankfort, Doyle, mecanico de la Ford, que no perdia nunca una herramienta.",
    "da": [
-    "atleta",
-    "fuerte"
+    "militar"
    ],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [
-    "enfermizo_nino",
-    "asma"
-   ],
+   "prohibe": [],
    "quita": [],
-   "edad_min": 30,
-   "edad_max": 40,
+   "edad_min": 28,
+   "edad_max": 34,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "nacho",
+   "lazo": "ray",
    "peso": 10
   },
   {
    "id": "l03_juv_preso_robo",
    "etapa": "juventud",
-   "texto": "A los diecinueve me robe una camioneta con dos amigos para ir a Nashville. Me dieron dieciocho meses en La Grange. Sali sabiendo callar.",
+   "texto": "A los diecinueve me dieron seis meses en la carcel del condado de Hardin por pegarle a un policia. En la cocina de la carcel aprendi a hacer pan para cien.",
    "da": [
     "preso_pasado"
    ],
@@ -4621,20 +4612,18 @@
   {
    "id": "l03_adu_seguro_bell",
    "etapa": "adultez",
-   "texto": "Un vendedor de seguros de la 31, un tal Bell, de camisa celeste, me vendio una poliza de vida. Pague cada mes. Ahora no hay a quien cobrarle.",
-   "da": [
-    "casado"
-   ],
+   "texto": "En el 79 estaba en un bar de Lexington la noche que un boxeador recien coronado le rompio la mandibula a un borracho. Al otro dia lo saco del calabozo un cura irlandes.",
+   "da": [],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 30,
+   "edad_min": 35,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "daniel_bell",
+   "lazo": "nacho",
    "peso": 10
   },
   {
@@ -4699,7 +4688,7 @@
   {
    "id": "l03_adu_viudo_joven",
    "etapa": "adultez",
-   "texto": "Me quede viud{o} joven. Un derrame, un martes, mientras yo estaba en el trabajo. Todavia hago la cama de los dos lados.",
+   "texto": "Me quede viud{o} por una bala de cazador, en temporada de venado. El que disparo vino al velorio y nadie le dijo nada. Yo tampoco.",
    "da": [
     "viudo"
    ],
@@ -4783,29 +4772,27 @@
   {
    "id": "l03_adu_gladys_vestido",
    "etapa": "adultez",
-   "texto": "Mi vestido de novia me lo arreglo la Gladys de Muldraugh, la del taller de la calle principal. Me cobro la mitad porque llore en la prueba.",
-   "da": [
-    "casado"
-   ],
+   "texto": "Fui recepcionista del motel River View de West Point. El gerente, Ballard, echaba a las mucamas por cualquier cosa, y a la pelirroja de Brandenburg la tenia entre ojos.",
+   "da": [],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
    "edad_min": 25,
-   "edad_max": 50,
-   "sexo": "m",
+   "edad_max": 70,
+   "sexo": null,
    "oficios": null,
-   "pueblos": null,
-   "lazo": "gladys",
+   "pueblos": [
+    "West Point"
+   ],
+   "lazo": "kell",
    "peso": 10
   },
   {
    "id": "l03_vej_tonico_radio",
    "etapa": "vejez",
-   "texto": "Compraba por correo el tonico del doctor de la radio, el de la hora de la salud en la AM de Louisville. Era agua con fierro, pero me sentia mejor igual.",
-   "da": [
-    "viejo_fragil"
-   ],
+   "texto": "De viej{o} jugaba ajedrez por correo. Uno de mis rivales, un tal Hartmann de Louisville, firmaba Dr. y perdia con elegancia. Despues supe que era el del tonico de la radio.",
+   "da": [],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
@@ -4902,25 +4889,20 @@
   {
    "id": "l03_vej_mesa_once",
    "etapa": "vejez",
-   "texto": "Desde que volvio el cura nuevo a Riverside voy a la misa de las once. Nos hace reir con sus manos de boxeador y deja la puerta abierta.",
-   "da": [
-    "religioso",
-    "catolico"
-   ],
+   "texto": "Fui conserje de la escuela de Muldraugh hasta jubilarme. La hija del Cabo lo esperaba en la escalera con su cuaderno de multas de crayon, y el siempre llegaba tarde.",
+   "da": [],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [
-    "sin_fe"
-   ],
+   "prohibe": [],
    "quita": [],
    "edad_min": 60,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
    "pueblos": [
-    "Riverside"
+    "Muldraugh"
    ],
-   "lazo": "nacho",
+   "lazo": "valentina",
    "peso": 10
   },
   {
@@ -5103,7 +5085,7 @@
   {
    "id": "l03_ofi_camionero_bencinita",
    "etapa": "oficio",
-   "texto": "Manejo camion por la 31 desde joven. De noche, por el canal 19, contestaba el Bencinita desde la gasolinera de Rosewood: lleno o normal.",
+   "texto": "Soy {oficio} de ganado: vacas al remate de Bowling Green los martes. La Misia Rosa me anoto en las paginas de atras de su cuaderno, al lado de Wanda Pickett y su loro.",
    "da": [
     "camionero_pasado",
     "oficio_aprendido"
@@ -5119,7 +5101,7 @@
     "camionero"
    ],
    "pueblos": null,
-   "lazo": "hector",
+   "lazo": "rosa",
    "peso": 10
   },
   {
@@ -5221,7 +5203,7 @@
   {
    "id": "l03_pn_radio_casa",
    "etapa": "primera_noche",
-   "texto": "El 9 de julio la radio repetia que nos quedaramos en casa. Me quede. A las once empece a oir los gritos de la calle y le subi el volumen a la radio para no oirlos.",
+   "texto": "El 9 estaba en la bolera de Radcliff. Se corto la luz y nos metimos debajo del meson de los zapatos. Toda la noche se oyo caer un palo de vez en cuando, solo.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -5233,20 +5215,24 @@
    "oficios": null,
    "pueblos": null,
    "lazo": null,
-   "peso": 20
+   "peso": 10
   },
   {
    "id": "l03_pn_barricada_31",
    "etapa": "primera_noche",
-   "texto": "La noche del 9 quise salir por la 31 hacia Louisville. En la barricada un soldado de la Guardia me apunto con el fusil y me grito que me devolviera. Me devolvi.",
+   "texto": "Esa noche llegue al porton del Fuerte a buscar a mi {hijo}, que es soldado. El de la garita me dijo que volviera el lunes. Todavia espero el lunes.",
    "da": [
+    "con_hijos",
+    "hijos_lejos",
     "sin_noticias"
    ],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [],
+   "prohibe": [
+    "sin_hijos"
+   ],
    "quita": [],
-   "edad_min": 18,
+   "edad_min": 36,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
@@ -5257,8 +5243,10 @@
   {
    "id": "l03_pn_calle_main",
    "etapa": "primera_noche",
-   "texto": "La noche del 9 vi arder la calle Main desde mi ventana. La gente corria al cuartel de bomberos, y nadie apagaba nada.",
-   "da": [],
+   "texto": "Me pillo en una barcaza amarrada frente a West Point. El capitan corto las amarras y bajamos el Ohio a oscuras, sin motor, hasta que la corriente nos dejo en un banco de arena.",
+   "da": [
+    "rio"
+   ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
@@ -5268,15 +5256,16 @@
    "sexo": null,
    "oficios": null,
    "pueblos": [
-    "West Point"
+    "West Point",
+    "Riverside"
    ],
-   "lazo": "chela",
+   "lazo": null,
    "peso": 10
   },
   {
    "id": "l03_pn_megafono_comisaria",
    "etapa": "primera_noche",
-   "texto": "La noche del 9 una sargento de verde gritaba ordenes con un megafono en la puerta de la comisaria. Me fui a mi casa y no sali en tres dias.",
+   "texto": "Esa semana habia comprado el tonico de la radio contra la gripe de Knox. La noche del 9 me tome el frasco entero, por si acaso, y vomite fierro hasta que aclaro.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -5286,16 +5275,14 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "Muldraugh"
-   ],
-   "lazo": "pereira",
+   "pueblos": null,
+   "lazo": "hartmann",
    "peso": 10
   },
   {
    "id": "l03_pn_luz_rosa",
    "etapa": "primera_noche",
-   "texto": "La noche del 9 mire hasta el amanecer la ampolleta de la gasolinera de la Misia Rosa. Mientras estuviera prendida, pense, alguien estaba despierto.",
+   "texto": "Esa noche me encerre en la farmacia de Rosewood con el farmaceutico y dos clientes. Bajamos la cortina y contamos pastillas toda la noche, para no pensar.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -5308,7 +5295,7 @@
    "pueblos": [
     "Rosewood"
    ],
-   "lazo": "rosa",
+   "lazo": null,
    "peso": 10
   },
   {
@@ -5390,7 +5377,7 @@
   {
    "id": "l03_des_radio_domingos",
    "etapa": "despues",
-   "texto": "Los domingos en la noche oigo por la radio a un muchacho que le habla a su mama en West Point. No dice mucho, pero la gente se junta a oirlo.",
+   "texto": "En diciembre se supo que la Sargento del patio de trenes dejo un sobre clavado en el pilar del puente del tren, para el cocinero que se le escapo con su nina.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -5401,7 +5388,7 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "eduardo",
+   "lazo": "julio",
    "peso": 10
   },
   {
@@ -5445,7 +5432,7 @@
   {
    "id": "l03_des_tecolote_19",
    "etapa": "despues",
-   "texto": "Me entero de todo por el canal 19: el Tecolote vende chismes a cambio de cigarros, y uno nunca sabe cuanto es verdad.",
+   "texto": "El 2 de octubre llego a Muldraugh un bus escolar amarillo de Louisville, con una profesora con un pito colgado al cuello. Se bajo y se fue derecho a la comisaria.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -5455,8 +5442,10 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": null,
-   "lazo": "duarte",
+   "pueblos": [
+    "Muldraugh"
+   ],
+   "lazo": "valentina",
    "peso": 10
   },
   {
@@ -5504,10 +5493,8 @@
   {
    "id": "l03_des_san_judas",
    "etapa": "despues",
-   "texto": "Dicen que en San Judas, en March Ridge, hay una monjita que canta para los muertos con la puerta abierta. Fui una vez a dejarle un recado para mi madre.",
-   "da": [
-    "perdio_familia"
-   ],
+   "texto": "Desde julio busco al muchacho chileno que cargaba sacos en la panaderia de Riverside y se comia el pan duro en la escalera de la iglesia. Le debia una moneda; ahora le debo noticias.",
+   "da": [],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
@@ -5523,18 +5510,16 @@
   {
    "id": "l03_sec_no_se_leer",
    "etapa": "secreto",
-   "texto": "Nunca aprendi a leer. Toda la vida dije que se me olvidaron los anteojos. Los papeles los firmo con la misma raya, y en el fin del mundo nadie me lo ha notado.",
+   "texto": "Le echo pastillas de dormir a la sopa de mi pareja para que no salga de noche a buscar a nuestro muchacho. Ya lo perdimos una vez en la oscuridad; a los dos no.",
    "da": [
-    "analfabeto",
+    "casado",
+    "con_hijos",
     "mentiroso"
    ],
-   "pide": [
-    "sin_estudios"
-   ],
+   "pide": [],
    "pide_alguno": [],
    "prohibe": [
-    "universidad",
-    "secundaria"
+    "vive_solo"
    ],
    "quita": [],
    "edad_min": 18,
@@ -5544,7 +5529,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "diario": "No sabe leer. Lo escondio toda la vida detras de unos anteojos olvidados. Le lei en voz alta lo que tenia que firmar."
+   "diario": "Le echa pastillas a la sopa de su pareja para que no salga a buscar al hijo. Dice que ya lo perdio una vez."
   },
   {
    "id": "l03_sec_hijo_otro_pueblo",
@@ -5659,7 +5644,7 @@
   {
    "id": "l03_sec_carta_cordon",
    "etapa": "secreto",
-   "texto": "En septiembre un soldado del cordon me paso una carta de mi {hijo}, que esta afuera. Le pague con una botella de whisky. A los demas les digo que no se nada de los mios.",
+   "texto": "En septiembre el soldado Kimbrell, el del porton viejo del camino del Doe Run, me paso una carta de mi {hijo}, que esta afuera. Le pague con whisky. A todos les digo que no se nada de los mios.",
    "da": [
     "familia_viva",
     "mentiroso"
@@ -5720,7 +5705,7 @@
   {
    "id": "l03_dse_campanas",
    "etapa": "deseo",
-   "texto": "Quiero oir otra vez las campanas de la iglesia de piedra de Riverside. Desde que murio el sacristan nadie las toca.",
+   "texto": "Quiero ver una telenovela entera, con comerciales, en la tele de dona Gladys, que las graba en VHS. Aunque sea con un generador y un solo capitulo.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -5731,9 +5716,9 @@
    "sexo": null,
    "oficios": null,
    "pueblos": [
-    "Riverside"
+    "Muldraugh"
    ],
-   "lazo": "nacho",
+   "lazo": "gladys",
    "peso": 10
   },
   {
@@ -5831,7 +5816,7 @@
    "peso": 10,
    "llegada": "Quieto ahi. Diga quien es y que quiere, en ese orden.",
    "rescate": "Bien. No lo digo dos veces. Vamos.",
-   "gracias": "Cumplio. Aqui se paga lo que se debe.",
+   "gracias": "Bien. Se va a acordar de esto cuando haga frio.",
    "muerte": "Murio sin quejarse. Asi vivio tambien."
   },
   {
@@ -5849,10 +5834,10 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "llegada": "Epa! Si viene a robar, llego tarde: ya me robaron todo menos el humor.",
-   "rescate": "Uf. Casi me voy al otro mundo sin despedirme. Gracias, de verdad.",
-   "gracias": "Esto vale un abrazo y una lata. El abrazo es gratis.",
-   "muerte": "Murio contando un chiste que nadie alcanzo a terminar de oir."
+   "llegada": "Eran cien muertos en la calle, bueno, cuarenta, bueno, los que fueran. Pase, que le cuento.",
+   "rescate": "Me salvo de un ejercito entero. Bueno, de tres. Bueno, de uno grande. Gracias.",
+   "gracias": "Esto vale oro. Bueno, latas. Bueno, una lata. Igual se lo agradezco.",
+   "muerte": "Murio exagerando. Dijo que eran mil. Esta vez a lo mejor tenia razon."
   },
   {
    "id": "l03_voz_religioso",
@@ -5909,7 +5894,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "llegada": "Llego tarde. Lavese las manos y sientese, que hay trabajo.",
+   "llegada": "Llego tarde. Deje eso en la mesa y agarre la otra punta.",
    "rescate": "Ya, ya, estoy bien. Ahora deje de mirarme y siga caminando.",
    "gracias": "Asi se hacen las cosas. Bien. Ahora la otra.",
    "muerte": "Murio dando ordenes. Las vamos a seguir un tiempo, por costumbre."
@@ -5917,10 +5902,9 @@
   {
    "id": "l04_ori_hondonada_carbon",
    "etapa": "origen",
-   "texto": "Naci en una hondonada del este, entre carbon y Biblia. Mi papa bajaba a la mina y mi mama contaba los minutos hasta que volvia. Bajamos al condado buscando un trabajo que no matara.",
+   "texto": "Soy de una familia de balseros del Green River. Mi abuelo cruzaba gente y mulas por un dolar, y mi papa todavia sabia hacerlo cuando ya habia puente, nomas por no perder la mano.",
    "da": [
-    "montana",
-    "minero",
+    "rio",
     "rural",
     "forastero"
    ],
@@ -5961,7 +5945,7 @@
   {
    "id": "l04_ori_portland_rio",
    "etapa": "origen",
-   "texto": "Me crie en Portland, el barrio del rio en Louisville, entre talleres del tren y bares de barcaceros. Llegue a {pueblo} ya grande, porque aqui el aire no olia a fierro.",
+   "texto": "Me crie en Portland, en Louisville, al lado de una costurera cajun, la senora Hale. Su hija se fue a los diecinueve a hacer pan a Riverside y volvia los domingos con harina en las cejas.",
    "da": [
     "urbano",
     "louisville",
@@ -5972,12 +5956,12 @@
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 18,
-   "edad_max": 85,
+   "edad_min": 30,
+   "edad_max": 60,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": null,
+   "lazo": "yvonne_bell",
    "peso": 10
   },
   {
@@ -6023,7 +6007,7 @@
   {
    "id": "l04_ori_nunca_salio",
    "etapa": "origen",
-   "texto": "Naci en {pueblo} y aqui me voy a morir, si me dejan elegir. Conozco cada perro por su nombre y cada pozo por su sabor. Louisville la vi dos veces y las dos me volvi antes de comer.",
+   "texto": "Naci en {pueblo} y aqui me voy a morir, si me dejan elegir. Conozco cada perro por su nombre, cada pozo por su sabor y cada cruce del tren por como suena.",
    "da": [
     "nunca_salio",
     "rural"
@@ -6068,7 +6052,7 @@
   {
    "id": "l04_inf_padre_correa",
    "etapa": "infancia",
-   "texto": "Mi papa tomaba los viernes y pegaba los sabados, con la correa del pantalon. Aprendi a leerle la cara desde la escalera y a esconder a mis hermanos chicos en el gallinero.",
+   "texto": "A los doce hice detener a mi papa: llame al sheriff desde la casa del vecino. Volvio a los seis meses, sobrio por un tiempo, y no me hablo nunca mas.",
    "da": [
     "padre_violento",
     "familia_grande"
@@ -6131,17 +6115,14 @@
   {
    "id": "l04_inf_polio",
    "etapa": "infancia",
-   "texto": "A los seis me dio la polio. Un verano en cama y la pierna izquierda me quedo mas flaca para siempre. Camino de lado desde entonces, pero camino.",
+   "texto": "La polio no me toco a mi: se llevo a mi hermana chica. Mi mama me tuvo un verano entero encerrad{o}, sin rio ni piscina, y no se lo perdone hasta que fui grande.",
    "da": [
-    "lesion_pierna",
-    "cojo",
-    "enfermizo_nino"
+    "familia_grande",
+    "culpa"
    ],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [
-    "atleta"
-   ],
+   "prohibe": [],
    "quita": [],
    "edad_min": 40,
    "edad_max": 85,
@@ -6190,11 +6171,10 @@
   {
    "id": "l04_inf_bautizo_rio",
    "etapa": "infancia",
-   "texto": "Me bautizaron en el rio a los nueve, en la bautista, con el agua hasta la cintura y la mano del pastor en la nuca. Sali tosiendo y convencid{o} de que Dios estaba frio.",
+   "texto": "Me bautizaron en la tina de la casa porque el rio venia crecido y el pastor no sabia nadar. Todavia me rio cuando alguien en la iglesia dice agua viva.",
    "da": [
     "bautista",
-    "religioso",
-    "rio"
+    "religioso"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -6261,24 +6241,24 @@
   {
    "id": "l04_juv_guantes_oro",
    "etapa": "juventud",
-   "texto": "Pelee en los Guantes de Oro. No llegue lejos, pero vi la final de Lexington del 79, la del muchacho que despues se hizo cura en Riverside. Le quebraron la nariz y gano igual.",
+   "texto": "Llegue de Laredo en la caja de un camion, a cortar tabaco en Kentucky. Le pague cuatrocientos dolares al chofer, uno que en la radio se hacia llamar Tecolote. Llegue con lo puesto.",
    "da": [
-    "atleta",
-    "fuerte"
+    "tabaco",
+    "pobre"
    ],
    "pide": [],
-   "pide_alguno": [],
-   "prohibe": [
-    "enfermizo_nino",
-    "cojo"
+   "pide_alguno": [
+    "inmigrante",
+    "forastero"
    ],
+   "prohibe": [],
    "quita": [],
-   "edad_min": 30,
-   "edad_max": 45,
+   "edad_min": 19,
+   "edad_max": 34,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "nacho",
+   "lazo": "duarte",
    "peso": 10
   },
   {
@@ -6365,7 +6345,7 @@
   {
    "id": "l04_juv_casa_joven",
    "etapa": "juventud",
-   "texto": "Me case a los diecisiete con el primero que me saco a bailar en la feria del condado. Mi mama lloro en la iglesia y no de alegria. Tenia razon, pero tarde un tiempo en darselo.",
+   "texto": "Me case a los diecisiete por poder, con un soldado que estaba en Alemania. Lo conoci en persona seis meses despues, en la estacion de Louisville, y lo reconoci por la foto.",
    "da": [
     "casado"
    ],
@@ -6384,20 +6364,20 @@
   {
    "id": "l04_adu_poliza_bell",
    "etapa": "adultez",
-   "texto": "Un vendedor flaco de camisa celeste me vendio un seguro de vida en la puerta de la casa. Pague tres cuotas. Despues el seguia pasando a saludar, como si le debiera la conversacion.",
+   "texto": "En los setenta le compre una Biblia a plazos a un vendedor de la Good Seed de Nashville. Hablaba como predicador y cobraba como banco. Despues lo vi en una carpa, de diacono.",
    "da": [
-    "deudas"
+    "religioso"
    ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 28,
+   "edad_min": 40,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "daniel_bell",
+   "lazo": "reyes",
    "peso": 10
   },
   {
@@ -6422,28 +6402,31 @@
   {
    "id": "l04_adu_aserradero",
    "etapa": "adultez",
-   "texto": "Trabaje en el aserradero de la 31, con el ruido metido en los dientes. Habia un muchacho de West Point, hijo de la bombera, que cargaba tablas como si no pesaran y no hablaba de nadie.",
+   "texto": "Mi {hijo} pescaba en Otter Creek con la hija del Cabo. Ella le ponia multas con crayon en servilletas: multa por llegar tarde a la comida, pague con helado.",
    "da": [
-    "oficio_aprendido"
+    "con_hijos"
    ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 25,
-   "edad_max": 60,
+   "edad_min": 40,
+   "edad_max": 75,
    "sexo": null,
    "oficios": null,
-   "pueblos": null,
-   "lazo": "eduardo",
+   "pueblos": [
+    "Muldraugh"
+   ],
+   "lazo": "valentina",
    "peso": 10
   },
   {
    "id": "l04_adu_viudez",
    "etapa": "adultez",
-   "texto": "Me quede viud{o} un martes cualquiera, con la radio prendida. Seguir poniendo dos platos me duro un mes; la otra almohada, todavia la tengo.",
+   "texto": "Mi pareja entro al hospital de Elizabethtown por una hernia y volvio en un cajon. Demande al hospital y perdi; el abogado se quedo con la vaca y yo con la cuenta.",
    "da": [
-    "viudo"
+    "viudo",
+    "deudas"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -6546,7 +6529,7 @@
   {
    "id": "l04_vej_jubilado_fuerte",
    "etapa": "vejez",
-   "texto": "Me jubile del Fuerte con un reloj de regalo que no anda y una pension que tampoco. Ahora me siento en el porche a mirar pasar los camiones de la 31 y a adivinar que llevan.",
+   "texto": "Me jubile del Fuerte con una pension que no alcanza. Ahora me siento en el porche a mirar pasar los camiones de la 31 y a adivinar que llevan.",
    "da": [
     "fort_knox",
     "viejo_fragil"
@@ -6566,9 +6549,9 @@
   {
    "id": "l04_vej_corazon",
    "etapa": "vejez",
-   "texto": "El corazon me avisa con un pinchazo en el brazo izquierdo. Tengo las pastillas en el bolsillo de la camisa y una regla: no subir escaleras con rabia.",
+   "texto": "Tengo azucar en la sangre y una vecina que me inyecta los martes en la cocina. Le pago con lo que tejo y con los chismes de la semana, que valen mas.",
    "da": [
-    "corazon",
+    "diabetes",
     "viejo_fragil"
    ],
    "pide": [],
@@ -6650,7 +6633,7 @@
   {
    "id": "l04_ofi_mecanico_peterbilt",
    "etapa": "oficio",
-   "texto": "Soy {oficio} desde que tengo memoria de grasa. Le cambie la caja de cambios a medio camion de la 31, incluido el Peterbilt de un camionero gordo que me pagaba con chistes y a fin de mes.",
+   "texto": "Soy {oficio}. Aprendi con un italiano de Louisville, Franco Giovanns, que vino a arreglarle la bomba a la Colorina de West Point y se quedo. En el 74 se fue a Evansville con una mesera.",
    "da": [
     "oficio_aprendido"
    ],
@@ -6658,14 +6641,14 @@
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 25,
+   "edad_min": 35,
    "edad_max": 85,
    "sexo": null,
    "oficios": [
     "mecanico"
    ],
    "pueblos": null,
-   "lazo": "earl",
+   "lazo": "eduardo",
    "peso": 10
   },
   {
@@ -6780,7 +6763,7 @@
   {
    "id": "l04_ofi_cocinera_spiffos",
    "etapa": "oficio",
-   "texto": "Soy {oficio}. Frei papas en el Spiffo's de Muldraugh al lado de un mexicano callado que hacia el arroz mejor que nadie. Aprendi a cocinar para treinta sin que se note el apuro.",
+   "texto": "Soy {oficio}. Trabaje en el Dixie Grill de Radcliff; tuvimos una mesera de Brandenburg, de pelo rojizo, que se enojaba si le apagaban el quemador. Ahi aprendi a cocinar para treinta.",
    "da": [
     "oficio_aprendido"
    ],
@@ -6789,13 +6772,13 @@
    "prohibe": [],
    "quita": [],
    "edad_min": 20,
-   "edad_max": 50,
+   "edad_max": 60,
    "sexo": null,
    "oficios": [
     "cocinera"
    ],
    "pueblos": null,
-   "lazo": "julio",
+   "lazo": "kell",
    "peso": 10
   },
   {
@@ -6823,7 +6806,7 @@
   {
    "id": "l04_ofi_profesora_cuenta",
    "etapa": "oficio",
-   "texto": "Soy {oficio} de la escuela de Riverside. Tuve un alumno de sexto, flaquito, con los lentes con cinta, que contaba todo: las baldosas, los pasos, mis errores en la pizarra.",
+   "texto": "Soy {oficio} de ciencias en la secundaria de Riverside. Tuve a Rodrigo Ferrada, un chileno callado que a los dieciocho se fue al Ejercito. La hermana chica lo esperaba en la reja.",
    "da": [
     "oficio_aprendido",
     "universidad"
@@ -6832,8 +6815,8 @@
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 26,
-   "edad_max": 70,
+   "edad_min": 35,
+   "edad_max": 75,
    "sexo": null,
    "oficios": [
     "profesora"
@@ -6841,13 +6824,13 @@
    "pueblos": [
     "Riverside"
    ],
-   "lazo": "wade_bell",
+   "lazo": "lucia",
    "peso": 10
   },
   {
    "id": "l04_ofi_cazador_ardillas",
    "etapa": "oficio",
-   "texto": "Soy {oficio}. Mi papa me dio una veintidos de un tiro a los siete y una regla: una bala, una ardilla, y lo que se mata se come. Ahora pongo trampas y curto pieles.",
+   "texto": "Soy {oficio}. Mi papa me dio una veintidos de un tiro a los siete. Ahora pongo trampas, curto pieles en el galpon y vendo las colas para los gorros.",
    "da": [
     "oficio_aprendido",
     "rural"
@@ -6935,7 +6918,7 @@
   {
    "id": "l04_pn_calle_main",
    "etapa": "primera_noche",
-   "texto": "La noche del 9 vi desde la loma arder la calle Main de West Point, casa por casa, como una mecha. La radio decia que nos quedaramos adentro. Me quede, mirando el humo hasta que aclaro.",
+   "texto": "A las ocho vi salir la Colorina del cuartel de West Point con el jefe Booker y cinco hombres, rumbo al Fuerte. A las ocho y media sono la sirena del cuartel. El camion no volvio esa noche.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -7030,7 +7013,7 @@
   {
    "id": "l04_pn_luz_bomba",
    "etapa": "primera_noche",
-   "texto": "La primera noche, desde mi ventana, la luz de la bomba de la Misia Rosa se veia prendida. Mientras esa ampolleta siguiera ahi, pense, el pueblo no se habia terminado.",
+   "texto": "A las diez vi salir al jefe Ruark en la patrulla 1, rumbo a la 31, con la sirena apagada. Fue lo ultimo que vi de la policia de Rosewood esa noche.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -7043,7 +7026,7 @@
    "pueblos": [
     "Rosewood"
    ],
-   "lazo": "rosa",
+   "lazo": null,
    "peso": 10
   },
   {
@@ -7193,25 +7176,23 @@
   {
    "id": "l04_sec_no_leer",
    "etapa": "secreto",
-   "texto": "No se leer. Llevo toda la vida fingiendo con los anteojos, pidiendo que me lean porque se me olvidaron en la casa. Los letreros los conozco por el color.",
+   "texto": "Mi apellido es prestado. En el 78 deje en Ohio a mi primera familia, con tres hijos, y me lo cambie para que no me encontraran. Aqui nadie pregunta de donde viene un apellido.",
    "da": [
-    "sin_estudios",
-    "mentiroso"
+    "mentiroso",
+    "culpa"
    ],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [
-    "universidad"
-   ],
+   "prohibe": [],
    "quita": [],
-   "edad_min": 18,
+   "edad_min": 40,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "diario": "No sabe leer. Toda la vida fingio que se le quedaban los anteojos. Le prometi ensenarle las letras de su nombre."
+   "diario": "Su apellido es prestado. Dejo una familia en Ohio en el 78: tres hijos que ya serian grandes."
   },
   {
    "id": "l04_sec_reloj_casa",
@@ -7236,16 +7217,13 @@
   {
    "id": "l04_sec_falsa_sordera",
    "etapa": "secreto",
-   "texto": "Desde agosto finjo que no oigo, para que no me toquen las guardias de noche. Oigo todo: los pasos, los chistes que hacen de mi, la noche entera. Lo que no oigo es mi nombre.",
+   "texto": "Guardo la mitad de las semillas de la huerta comun. Las planto en un claro que solo yo conozco, entre zarzas, por si el campamento cae. Nadie las ha echado de menos.",
    "da": [
-    "cobarde",
     "mentiroso"
    ],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [
-    "sordo"
-   ],
+   "prohibe": [],
    "quita": [],
    "edad_min": 18,
    "edad_max": 85,
@@ -7254,7 +7232,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "diario": "Finge que no oye para no hacer guardia de noche. Oye todo, incluso lo que dicen a sus espaldas."
+   "diario": "Tiene una huerta escondida con semillas del grupo. Por si caemos todos, dice."
   },
   {
    "id": "l04_sec_radio_rota",
@@ -7455,7 +7433,7 @@
    "lazo": null,
    "peso": 10,
    "llegada": "Pasa, pasa, que el fin del mundo esta mas entretenido acompanado. Traes algo para comer o solo la cara?",
-   "rescate": "Me salvaste. Ahora te debo una, y yo pago mis deudas... en chistes, que es lo unico que me queda.",
+   "rescate": "Me salvaste. No tengo con que pagarte, asi que te regalo el mejor chiste que se. Despues te lo cuento.",
    "gracias": "Esto vale oro. Bueno, no; el oro ya no vale nada. Esto vale una lata de porotos, que es mas.",
    "muerte": "Murio contando un chiste que no alcanzo a terminar. Nadie sabe el final, y eso es lo que mas duele."
   },
@@ -7463,6 +7441,7 @@
    "id": "l04_voz_seco",
    "etapa": "voz",
    "da": [
+    "comerciante",
     "solitario"
    ],
    "pide": [],
@@ -7478,10 +7457,10 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "llegada": "Hable claro y rapido. Aqui no se gasta saliva ni luz.",
-   "rescate": "Mm. Estaba bien. Pero gracias igual.",
-   "gracias": "Sirve. No le voy a decir mas, que no se usa.",
-   "muerte": "Murio sin quejarse, como vivio. Dejo todo ordenado, por si acaso."
+   "llegada": "Primero digame que trae. Despues le digo si tengo.",
+   "rescate": "Me salvo el pellejo. Eso tiene precio; digame cual, que no me gusta quedar mal con nadie.",
+   "gracias": "Vale menos de lo que pedi, pero lo acepto. No le cuente a nadie que regatee tan poco.",
+   "muerte": "Murio con una cuenta sin cobrar en el bolsillo. Nadie sabe a quien se la iba a cobrar."
   },
   {
    "id": "l04_voz_creyente",
@@ -7504,7 +7483,7 @@
    "peso": 10,
    "llegada": "Dios te trajo, o te trajo el camino. Da lo mismo: pasa y sientate, que aqui hay sitio.",
    "rescate": "Le rece a Dios toda la noche y Dios te mando a ti. No te rias, que asi trabaja El.",
-   "gracias": "Dios te lo pague, que yo no tengo con que. Pero te nombro en la oracion de la noche, eso si.",
+   "gracias": "Que Dios se acuerde de ti. Yo me acuerdo seguro: te nombro en la oracion de la noche.",
    "muerte": "Murio rezando bajito. Le cerramos los ojos y le dejamos las manos juntas, como las tenia."
   },
   {
@@ -7527,19 +7506,17 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "llegada": "Perdon... no lo vi llegar. Pase, si quiere. No tengo mucho, pero lo que tengo se comparte.",
-   "rescate": "Gracias. Gracias. No se que decir. Perdon por el susto.",
-   "gracias": "Esto es justo lo que necesitaba. Perdon que no tenga como devolverselo.",
-   "muerte": "Murio sin hacer ruido, pidiendo perdon hasta el final. No tenia nada que perdonarse."
+   "llegada": "Usted es del campamento? Tiene armas? Cuantas? Yo tengo una honda.",
+   "rescate": "Usted mato a muchos? Cuantos? Yo a uno. Lo conte. No me gusto.",
+   "gracias": "Esto es para mi? Entero? Puedo mirarlo un rato antes de guardarlo?",
+   "muerte": "Murio con los bolsillos llenos de cosas que habia juntado para mostrarnos. Las miramos todas, una por una."
   },
   {
    "id": "l05_ori_medieros",
    "etapa": "origen",
    "da": [
     "rural",
-    "tabaco",
-    "pobre",
-    "granja"
+    "tabaco"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -7552,7 +7529,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "texto": "Naci en {ano_nac} en una casa de peones, {hijo} de medieros que trabajaban tabaco ajeno a la mitad. La tierra nunca fue nuestra; el cansancio si."
+   "texto": "Naci en {ano_nac} en la casa de la cooperativa tabacalera, donde mi papa era el que pesaba los fardos. Todos le tenian miedo a la balanza, y a el tambien."
   },
   {
    "id": "l05_ori_antracita",
@@ -7599,21 +7576,21 @@
    "id": "l05_ori_fuerte",
    "etapa": "origen",
    "da": [
-    "fort_knox",
-    "forastero"
+    "forastero",
+    "urbano"
    ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
    "edad_min": 18,
-   "edad_max": 85,
+   "edad_max": 40,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": null,
+   "lazo": "ray",
    "peso": 10,
-   "texto": "Soy {hijo} del Fuerte: mi papa era sargento de tanques y nos cambiaron de casa seis veces antes de que yo cumpliera doce. Aqui fue donde nos quedamos."
+   "texto": "Naci en Frankfort, en la cuadra de los Doyle. El papa de ellos, veterano de Corea, dormia con las botas puestas: el que duerme descalzo se muere descalzo, decia. Yo tambien duermo asi."
   },
   {
    "id": "l05_ori_orilla",
@@ -7722,7 +7699,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "texto": "Me crie en el taller de mi padre, entre relojes desarmados. A los seis arme un despertador y me sobro una pieza que todavia guardo en una caja de fosforos."
+   "texto": "Me crie en el taller de mi padre, entre relojes desarmados. Me hacia sostener la lupa sin respirar. Todavia contengo el aire cuando algo es importante."
   },
   {
    "id": "l05_inf_salon",
@@ -7770,15 +7747,12 @@
    "id": "l05_inf_ardillas",
    "etapa": "infancia",
    "da": [
-    "montana",
-    "pobre",
+    "rio",
     "rural"
    ],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [
-    "urbano"
-   ],
+   "prohibe": [],
    "quita": [],
    "edad_min": 18,
    "edad_max": 85,
@@ -7787,7 +7761,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "texto": "A los diez mi papa me paso la veintidos: una bala, una ardilla, y si la dejabas sufriendo no se comia. Comimos poco al principio. Despues comimos bien."
+   "texto": "A los diez mi abuelo me llevaba a pescar con dinamita al rio, a escondidas del guarda. Me quedo un zumbido en el oido izquierdo, de recuerdo."
   },
   {
    "id": "l05_inf_fiebre",
@@ -7855,21 +7829,23 @@
   {
    "id": "l05_juv_guantes",
    "etapa": "juventud",
-   "da": [],
+   "da": [
+    "catolico"
+   ],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [
-    "nunca_salio"
-   ],
+   "prohibe": [],
    "quita": [],
-   "edad_min": 29,
-   "edad_max": 50,
+   "edad_min": 21,
+   "edad_max": 33,
    "sexo": null,
    "oficios": null,
-   "pueblos": null,
-   "lazo": "nacho",
+   "pueblos": [
+    "Riverside"
+   ],
+   "lazo": "lucia",
    "peso": 10,
-   "texto": "En el 79 fui a Lexington a ver la final de los Guantes de Oro. A uno le pararon la pelea por un corte en la ceja; el que gano termino de cura en Riverside."
+   "texto": "En la misa del gallo del 85, en Riverside, una nina chilena toco el armonio y se equivoco en Noche de paz. El diacono le guino un ojo y la iglesia entera se rio."
   },
   {
    "id": "l05_juv_carpa",
@@ -7911,7 +7887,7 @@
    "pueblos": null,
    "lazo": "valentina",
    "peso": 10,
-   "texto": "Estudie en Louisville y comia de noche en el Ollie's de Bardstown Road. La mesera del turno de noche era de Muldraugh y estudiaba para profesora."
+   "texto": "Estudie en Louisville y corria de noche en el parque Cherokee. Habia una muchacha que daba las vueltas contando en voz alta y nunca me dejo pasarla."
   },
   {
    "id": "l05_juv_petardos",
@@ -7982,12 +7958,14 @@
    "id": "l05_juv_reformatorio",
    "etapa": "juventud",
    "da": [
-    "preso_pasado",
+    "militar",
     "oficio_aprendido"
    ],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [],
+   "prohibe": [
+    "nunca_salio"
+   ],
    "quita": [],
    "edad_min": 18,
    "edad_max": 85,
@@ -7996,7 +7974,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "texto": "A los diecisiete me mandaron dos inviernos al reformatorio de La Grange por robar una camioneta. Sali sabiendo de motores y de callarme."
+   "texto": "A los diecisiete el juez me dio a elegir: el reformatorio o el Ejercito. Elegi el Ejercito y me mandaron a Alemania a cuidar un deposito de botas."
   },
   {
    "id": "l05_juv_volar",
@@ -8047,7 +8025,10 @@
   {
    "id": "l05_adu_seguro_bell",
    "etapa": "adultez",
-   "da": [],
+   "da": [
+    "deudas",
+    "apostador"
+   ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
@@ -8057,9 +8038,9 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "daniel_bell",
+   "lazo": "duggan",
    "peso": 10,
-   "texto": "Un vendedor de seguros de camisa celeste, Bell, me vendio un seguro de vida en la mesa de la cocina. Fue el unico que volvio tres veces a explicarme la letra chica."
+   "texto": "Cuando debia las carreras, el que venia a cobrar era un boxeador de Riverside, Duggan. Nunca me pego: se sentaba en mi porche hasta que yo pagaba."
   },
   {
    "id": "l05_adu_pan_hollis",
@@ -8076,9 +8057,9 @@
    "pueblos": [
     "Riverside"
    ],
-   "lazo": "yvonne_bell",
+   "lazo": "wade_bell",
    "peso": 10,
-   "texto": "Compraba el pan en la panaderia Hollis antes del turno. A las seis la panadera ya llevaba horas con las manos en la masa y me guardaba el de la orilla."
+   "texto": "Fui chofer del bus escolar de Riverside. El nino de los Bell dibujaba robots en el vidrio empanado y los borraba antes de bajarse, para no dejar nada a medias."
   },
   {
    "id": "l05_adu_vestido_gladys",
@@ -8092,14 +8073,12 @@
    "quita": [],
    "edad_min": 25,
    "edad_max": 50,
-   "sexo": "m",
+   "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "Muldraugh"
-   ],
-   "lazo": "gladys",
+   "pueblos": null,
+   "lazo": "reyes",
    "peso": 10,
-   "texto": "Me case con un vestido que me entallo la senora Gladys, la de la calle principal de Muldraugh. Me cobro la mitad porque le gustaba como me reia."
+   "texto": "Me case dos veces con la misma persona. La segunda nos caso un predicador de carpa de Knoxville; despues dijeron que su papel de diacono era comprado por correo."
   },
   {
    "id": "l05_adu_tonico",
@@ -8151,10 +8130,12 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": null,
-   "lazo": "eduardo",
+   "pueblos": [
+    "West Point"
+   ],
+   "lazo": "chela",
    "peso": 10,
-   "texto": "Una noche de lluvia se me fue el auto a la zanja en la 31. Me saco una grua de West Point; el chofer era el hijo de la bombera y no me quiso cobrar."
+   "texto": "Compraba en la ferreteria Haskins de la calle Main de West Point. La cajera era una chilena bajita que te daba el vuelto y una orden, en ese orden."
   },
   {
    "id": "l05_adu_ge",
@@ -8359,22 +8340,23 @@
    "id": "l05_ofi_vulcanizacion",
    "etapa": "oficio",
    "da": [
-    "oficio_aprendido"
+    "oficio_aprendido",
+    "forastero"
    ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 18,
+   "edad_min": 22,
    "edad_max": 45,
    "sexo": null,
    "oficios": [
     "mecanico"
    ],
    "pueblos": null,
-   "lazo": "hector",
+   "lazo": "ray",
    "peso": 10,
-   "texto": "Soy {oficio} de manos negras. Parchaba neumaticos los fines de semana en la vulcanizacion de Ekron, al lado del sobrino de los Bencina, que hablaba con camioneros por radio."
+   "texto": "Soy {oficio}. Aprendi en la concesionaria Ford de Frankfort, al lado de un muchacho Doyle, de la Guardia, que dejaba cada herramienta en su lugar antes de irse."
   },
   {
    "id": "l05_ofi_motores_viejos",
@@ -8513,7 +8495,8 @@
    "id": "l05_ofi_spiffos",
    "etapa": "oficio",
    "da": [
-    "oficio_aprendido"
+    "oficio_aprendido",
+    "iglesia_trabajo"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -8525,12 +8508,10 @@
    "oficios": [
     "cocinera"
    ],
-   "pueblos": [
-    "Muldraugh"
-   ],
-   "lazo": "julio",
+   "pueblos": null,
+   "lazo": null,
    "peso": 10,
-   "texto": "Fui ayudante en la cocina del Spiffo's de Muldraugh, al lado de un mexicano callado que hacia el arroz para todos y cantaba bajito."
+   "texto": "Soy {oficio} de campamento de verano de la iglesia: cien ninos, tres ollas y una sola regla, que nadie se queda sin postre."
   },
   {
    "id": "l05_ofi_plancha_pie",
@@ -8570,9 +8551,9 @@
     "camionero"
    ],
    "pueblos": null,
-   "lazo": "earl",
+   "lazo": null,
    "peso": 10,
-   "texto": "Hice la Louisville-Nashville por la 31. El Gordo Ruta me corregia los cambios por el canal 19 y me avisaba cuando la bascula estaba abierta."
+   "texto": "Soy {oficio} de cisterna: leche cruda de las granjas a la planta de Louisville. Si llego tarde se corta, y si llego temprano nadie me abre."
   },
   {
    "id": "l05_ofi_pendulos",
@@ -8699,21 +8680,25 @@
   {
    "id": "l05_pn_calle_main",
    "etapa": "primera_noche",
-   "da": [],
+   "da": [
+    "con_hijos"
+   ],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [],
-   "quita": [],
-   "edad_min": 18,
-   "edad_max": 85,
-   "sexo": null,
-   "oficios": null,
-   "pueblos": [
-    "West Point"
+   "prohibe": [
+    "sin_hijos"
    ],
-   "lazo": "chela",
+   "quita": [
+    "sin_hijos"
+   ],
+   "edad_min": 18,
+   "edad_max": 45,
+   "sexo": "m",
+   "oficios": null,
+   "pueblos": null,
+   "lazo": null,
    "peso": 10,
-   "texto": "Desde mi ventana vi arder la calle Main de West Point. La bombera estaba ahi parada y la calle se quemo igual; nadie tiro agua esa noche."
+   "texto": "La noche del 9 estaba pariendo en el hospital de Brandenburg. Mi {hijo} nacio a las tres con tiros de fondo, y la enfermera se fue antes de cortar el cordon."
   },
   {
    "id": "l05_pn_megafono",
@@ -8727,17 +8712,17 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "Muldraugh"
-   ],
-   "lazo": "pereira",
+   "pueblos": null,
+   "lazo": "hector",
    "peso": 10,
-   "texto": "Fui a la comisaria de Muldraugh a pedir ayuda. Una sargento de verde gritaba por megafono desde la puerta que nadie saliera. Me di vuelta y corri a mi casa."
+   "texto": "Esa noche Merle, el lechero de Ekron, salio con el camion a dejar la leche a Rosewood como todos los viernes. Lo esperamos hasta las cuatro. No volvio."
   },
   {
    "id": "l05_pn_luz_bomba",
    "etapa": "primera_noche",
-   "da": [],
+   "da": [
+    "rio"
+   ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
@@ -8747,11 +8732,12 @@
    "sexo": null,
    "oficios": null,
    "pueblos": [
-    "Rosewood"
+    "West Point",
+    "Riverside"
    ],
-   "lazo": "rosa",
+   "lazo": null,
    "peso": 10,
-   "texto": "Pase la noche mirando por una rendija la luz de la gasolinera de los Bencina. Mientras siguiera prendida, me dije, el mundo no se habia acabado."
+   "texto": "Esa noche estaba de turno en la esclusa del Ohio. Los remolcadores seguian pidiendo paso por radio y yo les abria como si nada, hasta las cuatro, cuando dejaron de pedir."
   },
   {
    "id": "l05_pn_guardia",
@@ -8819,9 +8805,9 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "eduardo",
+   "lazo": "ray",
    "peso": 10,
-   "texto": "Los domingos en la noche giro la perilla hasta encontrar a un muchacho que le habla a su mama por la radio. No es mi {hijo}, pero lo escucho entero."
+   "texto": "Una noche entraron dos del patio de trenes a mi granero, en el camino a Brandenburg. Alguien disparo al techo desde el monte y salieron corriendo. Nunca supe quien."
   },
   {
    "id": "l05_des_tambores",
@@ -8867,7 +8853,7 @@
    "id": "l05_des_san_judas",
    "etapa": "despues",
    "da": [
-    "perdio_familia"
+    "vive_con_otros"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -8878,9 +8864,9 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "lucia",
+   "lazo": "eduardo",
    "peso": 10,
-   "texto": "Fui hasta San Judas de March Ridge a dejar un nombre en la puerta. Dicen que la monjita de adentro les canta los nombres a los muertos."
+   "texto": "En el campamento hay una senora Stroud que cuenta cada noche como a su familia la saco de un Ford volcado un chofer de grua, Eddie Giovanns, el de Hennessey. Nadie le dice que ya lo conto."
   },
   {
    "id": "l05_des_iglesia_abierta",
@@ -8964,8 +8950,7 @@
    "id": "l05_des_solo",
    "etapa": "despues",
    "da": [
-    "vive_solo",
-    "perdio_familia"
+    "vive_solo"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -8980,7 +8965,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "texto": "Vivo sol{o} desde agosto. Hablo en voz alta en la cocina para no olvidarme de como suena una persona."
+   "texto": "Vivo en una casa rodante en el bosque, con las ruedas enterradas y los focos sacados para que no brille de noche. Tengo un tarro para la lluvia y otro para todo lo demas."
   },
   {
    "id": "l05_sec_pension",
@@ -8992,15 +8977,15 @@
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 30,
+   "edad_min": 18,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "texto": "Cobre tres inviernos la pension de mi padre muerto, firmando con su nombre. La deuda con el gobierno se acabo junto con el gobierno.",
-   "diario": "Supe que cobraba la pension de su padre muerto. Se rio al contarlo. Despues no."
+   "texto": "Mate al gallo del vecino porque cantaba antes del amanecer y llamaba a los muertos. El vecino cree que fue un zorro y todavia le pone trampas. Yo le ayudo a ponerlas.",
+   "diario": "El zorro que se comio el gallo del vecino fue {el}. Lo ayuda a poner las trampas todas las semanas."
   },
   {
    "id": "l05_sec_doble_libreta",
@@ -9017,13 +9002,11 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "Muldraugh"
-   ],
-   "lazo": "cabo",
+   "pueblos": null,
+   "lazo": null,
    "peso": 10,
-   "texto": "En la libreta del cabo estoy anotad{o} dos veces: con mi nombre y con el de mi hermano, que murio en agosto. Me toca doble racion y nadie revisa.",
-   "diario": "Esta anotad{o} dos veces en la libreta del cabo. Una es un muerto. Le pregunte si pensaba decirlo. Me dijo que el muerto tambien come."
+   "texto": "En septiembre cambie la escopeta del grupo por una gallina con los del patio de trenes y dije que me la quitaron en el camino. Todos me dieron la mano por haber vuelto viv{o}.",
+   "diario": "La escopeta que le quitaron la cambio por una gallina. La gallina nos la comimos todos."
   },
   {
    "id": "l05_sec_carburador",
@@ -9277,7 +9260,7 @@
    "llegada": "Pasa, corazon, pasa. Sientate, que el fin del mundo no es excusa para quedarse de pie.",
    "rescate": "Ay, cielo, que entrada. Llegaste justo antes del telon. Dame la mano.",
    "gracias": "Esto no lo actua nadie, corazon. Gracias. De verdad, sin publico.",
-   "muerte": "Murio en el encargo. Sin telon y sin publico. Le deje los labios pintados."
+   "muerte": "Se le cayo el telon en el encargo. Sin publico. Le deje los labios pintados, como le gustaba antes de cada turno."
   },
   {
    "id": "l05_voz_caballeriza",
@@ -9297,7 +9280,7 @@
    "llegada": "Al paso, al paso. No me asuste los animales. Asi. Ahora si, buenas tardes.",
    "rescate": "Mire, eso estuvo cerca. Usted llego como caballo bueno: sin que lo llamaran.",
    "gracias": "Con esto pasamos el invierno, los animales y yo. Usted no sabe lo que vale.",
-   "muerte": "Murio en el encargo. Su caballo volvio solo, con la montura puesta."
+   "muerte": "Su caballo volvio solo, con la montura puesta. Lo desensille yo y no supe a quien contarselo."
   },
   {
    "id": "l06_ori_hollow",
@@ -9364,21 +9347,20 @@
   {
    "id": "l06_ori_rio",
    "etapa": "origen",
-   "texto": "Mi familia vivio siempre a la orilla del Ohio. Aprendi a remar antes que a andar en bicicleta, y a leer la crecida en el color del agua.",
+   "texto": "Naci en Brandenburg, a dos cuadras del rio. El vecino, Harold Bell, marinero de remolcador, me enseno a aceitar bisagras: una bisagra que suena es una casa que se queja.",
    "da": [
-    "rio",
-    "rural"
+    "rio"
    ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 18,
+   "edad_min": 20,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": null,
+   "lazo": "daniel_bell",
    "peso": 10
   },
   {
@@ -9406,11 +9388,10 @@
   {
    "id": "l06_ori_medieros",
    "etapa": "origen",
-   "texto": "Soy {hijo} de medieros de tabaco: la tierra era de otro, la cosecha era de otro, y la espalda cansada era de mi papa.",
+   "texto": "Soy {hijo} de un comprador de tabaco que iba de subasta en subasta. Me crie en moteles de Lexington, Danville y Maysville, con olor a hoja seca en la ropa.",
    "da": [
-    "rural",
     "tabaco",
-    "pobre"
+    "forastero"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -9548,9 +9529,8 @@
   {
    "id": "l06_inf_mina",
    "etapa": "infancia",
-   "texto": "Mi papa volvia de la mina con la espalda rota y la botella abierta. Aprendi a leerle la cara desde la puerta, antes de que se sacara las botas.",
+   "texto": "Mi papa volvia de la mina con la espalda rota y nos hacia caminarle encima, descalzos, para enderezarlo. Era lo unico que nos dejaba tocarlo.",
    "da": [
-    "padre_violento",
     "minero"
    ],
    "pide": [],
@@ -9671,21 +9651,14 @@
   {
    "id": "l06_juv_4f",
    "etapa": "juventud",
-   "texto": "Me llamaron para Vietnam y el medico me dio 4-F. Senti alivio. Mis amigos se fueron igual, y uno no volvio. Nunca le he dicho a nadie lo del alivio.",
+   "texto": "Me llamaron para Vietnam y me mandaron a Panama a ensenar a nadar a los reclutas. Volvi bronceado, y me costo mirar a la cara a los que volvieron de alla.",
    "da": [
-    "culpa"
+    "militar"
    ],
    "pide": [],
-   "pide_alguno": [
-    "lesion_pierna",
-    "sordo",
-    "vista_mala",
-    "asma",
-    "cojo",
-    "enfermizo_nino"
-   ],
+   "pide_alguno": [],
    "prohibe": [
-    "militar"
+    "veterano_vietnam"
    ],
    "quita": [],
    "edad_min": 39,
@@ -9874,15 +9847,16 @@
   {
    "id": "l06_juv_nadar",
    "etapa": "juventud",
-   "texto": "A los quince deje el aparato de la pierna y me puse a nadar en el rio todos los dias. Cojeo igual, pero aguanto mas que cualquiera.",
+   "texto": "A los quince me puse a manejar el tractor del vecino: con una pierna mala igual se maneja. A los dieciocho le araba el campo a medio {pueblo}.",
    "da": [
-    "supero_enfermedad",
-    "fuerte"
+    "granja",
+    "supero_enfermedad"
    ],
-   "pide": [
-    "cojo"
+   "pide": [],
+   "pide_alguno": [
+    "cojo",
+    "lesion_pierna"
    ],
-   "pide_alguno": [],
    "prohibe": [],
    "quita": [
     "enfermizo_nino"
@@ -9994,7 +9968,7 @@
   {
    "id": "l06_adu_rosa",
    "etapa": "adultez",
-   "texto": "Hice turno de noche mucho tiempo. A las tres paraba en la gasolinera de la Misia Rosa: cafe recalentado y la pregunta de siempre, lleno o normal.",
+   "texto": "Hice turno de noche mucho tiempo. A las tres paraba en una parada de camiones de la 31W; la mesera, Lorene, hablaba de su hijo camionero como de un santo.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -10005,25 +9979,25 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "rosa",
+   "lazo": "duarte",
    "peso": 10
   },
   {
    "id": "l06_adu_gladys",
    "etapa": "adultez",
-   "texto": "La ropa buena me la arreglaba la senora Gladys, en la calle principal de Muldraugh. Me tomaba las medidas sin mirarme y nunca se equivocaba.",
+   "texto": "Servi en el Fuerte con el sargento Gilberto Moreno, el marido de la costurera de Muldraugh. Lloraba bailando y se murio en el 88 viendo un partido.",
    "da": [],
-   "pide": [],
+   "pide": [
+    "militar"
+   ],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 25,
+   "edad_min": 40,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "Muldraugh"
-   ],
+   "pueblos": null,
    "lazo": "gladys",
    "peso": 10
   },
@@ -10241,7 +10215,7 @@
   {
    "id": "l06_of_mecanico",
    "etapa": "oficio",
-   "texto": "Soy {oficio}: si suena, lo arreglo; si no suena, lo hago sonar. Los fines de semana parchaba neumaticos en Ekron, al lado del Bencinita.",
+   "texto": "Soy {oficio}. Arreglaba las gruas de Hennessey's Towing en la Preston Highway. Un chofer de West Point, Giovanns, me las traia siempre sin un rayon.",
    "da": [
     "oficio_aprendido"
    ],
@@ -10256,7 +10230,7 @@
     "mecanico"
    ],
    "pueblos": null,
-   "lazo": "hector",
+   "lazo": "eduardo",
    "peso": 10
   },
   {
@@ -10326,7 +10300,7 @@
   {
    "id": "l06_of_policia_cabo",
    "etapa": "oficio",
-   "texto": "Soy {oficio}. Hice turnos con la comisaria de Muldraugh: el Cabo Mandados lo anotaba todo en una libreta negra y nunca lo subieron de cabo.",
+   "texto": "Soy {oficio} de transito de la 31. Hice un curso en Frankfort con Travis Doyle, de la policia de alla, que no paraba de hablar de su hermano chico de la Guardia.",
    "da": [
     "oficio_aprendido"
    ],
@@ -10343,13 +10317,13 @@
    "pueblos": [
     "Muldraugh"
    ],
-   "lazo": "cabo",
+   "lazo": "ray",
    "peso": 10
   },
   {
    "id": "l06_of_carpintero",
    "etapa": "oficio",
-   "texto": "Soy {oficio}. Mide dos veces, corta una. Hago escaleras, porches y, cuando me lo piden, cajones de pino.",
+   "texto": "Soy {oficio} de techos: tejuela de cedro y calamina. Trabajo arriba porque abajo la gente habla. En Riverside, el chico de los Bell me contaba las tejuelas desde la vereda.",
    "da": [
     "oficio_aprendido"
    ],
@@ -10364,7 +10338,7 @@
     "carpintero"
    ],
    "pueblos": null,
-   "lazo": null,
+   "lazo": "wade_bell",
    "peso": 10
   },
   {
@@ -10579,7 +10553,7 @@
   {
    "id": "l06_pn_megafono",
    "etapa": "primera_noche",
-   "texto": "Esa noche fui a la comisaria de Muldraugh a pedir ayuda. Una sargento de verde gritaba con un megafono desde la puerta que todos se fueran a sus casas.",
+   "texto": "Esa noche, en el bar de Riverside, al Chato Medina lo mordieron. Salio tapandose la herida rumbo al taller del Martillo, y yo corri para el otro lado.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -10590,18 +10564,21 @@
    "sexo": null,
    "oficios": null,
    "pueblos": [
-    "Muldraugh"
+    "Riverside"
    ],
-   "lazo": "pereira",
+   "lazo": "duggan",
    "peso": 10
   },
   {
    "id": "l06_pn_radio",
    "etapa": "primera_noche",
-   "texto": "La radio repetia que nos quedaramos en casa. Le hice caso. Pase la noche a oscuras oyendo a los perros ladrar todos hacia el mismo lado.",
+   "texto": "Esa noche me pillo manejando la cosechadora en el campo de un vecino. Apague el motor y dormi en la cabina, alto, con el maiz alrededor y los muertos pasando abajo sin verme.",
    "da": [],
    "pide": [],
-   "pide_alguno": [],
+   "pide_alguno": [
+    "rural",
+    "granja"
+   ],
    "prohibe": [],
    "quita": [],
    "edad_min": 18,
@@ -10668,10 +10645,8 @@
   {
    "id": "l06_pn_barricada",
    "etapa": "primera_noche",
-   "texto": "La madrugada del sabado fui con otros a la barricada sur de la 31W. Gritamos que estabamos sanos. Dispararon. Un soldado no disparo: lo vi bajar el fusil.",
-   "da": [
-    "culpa"
-   ],
+   "texto": "La primera noche me quede con el coro en la iglesia metodista de Brandenburg; ensayabamos para una boda. Cantamos el himnario entero dos veces, del primero al ultimo, hasta que aclaro.",
+   "da": [],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
@@ -10683,13 +10658,13 @@
    "pueblos": [
     "Muldraugh"
    ],
-   "lazo": "ray",
-   "peso": 5
+   "lazo": null,
+   "peso": 10
   },
   {
    "id": "l06_pn_riverview",
    "etapa": "primera_noche",
-   "texto": "A las tres de la madrugada vi arder el motel River View de West Point desde mi ventana. Nadie fue a apagarlo. Todavia me llega el olor cuando llueve.",
+   "texto": "La noche del 9 estaba de guardia en la torre de incendios del bosque estatal, a cuarenta pies. A las tres y diez vi apagarse las luces del condado, una por una, como interruptores.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -10702,7 +10677,7 @@
    "pueblos": [
     "West Point"
    ],
-   "lazo": "kell",
+   "lazo": null,
    "peso": 10
   },
   {
@@ -10751,7 +10726,7 @@
   {
    "id": "l06_des_eduardo",
    "etapa": "despues",
-   "texto": "Los domingos me siento junto a la radio a oir al muchacho que le habla a su mama en West Point. Dicen que es Eduardo, el de la leyenda. Me hace bien oir a alguien que vuelve.",
+   "texto": "A fines de agosto, por la radio de defensa civil, hablo un hombre que dijo ser el doctor Hartmann, el de la Hora de la Salud, y que tenia un tratamiento. Apague la radio de rabia.",
    "da": [
     "sin_noticias"
    ],
@@ -10764,14 +10739,16 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "eduardo",
+   "lazo": "hartmann",
    "peso": 10
   },
   {
    "id": "l06_des_iglesia",
    "etapa": "despues",
-   "texto": "Paso por la iglesia de piedra de Riverside: la puerta sigue abierta de dia y de noche. No entro, pero me hace bien saber que esta abierta.",
-   "da": [],
+   "texto": "Aprendi a ahumar carne en un refrigerador viejo enterrado en el patio. Una vez un soldado sin parches me cambio una pierna de venado por sal y no dijo su nombre.",
+   "da": [
+    "trueque"
+   ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
@@ -10783,7 +10760,7 @@
    "pueblos": [
     "Riverside"
    ],
-   "lazo": "nacho",
+   "lazo": "ray",
    "peso": 10
   },
   {
@@ -10891,9 +10868,10 @@
   {
    "id": "l06_sec_bencina",
    "etapa": "secreto",
-   "texto": "De noche le saco bencina al generador del vecino con una manguera. De dia lo ayudo a buscar la fuga. Ya le cambiamos dos empaquetaduras.",
-   "diario": "Le roba bencina de noche al generador del vecino y de dia lo ayuda a buscar la fuga. Dice que el vecino tiene mas que el.",
+   "texto": "Escribo en la pared de la escuela los nombres de los muertos del pueblo. Agregue a tres que estan vivos, por rencor. Ya los lloran, y yo no los borro.",
+   "diario": "Puso a tres vivos en la pared de los muertos de la escuela. Uno es su cunado. Dice que se lo merecian.",
    "da": [
+    "rencoroso",
     "mentiroso"
    ],
    "pide": [],
@@ -10911,8 +10889,8 @@
   {
    "id": "l06_sec_paramedico",
    "etapa": "secreto",
-   "texto": "Digo que fui paramedico en Louisville. Lo vi en la tele. Ya cosi a cuatro personas con hilo de pescar y ninguna se me ha muerto. Todavia.",
-   "diario": "Nunca fue paramedico. Cose heridas con hilo de pescar y la gente cree que sabe. Hasta ahora le ha salido bien.",
+   "texto": "Las pilas que reparto al grupo estan gastadas, con el envoltorio cambiado. Las buenas las uso yo, de noche, para oir musica bajito con un audifono.",
+   "diario": "Reparte pilas gastadas con el envoltorio cambiado y se queda con las buenas para oir musica de noche.",
    "da": [
     "mentiroso"
    ],
@@ -10923,19 +10901,7 @@
    "edad_min": 18,
    "edad_max": 85,
    "sexo": null,
-   "oficios": [
-    "mecanico",
-    "granjero",
-    "policia",
-    "carpintero",
-    "costurera",
-    "cocinera",
-    "camionero",
-    "profesora",
-    "cazador",
-    "electricista",
-    "pastora"
-   ],
+   "oficios": null,
    "pueblos": null,
    "lazo": null,
    "peso": 10
@@ -10965,24 +10931,23 @@
   {
    "id": "l06_sec_censo",
    "etapa": "secreto",
-   "texto": "El Cabo me anoto en su censo con dos que vivian conmigo. Los dos murieron en agosto y no se lo he dicho: la comisaria me sigue dando latas para tres.",
-   "diario": "Cobra en la comisaria las raciones de dos muertos que el Cabo tiene anotados como vivos en su censo.",
+   "texto": "La Biblia familiar con cien inviernos de nombres que tengo en la mesa la saque de una casa vacia. Anote a los mios en la primera pagina. Ahora digo que somos de aqui de siempre.",
+   "diario": "La Biblia de la familia que muestra en la mesa es de una casa vacia. Anoto a los suyos encima y dice que son de aqui de siempre.",
    "da": [
-    "mentiroso",
-    "hambre"
+    "mentiroso"
    ],
    "pide": [],
-   "pide_alguno": [],
+   "pide_alguno": [
+    "forastero"
+   ],
    "prohibe": [],
    "quita": [],
    "edad_min": 18,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "Muldraugh"
-   ],
-   "lazo": "cabo",
+   "pueblos": null,
+   "lazo": null,
    "peso": 10
   },
   {
@@ -11111,7 +11076,7 @@
   {
    "id": "l06_deseo_rosa",
    "etapa": "deseo",
-   "texto": "Quiero entrar a la gasolinera de Rosewood a las tres de la manana y que la Misia Rosa me pregunte lleno o normal, como antes de todo.",
+   "texto": "Quiero manejar de noche con los focos prendidos, sin miedo a que me vean, hasta donde se acabe la bencina.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -11122,7 +11087,7 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "rosa",
+   "lazo": null,
    "peso": 10
   },
   {
@@ -11168,7 +11133,7 @@
   {
    "id": "l06_deseo_colorina",
    "etapa": "deseo",
-   "texto": "Quiero oir otra vez la sirena de la Colorina pasando por West Point. Si suena, es que alguien todavia va a apagar algo.",
+   "texto": "Quiero oir pasar un tren de verdad, con el pito largo, y no ver los vagones quietos del patio de trenes de Muldraugh.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -11178,16 +11143,14 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "West Point"
-   ],
-   "lazo": "chela",
+   "pueblos": null,
+   "lazo": "pereira",
    "peso": 10
   },
   {
    "id": "l06_voz_seca",
    "etapa": "voz",
-   "llegada": "Quieto ahi. Diga algo. Fuerte. Bueno, pase.",
+   "llegada": "Ah. Usted. Pase rapido, que se sale el calor.",
    "rescate": "No se que decir. Gracias. Da igual... no, no da igual. Gracias.",
    "gracias": "Esto sirve. No me pregunte de donde saque lo otro.",
    "muerte": "Murio sin decir su nombre completo. Lo enterramos con el que nos dio.",
@@ -11207,9 +11170,9 @@
   {
    "id": "l06_voz_corazon",
    "etapa": "voz",
-   "llegada": "Pasa, corazon, pero habla bajito, que aqui duermen los ninos.",
+   "llegada": "Entra despacito, que aqui duermen los ninos. Y habla bajo, que yo ya no puedo hablar de otra manera.",
    "rescate": "Ay, corazon, te debo una cancion entera. Y con esta voz, eso es mucho.",
-   "gracias": "Con esto come mi cuadra una semana. Dios te lo pague, corazon.",
+   "gracias": "Con esto come mi cuadra una semana. Esto se canta, de verdad.",
    "muerte": "Se fue tarareando bajito, como siempre. Nadie supo terminarle la cancion.",
    "da": [],
    "pide": [],
@@ -11228,8 +11191,8 @@
    "id": "l06_voz_campeon",
    "etapa": "voz",
    "llegada": "Campeon! Pasa, pasa. Cuidado con el tablon suelto, que la rodilla mia ya lo conoce.",
-   "rescate": "En serio te digo, otra jugada asi y no la cuento. Te debo una.",
-   "gracias": "Te juro que esto vale un partido entero. Mide dos veces, corta una.",
+   "rescate": "En serio te digo, otra jugada asi y no la cuento. Eso fue de campeonato.",
+   "gracias": "Esto vale un jonron con las bases llenas. En serio te digo.",
    "muerte": "Murio de pie, como en la cancha. Le pusimos su numero en la cruz.",
    "da": [],
    "pide": [],
@@ -11287,10 +11250,10 @@
   {
    "id": "l07_ori_campamento_minero",
    "etapa": "origen",
-   "texto": "Naci en un campamento minero del este, donde todo se pagaba con fichas de la compania y el agua bajaba negra del cerro.",
+   "texto": "Naci en un pueblo de vidrieros de West Virginia. Mi papa soplaba botellas y tenia los labios quemados; de {nino} crei que todos los papas eran asi.",
    "da": [
-    "minero",
-    "montana",
+    "fabrica",
+    "forastero",
     "pobre"
    ],
    "pide": [],
@@ -11308,10 +11271,9 @@
   {
    "id": "l07_ori_caballerizas",
    "etapa": "origen",
-   "texto": "Me crie a seis cuadras de Churchill Downs, entre caballerizas. Mi papa cuidaba caballos ajenos y yo aprendi a contar con las apuestas de los mozos.",
+   "texto": "Me crie en el cuartel de invierno de un circo, en Florida. Llegamos a Kentucky con las carpas y mi mama se enamoro de un herrero de {pueblo}. El circo siguio sin nosotros.",
    "da": [
-    "louisville",
-    "urbano"
+    "forastero"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -11413,10 +11375,9 @@
   {
    "id": "l07_ori_hijo_sargento",
    "etapa": "origen",
-   "texto": "Soy {hijo} de un sargento de carrera. Antes de los diez habia vivido en cuatro bases, y en ninguna me dio tiempo de tener un amigo.",
+   "texto": "Mi papa era el sepulturero del cementerio nacional del Fuerte. Aprendi a andar en bicicleta entre las lapidas blancas, todas iguales, todas derechas.",
    "da": [
     "fort_knox",
-    "forastero",
     "solitario"
    ],
    "pide": [],
@@ -11623,21 +11584,22 @@
   {
    "id": "l07_inf_bocina_earl",
    "etapa": "infancia",
-   "texto": "De {nino} esperaba al borde de la 31 a que pasara el camionero gordo de Bowling Green, para que me tocara la bocina. Siempre la tocaba.",
-   "da": [],
+   "texto": "En la escuela de Muldraugh, Billy Cobb empujo a la hija del cabo en el recreo. Al otro dia ella se paro igual de firme, un pie adelante y uno atras, y no la empujo mas.",
+   "da": [
+    "valiente"
+   ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 18,
-   "edad_max": 36,
+   "edad_min": 21,
+   "edad_max": 25,
    "sexo": null,
    "oficios": null,
    "pueblos": [
-    "Rosewood",
     "Muldraugh"
    ],
-   "lazo": "earl",
+   "lazo": "valentina",
    "peso": 10
   },
   {
@@ -11766,18 +11728,20 @@
   {
    "id": "l07_juv_guantes_oro",
    "etapa": "juventud",
-   "texto": "En el 79 fui a Lexington a ver la final de los Guantes de Oro. Gano un muchacho hijo de chileno con la nariz quebrada, el mismo que despues fue cura en Riverside.",
-   "da": [],
+   "texto": "En junio del 79 cante en el coro de la metodista de Brandenburg, en la boda de un vendedor de seguros con una panadera. El novio lloro en el si, y ella se rio.",
+   "da": [
+    "metodista"
+   ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
    "edad_min": 30,
-   "edad_max": 39,
+   "edad_max": 45,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "nacho",
+   "lazo": "yvonne_bell",
    "peso": 10
   },
   {
@@ -11929,28 +11893,29 @@
   {
    "id": "l07_adu_poliza_dan",
    "etapa": "adultez",
-   "texto": "En el 88 un vendedor de seguros de camisa celeste me vendio una poliza en la cocina. Hablaba tan rapido que firme para que se callara. Era buena poliza.",
+   "texto": "Trabaje treinta inviernos en el correo de Riverside con el senor Purdy, que pasaba primero por la panaderia Hollis y entregaba las cartas con harina en los dedos.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 25,
+   "edad_min": 50,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
    "pueblos": [
-    "Muldraugh",
-    "Rosewood"
+    "Riverside"
    ],
-   "lazo": "daniel_bell",
+   "lazo": "yvonne_bell",
    "peso": 10
   },
   {
    "id": "l07_adu_tonico_radio",
    "etapa": "adultez",
-   "texto": "Durante temporadas le compre al doctor de la radio AM de Louisville su tonico para los nervios. Era agua con fierro, pero el hombre hablaba tan lindo.",
-   "da": [],
+   "texto": "Fui de los primeros de {pueblo} con television a color. Los vecinos venian a ver el beisbol y se iban sin lavar los vasos. Nunca se lo dije a nadie, y ya no hay a quien.",
+   "da": [
+    "acomodado"
+   ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
@@ -11960,7 +11925,7 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "hartmann",
+   "lazo": null,
    "peso": 10
   },
   {
@@ -11985,7 +11950,7 @@
   {
    "id": "l07_adu_carpa",
    "etapa": "adultez",
-   "texto": "Una vez fui a una carpa de avivamiento en la 31. El predicador de traje negro sano a tres en una noche y paso la canasta dos veces. Yo puse dos dolares.",
+   "texto": "Una vez fui a una carpa de avivamiento en la 31. El predicador de traje negro sano a tres en una noche, y despues contaba los billetes mojandose el pulgar. Yo puse dos dolares.",
    "da": [
     "religioso"
    ],
@@ -12004,7 +11969,26 @@
   {
    "id": "l07_adu_spiffos",
    "etapa": "adultez",
-   "texto": "Mi lugar de los viernes era el Spiffo's de Muldraugh. El cocinero mexicano me hacia las papas como yo queria sin que se lo pidiera.",
+   "texto": "Vivi arriba de la lavanderia de Muldraugh. El vecino de enfrente, recien casado con una panadera, aceitaba las bisagras de todo el edificio sin que nadie se lo pidiera.",
+   "da": [],
+   "pide": [],
+   "pide_alguno": [],
+   "prohibe": [],
+   "quita": [],
+   "edad_min": 33,
+   "edad_max": 85,
+   "sexo": null,
+   "oficios": null,
+   "pueblos": [
+    "Muldraugh"
+   ],
+   "lazo": "daniel_bell",
+   "peso": 10
+  },
+  {
+   "id": "l07_adu_wade",
+   "etapa": "adultez",
+   "texto": "En el 89 alguien dejo una caja de cachorros afuera del almacen de Riverside. El ultimo, color galleta, se lo llevo el nino de los Bell, que lo hacia ladrar dos veces mostrandole dos dedos.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -12012,29 +11996,6 @@
    "quita": [],
    "edad_min": 25,
    "edad_max": 85,
-   "sexo": null,
-   "oficios": null,
-   "pueblos": [
-    "Muldraugh"
-   ],
-   "lazo": "julio",
-   "peso": 10
-  },
-  {
-   "id": "l07_adu_wade",
-   "etapa": "adultez",
-   "texto": "Mi {hijo} iba a la escuela de Riverside con el nino de los Bell, el que gano el concurso de matematicas y se llevo una calculadora de premio.",
-   "da": [
-    "con_hijos"
-   ],
-   "pide": [],
-   "pide_alguno": [],
-   "prohibe": [
-    "sin_hijos"
-   ],
-   "quita": [],
-   "edad_min": 30,
-   "edad_max": 60,
    "sexo": null,
    "oficios": null,
    "pueblos": [
@@ -12101,10 +12062,9 @@
   {
    "id": "l07_vej_de_pie",
    "etapa": "vejez",
-   "texto": "Desde que enviude como de pie en la cocina, porque sentarme sol{o} a la mesa me parece una falta de respeto con el otro plato.",
+   "texto": "Desde que enviude aprendi a cocinar. A los setenta hice mi primer pan y me salio una piedra; el tercero ya lo regalaba en la cuadra.",
    "da": [
-    "viudo",
-    "solitario"
+    "viudo"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -12112,7 +12072,7 @@
     "casado"
    ],
    "quita": [],
-   "edad_min": 60,
+   "edad_min": 70,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
@@ -12123,7 +12083,7 @@
   {
    "id": "l07_vej_rosa",
    "etapa": "vejez",
-   "texto": "Desde que me jubile paso las tardes en la gasolinera de Rosewood. La Misia Rosa me fia el cafe recalentado y me pregunta lleno o normal aunque llegue a pie.",
+   "texto": "De viej{o} me sentaba con la senora Ochoa, la vecina de las vias en Muldraugh, que le cuidaba la nina al cocinero mexicano del Spiffo's. La nina nos dibujaba trenes.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -12134,9 +12094,9 @@
    "sexo": null,
    "oficios": null,
    "pueblos": [
-    "Rosewood"
+    "Muldraugh"
    ],
-   "lazo": "rosa",
+   "lazo": "julio",
    "peso": 10
   },
   {
@@ -12161,7 +12121,7 @@
   {
    "id": "l07_ofi_mecanico_vulcanizacion",
    "etapa": "oficio",
-   "texto": "Soy {oficio}: aprendi debajo de camiones ajenos. Los fines de semana me prestaba herramientas con el Bencinita, que parchaba neumaticos en la vulcanizacion de Ekron.",
+   "texto": "Soy {oficio}. Le arregle tres veces la Econoline blanca que dice AVIVAMIENTO, que cuando hiela no arranca. El predicador me pago con bendiciones y una vez con un cheque sin fondos.",
    "da": [
     "oficio_aprendido"
    ],
@@ -12176,7 +12136,7 @@
     "mecanico"
    ],
    "pueblos": null,
-   "lazo": "hector",
+   "lazo": "reyes",
    "peso": 10
   },
   {
@@ -12293,7 +12253,7 @@
   {
    "id": "l07_ofi_costurera_4h",
    "etapa": "oficio",
-   "texto": "Soy {oficio} de {pueblo}. Aprendi en el club 4-H y coso sentad{o}. El hilo bueno se lo compraba a dona Gladys en Muldraugh, aunque eso no se lo digo a la competencia.",
+   "texto": "Soy {oficio}. Aprendi de una chilena de Riverside, la senora Norma, que pedaleaba la Singer cantando Violeta Parra, para que en la casa no la oyeran llorar.",
    "da": [
     "oficio_aprendido"
    ],
@@ -12301,14 +12261,14 @@
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 25,
-   "edad_max": 85,
+   "edad_min": 30,
+   "edad_max": 60,
    "sexo": null,
    "oficios": [
     "costurera"
    ],
    "pueblos": null,
-   "lazo": "gladys",
+   "lazo": "lucia",
    "peso": 10
   },
   {
@@ -12337,7 +12297,7 @@
   {
    "id": "l07_ofi_camionero_19",
    "etapa": "oficio",
-   "texto": "Soy {oficio}: la 31 de Louisville a Nashville me la se de memoria. En el canal 19 siempre me contestaba el Gordo Ruta, con un chiste peor que el anterior.",
+   "texto": "Soy {oficio}. Una temporada reparti por la 31 las cajas del Tonico Hartmann numero 7 para las farmacias: olian a genciana y se vendian solas.",
    "da": [
     "camionero_pasado"
    ],
@@ -12352,7 +12312,7 @@
     "camionero"
    ],
    "pueblos": null,
-   "lazo": "earl",
+   "lazo": "hartmann",
    "peso": 10
   },
   {
@@ -12448,10 +12408,9 @@
   {
    "id": "l07_pn_fosa",
    "etapa": "primera_noche",
-   "texto": "La primera noche dormi en la fosa de un taller, con una llave de cruz y el agua de lluvia de un tambor. Comi mani de la maquina hasta el lunes.",
+   "texto": "La primera noche me agarro en la lavanderia de la esquina, con la ropa en la secadora. Me meti adentro de la secadora grande y deje la puerta entornada con un calcetin.",
    "da": [
-    "vive_solo",
-    "hambre"
+    "vive_solo"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -12468,8 +12427,10 @@
   {
    "id": "l07_pn_calle_main",
    "etapa": "primera_noche",
-   "texto": "El 9 de julio oi arder la calle Main de West Point desde el cuarto de atras de un local, sin luz, contando los vidrios que reventaban uno por uno.",
-   "da": [],
+   "texto": "La noche del 9 el Ohio frente a West Point se lleno de botes: medio pueblo quiso cruzar a Indiana. Vi volcarse dos, y me volvi a la orilla remando con una tabla.",
+   "da": [
+    "rio"
+   ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
@@ -12481,13 +12442,13 @@
    "pueblos": [
     "West Point"
    ],
-   "lazo": "chela",
+   "lazo": null,
    "peso": 10
   },
   {
    "id": "l07_pn_megafono",
    "etapa": "primera_noche",
-   "texto": "Esa noche una sargento de verde gritaba por megafono en la puerta de la comisaria que nadie saliera. Yo estaba en la calle, y en la calle me quede.",
+   "texto": "El sabado 10 en la tarde vi pasar por la 31, al sur de Muldraugh, la camioneta blanca de la panaderia Hollis, la del pan pintado, zigzagueando. No vi quien manejaba.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -12497,10 +12458,8 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "Muldraugh"
-   ],
-   "lazo": "pereira",
+   "pueblos": null,
+   "lazo": "yvonne_bell",
    "peso": 10
   },
   {
@@ -12561,8 +12520,10 @@
   {
    "id": "l07_pn_canal19",
    "etapa": "primera_noche",
-   "texto": "Esa noche oi el canal 19 hasta las cuatro: camioneros preguntando por la 31 y un muchacho de la gasolinera de Rosewood que les contestaba a todos.",
-   "da": [],
+   "texto": "La primera noche subi con los mios al elevador de granos de la cooperativa. Desde arriba se veian focos de autos quietos en la 31, con el motor prendido, y nadie los apagaba.",
+   "da": [
+    "vive_con_otros"
+   ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
@@ -12572,7 +12533,7 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "hector",
+   "lazo": null,
    "peso": 10
   },
   {
@@ -12700,28 +12661,7 @@
   {
    "id": "l07_des_duggan",
    "etapa": "despues",
-   "texto": "Los viernes le pagamos a los del taller soldado de Riverside. El Martillo cobra sin mirar, y uno se va pensando que tuvo suerte de que no lo mirara.",
-   "da": [
-    "hambre"
-   ],
-   "pide": [],
-   "pide_alguno": [],
-   "prohibe": [],
-   "quita": [],
-   "edad_min": 18,
-   "edad_max": 85,
-   "sexo": null,
-   "oficios": null,
-   "pueblos": [
-    "Riverside"
-   ],
-   "lazo": "duggan",
-   "peso": 10
-  },
-  {
-   "id": "l07_des_radio_domingo",
-   "etapa": "despues",
-   "texto": "Los domingos en la noche prendo la radio por si habla el hijo de la Chela. Dicen que anda sacando gente por todo Knox. Yo nomas quiero oir a alguien vivo.",
+   "texto": "En el patio de trenes de Muldraugh hay un tejano que cuenta las latas de dos en dos a las cinco y cuarenta, con la sargento al lado. Si le falta una, vuelve a empezar.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -12731,8 +12671,32 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": null,
-   "lazo": "eduardo",
+   "pueblos": [
+    "Muldraugh"
+   ],
+   "lazo": "vargas",
+   "peso": 10
+  },
+  {
+   "id": "l07_des_radio_domingo",
+   "etapa": "despues",
+   "texto": "Mis ninos van a clases a la comisaria de Muldraugh, en la sala de interrogatorios. La hija del cabo escribe las tablas en la pizarra de los partes, encima de TURNO NOCHE.",
+   "da": [],
+   "pide": [],
+   "pide_alguno": [
+    "con_hijos",
+    "cuida_ninos"
+   ],
+   "prohibe": [],
+   "quita": [],
+   "edad_min": 18,
+   "edad_max": 85,
+   "sexo": null,
+   "oficios": null,
+   "pueblos": [
+    "Muldraugh"
+   ],
+   "lazo": "valentina",
    "peso": 10
   },
   {
@@ -12779,15 +12743,15 @@
   {
    "id": "l07_sec_no_leo",
    "etapa": "secreto",
-   "texto": "No se leer. Llevo toda la vida fingiendo con los anteojos en la punta de la nariz, y en el campamento me pasan las listas y yo digo que estan bien.",
+   "texto": "En el campamento digo que soy viud{o}. Mi pareja vive a tres casas, con otra persona. Nos cruzamos en la fila del agua y ni nos miramos.",
    "da": [
+    "separado",
     "mentiroso"
    ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [
-    "universidad",
-    "secundaria"
+    "viudo"
    ],
    "quita": [],
    "edad_min": 18,
@@ -12797,7 +12761,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "diario": "No sabe leer. Firmaba las listas sin entenderlas. Le lei la suya en voz alta y se rio de lo que le habian anotado."
+   "diario": "Dice que es viud{o}, pero su pareja vive a tres casas con otra persona. Me lo conto en la fila del agua, sin mirar para alla."
   },
   {
    "id": "l07_sec_semilla",
@@ -13013,7 +12977,7 @@
   {
    "id": "l07_dese_gordo_ruta",
    "etapa": "deseo",
-   "texto": "Quiero oir otra vez al Gordo Ruta por el canal 19, contando un chiste malo. Si el sigue en la ruta, la ruta sigue.",
+   "texto": "Quiero saber quien vive en el puesto de caza del bosque entre Muldraugh y el Fuerte, el de la escalera recogida, y darle las gracias por lo del granero.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -13024,7 +12988,7 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "earl",
+   "lazo": "ray",
    "peso": 10
   },
   {
@@ -13133,12 +13097,10 @@
   {
    "id": "l08_ori_germantown",
    "etapa": "origen",
-   "texto": "Naci en {ano_nac} en Germantown, en Louisville, {hijo} de un carnicero aleman. En mi casa se rezaba en dos idiomas y se peleaba en uno solo.",
+   "texto": "Naci en {ano_nac} en Louisville, {hijo} de un afinador de pianos ciego. En mi casa sobraba musica y faltaba todo lo demas, hasta las sillas.",
    "da": [
     "urbano",
-    "louisville",
-    "catolico",
-    "forastero"
+    "louisville"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -13200,12 +13162,10 @@
   {
    "id": "l08_ori_novia_mar",
    "etapa": "origen",
-   "texto": "Naci del otro lado del mar. Llegue a Kentucky casada con un soldado del Fuerte Knox, con una maleta y sin saber decir ni gracias en ingles.",
+   "texto": "Naci en una isla del otro lado del mar. Llegue a Kentucky a los treinta a cuidar a los hijos de un coronel del Fuerte, y me quede cuando el se fue.",
    "da": [
     "inmigrante",
-    "fort_knox",
-    "forastero",
-    "casado"
+    "forastero"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -13213,7 +13173,7 @@
    "quita": [],
    "edad_min": 40,
    "edad_max": 85,
-   "sexo": "m",
+   "sexo": null,
    "oficios": null,
    "pueblos": null,
    "lazo": null,
@@ -13430,20 +13390,18 @@
   {
    "id": "l08_inf_pan_hollis",
    "etapa": "infancia",
-   "texto": "De {nino} me mandaban a las seis a la panaderia Hollis de Riverside. La panadera de la trenza me regalaba la punta del rollo de canela si llegaba antes que los demas.",
+   "texto": "En el desfile del 4 de julio del setenta, en Brandenburg, una nina pelirroja tocaba la campana del carro de bomberos sentada en las piernas de su papa. Yo queria ser ella.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 18,
-   "edad_max": 27,
+   "edad_min": 28,
+   "edad_max": 37,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "Riverside"
-   ],
-   "lazo": "yvonne_bell",
+   "pueblos": null,
+   "lazo": "kell",
    "peso": 10
   },
   {
@@ -13496,7 +13454,7 @@
   {
    "id": "l08_juv_cocina_tropa",
    "etapa": "juventud",
-   "texto": "Me enliste a los dieciocho para que mi papa dejara de decirme blando, y el Ejercito me mando a la cocina. Dos veranos en Alemania haciendo huevos para cuatrocientos.",
+   "texto": "Me enliste a los dieciocho para que mi papa dejara de decirme blando, y el Ejercito me mando a la cocina. Dos veranos en Alemania pelando papas para cuatrocientos.",
    "da": [
     "militar",
     "oficio_aprendido"
@@ -13516,7 +13474,7 @@
   {
    "id": "l08_juv_vietnam_chofer",
    "etapa": "juventud",
-   "texto": "A los diecinueve me mandaron a Vietnam de chofer de camion. Volvi con la espalda mala y sin ganas de contarle nada a nadie.",
+   "texto": "A los diecinueve me mandaron a Vietnam de chofer de camion. Volvi con la espalda mala y la costumbre de manejar con la ventana abierta hasta en invierno.",
    "da": [
     "militar",
     "veterano_vietnam",
@@ -13658,9 +13616,9 @@
   {
    "id": "l08_juv_la_grange",
    "etapa": "juventud",
-   "texto": "A los veinte pase dos inviernos en el reformatorio de La Grange por robar baterias. Habia un guardia tejano que nos trataba de usted y nos contaba hasta las cucharas.",
+   "texto": "A los veinte trabaje en la cocina del reformatorio de La Grange. Un guardia tejano me enseno a cortar el pan en tajadas iguales: asi nadie pelea, decia.",
    "da": [
-    "preso_pasado"
+    "oficio_aprendido"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -13802,26 +13760,26 @@
   {
    "id": "l08_adu_poliza_celeste",
    "etapa": "adultez",
-   "texto": "En el noventa y uno un vendedor de seguros de camisa celeste me toco la puerta tres veces. A la tercera le firme una poliza de vida, para que dejara de venir.",
+   "texto": "En el setenta y nueve trabajaba de guardia en La Grange cuando fue el motin. A un guardia tejano le abrieron la ceja con una bandeja y siguio contando presos con la sangre en el ojo.",
    "da": [
-    "casado"
+    "policia_pasado"
    ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 25,
+   "edad_min": 39,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "daniel_bell",
+   "lazo": "vargas",
    "peso": 10
   },
   {
    "id": "l08_adu_cocina_quemada",
    "etapa": "adultez",
-   "texto": "Una vez se me quemo la cocina y llegaron los voluntarios de West Point. Una bombera bajita apago la sarten con una tapa y despues me reto por dejarla sola.",
+   "texto": "Fui voluntari{o} de la ambulancia cuando la ambulancia era la carroza de la funeraria con una sirena prestada. Una vez llevamos al padre Ames de March Ridge, sordo como tapia, hablando de tomates.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -13831,10 +13789,8 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "West Point"
-   ],
-   "lazo": "chela",
+   "pueblos": null,
+   "lazo": "lucia",
    "peso": 10
   },
   {
@@ -13958,7 +13914,7 @@
   {
    "id": "l08_vej_lleno_normal",
    "etapa": "vejez",
-   "texto": "Cada sabado voy a la gasolinera de los Bencina aunque ya no tenga auto. La Misia Rosa me pregunta lleno o normal, yo le digo normal, y me sirve cafe recalentado.",
+   "texto": "De viej{o} me dio por pescar en Fallas Lake. Un verano vi a un nino de lentes sacar su primer bagre; el perro se tiro al agua detras del pez y el papa detras del perro, con zapatos.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -13968,10 +13924,8 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "Rosewood"
-   ],
-   "lazo": "rosa",
+   "pueblos": null,
+   "lazo": "wade_bell",
    "peso": 10
   },
   {
@@ -14151,7 +14105,7 @@
   {
    "id": "l08_of_costurera",
    "etapa": "oficio",
-   "texto": "Soy {oficio}: ruedos, cierres, vestidos de novia y parches de uniforme. La senora Gladys de Muldraugh cobra mas, pero entalla mejor, eso hay que decirlo.",
+   "texto": "Soy {oficio}. Aprendi en Louisville con una cajun, la senora Hale, que cosia vestidos de novia y hablaba frances con los alfileres en la boca.",
    "da": [
     "oficio_aprendido"
    ],
@@ -14166,13 +14120,13 @@
     "costurera"
    ],
    "pueblos": null,
-   "lazo": "gladys",
+   "lazo": "yvonne_bell",
    "peso": 10
   },
   {
    "id": "l08_of_cocinera",
    "etapa": "oficio",
-   "texto": "Soy {oficio} de meson: bizcochos con salsa a las seis, chili los miercoles, pie de nuez el domingo. El pan me lo traian de la panaderia Hollis, todavia tibio.",
+   "texto": "Soy {oficio} de meson: bizcochos con salsa a las seis, chili los miercoles, pie de nuez el domingo. El cafe lo hacia en una olla de veinte litros y nadie se quejaba dos veces.",
    "da": [
     "oficio_aprendido",
     "comerciante"
@@ -14188,13 +14142,13 @@
     "cocinera"
    ],
    "pueblos": null,
-   "lazo": "yvonne_bell",
+   "lazo": null,
    "peso": 10
   },
   {
    "id": "l08_of_camionero",
    "etapa": "oficio",
-   "texto": "Soy {oficio} de la 31: forraje para arriba, tabaco para abajo. En el canal 19 me conocen por el apodo, y al Gordo Ruta le debo mas de una bascula avisada.",
+   "texto": "Soy {oficio} de troncos, de Bowling Green a Lebanon. Un camionero de la 31, Earl, me juro que lo parieron en el asiento de atras de un Hudson y que por eso no sabe estar quieto.",
    "da": [
     "camionero_pasado"
    ],
@@ -14303,7 +14257,24 @@
   {
    "id": "l08_pn_radio_casa",
    "etapa": "primera_noche",
-   "texto": "El viernes nueve la radio repetia que nos quedaramos en las casas. Me quede, con la escopeta en las rodillas y la luz apagada, oyendo pasos en la grava hasta que aclaro.",
+   "texto": "El nueve estaba en la peluqueria de mi hermana con los ruleros puestos. Bajamos la cortina y nos sacamos los ruleros a oscuras, uno por uno, hasta que aclaro.",
+   "da": [],
+   "pide": [],
+   "pide_alguno": [],
+   "prohibe": [],
+   "quita": [],
+   "edad_min": 18,
+   "edad_max": 85,
+   "sexo": "m",
+   "oficios": null,
+   "pueblos": null,
+   "lazo": null,
+   "peso": 10
+  },
+  {
+   "id": "l08_pn_calle_main",
+   "etapa": "primera_noche",
+   "texto": "El nueve estaba en una boda en el salon de la Legion. A las once el novio salio a fumar y volvio mordiendo. La orquesta siguio tocando un rato, porque nadie le aviso.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -14315,25 +14286,6 @@
    "oficios": null,
    "pueblos": null,
    "lazo": null,
-   "peso": 10
-  },
-  {
-   "id": "l08_pn_calle_main",
-   "etapa": "primera_noche",
-   "texto": "Esa noche ardio la calle Main de West Point, con la casa de la bombera adentro. Desde mi ventana el cielo estaba naranja y la gente corria hacia el rio.",
-   "da": [],
-   "pide": [],
-   "pide_alguno": [],
-   "prohibe": [],
-   "quita": [],
-   "edad_min": 18,
-   "edad_max": 85,
-   "sexo": null,
-   "oficios": null,
-   "pueblos": [
-    "West Point"
-   ],
-   "lazo": "chela",
    "peso": 10
   },
   {
@@ -14358,7 +14310,7 @@
   {
    "id": "l08_pn_luz_bencina",
    "etapa": "primera_noche",
-   "texto": "Esa noche lo unico prendido en Rosewood era la gasolinera de los Bencina. Pase de largo. Desde la calle se oia algo golpeando adentro, en el bano.",
+   "texto": "Esa noche lo unico prendido en Rosewood era la gasolinera de los Bencina. Los camiones pasaban sin parar frente a la bomba iluminada, y yo tampoco pare.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -14413,19 +14365,16 @@
   {
    "id": "l08_pn_potrero",
    "etapa": "primera_noche",
-   "texto": "Las vacas bramaron toda la noche. A las once vi a un vecino caminando por el potrero con la boca negra. Le pegue con lo primero que tuve a mano y no se paro mas.",
+   "texto": "La primera noche fui a buscar a mi papa al hogar de ancianos de Brandenburg. La enfermera me lo paso por la ventana con la bolsa de los remedios y volvio a cerrar.",
    "da": [
-    "mato_transformado"
+    "cuida_a_alguien"
    ],
    "pide": [],
-   "pide_alguno": [
-    "granja",
-    "rural"
-   ],
+   "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 18,
-   "edad_max": 85,
+   "edad_min": 35,
+   "edad_max": 75,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
@@ -14534,10 +14483,9 @@
   {
    "id": "l08_des_olla_cuadra",
    "etapa": "despues",
-   "texto": "Cocino para la cuadra con lo que traen: una lata, una papa, una gallina flaca. Nadie se va sin comer, aunque yo coma ultim{o}.",
+   "texto": "Desde septiembre hago guardia en el techo de la escuela con unos binoculares de pajarero. Anoto en la pizarra, con tiza, cuantos muertos pasan por cada calle.",
    "da": [
-    "vive_con_otros",
-    "trueque"
+    "vive_con_otros"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -14554,9 +14502,9 @@
   {
    "id": "l08_des_tiza_viernes",
    "etapa": "despues",
-   "texto": "En Riverside la banda del taller cobra los viernes. Yo pago con lo que tengo y no le miro la cara al que anota con tiza.",
+   "texto": "El once de julio se fueron los Duffy a Louisville. El nino silbo con dos dedos desde la camioneta y otro nino le contesto desde un porche. Despues nadie mas silbo en la cuadra.",
    "da": [
-    "hambre"
+    "sin_noticias"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -14569,7 +14517,7 @@
    "pueblos": [
     "Riverside"
    ],
-   "lazo": "duggan",
+   "lazo": "wade_bell",
    "peso": 10
   },
   {
@@ -14598,10 +14546,9 @@
   {
    "id": "l08_des_ninos_ajenos",
    "etapa": "despues",
-   "texto": "Me quede con dos ninos que nadie vino a buscar. Les enseno a contar latas y a caminar sin hacer ruido, como si fuera un juego.",
+   "texto": "Desde agosto ando con un perro grande que era de otro. Duerme atravesado en la entrada y grune antes de que yo oiga nada. Le hablo como a una persona, y me contesta.",
    "da": [
-    "cuida_ninos",
-    "vive_con_otros"
+    "vive_solo"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -14676,14 +14623,11 @@
   {
    "id": "l08_sec_palito_largo",
    "etapa": "secreto",
-   "texto": "En el campamento sorteamos con palitos quien sale a buscar agua. Desde agosto corto el mio mas largo, a escondidas. Han salido otros por mi once veces.",
+   "texto": "La noche del nueve, manejando por la 31 sin luces, le pegue a alguien que cruzaba. Senti el golpe en el parachoques y no pare. Pudo ser un muerto. Pudo no serlo.",
    "da": [
-    "cobarde",
     "culpa"
    ],
-   "pide": [
-    "vive_con_otros"
-   ],
+   "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
@@ -14694,7 +14638,7 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "diario": "Hace trampa en el sorteo del agua desde agosto. Otros salieron once veces en su lugar y uno no volvio."
+   "diario": "Atropello a alguien la noche del nueve y no paro. Revisa el parachoques cada vez que pasa por la 31."
   },
   {
    "id": "l08_sec_esa_noche",
@@ -14909,10 +14853,10 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "llegada": "Quieto ahi. Diga a que viene y despues hablamos. Asi es la cosa.",
-   "rescate": "Ya. Gracias. No soy de decirlo dos veces, asi que guardeselo.",
-   "gracias": "Bien hecho. Lleve algo de comer, que aqui sobra mas que palabras.",
-   "muerte": "Murio en el camino sin quejarse, como vivio. Le cerre los ojos con el sombrero."
+   "llegada": "Ay, perdon, perdon, es que hablo rapido cuando me asusto. Pase. No, espere. Si, pase. Que necesita?",
+   "rescate": "Gracias, gracias. Perdon por gritar. Y por llorar. Y por hablar tanto. Ya me callo. No me callo.",
+   "gracias": "Esto es justo lo que necesitaba. Perdon, se lo digo tres veces porque una no me alcanza.",
+   "muerte": "Quedo en el camino. Por primera vez no tuvo que pedir perdon por nada."
   },
   {
    "id": "l08_voz_carino",
@@ -14930,9 +14874,9 @@
    "lazo": null,
    "peso": 10,
    "llegada": "Vaya, cara nueva. Pase, carino, y cuenteme algo que no sepa todo el pueblo.",
-   "rescate": "Ay, carino, llego justo. Le debo una, y yo pago siempre. Tarde, pero pago.",
+   "rescate": "Ay, carino, me salvo el pellejo y el peinado. Esto se lo cuento a todo el pueblo, con adornos.",
    "gracias": "Eso es. Lo anoto con mi mejor letra, que es la de verdad.",
-   "muerte": "Murio en el camino con un chiste a medias. Lo termine yo, y me salio peor."
+   "muerte": "Se nos fue en el camino con un chiste a medias. Lo termine yo, y me salio peor."
   },
   {
    "id": "l08_voz_formal",
@@ -14951,7 +14895,7 @@
    "peso": 10,
    "llegada": "Buenas tardes. Usted esta vivo y eso ya es una buena noticia. En que le puedo servir?",
    "rescate": "Muy amable. No crea que fue suerte, pero tampoco fue merito mio.",
-   "gracias": "Se lo agradezco de verdad. Que Dios le pague lo que yo no alcanzo.",
+   "gracias": "Se lo agradezco de verdad. Lo pongo en mi testamento, que ahora es cortito.",
    "muerte": "Murio en el camino con la corbata puesta. Le dejamos el sombrero encima, como el queria."
   },
   {
@@ -14971,7 +14915,7 @@
    "peso": 10,
    "llegada": "Pase, pase. Como dice la Misia Rosa: lleno o normal? Yo le doy lo que hay.",
    "rescate": "Ay, Dios. Gracias. Sientese en el cajon y no se me mueva, que le miro eso.",
-   "gracias": "Dios se lo pague. Yo no tengo con que, pero le anoto en el cuaderno.",
+   "gracias": "Gracias, de verdad. Le guardo la mejor taza para cuando vuelva, aunque sea de achicoria.",
    "muerte": "Murio en el camino. Esa noche alguien dejo una luz prendida por el."
   },
   {
@@ -15099,7 +15043,7 @@
   {
    "id": "l09_ori_esclusa",
    "etapa": "origen",
-   "texto": "Soy de la orilla del Ohio. Mi padre era esclusero y yo aprendi a nadar antes que a leer.",
+   "texto": "Soy de la orilla del Ohio. Mi padre era esclusero y me enseno a conocer cada remolcador por el silbato, de noche, sin asomarme a la ventana.",
    "da": [
     "rio"
    ],
@@ -15121,7 +15065,7 @@
   {
    "id": "l09_ori_moon_pie",
    "etapa": "origen",
-   "texto": "Naci en Rosewood cuando la gasolinera de los Bencina ya tenia su letrero pintado a mano. Mi primera moneda la gaste en un Moon Pie de esa caja.",
+   "texto": "Naci en Rosewood, a dos cuadras del cuartel de los bomberos voluntarios. La sirena del mediodia era mi reloj, y la de la noche, mi miedo.",
    "da": [
     "rural"
    ],
@@ -15136,7 +15080,7 @@
    "pueblos": [
     "Rosewood"
    ],
-   "lazo": "rosa",
+   "lazo": null,
    "peso": 10
   },
   {
@@ -15183,7 +15127,7 @@
   {
    "id": "l09_inf_fiebre_reumatica",
    "etapa": "infancia",
-   "texto": "A los nueve me dio fiebre reumatica. Pase un invierno entero en cama mirando por la ventana y leyendo revistas viejas. Me quedo un soplo en el corazon.",
+   "texto": "A los nueve una yegua me pateo el pecho. El doctor dijo que el corazon me habia quedado tocado y que iba a vivir poco. Se equivoco, pero no subo escaleras corriendo.",
    "da": [
     "enfermizo_nino",
     "corazon"
@@ -15350,7 +15294,7 @@
   {
    "id": "l09_inf_familia_grande",
    "etapa": "infancia",
-   "texto": "Eramos nueve en dos piezas. Yo dormia atravesad{o} al pie de la cama de mis hermanos y comia rapido, porque el ultimo no comia.",
+   "texto": "Eramos nueve hermanos y a mi me toco ir primero. A los diez cambiaba panales con una mano y hacia las tareas con la otra, y en la escuela me dormia en la segunda hora.",
    "da": [
     "familia_grande",
     "pobre"
@@ -15396,11 +15340,10 @@
   {
    "id": "l09_juv_corea_ingenieros",
    "etapa": "juventud",
-   "texto": "Me reclutaron para Corea y me pusieron en los ingenieros: puentes, bunkers, picos. El invierno del 51 me dejo sin dos dedos del pie.",
+   "texto": "Me reclutaron para Corea y me pusieron en los ingenieros: puentes, bunkers, picos. El invierno del 51 me enseno a dormir sentado y a no quejarme del frio delante de nadie.",
    "da": [
     "militar",
     "veterano_corea",
-    "lesion_pierna",
     "oficio_aprendido"
    ],
    "pide": [],
@@ -15571,48 +15514,51 @@
   {
    "id": "l09_juv_la_grange",
    "etapa": "juventud",
-   "texto": "Pase unos meses en el reformatorio de La Grange por una pelea de bar. Habia un guardia panzon que lo anotaba todo en una libreta y nunca levantaba la voz.",
+   "texto": "De muchacho cai al reformatorio del estado por manejar borracho y matar un caballo en la ruta. En mi galeria habia un muchacho Pereira, de Louisville, que no hablaba con nadie.",
    "da": [
-    "preso_pasado"
+    "preso_pasado",
+    "alcohol"
    ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 21,
-   "edad_max": 45,
+   "edad_min": 24,
+   "edad_max": 30,
    "sexo": "h",
    "oficios": null,
    "pueblos": null,
-   "lazo": "vargas",
+   "lazo": "pereira",
    "peso": 10
   },
   {
    "id": "l09_juv_petardos",
    "etapa": "juventud",
-   "texto": "Cada verano le compraba petardos a una muchacha flaca que tenia un puesto en la 31W. Me los vendia sin sonreir y me decia cuales no prender cerca de la cara.",
+   "texto": "A los dieciocho me embarque en los remolcadores de carbon del Ohio, hasta Cairo. El de cubierta, Harold Bell, de Brandenburg, aceitaba las bisagras de la cabina todos los domingos.",
    "da": [
-    "bromista"
+    "marino",
+    "rio"
    ],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [],
+   "prohibe": [
+    "nunca_salio"
+   ],
    "quita": [],
-   "edad_min": 18,
-   "edad_max": 35,
+   "edad_min": 32,
+   "edad_max": 70,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "kell",
+   "lazo": "daniel_bell",
    "peso": 10
   },
   {
    "id": "l09_juv_supero_asma",
    "etapa": "juventud",
-   "texto": "A los dieciseis el cuerpo me cambio: deje la cama y me puse a cargar sacos de forraje hasta que el pecho dejo de silbar.",
+   "texto": "A los diecisiete me fui a trabajar a Arizona, al aire seco, y el pecho se me abrio. Volvi a {pueblo} por amor y el silbido volvio, pero chico.",
    "da": [
-    "supero_enfermedad",
-    "fuerte"
+    "supero_enfermedad"
    ],
    "pide": [],
    "pide_alguno": [
@@ -15620,7 +15566,8 @@
     "asma"
    ],
    "prohibe": [
-    "corazon"
+    "corazon",
+    "nunca_salio"
    ],
    "quita": [
     "enfermizo_nino",
@@ -15656,18 +15603,20 @@
   {
    "id": "l09_adu_seguro_bell",
    "etapa": "adultez",
-   "texto": "Un vendedor de seguros de camisa celeste paso tres veces por mi casa de la 31. A la tercera le firme, de puro cansancio, y despues me alegre.",
-   "da": [],
+   "texto": "En el 89 jugue poker en un motel de Elizabethtown. Un camionero gordo de Bowling Green, chistoso, perdio mil doscientos en una mano de full de reyes y se fue riendose, debiendo.",
+   "da": [
+    "apostador"
+   ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 30,
+   "edad_min": 25,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "daniel_bell",
+   "lazo": "earl",
    "peso": 10
   },
   {
@@ -15692,17 +15641,17 @@
   {
    "id": "l09_adu_cuidar_madre",
    "etapa": "adultez",
-   "texto": "Cuide a mi madre seis inviernos, hasta que no me conocia. Cuando se murio, la casa quedo tan callada que me dio miedo salir.",
+   "texto": "Me hice cargo de mi hermano menor cuando volvio de Vietnam sin hablar. Le ensene a manejar otra vez y el me enseno a callar.",
    "da": [
-    "solitario",
-    "sin_hijos"
+    "cuida_a_alguien",
+    "solitario"
    ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 35,
-   "edad_max": 80,
+   "edad_min": 40,
+   "edad_max": 68,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
@@ -15750,18 +15699,22 @@
   {
    "id": "l09_adu_tonico_radio",
    "etapa": "adultez",
-   "texto": "Por un tiempo le crei al doctor de la radio de Louisville, el del tonico. Compre seis frascos para los huesos. Era agua con fierro, pero las mananas que lo tomaba me sentia acompanad{o}.",
-   "da": [],
+   "texto": "Trabaje en la planta de la Ford en Cincinnati con un tal Mateo Pegas, que hablaba de su hermano cura de Riverside como de un boxeador que se equivoco de ring.",
+   "da": [
+    "fabrica"
+   ],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [],
+   "prohibe": [
+    "nunca_salio"
+   ],
    "quita": [],
-   "edad_min": 40,
-   "edad_max": 85,
+   "edad_min": 30,
+   "edad_max": 65,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "hartmann",
+   "lazo": "nacho",
    "peso": 10
   },
   {
@@ -15821,18 +15774,19 @@
   {
    "id": "l09_adu_viudez",
    "etapa": "adultez",
-   "texto": "Enviude joven. Me quede con los ninos, una cocina chica y la costumbre de poner un plato de mas que despues guardaba.",
+   "texto": "Enviude joven y a los cuarenta me case con mi cunado. En {pueblo} hablaron un invierno entero; despues se aburrieron, y nosotros no.",
    "da": [
     "viudo",
+    "casado",
     "con_hijos"
    ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 30,
+   "edad_min": 40,
    "edad_max": 85,
-   "sexo": null,
+   "sexo": "m",
    "oficios": null,
    "pueblos": null,
    "lazo": null,
@@ -15918,7 +15872,7 @@
   {
    "id": "l09_vej_nevazon",
    "etapa": "vejez",
-   "texto": "En la nevazon del 77 quede atrapad{o} en la 31 con doce camioneros. La senora de la gasolinera de Rosewood nos frio huevos a todos y no nos cobro ni uno.",
+   "texto": "De viej{o} tejo gorros con pompon para los ninos que llegan, como la senora Haney de Riverside, que le tejio uno rojo a una nina chilena el invierno del 75.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -15929,7 +15883,7 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "rosa",
+   "lazo": "lucia",
    "peso": 10
   },
   {
@@ -15998,7 +15952,7 @@
   {
    "id": "l09_ofi_enfermera_hogar",
    "etapa": "oficio",
-   "texto": "Saque la licencia de enfermera auxiliar en una vocacional de Louisville y trabaje de noche en un hogar de ancianos. Se cerrar ojos a las cuatro y llamar a la familia a las siete.",
+   "texto": "Saque la licencia en Louisville e hice la practica en el University Hospital. Me enseno a poner sondas Charo Pegas, que tenia un hermano boxeador metido a cura.",
    "da": [
     "oficio_aprendido"
    ],
@@ -16013,7 +15967,7 @@
     "enfermera"
    ],
    "pueblos": null,
-   "lazo": null,
+   "lazo": "nacho",
    "peso": 10
   },
   {
@@ -16063,7 +16017,7 @@
   {
    "id": "l09_ofi_carpintero_porches",
    "etapa": "oficio",
-   "texto": "Hago porches, escaleras y marcos para medio {pueblo}. Mido dos veces, corto una y cuento tres. La madera no me apura.",
+   "texto": "Hago porches, escaleras y marcos para medio {pueblo}. Cuento tres veces antes de cortar, y el que me apura paga el doble.",
    "da": [
     "oficio_aprendido"
    ],
@@ -16296,7 +16250,7 @@
   {
    "id": "l09_pn_barricada_31",
    "etapa": "primera_noche",
-   "texto": "La noche del 9 iba por la 31 al norte y antes de Muldraugh una barricada de la Guardia con focos me hizo dar vuelta. En la cuneta, detras del soldado, habia gente tirada.",
+   "texto": "La noche del 9 iba por la 31 al norte y antes de Muldraugh una barricada de la Guardia con focos me hizo dar vuelta. En la cuneta, detras del soldado, habia gente sentada, esperando.",
    "da": [
     "sin_noticias"
    ],
@@ -16379,15 +16333,14 @@
   {
    "id": "l09_pn_radio_casa",
    "etapa": "primera_noche",
-   "texto": "La radio decia que nos quedaramos en casa. Apague las luces y me sente en el suelo de la cocina con un papel en el bolsillo que ya no iba a servir de nada.",
+   "texto": "La primera noche me subi con dos vecinos a la torre de agua del pueblo y cortamos el ultimo tramo de la escalera con un serrucho. Bajamos el domingo, con sed.",
    "da": [
-    "cobarde"
+    "vive_con_otros",
+    "hambre"
    ],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [
-    "valiente"
-   ],
+   "prohibe": [],
    "quita": [],
    "edad_min": 18,
    "edad_max": 85,
@@ -16541,7 +16494,7 @@
   {
    "id": "l09_des_grua_cabo",
    "etapa": "despues",
-   "texto": "Le saco autos de la calle al Cabo con una grua y el me paga en gasolina. Me anota en su libreta con tinta, que dice que vale mas que una medalla.",
+   "texto": "Le saco autos de la calle al Cabo con una grua y el me paga en gasolina, medida con una regla en el bidon, ni una raya de mas.",
    "da": [
     "trueque"
    ],
@@ -16562,9 +16515,9 @@
   {
    "id": "l09_des_radio_domingo",
    "etapa": "despues",
-   "texto": "Los domingos de noche busco en la radio la voz de un muchacho que dice que anda sacando gente. Dicen que es el hijo de la bombera de West Point. Yo le creo.",
+   "texto": "En agosto llego a la granja de los Tibbs, cerca de Ekron, una familia de Riverside con un nino que contaba las gallinas en voz alta. La viuda Arlene les dio el galpon y no pregunto nada.",
    "da": [
-    "sin_noticias"
+    "vive_con_otros"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -16575,7 +16528,7 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "eduardo",
+   "lazo": "wade_bell",
    "peso": 10
   },
   {
@@ -16712,16 +16665,13 @@
   {
    "id": "l09_sec_no_manejo",
    "etapa": "secreto",
-   "texto": "Digo que no se manejar para que no me manden de chofer a Louisville. Se manejar desde los catorce. Otro fue en mi lugar.",
+   "texto": "Conozco un pozo bueno que no le muestro a nadie. Cuando el grupo tiene sed salgo a buscar y vuelvo con agua de ahi, y digo que la encontre lejos.",
    "da": [
-    "cobarde",
     "mentiroso"
    ],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [
-    "camionero_pasado"
-   ],
+   "prohibe": [],
    "quita": [],
    "edad_min": 18,
    "edad_max": 85,
@@ -16730,15 +16680,15 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "diario": "Sabe manejar desde los catorce y dice que no, para que no lo manden a Louisville. Otro fue en su lugar."
+   "diario": "Conoce un pozo bueno y no se lo muestra a nadie. Dice que es su seguro de vida."
   },
   {
    "id": "l09_sec_hermano_heroe",
    "etapa": "secreto",
-   "texto": "Les digo a todos que mi hermano murio defendiendo la casa. No es verdad: se fue la primera noche en la camioneta con la comida de todos.",
+   "texto": "Sigo cobrando el arriendo de las casas vacias de mi calle a los que llegan. Las casas no son mias. Me pagan en latas y les doy un recibo escrito a mano.",
    "da": [
     "mentiroso",
-    "perdio_familia"
+    "comerciante"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -16751,18 +16701,19 @@
    "pueblos": null,
    "lazo": null,
    "peso": 10,
-   "diario": "El hermano heroe que nombra en cada comida no murio defendiendo nada: se fue con la camioneta y la comida de todos."
+   "diario": "Cobra arriendo por casas que no son suyas. Dice que alguien tiene que administrar."
   },
   {
    "id": "l09_dso_enterrar",
    "etapa": "deseo",
-   "texto": "Quiero enterrar a los mios en el cementerio de {pueblo}, con nombre y fecha, y no en el patio de atras.",
-   "da": [
-    "perdio_familia"
-   ],
+   "texto": "Quiero aprender a nadar antes de que llegue el verano, por si el rio es la unica salida.",
+   "da": [],
    "pide": [],
    "pide_alguno": [],
-   "prohibe": [],
+   "prohibe": [
+    "rio",
+    "marino"
+   ],
    "quita": [],
    "edad_min": 18,
    "edad_max": 85,
@@ -16813,7 +16764,7 @@
   {
    "id": "l09_dso_lleno",
    "etapa": "deseo",
-   "texto": "Quiero que la Misia Rosa me pregunte lleno o normal un dia, y poder contestarle lleno, con un estanque de verdad.",
+   "texto": "Quiero ver fuegos artificiales un 4 de julio, de los buenos, de los que vendia la muchacha flaca del puesto de la 31W, aunque ahora digan lo que dicen de ella.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -16824,7 +16775,7 @@
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "rosa",
+   "lazo": "kell",
    "peso": 10
   },
   {
@@ -16928,7 +16879,7 @@
    "lazo": null,
    "peso": 10,
    "llegada": "Diez-cuatro, carino. Cuanto pesas y que traes? Ni una libra de mas en mi patio.",
-   "rescate": "Copiado. Te debo una, carino, y yo pago lo que debo.",
+   "rescate": "Diez-cuatro, carino. Me sacaste de la cuneta, y eso en la radio no se olvida.",
    "gracias": "Esto pesa lo justo. Ni una libra de mas, ni una de menos.",
    "muerte": "Murio con las manos en el volante. El motor siguio andando un rato."
   },
@@ -16975,11 +16926,10 @@
   {
    "id": "l10_ori_casa_compania",
    "etapa": "origen",
-   "texto": "Naci en {ano_nac} en una casa de la compania minera, en el este de Kentucky. Mi papa bajaba al carbon y volvia negro hasta las cejas.",
+   "texto": "Naci en {ano_nac} en una casa de piedra que levanto mi bisabuelo con piedras del arroyo. La familia vive ahi desde antes de la guerra civil, y yo no me he movido.",
    "da": [
-    "minero",
-    "montana",
-    "rural"
+    "rural",
+    "nunca_salio"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -17040,7 +16990,7 @@
   {
    "id": "l10_ori_hijo_sargento",
    "etapa": "origen",
-   "texto": "Soy {hijo} de un sargento del Fuerte Knox. Hasta los doce cambie de escuela cada dos inviernos y aprendi a hacerme amigos en una semana.",
+   "texto": "Naci en un hospital militar de Alemania y llegue a Kentucky a los seis, hablandole aleman a la empleada y ingles a mi papa.",
    "da": [
     "fort_knox",
     "forastero"
@@ -17062,9 +17012,9 @@
   {
    "id": "l10_ori_medieros",
    "etapa": "origen",
-   "texto": "Mis papas eran medieros de tabaco en {pueblo}: la tierra era del patron y la espalda era nuestra.",
+   "texto": "Mis papas eran lecheros: veinte vacas y un estanque que se llevaba el camion de Ekron todas las mananas, antes de que saliera el sol.",
    "da": [
-    "tabaco",
+    "granja",
     "rural",
     "pobre",
     "nunca_salio"
@@ -17087,7 +17037,7 @@
   {
    "id": "l10_ori_portland",
    "etapa": "origen",
-   "texto": "Naci en Louisville, en el barrio Portland, a cuatro cuadras del rio y de las vias. Me vine a {pueblo} cuando me case.",
+   "texto": "Naci en Shively, al lado de una destileria. Los domingos la calle olia a pan de centeno y a bourbon; los lunes, solo a bourbon. Me vine a {pueblo} cuando me case.",
    "da": [
     "louisville",
     "urbano",
@@ -17193,7 +17143,7 @@
   {
    "id": "l10_inf_ardillas_cena",
    "etapa": "infancia",
-   "texto": "A los ocho cazaba ardillas con una .22 de un tiro. Si fallaba no habia cena, asi que deje de fallar.",
+   "texto": "A los ocho mi trabajo era revisar las trampas de conejo antes de la escuela. Si traia dos, mi mama me dejaba faltar a la primera hora.",
    "da": [
     "rural",
     "pobre"
@@ -17319,20 +17269,20 @@
   {
    "id": "l10_inf_tonico",
    "etapa": "infancia",
-   "texto": "De {nino} me daban una cucharada del tonico de la radio, el de la hora de la salud del Dr. Hartmann, para el animo. Sabia a fierro y a mentira.",
+   "texto": "En el 69 vi la quema de practica de la casa vieja de los Haskins, en el camino a Ekron. Los voluntarios de West Point, la Chela entre ellos, la dejaron arder entera sin hablar.",
    "da": [
-    "enfermizo_nino"
+    "rural"
    ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 18,
-   "edad_max": 27,
+   "edad_min": 30,
+   "edad_max": 38,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
-   "lazo": "hartmann",
+   "lazo": "chela",
    "peso": 10
   },
   {
@@ -17463,7 +17413,24 @@
   {
    "id": "l10_juv_guantes_oro",
    "etapa": "juventud",
-   "texto": "En el 79 fui a Lexington a ver la final de los Guantes de Oro. Gano un muchacho que despues se hizo cura; al otro le pararon la pelea por un corte.",
+   "texto": "En el 62 limpiaba los laboratorios de la Universidad de Kentucky. Un estudiante de farmacia de Covington me mostraba sus placas de moho como fotos de familia. Despues lo oi vender tonico por radio.",
+   "da": [],
+   "pide": [],
+   "pide_alguno": [],
+   "prohibe": [],
+   "quita": [],
+   "edad_min": 49,
+   "edad_max": 63,
+   "sexo": null,
+   "oficios": null,
+   "pueblos": null,
+   "lazo": "hartmann",
+   "peso": 10
+  },
+  {
+   "id": "l10_juv_spiffos",
+   "etapa": "juventud",
+   "texto": "De joven iba a los bailes de los sabados en Louisville. Ahi se conocieron una muchacha, Rocio, y un mexicano flaco del tabaco de Ekron. Al otro verano bailamos en su boda.",
    "da": [
     "bromista"
    ],
@@ -17471,27 +17438,8 @@
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 24,
-   "edad_max": 60,
-   "sexo": null,
-   "oficios": null,
-   "pueblos": null,
-   "lazo": "nacho",
-   "peso": 10
-  },
-  {
-   "id": "l10_juv_spiffos",
-   "etapa": "juventud",
-   "texto": "Lave platos en el Spiffo's de Muldraugh. El cocinero era un mexicano que cantaba rancheras y me enseno a dar vuelta un huevo sin romperlo.",
-   "da": [
-    "oficio_aprendido"
-   ],
-   "pide": [],
-   "pide_alguno": [],
-   "prohibe": [],
-   "quita": [],
-   "edad_min": 18,
-   "edad_max": 27,
+   "edad_min": 28,
+   "edad_max": 40,
    "sexo": null,
    "oficios": null,
    "pueblos": null,
@@ -17658,41 +17606,39 @@
   {
    "id": "l10_adu_lleno_normal",
    "etapa": "adultez",
-   "texto": "En el 88 se murio el Hector de la gasolinera de Rosewood, llenando un camion de leche. Al otro dia la Rosa abrio igual y me pregunto: lleno o normal?",
+   "texto": "En enero del 79 vi en la I-65, cerca de Elizabethtown, un camion volcado en la helada. El chofer era un mexicano de Monterrey; su hijo, un muchacho de veintiuno, vino a reconocerlo.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 25,
+   "edad_min": 32,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "Rosewood"
-   ],
-   "lazo": "rosa",
+   "pueblos": null,
+   "lazo": "duarte",
    "peso": 10
   },
   {
    "id": "l10_adu_ruedo_gladys",
    "etapa": "adultez",
-   "texto": "El traje de mi boda me lo entallo la Gladys, la de Arreglos Gladys en la calle principal de Muldraugh. Con tiza, en diez minutos, y no me dejo pagar el ruedo.",
+   "texto": "Cargue sacos en la bodega de granos del rio, en Riverside, con un chileno, Ferrada, que habia sido minero. Sobrio era un pan; con bourbon, mejor no estar cerca.",
    "da": [
-    "casado"
+    "fuerte"
    ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
    "quita": [],
-   "edad_min": 25,
+   "edad_min": 35,
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
    "pueblos": [
-    "Muldraugh"
+    "Riverside"
    ],
-   "lazo": "gladys",
+   "lazo": "lucia",
    "peso": 10
   },
   {
@@ -17814,11 +17760,8 @@
   {
    "id": "l10_vej_misa_once",
    "etapa": "vejez",
-   "texto": "Ya de mayor, iba a la misa de las once del cura boxeador de Riverside. Llegaba tarde y el decia: lo que importa es que llegaste.",
-   "da": [
-    "catolico",
-    "religioso"
-   ],
+   "texto": "Ya mayor fui al funeral de Desmond Kell, el bombero de Brandenburg, en el 88. La hija estaba sola a un costado del cajon y el hermano no la dejo tocarlo.",
+   "da": [],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
@@ -17827,10 +17770,8 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "Riverside"
-   ],
-   "lazo": "nacho",
+   "pueblos": null,
+   "lazo": "kell",
    "peso": 10
   },
   {
@@ -17874,7 +17815,7 @@
   {
    "id": "l10_ofi_mecanico_vulca",
    "etapa": "oficio",
-   "texto": "Soy {oficio}. Los fines de semana parchaba neumaticos en la vulcanizacion de Ekron, al lado del sobrino de la Misia Rosa, que hablaba poco y arreglaba todo.",
+   "texto": "Soy {oficio}. Le cambie los frenos a La Lorene, el Peterbilt rojo del Tecolote. Me pago en Marlboro sin timbre y con chismes del canal 19.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -17887,7 +17828,7 @@
     "mecanico"
    ],
    "pueblos": null,
-   "lazo": "hector",
+   "lazo": "duarte",
    "peso": 10
   },
   {
@@ -17934,7 +17875,7 @@
   {
    "id": "l10_ofi_policia_richmond",
    "etapa": "oficio",
-   "texto": "Soy {oficio}. Hice la academia en Richmond, la misma del Cabo de Muldraugh, y escribo los partes como si alguien los fuera a leer en cien inviernos.",
+   "texto": "Soy {oficio} del condado: llevaba presos a La Grange. En la puerta firmaba un guardia tejano, siempre al lado de mi firma, nunca debajo.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -17947,7 +17888,7 @@
     "policia"
    ],
    "pueblos": null,
-   "lazo": "cabo",
+   "lazo": "vargas",
    "peso": 10
   },
   {
@@ -17994,7 +17935,7 @@
   {
    "id": "l10_ofi_costurera_gladys",
    "etapa": "oficio",
-   "texto": "Soy {oficio}. Aprendi mirando por la vitrina de Arreglos Gladys, en Muldraugh: tiza, alfileres en la boca y la Singer sonando hasta tarde.",
+   "texto": "Soy {oficio} de tapiceria: sillones, asientos de camion y bancos de iglesia. En el 89 ayude a retapizar los de la iglesia de piedra de Riverside, cuando volvio el cura de parroco.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -18007,7 +17948,7 @@
     "costurera"
    ],
    "pueblos": null,
-   "lazo": "gladys",
+   "lazo": "nacho",
    "peso": 10
   },
   {
@@ -18072,7 +18013,7 @@
   {
    "id": "l10_ofi_cazador",
    "etapa": "oficio",
-   "texto": "Soy {oficio}. Pongo trampas y vendo la carne y los cueros en Brandenburg los sabados; el guarda de caza hace como que no me ve.",
+   "texto": "Soy {oficio} de pavos. Los llamo con una caja de cedro que hizo mi abuelo y vienen como si fueran a misa.",
    "da": [
     "rural"
    ],
@@ -18093,7 +18034,7 @@
   {
    "id": "l10_ofi_electricista",
    "etapa": "oficio",
-   "texto": "Soy {oficio} con licencia del sindicato de Louisville. Le puse luz a medio {pueblo}. El cable hace lo que dice el plano; la gente no.",
+   "texto": "Soy {oficio}. Aprendi con Ramon Bencina, el electricista de Rosewood, el papa del sobrino de la Misia Rosa. Se murio del cancer en el 90 y todavia uso sus alicates.",
    "da": [
     "oficio_aprendido"
    ],
@@ -18108,13 +18049,13 @@
     "electricista"
    ],
    "pueblos": null,
-   "lazo": null,
+   "lazo": "hector",
    "peso": 10
   },
   {
    "id": "l10_ofi_pastora_reyes",
    "etapa": "oficio",
-   "texto": "Soy {oficio} de una iglesia chica con campanario de lata. No cobro el rezo; el predicador de la carpa a la salida de Riverside si cobraba, y llenaba mas.",
+   "texto": "Soy {oficio}. Aprendi con el pastor metodista de Brandenburg, que caso a medio condado; en el 79 lo vi casar a un vendedor de seguros con una panadera de Louisville.",
    "da": [
     "iglesia_trabajo",
     "religioso"
@@ -18130,7 +18071,7 @@
     "pastora"
    ],
    "pueblos": null,
-   "lazo": "reyes",
+   "lazo": "daniel_bell",
    "peso": 10
   },
   {
@@ -18172,8 +18113,10 @@
   {
    "id": "l10_pn_megafono",
    "etapa": "primera_noche",
-   "texto": "La noche del 9 una sargento de verde grito por megafono desde la puerta de la comisaria de Muldraugh. No entendi la orden; entendi el miedo.",
-   "da": [],
+   "texto": "La noche del 9 me pillo en Louisville. Al otro dia la escuela Crescent Hill era refugio de la Guardia, y una profesora joven con un pito nos hacia bajar al sotano en fila.",
+   "da": [
+    "forastero"
+   ],
    "pide": [],
    "pide_alguno": [],
    "prohibe": [],
@@ -18182,16 +18125,14 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "Muldraugh"
-   ],
-   "lazo": "pereira",
+   "pueblos": null,
+   "lazo": "valentina",
    "peso": 10
   },
   {
    "id": "l10_pn_canal19",
    "etapa": "primera_noche",
-   "texto": "La noche del 9 escuche el canal 19 hasta las tres: camioneros gritando, uno rezando hasta que dejo de rezar. La bomba de Rosewood seguia con la luz prendida.",
+   "texto": "La noche del 9 me pillo en Louisville. En el estacionamiento del University Hospital habia gente gritando y camillas en la vereda; una enfermera anotaba numeros en las manos con plumon.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
@@ -18201,10 +18142,8 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": [
-    "Rosewood"
-   ],
-   "lazo": "rosa",
+   "pueblos": null,
+   "lazo": null,
    "peso": 10
   },
   {
@@ -18269,9 +18208,9 @@
   {
    "id": "l10_pn_bar_31",
    "etapa": "primera_noche",
-   "texto": "La noche del 9 estaba en el bar de la 31 cuando un hombre le mordio el cuello al cantinero encima del meson. Sali por la ventana del bano y me corte el brazo.",
+   "texto": "La noche del 9 pescaba bagre en Otter Creek con una linterna en la frente. Oi los tiros del lado del pueblo y me quede en el agua, con la luz apagada, hasta que aclaro.",
    "da": [
-    "herido_brote"
+    "solitario"
    ],
    "pide": [],
    "pide_alguno": [],
@@ -18281,7 +18220,9 @@
    "edad_max": 85,
    "sexo": null,
    "oficios": null,
-   "pueblos": null,
+   "pueblos": [
+    "Muldraugh"
+   ],
    "lazo": null,
    "peso": 10
   },
@@ -18371,7 +18312,7 @@
   {
    "id": "l10_dsp_cruces_cabo",
    "etapa": "despues",
-   "texto": "Hago cruces y cajones para los muertos de Muldraugh, sin cobrar. El Cabo me anoto en su libreta y me deja latas en la escalera.",
+   "texto": "Hago cruces y cajones para los muertos de Muldraugh, sin cobrar. El Cabo me anoto en su libreta y me paga con latas, contadas delante mio.",
    "da": [
     "vive_solo",
     "trueque"
@@ -18414,7 +18355,7 @@
   {
    "id": "l10_dsp_plato_cuartel",
    "etapa": "despues",
-   "texto": "Los domingos alguien del cuartel de bomberos me trae un plato. La Chela no deja a nadie sin comer, aunque a ella nadie la ha visto sentada.",
+   "texto": "Los domingos le ayudo a la Chela a pasarle un trapo a la Colorina en el cuartel, sin agua, que el agua no se bota. Ella dice que es por costumbre; yo creo que es para no mirar el rio.",
    "da": [
     "vive_solo"
    ],
@@ -18806,7 +18747,7 @@
    "llegada": "Permitame, estimado, pase. Hay poco, pero esta servido con modales.",
    "rescate": "Gracias, estimado. Esto no sale en ningun tomo, pero deberia salir.",
    "gracias": "Con esto alcanza para una semana. Le debo un tomo entero, con letras doradas.",
-   "muerte": "Murio con el delantal puesto y una palabra en la punta de la lengua.",
+   "muerte": "Murio con un tomo abierto en la letra que le faltaba. Nadie se atrevio a cerrarlo.",
    "da": [],
    "pide": [],
    "pide_alguno": [
@@ -18853,7 +18794,7 @@
    "llegada": "Ay, carino, sube despacito, que aqui se cuida la radio y se cuida la chiquilla.",
    "rescate": "Me sacaste del barro, carino. El que para, para. Gracias por parar.",
    "gracias": "Pilas para la radio. Vuelve la chismosa al aire. Cambio, carino.",
-   "muerte": "Murio con el microfono en la mano. Alguien tiene que decir cambio y fuera por ella.",
+   "muerte": "Murio con la radio apagada, por primera vez. En el 19 quedo un silencio que nadie sabe llenar.",
    "da": [],
    "pide": [],
    "pide_alguno": [],
