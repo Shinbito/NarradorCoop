@@ -95,10 +95,10 @@ def escanear():
         for m in re.finditer(r"vars_desde_memoria\s*=\s*\{([^}]*)\}", texto):
             for c in re.findall(CADENA, m.group(1)):
                 anotar(lee, c, ruta)
-        # Capitulos de G.ESPECIALES.
+        # Capitulos y misiones de G.ESPECIALES (las misiones no llevan "capitulo", pero si "hecho").
         for m in re.finditer(r'\{\s*def\s*=\s*"[^"]+",[^{}]*', texto):
             bloque = m.group(0)
-            if "capitulo" not in bloque:
+            if "capitulo" not in bloque and not re.search(r"\bhecho\s*=", bloque):
                 continue
             for campo, d in (("requiere", lee), ("hecho", escribe)):
                 c = re.search(campo + r"\s*=\s*" + CADENA, bloque)

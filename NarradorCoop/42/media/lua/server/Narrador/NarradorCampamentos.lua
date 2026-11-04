@@ -35,6 +35,17 @@ function S.sumarReserva(k, moneda, n)
     k.reservas[moneda] = math.max(0, math.min(100, (tonumber(k.reservas[moneda]) or 50) + (tonumber(n) or 0)))
 end
 
+-- Accion de las historias: suma (o resta, con cantidad negativa) a una reserva del campamento de
+-- un misionero, de 0 a 100. { "reserva_campamento", contacto = "riverside", moneda = "comida",
+-- cantidad = -25 }; sin contacto, el del arco. Por ejemplo, la despensa que Curtis se llevo en el
+-- cap. 2 del Padre: el campamento de Riverside queda con menos comida.
+Motor.inmediatas.reserva_campamento = function(inst, a)
+    local cid = a.contacto or (inst ~= nil and inst.vars ~= nil and inst.vars.contacto) or nil
+    if cid == nil or C.def(tostring(cid)) == nil or K.MONEDAS[tostring(a.moneda)] == nil then return true end
+    S.sumarReserva(S.estado(tostring(cid)), tostring(a.moneda), tonumber(a.cantidad) or 0)
+    return true
+end
+
 -- Cada dia el campamento gasta lo suyo.
 function S.gastar(c, k)
     local ahora = Mundo.horas()

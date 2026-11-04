@@ -78,6 +78,8 @@ flowchart LR
   hsous_martin_a["La luz de Sous"]
   hsous_martin_z["La Awp de SOUS"]
   leyenda_eduardo["Un cientifico que dice tener la cura"]
+  mision_eli["Eli Danner"]
+  mision_tomas["El chico de los sacos"]
   reconquista_muldraugh["La reconquista: la comisaria de Muldraugh"]
   reconquista_patio["La reconquista: el patio de trenes"]
   reconquista_riverside["La reconquista: la iglesia de Riverside"]
@@ -92,6 +94,8 @@ flowchart LR
   fin_bandido_pereira_escapo(["El jefe del patio escapa"])
   fin_bandido_rechazado(["Rechaza a la banda (la puerta queda abierta)"])
   fin_bandido_redimido(["Redencion: Knox vuelve a 0"])
+  fin_despensa_riverside_robada(["Curtis se lleva la despensa del Padre"])
+  fin_eli_danner_tarde(["Los del patio corrigen la lista (Eli muere)"])
   fin_estanque_rosewood_defendido(["El estanque queda a salvo"])
   fin_estanque_rosewood_saqueado(["Los bandidos vacian el estanque"])
   fin_fin_eduardo_muerto(["FIN: Eduardo muerto, Knox es de la banda"])
@@ -104,6 +108,8 @@ flowchart LR
   fin_sous_eliminado(["Sous eliminado"])
   fin_sous_maulen_escapa(["Meulen escapa con todo"])
   fin_sous_negado(["Le dices que no a Sous"])
+  fin_tomas_tumba(["Tomas Ferrada tiene cruz con nombre"])
+  fin_tomas_vivo(["Tomas Ferrada vuelve a Riverside"])
   alijo_custodiado -->|final_encontrado: alijo = encontrado| eco_alijo_viuda
   bandido_1 -->|final_cumplido, final_perdonado: bandido_cap = 1| bandido_2
   bandido_2 -->|final_cumplido, final_saboteado: bandido_cap = 2| bandido_3
@@ -118,8 +124,10 @@ flowchart LR
   bandido_maulen -->|final_redimido: Meulen muere (era el jefe)| venganza_meulen
   cap_cabo_2 -->|final_cumplido, final_muerta: historia_muldraugh_2| hija_cabo
   cap_chela_2 -->|final_cumplido: historia_westpoint_2| leyenda_eduardo
-  cap_nacho_2 -->|final_cumplido: historia_riverside_2| cap_nacho_3
+  cap_nacho_2 -->|final_cumplido, final_cumplido_despensa: historia_riverside_2| cap_nacho_3
+  cap_nacho_2 -->|final_cumplido, final_cumplido_despensa: historia_riverside_2| mision_eli
   cap_nacho_3 -->|final_cumplido, final_muerta: historia_riverside_3| cap_nacho_4
+  cap_nacho_3 -->|final_cumplido, final_muerta: historia_riverside_3| mision_tomas
   cap_rosa_2 -->|final_cumplido, final_muerto: historia_rosewood_2| cap_rosa_3
   cap_rosa_3 -->|final_cumplido, final_saqueado: historia_rosewood_3| cap_rosa_4
   cap_rosa_4 -->|final_abandono, final_cumplido: historia_rosewood_4| cap_rosa_5
@@ -198,6 +206,7 @@ flowchart LR
   trueque_trampa -->|final_escapaste: eco| asalto_nocturno
   trueque_trampa -->|final_ganada: trueque = ganado| eco_trueque_cobro
   bandido_5 --x|corta: final_con_pereira: bandido = pereira| eduardo_evento
+  cap_nacho_3 --x|corta: final_cumplido, final_muerta: historia_riverside_3| mision_eli
   eduardo_fallas --x|corta: final_eduardo_muerto: fin| eduardo_atentado
   eduardo_fallas --x|corta: final_eduardo_muerto: eduardo_muerto_duelo| eduardo_evento
   eduardo_fallas --x|corta: final_eduardo_muerto: fin| eduardo_evento
@@ -222,6 +231,7 @@ flowchart LR
   bandido_5 -.->|final_redencion| fin_bandido_redimido
   bandido_maulen -.->|final_rechazo| fin_bandido_rechazado
   bandido_maulen -.->|final_redimido| fin_bandido_redimido
+  cap_nacho_2 -.->|final_cumplido| fin_despensa_riverside_robada
   cap_nacho_3 -.->|final_cumplido| fin_lucia_en_riverside
   cap_rosa_3 -.->|final_cumplido| fin_estanque_rosewood_defendido
   cap_rosa_3 -.->|final_saqueado| fin_estanque_rosewood_saqueado
@@ -229,6 +239,11 @@ flowchart LR
   eduardo_fallas -.->|final_eduardo_muerto| fin_fin_eduardo_muerto
   hija_cabo -.->|final_perdida| fin_hija_cabo_muerta
   hija_cabo -.->|final_reencuentro| fin_hija_cabo_salvada
+  mision_eli -.->|final_abandonado| fin_eli_danner_tarde
+  mision_eli -.->|final_no_fue| fin_eli_danner_tarde
+  mision_eli -.->|final_tarde| fin_eli_danner_tarde
+  mision_tomas -.->|final_tumba| fin_tomas_tumba
+  mision_tomas -.->|final_cumplido_vivo| fin_tomas_vivo
   reconquista_patio -.->|final_luz| fin_fin_reconquista
   sous -.->|final_sous_caidos| fin_sous_caidos
   sous -.->|final_maulen_escapa| fin_sous_maulen_escapa
@@ -347,12 +362,19 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `final_muerta` | "Decirle que la Chela la espera en el cuartel de West Point", y despues `todos_muertos doris`<br>`todos_muertos doris` | `historia_westpoint_4` = fallido | - |
 | `final_relicario` | "Darle a Doris el relicario de su mama" | `historia_westpoint_4` = true | - |
 
+### El ring de Lexington (`cap_nacho_2`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_cumplido` | "Quedarte en el atrio a mirar la pelea", y despues `pasan 0.2 h` | `despensa_riverside` = robada, `historia_riverside_2` = true | Curtis se lleva la despensa del Padre, cap_nacho_3, mision_eli |
+| `final_cumplido_despensa` | "Llevar a Curtis con el Padre: que pague cargando agua para la iglesia" o "Echar a Curtis de Riverside" o "Ir a la despensa: alguien entro por atras", y despues `pasan 0.15 h` | `curtis` = agua, `curtis` = echado, `curtis` = muerto, `despensa_riverside` = defendida, `historia_riverside_2` = true | cap_nacho_3, mision_eli |
+
 ### La muchacha que esperaba (`cap_nacho_3`)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_cumplido` | "Decirle que vaya con el Padre, que la espera y ya no se va", y despues `npc_cerca lucia contacto 15` | `historia_riverside_3` = true, `lucia` = en_riverside | Lucia vuelve a Riverside, cap_nacho_4 |
-| `final_muerta` | "Decirle que vaya con el Padre, que la espera y ya no se va", y despues `todos_muertos lucia`<br>`todos_muertos lucia` | `historia_riverside_3` = fallido, `lucia` = muerta | cap_nacho_4 |
+| `final_cumplido` | "Darle la carta del Padre: que se queda, venga o no venga", y despues `npc_cerca lucia contacto 15` | `historia_riverside_3` = true, `lucia` = en_riverside | Lucia vuelve a Riverside, cap_nacho_4, mision_tomas |
+| `final_muerta` | "Darle la carta del Padre: que se queda, venga o no venga", y despues `todos_muertos lucia`<br>`todos_muertos lucia` | `historia_riverside_3` = fallido, `lucia` = muerta | cap_nacho_4, mision_tomas |
 
 ### Las campanas de Riverside (`cap_nacho_4`)
 
@@ -683,6 +705,26 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `final_cumplido` | "No decirle nada" o "Giovanns... Eduardo? Tu mama, la Tia Chela, te espera en el cuartel de West Point.", y despues `npc_cerca cientifico contacto 15` | `cientifico_hartmann` = en_west_point, `historia_westpoint_3` = true | cap_chela_4 |
 | `final_muerto` | "No decirle nada" o "Giovanns... Eduardo? Tu mama, la Tia Chela, te espera en el cuartel de West Point.", y despues `todos_muertos cientifico`<br>`todos_muertos cientifico` | `cientifico_hartmann` = muerto, `historia_westpoint_3` = fallido | cap_chela_4 |
 
+### Eli Danner (`mision_eli`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | - | `eli_danner` = tarde | Los del patio corrigen la lista (Eli muere) |
+| `final_cumplido_riverside` | "Llevar a Eli a Riverside, con el Padre: alla el patio no lo busca", y despues `npc_cerca eli contacto 15` | `eli_danner` = riverside | - |
+| `final_cumplido_salvado` | "Contarle al Padre que Eli esta vivo, con Lucia" | `eli_danner` = salvado | - |
+| `final_muerto` | "Avisarle que vienen tres del patio a buscar a Eli", y despues `ausente san_judas 90 0.5`<br>"Avisarle que vienen tres del patio a buscar a Eli", y despues `todos_muertos eli`<br>"Llevar a Eli a Riverside, con el Padre: alla el patio no lo busca", y despues `todos_muertos eli`<br>`todos_muertos eli` | `eli_danner` = muerto | - |
+| `final_no_fue` | `pasan 96 h` | `eli_danner` = tarde | Los del patio corrigen la lista (Eli muere) |
+| `final_tarde` | `pasan 0.1 h`<br>`pasan 1 h` | `eli_danner` = tarde | Los del patio corrigen la lista (Eli muere) |
+
+### El chico de los sacos (`mision_tomas`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandonado` | - | `tomas` = sin_rastro | - |
+| `final_cumplido_vivo` | "Decirle que Lucia esta viva, en la iglesia de Riverside" o "Decirle que el Padre de Riverside lo tiene en su lista y lo espera", y despues `no memoria lucia = en_riverside`<br>"Decirle que Lucia esta viva, en la iglesia de Riverside" o "Decirle que el Padre de Riverside lo tiene en su lista y lo espera", y despues `pasan 0.15 h`<br>"Decirle que Lucia esta viva, en la iglesia de Riverside" o "Decirle que el Padre de Riverside lo tiene en su lista y lo espera", y despues `pasan 0.5 h` | `tomas` = vivo | Tomas Ferrada vuelve a Riverside |
+| `final_sin_rastro` | `pasan 120 h` | `tomas` = sin_rastro | - |
+| `final_tumba` | "Decirle que Lucia esta viva, en la iglesia de Riverside" o "Decirle que el Padre de Riverside lo tiene en su lista y lo espera", y despues `todos_muertos tomas`<br>`todos_muertos tomas` | `tomas` = tumba | Tomas Ferrada tiene cruz con nombre |
+
 ### La reconquista: la comisaria de Muldraugh (`reconquista_muldraugh`)
 
 | Final | Como se llega | Deja | Lleva a |
@@ -773,9 +815,9 @@ un texto que cambia, una variante o lo que decide un final.
 | Los signos de pregunta | `cap_cabo_4` | capitulo 4 de muldraugh, entre sus ofertas (confianza 4+) | `historia_muldraugh_3` | `hija_cabo` | - | `historia_muldraugh_4` = fallido (final_cruces)<br>`historia_muldraugh_4` = true (final_cumplido)<br>`historia_muldraugh_4` = true (final_sin_reloj) |
 | La radio del cuartel | `cap_chela_2` | capitulo 2 de westpoint, entre sus ofertas (confianza 2+) | `historia_westpoint_1` | - | - | `historia_westpoint_2` = true (final_cumplido)<br>`radio_westpoint` = true (final_cumplido) |
 | La calle Main | `cap_chela_4` | capitulo 4 de westpoint, entre sus ofertas (confianza 4+) | `historia_westpoint_3` | - | - | `historia_westpoint_4` = fallido (final_muerta)<br>`historia_westpoint_4` = true (final_descansa)<br>`historia_westpoint_4` = true (final_relicario) |
-| El ring de Lexington | `cap_nacho_2` | capitulo 2 de riverside, entre sus ofertas (confianza 2+) | `historia_riverside_1` | - | - | `historia_riverside_2` = true (final_cumplido) |
-| La muchacha que esperaba | `cap_nacho_3` | capitulo 3 de riverside, entre sus ofertas (confianza 3+) | `historia_riverside_2` | - | - | `historia_riverside_3` = fallido (final_muerta)<br>`historia_riverside_3` = true (final_cumplido)<br>`lucia` = en_riverside (final_cumplido)<br>`lucia` = muerta (final_muerta) |
-| Las campanas de Riverside | `cap_nacho_4` | capitulo 4 de riverside, entre sus ofertas (confianza 4+) | `historia_riverside_3` | `historia_riverside_2`, `lucia` | - | `historia_riverside_4` = fallido (final_vacia)<br>`historia_riverside_4` = true (final_cumplido) |
+| El ring de Lexington | `cap_nacho_2` | capitulo 2 de riverside, entre sus ofertas (confianza 2+) | `historia_riverside_1` | - | - | `curtis` = agua (final_cumplido_despensa)<br>`curtis` = echado (final_cumplido_despensa)<br>`curtis` = muerto (final_cumplido_despensa)<br>`despensa_riverside` = defendida (final_cumplido_despensa)<br>`despensa_riverside` = robada (final_cumplido)<br>`historia_riverside_2` = true (final_cumplido)<br>`historia_riverside_2` = true (final_cumplido_despensa) |
+| La muchacha que esperaba | `cap_nacho_3` | capitulo 3 de riverside, entre sus ofertas (confianza 3+) | `historia_riverside_2` | `eli_danner` | - | `historia_riverside_3` = fallido (final_muerta)<br>`historia_riverside_3` = true (final_cumplido)<br>`lucia` = en_riverside (final_cumplido)<br>`lucia` = muerta (final_muerta) |
+| Las campanas de Riverside | `cap_nacho_4` | capitulo 4 de riverside, entre sus ofertas (confianza 4+) | `historia_riverside_3` | `curtis`, `despensa_riverside`, `historia_riverside_2`, `lucia`, `tomas` | - | `historia_riverside_4` = fallido (final_vacia)<br>`historia_riverside_4` = true (final_cumplido) |
 | La ruta 31 | `cap_rosa_2` | capitulo 2 de rosewood, entre sus ofertas (confianza 2+) | `historia_rosewood_1` | - | - | `historia_rosewood_2` = fallido (final_muerto)<br>`historia_rosewood_2` = true (final_cumplido) |
 | El tanque | `cap_rosa_3` | capitulo 3 de rosewood, entre sus ofertas (confianza 3+) | `historia_rosewood_2` | - | - | `estanque_rosewood` = defendido (final_cumplido)<br>`estanque_rosewood` = saqueado (final_saqueado)<br>`historia_rosewood_3` = fallido (final_saqueado)<br>`historia_rosewood_3` = true (final_cumplido) |
 | La carcel de Rosewood | `cap_rosa_4` | capitulo 4 de rosewood, entre sus ofertas (confianza 4+) | `historia_rosewood_3` | - | - | `carcel_rosewood` = limpiada (final_cumplido)<br>`historia_rosewood_4` = fallido (final_abandono)<br>`historia_rosewood_4` = true (final_cumplido) |
@@ -824,6 +866,8 @@ un texto que cambia, una variante o lo que decide un final.
 | La luz de Sous | `hsous_martin_a` | al pasar por la base de Sous, de a una y con horas entre una y otra (NarradorHistoriasSous1) | `sous = aliados` | - | `hsous_martin_a`, `sous_murio_martin_a` | `hsous_martin_a` = fallido (final_fallido)<br>`hsous_martin_a` = hecho (final_hecho)<br>`hsous_martin_a` = murio (final_murio) |
 | La Awp de SOUS | `hsous_martin_z` | al pasar por la base de Sous, de a una y con horas entre una y otra (NarradorHistoriasSous1) | `sous = aliados` | - | `hsous_martin_z`, `sous_murio_martin_z` | `hsous_martin_z` = fallido (final_fallido)<br>`hsous_martin_z` = hecho (final_hecho)<br>`hsous_martin_z` = murio (final_murio) |
 | Un cientifico que dice tener la cura | `leyenda_eduardo` | capitulo 3 de westpoint, entre sus ofertas (confianza 3+) | `historia_westpoint_2` | `curandero_falso` | - | `cientifico_hartmann` = en_west_point (final_cumplido)<br>`cientifico_hartmann` = muerto (final_muerto)<br>`eduardo_conocido` = true (caido)<br>`eduardo_conocido` = true (despedida)<br>`historia_westpoint_3` = fallido (final_muerto)<br>`historia_westpoint_3` = true (final_cumplido) |
+| Eli Danner | `mision_eli` | mision de riverside, entre sus ofertas (confianza 3+) | `historia_riverside_2` | - | `eli_danner`, `historia_riverside_3` | `eli_danner` = muerto (final_muerto)<br>`eli_danner` = riverside (final_cumplido_riverside)<br>`eli_danner` = salvado (final_cumplido_salvado)<br>`eli_danner` = tarde (final_abandonado)<br>`eli_danner` = tarde (final_no_fue)<br>`eli_danner` = tarde (final_tarde) |
+| El chico de los sacos | `mision_tomas` | mision de riverside, entre sus ofertas (confianza 3+) | `historia_riverside_3` | `lucia` | `tomas` | `tomas` = sin_rastro (final_abandonado)<br>`tomas` = sin_rastro (final_sin_rastro)<br>`tomas` = tumba (final_tumba)<br>`tomas` = vivo (final_cumplido_vivo) |
 | La reconquista: la comisaria de Muldraugh | `reconquista_muldraugh` | al entrar a Muldraugh (NarradorBandido) | `reconquista = true` | `misionero_muerto_muldraugh` | `fin` | `reconquista_muldraugh` = true (final_reconquistado) |
 | La reconquista: el patio de trenes | `reconquista_patio` | con las 4 ciudades reconquistadas (NarradorBandido) | `reconquista_muldraugh`, `reconquista_riverside`, `reconquista_rosewood`, `reconquista_westpoint` | - | `fin` | `fin` = reconquista (final_luz) |
 | La reconquista: la iglesia de Riverside | `reconquista_riverside` | al entrar a Riverside (NarradorBandido) | `reconquista = true` | `misionero_muerto_riverside` | `fin` | `reconquista_riverside` = true (final_reconquistado) |
@@ -874,8 +918,10 @@ un texto que cambia, una variante o lo que decide un final.
 | `conv.<conv>.quien` | Quien respondio esa conversacion. | - | - | - | escribe: NarradorConversas |
 | `cura_<contacto>` | Como termino la primera mision de la cura de ese misionero: salvo o murio (cura_rosewood = el sobrino de la Misia Rosa). | - | - | - | escribe: Cura; lee: NarradorDominiosDefs |
 | `curandero_falso` | Los Bell compraron pastillas a un curandero falso: era el doctor Hartmann (te lo confiesa en el cap. 3 de la Chela). | familia_infectada | - | leyenda_eduardo | escribe: FamiliaInfectada; lee: LeyendaEduardo |
+| `curtis` | Que hiciste con Curtis Mabry en la despensa (cap. 2 del Padre): agua (carga agua en la iglesia, de guardia), echado o muerto. La lee el cap. 4. | cap_nacho_2 | - | cap_nacho_4 | escribe: Capitulos; lee: Capitulos |
 | `denise` | Denise (sobreviviente acorralada): rescatada, muerta o asesinada. Rescatada: Lonnie te trae su comida; asesinada: Lonnie te caza (ConsecuenciasExtra). | sobreviviente_acorralada | eco_denise_lonnie, eco_denise_olla | - | escribe: EventosCortos; lee: ConsecuenciasExtra |
 | `desertor` | El desertor: protegido, entregado, echado, muerto o asesinado. Protegido: Ray vuelve con la Guardia detras (ConsecuenciasExtra). | eco_desertor_vuelve, el_desertor | eco_desertor_vuelve | - | escribe: ConsecuenciasExtra, EventosCortos; lee: ConsecuenciasExtra |
+| `despensa_riverside` | La despensa de la iglesia del Padre la noche de la pelea con Duggan (cap. 2): robada (miraste la pelea; Curtis se llevo las latas y Riverside queda con menos comida) o defendida. La lee el cap. 4 (la misa). | cap_nacho_2 | - | cap_nacho_4 | escribe: Capitulos; lee: Capitulos |
 | `dominio_<id>` | De quien es la ciudad: nil = mision, 'bandido' o 'nuevo' (NarradorDominios). | - | - | - | escribe: NarradorDominios; lee: NarradorDominios |
 | `eduardo_atentados` | Atentados de Eduardo hechos (3). | - | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `eduardo_conocido` | Ya conociste a Eduardo (cap. 3 de la Chela). Abre sus eventos fortuitos. | leyenda_eduardo | eduardo_evento | bandido_5 | escribe: LeyendaEduardo; lee: Bandido, Encuentros, NarradorEduardo, NarradorEduardoResidente |
@@ -886,13 +932,14 @@ un texto que cambia, una variante o lo que decide un final.
 | `eduardo_muerto_duelo` | Mataste a Eduardo en el duelo de Fallas Lake. Corta sus eventos. | eduardo_fallas | eduardo_evento | - | escribe: Eduardo; lee: NarradorEduardo |
 | `eduardo_nota` | Eduardo dejo la nota con el mapa a Fallas Lake. | eduardo_atentado | eduardo_fallas | - | escribe: Eduardo; lee: NarradorBandido |
 | `eduardo_vivo` | Eduardo volvio vivo al cuartel despues de caer. | eduardo_vuelve | - | - | escribe: LeyendaEduardo; lee: NarradorEduardoResidente |
+| `eli_danner` | Eli Danner, el muchacho que esconde Lucia (mision del Padre antes del cap. 3): salvado (se queda en San Judas), riverside (lo llevaste con el Padre), muerto o tarde. El cap. 3 la lee: como te recibe Lucia. | mision_eli | mision_eli | cap_nacho_3 | escribe: NarradorGenerador; lee: Capitulos |
 | `estanque_rosewood` | El estanque de bencina de la Misia Rosa (cap. 3): defendido (cada 72 horas te deja un bidon lleno) o saqueado (no estabas cuando llegaron; en el cap. 5 hay que buscar bencina para el camion). | cap_rosa_3 | - | cap_rosa_5 | escribe: Capitulos; lee: Capitulos, NarradorConsecuencias |
 | `estanque_ultima` | Hora del ultimo bidon del estanque de la Misia Rosa (NarradorConsecuencias). | - | - | - | escribe: NarradorConsecuencias; lee: NarradorConsecuencias |
 | `faccion.<id>` | Postura de las facciones propias en A-Life (accion 'faccion'). | - | - | - | escribe: NarradorMotorAcciones |
 | `favor_<rol>` | El favor de ese miembro de Sous: hecho o murio. Con 'hecho' ya no se ofrece. | favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z | - | - | escribe: FavoresSous; lee: FavoresSous |
 | `fin` | Final del juego: eduardo_muerto o reconquista. Corta el bandido y los eventos de Eduardo. | eduardo_fallas, reconquista_patio | eduardo_atentado, eduardo_evento, eduardo_fallas, reconquista_muldraugh, reconquista_patio, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | - | escribe: Eduardo; lee: NarradorBandido, NarradorEduardo, NarradorVenganzaMeulen |
 | `hija_cabo` | Valentina: salvada o muerta. Si murio, en la reconquista la reemplaza otro (NUEVO_MURIO). | hija_cabo | - | cap_cabo_4 | escribe: HijaCabo; lee: Capitulos, NarradorDominiosDefs |
-| `historia_<id>_<n>` | Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento. | cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint, hija_cabo, leyenda_eduardo | bandido_2, cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, eduardo_vuelve, hija_cabo, leyenda_eduardo | - | escribe: Capitulos, Desbloqueos, HijaCabo, LeyendaEduardo, NarradorContactos, NarradorGenerador; lee: Capitulos, NarradorCampamentos, NarradorContactos, NarradorGenerador |
+| `historia_<id>_<n>` | Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento. | cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint, hija_cabo, leyenda_eduardo | bandido_2, cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, eduardo_vuelve, hija_cabo, leyenda_eduardo, mision_eli, mision_tomas | - | escribe: Capitulos, Desbloqueos, HijaCabo, LeyendaEduardo, NarradorContactos, NarradorGenerador; lee: Capitulos, MisionesRiverside, NarradorCampamentos, NarradorContactos, NarradorGenerador |
 | `historia_abierta` | true desde que alguien reclamo un refugio: abre el modo historia (Motor.historiaAbierta). | - | - | - | escribe: NarradorMotor; lee: NarradorMotor |
 | `historia_abierta_hora` | Hora en que se abrio el modo historia (solo para mirar). | - | - | - | escribe: Capitulos, NarradorMotor; lee: NarradorCampamentos |
 | `hora_hsous` | Hora en que se lanzo la ultima historia personal de Sous (horas entre una y otra). | - | - | - | escribe: NarradorHistoriasSous1; lee: NarradorHistoriasSous1, NarradorHistoriasSous2 |
@@ -903,11 +950,12 @@ un texto que cambia, una variante o lo que decide un final.
 | `knox_conquistado` | Las conquistas terminaron (la comisaria, West Point, Riverside y Rosewood; antes la base de Sous si Meulen es el jefe y Sous sigue en pie): Knox es de la banda. | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_westpoint | eduardo_atentado | - | escribe: NarradorBandido; lee: NarradorBandido, NarradorEduardoResidente |
 | `knox_conquistado_hora` | Hora en que Knox quedo conquistado (cuenta para el primer atentado). | - | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `lucas` | Lucas (hijo perdido): rescatado, muerto, asesinado o transformado. Rescatado: te marca una farmacia; asesinado: Loretta lo cuenta (Knox -15). | hijo_perdido | eco_lucas_farmacia, eco_lucas_loretta | - | escribe: EventosCortos; lee: ConsecuenciasExtra |
-| `lucia` | Que paso con la Hermana Lucia en el cap. 3 del Padre Nacho (en_riverside o muerta). Si murio, la reemplaza otro. | cap_nacho_3 | - | cap_nacho_4 | escribe: Capitulos; lee: Capitulos, NarradorDominiosDefs |
+| `lucia` | Que paso con la Hermana Lucia en el cap. 3 del Padre Nacho (en_riverside o muerta). Si murio, la reemplaza otro. | cap_nacho_3 | - | cap_nacho_4, mision_tomas | escribe: Capitulos; lee: Capitulos, MisionesRiverside, NarradorDominiosDefs |
 | `lugar.<clave>` | Lugares guardados con memoria_lugar (ver lugar.base_sous y compania). | - | - | - | escribe: NarradorMotorAcciones; lee: NarradorMotorAcciones |
 | `lugar.bandido_patio` | Lugar de la casa de Pereira en el patio de trenes. | - | - | - | escribe: Bandido, NarradorMotorAcciones; lee: Bandido, Eduardo, NarradorBandido, NarradorMotorAcciones |
 | `lugar.base_sous` | Lugar de la base de Sous (memoria_lugar), lo reusan favores, conquista y calendario. | - | - | - | escribe: NarradorMotorAcciones, Sous; lee: Calendario, Conquista, FavoresSous, HistoriasSous1, HistoriasSous2, NarradorBandido, NarradorCalendario, NarradorEncuentros, NarradorHistoriasSous1, NarradorMotorAcciones, NarradorObjetosServer, NarradorSousBase, Sous |
 | `lugar.eduardo_base` | Lugar de las casas de Fallas Lake. | - | - | - | escribe: Eduardo, NarradorMotorAcciones; lee: Eduardo, NarradorMotorAcciones |
+| `lugar.san_judas` | San Judas, la iglesia de Lucia en March Ridge (mision de Eli Danner); el cap. 3 vuelve ahi. | - | - | - | escribe: MisionesRiverside, NarradorMotorAcciones; lee: Capitulos, NarradorMotorAcciones |
 | `maulen_hora` | Hora en que se perdono a Meulen (72 horas despues toma el patio). | - | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `maulen_salvado` | Dejaste ir a Meulen en el escondite: abre su camino como jefe del patio. | sous | bandido_maulen, conquista_sous | - | escribe: Sous; lee: NarradorBandido, NarradorVenganzaMeulen |
 | `mercader_<oficio>_<contacto>` | Cual de K.MERCADERES hace un oficio del campamento porque el propio murio (indice). | - | - | - | escribe: NarradorCampamentosDefs, NarradorDominios; lee: NarradorCampamentosDefs, NarradorDominios |
@@ -930,6 +978,7 @@ un texto que cambia, una variante o lo que decide un final.
 | `sous_historia_<rol>` | Modo historia de Sous, parte 2 (Walita, Cristonks, Hasag, Wertres): hecho, fallido, postergada o murio. El lanzador ofrece las nuevas y despues las postergadas. | historia_sous_cristian, historia_sous_cristobal, historia_sous_hanz, historia_sous_jorge | - | - | escribe: HistoriasSous2; lee: NarradorHistoriasSous2 |
 | `sous_historias2.ultima` | Hora en que el lanzador de HistoriasSous2 lanzo (o reintento) la ultima historia; marca la espera entre historias. | - | - | - | escribe: NarradorHistoriasSous2; lee: NarradorHistoriasSous1, NarradorHistoriasSous2 |
 | `sous_mentira` | Le mentiste a Sous sobre la noche de Meulen (los misioneros sospechan). | sous | - | - | escribe: Sous; lee: ConversasSous, Sous |
+| `tomas` | Tomas Ferrada, el hermano de Lucia (mision del Padre despues del cap. 3): vivo (vuelve a Riverside), tumba o sin_rastro. La lee el cap. 4 (la misa). | mision_tomas | mision_tomas | cap_nacho_4 | escribe: NarradorGenerador; lee: Capitulos |
 | `trueque` | El trueque trampa: ganado. Ganado: los hermanos de los emboscadores vienen a cobrar (ConsecuenciasExtra). | trueque_trampa | eco_trueque_cobro | - | escribe: EventosCortos; lee: ConsecuenciasExtra |
 
 ### Memorias sin usar

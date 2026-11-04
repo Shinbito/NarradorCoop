@@ -5,6 +5,7 @@
 --   Tia Chela  2: La radio del cuartel        (3: el cientifico, LeyendaEduardo.lua)  4: La calle Main
 --   Cabo       2: La puerta de atras          (3: Valentina, HijaCabo.lua)  4: Los signos de pregunta
 --   Padre Nacho 2: El ring de Lexington       3: La muchacha que esperaba  4: Las campanas de Riverside
+--               (el 2 trae la despensa; entre capitulos, sus misiones de Arcos/MisionesRiverside.lua)
 --   Misia Rosa 2: La ruta 31                  3: El tanque      4: La carcel de Rosewood  5: El primer camion
 -- Textos sin tildes a proposito.
 
@@ -190,6 +191,9 @@ registrar({
 -- Padre Nacho, capitulo 2: El ring de Lexington
 -- ===========================================================================
 local DUGGAN = "duggan"
+-- Curtis Mabry, el de la banda que anota la cuenta con tiza y quiere la despensa (duggan.md).
+local CURTIS = "curtis"
+local PERFIL_CURTIS = "k93_stockyard_02"
 
 registrar({
     id = "cap_nacho_2",
@@ -257,7 +261,99 @@ registrar({
                   inmortales = true, postura = "friendly", perfiles = { { "duggan", "k93_kessinger_10" } }, nombres = { duggan = { "Frank", "Duggan" } } },
                 { "decir_contacto", texto = "Frank. Cuarenta anos. Estas mas viejo. Yo tambien. Sin guantes, como en el 79." },
             },
-            salidas = { { cuando = { "grupo_listo", DUGGAN .. "_ring" }, ir = "round" } },
+            salidas = { { cuando = { "grupo_listo", DUGGAN .. "_ring" }, ir = "despensa_aviso" } },
+        },
+        -- La despensa (mision del rol): mientras pelean, Curtis Mabry entra por atras a la
+        -- despensa. El Padre lo sabe por la rejilla (un hombre de Duggan se confeso) y no lo puede
+        -- decir: solo pide que alguien mire la pelea. Se elige: mirar (round; la despensa queda
+        -- robada) o ir a la despensa (se pierde la pelea y se la cuentan despues). Partidas de
+        -- antes: si ya estaban en "round", la variable despensa no existe y todo sigue como antes.
+        despensa_aviso = {
+            pista = "Duggan espera en el atrio. Algo pasa en la despensa de la iglesia: quedate a mirar la pelea o ve a la despensa (clic derecho cerca del Padre).",
+            ancla = "contacto", radio = 20,
+            al_entrar = {
+                { "variable", nombre = "despensa", valor = "mirar" },
+                { "decir", grupo = DUGGAN .. "_ring", rol = "duggan", texto = "Curtis no vino. Ese siempre mira. ... No es asunto mio. Pelea, Pegas." },
+                { "aviso", retraso = 0.03, texto = "Lazaro se levanta de la primera fila y se va ladrando hacia el fondo de la iglesia. Por la ventanita de la despensa se mueve una linterna. El Padre mira para alla un segundo y despues termina de vendarse, sin decir nada." },
+                { "decir_contacto", retraso = 0.05, texto = "Hijo, sin arbitro alguien tiene que mirar. Quedate. ... Lo demas es asunto de Dios." },
+            },
+            opciones = {
+                { id = "mirar", texto = "Quedarte en el atrio a mirar la pelea", acciones = { { "variable", nombre = "despensa", valor = "mirar" } } },
+                { id = "despensa", texto = "Ir a la despensa: alguien entro por atras", acciones = { { "variable", nombre = "despensa", valor = "defender" } } },
+            },
+            salidas = {
+                { cuando = { "eleccion", "despensa" }, ir = "despensa" },
+                { cuando = { "o", { "eleccion", "mirar" }, { "horas", 0.5 } }, ir = "round" },
+            },
+        },
+        despensa = {
+            pista = "Sacar a los que entraron a la despensa de la iglesia.",
+            objetivo = "despensa",
+            al_entrar = {
+                -- Atras de la iglesia, fuera del atrio (la vuelta pide estar a 12 del Padre).
+                { "lugar_cerca", id = "despensa", de = "contacto", distancia = 14 },
+                { "aviso", texto = "Dejas el atrio a tus espaldas. Atras de la iglesia, la puerta de la despensa esta forzada; adentro alguien llena sacos de harina con latas, a oscuras. A lo lejos se oye el primer golpe. Nadie cuenta los rounds." },
+                { "npcs", id = CURTIS, lugar = "despensa", radio = 30, no_mas_cerca = 4, modo = "guard", quietos = true, correa = 3,
+                  postura = "friendly", perfiles = { { "curtis", PERFIL_CURTIS } }, nombres = { curtis = { "Curtis", "Mabry" } } },
+                { "bandidos", id = "ladrones", lugar = "despensa", radio = 30, no_mas_cerca = 4, modo = "hunt", cantidad = { 2, 3 }, retraso = 0.02 },
+            },
+            salidas = {
+                { cuando = { "mato_jugador", CURTIS }, ir = "curtis_mataste" },
+                { cuando = { "todos_muertos", CURTIS }, ir = "curtis_muerto" },
+                { cuando = { { "grupo_listo", CURTIS }, { "o", { "todos_muertos", "ladrones" }, { "horas", 1.5 } } }, ir = "curtis" },
+                -- Si Curtis nunca aparece (A-Life no lo creo), se escapo por el callejon.
+                { cuando = { "horas", 3 }, ir = "curtis_echado" },
+            },
+        },
+        curtis = {
+            pista = "Hablar con Curtis Mabry (clic derecho cerca).",
+            ancla = "despensa", ancla_grupo = CURTIS, radio = 15,
+            al_entrar = {
+                { "decir", grupo = CURTIS, rol = "curtis", texto = "No me mires asi. Yo anoto la cuenta, con tiza. Aca habia latas y nadie las anotaba. ... Frank dijo que no. Frank dice que no a todo." },
+            },
+            opciones = {
+                { id = "agua", texto = "Llevar a Curtis con el Padre: que pague cargando agua para la iglesia",
+                  dice = { rol = "curtis", texto = "Agua? Para el cura? ... Prefiero eso a que me vea Frank." } },
+                { id = "echar", texto = "Echar a Curtis de Riverside",
+                  dice = { rol = "curtis", texto = "Ya. Me voy. Pero la tiza me la llevo." } },
+            },
+            salidas = {
+                { cuando = { "mato_jugador", CURTIS }, ir = "curtis_mataste" },
+                { cuando = { "todos_muertos", CURTIS }, ir = "curtis_muerto" },
+                { cuando = { "eleccion", "agua" }, ir = "curtis_agua" },
+                { cuando = { "eleccion", "echar" }, ir = "curtis_echado" },
+            },
+        },
+        curtis_agua = { al_entrar = { { "variable", nombre = "curtis", valor = "agua" } }, salidas = { { ir = "vuelta" } } },
+        curtis_echado = {
+            al_entrar = {
+                { "variable", nombre = "curtis", valor = "echado" },
+                { "retirar_lejos", grupo = CURTIS, lugar = "despensa", radio = 40, retraso = 0.1 },
+            },
+            salidas = { { ir = "vuelta" } },
+        },
+        curtis_mataste = { al_entrar = { { "variable", nombre = "curtis", valor = "mataste" } }, salidas = { { ir = "vuelta" } } },
+        curtis_muerto = { al_entrar = { { "variable", nombre = "curtis", valor = "muerto" } }, salidas = { { ir = "vuelta" } } },
+        vuelta = {
+            pista = "Volver al atrio, con el Padre Nacho. La pelea ya termino.",
+            objetivo = "contacto",
+            salidas = { { cuando = { "cerca", "contacto", 12 }, ir = "relato" } },
+        },
+        -- No viste la pelea: te la cuentan.
+        relato = {
+            al_entrar = {
+                { "decir", grupo = DUGGAN .. "_ring", rol = "duggan", texto = "Llegas tarde. Igual que el arbitro de Lexington, pero al reves." },
+                { "aviso", retraso = 0.03, texto = { por_var = "ganador", textos = {
+                    nacho = "En el atrio, Duggan esta sentado en la escalera con la ceja derecha abierta otra vez. El Padre tiene los nudillos pelados y una sonrisa chueca.",
+                    otro = "En el atrio, el Padre esta sentado en la escalera con la nariz sangrando. Se levanto, dicen. Duggan se venda las manos de nuevo, sin apuro." } } },
+                { "decir_contacto", retraso = 0.05, texto = { por_var = "ganador", textos = {
+                    nacho = "Le gane, hijo. Otra vez la derecha. Y no me vio nadie: ahora Frank va a contar que lo pararon temprano. Te pedi que miraras.",
+                    otro = "Me gano Frank. Me levante, eso si. ... Mejor que no me vieras en la lona. Igual te pedi que miraras." } } },
+                { "decir", grupo = DUGGAN .. "_ring", rol = "duggan", retraso = 0.08, texto = { por_var = "ganador", textos = {
+                    nacho = "Me voy de Riverside. Palabra de boxeador.",
+                    otro = "Te gane, Pegas. Me voy igual. Un hombre que se levanta asi se merece su pueblo." } } },
+            },
+            salidas = { { cuando = { "horas", 0.15 }, ir = "final_cumplido_despensa" } },
         },
         round = {
             al_entrar = {
@@ -268,13 +364,40 @@ registrar({
                 { "decir", grupo = DUGGAN .. "_ring", rol = "duggan", retraso = 0.12, texto = { por_var = "ganador", textos = {
                     nacho = "Otra vez, cura. Otra vez la derecha. ... Me voy de Riverside. Palabra de boxeador.",
                     otro = "Te gane, cura. Pero te levantaste. En el 79 tambien te levantaste. ... Me voy igual. Un hombre que se levanta asi se merece su pueblo." } } },
+                { "aviso", retraso = 0.18, si = { "var", "despensa", "mirar" },
+                  texto = "Cuando se apagan los golpes, Ruth Haney sale corriendo de la iglesia: la puerta de la despensa esta forzada. Curtis Mabry y dos mas se llevaron las latas por el callejon." },
             },
             salidas = { { cuando = { "horas", 0.2 }, ir = "final_cumplido" } },
         },
-        final_cumplido = cierre("riverside", 2,
-            "El Padre Nacho peleo con Frank Duggan en el atrio de la iglesia, sin guantes, como en Lexington el 79. Duggan se fue de Riverside con su banda. El Padre se curo los nudillos con vino de misa y dijo que Dios le dio dos punos por algo.",
+        -- Miraste la pelea (o la partida venia de antes de la despensa: sin la variable, el texto de siempre).
+        final_cumplido = cierre("riverside", 2, { por_var = "despensa", textos = {
+                mirar = "El Padre Nacho peleo con Frank Duggan en el atrio, sin guantes, como en Lexington el 79, y yo mire, como me pidio. Duggan se fue de Riverside con su banda. Mientras tanto Curtis Mabry se llevo las latas de la despensa. El Padre dijo que Dios da y Curtis quita, y que con un testigo le bastaba.",
+                otro = "El Padre Nacho peleo con Frank Duggan en el atrio de la iglesia, sin guantes, como en Lexington el 79. Duggan se fue de Riverside con su banda. El Padre se curo los nudillos con vino de misa y dijo que Dios le dio dos punos por algo." } },
             { { "retirar_lejos", grupo = DUGGAN .. "_ring", lugar = "contacto", radio = 60, retraso = 0.5 },
-              { "decir_contacto", texto = "Hijo, no le cuentes a nadie que el cura anda a punetazos. ... Bueno, cuentale a todos. Toma." } }),
+              { "decir_contacto", texto = "Hijo, no le cuentes a nadie que el cura anda a punetazos. ... Bueno, cuentale a todos. Toma." },
+              { "decir_contacto", retraso = 0.06, si = { "var", "despensa", "mirar" },
+                texto = "Se llevaron las latas. Dios da y Curtis quita. ... Pero tuve testigo, hijo. Sin arbitro, con eso me basta." },
+              { "memoria", clave = "despensa_riverside", valor = "robada", si = { "var", "despensa", "mirar" } },
+              { "reserva_campamento", contacto = "riverside", moneda = "comida", cantidad = -25, si = { "var", "despensa", "mirar" } } }),
+        -- Fuiste a la despensa: te contaron la pelea. Lo que el Padre dice depende de Curtis.
+        final_cumplido_despensa = cierre("riverside", 2, { por_var = "curtis", textos = {
+                agua = "Me perdi la pelea del Padre con Duggan por ir a la despensa. Curtis Mabry estaba llenando sacos con las latas; le traje al Padre y desde manana carga agua para la iglesia, a la vista de todos. Duggan se fue de Riverside. El Padre me dijo que no me lo podia pedir.",
+                echado = "Me perdi la pelea del Padre con Duggan por ir a la despensa. Eche a Curtis Mabry de Riverside con las manos vacias. Duggan se fue igual. El Padre me dijo que fui donde el no podia ir.",
+                mataste = "Me perdi la pelea del Padre con Duggan por ir a la despensa, y alla mate a Curtis Mabry. La despensa esta entera. El Padre me dio las gracias y despues me dijo que al que esta en el suelo se le da la mano o un balde, no una tumba.",
+                otro = "Me perdi la pelea del Padre con Duggan por ir a la despensa. Curtis Mabry murio ahi, entre los suyos. La despensa esta entera y Duggan se fue de Riverside. El Padre dijo que lo iba a enterrar el." } },
+            { { "retirar_lejos", grupo = DUGGAN .. "_ring", lugar = "contacto", radio = 60, retraso = 0.5 },
+              { "decir_contacto", retraso = 0.02, texto = { por_var = "curtis", textos = {
+                    agua = "Y me traes a Curtis. ... Bien. Desde manana carga agua para la iglesia, a la vista de todos. Lo anoto en la lista, con signo de pregunta. Gracias por ir, hijo. Yo no te lo podia pedir. Toma.",
+                    echado = "Echaste a Curtis y la despensa esta entera. ... Fuiste donde yo no podia ir, hijo. No te lo podia pedir, y fuiste igual. Toma.",
+                    mataste = "La despensa esta entera. Gracias. ... Pero al que esta en el suelo se le da la mano o un balde, hijo. No una tumba. Toma, y anda a lavarte.",
+                    otro = "Curtis murio entre los suyos. Lo entierro yo, que para eso estoy. La despensa esta entera, hijo. No te lo podia pedir. Toma." } } },
+              { "memoria", clave = "despensa_riverside", valor = "defendida" },
+              { "memoria", clave = "curtis", valor = "agua", si = { "var", "curtis", "agua" } },
+              { "memoria", clave = "curtis", valor = "echado", si = { "var", "curtis", "echado" } },
+              { "memoria", clave = "curtis", valor = "muerto", si = { "o", { "var", "curtis", "muerto" }, { "var", "curtis", "mataste" } } },
+              { "salvado_campamento", contacto = "riverside", nombre = "Curtis", apellido = "Mabry", perfil = PERFIL_CURTIS,
+                grupo = CURTIS, rol = "curtis", si = { { "var", "curtis", "agua" }, { "vivo", CURTIS, "curtis" } } },
+              { "retirar_lejos", grupo = CURTIS, lugar = "contacto", radio = 40, retraso = 1 } }),
     },
 })
 
@@ -282,23 +405,36 @@ registrar({
 -- Padre Nacho, capitulo 3: La muchacha que esperaba
 -- ===========================================================================
 local LUCIA = "lucia"
-local PUEBLOS_LUCIA = { "March Ridge", "Ekron", "Brandenburg", "Irvington", "Echo Creek" }
+-- Lucia vive en San Judas, en March Ridge (CANON). Antes el capitulo sorteaba entre cinco pueblos;
+-- ahora vuelve a la iglesia de la mision de Eli Danner (lugar.san_judas) o la busca en March Ridge.
+-- La mision de Eli (Arcos/MisionesRiverside.lua) deja eli_danner: cambia como te recibe Lucia
+-- (vars_desde_memoria: queda en la variable eli_danner). Partidas que ya iban por el capitulo:
+-- conservan su iglesia y, sin la variable, los textos de siempre ("otro").
+local LUCIA_CONFIA = { "o", { "var", "eli_danner", "salvado" }, { "var", "eli_danner", "riverside" } }
 
 registrar({
     id = "cap_nacho_3",
     titulo = "La muchacha que esperaba",
     titulo_menu = "Historia del Padre Nacho, cap. 3: la muchacha que esperaba",
     requiere_alife = true, automatico = false,
-    sorteo = { pueblo_lucia = { valores = PUEBLOS_LUCIA } },
+    vars_desde_memoria = { "eli_danner" },
     inicio = "encargo",
     etapas = {
         encargo = {
             al_entrar = {
-                { "lugar", id = "iglesia", pueblo = "var:pueblo_lucia", salas = { "church" }, respaldo = { "livingroom", "office" },
-                  cerca_del_centro = true },
-                { "decir_contacto", texto = "Hijo... hace anos me fui un domingo sin avisar. Una muchacha, Lucia, me espero en la iglesia toda la tarde. Nunca supe que paso con ella. Un feligres dice que la vio en {lugar:iglesia}. Si esta viva... dile que el cura ya no se va." },
+                { "lugar_memoria", id = "iglesia", clave = "san_judas", pueblo = "March Ridge", nombre = "San Judas", salas = { "church" },
+                  respaldo = { "livingroom", "office" }, cerca_del_centro = true },
+                { "decir_contacto", texto = "Hijo. El 86 me fui un domingo sin avisar y Lucia me espero toda la tarde. Ahora esta en {lugar:iglesia}. Me clavo un recado: que no mande a nadie, que no me esta esperando. Te mando igual. Llevale esta carta: dice que estoy aqui y aqui me quedo, venga o no venga. Y que el pulgar va afuera." },
+                { "decir_contacto", retraso = 0.05, si = { "var", "eli_danner", "salvado" },
+                  texto = "Despues de lo de Eli, a ti te abre. A mi no se si me abre." },
+                { "decir_contacto", retraso = 0.05, si = { "var", "eli_danner", "riverside" },
+                  texto = "Eli dice que ella le cantaba los recados para que no llorara. Ella sabe que esta aca, cargando agua. Algo es." },
+                { "decir_contacto", retraso = 0.05, si = { "var", "eli_danner", "muerto" },
+                  texto = "Lo de Eli no fue culpa tuya, hijo. Pero ella lo tiene anotado con fecha y hora. Asi es Lucia." },
+                { "decir_contacto", retraso = 0.05, si = { "var", "eli_danner", "tarde" },
+                  texto = "Con Eli llegamos tarde, hijo. Los dos. Ella lo va a tener anotado. Anda igual." },
                 { "mapa", lugar = "iglesia", titulo = "Mapa del Padre Nacho: Lucia" },
-                { "diario", texto = "El Padre Nacho me conto lo de Lucia, la muchacha que lo espero un domingo. Dicen que esta en {lugar:iglesia}." },
+                { "diario", texto = "El Padre Nacho me conto lo de Lucia, la muchacha que lo espero un domingo del 86. Esta en {lugar:iglesia}. Le llevo una carta del Padre." },
             },
             salidas = { { ir = "viaje" } },
         },
@@ -314,9 +450,13 @@ registrar({
                 { "npcs", id = LUCIA, lugar = "iglesia", radio = 35, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 5,
                   postura = "friendly", perfiles = { { "lucia", "k93_prather_08" } }, nombres = { lucia = { "Lucia", "Ferrada" } }, femeninos = { "lucia" } },
                 { "oleada", lugar = "iglesia", radio = 50, cantidad = { 20, 28 }, min = 12, max = 30 },
+                { "aviso", retraso = 0.05, si = LUCIA_CONFIA,
+                  texto = "Esta vez Lucia te ve llegar desde el coro y baja por la cuerda de la campana antes de que alcances la puerta." },
             },
             salidas = {
                 { cuando = { "todos_muertos", LUCIA }, ir = "final_muerta" },
+                -- Si salvaste a Eli, Lucia sale a recibirte sin esperar a que limpies.
+                { cuando = { { "grupo_listo", LUCIA }, LUCIA_CONFIA }, ir = "hablar" },
                 { cuando = { { "grupo_listo", LUCIA }, { "o", { "sin_zombis", "iglesia", 15 }, { "horas", 1 } } }, ir = "hablar" },
             },
         },
@@ -324,11 +464,21 @@ registrar({
             pista = "Hablar con Lucia (clic derecho cerca).",
             ancla = "iglesia", ancla_grupo = LUCIA, radio = 20,
             al_entrar = {
-                { "decir", grupo = LUCIA, rol = "lucia", texto = "Pegas? Nacho Pegas? ... Lo espere toda una tarde. Despues me quede a vivir en iglesias. Siempre con la puerta abierta. Por si alguien llegaba tarde." },
+                { "decir", grupo = LUCIA, rol = "lucia", texto = { por_var = "eli_danner", textos = {
+                    salvado = "Usted otra vez. Pase nomas. Eli le guardo la banca de adelante. ... Ya se a que viene. Nacho manda a otros. Esta vez lo dejo.",
+                    riverside = "Usted. Eli me mando decir que en Riverside le dan un balde y no le preguntan nada. ... Ya se a que viene.",
+                    muerto = "Usted. Eli esta al lado de los tomates. Usted peleo, eso lo vi. ... Ya se a que viene.",
+                    tarde = "Usted llego tarde. Ya lo se. Igual lo estaba esperando, que es lo peor de esperar. ... Esta vez no viene por Eli. Ya se a que viene.",
+                    otro = "Usted viene de parte de Nacho. Le dije que no mandara a nadie. ... Lo espere toda una tarde, el 86. Despues me quede a vivir en iglesias, con la puerta abierta. Por si alguien llegaba tarde." } } },
             },
             opciones = {
-                { id = "convencer", texto = "Decirle que vaya con el Padre, que la espera y ya no se va",
-                  dice = { rol = LUCIA, texto = "Que no se va. ... Ya. Vamos. Pero me siento en la primera fila y el me mira a la cara." } },
+                { id = "convencer", texto = "Darle la carta del Padre: que se queda, venga o no venga",
+                  dice = { rol = LUCIA, texto = { por_var = "eli_danner", textos = {
+                      salvado = "El pulgar afuera. ... Ya. Vamos. Eli se queda cuidando la puerta. Pero me siento en la primera fila y el me mira a la cara.",
+                      riverside = "El pulgar afuera. ... Ya. Vamos. Asi veo como le queda el balde a Eli. Pero me siento en la primera fila y el me mira a la cara.",
+                      muerto = "No me prometa nada. Aca las promesas se pudren mas rapido que los muertos. ... Vamos igual. Me siento en la primera fila y el me mira a la cara.",
+                      tarde = "No me prometa nada. Aca las promesas se pudren mas rapido que los muertos. ... Vamos igual. Me siento en la primera fila y el me mira a la cara.",
+                      otro = "Que no se va. ... Ya. Vamos. Pero me siento en la primera fila y el me mira a la cara." } } } },
             },
             salidas = {
                 { cuando = { "todos_muertos", LUCIA }, ir = "final_muerta" },
@@ -992,6 +1142,15 @@ registrar({
                 { "decir_contacto", texto = "Buena cuerda, hijo. Aguanta un ahorcado y un campanario. ... Mala broma. Manana al mediodia. Trae todo lo que dispare." },
                 { "decir_contacto", retraso = 0.05, si = { "memoria", "lucia", "en_riverside" },
                   texto = "Lucia ya aparto la primera fila. Dice que esta vez el que llega tarde es el pueblo, no yo." },
+                -- Lo que dejaron la despensa (cap. 2) y la mision de Tomas.
+                { "decir_contacto", retraso = 0.06, si = { "memoria", "despensa_riverside", "robada" },
+                  texto = "La despensa sigue flaca desde la noche de Curtis. Si viene mucha gente, el pan se reparte en migas. Igual se reparte." },
+                { "decir_contacto", retraso = 0.06, si = { "memoria", "despensa_riverside", "defendida" },
+                  texto = "Y si viene mucha gente, hay porotos para todos. Los que tu defendiste la noche de Frank." },
+                { "decir_contacto", retraso = 0.07, si = { "memoria", "tomas", "vivo" },
+                  texto = "Tomas dice que el no entra a misa. Que se queda en la escalera, como antes. Ya veremos, hijo." },
+                { "decir_contacto", retraso = 0.07, si = { "memoria", "tomas", "tumba" },
+                  texto = "Las campanas tambien son por Tomas. Que se oigan hasta Louisville." },
             },
             salidas = { { cuando = { { "cerca", "contacto", 25 }, { "hora_entre", 11, 14 } }, ir = "campanario" } },
         },
@@ -1036,6 +1195,18 @@ registrar({
                   texto = "En la primera fila, Lucia mira al Padre a la cara, como pidio. El tambien la mira." },
                 { "aviso", retraso = 0.12, si = { "memoria", "historia_riverside_2", true },
                   texto = "Al fondo, de pie, con el sombrero en la mano, esta Frank Duggan. Escucho las campanas desde el camino. Se va antes de la bendicion." },
+                { "aviso", retraso = 0.14, si = { { "memoria", "tomas", "vivo" }, { "memoria", "lucia", "en_riverside" } },
+                  texto = "Tomas Ferrada no se queda en la escalera. Entra con el pan duro en la mano y se sienta en la primera fila, al lado de su hermana." },
+                { "aviso", retraso = 0.14, si = { { "memoria", "tomas", "vivo" }, { "no", { "memoria", "lucia", "en_riverside" } } },
+                  texto = "Tomas Ferrada no se queda en la escalera. Entra y se sienta en la primera fila, la que era de su hermana." },
+                { "aviso", retraso = 0.14, si = { "memoria", "tomas", "tumba" },
+                  texto = "Despues de la ultima campanada, el Padre lee en voz alta un nombre de la lista: Tomas Ferrada. Esta vez con cruz, y con nombre." },
+                { "aviso", retraso = 0.14, si = { { "memoria", "tomas", "sin_rastro" }, { "memoria", "lucia", "en_riverside" } },
+                  texto = "Al final, Lucia canta el recado de siempre, ahora desde Riverside: 'Tomas Ferrada, tu hermana esta aqui.'" },
+                { "aviso", retraso = 0.16, si = { "memoria", "curtis", "agua" },
+                  texto = "Al fondo, Curtis Mabry deja dos baldes llenos junto a la pila. No se sienta. El Padre lo tiene en la lista." },
+                { "aviso", retraso = 0.16, si = { "memoria", "despensa_riverside", "robada" },
+                  texto = "A la salida no alcanza el pan para todos. En el tercer escalon, debajo de la piedra suelta, alguien dejo seis latas. Nadie dice quien." },
             },
             salidas = { { cuando = { "horas", 0.3 }, ir = "final_cumplido" } },
         },

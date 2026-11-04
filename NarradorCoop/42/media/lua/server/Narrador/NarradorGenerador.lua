@@ -840,11 +840,25 @@ G.ESPECIALES = {
       titulo = "El ring de Lexington",
       resumen = { "Historia del Padre Nacho, cap. 2", "Para: retar al Martillo Duggan",
                   "Donde: su guarida y despues la iglesia", "Pago: botin medio", "Ojo: no todos pelean limpio" } },
+    -- Misiones del Padre que salieron del rol (Arcos/MisionesRiverside.lua). No son capitulos: sin
+    -- "capitulo", con su propia memoria en "hecho" (la deja cada final) y la condicion "si" de su
+    -- definicion. Van antes del capitulo que las lee: G.ofertaEspecial da la primera que calza, asi
+    -- que el Padre ofrece primero la mision y despues el capitulo.
+    { def = "mision_eli", contacto = "riverside", requiere = "historia_riverside_2",
+      hecho = "eli_danner", confianza = 3, pago = "medio", chance = 1,
+      titulo = "Mision del Padre: Eli Danner",
+      resumen = { "Mision del Padre Nacho (antes del cap. 3)", "Para: Eli Danner, el muchacho que esconde Lucia",
+                  "Donde: San Judas, en March Ridge", "Pago: botin medio", "Ojo: los del patio llegan en un dia y medio" } },
     { def = "cap_nacho_3", contacto = "riverside", capitulo = 3, requiere = "historia_riverside_2",
       hecho = "historia_riverside_3", confianza = 3, pago = "dificil", chance = 1,
       titulo = "La muchacha que esperaba",
       resumen = { "Historia del Padre Nacho, cap. 3", "Para: Lucia, la que lo espero un domingo",
                   "Donde: una iglesia de otro pueblo", "Pago: botin dificil", "Ojo: hay que traerla viva" } },
+    { def = "mision_tomas", contacto = "riverside", requiere = "historia_riverside_3",
+      hecho = "tomas", confianza = 3, pago = "dificil", chance = 1,
+      titulo = "Mision del Padre: el chico de los sacos",
+      resumen = { "Mision del Padre Nacho (despues del cap. 3)", "Para: Tomas Ferrada, el hermano de Lucia",
+                  "Donde: la panaderia Hollis y despues Louisville", "Pago: botin dificil", "Ojo: hay que traerlo vivo" } },
     { def = "cap_nacho_4", contacto = "riverside", capitulo = 4, requiere = "historia_riverside_3",
       hecho = "historia_riverside_4", confianza = 4, pago = "dificil", chance = 1,
       titulo = "Las campanas de Riverside",
@@ -891,6 +905,12 @@ function G.capituloEscrito(contactoId, memoria)
     return false
 end
 
+-- La condicion "si" de la definicion (como en el director): solo mira la memoria de la partida.
+local SIN_INST = { vars = {}, lugares = {}, grupos = {}, relojes = {}, elecciones = {}, usadas = {} }
+local function cumpleSi(def)
+    return def.si == nil or Motor.cumple(SIN_INST, def.si)
+end
+
 -- Ojo: NarradorDominios.lua envuelve esta funcion (cambia lo que hace segun quien manda en la ciudad).
 function G.ofertaEspecial(contactoId, nivel, grupo)
     local st = Motor.estado()
@@ -898,6 +918,7 @@ function G.ofertaEspecial(contactoId, nivel, grupo)
         if e.contacto == contactoId and (e.nivel == nil or e.nivel == nivel) and Defs.get(e.def) ~= nil
                 and Motor.activos(e.def) == 0 and st.memoria[e.hecho] == nil
                 and (e.requiere == nil or st.memoria[e.requiere] ~= nil or not G.capituloEscrito(e.contacto, e.requiere))
+                and cumpleSi(Defs.get(e.def))
                 and R.nivel(R.valor(grupo, contactoId)) >= (e.confianza or 1) and Mundo.azar(e.chance or 1) == 1 then
             local titulo = e.capitulo ~= nil and ("Historia, cap. " .. e.capitulo .. ": " .. e.titulo) or e.titulo
             return { def = e.def, vars = { nivel = e.pago or nivel }, lugares = { contacto = C.lugar(contactoId) },

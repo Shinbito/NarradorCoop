@@ -116,6 +116,10 @@ DESENLACES = {
     ("hija_cabo", "salvada"): "Valentina vuelve con el Cabo",
     ("hija_cabo", "muerta"): "Valentina muere",
     ("lucia", "en_riverside"): "Lucia vuelve a Riverside",
+    ("despensa_riverside", "robada"): "Curtis se lleva la despensa del Padre",
+    ("eli_danner", "tarde"): "Los del patio corrigen la lista (Eli muere)",
+    ("tomas", "vivo"): "Tomas Ferrada vuelve a Riverside",
+    ("tomas", "tumba"): "Tomas Ferrada tiene cruz con nombre",
     ("estanque_rosewood", "defendido"): "El estanque queda a salvo",
     ("estanque_rosewood", "saqueado"): "Los bandidos vacian el estanque",
 }
@@ -125,15 +129,16 @@ REPETIBLES = ("encargo_", "enc_", "inmoral_", "recado_")
 
 
 def especiales():
-    """Capitulos de G.ESPECIALES: def -> (contacto, capitulo, requiere, hecho, confianza)."""
+    """Capitulos y misiones de G.ESPECIALES: def -> (contacto, capitulo, requiere, hecho, confianza).
+    Una mision no lleva capitulo (queda None) y deja su propia memoria (hecho)."""
     ruta = os.path.join(LUA, "server", "Narrador", "NarradorGenerador.lua")
     texto = open(ruta, encoding="utf-8").read()
     caps = {}
     for bloque in re.findall(r'\{\s*def = "[^"]+",[^{}]*', texto):
         campos = dict(re.findall(r'(\w+) = "?([^",\s]+)"?', bloque))
-        if "capitulo" in campos:
-            caps[campos["def"]] = (campos["contacto"], int(campos["capitulo"]), campos.get("requiere"),
-                                   campos["hecho"], campos.get("confianza"))
+        if "capitulo" in campos or ("hecho" in campos and "contacto" in campos):
+            caps[campos["def"]] = (campos["contacto"], int(campos["capitulo"]) if "capitulo" in campos else None,
+                                   campos.get("requiere"), campos["hecho"], campos.get("confianza"))
     return caps
 
 
@@ -202,16 +207,18 @@ return function()
     local titulo = tostring(def.titulo or def.id)
     if string.find(titulo, "{", 1, true) then titulo = tostring(def.titulo_menu or def.id) end
     local d = { id = def.id, titulo = titulo, auto = def.automatico ~= false,
-                pide = {}, lee = {}, abre = {}, deja = {}, finales = {}, trans = {}, opciones = {} }
-    -- La condicion "si" de la historia: sin ella no se lanza (el director, los ecos...).
-    local function requisitos(c)
+                pide = {}, corta = {}, lee = {}, abre = {}, deja = {}, finales = {}, trans = {}, opciones = {} }
+    -- La condicion "si" de la historia: sin ella no se lanza (el director, los ecos...). Lo que va
+    -- dentro de un "no" la corta (la memoria la apaga).
+    local function requisitos(c, negado)
       if type(c) ~= "table" then return end
-      if c[1] == "no" then return end
+      if c[1] == "no" then requisitos(c[2], not negado); return end
       if (c[1] == "memoria" or c[1] == "mem") and type(c[2]) == "string" then
-        d.pide[#d.pide + 1] = { clave = c[2], valor = c[3] ~= nil and tostring(c[3]) or nil }
+        local l = negado and d.corta or d.pide
+        l[#l + 1] = { clave = c[2], valor = c[3] ~= nil and tostring(c[3]) or nil }
         return
       end
-      for _, x in ipairs(c) do requisitos(x) end
+      for _, x in ipairs(c) do requisitos(x, negado) end
     end
     requisitos(def.si)
     for _, k in ipairs(def.vars_desde_memoria or {}) do d.lee[#d.lee + 1] = k end
@@ -274,6 +281,7 @@ def cargar():
             "id": d.id, "titulo": d.titulo, "auto": d.auto,
             "lee": sorted(set(lista(d.lee))),
             "si": sorted({(p.clave, p.valor) if p.valor is not None else p.clave for p in lista(d.pide)}, key=str),
+            "si_no": sorted({(p.clave, p.valor) if p.valor is not None else p.clave for p in lista(d.corta)}, key=str),
             "abre": sorted({(x["def"], x.etapa) for x in lista(d.abre)}),
             "finales": sorted(lista(d.finales)),
             "deja": sorted({(x.clave, x.valor, x.etapa, x.final) for x in lista(d.deja)}),
@@ -380,13 +388,17 @@ def main():
     def lanzado(a):
         """(como se lanza, memorias que pide, memorias que lo cortan). Suma la condicion "si"."""
         como, pide, corta = lanzado_por(a)
-        return como, list(pide) + [p for p in a["si"] if p not in pide], corta
+        return (como, list(pide) + [p for p in a["si"] if p not in pide],
+                list(corta) + [p for p in a["si_no"] if p not in corta])
 
     def lanzado_por(a):
         if a["id"] in caps:
-            c, n, req, _, conf = caps[a["id"]]
-            return (f"capitulo {n} de {c}, entre sus ofertas" + (f" (confianza {conf}+)" if conf else ""),
-                    [req] if req else [], [])
+            c, n, req, hecho, conf = caps[a["id"]]
+            conf_txt = f" (confianza {conf}+)" if conf else ""
+            if n is None:
+                # Mision de un misionero (sin capitulo): sale una vez, hasta que deja su memoria.
+                return f"mision de {c}, entre sus ofertas" + conf_txt, [req] if req else [], [hecho]
+            return f"capitulo {n} de {c}, entre sus ofertas" + conf_txt, [req] if req else [], []
         if a["id"] in LANZADORES:
             return LANZADORES[a["id"]]
         if a["id"] in abierto_por:

@@ -4,6 +4,7 @@
 require "Narrador/Arcos/Capitulos"
 require "Narrador/Arcos/HijaCabo"
 require "Narrador/Arcos/LeyendaEduardo"
+require "Narrador/Arcos/MisionesRiverside"
 local Mundo, Motor, G, C, R, Defs, Lore = Narrador.Mundo, Narrador.Motor, Narrador.Generador, Narrador.Contactos,
     Narrador.Reputacion, Narrador.Defs, Narrador.Lore
 local K = Narrador.Campamentos
@@ -23,11 +24,17 @@ local porContacto = {}
 for _, e in ipairs(G.ESPECIALES) do
     local def = Defs.get(e.def)
     check(def ~= nil, e.def .. " esta registrado")
-    if def ~= nil then
+    -- Las misiones (sin "capitulo") no entran en la cadena: dejan su propia memoria (hecho).
+    if def ~= nil and e.capitulo ~= nil then
         porContacto[e.contacto] = porContacto[e.contacto] or {}
         porContacto[e.contacto][e.capitulo] = e
         check(e.hecho == "historia_" .. e.contacto .. "_" .. e.capitulo, e.def .. ": deja historia_" .. e.contacto .. "_" .. e.capitulo)
         check(e.requiere == "historia_" .. e.contacto .. "_" .. (e.capitulo - 1), e.def .. ": pide el capitulo anterior")
+    elseif def ~= nil then
+        check(type(e.hecho) == "string" and e.hecho ~= "" and not string.find(e.hecho, "^historia_"),
+            e.def .. ": mision con su propia memoria (" .. tostring(e.hecho) .. ")")
+    end
+    if def ~= nil then
         local finales, sinLore = 0, {}
         for nombre, etapa in pairs(def.etapas) do
             if etapa.final then
@@ -288,6 +295,10 @@ er.x, er.y, er.z, er.etiqueta = 6000, 6000, 0, "la iglesia"
 local IGLESIA = { x = 6000, y = 6000 }
 m.historia_riverside_1, m.historia_riverside_2, m.historia_riverside_3 = true, true, true
 m.lucia = "en_riverside"
+-- Antes del cap. 4 el Padre ofrece la mision de Tomas (Arcos/MisionesRiverside.lua, prueba_riverside.lua).
+o = G.ofertaEspecial("riverside", "facil", "g1")
+check(o ~= nil and o.def == "mision_tomas", "antes del cap. 4 sale la mision de Tomas")
+m.tomas = "sin_rastro"
 o = G.ofertaEspecial("riverside", "facil", "g1")
 check(o ~= nil and o.def == "cap_nacho_4", "con Lucia de vuelta sale el cap. 4 del Padre")
 lugares.ferreteria = { x = 6300, y = 6000 }
