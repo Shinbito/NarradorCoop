@@ -14,8 +14,10 @@ require "Narrador/NarradorMotor"
 require "Narrador/NarradorContactos"
 require "Narrador/NarradorReputacion"
 require "Narrador/Arcos/Generados"
+require "Narrador/NarradorVidas"
 
 local Defs, Mundo, Motor, C, R = Narrador.Defs, Narrador.Mundo, Narrador.Motor, Narrador.Contactos, Narrador.Reputacion
+local Vidas = Narrador.Vidas
 local floor = math.floor
 
 local G = Narrador.Generador or {}
@@ -25,12 +27,14 @@ Narrador.Generador = G
 -- Datos
 -- ---------------------------------------------------------------------------
 
-G.NOMBRES_H = { "Walt", "Hector", "Earl", "Gus", "Carl", "Leroy", "Dale", "Frank", "Roy", "Wayne", "Bobby", "Clyde",
+-- Nombres al azar para los vecinos generados: ninguno es de un personaje del reparto ni de una
+-- familia del canon (nada de Walt, Hector, Earl, Pruitt, Tackett, Gentry ni Spurlock).
+G.NOMBRES_H = { "Ardell", "Estill", "Boyce", "Gus", "Carl", "Leroy", "Dale", "Frank", "Roy", "Wayne", "Bobby", "Clyde",
     "Vernon", "Floyd", "Hank", "Dewey", "Harlan", "Buck", "Otis", "Lester", "Merle", "Virgil", "Rufus", "Jesse" }
 G.NOMBRES_M = { "Doris", "Linda", "Martha", "Ruth", "Betty", "Peggy", "Judy", "Nancy", "Carol", "Sharon", "Donna",
     "Wanda", "Gloria", "Joyce", "Brenda", "Darla", "Opal", "Faye", "Mae", "Lorene", "Edna", "Hazel", "Irene", "Velma" }
-G.APELLIDOS = { "Pruitt", "Ferris", "Lindqvist", "Beaumont", "Tackett", "Caudill", "Spurlock", "Mullins", "Combs",
-    "Napier", "Sizemore", "Gentry", "Bowling", "Puckett", "Stidham", "Whitt", "Collier", "Rowe", "Slone", "Hensley",
+G.APELLIDOS = { "Eskew", "Ferris", "Lindqvist", "Beaumont", "Hamblin", "Caudill", "Shoopman", "Mullins", "Combs",
+    "Napier", "Sizemore", "Mosley", "Bowling", "Puckett", "Stidham", "Whitt", "Collier", "Rowe", "Slone", "Hensley",
     "Begley", "Fugate", "Couch", "Noble", "Amburgey", "Ritchie", "Shepherd", "Baker" }
 
 -- Perfiles civiles amistosos de A-Life por sexo (para que el nombre calce con el cuerpo).
@@ -346,6 +350,7 @@ function G.estado()
     g.puntos = g.puntos or {}
     g.diaNec = g.diaNec or floor(Mundo.horas() / 24)
     g.vecinos = g.vecinos or 0
+    g.secs = g.secs or {}
     return g
 end
 
@@ -435,7 +440,24 @@ function G.porNecesidad(lista, contacto)
     return lista[#lista]
 end
 
--- Cliente: a veces uno frecuente (sigue una cadena de pedidos).
+-- Cliente: a veces uno frecuente (sigue una cadena de pedidos). Si no, un vecino hecho a mano
+-- del pueblo que todavia no conocen (personajes/secundarios) o uno nuevo con una vida armada por
+-- el generador (NarradorVidas.lua). Los dos cuentan su historia de a poco, un encargo a la vez.
+G.CHANCE_SECUNDARIO = 50
+
+-- Un secundario del pueblo del misionero que no se conocio, no se murio y no se vino a vivir.
+function G.secundarioLibre(contacto)
+    local c = C.def(contacto)
+    if c == nil then return nil end
+    local e = G.estado()
+    local libres = {}
+    for _, s in ipairs(Vidas.secundariosDe(c.ciudad)) do
+        if s.vive and e.secs[s.id] == nil then libres[#libres + 1] = s end
+    end
+    if #libres == 0 then return nil end
+    return elegir(libres)
+end
+
 function G.elegirCliente(contacto)
     local e = G.estado()
     local lista = e.clientes[contacto] or {}
@@ -443,11 +465,38 @@ function G.elegirCliente(contacto)
     for _, cl in ipairs(lista) do if (cl.veces or 0) < 3 and not cl.residente then disponibles[#disponibles + 1] = cl end end
     if #disponibles > 0 and chance(30) then
         local cl = elegir(disponibles)
-        return { nombre = cl.nombre, apellido = cl.apellido, sexo = cl.sexo, perfil = cl.perfil, oficio = cl.oficio, frecuente = true }
+        return { nombre = cl.nombre, apellido = cl.apellido, sexo = cl.sexo, perfil = cl.perfil, oficio = cl.oficio,
+            frecuente = true, sec = cl.sec, vida = cl.vida, veces = cl.veces or 0 }
+    end
+    local s = chance(G.CHANCE_SECUNDARIO) and G.secundarioLibre(contacto) or nil
+    if s ~= nil then
+        local cl = G.nombreCliente(s.sexo)
+        cl.nombre, cl.apellido, cl.oficio, cl.sec, cl.veces = s.nombre, s.apellido, s.oficio, s.id, 0
+        return cl
     end
     local cl = G.nombreCliente()
     cl.oficio = elegir(G.OFICIOS).id
+    local c = C.def(contacto)
+    cl.vida = Vidas.armar({ sexo = cl.sexo, pueblo = c ~= nil and c.ciudad or nil, oficio = cl.oficio })
+    cl.veces = 0
     return cl
+end
+
+-- Lo que el cliente dice y lo que el jugador anota segun cuantos encargos lleva con el.
+function G.textosCliente(v, cl)
+    local tx = Vidas.textosDe(cl, v.oficio, v.ciudad)
+    if tx == nil then return end
+    local n = (cl.veces or 0) + 1
+    v.cliente_sec, v.cliente_vida, v.cliente_veces = cl.sec, cl.vida, cl.veces or 0
+    v.cli_tiene = true
+    v.cli_llegada, v.cli_muerte = tx.llegada, tx.muerte
+    v.gracias_cliente, v.gracias_paciente = tx.gracias, tx.gracias
+    v.rescate_rehen = tx.rescate
+    if n == 1 and tx.diario_conocer ~= nil then v.diario_ini = v.diario_ini .. " " .. tx.diario_conocer end
+    local rev = Vidas.revelacion(tx, n)
+    if rev ~= nil then v.diario_cliente = "Lo que me conto " .. cl.nombre .. ": \"" .. rev .. "\"" end
+    if n >= 3 then v.diario_cliente2 = tx.diario_final end
+    v.mudanza = tx.mudanza
 end
 
 local function oficioDe(id)
@@ -477,6 +526,9 @@ function G.generar(contactoId, nivel, grupo, tipoForzado)
         salas = G.SALAS_CASA, respaldo = { "kitchen", "livingroom" }, pago_lugar = "contacto",
         comp = "ninguna", giro = "ninguno", cond = "ninguna", rep_extra = 0, sigilo_max = 8,
         chetada_extra = 0,
+        -- Lo que dicen el rescatado y el paciente si el cliente no tiene historia propia.
+        rescate_rehen = "Voy con {contacto_nombre}. Avisale que estoy bien.",
+        gracias_paciente = "Pense que nadie iba a venir. Gracias. De verdad.",
     }
     local resumen = {}
     local function linea(t) resumen[#resumen + 1] = t end
@@ -651,6 +703,7 @@ function G.generar(contactoId, nivel, grupo, tipoForzado)
     v.gracias = elegir(voz.gracias)
     v.diario_ini = rellenar("{contacto_nombre} ({ciudad}) me encarga: " .. string.lower(G.TIPOS[tipo].titulo) .. ". {titulo}.", v)
     if v.diario_fin == nil then v.diario_fin = rellenar("Encargo cumplido para {contacto_nombre}: {titulo}.", v) end
+    G.textosCliente(v, cl)
     v.pago_items = {}
     local n = N.pagoExtra
     for i = 1, n do v.pago_items[#v.pago_items + 1] = of.pago[((i - 1) % #of.pago) + 1] end
@@ -1044,27 +1097,54 @@ function G.anotarCliente(inst)
     local cl
     for _, x in ipairs(lista) do if x.nombre == v.cliente_corto and x.apellido == v.cliente_apellido then cl = x end end
     if cl == nil then
-        if not chance(20) then return end
+        -- Los que tienen historia se guardan siempre; los demas, a veces.
+        if v.cliente_sec == nil and v.cliente_vida == nil and not chance(20) then return end
         cl = { nombre = v.cliente_corto, apellido = v.cliente_apellido, sexo = v.cliente_sexo, perfil = v.perfil_npc,
-            oficio = v.oficio_id, veces = 0 }
+            oficio = v.oficio_id, veces = 0, sec = v.cliente_sec, vida = v.cliente_vida }
         lista[#lista + 1] = cl
-        while #lista > 8 do table.remove(lista, 1) end
+        while #lista > 8 do
+            -- Sale primero el mas antiguo sin historia hecha a mano.
+            local quitar = 1
+            for i, x in ipairs(lista) do if x.sec == nil then quitar = i; break end end
+            table.remove(lista, quitar)
+        end
     end
+    if cl.sec ~= nil then e.secs[cl.sec] = e.secs[cl.sec] or "conocido" end
     cl.veces = (cl.veces or 0) + 1
     if cl.veces >= 3 and not cl.residente then
         cl.residente = true
-        G.hacerVecino(v.contacto, cl)
+        G.hacerVecino(v.contacto, cl, inst)
     end
 end
 
--- El cliente se viene a vivir al lado del misionero (residente, conversa con el).
-function G.hacerVecino(contactoId, cl)
+-- El cliente murio en el encargo: se anota y no vuelve a salir.
+Motor.inmediatas.cliente_murio = function(inst, a)
+    local v = inst.vars
+    if v.cli_muerte ~= nil then Motor.anotar(inst, v.cli_muerte) end
     local e = G.estado()
+    if v.cliente_sec ~= nil then e.secs[v.cliente_sec] = "muerto" end
+    local lista = e.clientes[v.contacto or ""] or {}
+    for i = #lista, 1, -1 do
+        if lista[i].nombre == v.cliente_corto and lista[i].apellido == v.cliente_apellido then table.remove(lista, i) end
+    end
+    return true
+end
+
+-- El cliente se viene a vivir al lado del misionero (residente, conversa con el).
+function G.hacerVecino(contactoId, cl, inst)
+    local e = G.estado()
+    if cl.sec ~= nil then e.secs[cl.sec] = "vecino" end
     e.vecinosPend = e.vecinosPend or {}
     e.vecinosPend[#e.vecinosPend + 1] = { contacto = contactoId, nombre = cl.nombre, apellido = cl.apellido, perfil = cl.perfil }
     local c = C.def(contactoId)
     if c ~= nil then
         C.decir(contactoId, cl.nombre .. " " .. cl.apellido .. " se viene a vivir aca al lado. Dice que te debe demasiado como para irse lejos.")
+    end
+    -- La primera noche en el campamento cuenta su vida entera.
+    local mudanza = inst ~= nil and inst.vars.mudanza or nil
+    if mudanza ~= nil and mudanza ~= "" then
+        Motor.anotar(inst, cl.nombre .. " " .. cl.apellido .. " se vino a vivir al campamento. Esa noche, junto al fuego, me conto: \""
+            .. mudanza .. "\"")
     end
 end
 

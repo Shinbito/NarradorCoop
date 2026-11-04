@@ -4,7 +4,7 @@ Notas de adaptación del lote:
 - s053 Emmett Stamper: "profesora" pasa a **profesor** (suplente).
 - s055 Ralph Spencer: "cocinera" pasa a **cocinero**.
 - s056 Hester Tolliver: "polio que le dio de niño" pasa a **de niña**.
-- s058 Maxine Sloan: "cazador" pasa a **cazadora**; el "marido violento" se lo pusieron a los 15 (ver revisión).
+- s058 Maxine Sloan: "cazador" pasa a **cazadora**. Por decisión del creador se casa a los 18 (marzo de 1992) y la pérdida, la huida y el cambio de apellido quedan en 1992-1993.
 - Arreglos de continuidad aplicados (arreglos/lote06.md y RESUMEN.md): nombres renombrados, el Rebel Spur, el jefe Ruark, Vesta's Kitchen, Khe Sanh, Maxine sin faenar venados ajenos y el trabajo de Hartsel. Agregué un cambio que el arreglo no pedía: el padre de Clova pasa de Orrin Goins a Bedford Goins, porque "Orrin" quedó para s045.
 
 ---
@@ -288,11 +288,13 @@ No sé qué quiere que le cuente. Da igual.
 
 Mi papaw Sim me enseñó a tirar con una veintidós a los ocho años, en Leslie County, arriba en los cerros. Ardillas. Me decía que a la ardilla se le tira a la cabeza o no se le tira, que lo otro es crueldad. Se murió en el 87. Me dejó el rifle.
 
-A los quince me casaron. No me pregunte cómo. Estaba embarazada, mi mamá firmó, el juez firmó. Él tenía veinticuatro y manejaba un camión de carbón. En julio del 89 me empujó del porche. Perdí a la guagua, era niña. Yo le había puesto nombre. No se lo voy a decir.
+A los dieciocho me casé. Para salir de la casa de mi papá, que es la razón más tonta y la más común. Él tenía veintisiete y manejaba un camión de carbón. Al principio era simpático. Después no.
 
-El 14 de octubre del 89 esperé que se fuera al turno, saqué sesenta y un dólares del tarro del café y el rifle de mi papaw, y me subí al Greyhound en Hazard. Nunca más usé su apellido. Ni el de mi papá. Me puse Sloan, que era el de mi papaw. Me fui donde la tía Zelda, la hermana de él, que tiene la tienda de carnada en la orilla del Ohio, acá en West Point.
+En diciembre del 92 me caí del porche. Eso dije en el hospital de Hyden. Perdí a la guagua, era niña. Yo le había puesto nombre. No se lo voy a decir.
 
-Ahora crío lombrices, vendo grillos y limpio el pescado de los botes. El venado que mato lo faena la Imogene Pham. Los pescadores me dicen "Daniel Boone". Me da risa. No mucha.
+El 14 de febrero del 93 esperé que se fuera al turno, saqué sesenta y un dólares del tarro del café y el rifle de mi papaw, y me subí al Greyhound en Hazard. Nunca más usé su apellido. Me puse Sloan, que era el de mi papaw. Me fui donde la tía Zelda, la hermana de él, que tiene la tienda de carnada en la orilla del Ohio, acá en West Point.
+
+Ahora crío lombrices, vendo grillos y limpio el pescado de los botes. Los pescadores me dicen "Daniel Boone". Me da risa. No mucha.
 
 Cazo sola. Cazo temprano. Me gusta que en el monte nadie me ve antes de que yo lo vea a él.
 
@@ -300,27 +302,26 @@ Nunca me divorcié. Si firmo un papel, él sabe dónde estoy.
 
 ### Ficha "antes"
 
-- **Datos:** Maxine Sloan; nacida Maxine Napier, de casada Spurlock (no usa ninguno de los dos). Los pescadores del río le dicen "Daniel Boone"; la tía Zelda, "Maxie". Nació el 6 de enero de 1974 en Hyden, condado de Leslie (este de Kentucky). 19 años en julio de 1993. Vive en West Point desde el 15 de octubre de 1989, en la pieza de atrás de la tienda de carnada de su tía abuela.
-- **Físico:** 1,63 m, fibrosa, liviana, piernas de subir cerros. Pelo castaño cortado por ella misma. Cicatriz en el mentón (los escalones del porche, julio de 1989). Muñeca izquierda mal soldada de la misma caída: no la dobla del todo y le duele con la humedad; dispara apoyando el rifle en el antebrazo. Duerme poco y mal.
+- **Datos:** Maxine Sloan; nacida Maxine Napier, de casada Spurlock (no usa ninguno de los dos). Los pescadores del río le dicen "Daniel Boone"; la tía Zelda, "Maxie". Nació el 6 de enero de 1974 en Hyden, condado de Leslie (este de Kentucky). 19 años en julio de 1993. Vive en West Point desde el 15 de febrero de 1993, en la pieza de atrás de la tienda de carnada de su tía abuela.
+- **Físico:** 1,63 m, fibrosa, liviana, piernas de subir cerros. Pelo castaño cortado por ella misma. Cicatriz en el mentón (los escalones del porche, diciembre de 1992). Muñeca izquierda mal soldada de la misma caída: no la dobla del todo y le duele con la humedad; dispara apoyando el rifle en el antebrazo. Duerme poco y mal.
 - **Voz:** frases cortas, desconfiadas. Muletillas: "no sé" y "da igual". Mira las manos de la gente antes que la cara. A los hombres los trata de "señor" para mantenerlos lejos; con los niños y los perros se suelta.
 - **Vida por etapas:**
   - Infancia (1974-1987): hija de Dock Napier, minero con la espalda rota, y Verlie Sloan de Napier. Caza ardillas con su abuelo Sim Sloan desde los 8 (1982). Sim muere en 1987 y le deja el rifle .22.
-  - Juventud (1989): embarazada a los 15, se casa el 18 de marzo de 1989 con Jarvis Spurlock (24), chofer de camión de carbón, con firma de la madre y permiso del juez. En julio de 1989 él la empuja del porche y pierde a la niña, de cinco meses. El 14 de octubre de 1989 huye en Greyhound de Hazard a Louisville y de ahí a West Point.
-  - Adultez temprana (1989-1993): vive con su tía abuela Zelda Sloan. La tía la inscribe en la escuela como "Maxine Sloan, sobrina nieta"; la deja a los 16. Trabaja en la tienda de carnada, la única que queda abierta en West Point (en 1991 la tía Zelda le compró los estanques a Winnie Caldwell, que cerró la suya). Cría lombrices, limpia pescado y caza sola venado, pavo y ardilla en los cerros del río; con la plata del pescado se compró en 1991 una treinta-treinta usada. Los venados los lleva a faenar donde Imogene Pham.
-- **Oficio y semilla:** cazar lo aprendió con el abuelo; el venado grande, sola, en los cerros del Ohio. Que el pueblo la llame cazadora le viene de esconderse: en el monte nadie la ve y ella ve a todos. Cambió el apellido sin trámite: firmar algo legal, divorcio incluido, le daría su dirección a Jarvis.
+  - Juventud (1988-1992): deja la escuela a los 16 (1990) y trabaja en la caja de una gasolinera de Hyden. Caza sola en los cerros, venado incluido, con el rifle de un tío. El 14 de marzo de 1992, a los 18, se casa con Jarvis Spurlock (27), chofer de camión de carbón, para irse de la casa de su padre. En diciembre de 1992 él la empuja del porche y pierde a la niña, de cinco meses; en el hospital de Hyden dice que se cayó.
+  - Adultez temprana (1993): el 14 de febrero de 1993 huye en Greyhound de Hazard a Louisville y de ahí a West Point, a la casa de su tía abuela Zelda Sloan. Desde entonces se llama Sloan. Trabaja en la tienda de carnada, la única que queda abierta en West Point (en 1991 la tía Zelda le compró los estanques a Winnie Caldwell, que cerró la suya). Cría lombrices, limpia pescado y caza sola pavo y ardilla en los cerros del río, con la treinta-treinta vieja que la tía tenía detrás del mostrador; llegó tarde para la temporada de venado. Imogene Pham, que faena venados, le dijo que en noviembre le llevara los suyos.
+- **Oficio y semilla:** cazar lo aprendió con el abuelo; el venado grande, sola, en los cerros de Leslie. Que el pueblo la llame cazadora le viene de esconderse: en el monte nadie la ve y ella ve a todos. Cambió el apellido sin trámite: firmar algo legal, divorcio incluido, le daría su dirección a Jarvis.
 - **Familia:**
   - Abuelo, Sim Sloan, cazador y minero. Murió en 1987.
   - Padre, Dock Napier (n. 1952, 41 años), y madre, Verlie Sloan de Napier (n. 1956, 37 años): en Hyden, fuera del cordón. No sabe si la madre la entregaría; no la llama.
   - Marido legal, Jarvis Spurlock (n. 1965, 28 años): en el condado de Leslie, fuera del cordón (hasta donde ella sabe).
-  - Hija muerta en julio de 1989, a los cinco meses de embarazo. Tiene un nombre que Maxine no dice.
+  - Hija muerta en diciembre de 1992, a los cinco meses de embarazo. Tiene un nombre que Maxine no dice.
   - Tía abuela, Zelda Sloan (n. 1919, 74 años): soltera, dueña de la tienda de carnada de West Point. Vive con ella.
 - **Gustos, manías y odios:** el monte antes de que salga el sol, el café con leche condensada, la radio de música bluegrass que pone la tía. Limpia el rifle todas las noches aunque no lo haya usado. Se sienta siempre de cara a la puerta. Odia los porches altos, los camiones de carbón y que le toquen el hombro por detrás.
-- **Herida:** la niña que perdió en julio de 1989. Y la firma de su madre en el papel del juez.
+- **Herida:** la niña que perdió en diciembre de 1992. Y haber dicho "me caí" en el hospital.
 - **Deseo de antes:** un papel con el nombre Maxine Sloan que sea de verdad, una licencia de caza a su nombre. Que Jarvis se olvide de que existe.
-- **Lazo con el reparto:** de oídas. Compra los cartuchos en la ferretería Haskins y conoce de vista a "la señora del cuartel" (la Chela). Nada más. Leí chela.md.
+- **Lazo con el reparto:** de oídas. Compraba los cartuchos en la ferretería Haskins y conoce de vista a "la señora del cuartel" (la Chela). Nada más. Leí chela.md.
 - **Etiquetas:** joven, Apalaches, montañesa, cazadora, violencia doméstica, huida, nombre cambiado, West Point.
-- **Resumen:** Una muchacha de los cerros de Leslie County a la que casaron a los quince, que huyó en 1989 con el rifle de su abuelo y otro apellido, y que en West Point vende carnada, limpia pescado y caza sola para que nadie la vea primero.
-
+- **Resumen:** Una muchacha de los cerros de Leslie County que se casó a los dieciocho para salir de su casa, huyó en febrero de 1993 con el rifle de su abuelo y otro apellido, y que en West Point vende carnada, limpia pescado y caza sola para que nadie la vea primero.
 ---
 
 ## s059 · Quincy Wisniewski (Riverside, granjero)
@@ -419,7 +420,7 @@ Lo único: mi mamá cumple años el 9 de abril. Este año me estacioné en un te
 - **Ralph Spencer (n. 30-oct-1960, 32):** tercera generación (abuelo 1921, padre, él y su hermano). La tanda envenenada a los 18 (1978), diner desde 1979. Apodo "Ralphie" (evité "Biscuit", que es el perro de los Bell). OK.
 - **Hester Tolliver (n. 4-ago-1923, 69):** polio a los 5, carpa a los 11, maestra a los 19-22, casada a los 22, hijo a los 24, viuda a los 47, pastora licenciada a los 49 (la Iglesia Metodista ordena mujeres desde 1956, y el curso de pastores locales cuadra). Síndrome post-polio desde los 61: cuerpo coherente para sus 69. OK.
 - **Benny Watts (n. 22-dic-1948, 44):** último año de secundaria en el otoño de 1966 (17 años), egresa en 1967 (18), 4-F en 1967. Khe Sanh en marzo de 1968 cuadra con Vietnam. El Cabo (n. 1950) egresó en 1968: un curso abajo, bien. Hijos a los 23 y a los 27. OK. Duda: inventé que el Cabo lo sostuvo en el entierro de 1968 y las repisas de evidencias de 1984; no chocan con la ficha, pero son detalles nuevos sobre el Cabo.
-- **Maxine Sloan (n. 6-ene-1974, 19):** la semilla (huye de un marido en 1989) obliga a que se casara a los 15. Lo hice legal y triste (embarazo, firma de la madre y del juez, como permitía Kentucky). Perdió la guagua a los 15 años y medio: no hay hijo nacido antes de los 15. "Se cambió el apellido" sin trámite legal, porque firmar le daría su dirección al marido. Duda: es la parte más dura del lote; si el creador prefiere suavizarlo, el marido puede pasar a ser "un hombre con el que se fue a vivir a los 15" sin casamiento.
+- **Maxine Sloan (n. 6-ene-1974, 19):** por decisión del creador se casa a los 18 (14 de marzo de 1992), sin permisos de nadie. Pierde a la niña en diciembre de 1992, embarazada de cinco meses (cuadra con la boda de marzo). Huye el 14 de febrero de 1993 y llega a West Point cinco meses antes del brote: por eso allá no alcanzó temporada de venado, y la treinta-treinta es de la tía. El marido y los padres quedan fuera del cordón. OK.
 - **Quincy Wisniewski (n. 15-jun-1937, 56):** colegio mortuorio a los 19, servicio militar en tiempos de paz (1960-62), casado a los 36, hijo a los 37 con Clova de 34-35, granjero desde los 38 con un capataz que le enseñó. OK.
 - **Kay Harmon (n. 3-nov-1961, 31):** aprende a manejar camión a los 16 con su padre, despachadora a los 21-26, testifica a los 27, protegida a los 27. Licencia profesional en 1989. Madre n. 1935. OK. Duda: su lazo con Rosa es que Rosa tiene una vida falsa anotada en el cuaderno de los Moon Pies; es un detalle nuevo para la Misia Rosa, pero no cambia nada de su ficha.
 
@@ -432,7 +433,6 @@ Ganchos para la ronda B:
 - Kay: ¿el programa de testigos sabe dónde está en un condado cercado? ¿Llega alguien de Youngstown?
 - Hester y el Diácono Reyes (el predicador que cobra).
 - Maxine y el monte del río (sin volver a narrar lo del marido).
-
 
 ---
 
@@ -475,14 +475,14 @@ No entré. ¿Qué le iba a decir? ¿Que es mío? ¿Que lo boté yo, igual que lo
 - **Deseo:** que Lázaro esté bien donde está y no lo reconozca. **Necesidad:** decírselo al Padre y dejar de comprar su vida con la de otro.
 - **Miedo:** quedarse sin perros y que la manada llegue igual. **Defecto:** se calla, y cuando no se calla, se queja como sordo. **Virtud:** paciencia de liniero; todo lo prueba antes de tocarlo.
 - **Cuerpo:** angina desde agosto (se le aprieta el pecho al subir la loma); la rodilla peor; bajó unos 6 kilos.
-- **Lazo con el reparto:** Lázaro (Dodge) y el Padre Nacho de vista. No lo afirmo como canon: es propuesta (ver revisión). Leí nacho.md y ronda2.md (llegada de Lázaro).
+- **Lazo con el reparto:** Lázaro, el perro del Padre Nacho, es Dodge (aprobado por el creador: queda como canon). El Padre cree que Lázaro "llegó solo". Ned conoce al Padre de vista. Era amigo de damas de Delbert Moody, con quien midió la viga rajada del campanario en 1991. Leí nacho.md y ronda2.md (llegada de Lázaro).
 - **Etiquetas nuevas:** señuelo, solo, a oscuras, culpa.
 
 ### TEXTOS PARA EL JUEGO
 - **llegada:** Por la izquierda no le oigo, mijo. Por la derecha. Y no prenda esa linterna aqui afuera.
 - **rescate:** Le debo una, mijo. Dele un pedazo de pan a la perra, que ella tambien se asusto.
 - **gracias:** Pilas nuevas. Mire como prende. Con esto no le cobro nada en lo que me quede de vida.
-- **revelacion1:** Ned Perkins, electricista de Riverside. Medio Riverside tiene mis enchufes. Los cables los toco con el dorso de la mano, por si acaso. La linea nunca esta muerta.
+- **revelacion1:** Ned Perkins, electricista de Riverside. Medio Riverside tiene mis enchufes. Con Delbert Moody medi la viga del campanario en el 91. La linea nunca esta muerta.
 - **revelacion2:** En el 52 le dije a un muchacho "sube, la linea esta muerta". Estaba viva desde atras, por el generador de un granjero. Se llamaba Dewitt Coomer.
 - **revelacion3:** Cuando baja la manada suelto un perro y sale ladrando al rio. Asi salve la casa tres veces. El perro del Padre es mi Dodge. Volvio dos veces. Yo lo bote igual.
 - **diario_conocer:** Ned Perkins, viejo electricista de la curva del molino, en Riverside. Sordo de un lado, vive a oscuras con dos perros y una bocina en un alambre.
@@ -526,7 +526,7 @@ Lo peor no es eso. Lo peor es que espero el sábado toda la semana.
 - **Deseo:** cantar para Navidad en el gimnasio, con los niños de la cuadra. **Necesidad:** decirle a la cuadra de dónde sale la comida y dejar de necesitar el escenario.
 - **Miedo:** que la camioneta verde un día la siga hasta la cuadra. Que uno de esos hombres reconozca a un niño de los suyos. **Defecto:** necesita público y lo llama sacrificio; el "corazón" es una orden. **Virtud:** calma a cualquiera, vivo o casi, con la voz.
 - **Cuerpo:** la rodilla izquierda peor (ya no corre). Volvió a fumar: los cigarrillos se los regalan en el Spur.
-- **Lazo con el reparto:** canta para la banda de la Sargento Pereira, sin conocer a Pereira (en el Spur paran soldados y hombres de la banda, no los capitanes). De oídas: de vez en cuando va a la gasolinera de la Misia Rosa por café de achicoria; Rosa la conoce de vista. No sabe nada del tanque ni de Junior. Leí rosa.md y pereira.md (las líneas rojas de Pereira no cambian: no cobra en niños).
+- **Lazo con el reparto:** canta para la banda de la Sargento Pereira, sin conocer a Pereira (en el Spur paran soldados y hombres de la banda, no los capitanes). Antes del brote, la Misia Rosa le servía el café de las tres en los turnos de noche; hoy, de vez en cuando, va por café de achicoria; Rosa la conoce de vista. No sabe nada del tanque ni de Junior. Leí rosa.md y pereira.md (las líneas rojas de Pereira no cambian: no cobra en niños).
 - **Etiquetas nuevas:** jefa de cuadra, canta para la banda, uniforme, aplauso.
 
 ### TEXTOS PARA EL JUEGO
@@ -534,7 +534,7 @@ Lo peor no es eso. Lo peor es que espero el sábado toda la semana.
 - **rescate:** Gracias, corazon. Hace mucho que nadie me sacaba de un lio. Desde el Rebel Spur, creo.
 - **gracias:** Esto alcanza para los chicos de la cuadra una semana. Te lo canto si quieres. No? Mejor, con esta voz.
 - **revelacion1:** Nadine Yonts, policia de Rosewood. Una de seis, y la mas vieja. Esta cuadra la cuido yo. Al que grita le canto bajito y se calma. Siempre funciona.
-- **revelacion2:** Yo cantaba en el Rebel Spur, en la 31W, desde los dieciocho. El humo me rompio la voz en el 78 y me quedo esta, de puerta de granero. Por eso me dieron la radio.
+- **revelacion2:** Yo cantaba en el Rebel Spur, en la 31W. El humo me rompio la voz en el 78. Por eso me dieron la radio, y el cafe de las tres me lo servia la Misia Rosa.
 - **revelacion3:** Los sabados no patrullo la 31. Me llevan al Rebel Spur y les canto a los del patio de trenes. Me pagan en latas y pilas. Con eso come la cuadra. Y me aplauden, corazon.
 - **diario_conocer:** Nadine Yonts, policia de Rosewood. Cuida seis casas detras de la escuela con un revolver y una voz ronca que calma a los ninos.
 - **diario_final:** Nadine les canta los sabados a los de la banda en el Rebel Spur a cambio de latas. Dice que patrulla la 31. Espera el sabado toda la semana.
@@ -576,19 +576,19 @@ Yo como poco. Sé hacerlo. Es lo único de la pista que me sirve.
 - **Deseo:** una escuela de verdad, aunque sean cuatro bancos. **Necesidad:** comer él también, y decirles la verdad a los niños.
 - **Miedo:** que Sarah Jo encuentre los huesos detrás del galpón. **Defecto:** se castiga con el hambre y lo llama sacrificio. **Virtud:** paciencia de domador: nunca grita, nunca suelta la rienda.
 - **Cuerpo:** volvió a pesar lo de la pista (unos 52 kilos). Mareos y uñas quebradizas; la clavícula le duele con el frío.
-- **Lazo con el reparto:** de oídas. Sabe que el Cabo tiene gente en la comisaría y que vive con la hija profesora; no ha ido porque la abuela no se mueve. Leí cabo.md y pereira.md (para no acercarlo al patio de trenes).
+- **Lazo con el reparto:** Gladys Moreno le achicaba la ropa de profesor antes del brote (todo le queda grande), en su taller de la calle principal. Sabe que el Cabo tiene gente en la comisaría y que vive con la hija profesora; no ha ido porque la abuela no se mueve. En la mudanza ayuda a Valentina ("Miss Mandados") con la lectura, en la sala de interrogatorios. Leí gladys.md y valentina.md. Leí cabo.md y pereira.md (para no acercarlo al patio de trenes).
 - **Etiquetas nuevas:** profesor, a cargo de niños, hambre, caballo.
 
 ### TEXTOS PARA EL JUEGO
 - **llegada:** Profe! Perdon, le digo profe a todos. Pase rapido, que los ninos estan en clase de lectura.
 - **rescate:** O sea... gracias. Yo corro, pero no tanto. Peso poco y eso a veces no alcanza.
 - **gracias:** Cuadernos! Tobin va a llorar. Y esto para la abuela. Lo voy a repartir, profe, se lo juro.
-- **revelacion1:** Emmett Stamper, profesor suplente de la primaria de Muldraugh. Tengo a dos alumnos en la mesa de la cocina de mi abuela. Tobin ya lee solo.
+- **revelacion1:** Emmett Stamper, profesor suplente de la primaria de Muldraugh. La senora Gladys me achicaba los pantalones: todo me queda grande. Tengo dos alumnos en la cocina.
 - **revelacion2:** Fui jockey aprendiz en Churchill. Para dar el peso vomitaba dos veces al dia. En el 90 la yegua se quebro en Turfway y la sacrificaron en la pista, detras de una pantalla verde.
 - **revelacion3:** La carne de octubre no era venado. Era Bendita, la yegua que los ninos peinaban. Yo le hable al oido y le dispare. Ellos creen que se fue. No se lo diga.
 - **diario_conocer:** Emmett Stamper, ex jockey, profesor suplente en Muldraugh. Flaco como un nino; cuida a dos alumnos y a su abuela.
 - **diario_final:** Emmett mato a la yegua de los ninos para darles de comer y les dijo que era venado. Come menos que todos y lo llama costumbre.
-- **mudanza:** La abuela acepto salir cuando le dije que en la comisaria hay una profesora de verdad. La trajimos en una carretilla con su almohada. Sarah Jo y Tobin ya tienen bancos y una pizarra. La senorita Mandados me deja ayudarle con la lectura y yo le enseno a los chicos a contar con caballos. A Sarah Jo le dije lo de Bendita. Lloro una tarde entera y despues me pregunto si le dolio. Le dije que no. Esa vez no mentia. Hattie me sirve el plato lleno y se queda mirando hasta que me lo termino.
+- **mudanza:** La abuela acepto salir cuando le dije que en la comisaria hay una profesora de verdad. La trajimos en una carretilla con su almohada. Sarah Jo y Tobin ya tienen bancos y una pizarra. La Miss Mandados me deja ayudarle con la lectura en la sala de interrogatorios, y yo les enseno a contar con caballos. A Sarah Jo le dije lo de Bendita. Lloro una tarde entera y despues me pregunto si le dolio. Le dije que no. Esa vez no mentia. Hattie me sirve el plato lleno y se queda mirando hasta que me lo termino.
 - **muerte:** Emmett Stamper murio en el camino. Era tan liviano que lo cargue solo. Los ninos preguntaron por el toda la noche.
 
 ---
@@ -624,14 +624,14 @@ Eso no lo dicen los libros.
 - **Deseo:** que uno, uno solo, sobreviva. **Necesidad:** perdonar a su madre y decirles la verdad a los que suben la loma.
 - **Miedo:** acostumbrarse. **Defecto:** se refugia en la técnica: corta antes de sentir. **Virtud:** no se va nunca de al lado de un enfermo.
 - **Cuerpo:** sin la presión controlada (se le acabaron las pastillas en septiembre): dolores de cabeza. Una picadura infectada en la mano izquierda, ya curada.
-- **Lazo con el reparto:** la Chela le mandó decir con Jody que en el cuartel tiene plato; Thuy le manda miel. No ha ido: "las abejas no se cuidan solas". No sabe nada de la vida privada de la Chela. Leí chela.md.
+- **Lazo con el reparto:** antes del brote, el jefe Virgil Booker la mandaba a buscar para las quemaduras de los voluntarios (1977, con miel), y la Chela le devolvía los frascos lavados. Después, la Chela le mandó decir con Jody que en el cuartel tiene plato; Thuy le manda miel. No ha ido: "las abejas no se cuidan solas". No sabe nada de la vida privada de la Chela. Leí chela.md.
 - **Etiquetas nuevas:** viuda, amputaciones, falsa esperanza, curandera.
 
 ### TEXTOS PARA EL JUEGO
 - **llegada:** Lavese las manos antes de entrar. No me importa el fin del mundo. Las manos.
 - **rescate:** Gracias, con. Usted se quedo quieto cuando habia que quedarse quieto. Eso salva mas que correr.
 - **gracias:** Hilo de sutura. Bien. Y azucar para las abejas. Usted entiende lo que es importante.
-- **revelacion1:** Thuy Cavanaugh, enfermera titulada, West Point. Curo con miel. Si le pica una abeja, no corra: quedese quieto. Si corre, lo siguen.
+- **revelacion1:** Thuy Cavanaugh, enfermera titulada, West Point. Curo con miel: el jefe Booker me llamaba para las quemaduras del cuartel. Si le pica una abeja, no corra.
 - **revelacion2:** Vengo de Phat Diem, en el norte de Vietnam. En el 54 mi madre me dijo "para Navidad venimos" y se quedo alla con mi hermana. Nunca mas las vi.
 - **revelacion3:** A cuatro mordidos les corte la mano o el pie antes de la hora. Les dije a sus familias que habia una posibilidad. Cuatro de cuatro murieron. Al quinto le voy a decir lo mismo.
 - **diario_conocer:** Thuy Cavanaugh, enfermera vietnamita de West Point. Vive en una loma con nueve colmenas y me hizo lavarme las manos dos veces.
@@ -673,14 +673,14 @@ O sea que con una mano le doy sopa a la calle principal y con la otra le doy val
 - **Deseo:** que la familia pase el invierno entera. **Necesidad:** dejar de comprar paz con la borrachera de otros.
 - **Miedo:** que Tarvin se entere y le vuelva a dejar de hablar. **Defecto:** quiere quedar bien con todos y les sirve a los dos lados. **Virtud:** le da de comer a cualquiera sin preguntar quién es.
 - **Cuerpo:** bajó unos 15 kilos; quemadura nueva en la mano derecha, del alambique (septiembre).
-- **Lazo con el reparto:** paga el diezmo a la gente del Diácono Reyes (no a Reyes en persona; el que baja es un muchacho del patio). De oídas, sabe que el Padre deja abierta la iglesia de piedra. Leí reyes.md, duggan.md y nacho.md.
+- **Lazo con el reparto:** antes del brote, el pan del almuerzo era de la panadería de Walt Hollis; supo que la camioneta de Walt salió el 10 de julio y no sabe más. Paga el diezmo a la gente del Diácono Reyes (no a Reyes en persona; el que baja es un muchacho del patio). De oídas, sabe que el Padre deja abierta la iglesia de piedra. Leí reyes.md, duggan.md y nacho.md.
 - **Etiquetas nuevas:** alambique, diezmo, dos caras, sopa.
 
 ### TEXTOS PARA EL JUEGO
 - **llegada:** Mira quien llego. Sientate, compadre, que la sopa esta caliente y es jueves. Los jueves hay sopa.
 - **rescate:** Te debo una olla entera, compadre. Cuando quieras, pasa por el callejon y pide por Ralphie.
 - **gracias:** Sal! Mira, esto vale mas que el whisky. Con esto como medio Riverside una semana.
-- **revelacion1:** Ralph Spencer, cocinero del Vesta's Kitchen, en Riverside. Los jueves hago sopa para los viejos de la calle principal. Lo primero que sale de la olla, lo boto.
+- **revelacion1:** Ralph Spencer, cocinero del Vesta's Kitchen, en Riverside. El almuerzo lo hacia con el pan tibio de Walt Hollis. Los jueves hago sopa. Lo primero que sale, lo boto.
 - **revelacion2:** Mi familia hace whisky en el hollow desde la Ley Seca. En el 78 no bote la cabeza de una tanda, por apuro. Mi primo Tarvin quedo casi ciego.
 - **revelacion3:** Los jueves a las cinco, en el callejon, le paso seis frascos a uno del Diacono. Es el diezmo de mi familia. Con eso no suben al hollow. Y con eso se emborrachan antes de ir a cobrar.
 - **diario_conocer:** Ralph Spencer, cocinero de Riverside. Baja del cerro los jueves y reparte sopa de porotos en tarros. Huele a humo y a algo mas fuerte.
@@ -727,7 +727,7 @@ Amén y siga.
 - **Deseo:** que alguien joven se quede con la capilla (mira al muchacho Asberry). **Necesidad:** decir la verdad desde el púlpito, como le exigió a su padre en 1952.
 - **Miedo:** que alguien suba al campanario y toque la campana un domingo. **Defecto:** tiene una ironía tan seca que no deja que nadie la consuele. **Virtud:** se queda con su gente y espera al más lento.
 - **Cuerpo:** el post-polio empeoró: no camina más de veinte pasos y la pierna buena se le dobla. Se le hinchan los tobillos (el corazón).
-- **Lazo con el reparto:** de oídas. Sabe que en Riverside hay un diácono que cobra por rezar (Reyes); no lo conoce, y para ella es otro hermano Ozias Vickers. Leí reyes.md. No tiene que ver con las campanas del Padre Nacho, que no suenan por la viga.
+- **Lazo con el reparto:** en la mudanza se va a la gasolinera de la Misia Rosa (bautista, "aquí no se cobra por rezar") y le escribe los avisos a máquina. De oídas, sabe que en Riverside hay un diácono que cobra por rezar (Reyes); no lo conoce, y para ella es otro hermano Ozias Vickers. Leí reyes.md. No tiene que ver con las campanas del Padre Nacho, que no suenan por la viga.
 - **Etiquetas nuevas:** campana, culpa, rebaño chico, post-polio.
 
 ### TEXTOS PARA EL JUEGO
@@ -735,7 +735,7 @@ Amén y siga.
 - **rescate:** Gracias, hijo. Dios me hizo coja para que la gente me esperara. Hoy le toco a usted. Amen y siga.
 - **gracias:** Muletas. Con esto llego al pulpito sin que me carguen. El domingo predico de pie, aunque sea un rato.
 - **revelacion1:** Hester Tolliver, pastora de la capilla metodista de Sardis, a la salida de Rosewood. Desde el 71 en el pulpito. Aqui consagramos agua de pozo.
-- **revelacion2:** En el 35, en la carpa de un sanador, me saque el aparato de la pierna para creer. Me cai de cara delante de todos. Dios no cobra la entrada; los que cobran son otros.
+- **revelacion2:** En el 35, en la carpa de un sanador, me saque el aparato de la pierna para creer. Me cai de cara. Dicen que en Riverside hay un diacono que cobra. Lo conozco desde el 35.
 - **revelacion3:** La noche del 9 toque la campana para llamar a los vecinos. Los muertos vinieron detras, siguiendola. Cuatro de los mios murieron en el patio. La cuerda no esta podrida.
 - **diario_conocer:** Hester Tolliver, pastora coja de Sardis, cerca de Rosewood. Seis personas viven en su capilla. Habla como si cada frase fuera la ultima del sermon.
 - **diario_final:** Hester toco la campana la primera noche y los muertos la siguieron hasta la capilla. Todos creen que la campana los salvo. Ella no la toca mas.
@@ -782,14 +782,14 @@ Ahora tengo miedo de que Shelly vaya sola al Doe Run a preguntar.
 - **Deseo:** que Shelly llegue entera al verano. **Necesidad:** decirle la verdad antes de que vaya ella sola al Doe Run.
 - **Miedo:** que Shelly le pregunte a Kimbrell. **Defecto:** vuelve a elegir el alivio en vez de la verdad, como en 1967. **Virtud:** no deja a nadie atrás, aunque le cueste la rodilla.
 - **Cuerpo:** la rodilla derecha mucho peor desde la caminata al Doe Run; ahora usa un bastón que hizo él. Bajó unos 12 kilos.
-- **Lazo con el reparto:** en septiembre, cuando el Cabo limpiaba la comisaría, le pidió doce tablones. Benny se los dio y el Cabo se los anotó en la libreta, en vez de pagarle con latas. Leí cabo.md. El portón del Doe Run y el soldado Kimbrell son los que fijó el RESUMEN B (s062).
+- **Lazo con el reparto:** compañero de secundaria del Cabo (un curso arriba); el Cabo lo sostuvo del codo en el entierro de Olen (1968); le hizo las repisas de evidencias a la comisaría (1984). En septiembre, cuando el Cabo limpiaba la comisaría, le pidió doce tablones. Benny se los dio y el Cabo se los anotó en la libreta, en vez de pagarle con latas. Leí cabo.md. El portón del Doe Run y el soldado Kimbrell son los que fijó el RESUMEN B (s062).
 - **Etiquetas nuevas:** cartas falsas, letra copiada, el Doe Run, padre solo.
 
 ### TEXTOS PARA EL JUEGO
 - **llegada:** Campeon! Pasa, pasa. Cuidado con el tablon suelto, que la rodilla mia ya lo conoce.
 - **rescate:** En serio te digo, campeon, otra jugada mas y no la cuento. Te debo una escalera. O dos.
 - **gracias:** Bisagras! Te juro que con esto le cierro las ventanas a media cuadra. Mide dos veces, corta una.
-- **revelacion1:** Benny Watts, carpintero de Muldraugh. Treinta y dos, fullback de la secundaria. Hago escaleras y tapas de ventana. Y cruces, si las pide.
+- **revelacion1:** Benny Watts, carpintero de Muldraugh. Treinta y dos, fullback, un curso arriba del Cabo. Le hice las repisas de evidencias en el 84. Hago escaleras. Y cruces.
 - **revelacion2:** En el 67 me pusieron 4-F por la rodilla y senti alivio. Mi mejor amigo, Olen Gabehart, murio en Khe Sanh en el 68. Yo cargue el cajon cojeando.
 - **revelacion3:** Las cartas de JoAnn las escribo yo, de noche, copiando su letra de las tarjetas de recetas. A Shelly le digo que me las da el soldado del Doe Run. De JoAnn no se nada.
 - **diario_conocer:** Benny Watts, carpintero grandote de Muldraugh. Cojea, cuenta todo como un partido y tiene a su hija lanzadora cuidandole la espalda.
@@ -833,7 +833,7 @@ No sé. Da igual. Es lo único que funciona.
 - **Deseo:** que alguien sepa quién es y que no pase nada. **Necesidad:** decir su nombre en voz alta a alguien que no se vaya, y dejar de cargar sola.
 - **Miedo:** que se le caiga la gorra. **Defecto:** se encierra y prefiere cargar sola. **Virtud:** ve a todos antes de que la vean.
 - **Cuerpo:** la muñeca izquierda le duele más con el frío del río. Bajó de peso (la chaqueta le queda más grande). Duerme menos que antes.
-- **Lazo con el reparto:** de oídas. Ha visto de lejos el humo del cuartel de la Chela y sabe que allá dan plato; no ha ido. Leí chela.md. El puesto del río Salt es el que fijó el RESUMEN B.
+- **Lazo con el reparto:** la primera noche vio arder la calle Main desde el bote (es público que ahí se quemó la casa de la Chela). Ha visto de lejos el humo del cuartel de la Chela y sabe que allá dan plato; no ha ido. En la mudanza le cuenta a la Chela lo de "Max". Leí chela.md. El puesto del río Salt es el que fijó el RESUMEN B.
 - **Etiquetas nuevas:** disfraz, cartuchos, río Salt, sola.
 
 ### TEXTOS PARA EL JUEGO
@@ -884,14 +884,14 @@ Mire usted dónde vinieron a encontrarme.
 - **Deseo:** enterrar a los veintisiete uno por uno, con nombre, cuando se deshiele la tierra. **Necesidad:** aceptar ayuda y decirle a Clova lo que hay en el granero.
 - **Miedo:** que el granero se queme. Que alguien venga a preguntar por un nombre y él no tenga la tarjeta. **Defecto:** confunde orden con amor; no suelta un procedimiento aunque se le pudra en las manos. **Virtud:** nadie en Riverside se queda sin nombre mientras él viva.
 - **Cuerpo:** la espalda peor por cargar cuerpos; tos seca desde octubre (el polvo de las lonas).
-- **Lazo con el reparto:** ninguno. De oídas, sabe que el Padre entierra a los suyos al lado de la iglesia de piedra; él guarda "a los de nadie". Leí nacho.md para no tocar las tumbas de la iglesia.
+- **Lazo con el reparto:** antes del brote le vendía la leche a la panadería Hollis de Riverside. La recibía Yvonne Bell de madrugada, y los sábados a veces le pagaba con rollos de canela. Sabe que los Bell se fueron de Riverside en agosto; no sabe más. En la mudanza, el Padre le presta a su carpintero. Leí yvonne_bell.md. De oídas, sabe que el Padre entierra a los suyos al lado de la iglesia de piedra; él guarda "a los de nadie". Leí nacho.md para no tocar las tumbas de la iglesia.
 - **Etiquetas nuevas:** granero, muertos con nombre, orden, padre.
 
 ### TEXTOS PARA EL JUEGO
 - **llegada:** Buenas tardes, senor. Con todo respeto, si trae a alguien, digame primero el nombre. Despues el resto.
 - **rescate:** Muy amable, senor. Por un momento pense que iba a tener que escribir mi propia tarjeta.
 - **gracias:** Sabanas limpias y cal. Con todo respeto, es lo mejor que me han traido desde julio. Ellos se lo agradecen.
-- **revelacion1:** Quincy Wisniewski, granjero de Riverside. Tabaco y Hereford. Si se le muere alguien, traigamelo: lo lavo, lo visto y le pongo su nombre. No cobro.
+- **revelacion1:** Quincy Wisniewski, granjero de Riverside. Le vendia la leche a la panaderia Hollis; Yvonne Bell me pagaba con rollos de canela. Si se le muere alguien, traigamelo.
 - **revelacion2:** Mi familia tenia una funeraria polaca en Germantown. Prepare a mi propia madre en el 68. A mi padre, en el 79, no lo toque. El decia que yo hui de los muertos.
 - **revelacion3:** No los entierro. Estan en el granero del tabaco, veintisiete, envueltos en lonas, cada uno con su tarjeta. Clova cree que estan en el potrero. Un pozo comun no es para gente con nombre.
 - **diario_conocer:** Quincy Wisniewski, granjero de Riverside, ex funerario. Habla de los muertos sin bajar la voz y me pidio el nombre antes que el saludo.
@@ -936,14 +936,14 @@ Paducah, anote. Paducah.
 - **Deseo:** oír la voz de su madre. **Necesidad:** pedir ayuda y dejar de huir sola.
 - **Miedo:** que la voz llegue a la gasolinera siguiéndola. **Defecto:** se esconde detrás de la leyenda y se va sin avisar. **Virtud:** reparte lo que tiene sin anotar a quién.
 - **Cuerpo:** la ciática peor (duerme sentada, con el revólver en las piernas). Tos de fumadora; fuma menos porque no hay.
-- **Lazo con el reparto:** la Misia Rosa tiene su leyenda anotada en el cuaderno de los Moon Pies y no sabe que es falsa. Kay le sigue mandando leche evaporada, pero ya no va. Leí rosa.md y hector.md. (Garnell Cottle y el pozo de Talmage Speer quedan fuera de su historia.)
+- **Lazo con el reparto:** conoce a Earl Whitaker de las paradas de la 31: en la nevada de enero de 1990 le prestó cadenas y le enseñó la ruta (no lo ha oído en el 19 porque ella no contesta). La Misia Rosa tiene su leyenda anotada en el cuaderno de los Moon Pies y no sabe que es falsa. Kay le sigue mandando leche evaporada, pero ya no va. Leí rosa.md y hector.md. (Garnell Cottle y el pozo de Talmage Speer quedan fuera de su historia.)
 - **Etiquetas nuevas:** testigo protegida, la voz de la radio, cabina, leche.
 
 ### TEXTOS PARA EL JUEGO
 - **llegada:** Si viene por leche, tengo. Si viene por otra cosa, la puerta del camion tiene seguro.
 - **rescate:** Bueno. Gracias. No se lo cuente a nadie, que tengo una reputacion de no necesitar a nadie.
 - **gracias:** Una bateria. Con esto la cabina aguanta el invierno. Usted no me vio, eh. Nunca me ve nadie.
-- **revelacion1:** Kay Harmon, camionera, de Rosewood. Carga seca de Louisville a Memphis. En el 19 me dicen Golondrina. Tengo un remolque de leche para guagua.
+- **revelacion1:** Kay Harmon, camionera, de Rosewood. Carga seca de Louisville a Memphis. Earl Whitaker me enseno la 31. En el 19 me dicen Golondrina. Tengo leche para guagua.
 - **revelacion2:** Kay Harmon no existe. Me llamo Margo Pacella, de Youngstown, Ohio. Vi un asesinato de la mafia en el 87 y testifique. Me dieron este nombre y una viuda de Paducah.
 - **revelacion3:** En octubre una voz me llamo Margo por el canal 7 del camion, con acento de Youngstown. Alguien de alla sabe que estoy en Knox. Duermo con el revolver y ya no voy donde la Misia Rosa.
 - **diario_conocer:** Kay Harmon, camionera de Rosewood. Vive en la cabina detras del molino y reparte leche para guaguas. No contesto nada de su vida dos veces seguidas.
@@ -954,15 +954,17 @@ Paducah, anote. Paducah.
 
 ## REVISIÓN
 
-- **Ned Perkins (70):** cuerpo coherente (sordo, rodillas, angina nueva a los 70). Familia: Sherrill fuera del cordón; perros con destino cada uno (Studebaker de viejo, Rambler y Fairlane de señuelo, Dodge es Lázaro). Lázaro: el canon dice que "llegó solo" y "volvió dos veces cuando lo daban por muerto". Aquí Dodge vuelve dos veces donde Ned y a la tercera se queda en la iglesia, así que no lo contradice. Ned no entra a misa, para no romper "tres y un perro". **Es una propuesta que el creador tiene que aprobar**; si no, Dodge es otro perro y lo de Lázaro se borra. Textos sin tildes ni eñes.
+- **Ned Perkins (70):** cuerpo coherente (sordo, rodillas, angina nueva a los 70). Familia: Sherrill fuera del cordón; cada perro tiene su destino (Studebaker de viejo, Rambler y Fairlane de señuelo, Dodge es Lázaro). **Que Lázaro sea Dodge lo aprobó el creador y queda como canon.** No contradice "llegó solo" ni "volvió dos veces": el Padre no sabe de dónde viene. Ned no entra a misa, para no romper "tres y un perro". Textos sin tildes ni eñes.
 - **Nadine Yonts (45-46; cumple 46 el 27 de noviembre):** la rodilla izquierda está peor, como en A. Secreto nuevo (arreglo B): canta los sábados para la banda del patio de trenes en el Rebel Spur abandonado (el cantinero murió la noche del 9, según el RESUMEN B). Ya no hay escopetas enterradas: esas son de Bernice (s004) y Pansy (s040). Ruark, sin saber desde el amanecer del 10; la radio de Nadine quedó en la patrulla, así que ni obedece ni desobedece la orden de las 22:00. Textos sin tildes ni eñes.
 - **Emmett Stamper (21 desde el 2 de septiembre):** el bajo peso sale de A (sabe pasar hambre por la pista). La .22 es la del abuelo de su lado (el marido de Exie). Lejos del patio de trenes. En la mudanza, a "la señorita Mandados" le doy un papel de profesora en el campamento del Cabo: si choca con la ficha de Valentina, se borra la frase. Textos sin tildes ni eñes.
 - **Thuy Cavanaugh (57):** Hartsel con enfisema muere al cortarse el oxígeno, coherente con A. Grace en Lexington. La calle Main ardía el 9 de julio, como en el canon. Las amputaciones no sirven (4 de 4): no contradice el canon de la K-93 ni la inmunidad de Eduardo. Uso a Jody de mensajero de la Chela (es del canon; solo lleva un recado). Textos sin tildes ni eñes ("Phat Diem" sin diacríticos).
 - **Ralph Spencer (33 desde el 30 de octubre):** la familia del hollow, viva, con los nombres que dejó el arreglo (Clay, Nettie, Hade, Tarvin). Del destino de Vesta Bascom digo "sin saber", y no meto a Ferrell en la primera noche (eran los desayunos), para no chocar con s007. El diezmo encaja con Reyes, que cobra el diezmo en Riverside. El que baja es un muchacho sin nombre del patio. Textos sin tildes ni eñes.
 - **Hester Tolliver (70 desde el 4 de agosto):** post-polio peor, coherente. Sardis es rural, como fijó el RESUMEN. La campana de Sardis no tiene relación con las campanas mudas del Padre. Reyes, solo de oídas. En la mudanza la mando a la gasolinera de Rosa, que es el campamento de Rosewood: si el creador prefiere que se quede en Sardis, se cambia el final. Textos sin tildes ni eñes.
 - **Benny Watts (44; cumple 45 el 22 de diciembre):** la rodilla se arrastra y ahora usa bastón. Secreto nuevo (arreglo B): las cartas falsas "de JoAnn". De JoAnn, sin saber. Se fija el portón viejo del Doe Run con el soldado Kimbrell, y que el 11 de julio sacaron a los civiles en buses (RESUMEN B). Quité lo de la señora Teague: el cedro es de una casa vacía. La familia queda con los nombres del arreglo. Textos sin tildes ni eñes.
-- **Maxine Sloan (19):** no vuelvo a narrar lo del marido (solo "sin saber, y no pregunta" y "lo sé desde antes de todo esto"). Secreto nuevo (arreglo B): se hace pasar por "Max" con los soldados del puesto del río Salt. Sale Dennis Royalty. Los cartuchos dice sacarlos de los botes del muelle, no de casas (saquear casas es de Verna s050). Textos sin tildes ni eñes.
+- **Maxine Sloan (19):** con la línea de tiempo nueva de A (casada a los 18 en 1992, huida en febrero de 1993), en West Point hace solo cinco meses: el pueblo apenas la conoce, y eso le sirve para ser "Max" con los soldados. No vuelvo a narrar lo del marido. Secreto nuevo (arreglo B): hacerse pasar por "Max" con el puesto del río Salt. Sale Dennis Royalty. Los cartuchos dice sacarlos de los botes del muelle. Textos sin tildes ni eñes.
 - **Quincy Wisniewski (56):** la espalda y la falta de olfato salen de A, y el Registro de Tumbas de su servicio militar. Ivo Goins es un pariente nuevo de los Goins (la familia quedó para este lote). Además, al padre de Clova lo renombré en A de Orrin Goins a Bedford Goins, porque "Orrin" quedó para s045. Textos sin tildes ni eñes.
 - **Kay Harmon (32 desde el 3 de noviembre):** ciática y cabina, como en A. Secreto nuevo (arreglo B): la voz que la llamó "Margo" por el canal 7 el 14 de octubre. Sale la escena de Cottle y Speer. Ya no para en la gasolinera; Rosa sigue con la leyenda en el cuaderno. En la mudanza dejo el remolque "atrás del taller", no bajo el taller, para no tocar el tanque escondido. Textos sin tildes ni eñes.
 
 Secretos distintos entre sí y de los motivos ocupados (después del arreglo B): perros de señuelo (Ned), cantar para la banda en el Rebel Spur (Nadine), la yegua dada como venado (Emmett), amputaciones con falsa esperanza (Thuy), el diezmo en whisky desde septiembre (Ralph), la campana que llamó a los muertos (Hester), cartas falsas de la madre (Benny), hacerse pasar por "Max" en el río Salt (Maxine), los 27 muertos del granero (Quincy) y la voz que llamó "Margo" (Kay). Nadie cierra una puerta sobre alguien que golpea, nadie dice "no hay" ni "ya vuelvo", nadie mata a golpes a alguien rendido, nadie mata a un vivo para enterrarlo y no hay duraznos.
+
+Lazos con el reparto (EXPORTAR): los diez tienen al menos uno, y aparece en sus textos. Ned: Nacho y Delbert (Lázaro es Dodge). Nadine: Rosa (el café de las tres) y la banda de Pereira. Emmett: Gladys y Valentina. Thuy: Booker y la Chela. Ralph: Walt Hollis y el Diácono Reyes. Hester: Rosa y Reyes, de oídas. Benny: el Cabo. Maxine: la Chela. Quincy: Yvonne Bell y la panadería Hollis, y el Padre. Kay: Earl y Rosa.

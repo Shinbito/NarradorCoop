@@ -61,6 +61,9 @@ local function finales(extra)
             { "pago_encargo", lugar = "var:pago_lugar", radio = 35 },
             { "cerrar_gen", resultado = "cumplido" },
             { "diario", texto = "var:diario_fin" },
+            -- Lo que el cliente conto esta vez (ver G.textosCliente); vacio si no tiene historia.
+            { "diario", texto = "var:diario_cliente" },
+            { "diario", texto = "var:diario_cliente2" },
         } },
         final_vencido = { final = true, al_entrar = {
             { "cerrar_gen", resultado = "vencido" },
@@ -223,6 +226,8 @@ do
             { "oleada", lugar = "objetivo", radio = 50, cantidad = "var:zombis", min = 15, max = 30 },
         }, complicaciones("objetivo")),
         opciones = {
+            { id = "saludar", texto = "Saludar a {cliente}", una_vez = true, si = { "var", "cli_tiene", true },
+              dice = { rol = "cliente", texto = "var:cli_llegada" } },
             { id = "entregar", texto = "Entregarle el paquete a {cliente}", requiere = { "objeto", "paquete" },
               falta = "No llevas el paquete.", dice = { rol = "cliente", texto = "var:gracias_cliente" } },
         },
@@ -279,7 +284,7 @@ do
     }
     etapas.rescatado = {
         al_entrar = {
-            { "decir", grupo = "rehen", rol = "rehen", texto = "Voy con {contacto_nombre}. Avisale que estoy bien.",
+            { "decir", grupo = "rehen", rol = "rehen", texto = "var:rescate_rehen",
               si = { "no", { "eleccion", "dejar" } } },
             { "retirar_lejos", grupo = "rehen", lugar = "objetivo", radio = 50, retraso = 0.5 },
         },
@@ -289,6 +294,7 @@ do
     etapas.final_muerto = { final = true, al_entrar = {
         { "cerrar_gen", resultado = "muerto" },
         { "diario", texto = "{cliente} no salio de {lugar:objetivo}. No hay forma linda de contarselo a {contacto_nombre}." },
+        { "cliente_murio" },
     } }
     base("rescate", "Un rescate", etapas)
 end
@@ -401,15 +407,18 @@ do
             { "oleada", lugar = "objetivo", radio = 50, cantidad = "var:zombis", min = 18, max = 30 },
         },
         opciones = {
+            { id = "saludar", texto = "Saludar a {cliente}", una_vez = true, si = { "var", "cli_tiene", true },
+              dice = { rol = "paciente", texto = "var:cli_llegada" } },
             { id = "dar", texto = "Darle {remedio_nombre}", requiere = { "items", "var:remedio_tipos", 1 },
               falta = "No llevas {remedio_nombre}.",
-              dice = { rol = "paciente", texto = "Pense que nadie iba a venir. Gracias. De verdad." },
+              dice = { rol = "paciente", texto = "var:gracias_paciente" },
               acciones = { { "variable", nombre = "rep_extra", valor = 2, si = { "reloj_resta", "plazo", 0.5 } },
                            { "variable", nombre = "bonus_cond", valor = true, si = { "reloj_resta", "plazo", 0.5 } } } },
         },
         salidas = plazo({ { cuando = { "eleccion", "dar" }, ir = "final_cumplido" } }),
     }
     etapas.final_vencido.al_entrar[2] = { "diario", texto = "No llegue a tiempo con {remedio_nombre}. {cliente} no aguanto. {contacto_nombre} ya lo sabe." }
+    etapas.final_vencido.al_entrar[3] = { "cliente_murio" }
     etapas.final_cumplido.al_entrar[#etapas.final_cumplido.al_entrar + 1] =
         { "retirar_lejos", grupo = "paciente", lugar = "objetivo", radio = 50, retraso = 1 }
     base("contrarreloj", "Contrarreloj", etapas)

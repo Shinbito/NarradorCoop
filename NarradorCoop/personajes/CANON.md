@@ -211,3 +211,10 @@ En la ronda 3, nadie suma secretos nuevos de puertas.
 - Ray tiene una radio militar PRC-77 que solo recibe; le deja notas a Pereira en una caja de municion en la granja del
   camino a Brandenburg.
 - La iglesia del Padre Nacho en Riverside no tiene nombre ("la iglesia de piedra de Riverside"). San Judas es solo la iglesia de March Ridge (Lucia).
+
+## Secundarios (decisiones del creador)
+- Lazaro, el perro del Padre Nacho, era "Dodge", uno de los perros que Ned Perkins (s051) soltaba de senuelo: volvio dos
+  veces y a la tercera se quedo en la iglesia de piedra.
+- Renombres: Forrest Hollon pasa a Forrest Stanfill (s067), Jolene Hatfield a Johanna Hatfield (s032) y Odette Jent a
+  Orlena Jent (s092).
+- Los secundarios pueden tener parientes en la banda de Pereira antes de la caida de Knox.

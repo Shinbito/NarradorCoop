@@ -23,5 +23,9 @@ jobs:
         run: python3 NarradorCoop/herramientas/mapa_historias.py
       - name: El mapa de historias esta al dia
         run: git diff --exit-code NarradorCoop/MAPA_HISTORIAS.md || (echo "Regenerar el mapa con python3 NarradorCoop/herramientas/mapa_historias.py" && exit 1)
+      - name: Datos de los vecinos (secundarios y piezas del generador de vidas)
+        run: python3 NarradorCoop/herramientas/vidas.py
+      - name: Los datos de los vecinos estan al dia
+        run: git diff --exit-code NarradorCoop/42/media/lua/shared/Narrador/NarradorVidasDatos.lua || (echo "Regenerar con python3 NarradorCoop/herramientas/vidas.py" && exit 1)
       - name: Pruebas con los modulos del servidor
         run: python3 NarradorCoop/herramientas/pruebas/correr.py

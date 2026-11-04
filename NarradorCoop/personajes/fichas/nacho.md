@@ -119,7 +119,7 @@ Cura boxeador de Riverside, misionero de la iglesia. Inventa encargos para que n
 - Ruth Haney: feligresa desde el día 2. Cose unas once frazadas por semana. Sabía que Tom era hermano de Lucía y se lo confesó; él no la retó.
 - Otis Barker: feligrés desde la primera semana. Cuenta clavos. Tiene escopeta, ahora con balas.
 - Helen Pike: feligresa desde agosto. Él le guarda el secreto del saqueador.
-- Lázaro: quiltro café con una oreja mordida. Duerme en la primera fila.
+- Lázaro: quiltro café con una oreja mordida. Duerme en la primera fila. Antes era "Dodge", uno de los perros de Ned Perkins (secundario s051), que los soltaba de señuelo para alejar a los muertos; volvió dos veces y a la tercera se quedó en la iglesia. El Padre no lo sabe.
 - Delbert Moody: el sacristán, que tocó las campanas cuarenta años y engrasaba la cuerda. Lo mordieron la tercera semana y Nacho lo remató a pedido suyo.
 - Diácono Saúl Reyes: falso predicador que quiere su iglesia. Le ofreció el techo gratis a sus cien y el púlpito. No le teme a la pistola.
 - Edith Crowe: feligresa que fue a la lona de Reyes por el nieto con fiebre. Nacho la visitó y el nieto ya no tiene fiebre.

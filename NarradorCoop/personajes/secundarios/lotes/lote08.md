@@ -586,7 +586,6 @@ Las ovejas se tiran al barranco de a una, ¿sabe? La gente igual.
 7. **Lazos dentro del lote** (por si sirven en misiones): Jamie Dixon barre el mesón de Cletus; Orval recableó el granero de los Dixon y juega ajedrez en Gabbard's; Vonda cuida a Selma tras sus crisis; Yolanda le da verbasco a Mai; Eula y Stanley no se cruzan. Bucky Tussey estuvo preso en Ashland en 1984-1988 y Stanley en 1943-1946: es solo coincidencia de lugar.
 8. Nombres nuevos revisados contra las fichas y el rol (no chocan): Jamie, Ardith, Delcie Pettit, Warren y Pearlie Dixon, Bucky Tussey, Lavon Pickrell, Alvis/Truitt/Cleda Keeton, Ione Fricke, Liesl, Okerson, Haycraft, Ozella, Fount, Bessie, Abundio, Fito, Marisa, Reinaldo, Doreen Gish, Cotton Neeley, Sudie y Hessie Begley, Arzie, Carlene, Marcum, Alpha, Burnam, Royal, Sabra Asher, Leigh Ann, Hatchett, Garvey, Ledford, Han Bong-ja, Lee Jae-won, Arne, Erik, Arlis, Vina, Velvie, Gaylord, Joyce, Rufus Pollitt, Asa, Deacon, Crum. "Toby" y "Wendell" estaban ocupados (Gladys y el padre Ames) y los evité.
 
-
 ---
 
 # Lote 8 · Ronda B: "Después" (del 9 de julio de 1993 a fines de 1993)
@@ -640,7 +639,7 @@ Mire, joven. En el bolsillo de la camisa ando con dos cartuchos aparte. Uno tien
 - llegada: Quieto ahi, joven. Las vacas ya lo vieron. Jamie, cuantas son? Bueno. Diga a que viene.
 - rescate: Ya, ya. Jamie, deja de llorar, el joven nos saco. Asi es la cosa. Le debo una vaca.
 - gracias: Gracias, joven. No soy de decirlo dos veces. Lleve carne salada, que aqui sobra mas que palabras.
-- revelacion1: Granjero de Riverside, tabaco y Angus. El de la camisa de franela es mi hijo Jamie. Tiene veintiseis y es el nino. Cuenta las vacas mejor que yo.
+- revelacion1: Granjero de Riverside, tabaco y Angus. Este es mi hijo Jamie, veintiseis, el nino. Los domingos vamos a la misa de las once del Padre y el pregunta por las campanas.
 - revelacion2: Cuando nacio Jamie, el doctor me hablo del hogar de Frankfort. No lo lleve, pero seis veranos no lo saque de la casa. Lo saco Delbert, el de las campanas.
 - revelacion3: Ando con dos cartuchos aparte. El de la cruz es para Jamie, si a mi me muerden. Nadie lo iba a cuidar. O eso pensaba yo, joven. Que piensa usted?
 - diario_conocer: Conoci a Rollie Dixon y a su hijo Jamie en una granja de Riverside. El viejo no puede cargar nada. El hijo me conto las vacas dos veces.
@@ -697,7 +696,7 @@ En Rosewood todos preguntan quién tiene algo con ruedas. Yo digo que la Comadre
 - llegada: Vaya, cara nueva. Si viene a pedir que le escriba algo, cobro en latas. Si es otra cosa, cierre la puerta.
 - rescate: Ay, carino, llego justo. Le debo una y yo pago. No en efectivo, pero pago.
 - gracias: Eso es, carino. Lo anoto con mi letra mas bonita, que es la de verdad.
-- revelacion1: Eula Keeton, camionera de Rosewood. Llevaba forraje por la 31 en una Peterbilt que se llama la Comadreja. Ahora escribo recados para los muertos. Letra Palmer.
+- revelacion1: Eula Keeton, camionera de Rosewood. Mi Peterbilt se llama la Comadreja. La primera noche pase frente a la bomba de la Misia Rosa, la unica luz del pueblo, y no pare.
 - revelacion2: En Louisville firme titulos de autos que no eran de nadie. Bucky Tussey se comio cuatro inviernos de carcel solo. Nunca le escribi una linea. Me daba miedo la letra.
 - revelacion3: La Comadreja no esta en Louisville. Esta en el granero del tio Alvis, con medio estanque. Y tengo un salvoconducto de la Guardia con una firma que hice yo. No se lo diga a nadie.
 - diario_conocer: Eula Keeton, camionera de Rosewood. Escribe recados para la gente a cambio de latas. Tiene la letra mas linda que he visto y miente con ella.
@@ -752,7 +751,7 @@ No le he preguntado. A las hermanas no les he dicho. ¿Me entiende? Llevo adentr
 - llegada: Buenas, joven. Usted esta vivo, eso lo anoto. Tiene un minuto para la palabra de Jehova? Tambien arreglo bombas.
 - rescate: Gracias, joven. No crea que fue suerte. Pero tampoco fue mi merito, eso seguro.
 - gracias: Muy amable. Le dejo La Atalaya, que es gratis, y el carburador, que tampoco le cobro.
-- revelacion1: Stanley Schaefer, mecanico de Muldraugh y testigo de Jehova. Llevo cuarenta y un mil puertas anotadas desde el treinta y cuatro. Ahora anoto quien vive.
+- revelacion1: Stanley Schaefer, mecanico de Muldraugh y testigo de Jehova. Cuarenta y un mil puertas desde el treinta y cuatro. Ahora anoto quien vive y le dejo la libreta al cabo Mandados.
 - revelacion2: En el cuarenta y dos no fui a la guerra. Tres veranos preso en Ashland. Ahi aprendi mecanica. En el setenta y cinco esperaba el fin. Me equivoque de fecha.
 - revelacion3: En agosto el profesor Bowman me puso su sangre mientras yo dormia. Tenia mi tarjeta en el bolsillo. Lo se y no le he dicho nada. A las hermanas tampoco.
 - diario_conocer: Stanley Schaefer, un viejo testigo de Jehova de Muldraugh, sigue tocando puertas para anotar quien vive. Me dio una revista y me arreglo la bomba.
@@ -807,7 +806,7 @@ A la señora Vonda le dije que el Abundio se quedó adentro del Fuerte y me mand
 - llegada: A ver, a ver, mijo, pase. Sientese primero, que yo siempre me siento primero. Que se le rompio?
 - rescate: Ay, mijo. Me cai? No me diga. Gracias por quedarse. Pongame la cabeza de lado, asi.
 - gracias: Que Dios se lo pague, mijo. Le debo un ruedo, una chaqueta y lo que haga falta.
-- revelacion1: Selma Uribe, costurera de West Point. Coso los parches del cuartel desde el setenta y tres. Tengo epilepsia y nunca me dieron licencia de manejar.
+- revelacion1: Selma Uribe, costurera de West Point. Coso los parches del cuartel de la Chela desde el setenta y tres. Tengo epilepsia y nunca me dieron licencia de manejar.
 - revelacion2: En el sesenta y cinco me cai con mi Fito en brazos. Tres puntos en la frente del nino. Desde ese dia no tomo a una guagua de pie. Sentada en el suelo, nomas.
 - revelacion3: Mi viejo no esta en el Fuerte. Lo encontre afuera del porton del Doe Run con mis remedios en la mano. Fui manejando yo, mijo. Yo. La camioneta esta en mi garaje.
 - diario_conocer: Selma Uribe, costurera de West Point. Tiene epilepsia y se sienta antes de hablar. Dice que su marido esta en el Fuerte.
@@ -926,7 +925,7 @@ Diecinueve años llevo jurada con esta placa, diciendo la verdad, mijita. Me la 
 - revelacion1: Yolanda Crabtree, policia de Rosewood desde el setenta y cuatro. Nieta de partera de los cerros de Leslie. Llevo yerbas en la guantera y una guagua en el chal.
 - revelacion2: En el sesenta y uno un borracho atropello a mi marido en la 31. A la manana limpie la sangre yo sola, con lejia y escoba. Nadie me ayudo. Todavia se donde quedo la mancha.
 - revelacion3: Sudie no es mi bisnieta. La recibi la primera noche en la patrulla. La abuela la busco en la gasolinera y le menti con la placa puesta. Vive en Ekron, en la casa amarilla.
-- diario_conocer: La oficial Yolanda Crabtree sigue de policia en Rosewood a los 65, a pie y con una guagua en el chal. Me miro las manos antes de saludarme.
+- diario_conocer: La oficial Yolanda Crabtree sigue de policia en Rosewood a los 65, con una guagua en el chal. Fue la primera en llegar cuando murio el marido de la Misia Rosa.
 - diario_final: Sudie tiene una abuela en Ekron que la busca. Yolanda lo sabe desde octubre. Me pidio que fuera con ella a la casa amarilla. Que no la dejara arrepentirse.
 - mudanza: Yolanda llega a la gasolinera con Sudie en el chal, el bolso de cuero de su abuela y la placa prendida en el chaleco. Pide un rincon tibio para la nina y una mesa para secar yerbas. Atiende cortes, toses y peleas con la misma voz baja. Les mira las manos a todos los que llegan. En las noches le cuenta a la Misia Rosa partos de los cerros, y Rosa le cuenta camioneros. Las dos dejan la luz prendida. Dice que al fin hay una comisaria que no cierra.
 - muerte: La oficial Yolanda Crabtree murio en el camino. Sudie quedo en el campamento. Alguien tiene que llevarla a la casa amarilla.
@@ -980,7 +979,7 @@ Dios no lee tarjetas, me digo. Pero yo sí la leí.
 - llegada: Pase, amigo, pase. Hay silla y hay sopa. Despues le explico la leccion, con dibujo. Me sigue?
 - rescate: Gracias, hermano. Dios manda ayuda de las formas mas raras. Hoy le toco a usted. Me sigue?
 - gracias: Perfecto. Esto alcanza para el garaje una semana. Lo anoto en el pizarron, con su nombre.
-- revelacion1: Vance Bowman, profesor de biologia de Muldraugh. Los miercoles y domingos predico en mi garaje. Sin seminario, con pizarron y tiza. Nunca paso el platillo.
+- revelacion1: Vance Bowman, profesor de biologia de Muldraugh. Predico en mi garaje con pizarron y tiza. Nunca paso el platillo, no como el Diacono del patio de trenes.
 - revelacion2: En el ochenta y dos murio mi hermano Royal en la 31W. El parte dice que se nos cruzo un ciervo. Yo manejaba y habia tomado. No habia ningun ciervo.
 - revelacion3: En agosto le puse mi sangre a Stanley Schaefer mientras se desangraba. Lei su tarjeta: nada de sangre. Lo hice igual. El cree que la herida cerro sola.
 - diario_conocer: Vance Bowman, profesor de Muldraugh, tiene treinta personas en su garaje y les explica a Dios con tiza. No pasa el platillo. Habla de un ciervo.
@@ -1038,7 +1037,7 @@ Brazo. Respira. No me mires así. Yo ya estuve sola una vez.
 - llegada: Brazo. No, el otro. Aigo, estas palido. Comiste? Sientate. Despues me dices que quieres.
 - rescate: Llegaste tarde, babo. Pero llegaste. Dame la mano, que no me puedo levantar sola.
 - gracias: Bien. Esto me sirve. Ahora brazo, que te tomo la presion. No se paga de otra forma.
-- revelacion1: Vonda Lindgren, enfermera de West Point. Me llamo Han Bong-ja. Estudie en Seul, trabaje en el hospital del Fuerte. Los martes tomo la presion en mi porche.
+- revelacion1: Vonda Lindgren, enfermera de West Point. Me llamo Han Bong-ja. En el hospital del Fuerte conoci a Mae, la mama de la Chela. Ahora le coso los bomberos a la hija.
 - revelacion2: En el cincuenta los del norte se llevaron a mi primer marido con una camisa blanca. Nunca supe si estaba viuda cuando me case con Arne. El dijo: si llega, hago cafe.
 - revelacion3: Debajo de la tinaja grande hay seis frascos de Dilantin. La Selma se raciona y se cae, y yo la recojo. Si sabe que hay mas, se va al cuartel. No quiero estar sola.
 - diario_conocer: Vonda Lindgren, enfermera coreana de West Point, me tomo la presion antes de saludarme. Tiene setenta y siete y manos firmes. Vive con una vecina.
@@ -1097,10 +1096,10 @@ La correa la ando trayendo puesta. No me pregunte por qué. ¿Más café?
 - llegada: Sientese, soldado. Coma primero y despues me cuenta. Hay bizcochos y porotos. Mas cafe?
 - rescate: Uf. Gracias, joven. Con este pie no corro ni detras de un bizcocho. Le debo un plato por semana.
 - gracias: Eso es harina para un mes. Venga el domingo, que le guardo el primer plato. Mas cafe?
-- revelacion1: Cletus Gabbard, cocinero de Riverside. Gabbard's Lunch, a media cuadra de la Hollis. Fui cocinero de tropa en Alemania. Nadie sale con hambre de mi meson.
+- revelacion1: Cletus Gabbard, cocinero de Riverside. Gabbard's Lunch, a media cuadra de la Hollis. Fui cocinero de tropa en Alemania. El Padre toma cafe en mi meson.
 - revelacion2: Mi papa desembarco en Omaha, eso cuento. En el ochenta y cuatro lei su papel de baja: llego en agosto, en camiones. Nunca piso la playa. Sigo contando la historia igual.
 - revelacion3: En septiembre le pegue ocho correazos a un cabro que me robo harina. Con la correa de mi papa, contando como el. Desde esa noche le dejo bizcochos en la ventana.
-- diario_conocer: Cletus Gabbard tiene un meson en Riverside y le da de comer a cualquiera. Cuenta que su papa desembarco en Normandia. Lo cuenta demasiado bien.
+- diario_conocer: Cletus Gabbard le da de comer a cualquiera en su meson de Riverside. Le compraba el pan a Walt Hollis cada manana. Cuenta lo de Normandia demasiado bien.
 - diario_final: Cletus le pego a un chico con la correa de su padre y desde entonces le deja bizcochos en la ventana. Me pidio que buscara al cabro. Se saco la correa.
 - mudanza: Cletus llega a la iglesia con dos sacos de harina, su sarten mas grande y un delantal limpio. Pide la cocina y nada mas. Cocina para todos en ollas de cuarenta, como en Baumholder, y deja una fuente de bizcochos en la ventana de la sacristia todas las noches, por si acaso. Ya no cuenta la historia de Omaha. Si un nino le pregunta por la guerra, le dice que el estuvo en la cocina, y que sin la cocina no se gana ninguna.
 - muerte: Cletus Gabbard murio en el camino. Esa noche alguien dejo bizcochos en la ventana de atras de su meson, por costumbre.
@@ -1160,7 +1159,7 @@ Las ovejas se tiran al barranco de a una. Yo me tiré sola.
 - llegada: Tranquila, tranquila. No, a usted no, al perro. Bueno, a usted tambien. Que necesita?
 - rescate: Gracias. Deacon, quieto, es amigo. Se me ahogaban todas. Le debo un cordero.
 - gracias: Bien. Con esto paso la paricion. Lleve lana, que en la noche hiela.
-- revelacion1: Mai Hammonds, granjera de Rosewood. Crio ovejas en el campo de mi abuelo Rufus. Me dicen la pastora. Le llevo leche de oveja a una guagua del pueblo.
+- revelacion1: Mai Hammonds, granjera de Rosewood. Crio ovejas en el campo de mi abuelo Rufus. A la Misia Rosa le cambio cordero por pilas, y le llevo leche a una guagua.
 - revelacion2: Tengo un hermano gemelo, Asa. A los siete le dije al juez que Asa se fuera con papa. Por una corderita muerta. Se fue a Dayton y no nos hablamos desde entonces.
 - revelacion3: La primera noche llame a Asa. Contesto: Mai? Le colgue. A las nueve y media ya no habia tono. A todos les digo que nunca lo llame.
 - diario_conocer: Mai Hammonds cria ovejas en Rosewood y les habla igual que a la gente. Tiene un perro que se llama Deacon y no me miro a los ojos.
@@ -1177,6 +1176,7 @@ Las ovejas se tiran al barranco de a una. Yo me tiré sola.
   - A Gabbard's no le cobran, porque el Padre come ahí.
   - Abundio sale del Fuerte en bus el 11 de julio y llega a pie desde el cruce. En agosto vuelve por el portón viejo del camino del Doe Run, y Selma lo encuentra afuera de ese portón.
   - Los secretos no cambian.
+- **Exportación (EXPORTAR.md):** sumé el lazo con el reparto a los textos del juego (revelacion1 o diario_conocer) de cada uno: Rollie con la misa del Padre, Eula con la bomba de Rosa, Stanley con la libreta del Cabo, Selma con el cuartel de la Chela, Yolanda con la muerte de Hector, Vance con el Diácono, Vonda con Mae y la Chela, Cletus con el Padre y Walt Hollis, y Mai con el trueque de Rosa. Orval ya lo tenía (la banda de Duggan). Datos en json/lote08.json.
 
 - **s071 Rollie Dixon:** 66, la hernia y las rodillas de la ronda A empeoran y no pelea más allá de un golpe de hacha a corta distancia. Jamie (26) y la tiroides siguen. Delbert muerto a la tercera semana, como en el canon. Ardith fuera. Textos sin tildes ni eñes.
 - **s072 Eula Keeton:** 41, cálculos renales (A) que vuelven. Cleda muere de vieja y del corazón (tenía temblor). Alvis vivo en Ekron. La Comadreja (Peterbilt) sigue siendo suya. El salvoconducto sale de su oficio de falsificadora. Textos sin tildes ni eñes.

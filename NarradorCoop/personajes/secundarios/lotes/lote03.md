@@ -437,7 +437,6 @@ Un, dos, tres. La vida en vals: dos tiempos débiles por cada uno fuerte."
 - **Nombres:** revisé que no existan en el canon. Después de la revisión de continuidad entre lotes se aplicaron todos los renombres de arreglos/lote03.md (Wash, Billie Fugitt, Rodney, Florine, Tolbert, Mazie, Doyce, Orbin, Dallas, Stidham, Rayburn, Brandy, Justin, Luster, Coolidge, Olus Whisman, Thornton, Claiborne, Lasco Fyffe, Allie, Woodrow, Marlys Wireman, Talbert Ruark, Hettie, Hedwig, Ingrid, Orlan).
 - **Secretos del lote, todos distintos:** cerveza vendida a menores (Terrell), disparo en la neblina sabiendo (Ruby), pagarle a la madre para que se fuera (Willis), no parar cuando el marido la llamaba (Thelma), miedo disfrazado de lesión (Odell), la carta "No me busque más" escondida (Lan), la esposa que lo dejó por otro (Tobias), trampa en el concurso (Ina), carne de caballo (Thaddeus), carta de ruptura leída la noche antes (Etta). Ninguno es de los motivos ocupados ni hay puertas.
 
-
 ---
 
 # Lote 3, ronda B: "Después" (del 9 de julio de 1993 a fines de 1993)
@@ -488,7 +487,7 @@ Lo que no le dije al Cabo, hijo, es que desde agosto orino sangre. Bajé dos agu
 - revelacion1: Terrell Strunk, carpintero de Muldraugh. Tuve el Starlite, el autocine de la 31W. La pantalla la clave yo solo en el 51 y sigue parada.
 - revelacion2: Mi hijo Rodney salio de la funcion de medianoche en el 65 y le erro a la curva. La cerveza se la vendi yo, por la ventanilla de la caseta.
 - revelacion3: Orino sangre desde agosto. Me voy antes que Billie. En una tabla de la cocina escribo lo que hay que saber de ella. Cuando no pueda, se la llevo al Cabo. Usted lee la tabla.
-- diario_conocer: Conoci a Terrell Strunk, 76, carpintero, al lado de un autocine muerto en la 31W. Su mujer le pregunta que dan esta noche.
+- diario_conocer: Conoci a Terrell Strunk, 76, carpintero, junto a un autocine muerto en la 31W. El Cabo lo tiene anotado sin cruz. Su mujer pregunta que dan hoy.
 - diario_final: Terrell se esta muriendo y nadie lo sabe. Me mostro la tabla con las manias de Billie. Me pidio que la memorizara. Ya me la se.
 - mudanza: Terrell llega empujando una carretilla con el proyector, la sabana y la tabla de pino, y Billie del brazo con el cascabel en el tobillo. Pide un rincon con enchufe de bateria y una pared blanca. Arregla puertas, hace bancas, y los sabados pasa Que bello es vivir para todo el campamento, aunque la ampolleta se este gastando. Billie le pregunta a cada uno que dan esta noche y alguien siempre le contesta. La tabla de pino queda colgada en la cocina, a la vista. Ya no es un secreto: es un horario.
 - muerte: Terrell Strunk murio en el camino. Alguien tiene que leer la tabla de la cocina y contestarle a Billie que dan esta noche.
@@ -542,7 +541,7 @@ A Wilma Jean no le he dicho nada. Y hasta ahí."
 - rescate: Bien tirado. No lo digo seguido. Y hasta ahi.
 - gracias: Cumplio. Le debo un cuarto de venado. Yo pago en carne.
 - revelacion1: Ruby Duncan, cazadora de West Point. Los martes le llevo venado al cuartel de la Chela. Antes escribia a maquina al lado del oro de Fort Knox. Nunca lo vi.
-- revelacion2: En el 80, con neblina, le dispare a mi sobrino Doyce en el cerro de los Pickard. Sabia que andaba ahi. Dispare igual, por un ciervo. Mi hermana no me habla.
+- revelacion2: En el 80, con neblina, le dispare a mi sobrino Doyce. Sabia que andaba ahi. Despues la unica que me siguio dando sopa en el casino del Fuerte fue la Mae, la mama de la Chela.
 - revelacion3: Doyce esta vivo. Anda con los del patio de trenes. En noviembre lo tuve en la mira y le dispare al de al lado. Wilma Jean lo llora todos los domingos y yo no le digo nada.
 - diario_conocer: Ruby Duncan, cazadora de West Point. Me apunto antes de saludarme. Le lleva carne a la Chela y no acepta plato.
 - diario_final: Ruby sabe que su sobrino anda con los del patio de trenes y no se lo dice a la madre. La mejor tiradora de Knox no puede apuntarle a eso.
@@ -589,7 +588,7 @@ Se fueron por el camino. No sé si llegaron. Los niños no saben que vino. Dalla
 - **Defecto:** decide por los niños como si fueran suyos solamente.
 - **Virtud:** no ha dejado de trabajar un solo día; reparte leche aunque no le sobre.
 - **Cuerpo:** más flaco; el hombro izquierdo se le salió en septiembre cargando un ternero y lo tiene vendado con una correa; duerme menos que nunca.
-- **Lazo con el reparto:** de oídas y una visita: el Padre Nacho vino en octubre a pedir leche para la despensa de caridad y Willis le dio dos galones. Sabe de la iglesia lo que sabe Riverside: que el cura deja la puerta abierta. (Leí nacho.md: la despensa de caridad y la lista de quién viene.)
+- **Lazo con el reparto:** Yvonne Bell (la panadera de la Hollis les regalaba canela a los mellizos, ronda A) y, de oídas y una visita, el Padre Nacho vino en octubre a pedir leche para la despensa de caridad y Willis le dio dos galones. Sabe de la iglesia lo que sabe Riverside: que el cura deja la puerta abierta. (Leí nacho.md: la despensa de caridad y la lista de quién viene.)
 - **Etiquetas nuevas:** granja con pozo, padre que decide, madre echada, Riverside sin agua.
 
 ### TEXTOS PARA EL JUEGO
@@ -599,7 +598,7 @@ Se fueron por el camino. No sé si llegaron. Los niños no saben que vino. Dalla
 - revelacion1: Willis Prater, granjero del camino del rio, en Riverside. Cuarenta acres, doce vacas, un pozo y dos mellizos de cuatro. Les hago panqueques con forma de Kentucky.
 - revelacion2: La mama de los ninos no se fue sola. Le pague con la plata del seguro del tractor para que firmara y se fuera. A ellos les dije que no los quiso.
 - revelacion3: En agosto Shawna vino a buscarlos. Iba al cordon con otros cinco. Los ninos dormian la siesta. La eche con la escopeta. No se si llego. Ellos no saben que vino.
-- diario_conocer: Willis Prater, granjero, padre solo de mellizos. Tiene pozo, vacas y ojeras. Riverside sabe lo del pozo.
+- diario_conocer: Willis Prater, granjero, padre solo de mellizos. Le da leche al Padre Nacho para la despensa. La panadera de los Hollis les regalaba canela.
 - diario_final: Willis echo a la madre de sus hijos a punta de escopeta. Dice que los salvo. Los mellizos siguen sin saber nada.
 - mudanza: Willis llega a la iglesia con los mellizos en la carretilla, dos vacas de la cuerda y Dallas atras con la muleta. Pide un pedazo de patio para las vacas y un rincon tibio para los ninos. Desde el primer dia hay leche en la despensa. Duerme por fin una noche entera, porque alguien mas vigila. Una tarde, ordenando, se sienta con Birdie y Boone y les dice que su mama los vino a buscar una vez. No dice lo demas. Todavia.
 - muerte: Willis Prater murio en el camino. Dallas se quedo con los mellizos. Ellos siguen esperando a alguien en la cerca.
@@ -647,7 +646,7 @@ Floyd dice que se cayó de la escalerilla. No se acuerda de nada. Yo le digo que
 - llegada: Diez-cuatro, corazon, te veo. Baja la voz, que Floyd esta durmiendo en la pieza de adelante.
 - rescate: Cuarenta inviernos de ruta y nunca me tuvieron que sacar de una zanja. Hasta hoy. Gracias, corazon.
 - gracias: Eso es entregar a tiempo, corazon. Te ganaste un cafe donde la Rosa. Achicoria, digo.
-- revelacion1: Thelma Collins, camionera de Rosewood. En la radio me dicen Mama Gansa. Me case en junio con Floyd, el del bus escolar. Lo tengo en cama con la cadera rota.
+- revelacion1: Thelma Collins, camionera de Rosewood. En el 19 me dicen Mama Gansa. Me case en junio con Floyd y la fiesta fue en el taller de la Rosa. El Gordo Whitaker mando saludos.
 - revelacion2: Mi primer marido murio en la litera en el 75. Me llamo dos veces: Thelma, para un poco. Yo iba con pastillas y la carga atrasada. No pare. Dije que murio dormido.
 - revelacion3: Floyd no se cayo de la escalerilla. Llevaba tres noches despierta con pastillas, vi una sombra en el patio y le pegue con el tubo de la gata. Era el. No se acuerda. Todavia las tomo.
 - diario_conocer: Thelma Collins, 63, camionera recien casada. Cuida a su marido en cama y toma achicoria donde la Misia Rosa.
@@ -704,7 +703,7 @@ Con tinta, amigazo. Ahora es verdad."
 - revelacion1: Odell Branham, mecanico del taller de Whisman, en la 31W de Muldraugh. Monte toros diez temporadas. Esta hebilla la gane en Freedom Hall en el 79.
 - revelacion2: No me retiro la pelvis. En el 84 me quede tieso en el cajon, arriba del mismo toro que me quebro la clavicula. Me baje por la reja. A todos les cuento lo del doctor.
 - revelacion3: La escopeta no se trabo. Me trabe yo. Vi como agarraban a Jarrod a quince yardas y conte ocho segundos antes de moverme. Al Cabo le menti y el lo anoto con tinta.
-- diario_conocer: Odell Branham, mecanico de la 31W. Hebilla de rodeo, un brazo que no sube y chistes de ocho segundos.
+- diario_conocer: Odell Branham, mecanico de la 31W. Le arregla las patrullas al Cabo de vez en cuando. Hebilla de rodeo y chistes de ocho segundos.
 - diario_final: Odell se congela cuando hay que disparar. Asi murio un muchacho en su patio. Le dije que igual lo quiero cuidandome la espalda.
 - mudanza: Odell llega a la comisaria con la caja de herramientas, la hebilla puesta y la escopeta descargada en la mano. Pide el garaje de las patrullas y se queda a vivir ahi, entre las llantas. Arregla todo lo que tenga ruedas. Una noche le pide al Cabo la libreta, busca la linea de Jarrod Haddock y le dicta otra cosa: me quede tieso. El Cabo la corrige con tinta, sin decir nada. Desde ese dia Odell no hace guardia solo, y no le da verguenza pedirlo.
 - muerte: Odell Branham murio en un encargo. Esta vez no se quedo quieto. Duro mas de ocho segundos.
@@ -751,7 +750,7 @@ El sobre de Frankfort sigue en la lata de galletas danesas, con los alfileres. S
 - llegada: Pase, mi alma, y no me pise los alfileres. Le estoy tomando la medida con la vista.
 - rescate: Ay, el corazon. Deme la pastilla de la lata. Gracias, mi alma. Hilvanado nomas, pero viva.
 - gracias: Esto vale un ruedo, mi alma. O una mortaja, si me la pide para alguien. Ojala no.
-- revelacion1: Lan Turpin, costurera de la calle Locust, en West Point. Ahora coso mortajas y les bordo las iniciales por dentro, en punto de cruz azul.
+- revelacion1: Lan Turpin, costurera de la calle Locust, en West Point. Le hacia los ruedos al jefe Booker. Ahora coso mortajas y les bordo las iniciales por dentro.
 - revelacion2: Soy adoptada. Llegue con un gorrito bordado C. M. R. En el 72 una mujer de Brandenburg me contesto: No me busque mas. Escondi la carta y segui escribiendo como si nada.
 - revelacion3: El sobre de Frankfort lo abri en agosto. Se llama Cora Mae Rowlett. En el 91 estaba en el hogar de ancianos de Brandenburg. Tendria noventa y dos. No he ido. Me da miedo que me reconozca.
 - diario_conocer: Lan Turpin, costurera de 75, cose mortajas en West Point. Me midio el brazo con los ojos antes de saludarme.
@@ -806,7 +805,7 @@ Le llevo sopa todas las noches y le dejo una luz. Él me cuenta cómo te reías 
 - revelacion1: Tobias Gilley, electricista de Riverside. Marina, liniero, y en el 74 me pasaron siete mil voltios. Ahora armo luces de bateria para la cuadra.
 - revelacion2: Marvella no se fue a cuidar a ninguna hermana. Se fue con un vendedor de alimento a Tampa en el 88. Murio alla. Yo le sigo poniendo su taza.
 - revelacion3: El forastero de la casa de la esquina es Lasco Fyffe, el hombre con que se fue Marvella. Llego con la pierna rota y una caja de cosas de ella. Lo cuido. Hablamos de ella.
-- diario_conocer: Tobias Gilley, electricista de Riverside. Le habla a su mujer muerta y pone dos tazas en la mesa.
+- diario_conocer: Tobias Gilley, electricista de Riverside. Pone dos tazas en la mesa. Los jueves el Padre Nacho le pregunta cuantos son en la casa. Dice dos.
 - diario_final: Tobias cuida al hombre que le quito a su mujer. Le lleva sopa y luz. Los dos la extranan igual.
 - mudanza: Tobias llega a la iglesia con un banco de baterias en una carretilla y, detras, en una silla de ruedas que armo el mismo, a Lasco Fyffe. Pide la sacristia chica para Lasco y un rincon para trabajar. Arma luces para el patio y un timbre para la puerta. La primera noche pone una sola taza en la mesa. La segunda, se sienta con Lasco y le cuenta al Padre, delante de todos, quien es ese hombre. Nadie le tiene lastima. Le pasan el pan.
 - muerte: Tobias Gilley murio en un encargo. Lasco Fyffe pregunto toda la noche por la luz de las ocho.
@@ -857,7 +856,7 @@ Trescientas cuarenta cartas. Las estoy entregando. Las abro con vapor, las leo, 
 - revelacion1: Ina Lyons, policia de Rosewood, una de seis. Campeona estatal de ortografia en el 81, como mi mama en el 62. A las seis le saco el crucigrama a la Misia Rosa.
 - revelacion2: Mi copa del 81 es falsa. En la final lei la carpeta del pronunciador en el receso. Por eso no la toco. Por eso no dejo pasar ni una falta.
 - revelacion3: Tengo la bolsa del correo de mi papa. Abro las cartas de Rosewood con vapor y las leo. Algunas las entrego. Otras las quemo. Decido yo lo que la gente alcanza a saber.
-- diario_conocer: Ina Lyons, policia de Rosewood, de uniforme planchado. Les corrige la ortografia de los letreros a los sobrevivientes.
+- diario_conocer: Ina Lyons, policia de Rosewood. Le saca el crucigrama a la Misia Rosa y en el 92 le puso una multa a Hector Jr. Corrige los letreros.
 - diario_final: Ina lee el correo de todo Rosewood y decide que cartas llegan. Le pedi que me dejara entregar una. Me dio la de la calle Pine.
 - mudanza: Ina llega a la gasolinera con el uniforme planchado, su libreta y una bolsa de correo de lona. Pide hacer las guardias de la manana y un cajon para archivar. A las seis toma achicoria con la Rosa y le saca el crucigrama de memoria. Abre la bolsa delante de todos y reparte las cartas que quedan, cerradas, sin leer. Las que no tienen a quien, las deja en la caja, en orden alfabetico. Por si alguien vuelve. La de la calle Pine la lleva ella misma.
 - muerte: La oficial Ina Lyons murio de servicio. Escribi su nombre con cuidado: I-n-a. Las cartas quedaron sin repartir.
@@ -906,7 +905,7 @@ No lo vendí, joven. Desde agosto cuelga de la cadena un soldado de la Guardia, 
 - llegada: Joven. Pase. Anatomicamente hablando, esta usted entero. Eso ya es mucho.
 - rescate: Gracias, joven. A los sesenta y dos uno corre como un lomo con nervio: mal y tarde.
 - gracias: Esto, para la comisaria. El Cabo paga lo que promete y yo corto lo que me traen.
-- revelacion1: Thaddeus Hacker, profesor de biologia de Muldraugh. Treinta inviernos de carnicero antes de eso. Los alumnos me decian Mister Chuletas.
+- revelacion1: Thaddeus Hacker, profesor de biologia de Muldraugh y carnicero treinta inviernos. Le vendia huesos para caldo a don Ernesto Mandados, el papa del Cabo.
 - revelacion2: En la primavera del 73 la carne se fue a las nubes. Seis semanas mezcle caballo en la carne molida. Medio Muldraugh comio caballo. Mi mujer no lo sabe.
 - revelacion3: La camara de frio de la carniceria no esta vacia. Desde agosto cuelga de la cadena un soldado muerto, de los que caminan. Lo estudio de noche. El Cabo no sabe. Hettie tampoco.
 - diario_conocer: Thaddeus Hacker, profesor y ex carnicero de Muldraugh. Les explica a los ninos donde esta el higado. Habla como un libro de anatomia.
@@ -953,14 +952,14 @@ Velma me sigue diciendo nuera antes de dormir. Yo le arreglo la almohada."
 - **Defecto:** cuida a los demás administrándoles la verdad.
 - **Virtud:** no deja de hacer la ronda: nadie en su lista ha muerto sin que alguien le tomara la mano.
 - **Cuerpo:** insomnio peor; una cortadura infectada en la mano izquierda en septiembre (curada); el dedo malo le duele con el frío.
-- **Lazo con el reparto:** la Chela: cambia yodo por agua hervida del cuartel; la Chela no se deja curar ("cuenta los platos"). No sabe nada de Irma. (Leí chela.md: el agua de la Colorina, "yo ya comí", nunca se sienta.)
+- **Lazo con el reparto:** la Chela: cambia yodo por agua hervida del cuartel; antes del brote le puso la antitetánica a los voluntarios del cuartel, Eduardo incluido (público, sin más); la Chela no se deja curar ("cuenta los platos"). No sabe nada de Irma. (Leí chela.md: el agua de la Colorina, "yo ya comí", nunca se sienta.)
 - **Etiquetas nuevas:** enfermera a pie, carta quemada, casi suegra, piano cerrado.
 
 ### TEXTOS PARA EL JUEGO
 - llegada: Respire. No, mas hondo. Asi. Ahora digame donde le duele.
 - rescate: Un, dos, tres. Ya. Gracias. Tengo el pulso en ciento veinte. Se me pasa.
 - gracias: Con esto hago tres curaciones y una semana de presiones. Gracias, desde el principio.
-- revelacion1: Etta Castle, enfermera de visitas de West Point. Le di clases de piano a medio pueblo. Ahora hago las rondas a pie, con un maletin de la farmacia.
+- revelacion1: Etta Castle, enfermera de West Point. Le puse la antitetanica a medio cuartel, al hijo de la Chela tambien. Le di piano a medio pueblo. Hago las rondas a pie.
 - revelacion2: Mi novio murio en Beirut en el 83. La noche antes leyo mi carta: le decia que no me iba a casar con el. Su mama me dice nuera hasta hoy. Yo la dejo.
 - revelacion3: En octubre encontre en la caja de Corliss su ultima carta, sin mandar. Aceptaba que lo dejara. Velma nunca abrio esa caja. La queme en la estufa para que siga creyendo.
 - diario_conocer: Etta Castle, enfermera de West Point. Me tomo el pulso antes de saludarme y me dijo que respirara.

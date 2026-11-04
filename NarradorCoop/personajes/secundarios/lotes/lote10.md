@@ -1,6 +1,6 @@
 # Lote 10 · Ronda A: "Antes" (la vida hasta el 8 de julio de 1993)
 
-Personajes: s091 Pete Taulbee, s092 Odette Jent, s093 Newt Arnett, s094 Ivy Bailey, s095 Arlo Conley, s096 Josie Mackey,
+Personajes: s091 Pete Taulbee, s092 Orlena Jent, s093 Newt Arnett, s094 Ivy Bailey, s095 Arlo Conley, s096 Josie Mackey,
 s097 Kenny Pennington, s098 Odessa Goforth, s099 Isaac Owens, s100 Dottie Hoskins.
 
 Lazos con el reparto: dos fuertes (Josie con Rosa; Odessa con la Chela), dos medianos (Pete con Wade; Newt con el
@@ -87,12 +87,12 @@ a conocer a mis nietos. Ya tengo el boleto guardado en el tomo D.
 
 ---
 
-## s092 · Odette Jent (Rosewood, pastora)
+## s092 · Orlena Jent (Rosewood, pastora)
 
 ### Monólogo
 
 Día mil setecientos ochenta y uno. Lo cuento antes del café, como un rosario. Me
-llamo Odette, soy alcohólica y soy la pastora de la Iglesia del Nazareno de Rosewood: treinta y un fieles, si vienen
+llamo Orlena, soy alcohólica y soy la pastora de la Iglesia del Nazareno de Rosewood: treinta y un fieles, si vienen
 completos los Pennebaker. Las dos cosas son verdad.
 
 Me crié en Bardstown, oliendo a bourbon desde la cuna. Mi papá rodaba barriles en la destilería y se tomaba la parte de
@@ -108,7 +108,7 @@ mamá". Yo anoto los "ok" también. El 23 de agosto cumplo cinco años. Le mand�
 ### Ficha "antes"
 
 - **Datos**
-  - Nombre completo: Odette Marie Spalding de Jent (conserva el apellido del ex "porque ya lo tenían todos mis papeles,
+  - Nombre completo: Orlena Marie Spalding de Jent (conserva el apellido del ex "porque ya lo tenían todos mis papeles,
     hasta los de la cárcel"). Apodo: "la pastora" o "la Reverenda Jent"; las señoras bautistas, a sus espaldas, "la
     predicadora".
   - Nacimiento: 2 de marzo de 1956, en Bardstown (condado de Nelson), en el hospital de las hermanas.
@@ -158,7 +158,7 @@ mamá". Yo anoto los "ok" también. El 23 de agosto cumplo cinco años. Le mand�
 - **Deseo de antes**: que Joelle vaya a Rosewood el 23 de agosto de 1993, cuando le entreguen la ficha de los cinco años
   en la reunión. Le mandó la invitación por correo el 1 de julio; no ha recibido respuesta.
 - **Lazo con el reparto**: de oídas. Le pone bencina a su Plymouth en la bomba de la Misia Rosa, que le sirve el café sin
-  preguntar y "no me cobra la oración porque no rezo en voz alta en su bomba". Rosa se casó en la bautista; Odette sabe
+  preguntar y "no me cobra la oración porque no rezo en voz alta en su bomba". Rosa se casó en la bautista; Orlena sabe
   que en el pueblo la comparan. Leí rosa.md y hector.md.
 - **Etiquetas**: alcohólica en recuperación, bourbon, Bardstown, pastora, divorciada, madre sin custodia, conversa.
 - **Resumen**: una borracha de familia de bourbon que se volvió pastora contando los días, y que todavía espera que su
@@ -834,11 +834,11 @@ volver a enseñar. Con evidencia.
   medias de compresión. Oficio explicado (Ejército + Jewel). Familia: Jewel (1934-1984), Roz (1956), Clifton (1960).
   "Cocinera" pasa a "cocinero"; queda el chiste de "la señora Pete". Arreglos: mamá Missouri "Zouri", esposa Jewel, hija
   Rosalind "Roz"; sin el cocinero Mandados de Fort Knox; cocina de pie.
-- **s092 Odette Jent** (n. 2-mar-1956, 37): empieza a tomar a los 14 (1970), se casa a los 20, Joelle nace cuando ella
+- **s092 Orlena Jent** (n. 2-mar-1956, 37): empieza a tomar a los 14 (1970), se casa a los 20, Joelle nace cuando ella
   tiene 22; sobria desde el 23-ago-1988 (el 8-jul-1993 es su día 1.781). Pastora con licencia de distrito del Nazareno.
   Arreglos: papá Hiram, mamá Rosemary, ex Selby, fieles Pennebaker; el 22-ago-1988 ya no es un choque: fue borracha a
   la casa de Selby en Bowling Green, sacó a Joelle del brazo y le quebró la muñeca; la policía la paró en la cuadra.
-  Duda: el nombre "Odette" se queda por ahora; la propuesta "Orlena Jent" la decide el creador.
+  Duda: el nombre "Orlena" se queda por ahora; la propuesta "Orlena Jent" la decide el creador.
 - **s093 Newt Arnett** (n. 11-ene-1919, 74): semilla adaptada (el evasor es su hijo Lowell, n. 1950; Newt se va con él
   a Toronto, 1970-1977, y vuelve con el perdón de Carter). Segunda Guerra a los 23-26. Cuerpo: dedos, audífono,
   artritis, cataratas. Lazo mediano con el Cabo (aserradero 1968-1970, parte de 1977). Arreglos: mamá Permelia, hija
@@ -868,10 +868,9 @@ volver a enseñar. Con evidencia.
 - **s100 Dottie Hoskins** (n. 27-nov-1969, 23): semilla adaptada (ayudante de magíster sacada en marzo de 1992).
   Policía desde enero de 1993, una de los seis agentes del jefe Talbert Ruark. Arreglos: papá Prentiss, mamá Carolyn,
   Brantley Hargrove III; vive arriba de la tienda de repuestos. La cárcel de Rosewood sigue sin tocar.
-- **Dudas generales**: (1) Odette/Odessa: lo decide el creador (propuesta Orlena Jent). (2) Lazos dentro del lote (Isaac
+- **Dudas generales**: (1) Orlena/Odessa: lo decide el creador (propuesta Orlena Jent). (2) Lazos dentro del lote (Isaac
   y Arlo, Isaac y Pete por Rilla, Odessa e Ivy) se pueden borrar sin romper nada. (3) El tónico de Hartmann: Odessa lo
   llama "Tónico Número Siete" porque así lo nombran las fichas de Rosa y de la Chela.
-
 
 ---
 
@@ -946,14 +945,14 @@ ENCUENTRAS EN EL PISO. Dice adónde llevar a los chicos y que no se quede conmig
 - revelacion1: Fui el mejor vendedor de enciclopedias de Kentucky. Hoy soy la senora Pete: cocino en la escuela de Riverside para cinco ninos que nadie vino a buscar.
 - revelacion2: Mi Jewel se cayo en la cocina en el 79 y paso seis horas en el piso. Yo estaba en Owensboro vendiendo la letra V. Desde entonces no me muevo de una cocina.
 - revelacion3: Me he caido tres veces desde octubre. Se me tuerce la boca y se me van las palabras. En la puerta de la camara hay un sobre para Shiloh. Que no se quede conmigo en el piso.
-- diario_conocer: Un viejo con malla en el pelo me ofrecio biscuits en la escuela de Riverside. Cinco ninos lo llaman "senora Pete". Habla como vendedor.
+- diario_conocer: Un viejo con malla en el pelo me ofrecio biscuits en la escuela de Riverside. Le cocinaba a Wade Bell. Cinco ninos lo llaman "senora Pete".
 - diario_final: Pete lleva un sobre pegado en la camara para el dia que se caiga. No quiere que los ninos lo esperen. Yo tampoco quiero que lo esperen.
 - mudanza: Me traigo a los cinco, estimado, y el cucharon, que se me pierde la palabra pero no el cucharon. Al Padre le pido una sola cosa: que me ponga en la cocina y que me mire de vez en cuando. Si me ve en el piso, que no espere. Los ninos ya saben su lista: Shiloh lleva a Precious, los mellizos van juntos, Tywan lleva el tarro de la mantequilla de mani. Yo llevo el tomo D, por si algun dia hay Dayton. En la iglesia hay puerta abierta. En mi cocina habia ventana abierta. Es casi lo mismo.
 - muerte: Pete Taulbee murio con el delantal puesto. Abri el sobre de la camara. Llevamos a los cinco ninos a la iglesia, como el pidio.
 
 ---
 
-## s092 · Odette Jent (Rosewood, pastora)
+## s092 · Orlena Jent (Rosewood, pastora)
 
 ### Monólogo
 
@@ -1004,7 +1003,7 @@ Bowling Green no vino nadie. No podía venir nadie.
 - **Defecto**: miente con el número porque cree que el pueblo se sostiene en él; es orgullo vestido de ejemplo.
 - **Virtud**: sabe reconocer un delirio de abstinencia y no deja que maten a un borracho por miedo. Le salvó la vida a Arbie.
 - **Cuerpo y salud**: fuma más (cigarros armados con tabaco de pipa); el insomnio de las cuatro empeoró; bajó 6 kilos.
-- **Lazo con el reparto**: la Misia Rosa le manda achicoria y la saluda con "¿lleno o normal?", aunque Odette ya no tiene
+- **Lazo con el reparto**: la Misia Rosa le manda achicoria y la saluda con "¿lleno o normal?", aunque Orlena ya no tiene
   bencina. De oídas sabe que en la gasolinera "hay luz toda la noche". No conoce a nadie más del reparto. Leí rosa.md.
 - **Etiquetas nuevas**: recaída escondida, cuenta falsa, delirio de abstinencia, iglesia como refugio.
 
@@ -1013,13 +1012,13 @@ Bowling Green no vino nadie. No podía venir nadie.
 - llegada: Pasa, hermano. Aqui hay reunion los viernes y culto el domingo. El cafe es malo a proposito.
 - rescate: Gracias, hermano. Eso tambien es oracion: llegar a tiempo. Diselo a Dios, que anda distraido.
 - gracias: Con esto pasamos otra semana. Un dia a la vez, hermano. Hoy el dia vino con tu nombre.
-- revelacion1: Soy la pastora del Nazareno de Rosewood y soy alcoholica. Las dos cosas a la vez. Cada manana digo en voz alta cuantos dias llevo sin tomar.
+- revelacion1: Soy la pastora del Nazareno de Rosewood y soy alcoholica. Cada manana digo cuantos dias llevo sin tomar. La Misia Rosa me manda achicoria, y no me cobra el rezo.
 - revelacion2: En el 88 fui borracha a la casa de mi ex y saque a mi hija del brazo hasta el auto. Le quebre la muneca. No lloro. Ya sabia no llorar conmigo.
 - revelacion3: En julio le di cucharadas de bourbon a Arbie para que no se muriera de los temblores. Despues me tome un trago. Uno. El numero que digo cada manana es mentira.
 - diario_conocer: Una pastora flaca, que fuma tabaco de pipa, dice cada manana cuantos dias lleva sobria. Los fieles aplauden. Ella no.
-- diario_final: Odette tomo un trago en julio para salvar a un borracho. Sigue diciendo el numero viejo. Le dije que el nuevo tambien vale.
+- diario_final: Orlena tomo un trago en julio para salvar a un borracho. Sigue diciendo el numero viejo. Le dije que el nuevo tambien vale.
 - mudanza: Me llevo a mis nueve y la reunion de los viernes. La senora Rosa dice que en su bomba hay luz toda la noche: a un borracho la luz le sirve, porque a oscuras es donde se toma. Que Arbie duerma cerca de la caja. Yo puedo dar clase a los ninos, barrer y escuchar a cualquiera que no pueda dormir. Y le pido una cosa: el primer viernes, delante de todos, voy a decir un numero nuevo. Ciento y tantos. Que nadie aplauda. Que alguien me pase el cafe malo.
-- muerte: La pastora Odette murio en un encargo. Arbie dijo el numero verdadero en el culto: el que ella contaba por dentro.
+- muerte: La pastora Orlena murio en un encargo. Arbie dijo el numero verdadero en el culto: el que ella contaba por dentro.
 
 ---
 
@@ -1086,7 +1085,7 @@ tienen que cavar.
 - llegada: Hable fuerte, muchacho, del lado izquierdo. Y no toque esas cruces: estan recien lijadas.
 - rescate: Llego a tiempo, muchacho. Mida dos veces la proxima vez, pero llegue igual de rapido.
 - gracias: Clavos de los buenos. Con esto le hago una puerta que dure mas que yo. No es dificil.
-- revelacion1: Soy carpintero de Muldraugh, hijo de carpintero. Hago cajones y cruces para los muertos de todos, gratis. El mio ya esta hecho, de nogal.
+- revelacion1: Soy carpintero de Muldraugh. Hago cajones y cruces gratis; las de la comisaria tambien. El Cabo me tiene anotado: no quiere venir. El mio ya esta hecho, de nogal.
 - revelacion2: En el 45 hice puentes sobre el Rin para que cruzaran los muchachos. En el 70 cruce uno en Detroit para que mi hijo no fuera a Vietnam. Aqui me dicen el papa del amarillo.
 - revelacion3: Le hago las cruces a la banda del patio. Debajo, en lo que va enterrado, tallo el nombre de los que ellos mataron. Me los dice Brisco borracho. Si alguien da vuelta una, me matan.
 - diario_conocer: Un carpintero viejo y medio sordo junto a las vias de Muldraugh. Hace cajones y cruces gratis. Me hablo del lado izquierdo.
@@ -1228,7 +1227,7 @@ abrí una página sin título. Ahí anoto lo que sale del galpón.
 - revelacion1: Tengo la granja Conley, en el camino viejo a Muldraugh, y una coleccion de armas antiguas que no disparo. La Spencer era de un tatarabuelo de la Union.
 - revelacion2: Mi hermano Darrell era marine. Murio en Granada en el 83, el primer dia. La bandera esta arriba de la tele. Yo nunca fui a ninguna parte.
 - revelacion3: Les restauro armas viejas a los de Duggan y les cargo las balas en mi galpon, para que no nos cobren el tabaco. La Spencer la lleva uno de ellos. Cuando suenan tiros, conozco el ruido.
-- diario_conocer: Un granjero alto y timido, con asma, me ofrecio leche en Riverside. Sabe de armas viejas mas que de el mismo.
+- diario_conocer: Un granjero alto y timido, con asma, me ofrecio leche en Riverside. Le manda leche al Padre Nacho. Sabe de armas viejas mas que de el.
 - diario_final: Arlo arma a la banda de Duggan en su galpon para que no le cobren. Cuenta los tiros de noche. Dice que conoce el ruido de sus cargas.
 - mudanza: Si nos vamos a la iglesia, el Padre tiene que saber que vienen dos vacas, mis papas, Christy y su papa con muletas. La leche es para todos, eso lo digo de entrada. La prensa de cargar la dejo en el galpon, desarmada, y le saco el resorte. Con respeto, Padre, quiero confesarme. Las balas de los de Duggan salen de mi galpon. Se lo digo una vez en voz alta y despues se lo digo a Christy. En ese orden. Y si un dia alguien me trae la Spencer, me la guarda usted.
 - muerte: Arlo Conley murio en un encargo. Christy encontro en su cuaderno una pagina sin titulo, con fechas y calibres. Era la cuenta de la banda.
@@ -1293,10 +1292,10 @@ Tassie me dice Mantilla. Ya no llamo a nadie por cobrar. Ahora me llaman a mí.
 - llegada: Ay, carino, sube al patio despacito. La chiquilla duerme en la litera. Aqui la Mantilla, cambio.
 - rescate: Me sacaste del barro, carino. Como en la 31: el que para, para. Gracias por parar.
 - gracias: Pilas para la radio. Con esto la Mantilla vuelve al aire. Que se cuide la 31, que vuelve la chismosa.
-- revelacion1: Soy Josie Mackey, de Rosewood. Maneje camion veintiseis inviernos, primero el de mi marido. En el 19 me dicen la Mantilla. El Kenworth se llama Grover, como el.
+- revelacion1: Soy Josie Mackey, de Rosewood. Maneje camion veintiseis inviernos. En el 19 me dicen la Mantilla. Paro en la bomba de la Rosa desde el 67, cuando el Hector vivia.
 - revelacion2: En enero del 87 llame a mi Boyd por cobrar para que me trajera un filtro. Se mato en la curva de la cantera, viniendo. Desde entonces llevo tres filtros.
 - revelacion3: La primera noche fui a esa curva a tirarme con el camion, como el. La chiquilla aparecio en los focos, descalza. Por eso digo que la encontre en la 31.
-- diario_conocer: Una camionera de dientes postizos que silban vive en Rosewood con una nina que no es suya. Por el 19 la llaman la Mantilla.
+- diario_conocer: Una camionera de dientes que silban vive en Rosewood con una nina ajena. Le dicen la Mantilla. Conoce al Gordo Whitaker de la radio.
 - diario_final: Josie fue a matarse a la curva donde murio su hijo y una nina la detuvo. Ahora contesta cada llamada del 19. Contesto la mia.
 - mudanza: Me voy donde la Rosa con la chiquilla, la radio y el Grover, si alguien me ayuda a manejarlo de noche, que sola no vuelvo. El camion tiene medio estanque: si un dia la Rosa necesita otro camion grande, ahi esta, carino, sin preguntar para que. Yo puedo estar en la radio de madrugada. A la Tassie que le den una cama cerca de la luz, que le tiene miedo al camino oscuro. A mi tambien. Y que la Rosa me pregunte "lleno o normal". Hace meses que no tengo que contestar nada.
 - muerte: Josie Mackey murio en un encargo. Tassie tomo el microfono del 19 esa noche y dijo: aqui la Mantilla chica, cambio.
@@ -1357,7 +1356,7 @@ por dónde salir. Yo le tapo la salida.
 - llegada: Pase, pero no toque nada que tenga aceite. Ni a mi, que tengo bastante. Todo es presion, sabe?
 - rescate: Gracias. Estaba atrapado como una valvula sin salida. Ahora sale el agua. Respire usted tambien.
 - gracias: Sinemet. Con esto mi papa traga por un mes. No le pregunte de donde saque el resto, por favor.
-- revelacion1: Soy Kenny, del taller Pennington de la 31W. Fui mecanico de la represa de Rough River trece veranos. Volvi por mi papa, que tiene Parkinson.
+- revelacion1: Soy Kenny, del taller Pennington de la 31W. Fui mecanico de la represa de Rough River. Volvi por mi papa, que tiene Parkinson. Al Cabo le arreglo la camioneta.
 - revelacion2: Por mi papa deje la represa y a la mujer que queria. Algunas noches, dandole la sopa, deseaba que se muriera para volver. Lo pensaba con fecha.
 - revelacion3: Los martes a las dos les arreglo los camiones a la Sargento, por las pastillas. Y mi papa escribio NO MAS en la pizarra. Lo borre. No lo dejo irse.
 - diario_conocer: Un mecanico grande de Muldraugh le habla a los motores y a su papa con la misma voz. Me pidio pastillas, no comida.
@@ -1499,7 +1498,7 @@ Guardo una zapatilla en el sótano. La otra la dejé con él.
 - llegada: Alto. No toque el alambre. Zumba. Aja. Ahora si, pase por el portoncito.
 - rescate: Gracias. Siguiente. Vamos a la casa. Por el portoncito, no por el alambre.
 - gracias: Baterias. Aja. Con esto hay luz un mes. Gracias. Eso es todo.
-- revelacion1: Electricista. Riverside. Owens Electric, desde el 75. Le puse luz a media Riverside. Ahora tengo un cerco que zumba. No me gustan los cercos que zumban.
+- revelacion1: Electricista. Riverside. Owens Electric, desde el 75. Al Padre le puse la estufa del salon. Ahora tengo un cerco que zumba. No me gustan los cercos que zumban.
 - revelacion2: Corea. La zona desmilitarizada, el 67. Alla decian que no habia guerra. A Tis Merriweather lo cargue seiscientas yardas. Aqui nadie me creyo. Siguiente.
 - revelacion3: En octubre conecte el cerco al generador. Doscientos cuarenta. Un muchacho de quince se robaba los camotes. Esta bajo la higuera. Rilla cree que es un perro.
 - diario_conocer: Un electricista callado de Riverside vive con su mama y su esposa detras de un cerco que zumba. Contesta con tres palabras.
@@ -1562,7 +1561,7 @@ Técnicamente, entraba. Técnicamente.
 - llegada: Para que conste: alto ahi. Nombre, procedencia y si viene mordido. Lo anoto igual, conteste lo que conteste.
 - rescate: Gracias. Hora: ahora. Lugar: aqui. Hecho: me salvo usted. Lo anoto en el libro con su nombre.
 - gracias: Municion del treinta y ocho. Para que conste, esto es lo primero que me regalan en este oficio.
-- revelacion1: Soy Dottie Hoskins, de la policia de Rosewood. Una de seis. Patrullo a pie y anoto todos los muertos del pueblo en un libro. Fuente primaria.
+- revelacion1: Soy Dottie Hoskins, policia de Rosewood. Patrullo a pie y anoto los muertos en un libro. A las once tomo achicoria donde la Misia Rosa. Mi papa le hizo clases al Junior.
 - revelacion2: Antes ensenaba historia en la universidad, en Richmond. Reprobe a un plagiador y el me acuso de algo que no hice. Nadie probo nada. Igual me sacaron.
 - revelacion3: En septiembre mi hermano mato por la espalda a un ladron vivo. Escribi en mi libro que estaba transformado. Es el primer parte falso de mi vida. Con letra bonita.
 - diario_conocer: Una policia joven de anteojos trizados me pidio nombre y procedencia en Rosewood. Lo anoto todo en un libro. Mi nombre tambien.
@@ -1580,7 +1579,7 @@ Técnicamente, entraba. Técnicamente.
   desmayos que salen de la presión. Cocina de pie. Familia de la A (Jewel, Roz, Clifton, Zouri). Sigue de cocinero de la
   escuela de Riverside (los almuerzos de verano explican que estuviera ahí el viernes). Niños: Shiloh y Precious Bunch,
   Cade y Colby Etter, Tywan Bowles. Secreto sin cambios. Textos sin tildes ni eñes.
-- **s092 Odette Jent**: 37 años; cuenta pública desde el 23-ago-1988 (día 1.927 el 1-dic-1993) y privada desde el
+- **s092 Orlena Jent**: 37 años; cuenta pública desde el 23-ago-1988 (día 1.927 el 1-dic-1993) y privada desde el
   13-jul-1993 (día 142). Familia de la A (Joelle, Selby, Hiram, Rosemary). Su gente: Otho y Dellareen Pennebaker, la nieta
   Pattie, Arbie Pack. En el juego es "la catequista". Secreto sin cambios. Textos sin tildes ni eñes.
 - **s093 Newt Arnett**: 74 años; artritis, audífono (sin pila desde septiembre), dedos cortados. Familia de la A. Secreto
@@ -1614,7 +1613,7 @@ Técnicamente, entraba. Técnicamente.
   las 2:40 y no se sabe de él desde el amanecer del 10. Se queda con el parte falso por su hermano. Textos sin tildes ni
   eñes.
 - **Dudas**:
-  1. Odette: el nombre sigue; si el creador acepta "Orlena Jent", hay que cambiarlo en las dos rondas.
+  1. Orlena: el nombre sigue; si el creador acepta "Orlena Jent", hay que cambiarlo en las dos rondas.
   2. Newt y Brisco: uso a Brisco solo como el soldado que le encarga las cruces y habla borracho; no decido nada más de él.
   3. Arlo no nombra a quien lleva la Spencer ("el que cobra en la calle del correo"); si ese cobrador ya tiene nombre en
      otro lote, se puede poner.

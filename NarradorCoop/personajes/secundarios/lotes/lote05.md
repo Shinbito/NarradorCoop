@@ -127,7 +127,7 @@ tres.
 - **Herida y deseo**
   - Herida: el bus del 11 de diciembre de 1967 (nunca va a saber si era buena) y Natalie, que es de Saxby. Secreto: nadie lo sabe; ni Dima, ni Natalie. Natalie tiene las orejas de Saxby, separadas arriba.
   - Deseo de antes: hacer un papel, uno solo, en el Actors Theatre de Louisville, con entrada pagada. Mandó una carta en marzo de 1993; no le contestaron.
-- **Lazo con el reparto**: de oídas. Conoce de vista a la Chela de los bomberos ("la que nunca viene a las funciones") y la vio correr al incendio de algún vecino; nada más. Leí chela.md. (Dentro del lote: atiende a Twila Fairchild, s046, en el hospital de Fort Knox.)
+- **Lazo con el reparto**: de oídas. Conoce de vista a la Chela de los bomberos ("la que nunca viene a las funciones") y la vio correr al incendio de algún vecino; nada más. En 1990 hizo un curso de quemados en el University Hospital de Louisville con Rosario "Charo" Pegas, la hermana del Padre Nacho, de pareja. Leí chela.md y nacho.md. (Dentro del lote: atiende a Twila Fairchild, s046, en el hospital de Fort Knox.)
 - **Etiquetas**: enfermera, actriz, Fort Knox, Nueva York, divorciada, madre, teatro comunitario, mentira piadosa.
 - **Resumen**: Una actriz que se bajó del escenario por un embarazo, hace catorce años que actúa la calma en el turno de noche de Fort Knox y guarda que su hija es de otro hombre.
 
@@ -662,7 +662,6 @@ Dudas de coherencia:
 - Dos personajes con nombre polaco (Krystyna y Stanislaw) venían así en el lote; les di orígenes distintos (Louisville / Pensilvania) y no se conocen.
 - El 93.º Hospital de Evacuación de Long Binh, el Hospital Ireland de Fort Knox, la Escuela para Sordos de Kentucky en Danville, la estación WWV y el atentado de Beirut (23 de octubre de 1983, 6:22, 241 muertos) son reales; los usé como fondo, sin inventar hechos públicos sobre ellos.
 
-
 ---
 
 # Lote 5, ronda B: "Después" (del 9 de julio de 1993 a fines de 1993)
@@ -728,7 +727,7 @@ minutos. Diez minutos. Antes fueron dos puntos.
 - revelacion1: Fui profesor de fisica treinta y tres inviernos en la secundaria de Muldraugh. Hoy doy clases en mi cocina y pongo en hora el pueblo con una radio de onda corta.
 - revelacion2: Le puse un 58 a un muchacho en 1967. Con 60 se iba a la universidad. Lo llamaron a Vietnam y volvio en un cajon. Dos puntos, joven. Desde entonces no pongo notas rojas.
 - revelacion3: La mama de Wren toco la bocina a las nueve y cinco. Yo le pedi diez minutos mas, por una ecuacion. Wren cree que su mama llego tarde. No llego tarde. Yo la hice esperar.
-- diario_conocer: Conoci al Profesor Pace en la calle Hill. Once relojes en hora y uno parado. Me corrigio la gramatica antes de darme las gracias.
+- diario_conocer: Conoci al Profesor Pace en la calle Hill. Once relojes en hora y uno parado. El cabo lo tiene anotado en su libreta con la hora exacta.
 - diario_final: El Profesor por fin le conto a Wren lo de los diez minutos. Ella no se fue. Le dio cuerda al reloj de su padre. Seguia parado, pero el le dio cuerda.
 - mudanza: Me traje los relojes, joven, los once, y el que no anda tambien. Los colgue en la pared mas larga de la comisaria y les quite las campanadas, que el ruido aqui adentro no ayuda a nadie. Cada manana pongo la radio de Colorado y pongo en hora al campamento entero. El cabo dice que es la primera vez que la comisaria tiene la hora correcta. Wren da clases conmigo a los mas chicos. Yo les explico la fisica con un pendulo hecho con un perno y un cordon de zapato. Me tiemblan las manos, pero el pendulo no.
 - muerte: El Profesor Pace murio a la hora exacta, como le habria gustado. Pare sus relojes. Wren se quedo con la lupa.
@@ -779,7 +778,7 @@ Muldraugh. Es mía, cielo. Es lo único que escribí en mi vida, y es mentira. T
 - **Defecto**: lo actúa todo, también la verdad. Ya no sabe cuándo está mintiendo.
 - **Virtud**: es de verdad buena en el pánico: la calma que actúa salva gente.
 - **Cuerpo y salud**: bajó 9 kilos. Las várices empeoraron (sin medias de compresión). Dejó de fumar a la fuerza y anda irritable. Tiene un esguince viejo en el tobillo izquierdo de la caminata desde Fort Knox.
-- **Lazo con el reparto**: de oídas. "La Chela del cuartel le da de comer a medio pueblo; yo le curo al otro medio." Nunca han hablado. Leí chela.md. (Dentro del lote: Twila Fairchild le manda carne; Verna Rice le cose la ropa del salón.)
+- **Lazo con el reparto**: de oídas. "La Chela del cuartel le da de comer a medio pueblo; yo le curo al otro medio." Nunca han hablado. Leí chela.md. Además: en 1990 hizo un curso de quemados en el University Hospital de Louisville y le tocó de pareja Rosario "Charo" Pegas, la hermana del Padre Nacho (zurda, desafinaba con Johnny Cash). No sabe nada de ella desde entonces ni de lo del 10 de julio. Leí nacho.md y valentina.md. (Dentro del lote: Twila Fairchild le manda carne; Verna Rice le cose la ropa del salón.)
 - **Etiquetas nuevas**: enfermera del pueblo, mentira que se esparce, madre sin noticias, escenario.
 
 ### TEXTOS PARA EL JUEGO
@@ -792,7 +791,7 @@ Muldraugh. Es mía, cielo. Es lo único que escribí en mi vida, y es mentira. T
 - revelacion3: La regla de los tres dias sin fiebre la invente yo, para que un hombre dejara de llorar. Su mujer se volvio al quinto dia. Y la gente la sigue repitiendo. Por mi.
 - diario_conocer: Conoci a Sadie Petrov, la enfermera de West Point. Cura en un escenario y habla como si hubiera publico. Hay publico: los heridos.
 - diario_final: Sadie le dijo a todo West Point que la regla de los tres dias es mentira. No hubo aplausos. Se quedo sentada en el borde del escenario, sin actuar nada.
-- mudanza: Me traje un baul de vestuario y el botiquin, corazon, nada mas. En el cuartel me dieron un rincon al lado de la cocina y la Chela me dijo que aqui come el que trabaja, asi que trabajo. Curo en la mesa larga despues de la comida. La primera noche les explique a todos que no hay regla, que una mordida es una mordida, y no actue nada. Me costo mas que cualquier estreno. Los domingos les hago una escena chica a los ninos, bajito, sin ruido. Y le pregunto a cada uno que llega por mi Natalie.
+- mudanza: Me traje un baul de vestuario y el botiquin, corazon, nada mas. En el cuartel me dieron un rincon al lado de la cocina y la Chela me dijo que aqui come el que trabaja, asi que trabajo. Curo en la mesa larga despues de la comida. La primera noche les explique a todos que no hay regla, que una mordida es una mordida, y no actue nada. Me costo mas que cualquier estreno. Los domingos les hago una escena chica a los ninos, bajito, sin ruido. Le pregunto a cada uno que llega por mi Natalie. Y si alguien va al University Hospital, que busque a la Charo Pegas, la zurda que desafina con Johnny Cash. Hicimos juntas el curso de quemados.
 - muerte: Sadie Petrov murio en el encargo. Sin telon y sin publico. Le deje los labios pintados, como se los pintaba antes del turno.
 
 ---
@@ -852,7 +851,7 @@ Nomás a sentarme.
 - llegada: Jefe! Suba despacito, que la escalera del silo no perdona. Llega justo para la polenta.
 - rescate: Uf, jefe, eso fue una pasada a ras. Yo no corro, ya sabe. Gracias por correr por mi.
 - gracias: Sal de verdad. Con esto la polenta pasa de castigo a comida. Le guardo el primer plato, jefe.
-- revelacion1: Soy el cocinero de la bodega de granos de Riverside. Antes la segunda plancha del Bluebird. Cocino de pie, con un baston colgado de la barra.
+- revelacion1: Soy el cocinero de la bodega de granos de Riverside. Antes la segunda plancha del Bluebird, con el pan de la panaderia Hollis. Cocino de pie, con baston.
 - revelacion2: Fui piloto fumigador. A los dieciocho volaba sobre el tabaco con mi tio. En el noventa y dos me comi un cable y quede con un fierro en la pierna.
 - revelacion3: El agua mala de la vega fui yo, jefe. Vacie dos bidones de paration en el arroyo para parar a los muertos. No respiran. Se murio el viejo Bratcher.
 - diario_conocer: Conoci a Ozzie Ward arriba de un silo en Riverside. Cojea, cocina maiz para nueve y mira el cielo como si le debiera algo.
@@ -1105,7 +1104,7 @@ lo voy a saber nunca. Capaz que ganaba. Di la vuelta entera, como el perro que s
 - gracias: Maiz. Maiz de verdad. Con esto la Kayla come en enero. Usted no sabe lo que me saco de encima.
 - revelacion1: Soy Delmer Hurt, granjero de Riverside. Tabaco, soya y dos chanchos. Vivo en la casa grande de los Pickering, la granja que mi papa trabajo de peon.
 - revelacion2: En el ochenta y cinco me gane un millon doscientos mil en la loteria de Ohio. Me compre esta granja, un bote y un Lincoln blanco. En el noventa el banco se quedo con todo.
-- revelacion3: Los del taller no me robaron el maiz, compadre. Me lo ganaron a los dados. En tres noches. A la Wanetta le dije que vinieron con escopetas. Medio Riverside lo cree.
+- revelacion3: Los del taller del Martillo no me robaron el maiz, compadre. Me lo ganaron a los dados. En tres noches. A la Wanetta le dije que vinieron con escopetas. Medio Riverside lo cree.
 - diario_conocer: Conoci a Delmer Hurt, el Millonario de Riverside. Vive en la granja que perdio. Se rie de si mismo antes que nadie.
 - diario_final: Delmer le conto a Wanetta lo de los dados. Ella le tiro la lata de los boletos a la estufa. Despues le sirvio la cena igual.
 - mudanza: Me traje a la Wanetta, a la Kayla y un fardo de tabaco, compadre, que en el campamento vale mas que la plata. En la iglesia de piedra me toco dormir en el salon parroquial, debajo del techo que pague en el ochenta y seis. La placa sigue ahi. Ya no la tapo. Trabajo el huerto del Padre y le enseno a los muchachos a colgar tabaco. La Kayla ayuda a curar. No juego. Cuando me dan ganas, saco una moneda y la miro. Nomas la miro.
@@ -1165,7 +1164,7 @@ camioneros, para su cuaderno. Le conté de mi papá. Lo anotó con lápiz.
 - revelacion1: Soy Ofelia, Rulos en el canal 19. Peluquera y camionera de Rosewood. El salon era de mi mama, el camion es de mi papa. Ahora el camion es una pared.
 - revelacion2: Una vez una clienta me conto que juntaba plata para irse de su marido. Yo se lo conte riendome a su suegra. El marido encontro la plata. Ella no se fue nunca.
 - revelacion3: Le lave el pelo a Sanford Kincer para el cajon. Tenia la nuca hundida, del porte de un sarten. Ni una mordida. Arbutus me pidio que no contara. Esta vez no conte.
-- diario_conocer: Conoci a Ofelia Cantrell en Rosewood. Me corto el pelo antes de preguntarme el nombre. Sabe la vida de todo el pueblo.
+- diario_conocer: Conoci a Ofelia Cantrell en Rosewood. Me corto el pelo antes de preguntarme el nombre. Tambien se lo corta a la Misia Rosa. Sabe todo.
 - diario_final: Ofelia me conto lo de Sanford Kincer y me hizo jurar por la laca. Dice que es el primer secreto que guarda bien. Le creo.
 - mudanza: Me traje a mi papa, a la tia Gaynell, las tijeras y la base de radio, amiga. El Mack lo dejamos en el patio, de pared, por si acaso. En la gasolinera mi papa se instalo al lado de la caja con su radio y ya le cuenta a todo el mundo como era la ruta a Laredo. La Misia Rosa le guarda cafe. Yo corto el pelo detras del taller los sabados, y peino a los que se van. Por fin hay luz para trabajar de noche. Y una con quien hablar que habla mas que yo.
 - muerte: Ofelia Cantrell murio en el encargo. La peine yo, como ella peinaba a los muertos. Mal, pero la peine.

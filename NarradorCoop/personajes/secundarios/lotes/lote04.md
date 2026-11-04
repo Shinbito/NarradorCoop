@@ -95,7 +95,7 @@ Dios le cocino; conversar, no le converso. Y el cura se ríe. Por eso le cocino 
 
 ---
 
-## s032 · Jolene Hatfield (49, Rosewood, pastora)
+## s032 · Johanna Hatfield (49, Rosewood, pastora)
 
 ### Monólogo
 
@@ -120,7 +120,7 @@ me llamó.
 
 ### Ficha "antes"
 
-- **Datos:** Jolene Ludie Hatfield. Apodos: "la Reverenda Jo" o "Pastora Jo"; en el convento fue la hermana María
+- **Datos:** Johanna Ludie Hatfield. Apodos: "la Reverenda Jo" o "Pastora Jo"; en el convento fue la hermana María
   Columba. Nació el 2 de febrero de 1944 en Peter Creek, condado de Pike (Kentucky). 49 años en julio de 1993. Vive en
   Rosewood desde junio de 1987, en la casa pastoral pegada a la iglesia metodista del pueblo, en la calle principal.
 - **Físico:**
@@ -131,7 +131,7 @@ me llamó.
   - Salud: migrañas desde el noviciado. Toma Fiorinal y se encierra a oscuras.
 - **Voz:** cadencia de púlpito con acento de Pike. Dice "hermano" o "hermana". Se le escapan expresiones católicas y se
   corrige ("Ave María Purísima... digo, Señor bendito"). Hace chistes con los Hatfield y los McCoy ("a un McCoy no le
-  presto la escopeta") y con la canción de Dolly ("No te voy a quitar el hombre, hermana; no tengo dónde ponerlo"). Tutea
+  presto la escopeta") y con su soltería ("No le voy a quitar el hombre a nadie, hermana; no tengo dónde ponerlo"). Tutea
   a todos menos a los viejos.
 - **Vida por etapas:**
   - Infancia (1944-1958): es hija de Garvin Hatfield, chofer de camión de carbón y bautista, y de Ludie. En 1958 su madre
@@ -808,10 +808,9 @@ hablara, cariño, en Rosewood se divorcia medio pueblo.
   los 23-26, la congelación de las Ardenas, la sordera, los hijos de Leora a los 23 y 26, y la muerte de ella en 1986. Cocina
   de pie, apoyado en el mesón, por las rodillas y los dedos del pie. Duda: Kentucky prohibió el manejo de serpientes en 1940; lo de su padre es de
   1926-37, así que no choca.
-- **s032 Jolene Hatfield** (n. 2-feb-1944, 49): revisado. Conversión a los 15, convento a los 18, salida a los 26,
+- **s032 Johanna Hatfield** (n. 2-feb-1944, 49): revisado. Conversión a los 15, convento a los 18, salida a los 26,
   seminario a los 28-31 y Rosewood desde los 43. Las rodillas vienen del convento. Dudas: (1) su nombre se parece mucho a
-  "Joleen", la ex de Earl. El editor propone "Johanna Hatfield" (sigue siendo "Pastora Jo"); lo decide el creador, así que
-  mientras tanto queda Jolene. (2) "Pastora" la tomé como pastora religiosa (metodista), no de ovejas.
+  "Joleen", la ex de Earl. Por eso el creador la renombró Johanna Hatfield (sigue siendo "Pastora Jo"). (2) "Pastora" la tomé como pastora religiosa (metodista), no de ovejas.
 - **s033 Jimmy Burkhart** (n. 14-ene-1969, 24): revisado. Su madre lo tuvo a los 17, lo crían los abuelos desde los 5,
   taxidermista de los 14 a los 22 y carpintero desde los 22. El asma viene de los químicos. Valentina (n. 1970) iba un curso
   más abajo en la misma secundaria (sin escena del acto de 1985).
@@ -845,10 +844,9 @@ hablara, cariño, en Rosewood se divorcia medio pueblo.
   Revisé los nombres nuevos contra las fichas, el canon y los registros del rol: cambié Ashcraft, Ollie, Ferris y Elmer,
   que ya existían.
 - **Secretos del lote** (todos distintos entre sí y ninguno de la lista prohibida): el veneno sacado a escondidas (Luther), el
-  llamado que fue un hombre (Jolene), el perro cambiado (Jimmy), la hija regalada (Rhoda), los nueve minutos y el registro
+  llamado que fue un hombre (Johanna), el perro cambiado (Jimmy), la hija regalada (Rhoda), los nueve minutos y el registro
   falso (Jethro), el plato fallado a propósito (Aurelia), la canción robada (Marvin), la caja del Kroger (Mabel), la derrota
   escondida (Silas) y la llamada anónima (Pansy).
-
 
 ---
 
@@ -928,14 +926,14 @@ Pero ahora me cuesta más.
 - revelacion1: Soy Luther Sandoval, el cocinero de Riverside. Treinta inviernos con el cafe de la esquina del rio. Ahora cocino para el que traiga tarro, y los viernes para el Padre.
 - revelacion2: Mi papa predicaba con culebras en la mano, alla en Bell County. Yo les daba de comer. A los diez me mordio una en pleno culto. Por eso no entro a las iglesias.
 - revelacion3: De nino le sacaba el veneno a las culebras de mi papa antes de cada culto. El creia que lo cuidaba la fe. Me fui de la casa y la primera culebra con veneno lo mato.
-- diario_conocer: Luther Sandoval, cocinero viejo de Riverside. Cojea, no oye de un lado y no deja que nadie le revuelva la olla.
+- diario_conocer: Luther Sandoval, cocinero viejo de Riverside. Le cocina los viernes al Padre Nacho. Cojea, no oye de un lado y nadie le revuelve la olla.
 - diario_final: Luther le sacaba el veneno a las culebras de su padre para que la fe no lo matara. Todavia le paga a alguien para que nada lo muerda.
 - mudanza: Me traje la caldera, Padre, y el remo. La caldera va en el patio y no en su cocina, que el burgoo humea. Quint duerme donde usted diga; yo, cerca del fuego, que los pies ya no me calientan solos. Los jueves sigo haciendo la olla para la calle del correo: eso no se corta, y no me pregunte por que. Y otra cosa. El domingo pasado me sente en la ultima banca. No oi nada, que de ese lado estoy sordo. Pero me sente. No se le ocurra echarme la bendicion, que me paro y me voy.
 - muerte: Luther Sandoval murio en el encargo. Nadie mas sabe el burgoo. El jueves la olla no hierve.
 
 ---
 
-## s032 · Jolene Hatfield (49, Rosewood, pastora)
+## s032 · Johanna Hatfield (49, Rosewood, pastora)
 
 ### Monólogo
 
@@ -984,8 +982,9 @@ cobre a mí y no a ellos.
 - **Virtud:** no deja a ningún niño sin clase ni sin plato.
 - **Cuerpo:** sin Fiorinal desde agosto; las migrañas la dejan dos días a oscuras. Se arrodilla con los niños sin cojín y
   las rodillas están peor. Bajó seis kilos. Ya no se corta el pelo.
-- **Lazo con el reparto:** de oídas, la Misia Rosa: sabe que en la bomba se da de comer y a veces manda a los niños con un
-  tarro. La conoce de vista de antes. Leí rosa.md.
+- **Lazo con el reparto:** la Misia Rosa: sabe que en la bomba se da de comer, y Rosa le manda un tarro de leche para los
+  niños cuando puede. La conoce de vista de antes. De oídas, Lucía, "la monjita de March Ridge que canta para los muertos";
+  la ex monja la nombra con cariño y un poco de envidia. Leí rosa.md y lucia.md.
 - **Etiquetas:** madre sustituta, maestra de niños, mentira piadosa, migrañas.
 
 ### Textos para el juego
@@ -993,12 +992,12 @@ cobre a mí y no a ellos.
 - llegada: Pase, hermano. Si viene a la clase, sientese adelante. Si viene a robar, tambien: aqui nadie se queda sin leccion.
 - rescate: Ave Maria Purisima... digo, Senor bendito. Llego a tiempo. Los ninos estan bien? Primero los ninos.
 - gracias: Dios se lo pague. Y si Dios anda ocupado, le pago yo con una clase de lectura, que nunca sobra.
-- revelacion1: Soy la pastora de la metodista de Rosewood. Ahora mas bien la maestra: siete ninos, una pizarra y el Salmo 23. Antes fui monja, pero eso es otro sermon.
+- revelacion1: Soy la pastora de la metodista de Rosewood. Ahora mas bien la maestra: siete ninos y una pizarra. La Misia Rosa me manda un tarro de leche para ellos cuando puede.
 - revelacion2: Fui la hermana Maria Columba, maestra de cuarto en Covington. Colgue el habito en el 70. A todos les digo que Dios me llamo a predicar. No digo con que voz me llamo.
 - revelacion3: En agosto vino el papa de Tansy y Sonny a buscarlos. Le dije que la Guardia se habia llevado a los ninos al cordon. Se fue a pie a Brandenburg. Ellos dormian en la pieza de al lado.
 - diario_conocer: La pastora Jo, de la metodista de Rosewood. Ex monja, flaca, con rodillas que suenan. Le hace clase a siete ninos en la iglesia.
-- diario_final: Jolene le mintio al padre de los ninos para quedarselos. Dice que Dios se la cobre a ella. No se si Dios cobra, pero ella ya esta pagando.
-- mudanza: Me traje la pizarra y a los dos ninos, Misia Rosa. Tansy ya suma; Sonny todavia no, pero aprende. Si me da un rincon detras del mostrador, hago clase todas las mananas, una hora, y despues me pongo a lo que usted mande. La escuela dominical la hago diaria, que los domingos ya no se notan. No le voy a predicar a nadie que no quiera; con los ninos me basta. Y si alguien de su gente necesita confesarse, no soy cura, pero oigo bien y no repito.
+- diario_final: Johanna le mintio al padre de los ninos para quedarselos. Dice que Dios se la cobre a ella. No se si Dios cobra, pero ella ya esta pagando.
+- mudanza: Me traje la pizarra y a los dos ninos, Misia Rosa. Tansy ya suma; Sonny todavia no, pero aprende. Si me da un rincon detras del mostrador, hago clase todas las mananas, una hora, y despues me pongo a lo que usted mande. La escuela dominical la hago diaria, que los domingos ya no se notan. No le voy a predicar a nadie que no quiera; con los ninos me basta. Dicen que en March Ridge hay una monjita que canta para los muertos; yo enseno a los vivos, que es mas facil. Y si alguien de su gente necesita confesarse, no soy cura, pero oigo bien y no repito.
 - muerte: La pastora Jo murio en el encargo. Tansy y Sonny se quedaron sin nadie por segunda vez. Alguien tiene que decirles.
 
 ---
@@ -1062,10 +1061,10 @@ más, señor.
 - llegada: No se mueva rapido, senor. Aqui todo esta quieto y me gusta asi. Que necesita?
 - rescate: Gracias, senor. Me quede quieto como siempre, pero esta vez no alcanzaba. No tendra un inhalador?
 - gracias: Con esto respiro el mes. Le hago un cajon cuando lo necesite. Perdon, no quise decir eso.
-- revelacion1: Soy Jimmy Burkhart, el carpintero de Muldraugh. Hago cajones y tablas para ventanas. Antes disecaba animales con mi abuelo, en la 31W. El oso de la puerta es Buford.
+- revelacion1: Soy Jimmy Burkhart, el carpintero de Muldraugh. Hago cajones y tablas para ventanas; el Cabo me paga con inhaladores. Antes disecaba animales con mi abuelo.
 - revelacion2: En el 91 se me pudrio en el congelador el perro de una viuda. Le diseque otro igual, recogido en la carretera. Ella lo supo siempre y lo quiso igual. Me lo dijo antes de morir.
 - revelacion3: La senora Docia murio en septiembre y se levanto en la manana. No pude. La amarre a su sillon con el perro en la falda. Voy todas las tardes a peinarla. Me ayuda a enterrarla?
-- diario_conocer: Jimmy Burkhart, carpintero de Muldraugh. Flaco, con asma, hace cajones. Se queda tan quieto que da miedo.
+- diario_conocer: Jimmy Burkhart, carpintero de Muldraugh. Flaco, con asma, hace cajones para el Cabo. Fue a la escuela con Valentina. Se queda tan quieto que da miedo.
 - diario_final: Jimmy tenia a la senora Docia amarrada en su sillon, muerta y levantada, con el perro en la falda. La enterramos al lado del perro de verdad.
 - mudanza: Me traje las herramientas, Cabo. A Buford lo deje en la puerta del taller, que alguien tiene que cuidarla. Puedo dormir en el galpon de las patrullas; no molesto. Le hago tablas para las ventanas, cajones, lo que me anote. Solo le pido que no me toquen por la espalda, y que si me da el asma de noche alguien golpee dos veces la pared. Y no me pida que despida a los muertos. Les hago el cajon a medida, eso si, con las esquinas a cola de milano. Ellos no se quejan.
 - muerte: Jimmy Burkhart murio en el encargo. Le hicimos el cajon nosotros y nos quedo chueco. El se habria reido para adentro.
@@ -1137,7 +1136,7 @@ Marcella, la de Owensboro) no sé nada. Lo que se mata se come. Lo que no se sab
 - llegada: Criatura. Hable despacio y no pise las trampas. Lo que se mata se come; lo que no, se deja quieto.
 - rescate: Mm-jm. Las gracias no se usan en mi casa. Tome: una ardilla limpia. Vale mas.
 - gracias: Cartuchos. Con esto Tolan come un mes. Le quedo debiendo carne, criatura, y yo pago.
-- revelacion1: Rhoda Griffith, de West Point. Cazo, curto pieles y le pongo trampas a los coyotes. Tuve nueve hijos. Ahora tengo seis bocas en la casa del cerro.
+- revelacion1: Rhoda Griffith, de West Point. Cazo, curto pieles y pongo trampas. A la Tia Chela le cambio cueros por sal. Tuve nueve hijos; hoy tengo seis bocas en el cerro.
 - revelacion2: A Clell lo mato un roble en el 65. Me quede con ocho en la casa, uno en la panza y la escopeta de un tiro de mi papa. Ese invierno comimos mapache. Nadie se murio de hambre.
 - revelacion3: La novena no se murio: se la di a mi hermana en Owensboro, como se da un cachorro. Y la primera noche mi hijo Farris me pidio un minuto para despedirse. No se lo di. Una bala.
 - diario_conocer: Rhoda Griffith, cazadora vieja de West Point. Casi tuerta, seca, con tabaco en el cachete. Seis bocas dependen de su escopeta.
@@ -1207,7 +1206,7 @@ A mi mamá y a mi hermana no las alcanza la antena. Luisiana está muy lejos par
 - revelacion1: Jethro Thibodeaux, granjero de Riverside. Cajun de Houma. Doce inviernos de operador en el Puesto 4 de la Policia Estatal. Ahora soy la radio de Riverside, desde el granero.
 - revelacion2: Una noche del 88 sali a fumar y un trooper pidio auxilio. Nueve minutos sin respuesta. Le dieron dos balazos. En el registro escribi que se cayo el receptor.
 - revelacion3: Por radio hago de Guardia: unidad Bravo, control en el puente. Por eso los del taller no bajan al camino del rio. En octubre una familia oyo mi control y se devolvio a Louisville.
-- diario_conocer: Jethro, el granjero de la antena en el silo. En persona tartamudea; por radio habla como un reloj.
+- diario_conocer: Jethro, el granjero de la antena en el silo. En persona tartamudea; por radio habla como un reloj. El Cabo le conoce la voz.
 - diario_final: La Guardia del puente de Riverside es Jethro con un microfono. Cuida a su gente y le cierra el camino a la ajena. No sabe con cual quedarse.
 - mudanza: Me traje la radio, Padre, y la antena, si me deja subirla al campanario, que es lo mas alto de Riverside. La familia trae las vacas que quedan. Yo hago guardia de radio de noche: anoto quien llama y a que hora, como en el Puesto. No le voy a pedir que rece por mi. Le pido una sola cosa: si alguna vez me oye hablar con otra voz, no me pregunte todavia. Ya le voy a contar, con la mia, cuando me salga sin trabarme. Diez-cuatro.
 - muerte: Jethro Thibodeaux murio en el encargo. Esta noche nadie contesta en el granero. La Guardia del puente tampoco.
@@ -1267,7 +1266,7 @@ Es el segundo plato que fallo a propósito, chiquillo. Y la Tillie está seca.
 - llegada: Pull! Asi pido las cosas, chiquillo. Hable fuerte, que de este lado no oigo nada.
 - rescate: Me sacaste del techo de la cabina. Bien tirado, chiquillo. Para ser hombre, digo.
 - gracias: Esto vale un campeonato. No te lo pago con trofeo: te lo pago con punteria cuando la necesites.
-- revelacion1: Aurelia Gayheart, camionera de Rosewood. La Tillie es mia, un International del 76. Acarreaba heno, tabaco y carbon. Y fui campeona de tiro al plato.
+- revelacion1: Aurelia Gayheart, camionera de Rosewood. La Tillie es mia. Cargo en la bomba de la Rosa desde el 59; el finado Hector me hacia los frenos. Y fui campeona de tiro al plato.
 - revelacion2: Me case con Garrard Holbrook, que tiraba bien y tomaba mejor. En el desempate del 50 falle el ultimo plato a proposito para que ganara el. Esa noche me pidio matrimonio.
 - revelacion3: En agosto tuve en la mira al que me robaba el diesel. Tenia la nuca de mi nieto Jason. Falle a proposito. Volvio con cuatro y se llevaron todo. Dije que llegaron mientras yo dormia.
 - diario_conocer: Aurelia Gayheart, camionera de 73 y campeona de tiro. Sorda de un lado, grita Pull para pedir las cosas.
@@ -1336,7 +1335,7 @@ nunca fue mía. Como el diésel.
 - llegada: Hermanito, hable bajo. Aqui la musica se acabo el nueve de julio. Que necesita, una correa o un milagro?
 - rescate: Como dice la cancion... ya no me acuerdo cual. Gracias, hermanito. Esta vez no tuve que tocar.
 - gracias: Esto era lo que faltaba. Le arreglo lo que quiera y no le pregunto de donde viene. Eso se lo hago gratis.
-- revelacion1: Marvin Stacy, mecanico de Muldraugh. Stacy's Garage, en la 31W. Arreglo lo que traigan. Antes tocaba mandolina con los Rolling Fork Boys. Casi grabamos en Nashville.
+- revelacion1: Marvin Stacy, mecanico de Muldraugh. Stacy's Garage, en la 31W. El Cabo me trae la camioneta. Antes tocaba mandolina con los Rolling Fork Boys. Casi grabamos en Nashville.
 - revelacion2: La primera noche me subi al techo y toque tres horas para que los muertos me miraran a mi y no a una senora con dos chicos. Me sangraron los dedos. No he vuelto a tocar.
 - revelacion3: El tanque de diesel bajo mi taller no se fuga. Se lo vendo de a bidon al Tecolote, por cigarros y cuerdas. Al Cabo le digo que se lo traga la tierra. Como la cancion de Ancel: lo ajeno.
 - diario_conocer: Marvin Stacy, mecanico de la 31W. Habla como cancion, tiene la mano izquierda torcida y ya no toca.
@@ -1475,7 +1474,7 @@ en la orilla. El cuello me cruje más desde agosto. Hay que hacer tierra. Yo no 
 - llegada: Campeon. Pase, y no me de la espalda, que tengo reflejos viejos. Que se le corto?
 - rescate: Me tenian contra el colchon, campeon. Esta vez toque la lona y alguien me levanto. Gracias.
 - gracias: Con esto la casa tiene luz hasta enero. Hay que hacer tierra, campeon, y usted me la hizo.
-- revelacion1: Silas Carver, electricista de Riverside. Carver Electrica, desde el 61. Media Riverside la cablee yo. Y fui campeon estatal de lucha en el 51.
+- revelacion1: Silas Carver, electricista de Riverside desde el 61. Mi mejor aprendiz fue Ramon Bencina, el papa del Junior de la bomba de Rosewood. Y fui campeon de lucha en el 51.
 - revelacion2: En el 51 me gano Lucius Mayes, el campeon de los colegios negros, a escondidas, en un gimnasio de iglesia. Un minuto cuarenta. La medalla dice campeon. Miente.
 - revelacion3: Mi yerno no esta enterrado en la orilla. Le pegaba a mi hija. Lo saque de la cama con una llave y lo eche al camino sin botas. A Janelle le dije que lo mordieron. Me dio las gracias.
 - diario_conocer: Silas Carver, electricista viejo de Riverside, con oreja de coliflor. Aprieta la mano como si fuera a inmovilizarte.
@@ -1549,7 +1548,7 @@ esté.
 - revelacion1: Pansy Rosales, policia de Rosewood, patrullero 2, aunque ya no hay patrullero. Me crie en el Dixie Star, el motel de la 31. Ahora es mio otra vez, sin papeles.
 - revelacion2: A Rudy, mi marido, lo agarro la Estatal en el 89 por una llamada anonima. El cree que fue su primo Beto. La llamada la hice yo, desde el Kroger de Brandenburg.
 - revelacion3: Los rifles de la pieza 9 no salieron de un camion de la Guardia. Eran de Rudy, robados del Fuerte, enterrados detras de la maquina de hielo. Yo lo sabia desde el 89 y me lo calle.
-- diario_conocer: Pansy Rosales, policia de Rosewood. Lleva el registro de un motel donde nadie paga. Me adivino la vida antes de que abriera la boca.
+- diario_conocer: Pansy Rosales, policia de Rosewood. Lleva el registro de un motel donde nadie paga y les manda los hambrientos a la Misia Rosa.
 - diario_final: Pansy entrego a su marido y se quedo con sus rifles. Con esos rifles cuida a nueve desconocidos. No se si eso la absuelve.
 - mudanza: Me traje el libro de registro y a Crystal, Misia Rosa. Los rifles tambien, pero esos van donde usted diga y con llave. Yo anoto a cada uno que llega: nombre, de donde viene, cuantas noches. Usted pregunta lleno o normal; yo pregunto de paso o se queda. Nos vamos a entender. Hago guardia en la entrada de la 31 con el uniforme puesto, que todavia asusta a alguno. Y si me ve leyendo el registro viejo de noche, no me pregunte. Son treinta y cinco tomos de chismes y no los suelto.
 - muerte: Pansy Rosales murio en el encargo. Crystal anoto su nombre en el registro del Dixie Star. Check-out: hoy.
@@ -1562,9 +1561,8 @@ esté.
   alcance). Cocina de pie, apoyado en el mesón, y se sienta solo para pelar; en la escena de la caldera se cae al suelo. El
   burgoo de noche sale de su oficio. El trato con la banda de Duggan no contradice la ficha de Duggan (cobran en Riverside;
   Lenny Voss es de confianza) y no toca las latas del tercer escalón. Textos sin tildes ni eñes.
-- **s032 Jolene** (49): las rodillas y las migrañas siguen. Como "pastora" sale en el juego como catequista: hace clase y
-  ayuda en su iglesia. Delmas e Inabelle quedan fuera del cordón. Su orden no es la de Lucía. El nombre sigue pendiente del
-  creador (propuesta: Johanna). Textos revisados.
+- **s032 Johanna** (49): las rodillas y las migrañas siguen. Como "pastora" sale en el juego como catequista: hace clase y
+  ayuda en su iglesia. Delmas e Inabelle quedan fuera del cordón. Su orden no es la de Lucía. El creador la renombró Johanna (antes Jolene). Textos revisados.
 - **s033 Jimmy** (24): el asma sigue y empeora, y su quietud viene del oficio. La señora Docia y Buster aparecen ya con los
   nombres nuevos, y no hay escena con Valentina en 1985. El Cabo paga con lo que promete. Textos revisados.
 - **s034 Rhoda** (61): la catarata avanza y la artritis sigue. Ya no faena venados ajenos: curte pieles y pone trampas. Los

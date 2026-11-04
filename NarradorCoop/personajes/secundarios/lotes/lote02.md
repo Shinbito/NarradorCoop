@@ -593,7 +593,6 @@ Amén. ¿Me pasa la soga?
 - **Lote entero**: 4 de 10 con lazo fuerte (Flossie, Minnie, Felix, Ezra). Ningún nombre nuevo repite el canon (revisé Ashcraft, Ollie, Wendell, Arvel e Ibarra, que ya estaban ocupados, y los cambié). Secretos distintos y fuera de la lista de ocupados: los ojos escondidos, la mentira al patrullero, la mentira del abrazo, la beca rota y la segunda carta escondida, el aceite que no avisó, la bigamia, la homosexualidad escondida, el Demerol, la curva tres y el testamento. Nada pasa después del 8 de julio de 1993.
 - **Arreglos de continuidad aplicados** (arreglos/lote02.md): todos los renombres de la tabla (Silvanus, Spurrier, Avonelle de Quillen; Bolesław, Stefania, Ziggy, Grażyna; Kelli, Gwen Kissick; Elwood, Lum, Ronald Tharp; Vertie, Juanelle, Robin; Pleas, Tilden y Zula Ramey; Orvis y Mattie Freeman; Shirley Gabbert, Miss Oleta; Rondal, Cordie; Elvert, Jubal, Arvilla). Cambios de dirección: Minnie (la beca de Dovie en lugar de la adopción), Felix (la caída de la torre en lugar de la descarga), Ezra (sin la escena del acto de 1985), Lula (Discípulos de Cristo, pelo corto, el amor perdido es Lemmie Tuggle, casado con su prima Oma). Ora: la constable es cargo del condado, aparte de la policía del jefe Ruark. Irvin le compró el grill a la señora Fay Haddix.
 
-
 ---
 
 # Lote 2 · Ronda B: "Después" (del 9 de julio de 1993 a fines de 1993)
@@ -633,7 +632,7 @@ Si usted me trae una batería, el siete todavía arranca. Lo sé de oído.
 - **Secreto**: desde mediados de octubre (una caída del tractor) está casi ciego también de día y no se lo ha dicho a nadie. El 3 de noviembre le disparó a un bulto que resultó ser Hobie; el perdigón dio en la tranquera. Hobie cree que Clint le mató un muerto que venía detrás. Nadie lo sabe.
 - **Herida nueva**: haber estado a un metro de matar al niño que le hace de ojos. **Mentira**: "Fue la luz de la tarde; de día veo". **Deseo**: llevar a los niños en el siete hasta la iglesia de piedra. **Necesidad**: soltar la escopeta y dejar que otro vea por él. **Miedo**: la tarde, que es cuando todo se parece. **Defecto**: terquedad de chofer; no suelta el volante aunque no vea el camino. **Virtud**: cría a niños ajenos con orden y sin gritar.
 - **Cuerpo**: casi ciego de los dos ojos desde octubre (golpe en la cabeza); el audífono sin pilas desde septiembre; 8 kg menos; cadera morada por la caída.
-- **Lazo con el reparto**: de oídas, la iglesia de piedra del Padre Nacho, "que deja la puerta abierta de noche". Leí nacho.md.
+- **Lazo con el reparto**: treinta años pasó con el siete frente a la iglesia de piedra a las 7:40, cuando Delbert Moody, el sacristán, tocaba las campanas (hecho público de la ficha del Padre; las campanas callan desde 1991). De oídas, que el Padre Nacho deja la puerta abierta de noche. Leí nacho.md; no sabe cómo murió Delbert.
 - **Etiquetas**: niños ajenos, ciego, guardia con escopeta, bus escolar.
 
 ### Textos para el juego
@@ -641,7 +640,7 @@ Si usted me trae una batería, el siete todavía arranca. Lo sé de oído.
 - llegada: "Sientese y no saque los brazos. Hobie, quien es? ... Si el nino dice que es gente, es gente."
 - rescate: "En orden, muchacho, en orden. Esta noche usted maneja mejor que yo."
 - gracias: "Gracias. Lo anoto en la parada que le toca. Usted queda pasada la diecinueve."
-- revelacion1: "Treinta temporadas maneje el bus escolar de Riverside. Cuarenta y dos paradas, me las se en orden. Hoy el siete es gallinero y dormitorio. Las gallinas ponen en el asiento del chofer."
+- revelacion1: "Treinta temporadas maneje el bus escolar de Riverside, cuarenta y dos paradas. A las siete y cuarenta, frente a la iglesia de piedra, Delbert Moody tocaba las campanas para el siete."
 - revelacion2: "Mi Merritt se sento en el asiento uno desde primero hasta el ultimo curso. Lo mataron en Hue en el 68. Nunca deje que nadie se sentara ahi. Ahora se sienta Hobie, y lo dejo."
 - revelacion3: "No veo, muchacho. Desde octubre, ni de dia. En noviembre le dispare a un bulto en la tranquera y era Hobie. Le erre por un metro. El nino me dio las gracias."
 - diario_conocer: "Un viejo de 78 duerme en un bus escolar con dos ninos y las gallinas. El nino de once le cuenta lo que pasa por la ventana."
@@ -690,7 +689,7 @@ De mi Ziggy, en Chicago, nada. Ojalá esté de turno en otra parte.
 - llegada: "Polka al habla. Pasa, Kowalski, pero no me toques la radio, que es lo unico que me dejaron."
 - rescate: "Matko Boska! Ya, ya. Te debo una ruta limpia, Kowalski. Y yo pago mis rutas."
 - gracias: "Esto lo digo en el parte de manana: hay un Kowalski bueno en Rosewood. Gracias, carino."
-- revelacion1: "Soy la Polka, camionera de Rosewood sin camion. Desde mi cocina, con dos baterias de tractor, digo por el 19 donde hay horda. La gente me paga en latas y me cree."
+- revelacion1: "Soy la Polka, camionera de Rosewood sin camion. Con dos baterias de tractor digo por el 19 donde hay horda. El Gordo Whitaker me dice Polaca desde el 68."
 - revelacion2: "Soy de Chicago, de los corrales. Me vine en el 62 detras de un camionero, Roy. En el 79 se dio vuelta en la I-65, borracho. Yo le habia pasado las llaves. Al patrullero le menti."
 - revelacion3: "La Babcia no me la robaron. En septiembre dos del patio de trenes me hicieron senas en la 31 y les pase las llaves antes de que levantaran el fusil. Otra vez, como en el 79."
 - diario_conocer: "Conoci a la Polka, la voz de las rutas del 19. Habla como camionero, insulta en polaco y da el parte desde una cocina con baterias de tractor."
@@ -781,7 +780,7 @@ Ya pasó el 1 de noviembre. Siéntate derecho.
 - **Secreto**: el 19 de octubre encontró en el muelle el tarro con la nota de Bo (vivo en el remolcador Miss Oleta, esperando en la esclusa de Cannelton hasta el 1 de noviembre). La escondió en la caja de galletas, junto al sobre de 1967, y dejó pasar la fecha. Cree que Lacey no sabe nada (Lacey lo sabe: ver s018).
 - **Herida nueva**: la calle Main ardiendo, y Dovie a una hora sin poder ir. **Mentira**: "Lo hice por la niña; en el río se mueren". **Deseo**: que Mavis crezca en su casa. **Necesidad**: entregar las dos cartas que guarda, aunque se quede sola. **Miedo**: quedarse sola otra vez con la máquina. **Defecto**: decide por los demás lo que les conviene y esconde lo que no. **Virtud**: a nadie que llega le falta un punto, un ruedo o una cama.
 - **Cuerpo**: la artritis está peor sin aspirina (dedos hinchados, cose más lento). Más flaca, con un lente trizado.
-- **Lazo con el reparto**: de oídas, la Tía Chela ("la del cuartel le da de comer a veintitantos; esa siempre fue de mandar"). De Gladys se pregunta si seguirá cosiendo en Muldraugh. Mildred Quinn murió en 1989. Leí chela.md y gladys.md.
+- **Lazo con el reparto**: de oídas, la Tía Chela ("la del cuartel le da de comer a veintitantos; esa siempre fue de mandar"). De Gladys se pregunta si seguirá cosiendo en Muldraugh. Mildred Quinn (la madre del Cabo, su compañera de sastrería) murió en 1989; Minnie conoció a Ramiro de niño. Leí chela.md, gladys.md y cabo.md.
 - **Etiquetas**: partera de urgencia, carta escondida otra vez, West Point, casa abierta.
 
 ### Textos para el juego
@@ -789,7 +788,7 @@ Ya pasó el 1 de noviembre. Siéntate derecho.
 - llegada: "Sientate derecho, querido, que encorvado no te puedo medir. Y habla bajito, que hay una nina durmiendo."
 - rescate: "Medido dos veces y salvado una. Gracias, querido. Ahora suelta, que me arrugas la manga."
 - gracias: "Esto vale un ruedo, un parche y una oracion bautista. Medido dos veces, pagado una."
-- revelacion1: "Cosi treinta y siete temporadas en la sastreria del Fuerte Knox. Apellidos de soldados, de a doce por hora. Ahora coso panales con un vestido de novia que nadie vino a buscar."
+- revelacion1: "Cosi treinta y siete temporadas en la sastreria del Fuerte Knox. A mi lado planchaba Mildred Quinn, la mama del Cabo, con el nino debajo de la mesa. Ahora coso panales."
 - revelacion2: "En el 66 a mi Dovie le llego una beca para estudiar vestuario en Cincinnati. Rompi la carta y la eche a la estufa. La sente a coser a mi lado. No me habla desde el 81."
 - revelacion3: "Escondi otra carta. En octubre un tarro en el muelle decia que Bo, el marido de Lacey, estaba vivo en un remolcador. La guarde con la de Dovie. Deje pasar la fecha."
 - diario_conocer: "Una costurera vieja de West Point me tomo las medidas antes de saludarme. En su casa hay una enfermera, una guagua y un ciego."
@@ -831,7 +830,7 @@ Hoy hago bancos de baterías para medio Riverside con alternadores de autos muer
 - **Secreto**: el 18 de julio recibió por Atilio la noticia de que la mujer y los dos hijos de Nolan Sturgill murieron el 10 en la barricada de Brandenburg. No se la dio y le dice que "nada todavía" o que "se cayó la antena". Además, no sube a arreglar la antena porque, sin ella, no tiene que dar más noticias. La nota está en la bitácora 19, con hora UTC. Nadie lo sabe.
 - **Herida nueva**: la gorra de Nolan cada mañana en su puerta. **Mentira**: "Le estoy ahorrando un dolor; mientras espera, vive". **Deseo**: volver a hablar con Robin y con medio mundo. **Necesidad**: darle la noticia a Nolan, en persona y no por radio. **Miedo**: la altura y la cara de Nolan. **Defecto**: se esconde detrás de la técnica ("no da", "no hay señal"). **Virtud**: le da corriente a quien la necesite sin preguntar de qué lado está.
 - **Cuerpo**: el talón y la muñeca de la caída de 1984 duelen más con el frío; vértigo; quemaduras de ácido de batería en los dedos; 5 kg menos.
-- **Lazo con el reparto**: algunas noches oye a Héctor Jr. ("el cabro de Ramón") en el 19 y no le contesta ("la CB es la cantina"), pero le guarda un rollo de cable con su nombre. Leí hector.md.
+- **Lazo con el reparto**: algunas noches oye a Héctor Jr. ("el cabro de Ramón") en el 19 y no le contesta ("la CB es la cantina"), pero le guarda un rollo de cable con su nombre. Fue socio de Ramón Bencina y le enseñó a soldar a Héctor Jr. de niño; conoce a la Misia Rosa de los funerales de 1988 y 1990. Leí hector.md y rosa.md.
 - **Etiquetas**: radio, noticia escondida, altura, corriente.
 
 ### Textos para el juego
@@ -839,7 +838,7 @@ Hoy hago bancos de baterías para medio Riverside con alternadores de autos muer
 - llegada: "Te copio, te copio. Fuerte y claro. Pasa, pero no toques el banco de baterias, que muerde."
 - rescate: "Setenta y tres, amigo. Eso es saludos. En radio no tenemos palabra para gracias, asi que gracias."
 - gracias: "QSL. Recibido y confirmado. Te debo una tarjeta para la pared, la primera del fin del mundo."
-- revelacion1: "Soy Felix, WB4FDX, Fox. Electricista de Riverside. Tengo 241 paises en la pared y le doy corriente a medio pueblo con alternadores de autos muertos."
+- revelacion1: "Soy Felix, WB4FDX, Fox. Electricista de Riverside, con 241 paises en la pared. A Hector Jr., el sobrino de la Misia Rosa, le ensene a soldar cuando tenia ocho."
 - revelacion2: "Fui socio de Ramon Bencina catorce temporadas. D&B Electric. En el 85 lei que el aceite de unos transformadores daba cancer. No se lo dije. Ramon murio en el 90."
 - revelacion3: "En julio Atilio me paso una noticia: la familia de Nolan Sturgill murio en la barricada. Nolan viene cada manana. Le digo 'nada todavia'. No subo la torre para no tener mas noticias."
 - diario_conocer: "Un electricista cojo vive al pie de una torre de radio en Riverside. Le da luz a medio pueblo y habla en codigos."
@@ -878,7 +877,7 @@ Número, por favor.
 - **Secreto**: en la elección para constable del martes 2 de noviembre de 1993 perdió con Arlie Penrod, 21 a 17. Contó sola, anunció 20 a 18 a su favor y quemó las papeletas. Nadie lo sabe; Arlie sospecha y lo dice en voz alta.
 - **Herida nueva**: el chofer del Buick, el primero que mató. **Mentira**: "Lo hice por Rosewood: Arlie nos iba a vender a la banda". **Deseo**: que Arlie no tenga razón. **Necesidad**: decir la cuenta verdadera y entregar la luma. **Miedo**: morirse con dos mentiras oficiales en el libro (un marido y una elección). **Defecto**: cree que la verdad es un trámite que puede llenar ella. **Virtud**: no le tiene miedo a nada y hace justicia sin cobrar.
 - **Cuerpo**: la cadera está peor y usa la luma de bastón todo el día. Un lente de los bifocales roto, 5 kg menos e insomnio.
-- **Lazo con el reparto**: de vista, la Misia Rosa: ve la luz prendida de la gasolinera y no se mete con ella. De oídas, la banda del patio de trenes (Arlie quiere tratar con "los de la sargento"). Leí rosa.md y pereira.md.
+- **Lazo con el reparto**: la Misia Rosa: Ora estaba en la bautista cuando Rosa Lindell se casó en abril de 1957 con el techo goteando (la plata del techo se la llevó Otha). Hoy ve la luz prendida de la gasolinera y no se mete con ella. De oídas, la banda del patio de trenes (Arlie quiere tratar con "los de la sargento"). Leí rosa.md y pereira.md.
 - **Etiquetas**: elección, fraude, justicia del fin, sola.
 
 ### Textos para el juego
@@ -887,7 +886,7 @@ Número, por favor.
 - rescate: "Anotado. Usted me salvo, joven. No se me acerque tanto: dicen que traigo mala suerte."
 - gracias: "Queda en el libro rojo, del lado de las cosas que se pagaron. Hay pocas, joven."
 - revelacion1: "Soy la constable Click, electa del distrito de Rosewood. Ora. Setenta y siete. Resuelvo quien se queda con la casa del muerto. Uso de baston la luma de mi marido."
-- revelacion2: "Tres maridos. Tilden murio en Normandia. Pleas, de un infarto en la patrulla. Otha se fugo en el 56 con la plata del techo de la bautista. La carta de su muerte la escribi yo."
+- revelacion2: "Tres maridos. Tilden murio en Normandia, Pleas de un infarto. Otha se fugo en el 56 con la plata del techo: la Rosa Lindell se caso con goteras. La carta de su muerte la escribi yo."
 - revelacion3: "En noviembre hice elecciones. Arlie Penrod saco veintiuno y yo diecisiete. Conte sola, dije veinte a dieciocho y queme las papeletas. Un marido falso y una eleccion falsa."
 - diario_conocer: "Conoci a la constable de Rosewood: 77, baston de policia, bifocales rotos. La gente se cruza la calle para no pasarle cerca, y despues le pide favores."
 - diario_final: "Ora junto a todos en la escuela y dijo la cuenta verdadera: veintiuno a diecisiete. Le paso la luma a Arlie. 'Numero, por favor', le dijo."
@@ -932,7 +931,7 @@ Me dijeron que la hija del Cabo volvió a Muldraugh y que da clases en la comisa
 - llegada: "Mira, chico, sientate. Aqui se habla bajito y nadie sale solo. Esa es la unica regla."
 - rescate: "Que cosa mas grande, chico. Me salvaste. Te pongo un diez y una racion de frijoles."
 - gracias: "Correcto. Aprobado con honores. Lo anoto en la pizarra, al lado de la tabla del siete."
-- revelacion1: "Soy Ezra Freeman, profesor de espanol de la secundaria de Muldraugh. Cubano, del Mariel. La primera noche abri el gimnasio con mis llaves viejas de conserje."
+- revelacion1: "Soy Ezra Freeman, profesor de espanol de la secundaria de Muldraugh. Cubano, del Mariel. Valentina, la hija del Cabo, fue mi alumna. La primera noche abri el gimnasio."
 - revelacion2: "Me llamaba Esdras Montoto. En Cuba me mandaron a la zafra en un campo con alambre. Sali por el Mariel diciendo lo que habia que decir. Rolando no lo dijo y se quedo."
 - revelacion3: "Wick Darnall leyo las cartas de Rolando. Desde septiembre le doy la mitad de mi racion y la de Mattie para que no cuente que soy homosexual. Me fui de Cuba para no esconderme."
 - diario_conocer: "Un profesor cubano lleva un refugio en la secundaria de Muldraugh como si fuera una clase. Cuida a una vieja ciega que no es su madre."
@@ -976,7 +975,7 @@ Minnie cree que no sé. La dejo creerlo.
 - **Secreto**: el 25 de octubre encontró en la caja de galletas de Minnie la nota de Bo y la volvió a doblar. Dejó pasar el 1 de noviembre a propósito: por miedo al río con la niña y porque no quería que Bo la viera así. Minnie cree que Lacey no sabe. Nadie lo sabe.
 - **Herida nueva**: Kendra, que se quedó en el asilo. **Mentira**: "No fui por la niña". **Deseo**: que Mavis crezca sana y que algún día Bo la conozca sin que Lacey tenga que explicar nada. **Necesidad**: dejar que alguien la vea mal y decir lo que siente por Bo. **Miedo**: que Mavis no despierte, y tocar las seis ampollas. **Defecto**: carga sola y no pide ayuda. **Virtud**: a nadie le falta el pulso tomado; cura gratis.
 - **Cuerpo**: parto a las 37 semanas y desgarro cosido por Minnie con hilo de seda. Anemia, la espalda peor, poca leche y 8 kg menos.
-- **Lazo con el reparto**: de oídas, la Tía Chela ("en el cuartel hay comida y una mujer que reta"). No va porque no quiere que nadie le revise la caja. Leí chela.md.
+- **Lazo con el reparto**: de oídas, la Tía Chela ("en el cuartel hay comida y una mujer que reta"). No va porque no quiere que nadie le revise la caja. Eduardo Giovanns iba dos cursos abajo de ella en el liceo de West Point; sabe de su leyenda por rumor. Leí chela.md y eduardo.md; no sabe nada de la pelea de 1992.
 - **Etiquetas**: recién nacida, partera, carta sabida, asilo.
 
 ### Textos para el juego
@@ -984,7 +983,7 @@ Minnie cree que no sé. La dejo creerlo.
 - llegada: "A ver, respira, corazon. Dame la mano, que te tomo el pulso. Y no despiertes a la nina."
 - rescate: "Ciento veinte de pulso, corazon. El tuyo, no el mio. Gracias. Ahora despacio, que la espalda me cobra."
 - gracias: "Con esto la Mavis come una semana. Gracias, corazon. Te debo un parto, si algun dia lo necesitas."
-- revelacion1: "Soy Lacey, enfermera de urgencias del hospital del Fuerte Knox. Turno de noche. Ahora atiendo West Point desde la casa de la senora Creech, con una nina de tres meses colgando."
+- revelacion1: "Soy Lacey, enfermera de urgencias del Fuerte Knox. Me crie en West Point: Eduardo Giovanns, el de la Chela, iba dos cursos abajo mio. Hoy atiendo desde la casa de la senora Creech."
 - revelacion2: "En el 90 me rompi la espalda levantando a un paciente. Dos temporadas robe Demerol de las jeringas que tenia que botar. Lo deje de golpe cuando supe de la Mavis."
 - revelacion3: "Bo esta vivo. Lo lei en un papel que Minnie esconde en la caja de galletas. Tenia siete dias para ir al rio y no fui. No queria que me viera asi. Minnie cree que no se."
 - diario_conocer: "Una enfermera con una bebe de tres meses atiende West Point en la casa de una costurera. Me tomo el pulso antes de saludarme."
@@ -1024,7 +1023,7 @@ De mi Rondal, en Indianápolis, no sé.
 - **Secreto**: desde septiembre, la sopa de los viernes para la banda de Duggan la hace con agua del pozo malo de la vega (el de la disentería de 1937), en la olla de la derecha. Los de la banda se enferman uno tras otro (diarrea con sangre, fiebre, ictericia) y nadie sospecha del cocinero; Riverside le agradece que "les dé de comer hasta a esos". Todavía no ha muerto nadie. Nadie lo sabe.
 - **Herida nueva**: volver a hacer daño a escondidas detrás de un plato, como con Royce. **Mentira**: "Les cobro yo lo que le cobran a Riverside". **Deseo**: que el Martillo se vaya de Riverside sin que nadie se muera. **Necesidad**: dar vuelta el balde y dejar de hacerse el bueno. **Miedo**: que se muera uno, o que Curtis pregunte por qué hay dos ollas. **Defecto**: hace el daño a escondidas, detrás de la bondad. **Virtud**: no apaga la plancha nunca; el último plato es para el que llega tarde.
 - **Cuerpo**: la mano izquierda quemada (vendada) por la plancha de leña y la cojera peor con el frío. Sordo del derecho, sin cigarros desde agosto (masca hoja) y con 6 kg menos.
-- **Lazo con el reparto**: la banda de Frank Duggan come en el grill los viernes y Curtis Mabry anota con tiza lo que comen. Del Padre Nacho, de oídas. Leí duggan.md y nacho.md; no sabe de la pelea del atrio ni de la despensa.
+- **Lazo con el reparto**: la banda de Frank Duggan come en el grill los viernes y Curtis Mabry anota con tiza lo que comen. Del Padre Nacho, de oídas. Le compró el pan a Walt Hollis (la panadería de Riverside) desde 1972 hasta julio. Leí duggan.md, nacho.md y yvonne_bell.md; no sabe de la pelea del atrio ni de la despensa.
 - **Etiquetas**: pozo malo, cocina a leña, banda del Martillo, bondad falsa.
 
 ### Textos para el juego
@@ -1032,7 +1031,7 @@ De mi Rondal, en Indianápolis, no sé.
 - llegada: "Sientate, campeon. Plancha caliente desde las cinco. El que trae lena come. Revueltos o fritos? Mentira, hay sopa."
 - rescate: "Bandera verde, campeon! Me sacaste de la curva tres. Comes gratis hasta que se acabe la papa."
 - gracias: "Esto da para una semana de plancha. Gracias, campeon. Tu plato va primero, antes que los del Martillo."
-- revelacion1: "Soy Irvin Dotson, el Veintinueve. Corri en tierra del 53 al 71 en Knob Creek. Ahora cocino con lena en el Dotson's Grill de la calle Front. El que trae lena come."
+- revelacion1: "Soy Irvin Dotson, el Veintinueve. Corri en tierra del 53 al 71. Cocino en el Dotson's Grill de la calle Front; el pan se lo compre a Walt Hollis desde el 72. El que trae lena come."
 - revelacion2: "Del 66 al 87 le mande el desayuno gratis a Royce Tinsley, el de la silla de ruedas. Lo choque yo en la curva tres. A proposito. El lo supo y siguio comiendo."
 - revelacion3: "Los viernes la sopa de los del Martillo la hago con agua del pozo malo de la vega, el de la disenteria del 37. Se enferman uno tras otro. Nadie sospecha del cocinero cojo."
 - diario_conocer: "En Riverside cocinan con lena para el que trae lena. El cocinero cojo grita como locutor de carreras y le da de comer gratis a la banda los viernes."
@@ -1072,7 +1071,7 @@ Amén. ¿Me pasa la soga? Hay que colgar la última vara.
 - **Secreto**: desde octubre duerme con Lemmie, el viudo de su prima, mientras los domingos predica de la fidelidad. Y la noche en que murió Oma sintió alivio. Lemmie sabe lo primero; lo segundo, nadie.
 - **Herida nueva**: el "Cuídamelo, Lula" de la Oma, cumplido de más. **Mentira**: "Dios une a los que quedan". **Deseo**: casarse con Lemmie delante de los once, con la cabeza alta. **Necesidad**: confesarse, con alguien que no sea ella misma. **Miedo**: que la capilla se le vacíe otra vez y que Oma la mire desde detrás de la capilla. **Defecto**: se queda con lo que quiere y después lo predica como voluntad de Dios. **Virtud**: abre la capilla a todos y comparte la tierra en platos.
 - **Cuerpo**: en agosto, la enfermedad del tabaco verde fuerte (tres días, con taquicardia), y desde entonces palpitaciones al cansarse. Callos de la soga de colgar tabaco y 4 kg menos.
-- **Lazo con el reparto**: de oídas, la Misia Rosa (desde la loma ve la luz de la gasolinera toda la noche: "esa mujer reza con la ampolleta"). Leí rosa.md.
+- **Lazo con el reparto**: de oídas, la Misia Rosa (desde la loma ve la luz de la gasolinera toda la noche: "esa mujer reza con la ampolleta"). El diésel del tractor de su padre lo cargaban en la Bencina Gas desde los años 60. Leí rosa.md.
 - **Nota de oficio**: en el juego sale como "la catequista" (pastora de la Iglesia Cristiana, Discípulos de Cristo, que enseña a leer con la Biblia).
 - **Etiquetas**: capilla abierta, tabaco como plata, amor con el viudo, catequista.
 
@@ -1081,7 +1080,7 @@ Amén. ¿Me pasa la soga? Hay que colgar la última vara.
 - llegada: "Paz, hermano. Pase a la banca, que el Senor no cobra la entrada. Yo tampoco. Limpiese las botas."
 - rescate: "Amen y gracias, hermano. Dios proveyo, pero esta vez proveyo con sus manos."
 - gracias: "Esto es un milagro chico, de los que se cargan al hombro. Lleve una hoja de burley, que aqui es plata."
-- revelacion1: "Soy Lula Rose, pastora de la Iglesia Cristiana de Monte Horeb, en la loma de Rosewood. Tengo once en la capilla y el galpon lleno de tabaco colgado. Aqui la hoja es plata."
+- revelacion1: "Soy Lula Rose, pastora de Monte Horeb, en la loma de Rosewood. Once en la capilla, tabaco colgado. El diesel del tractor lo cargabamos donde la Misia Rosa desde que yo era nina."
 - revelacion2: "Mi papa me dijo antes de morir: 'Repartelo parejo, Lula'. No se lo dije al abogado. Me quede con todo y mi hermano Elvert se fue a Bardstown sin nada."
 - revelacion3: "Duermo con Lemmie, el viudo de mi prima, y el domingo predico de la fidelidad. Y la noche que se murio la Oma senti alivio. Del porte de un boton. No se lo digo ni a Dios."
 - diario_conocer: "En la loma de Rosewood una pastora de sombrero de paja guarda a once vecinos en su capilla y paga todo con hojas de tabaco."

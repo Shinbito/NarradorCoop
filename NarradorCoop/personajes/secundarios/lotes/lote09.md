@@ -706,7 +706,6 @@ En agosto entro al Jefferson Community College, para enfermera titulada. Ya pagu
    Lettie Pelfrey; Debbie, Kirk Ostrander, Dalton, Rusty Yeary. No pude ver lo que escriben los otros lotes: puede
    haber choques entre lotes.
 
-
 ---
 
 # Lote 9 · Ronda B: "Después" (del 9 de julio de 1993 a fines de 1993)
@@ -760,7 +759,7 @@ De Stefan no sé nada. Louisville. El teléfono ya no suena, y es lo único buen
 - llegada: P-p-pase. Despacito. No me apure la palabra, que la madera tampoco se apura.
 - rescate: D-dos golpes es si. Gracias. Escrito se lo digo mejor. Tiene un lapiz?
 - gracias: Esto vale. Se lo dejo anotado en la madera, que dura mas que yo.
-- revelacion1: Gideon Kowalczyk, carpintero de Muldraugh desde el 36. Mi padre hizo la boveda del oro del Fuerte. Yo hago porches. Y tartamudeo, ya se dio cuenta.
+- revelacion1: Gideon Kowalczyk, carpintero de Muldraugh desde el 36. Mi padre hizo la boveda del oro del Fuerte. Yo hice la tarima del gimnasio de la escuela. Y tartamudeo, ya se dio cuenta.
 - revelacion2: En Corea contestaba con el martillo: dos golpes es si. Mi Phil nunca me termino una palabra. Esperaba con el cafe. Treinta y dos inviernos esperando.
 - revelacion3: La viga del porton tenia una grieta. La vi. Quise decirlo y me trabe. Verlon me termino la frase: perfecta. Dije que si con la cabeza. Murieron cuatro. No fueron los muertos. Fue mi boca.
 - diario_conocer: Gideon, carpintero de Muldraugh. Tartamudea en las p y silba en vez de hablar. Antes de decirme su nombre me paso una tabla tallada.
@@ -809,15 +808,15 @@ Bueno. Ya le dije demasiado.
   desperdicia ni un bocado; protege a su hija con una calma que asusta.
 - **Cuerpo:** más flaca; un rasguño de alambre de púas en la canilla, bien curado; la espalda le duele de cargar
   presas. Duerme cuatro horas.
-- **Lazo con el reparto:** ninguno fuerte. Ve el humo del cuartel desde lejos; sabe que la Chela da plato, pero no va.
-  Leí chela.md.
+- **Lazo con el reparto:** desde agosto cambia conejos y ardillas limpias por agua de la Colorina con Jody, el nieto de
+  Pearl Whitlow, que se los lleva a la Chela al cuartel. Sabe que la Chela da plato, pero no va. Leí chela.md.
 - **Etiquetas nuevas:** huida por río, madre protectora, cordón, cazadora de subsistencia.
 
 ### TEXTOS PARA EL JUEGO
 - llegada: Despacio. Las manos donde las vea. Bueno. Usted no es de aqui, se nota en como camina.
 - rescate: Usted espero. Bien. Los hombres de aqui no saben esperar. Gracias.
 - gracias: Bueno. Esto es para Lien. Le doy un conejo limpio. No lo desperdicie.
-- revelacion1: Me llamo Cam, aqui dicen Cassie. Cazo para la casa en West Point. Antes cortaba carne en el IGA. Mi hija Lien escribe los precios con faltas, en dos idiomas.
+- revelacion1: Me llamo Cam, aqui dicen Cassie. Cazo en West Point. Cambio conejos limpios por agua de la Colorina de la Chela. Me la trae el nino de los binoculares.
 - revelacion2: Junio del 79. Un bote de rio, cincuenta y nueve personas, agua para cinco. Mi hermano Thanh tenia dieciseis. El dia seis lo pusimos en el mar con su camisa.
 - revelacion3: Tengo un bote para dos en el rio Salt. En septiembre cruce el Ohio con Lien y nos dispararon. Voy a probar con la niebla. Omie no cabe. Ella no sabe.
 - diario_conocer: Cassie Bryant, cazadora de West Point. Vietnamita, llego en bote en el 79. Lleva siempre una cantimplora llena. No me quito los ojos de las manos.
@@ -937,7 +936,7 @@ Un sobre, cariño. Igualito que él. Ni una libra de más.
 - llegada: Alto ahi, carino. Cuanto pesas y que traes? Ni una libra de mas en mi patio.
 - rescate: Diez-cuatro. Te debo una, carino, y yo pago lo que debo. Sin sobre.
 - gracias: Copiado. Esto pesa lo justo. Ni una libra de mas, ni una de menos.
-- revelacion1: Charlene Cooksey, camionera de Rosewood. Llevaba vacas a los corrales de Louisville. En la radio me dicen la Comisaria, por mi papa. Yo no lo elegi.
+- revelacion1: Charlene Cooksey, camionera de Rosewood. Llevaba vacas a Louisville. Don Hector Bencina me arreglo el freno gratis en el 78. En la radio me dicen la Comisaria.
 - revelacion2: Mi papa era el sheriff Haskell Cooksey. A los nueve yo le repartia sobres en bicicleta. A los dieciseis vi uno con una G, la semana que mataron a Noreen Sallee.
 - revelacion3: Tengo la libreta de mi papa. Abril del 58: Gatewood, 2.000. Con esa linea le saco diesel a Buddy cada viernes y lo dejo en las puertas. Un sobre, carino. Igualito que el.
 - diario_conocer: Charlene Cooksey, camionera de Rosewood. Hija de un sheriff. Duerme en la cabina de su Peterbilt y me peso la mochila antes de dejarme pasar.
@@ -1112,7 +1111,7 @@ Llegué tarde al entierro de mi papá. A mi mamá ni siquiera estoy llegando. As
 - revelacion3: Mi mama esta sola en la granja, a dos millas. Desde septiembre no cruzo el potrero: habia once en el tabacal. A Lynette le digo que fui y que ella no quiere venir. Veo el humo y nada mas.
 - diario_conocer: Harvey Kirby, electricista de Riverside y ex lanzador. Me explico su patio como si fuera un conteo de bolas y strikes.
 - diario_final: Harvey no va a ver a su madre desde septiembre por miedo al tabacal y miente que ella no quiere venir. Llego tarde a su padre; a ella no llega.
-- mudanza: Harvey llega a la iglesia de piedra con Lynette, los ninos y la camioneta llena de baterias. Atras, envuelta en una frazada, viene su mama, Ona: la fueron a buscar con el jugador, cruzando el potrero de dia, y Harvey no solto la escopeta en las dos millas. La luz de la iglesia ya tiene dueno, asi que le arma al campamento un cargador de baterias con el alternador de la camioneta, para las linternas y la radio. Le ensena a Joey a soldar cables y juegan a tirarse la pelota en el atrio, despacio, con la izquierda. Ona los mira desde la escalera.
+- mudanza: Harvey llega a la iglesia de piedra con Lynette, los ninos y la camioneta llena de baterias. Atras, envuelta en una frazada, viene su mama, Ona: la fueron a buscar contigo, cruzando el potrero de dia, y Harvey no solto la escopeta en las dos millas. La luz de la iglesia ya tiene dueno, asi que le arma al campamento un cargador de baterias con el alternador de la camioneta, para las linternas y la radio. Le ensena a Joey a soldar cables y juegan a tirarse la pelota en el atrio, despacio, con la izquierda. Ona los mira desde la escalera.
 - muerte: Harvey Kirby murio con un cable en la mano izquierda. Joey le cerro los ojos. No lloro hasta despues.
 
 ---
@@ -1166,7 +1165,7 @@ Es reglamentario. Así.
 - revelacion3: Me tomo el jarabe con codeina de los ninos de la fila. Una cucharada, ahora dos, para estar de pie contando en ocho. A la nieta de la vecina le di media y le dije que esa era la dosis.
 - diario_conocer: Juanita Jablonski, setenta y cinco, guardia de cruce de Rosewood. Me hizo pararme derecho antes de hablarme. Los ninos le obedecen el pito.
 - diario_final: Juanita se toma el jarabe de los ninos para que la rodilla aguante la fila del agua. Mintio en la dosis. Dice que sin ella no hay fila.
-- mudanza: Juanita llega a la gasolinera del brazo del jugador, aunque dice que no lo necesita. Rosa le pregunta lleno o normal y ella dice: "Un cafe, senora; la bencina no baila". Se sienta junto a la caja y ordena a los ninos del campamento con el pito: fila para el agua, fila para la sopa. Elige a un nino de la fila, el mas serio, y le ensena a tocar el pito y a contar en ocho. Una manana le entrega el frasco de jarabe a Rosa, a medio terminar, y se sienta a mirar la fila desde la silla.
+- mudanza: Juanita llega a la gasolinera de tu brazo, aunque dice que no lo necesita. Rosa le pregunta lleno o normal y ella dice: "Un cafe, senora; la bencina no baila". Se sienta junto a la caja y ordena a los ninos del campamento con el pito: fila para el agua, fila para la sopa. Elige a un nino de la fila, el mas serio, y le ensena a tocar el pito y a contar en ocho. Una manana le entrega el frasco de jarabe a Rosa, a medio terminar, y se sienta a mirar la fila desde la silla.
 - muerte: Juanita Jablonski murio derecha, contando en ocho. No le alcanzo para llegar al ocho.
 
 ---
@@ -1220,7 +1219,7 @@ Me quedan once pastillas. Las cuento cada noche, como pasar lista.
 - revelacion3: Corbin Haws tenia catorce. Le pagaba con revistas para que fuera a la farmacia por mis pastillas. La cuarta vez no volvio. Llevaba mi receta. Su mama cree que salio solo.
 - diario_conocer: Quentin Tipton, profesor de Muldraugh. No sale de su casa desde julio. Me hablo por la ventana de atras con un mapa pegado al reves.
 - diario_final: Quentin mando a un nino a buscarle remedios para no salir el. El nino no volvio. La madre le llora en el porche y el le sirve te.
-- mudanza: Quentin cruza Muldraugh hasta la comisaria del brazo del jugador, contando las cuadras en voz baja. Seis. En la puerta de atras se detiene un minuto entero. El Cabo le dice: "Pase, profesor. Aqui nadie se queda afuera". Quentin le pide la sala de interrogatorios para hacer clases a los ninos con Valentina, y ella le deja la mitad de la pizarra. Ensena los rios del condado. Una noche le cuenta al Cabo lo de Corbin y el Cabo lo anota, con tinta.
+- mudanza: Quentin cruza Muldraugh hasta la comisaria de tu brazo, contando las cuadras en voz baja. Seis. En la puerta de atras se detiene un minuto entero. El Cabo le dice: "Pase, profesor. Aqui nadie se queda afuera". Quentin le pide la sala de interrogatorios para hacer clases a los ninos con Valentina, y ella le deja la mitad de la pizarra. Ensena los rios del condado. Una noche le cuenta al Cabo lo de Corbin y el Cabo lo anota, con tinta.
 - muerte: Quentin Tipton murio afuera de su casa, por fin. No vio el mar. Le quedaban once pastillas en el frasco.
 
 ---

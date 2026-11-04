@@ -17,4 +17,24 @@ Archivos:
 Fijado para todos: un solo jefe de policia en Rosewood (Talbert Ruark, desaparecido desde el amanecer del 10 de julio),
 y los secretos no repiten motivos del reparto principal ni entre ellos (ver revision/).
 El oficio "pastora" del generador sale en el juego como "el diacono" / "la catequista".
-Nada de esto esta en el codigo todavia.
+Cada secundario tiene al menos un lazo con el reparto principal que se ve en alguno de sus textos.
+
+## En el juego
+
+- `datos/secundarios.json`: los 100, con sus textos ya corregidos (es lo que lee el juego).
+- `datos/piezas.json`: las piezas del generador de vidas, para cuando se acaben los vecinos hechos a mano o para
+  mezclarlos. Cada pieza es una frase de una etapa (origen, infancia, juventud, adultez, vejez, oficio, primera noche,
+  despues, secreto, deseo, voz) con etiquetas que da, pide, prohibe o quita, para que la vida no se contradiga. Las
+  reglas con que se escribieron estan en `PIEZAS.md`.
+- `herramientas/vidas.py` revisa los dos archivos (largos, tildes, marcadores, etiquetas, edades, lazos) y escribe
+  `42/media/lua/shared/Narrador/NarradorVidasDatos.lua`. Despues de cambiar un JSON hay que correrlo (CI revisa que
+  el .lua este al dia). La prueba `herramientas/pruebas/prueba_vidas.lua` arma todas las combinaciones de sexo, edad,
+  oficio y pueblo y miles de vidas al azar.
+- El motor es `server/Narrador/NarradorVidas.lua` y lo usa el generador de encargos (`NarradorGenerador.lua`):
+  - El cliente de un encargo es, la mitad de las veces, un secundario del pueblo del misionero que no se conocio
+    todavia; si no, un vecino con una vida armada por el generador.
+  - Primer encargo: el diario lo presenta (diario_conocer) y, al cumplirlo, anota lo que conto (revelacion1).
+    Segundo: revelacion2. Tercero: revelacion3 y la linea final del diario; se viene a vivir al lado del misionero
+    y esa noche cuenta su vida (mudanza).
+  - En los encargos donde aparece en persona dice su llegada (opcion "Saludar"), su linea de rescate o sus gracias.
+  - Si muere en un rescate o no llega el remedio, el diario anota su linea de muerte y no vuelve a salir.

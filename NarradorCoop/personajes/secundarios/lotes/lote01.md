@@ -511,7 +511,6 @@ Quiero veinte acres y seis vacas Jersey. Ya tengo cuatro mil cien dólares.
 6. El lazo de Mose con Ernesto Mandados (dominó en la VFW) es débil, pero toca la familia del Cabo; lo dejo "de oídas" para no pasar de cinco lazos fuertes. Si se cuenta como fuerte, quedan cinco, que es el máximo.
 7. Merle (s010) y la panadería Hollis (s007) aparecen solo como gente conocida de antes del brote; mis personajes no saben qué les pasó.
 
-
 ---
 
 # Lote 1 — Ronda B: "Después" (del 9 de julio de 1993 a fines de 1993) y textos para el juego
@@ -572,7 +571,7 @@ Tengo un moretón en la canilla desde octubre. Me lo miro todas las noches.
 - **rescate:** "Llego rapido, senor. Yo me hago el muerto debajo de los autos, pero esta vez no alcanzaba."
 - **gracias:** "Justo lo que faltaba. Facil. Le debo una, y yo las anoto todas."
 - **revelacion1:** "Eugene Patrick, mecanico del Kinnard's Garage, en la 31W. En Muldraugh me dicen el nino del cancer. Lo tuve a los doce. Ahora arreglo frenos acostado."
-- **revelacion2:** "En el hospital Kosair leia manuales Chilton entre quimio y quimio. Una nina, Misty, me ganaba al Uno con trampa. Se murio. El Chevelle del patio lleva su nombre."
+- **revelacion2:** "En el Kosair leia manuales Chilton entre quimio y quimio. Misty me ganaba al Uno con trampa y se murio. En el taller atendia la camioneta de Amos Pruitt, el vecino del Cabo."
 - **revelacion3:** "Los sabados le arreglo las camionetas a los del patio de trenes. Cuatro latas y medio bidon. Se lo que hacen con ellas. Las dejo andando igual, porque Tara come."
 - **diario_conocer:** "Conoci a Eugene Patrick en un taller de la 31W. Flaco, manos frias, chistes de hospital. Dice que ya se murio una vez de prueba."
 - **diario_final:** "Eugene le arregla las camionetas a la banda del patio de trenes para darle de comer a su hermana. No se si eso lo hace traidor o hermano."
@@ -623,7 +622,7 @@ Vivo arriba de la tienda, donde nací, con la escalera adentro. En la noche pong
 - **llegada:** "Pico alguien. Suba despacio, corazon, que la escalera es de estanque y yo ya no la sujeto."
 - **rescate:** "Bueno, bueno. Me saco del agua como a un bagre. Asi es el rio: hoy usted, otro dia yo."
 - **gracias:** "Hilo de nylon del bueno. Con esto remiendo media orilla. Gracias, corazon. No se lo repito."
-- **revelacion1:** "Winnie Caldwell. Tuve la tienda de carnada del camino del rio desde el 62 hasta el 91. Ahora remiendo redes y lonas. Las puntadas, por lo menos, no preguntan."
+- **revelacion1:** "Winnie Caldwell. Tuve la tienda de carnada del camino del rio del 62 al 91. El hilo de pescar se lo compraba a la Chela, cuando era cajera de la Haskins. Ahora remiendo redes."
 - **revelacion2:** "Dieciocho veranos quise a un piloto de remolcador, Harlis. Mi marido lo supo siempre. Lo ultimo que me dijo fue: que Harlis te pague las lombrices."
 - **revelacion3:** "La segunda semana paso el remolcador de Harlis y se llevo a la Verlinda y a los ninos rio abajo. Habia lugar para mi. Harlis me estiro la mano y le dije que no. No quise deberle eso."
 - **diario_conocer:** "Winnie Caldwell vive arriba de una tienda de carnada cerrada, con la escalera adentro. Huele a bagre y a nylon. Me dijo corazon como insulto."
@@ -679,7 +678,7 @@ Está bien. Se lo cuento derecho a usted porque usted no la conoce.
 - **llegada:** "Si, senor. Ike Justice. Le cuento derecho: aqui no hay nada que valga la pena robar, salvo la radio."
 - **rescate:** "Esta bien. Ya esta bien. Gracias. Le debo una, y yo las deudas las pago completas."
 - **gracias:** "Fusibles y cable del bueno. Con esto la senora Nola tiene radio una semana. Gracias, senor."
-- **revelacion1:** "Ike Justice, electricista de Riverside. Sin licencia. Aprendi el oficio en la carcel de Burgin con un viejo al que le deciamos el Profesor."
+- **revelacion1:** "Ike Justice, electricista de Riverside, sin licencia. Aprendi en la carcel de Burgin. Al salir, el unico que me dio trabajo fue el Padre: la casa parroquial, en el 91."
 - **revelacion2:** "En junio del 85 maneje borracho y mate a Corky Mullins, mi mejor amigo. Estuve cinco inviernos preso. Su mama no me hablo hasta la primera noche. Ahi me dijo Isaac."
 - **revelacion3:** "En la misma curva donde murio Corky encontre una caja de Falls City. Me tomo una cada domingo detras del galpon. Quedan cuatro. La senora Nola dice que Isaac no toma."
 - **diario_conocer:** "Ike Justice prueba tres veces cada cable con un buscapolo. Habla poco y derecho. Tiene un tatuaje de carcel: C.M. y una fecha."
@@ -727,7 +726,7 @@ La Rosa me da café cuando paso. No sabe lo del nicho. Nadie lo sabe. Estoy espe
 - **llegada:** "Pase, querido, sientese. Primero digame como esta su familia. Despues hablamos de lo que vino a buscar."
 - **rescate:** "Fijate tu. Sesenta y siete y todavia me rescatan. Eso no estaba en ninguna poliza, querido."
 - **gracias:** "Pastillas para la presion. Dios te lo pague, querido, que yo ya no cobro ni pago. Eso esta cubierto."
-- **revelacion1:** "Bernice Marchetti, oficial auxiliar de la policia de Rosewood. Antes vendi biblias y entierros de puerta en puerta. Conozco cada casa de aqui a Ekron."
+- **revelacion1:** "Bernice Marchetti, oficial auxiliar de la policia de Rosewood. Vendi biblias y entierros de puerta en puerta. El plan de Hector Bencina, el de la gasolinera, se lo vendi yo en el 66."
 - **revelacion2:** "En el 71 a Cyrus Satterwhite se le vencio la poliza por cuarenta y cinco centavos. Yo los tenia en la cartera. Lo enterraron sin nombre. Desde entonces junto monedas en un tarro."
 - **revelacion3:** "A cada viejo que se me muere le saco la escopeta antes que un bandido. Llevo diecinueve armas. Estan en mi nicho del cementerio, el que tiene mi nombre y la fecha en blanco."
 - **diario_conocer:** "La oficial Marchetti me pregunto por mi familia antes que por mi nombre. Lleva una libreta con los muertos de Rosewood y la fecha de cada uno."
@@ -779,7 +778,7 @@ Ahora tengo veintitrés poemas. El veintitrés se llama "Mañana a las seis". No
 - **llegada:** "Pase, joven. Cuidado con Historia universal, que esta clavada. Y hableme por la derecha, que por la izquierda no lo veo."
 - **rescate:** "Gracias. Dicho de otro modo: me salvo usted. Yo seguia esperando la campana y esta vez no sono."
 - **gracias:** "En limpio: es justo lo que pedi. La senora Lovell va a poder leer otra vez. Gracias, joven."
-- **revelacion1:** "Chester Zornes, profesor de ingles de la secundaria de Muldraugh. Boxee en la Marina. Ahora vivo entre los estantes de la biblioteca y escribo en las fichas del catalogo."
+- **revelacion1:** "Chester Zornes, profesor de ingles de la secundaria de Muldraugh. Boxee en la Marina. Le hice clases a la hija del Cabo y le escribi la carta para la universidad."
 - **revelacion2:** "En el 74 se me desprendio la retina en un sparring. No le dije a nadie y pelee la final igual. Perdi la pelea y el ojo. Mi exmujer dice que solo peleo cuando suena la campana."
 - **revelacion3:** "La primera noche mi hija me llamo sola desde Elizabethtown. Le dije manana a las seis, porque no manejo de noche. A las seis ya estaba el cordon. A todos les digo que esta con su madre."
 - **diario_conocer:** "El profesor Zornes vive en la biblioteca de la secundaria con una bibliotecaria de 68 y una escopeta. Me corrigio la gramatica antes de saludarme."
@@ -831,7 +830,7 @@ Una dosis, niño. Esta vez no me equivoqué. Anótelo.
 - **llegada:** "Vamos por partes, nino. Sientese, muestreme eso y no me hable fuerte, que el audifono ya no tiene pila."
 - **rescate:** "Jezus Maria. Setenta y nueve y todavia me sacan de los lios. Anotelo: usted tiene una curacion gratis."
 - **gracias:** "Hilo de sutura. Anotelo, nino: con esto coso a medio West Point. Annabeth, ven a enhebrarme."
-- **revelacion1:** "Halina Nunley. Fui enfermera del Ejercito en Francia y despues maneje el bibliobus del condado hasta el 79. Aqui todos me siguen diciendo la enfermera."
+- **revelacion1:** "Halina Nunley. Fui enfermera del Ejercito en Francia y maneje el bibliobus hasta el 79. En el 63 le cosi once puntos en el brazo a la Chela, en el banco del cuartel."
 - **revelacion2:** "En el 46 se me murio un muchacho de Hazard, Leland Sowders, por una dosis de morfina. La orden estaba mal escrita o yo la lei mal. Nunca supe. Colgue la cofia."
 - **revelacion3:** "Tengo la morfina de una muerta. Tres mordidos me pidieron no volverse eso. Medi la dosis con el pulso firme. En mi libreta tienen una cruz chica. Esta vez no me equivoque."
 - **diario_conocer:** "La enfermera Nunley tiene 79, baston, un gato que se llama abuelo en polaco y una libreta con mas de mil trescientas curaciones."
@@ -875,7 +874,7 @@ El inhalador se me acabó en septiembre. Ahora tomo té de gordolobo, como mi ma
 - **Defecto:** decide por los demás qué pueden tragar.
 - **Virtud:** en su cuadra nadie se ha quedado sin plato.
 - **Cuerpo:** sin inhalador desde septiembre y con el frío, el pulmón está peor. En noviembre tosió sangre una vez. En las mañanas tiene los dedos morados. Bajó 7 kg.
-- **Lazo con el reparto después del brote:** de oídas con el Padre Nacho ("abre a las once"); conoce al perro de la oreja mordida, pero no sabe que se llama Lázaro. Vio cerrada la panadería de los Hollis, nada más. Leí nacho.md.
+- **Lazo con el reparto después del brote:** de oídas con el Padre Nacho ("abre a las once"); conoce al perro de la oreja mordida, pero no sabe que se llama Lázaro. Desde 1987 compraba cada mañana el pan del desayuno en la panadería Hollis, el que horneaba Yvonne Bell (la conoce como "la panadera de los rollos de canela", sin apellido); el 10 de julio la vio cerrada. Leí nacho.md y yvonne_bell.md.
 - **Etiquetas nuevas:** olla común, carne de perro, sin inhalador, cuadra.
 
 ### TEXTOS PARA EL JUEGO
@@ -883,7 +882,7 @@ El inhalador se me acabó en septiembre. Ahora tomo té de gordolobo, como mi ma
 - **llegada:** "Pues fijese, compadre. Sientese, que hay frijoles. Yo hablo con pausas. No es por pensar, es el pulmon."
 - **rescate:** "Gracias, compadre. Yo no corro desde el 82. Usted corrio por los dos, calculo yo."
 - **gracias:** "Un inhalador. Mire usted. Esta noche duermo sin silbar como tetera. Que Dios se lo pague."
-- **revelacion1:** "Ferrell Underwood, de Evarts, alla arriba en Harlan. Saque carbon veintiseis inviernos. Ahora cocino sentado para la cuadra, porque el pulmon no me da para mas."
+- **revelacion1:** "Ferrell Underwood, de Evarts, en Harlan. Saque carbon veintiseis inviernos. Hacia los desayunos de Vesta's con el pan de los Hollis, el que horneaba la panadera de los rollos de canela."
 - **revelacion2:** "En la huelga del 73 cruce la linea once dias para pagar la operacion de mi hija. Despues cocine frijoles en la carpa. La primera semana nadie se comio los mios."
 - **revelacion3:** "El estofado no es conejo, compadre. En Riverside ya no quedan gatos ni perros sueltos. Solo el del cura, que ese tiene santo. Los ninos estan mas gorditos que en julio."
 - **diario_conocer:** "Ferrell Underwood cocina sentado y silba al respirar. Tiene cicatrices azules de carbon en los nudillos. Su estofado es bueno."
@@ -939,7 +938,7 @@ En la capilla dije que Dios se lo llevó. Nadie me contradijo. Ni Dios.
 - **llegada:** "Un momento, por favor... Perdon, costumbre. Pase, hermano. Aqui no se le cierra a nadie, aunque la puerta sea de fierro."
 - **rescate:** "Gloria a Dios. Y a usted, hermano, que Dios a veces manda gente en vez de milagros."
 - **gracias:** "Le comunico que mi papa esta noche duerme seco. Gracias, hermano. Lo voy a nombrar en el culto."
-- **revelacion1:** "Alma Isom, de la Capilla de Santidad del Calvario, en Rosewood. Fui telefonista de noche en Brandenburg. Ahora predico y le enseno la Biblia a los ninos."
+- **revelacion1:** "Alma Isom, de la Capilla de Santidad del Calvario, en Rosewood. Fui telefonista de noche en Brandenburg. Desde el techo de la capilla se ve la luz de la Misia Rosa."
 - **revelacion2:** "En el 88, en la central, escuche una llamada que no debia: un hombre de Ekron iba a arreglar lo de su mujer. Ella aparecio ahogada en Otter Creek. Me calle para no perder el puesto."
 - **revelacion3:** "Ese hombre llego a mi capilla en septiembre. En noviembre quedo colgado del puente de Otter Creek, mirandome. Yo tenia la mano libre. No se la estire. Dije que Dios se lo llevo."
 - **diario_conocer:** "La hermana Alma predica en una capilla de cemento en Rosewood. Tiene el pelo cortado disparejo y adivina de que pueblo soy por la voz."
@@ -991,7 +990,7 @@ De cada diez latas que reparto, una se va a la pirogue, debajo de las tablas del
 - **llegada:** "Mais, entre, cher. Cuidado con la tabla del porche, que esa la clave mal a proposito."
 - **rescate:** "C'est ca, cher. Me saco del agua. Al viejo Mose todavia le quedan unas noches."
 - **gracias:** "Clavos de los buenos, cher. Con esto aguantan cuatro ventanas mas. El whisky es agua que espero, y los clavos tambien."
-- **revelacion1:** "Mose LeBlanc, de Breaux Bridge, Louisiana. Trabaje de noche en la destileria Stone Branch hasta el 89. Ahora clavo ventanas en Muldraugh."
+- **revelacion1:** "Mose LeBlanc, de Breaux Bridge, Louisiana. Trabaje de noche en la destileria Stone Branch hasta el 89. Jugaba domino con Ernesto Mandados, el papa del Cabo."
 - **revelacion2:** "En mayo del 61 se quemo la bodega G con nueve mil barriles. Dijeron que fue un rayo. Fue mi cigarro. Echaron a cuarenta hombres y yo me quede callado."
 - **revelacion3:** "De cada diez latas que reparto, una se va a mi pirogue. La parte del angel, cher. Llevo treinta y una. No se para que. Para cuando el whisky termine de esperar."
 - **diario_conocer:** "El viejo Mose LeBlanc habla mitad en frances y le clava las ventanas a toda su cuadra. Muerde una pipa vacia. Me dijo cher."
@@ -1035,7 +1034,7 @@ Mi Tanya está en Louisville. No sé nada. Ordeño la cabra a las cuatro, igual.
 - **Defecto:** quiere más a los animales que a la gente y no se fía de nadie.
 - **Virtud:** tiene puntería y palabra: lo que promete, lo cumple.
 - **Cuerpo:** en septiembre se cortó la mano izquierda con alambre de púas (siete puntos de Halina). La muñeca derecha está peor y las costillas le duelen con el frío. Está más flaca: lo poco que sobra de la cabra no se lo toma ella.
-- **Lazo con el reparto después del brote:** de oídas con la Chela: la bombera le mandó a decir que "hay plato" y Sybil no ha ido. No sabe qué fue de Merle, el lechero de Ekron. Leí chela.md.
+- **Lazo con el reparto después del brote:** de oídas con la Chela: la bombera le mandó a decir que "hay plato" y Sybil no ha ido. Conocía a Merle, el lechero de Ekron, de los años de la lechería; no sabe qué fue de él. Leí chela.md y rosa.md.
 - **Etiquetas nuevas:** leche aguada, la Holstein muerta, cabra, lechería vacía.
 
 ### TEXTOS PARA EL JUEGO
@@ -1044,11 +1043,11 @@ Mi Tanya está en Louisville. No sé nada. Ordeño la cabra a las cuatro, igual.
 - **rescate:** "Como sea. Me salvo el pellejo, oiga. Eso pesa como media Holstein. Se lo debo."
 - **gracias:** "Sal y balas. Con esto paso el invierno. Gracias, oiga. Le guardo un tarro de leche."
 - **revelacion1:** "Sybil Hall, la cazadora de West Point. Guie a los oficiales del Fuerte en la temporada de ciervos. Antes saque leche dieciocho veranos en la lecheria Hardesty."
-- **revelacion2:** "En el 86 el gobierno compro las vacas de la lecheria para el matadero. Las subi yo al camion, una por una, por el nombre. La noche antes escondi una ternera. Se llamaba Trebol."
+- **revelacion2:** "En el 86 el gobierno compro las vacas de la lecheria para el matadero. Las subi yo al camion, una por una. La noche antes escondi una ternera, Trebol. Merle, el lechero de Ekron, nunca lo supo."
 - **revelacion3:** "La Holstein se me murio de mastitis en septiembre y no lo dije. La leche que les llevo a los ninos es de una cabra, estirada con agua y harina. Me dan las gracias."
 - **diario_conocer:** "Sybil Hall vive en una lecheria abandonada y huele a monte. Me apunto antes de saludarme. Se despierta a las cuatro sin despertador."
 - **diario_final:** "La leche que reparte Sybil es de cabra, aguada con harina. La Holstein se murio en septiembre. Los ninos le dan las gracias y ella no puede mirarlos."
-- **mudanza:** "Me vine al cuartel con la cabra y los perros por el camino del rio, de noche, como cuando saque a Trebol. La bombera miro la cabra y dijo: leche para los ninos, mija, y usted a la guardia. Le dije la verdad: que es poca y que yo la estiraba con agua y harina. Me dijo: aqui se estira todo, pero se dice. Duermo en el galpon de atras con los perros. Ordeno la cabra a las cuatro y a las cuatro, y hago guardia en el techo con la escopeta. Si alguien trae una vaca, ya se que hacer con ella."
+- **mudanza:** "Me vine al cuartel con la cabra y los perros por el camino del rio, de noche, como cuando saque a Trebol. La Chela miro la cabra y dijo: leche para los ninos, mija, y usted a la guardia. Le dije la verdad: que es poca y que yo la estiraba con agua y harina. Me dijo: aqui se estira todo, pero se dice. Duermo en el galpon de atras con los perros. Ordeno la cabra a las cuatro y a las cuatro, y hago guardia en el techo con la escopeta. Si alguien trae una vaca, ya se que hacer con ella."
 - **muerte:** "Sybil Hall murio con la escopeta en la mano. Alguien tiene que sacarle la leche a la cabra a las cuatro."
 
 ---

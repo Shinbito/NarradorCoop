@@ -467,7 +467,7 @@ enfermera y no sé qué me da más miedo: haber perdido o haber ganado.
 
 ---
 
-## s067 · Forrest Hollon · cocinero · Riverside
+## s067 · Forrest Stanfill · cocinero · Riverside
 
 ### Monólogo
 
@@ -493,7 +493,7 @@ martes.
 ### Ficha "antes"
 
 - **Datos**
-  - Forrest Dean Hollon. Apodo: "Himno" (en el Bluebird, por cómo cocina) o "Forrest".
+  - Forrest Dean Stanfill. Apodo: "Himno" (en el Bluebird, por cómo cocina) o "Forrest".
   - Nació el 26 de enero de 1951 en Riverside.
   - 42 años en julio de 1993.
   - Vive en Riverside desde siempre; desde 1981, solo, en la casa de su madre, con un gato que se llama Wesley.
@@ -520,7 +520,7 @@ martes.
 - **Cómo llegó a su oficio**: aprendió a cocinar por necesidad, de niño, y entró al Bluebird a los 18 porque había que
   pagar la luz. La semilla (el órgano) es su vocación de los domingos, que no paga nada.
 - **Familia**
-  - Madre: Elva Hollon (1932-1981). Padre: se fue en 1956; no sabe si vive.
+  - Madre: Elva Stanfill (1932-1981). Padre: se fue en 1956; no sabe si vive.
   - Hermanos: Darla (n. 1953, 40), casada en Elizabethtown; Waco (n. 1955, 38), en la Marina mercante, sin dirección
     fija; Luanne (n. 1958, 35), maestra en Ekron, la única que lo llama "hermanito".
   - Sin pareja, sin hijos. "Tengo un gato metodista."
@@ -799,10 +799,10 @@ West Point me dicen la cazadora. Tuan, mi marido, trabaja de noche en la Applian
   Sea Hero ganó el Derby del 1 de mayo de 1993 ✔. "Apostador" → apostadora ✔. Arreglo de continuidad: ya no le cose
   el brazo a la Chela (eso es de Halina Nunley, s006); le cose la ceja a un voluntario en la práctica de 1969 (tenía 43). El caballo "Sargento Mayor" es inventado (una
   carrera de un martes, no el Derby).
-- **s067 Forrest Hollon**: n. 1951 → 42 ✔. Su sorteo de reclutamiento fue el de 1970; el número 287 no se llamó ✔.
+- **s067 Forrest Stanfill**: n. 1951 → 42 ✔. Su sorteo de reclutamiento fue el de 1970; el número 287 no se llamó ✔.
   Organista a los 15 (1966) ✔; cocinero desde los 18 ✔. Hermanos (1953, 1955, 1958) de una madre nacida en 1932 ✔.
-  Duda pendiente del creador: "Hollon" se parece a "Hollis"; la propuesta de continuidad es Forrest Dean Stanfill.
-  Lo dejo como Hollon hasta que se decida (es un reemplazo directo). El Bluebird está en la calle principal.
+  Arreglo del creador: el apellido pasó de Hollon a Stanfill, para que no se confunda con Hollis (la panadería de la
+  que es cliente). El Bluebird está en la calle principal.
 - **s068 Beulah Okonkwo**: n. 1914 → 79 ✔. Chicago en 1931 (17) ✔. Se casó a los 41 y tuvo a Obi a los 42 (menos de
   50) ✔. Modelo de 49 a 57 (1963-1971): el catálogo de Sears empezó a mostrar modelos negras a mediados de los sesenta,
   así que lo dejé en las páginas de tallas grandes y con la mentira de la edad ✔. Licencia de predicadora local a los
@@ -821,7 +821,6 @@ West Point me dicen la cazadora. Tuan, mi marido, trabaja de noche en la Applian
   lápiz en el pelo. Secretos distintos: un hermano en la mina, cartas falsas, un desmayo escondido detrás de una camioneta que "no partió", un amor escondido,
   un disco vendido, el seguro apostado, el alivio frente a un incendio, una tumba negada, un cuñado mandado al fuego y
   una muerte regalada en el monte.
-
 
 ---
 
@@ -906,7 +905,7 @@ La logia cumple cincuenta años en marzo. Va a tener caja. Orden en la sala.
 - **revelacion3**: Esa noche sali por la cocina con el mazo y con la caja de la logia: el fondo de las viudas, billetes y dolares de plata. A las viudas les dije que se quemo. Esta en mi rueda de repuesto.
 - **diario_conocer**: Conoci a Waylon Damron, un mecanico viejo y medio sordo de Muldraugh que duerme en un auto levantado y habla como presidente de club.
 - **diario_final**: Waylon abrio la caja de la logia delante de las tres viudas y repartio los dolares de plata. Dijo que la sesion quedaba abierta.
-- **mudanza**: Me traje la caja de herramientas, el mazo y seis tazas del taller. Quedamos tres hermanos, asi que sobran tres tazas para las visitas. Aqui no tengo elevador, asi que duermo en el suelo como un cristiano y me cuesta media hora pararme. Le arreglo al campamento lo que tenga tuercas: la bomba del agua, las bicicletas, la radio si me la dejan abrir. Los viernes a las once hago el brindis por los ausentes. El que quiera, que venga. Hay una mocion nueva: que en este campamento las mujeres voten. Ya se que aqui votan. Yo la presento igual, para ganar una vez.
+- **mudanza**: Me traje la caja de herramientas, el mazo y seis tazas del taller. Quedamos tres hermanos, asi que sobran tres tazas para las visitas. Al Cabo le mantuve los patrulleros desde el 71, cuando era el muchacho de Mildred y traia el cenicero limpio; ahora le arreglo lo que tenga tuercas: la bomba del agua, las bicicletas, la radio si me la deja abrir. Aqui no tengo elevador, asi que duermo en el suelo y me cuesta media hora pararme. Los viernes a las once hago el brindis por los ausentes. El que quiera, que venga. Hay una mocion nueva: que en este campamento las mujeres voten. Ya se que aqui votan. Yo la presento igual, para ganar una vez.
 - **muerte**: Waylon Damron murio con la llave de cruz en la mano. Debajo del asiento dejo una lata verde y una nota: para las viudas.
 
 ---
@@ -962,8 +961,7 @@ De Starla, en Valley Station, no sé nada.
 - **Virtud**: no hay recado que no entregue. Llega a donde nadie va, por caminos que nadie conoce.
 - **Cuerpo**: la cadera está peor de tanto caminar en julio; usa un bastón de palo de escoba con una goma. En la
   bicicleta no le duele. La muñeca de la placa le avisa la lluvia.
-- **Lazo con el reparto**: de oídas. Deja en el cuartel de bomberos los papeles de los que preguntan por gente ("la del
-  cuartel da de comer y no pregunta"). No conoce a la Chela de trato. Leí chela.md.
+- **Lazo con el reparto**: de oídas, pero concreto. Desde agosto deja en la puerta del cuartel de bomberos, con Pearl Whitlow, los papeles de los que preguntan por gente, y la Chela le da un plato sin preguntar. Antes del brote conocía del sindicato a Lyman Grady, el cartero de Muldraugh (uno de los once del Cabo; muerto de fiebre en agosto, eso no lo sabe). Leí chela.md y cabo.md.
 - **Etiquetas nuevas**: mapa vendido, bicicleta, caminos de tierra, correo de buzones.
 
 ### TEXTOS PARA EL JUEGO
@@ -976,7 +974,7 @@ De Starla, en Valley Station, no sé nada.
 - **revelacion3**: Le dibuje a un soldado de la reja todos los caminos de tierra que salen de Meade, por una caja de raciones. En septiembre cerraron los catorce. Dos no se los dibuje.
 - **diario_conocer**: Goldie Helton anda en bicicleta con un canasto lleno de papeles. Se sabe todos los caminos de tierra entre West Point y el rio Salt.
 - **diario_final**: Goldie me dibujo los dos caminos que no le dio a la Guardia. Dijo que ese mapa no se cambia por nada. Ese se regala.
-- **mudanza**: Me traje la Singer, la caja de botas y el mapa de la cocina con los buzones marcados. Aqui hay mas buzones de los que parece: cajas, latas, un clavo en la puerta. Yo los uso todos. Si alguien quiere mandarle algo a otro campamento, me lo da y yo veo por donde. No cobro. Ya cambie bastante por comida. Hago ruedos los lunes y parches el resto de la semana. La cadera no me deja hacer guardia, pero de noche coso y escucho, que es casi lo mismo. Y si alguien va a Valley Station, que pregunte por una peluquera rubia que se llama Starla.
+- **mudanza**: Me traje la Singer, la caja de botas y el mapa de la cocina con los buzones marcados. La Chela ya me conocia: yo le dejaba a Pearl, en la puerta del cuartel, los papelitos de los que buscan gente, y ella me daba un plato sin preguntar. Aqui hay mas buzones de los que parece: cajas, latas, un clavo en la puerta. Si alguien quiere mandarle algo a otro campamento, me lo da y yo veo por donde. No cobro. Ya cambie bastante por comida. La cadera no me deja hacer guardia, pero de noche coso y escucho, que es casi lo mismo. Y si alguien va a Valley Station, que pregunte por una peluquera rubia que se llama Starla.
 - **muerte**: Goldie Helton murio en un camino de tierra que solo ella conocia. El canasto quedo lleno. Nadie va a saber a quien eran.
 
 ---
@@ -1012,7 +1010,7 @@ En agosto me tocaba entrar a Lexington. Kasey me dice Doctor Desmayo todavía, p
   - Rita Terry (mamá) y Kasey (13 desde octubre): vivas, con él en la granja de Wilford Grubbs.
   - El doctor Oakley Fife: no volvió del parto de esa noche. Sin saber.
 - **Cómo vive hoy**: en la granja de los Grubbs, en las afueras de Riverside, con su mamá, Kasey y Reds. Ordeña, cura
-  animales y gente, arregla el cerco eléctrico de la granja con una batería de tractor. Le ofreció a Forrest Hollon
+  animales y gente, arregla el cerco eléctrico de la granja con una batería de tractor. Le ofreció a Forrest Stanfill
   conectarle el órgano de la capilla a un generador y Forrest le dijo "todavía no". Necesita hilo de sutura, lidocaína,
   el manual de Merck que dejó en la clínica y, aunque no lo pida, dejar el frasco.
 - **Secreto**: no cura sereno: cura con aguardiente del alambique de Grubbs, dos tragos antes de cada herida. Dejó de
@@ -1027,8 +1025,7 @@ En agosto me tocaba entrar a Lexington. Kasey me dice Doctor Desmayo todavía, p
 - **Virtud**: nadie en Riverside trata mejor a un animal herido. Habla bajito y no tira.
 - **Cuerpo**: 7 kilos menos; temblor en las manos en la mañana; olor a alcohol que tapa con chicle de menta (le quedan
   dos paquetes).
-- **Lazo con el reparto**: de oídas. El Padre de la iglesia de piedra le llevó una vez un perro con la pata cortada
-  ("pegaba fuerte para ser cura, el perro se le arrancó y lo sujetó con una mano"). Leí nacho.md.
+- **Lazo con el reparto**: medio. En 1992, con su papá, le arregló el termostato del horno a Walt Hollis en la panadería de Riverside; su mamá compraba ahí el pan del domingo y conocía a Yvonne del mostrador. No sabe adónde se fue Walt. Al Padre de la iglesia de piedra lo conoce de oídas ("el cura que boxeaba"). Leí yvonne_bell.md y nacho.md.
 - **Etiquetas nuevas**: médico de granja, alcohol, padre muerto, perro.
 
 ### TEXTOS PARA EL JUEGO
@@ -1036,7 +1033,7 @@ En agosto me tocaba entrar a Lexington. Kasey me dice Doctor Desmayo todavía, p
 - **llegada**: Hola. Si trae un animal herido, dejelo en la paja. Si trae una persona herida... deme un minuto.
 - **rescate**: Tecnicamente me salvo usted. Yo ya estaba con los ojos dando vuelta. Gracias.
 - **gracias**: Con esto puedo coser tres terneros y un cristiano. Gracias, de verdad.
-- **revelacion1**: Norris Terry, de Riverside. Me dicen electricista porque hacia los trabajos de mi papa. Iba a estudiar veterinaria en Lexington. Me desmayo con la sangre.
+- **revelacion1**: Norris Terry, de Riverside. Me dicen electricista porque hacia los trabajos de mi papa: con el le arregle el horno a Walt en la panaderia Hollis. Iba a estudiar veterinaria. Me desmayo con la sangre.
 - **revelacion2**: En marzo me llamaron a un parto de una vaca. Vi la sangre y desperte en la paja. Murieron la vaca y el ternero. Dije que no me partio la camioneta.
 - **revelacion3**: Ya no me desmayo porque antes de coser me tomo dos tragos del alambique de don Wilford. Mi mama cree que soy valiente. Me tiemblan las manos hasta el primer trago.
 - **diario_conocer**: Norris Terry tiene 18, un beagle y un frasco de jarabe para la tos. Cura vacas y gente en la granja de los Grubbs.
@@ -1112,7 +1109,7 @@ Así se respeta una cocina.
 - **revelacion3**: Tawny no es mi sobrina. Es una presa que yo traia esposada la primera noche. Me salvo la vida con una barreta. Su expediente esta en mi horno, y ahi se queda.
 - **diario_conocer**: Elsie Blevins patrulla Rosewood con uniforme planchado y doce balas. Cocina mejor que nadie que haya conocido en Knox.
 - **diario_final**: Elsie quemo el expediente de Tawny en la estufa y despues hizo pan de maiz con ese fuego. Dice que asi se cierra una causa.
-- **mudanza**: Me traje la sarten de cobre, los cuchillos y a Tawny, que no es mi sobrina, ya lo saben todos. Aqui la cocina es mia o no me quedo: la mise en place a las dos, y el que me toque una olla sin lavarse las manos friega toda la semana. Tawny parte la lena y hace guardia, tiene mejor brazo que yo. Uniforme ya no uso. La placa la tengo en el delantal, por costumbre. Si hay pleitos, los arreglo en la mesa: con hambre nadie razona. Y los domingos, alguien me lleva a Rosewood a dejarle sopa a la Reverenda.
+- **mudanza**: Me traje la sarten de cobre, los cuchillos y a Tawny, que no es mi sobrina, ya lo saben todos. La Misia Rosa me recalienta la achicoria, yo le digo que es un crimen y me la tomo igual: asi nos queremos. En su cocina mando yo o no me quedo: la mise en place a las dos, y el que toque una olla sin lavarse las manos friega toda la semana. Tawny parte la madera y hace guardia, tiene mejor brazo que yo. La placa la llevo en el delantal, por costumbre. Si hay pleitos, los arreglo en la mesa: con hambre nadie razona. Y los domingos alguien me acompana a dejarle sopa a la Reverenda.
 - **muerte**: Elsie Blevins murio con el delantal puesto. Dejo la olla al fuego y una nota: "Le falta sal".
 
 ---
@@ -1167,8 +1164,7 @@ Me queda un inhalador y un cuarto. Cuento las aspiraciones como cuento los compa
 - **Virtud**: enseña a cualquiera, con paciencia infinita, y cuida a Nia como a un disco de primera prensada.
 - **Cuerpo**: más crisis (el polvo, el humo de las fogatas, el frío); una crisis fuerte en octubre lo dejó dos días en
   cama. Bajó de peso. El labio sin callo: no toca.
-- **Lazo con el reparto**: de oídas. La primera noche oyó el megáfono de la comisaría ("una sargento de verde", dice la
-  calle). Del Cabo sabe que tiene gente en la comisaría y una libreta. Leí cabo.md y pereira.md (no la conoce).
+- **Lazo con el reparto**: de oídas y uno concreto: doña Gladys le arregló en 1990 los 23 uniformes de la banda y le cobró la mitad porque él le tocó un bolero. La primera noche oyó el megáfono de la comisaría ("una sargento de verde", dice la calle). Del Cabo sabe que tiene gente en la comisaría y una libreta. Leí gladys.md, cabo.md y pereira.md.
 - **Etiquetas nuevas**: falso héroe, huérfana a cargo, vitrola, asma sin remedio.
 
 ### TEXTOS PARA EL JUEGO
@@ -1176,7 +1172,7 @@ Me queda un inhalador y un cuarto. Cuento las aspiraciones como cuento los compa
 - **llegada**: Pasa, hermano. Despacio y sin polvo, que el pecho no me da. Nia, la vitrola, por favor.
 - **rescate**: Ahi esta. Llegaste a tiempo, como en el compas que uno no ensaya. Gracias.
 - **gracias**: Esto me compra un mes de respirar. No sabes lo que vale un mes de respirar.
-- **revelacion1**: Milo Kidd, profesor de musica de Muldraugh. Tenia una banda de veintitres ninos y dos mil discos. Ahora tengo una vitrola de manivela y una alumna: Nia.
+- **revelacion1**: Milo Kidd, profesor de musica de Muldraugh. Dona Gladys le cosio los uniformes a mi banda de veintitres ninos y me cobro la mitad por un bolero. Ahora tengo una vitrola y una alumna: Nia.
 - **revelacion2**: Mi papa tenia un Kind of Blue que crujia en la entrada de So What. Lo vendi para pagar un hospital. Antes de morir me dijo: este no cruje donde crujia el mio.
 - **revelacion3**: Dicen que me lleve a los muertos con la trompeta. Mentira. Tocaba para respirar, y por el sonido doblaron hacia los papas de Nia. Ella cree que la salve. Y yo dejo que lo crea.
 - **diario_conocer**: Milo Kidd es profesor, asmatico y vive con una nina de ocho que no es suya. Tiene una vitrola de manivela y discos viejos.
@@ -1247,7 +1243,7 @@ De mi Lanny, en Louisville, nada. Cada vez que golpean, pienso que es él.
 - **llegada**: Pasa, potrillo. Si sangras, sientate en la silla de la cocina. Si tienes fiebre, en la del patio.
 - **rescate**: Me sacaste por una cabeza, potrillo. Foto final. Te debo dos dolares y un cigarro.
 - **gracias**: A dos dolares la apuesta, y gane. Con esto coso a medio West Point otra semana.
-- **revelacion1**: Reba Elam, enfermera de West Point. Treinta y seis temporadas en el hospital del Fuerte. Naci el dia del Derby del 26, a seis cuadras de Churchill Downs.
+- **revelacion1**: Reba Elam, enfermera de West Point, treinta y seis temporadas en el hospital del Fuerte. Desde el 69 el jefe Booker me manda a los del cuartel que se cortan. Naci el dia del Derby del 26.
 - **revelacion2**: Mataron a mi Thurman en Vietnam. Aposte el seguro en Churchill y perdi seis mil quinientos. Mi Judy encontro la libreta del banco. No me ha vuelto a mirar igual.
 - **revelacion3**: De noche vienen los del patio de trenes y yo los coso. Me pagan con plata vieja y fichas de casino, y junto lo que le debo a mi Judy. Hablan del cuartel. Yo no aviso.
 - **diario_conocer**: Reba Elam cose heridas en su cocina de West Point. Tiene un letrero que dice golpee fuerte y una libreta de carreras con la fiebre de los mordidos.
@@ -1257,7 +1253,7 @@ De mi Lanny, en Louisville, nada. Cada vez que golpean, pienso que es él.
 
 ---
 
-## s067 · Forrest Hollon · cocinero · Riverside
+## s067 · Forrest Stanfill · cocinero · Riverside
 
 ### Monólogo
 
@@ -1316,15 +1312,13 @@ mudo. El chico Terry me ofreció conectarlo a un generador. Le dije que todavía
 - **llegada**: Pase, querida, que la sopa esta a dos estrofas de estar lista. Sientese. Yo me quedo de pie, por el tobillo.
 - **rescate**: Bendito sea. Pense que hoy me tocaba la tercera estrofa a mi. Gracias, tesoro.
 - **gracias**: Con esto como Riverside entera una semana. Bendito sea usted y sus piernas.
-- **revelacion1**: Forrest Hollon, cocinero del Bluebird de Riverside desde el 69 y organista de la capilla metodista. Mido los huevos en himnos: blando, dos estrofas; duro, tres.
+- **revelacion1**: Forrest Stanfill, cocinero del Bluebird de Riverside desde el 69 y organista de la capilla metodista. Mido los huevos en himnos: blando, dos estrofas; duro, tres.
 - **revelacion2**: En el 69 tenia una audicion con beca en Louisville. La noche antes se quemo la cocina de mi mama. Cuando vi el humo senti alivio. Tenia miedo de tocar delante de gente.
 - **revelacion3**: Mi tobillo esta sano. Me lo vende para no irme con la congregacion el 13 de julio. Mi hermana Luanne se fue cantando adelante, en mi lugar. Llevo cinco meses cojeando de mentira.
-- **diario_conocer**: Forrest Hollon cocina en el Bluebird de Riverside tarareando himnos. Cojea, duerme en la capilla y no toca el organo.
+- **diario_conocer**: Forrest Stanfill cocina en el Bluebird de Riverside tarareando himnos. Compraba los bollos de la panaderia Hollis a las cinco. Cojea y no toca el organo.
 - **diario_final**: Forrest dejo el baston en la puerta y camino derecho hasta la barricada de la 31. Volvio y toco el organo. Fuerte.
 - **mudanza**: Me traje la sarten de fierro, el gato Wesley y el himnario de la capilla. Aqui cocino yo, si me dejan: sopa de lo que traigan, pan de maiz y los domingos algo dulce, aunque sea de bellotas. Ya no cojeo. Eso tambien lo saben todos. Si alguien me consigue un generador y un organo, aunque sea uno de juguete, toco los domingos. Fuerte, para que se oiga en Riverside. Y si un dia pasa una mujer de Ekron con cara de maestra, que me llamen a la plancha: se llama Luanne y le debo una estrofa.
-- **muerte**: Forrest Hollon murio caminando derecho, sin cojear. Alguien canto la tercera estrofa por el.
-
-Nota: el apellido Hollon queda pendiente de la decisión del creador (propuesta de continuidad: Stanfill).
+- **muerte**: Forrest Stanfill murio caminando derecho, sin cojear. Alguien canto la tercera estrofa por el.
 
 ---
 
@@ -1392,7 +1386,7 @@ De Obi y los niños, en Atlanta, nada. Prometió venir en Navidad.
 - **revelacion3**: El Senor no me hablo esa noche de agosto. Me lo invente para que no se fueran sin mi. Once almas siguen aqui por una vieja que no podia caminar. Digame si miento. No miento.
 - **diario_conocer**: Beulah Okonkwo tiene 79, predica sentada y se pinta los labios con remolacha. Once personas la escuchan como si fuera la radio.
 - **diario_final**: Beulah le conto la verdad a su congregacion. Nadie se fue. El diacono dijo que ya lo sabia y que se quedaban igual.
-- **mudanza**: Me trajeron en una silla, como una reina, y no me averguenzo. Me traje la Biblia grande, el catalogo del 66 y a los once de Monte Sion, que vinieron porque esta vez les pregunte. Aqui predico los domingos, sentada, y en la semana le enseno a leer a los ninos, que es lo mismo que predicar pero con premio. Corrijo la postura de todos: hombros atras. Si alguien quiere una foto, que me avise antes, que me pinto. Y si un dia llega un ingeniero de Atlanta preguntando por su mama, digale que lo estoy esperando.
+- **mudanza**: Me trajeron en una silla, como una reina, y no me averguenzo. Me traje la Biblia grande, el catalogo del 66 y a los once de Monte Sion, que vinieron porque esta vez les pregunte. La Misia Rosa me fia el cafe desde el 81: le pago con oraciones y ella me dice que Dios no cobra. Aqui predico los domingos, sentada, y en la semana le enseno a leer a los ninos, que es lo mismo que predicar pero con premio. Corrijo la postura de todos: hombros atras. Y si un dia llega un ingeniero de Atlanta preguntando por su mama, digale que lo estoy esperando, pintada.
 - **muerte**: Beulah Okonkwo murio sentada, con la barbilla arriba. Como en la foto. No se movio.
 
 ---
@@ -1448,8 +1442,7 @@ banco.
 - **Virtud**: hace con las manos lo que nadie más sabe hacer, gratis, y vigila la cuadra todas las tardes.
 - **Cuerpo**: los clavos del fémur le duelen con el frío; las tres noches clavando tablones le dejaron el hombro derecho
   resentido. La tos del humo viejo, igual.
-- **Lazo con el reparto**: de oídas. Al Cabo lo conoce por la vitrina de la Legión (1991) y de vista. Sabe que en el
-  patio de trenes hay gente armada ("los de verde"), lejos de su punta. Leí cabo.md y pereira.md.
+- **Lazo con el reparto**: medio. En 1991 le hizo la vitrina de banderas a la Legión Americana de Muldraugh. En agosto de 1993 el Cabo le encargó el cajón de Lyman Grady, el cartero (uno de sus once, muerto de fiebre): le pagó en el día con una lata y le dio la mano "como si fuera un trámite". Sabe que en el patio de trenes hay gente armada ("los de verde"), lejos de su punta. Leí cabo.md y pereira.md.
 - **Etiquetas nuevas**: culpa inventada, garita con rampa, yerno cobarde, abuelo.
 
 ### TEXTOS PARA EL JUEGO
@@ -1462,7 +1455,7 @@ banco.
 - **revelacion3**: A mi yerno no lo mordieron en el monte. Se fue con la camioneta y la comida y dejo a mi hija y a la nina. Le dije que yo lo mande solo al monte. Prefiero que me odie a mi.
 - **diario_conocer**: Homer Reynolds cojea, habla con la madera y vigila Muldraugh desde una garita con rampa. Hace cajones para los muertos.
 - **diario_final**: Homer le dijo a Sue Ellen que Troy esta vivo. Ella lloro y despues le paso la nina. Esa noche Lois dijo el nombre de Ozro en la mesa.
-- **mudanza**: Me traje las herramientas, las once tablas de castano y a mi familia: Lois, Sue Ellen y la nina. Aqui no hay garita, asi que la voy a hacer. Con rampa, que yo no subo escaleras. Hago trancas, postigos, catres, cajones y cunas, en ese orden de urgencia. Si alguien tiene una tabla que no sabe que es, que me la traiga: yo le digo si es nogal o pino. El pino miente. Con las tablas de castano voy a hacer una banca. Ya saben para quien. Se pone aqui, al lado del fuego, para que se siente el que necesite.
+- **mudanza**: Me traje las herramientas, las once tablas de castano y a mi familia: Lois, Sue Ellen y la nina. Al Cabo ya le conozco el trato: en agosto le hice el cajon del cartero Grady, me pago en el dia y me dio la mano como si fuera un tramite. Aqui no hay garita, asi que la voy a hacer, con rampa, que yo no subo escaleras. Hago trancas, postigos, catres, cajones y cunas, en ese orden de urgencia. Si alguien tiene una tabla que no sabe que es, que me la traiga: el pino miente. Con las tablas de castano voy a hacer una banca. Ya saben para quien. Se pone al lado del fuego, para que se siente el que necesite.
 - **muerte**: Homer Reynolds murio en la garita, mirando el humo. Lois dijo los dos nombres en la tumba. Por fin.
 
 ---
@@ -1517,9 +1510,7 @@ Faeno venados en el garaje de la hondonada. Me sigue doliendo la espalda. Y toda
 - **Virtud**: nadie que la busca muere solo ni asustado.
 - **Cuerpo**: la hernia está peor por cargar venados sin ayuda; tiene ciática en la pierna derecha los días de frío.
   Bajó de peso. Las manos, firmes.
-- **Lazo con el reparto**: de oídas. Sabe que el jefe de bomberos (Booker) se fue caminando al río el 11 de julio; lo
-  cuenta en West Point y ella lo entiende mejor que nadie. Al cuartel no va. Leí chela.md (el "se fue caminando" de
-  Booker es suyo; el de los seis es de ella).
+- **Lazo con el reparto**: medio. El 11 de julio, de vuelta de West Point, vio al jefe de bomberos Virgil Booker bajar caminando solo hacia el río, mordido; le levantó la mano y ella lo dejó ir (no sabe nada de las llaves ni de la Chela). Al cuartel no va. Leí chela.md.
 - **Etiquetas nuevas**: muerte acompañada, viuda sin saber, madre muerta de infección, monte.
 
 ### TEXTOS PARA EL JUEGO
@@ -1532,7 +1523,7 @@ Faeno venados en el garaje de la hondonada. Me sigue doliendo la espalda. Y toda
 - **revelacion3**: Los mordidos que todavia piensan me buscan. Los llevo al monte, los siento, les tomo el pulso. Antes de que se den vuelta, disparo. Son seis. A sus familias les dije que se fueron caminando.
 - **diario_conocer**: Imogene Pham caza en la hondonada del rio Salt. Le toma el pulso a todo el que le da la mano, sin darse cuenta.
 - **diario_final**: Imogene le conto la verdad a una de las seis familias. La senora le dio las gracias y le pidio el nombre del arbol.
-- **mudanza**: Me traje el rifle, la piedra de afilar de mi papa y a mi papa, que dice que donde va la escopeta va el. Aqui cazo, faeno y le tomo la presion a quien quiera. Si alguien del campamento sale mordido y todavia piensa, que me busque. No es obligacion. Pero nadie se muere solo si yo estoy. Mi papa hace trampas y le cuenta mentiras de caza a los ninos. Duermo con un termo viejo al lado. Es de mi marido. Si un dia llega un hombre que se llama Tuan, que me despierten.
+- **mudanza**: Me traje el rifle, la piedra de afilar de mi papa y a mi papa, que dice que donde va la escopeta va el. Aqui cazo, faeno y le tomo la presion a quien quiera. Al jefe Booker lo vi el 11 de julio bajando solo hacia el rio, ya mordido. Me levanto la mano y lo deje ir. Fue el primero que entendi. Si alguien del campamento sale mordido y todavia piensa, que me busque. No es obligacion. Pero nadie se muere solo si yo estoy. Duermo con un termo viejo al lado. Es de mi marido. Si un dia llega un hombre que se llama Tuan, que me despierten.
 - **muerte**: Imogene Pham murio en el monte. Nadie la llevo: fue sola. Le tomaron el pulso. Ya no tenia.
 
 ---
@@ -1564,9 +1555,9 @@ Faeno venados en el garaje de la hondonada. Me sigue doliendo la espalda. Y toda
   en la banda (eso es de Duc y Ruby); les cose por plata vieja y fichas de casino para la deuda con Judy, y calla lo que
   oye del cuartel, sin un plan concreto. 6.500 dólares con 24 años de intereses son unos 20.000 (su cuenta de
   apostadora) ✔. Textos sin tildes ni eñes ✔.
-- **s067 Forrest Hollon**: 42 años; bajó 30 kilos desde 120 ✔. Luanne (Ekron, de la ronda A) llega el 11 y se va el 13 ✔.
-  Walt a las 5:00 del 10 y "Tom no llegó" calzan con yvonne_bell.md (Tomás faltó a las 3:30; el cartero Purdy entró a las
-  6:00, cuando Forrest ya se había ido) ✔. El Bluebird está en la calle principal ✔. La cojera fingida no es "negar
+- **s067 Forrest Stanfill**: 42 años; bajó 30 kilos desde 120 ✔. Luanne (Ekron, de la ronda A) llega el 11 y se va el 13 ✔.
+  Walt a las 5:00 del 10 y "Tom no llegó" calzan con yvonne_bell.md (Tomás faltó a las 3:30; lo de las 6:00 pasa cuando Forrest ya se había
+  ido; no le pongo cara ni nombre a quien mordió a Walt) ✔. El Bluebird está en la calle principal ✔. La cojera fingida no es "negar
   ayuda mintiendo": no le pidieron ayuda, le pidieron ir. Textos sin tildes ni eñes ✔.
 - **s068 Beulah Okonkwo**: 79 años; rodillas y presión ✔. Obi y su familia en Atlanta, sin saber ✔. En el juego sale como
   "la catequista" (enseña la Biblia a los niños), como pide ARREGLOS_B ✔. La revelación inventada no es la de Reyes (no
