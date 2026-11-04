@@ -26,7 +26,7 @@ Narrador.Charlas.bell = {
     { "padre", "Si alguien sabe de un medico... de lo que sea. Por favor.", si = { "no", { "var", "infectado", "nadie" } } },
     { "madre", "Wade, no molestes a la gente. Dejalos trabajar." },
     { "madre", "Gracias por dejarnos quedar. No sabes lo que significa para nosotros." },
-    { "madre", "Antes de todo esto yo era profesora. Ahora enseno a hervir agua." },
+    { "madre", "Antes de todo esto yo hacia pan a las cuatro de la manana. Ahora enseno a hervir agua." },
     { "madre", "Si consigues hilo y aguja, te arreglo la ropa. Es lo minimo." },
     { "madre", "Daniel se hace el fuerte. Por las noches lo escucho llorar." },
     { "madre", "Cocine algo con lo que habia. No es mucho, pero esta caliente." },

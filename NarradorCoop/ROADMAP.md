@@ -10,6 +10,258 @@ memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nad
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 Personajes (fichas definitivas, canon de nombres y registros del rol): `NarradorCoop/personajes/README.md`.
 
+## Vecinos de los encargos: 100 secundarios y el generador de vidas (0.14.0, falta probar en el juego)
+- Los 100 secundarios (personajes/secundarios/) ya estan en el juego: `datos/secundarios.json` y
+  `datos/piezas.json` (919 piezas por etapa) se convierten con `herramientas/vidas.py` en
+  `shared/Narrador/NarradorVidasDatos.lua` (CI revisa que este al dia). Motor:
+  `server/Narrador/NarradorVidas.lua` (arma una vida con una pieza por etapa; las etiquetas que da,
+  pide, prohibe o quita evitan contradicciones, y lo prohibido sigue prohibido despues salvo que una
+  pieza lo supere).
+- `G.elegirCliente`: la mitad de las veces el cliente es un secundario del pueblo que no se conocio;
+  si no, un vecino generado. `G.textosCliente`: el primer encargo lo presenta en el diario y deja su
+  revelacion1; el segundo, la 2; el tercero, la 3 y la linea final, y al mudarse cuenta su vida
+  (`G.hacerVecino`). Saluda (opcion "Saludar"), agradece y dice su linea de rescate en los encargos
+  donde aparece; si muere, accion nueva `cliente_murio` (no vuelve a salir).
+- Memoria nueva en `G.estado().secs` (conocido, vecino, muerto). Nombres al azar sin choques con el
+  reparto. Prueba: `prueba_vidas.lua` (todas las combinaciones de sexo, edad, oficio y pueblo; 3000
+  vidas; el ciclo de tres encargos y la mudanza).
+
+## Sin focos: el capitulo 3 de la Misia Rosa con Ray y Earl (0.14.1, falta probar en el juego)
+- `cap_rosa_3` (Arcos/Capitulos.lua), "El tanque", ahora cierra lo que venia del canon: Earl le
+  dio al Tecolote el dato del tanque, en broma y por insulina, y despues aviso por el 19 ("la 31
+  sin focos"); Ray ("Gerald") vigila la 31 de noche desde el cerro.
+- Si escondiste a Ray en el evento del desertor (`desertor` = protegido), apenas empieza el
+  capitulo Ray avisa por el 19 (al Bencinita; si Junior murio en la cura, `cura_rosewood` =
+  murio, "a la senora de la luz prendida"; si ya es el mecanico de Rosewood, en persona): un
+  Peterbilt rojo y una camioneta sin focos, seis o siete hombres, bajan a las dos y dejan los
+  camiones en la curva de la 31 (lugar `curva`, con mapa). Etapa nueva `preparar_ray`: o se los
+  espera en la gasolinera desde las 2 (llegan 4 a 5 en vez de 6 a 8: Ray espanta a dos con un
+  tiro al techo) o se les sale al paso en la curva desde la 1 (etapa nueva `emboscada`, 4 a 5
+  bandidos y pocos muertos). Sin Ray todo sigue como antes (preparar desde las 22, 6 a 8).
+- Despues del asalto (etapas puente `defendido` / `saqueo`), si Earl llego vivo en el cap. 2
+  (`historia_rosewood_2` = true), aparece en el mostrador (`amanecer`) y le confiesa a Rosa lo
+  del Tecolote y el whisky; Rosa se entera ahi de la insulina. El jugador intercede (Rosa lo
+  perdona: "Lleno o normal?" "Lleno." y el cafe sin azucar), dice que eso no se perdona (lo manda
+  a dormir a Lucille, con la luz prendida igual) o no se mete (Rosa decide segun la noche:
+  defendida perdona, saqueada echa). Si nadie vuelve en 48 horas, Earl se lo calla.
+- Memorias nuevas: `tanque_ray` (aviso o emboscada; la lee Las placas de Pope) y `earl_tanque`
+  (perdonado, echado o callado; la lee el cap. 5: Lucille llega a la marea, Earl avisa por el 19
+  sin que le contesten, o carga cajas callado). Los dos finales siguen siendo `final_cumplido` y
+  `final_saqueado` (con su diario segun Earl).
+- Partidas a medio camino: `preparar`, `asalto` y los finales no cambiaron de nombre; una partida
+  que ya estaba en preparar o en asalto sigue sin el aviso de Ray (y con la confesion si Earl
+  vive). Las que ya cerraron el cap. 3 no tienen `earl_tanque`: el cap. 5 no dice nada de Earl.
+- Prueba: `herramientas/pruebas/prueba_sin_focos.lua` (sin Ray; con Ray y emboscada; con Ray,
+  sin Earl y saqueado; Ray mecanico en persona; perdonar y echar en las dos noches; la partida
+  que estaba en preparar; el cap. 5 con los tres valores de `earl_tanque`).
+
+## Las placas de Pope: una historia de Ray Doyle (0.14.1, falta probar en el juego)
+- `placas_pope` (Arcos/PlacasPope.lua, diario en NarradorLoreHistorias.lua). La elige el
+  director (no es de un misionero: Ray no es de ningun campamento todavia) desde el dia 16, con
+  refugio, si `desertor` = protegido y todavia no hay `placas_pope` ni `ray_mecanico`. No sale
+  junto con `el_desertor` ni `eco_desertor_vuelve` (`excluye`), y "Ray vuelve" ya no sale si Ray
+  se quedo en un campamento.
+- Ray llega al refugio ("No vengo a que me rescate. Vengo a pedirle trabajo.") y cuenta la
+  barricada: Pope disparo por los dos, lo mordieron, Ray lo remato y le cambio las placas ("Le
+  robe la muerte a Pope"). Da las placas con una carta suya (`dar_objeto`) y acompana hasta la
+  esquina de la casa de los Pope, en el West End de Louisville ("La puerta la toca usted").
+- Loretta Pope esta viva (2 de 3, rodeada: hay que sacarle los muertos) o se transformo en su
+  cocina con una nota para Darnell en el refrigerador. Viva: darle las placas con la carta (sabe
+  que Darnell no se fue y que Ray si: "no lo perdono. Todavia"), sin la carta, o contarle sin las
+  placas si se perdieron. Muerta (o si cae en el sitio): dejarle las placas junto a la nota o
+  irse sin nada.
+- De vuelta en la esquina, si a Loretta le llego algo, Ray se queda: el jugador lo manda de
+  mecanico a la gasolinera de Rosewood (si no es de la banda; si el campamento aun no se funda,
+  aparece cuando se funde) o a otro campamento ya fundado (condicion nueva
+  `{ "campamento_abierto", id }`). Si no le llego nada, o no tienes donde mandarlo, se va
+  caminando (y "Ray vuelve" puede salir despues). Si Ray muere en el camino, las placas se
+  llevan igual (`desertor` = muerto); si lo matas, `desertor` = asesinado; si matas a Loretta,
+  Ray se va.
+- Accion nueva `{ "oficio_campamento", contacto, oficio, grupo, rol }` (NarradorCampamentos.lua):
+  abre el oficio en ese campamento aunque no tenga el nivel, retira al que atendia, cuenta como
+  salvado y espera a que se vaya el NPC de la historia. Quien es lo dice `K.OFICIOS_HISTORIA`
+  (NarradorCampamentosDefs.lua): con `ray_mecanico` = id, `K.persona` devuelve a Ray Doyle de
+  mecanico de ese campamento.
+- Memorias nuevas: `placas_pope` (con_carta, sin_carta, contado, tumba o perdidas) y
+  `ray_mecanico` (el campamento; la leen K.persona, "Ray vuelve" y el cap. 3 de la Misia Rosa).
+- Ray y Loretta estan en "Los que ya no estan" (Ray, fuera del evento del desertor, va siempre,
+  no solo si lo matas tu). Prueba: `herramientas/pruebas/prueba_placas_pope.lua` (cuando sale;
+  viva con la carta y Ray a Rosewood; muerta y sin placas, Ray se va; Ray muere en el camino;
+  sin placas y Ray a West Point; Rosewood de la banda; matar a Loretta o a Ray; "ahora no").
+
+## Misiones del rol en Riverside: la despensa, Eli Danner y el chico de los sacos (0.14.2, falta probar en el juego)
+Tres misiones del Padre Nacho que salieron del rol de los personajes (`personajes/fichas`: nacho, lucia, duggan,
+reyes, pereira, yvonne_bell y CANON). Prueba de punta a punta: `herramientas/pruebas/prueba_riverside.lua`.
+
+- **La despensa** (dentro de `cap_nacho_2`, Arcos/Capitulos.lua). Cuando Duggan llega al atrio, pregunta por
+  Curtis Mabry ("ese siempre mira") y Lazaro se va ladrando a la despensa. El Padre lo sabe por la rejilla (un
+  hombre de Duggan se confeso) y no lo puede decir: solo pide que alguien mire la pelea. Etapa nueva
+  `despensa_aviso` con dos opciones (si no eliges en media hora, empieza la pelea):
+  - Mirar (`round`, como antes): Ruth descubre la despensa forzada; el Padre lo agradece ("tuve testigo").
+    `despensa_riverside` = robada y la reserva de comida de Riverside baja 25 (accion nueva
+    `{ "reserva_campamento", contacto, moneda, cantidad }` en NarradorCampamentos.lua, de 0 a 100).
+  - Ir a la despensa (`despensa`, 14 casillas atras de la iglesia): Curtis (amistoso, pillado con los sacos) y 2-3
+    ladrones hostiles. Caidos los ladrones se habla con Curtis: llevarlo a cargar agua para la iglesia (queda de
+    guardia, `salvado_campamento`) o echarlo de Riverside; si lo matas, el Padre lo resiente ("al que esta en el
+    suelo se le da la mano o un balde, no una tumba"). Al volver, Duggan: "Llegas tarde. Igual que el arbitro de
+    Lexington, pero al reves", y el Padre te cuenta la pelea (sorteo `ganador`) y te reprocha un poco no haber
+    mirado, pero lo entiende ("yo no te lo podia pedir"). Final nuevo `final_cumplido_despensa`:
+    `despensa_riverside` = defendida, `curtis` = agua, echado o muerto.
+  - Partidas a medio camino: si ya iban en `round`, la variable `despensa` no existe y el final es el de siempre
+    (sin memoria). Las que estaban en `pelea` pasan por la etapa nueva.
+- **Eli Danner** (`mision_eli`, Arcos/MisionesRiverside.lua). Sale entre las ofertas del Padre despues del cap. 2
+  y antes del 3 (confianza 3, pago medio). El Padre lo supo por Edith Crowe: el Diacono Reyes predico en el puente
+  (Numeros 32:23) que tres de la Sargento bajan a San Judas, en March Ridge, a "corregir la lista" (Eli, 16, Reo,
+  anotado muerto por Pereira). Hay un dia y medio (reloj `patio`). A tiempo: Lucia (inmortal en esta mision) te
+  recibe ("le dije que no mandara a nadie"), suben tres del patio (hostiles, mas una horda chica por los tiros); si
+  Eli vive, se elige: que se quede con Lucia cuidando la puerta (`eli_danner` = salvado, se vuelve a contarle al
+  Padre) o llevarlo a Riverside (`riverside`, queda de guardia en la iglesia). Si Eli muere, `muerto`. Si llegas
+  despues del dia y medio (papel clavado: "Lista corregida"), no vas en 96 horas o la abandonas: `tarde`.
+  Deja tambien `lugar.san_judas` (memoria_lugar).
+- **El chico de los sacos** (`mision_tomas`, Arcos/MisionesRiverside.lua). Sale despues del cap. 3 y antes del 4
+  (confianza 3, pago dificil), con Lucia viva o muerta. Panaderia Hollis de Riverside (cerrada con llave desde el
+  10 de julio; la llave la tiene Yvonne): el casillero de Tom con el horario del Greyhound, la salida de las 5:40
+  del sabado marcada, y la direccion de las hermanas de Santa Ines. Despues la terminal del Greyhound de Louisville
+  (sala bus*/transit*, si no una oficina del centro): un cuaderno ("me quedo aca: aca llegan los buses") y Tomas
+  vivo, rodeado (horda de 30 +10 por jugador y corredores). Se va solo a Riverside; si Lucia volvio, sale a la
+  escalera ("tenias razon, yo tambien me fui un domingo"); si murio, el Padre lo lleva a su tumba. `tomas` = vivo
+  (queda de guardia en la iglesia), `tumba` (muere en el camino: cruz con nombre), `sin_rastro` (no vas a la
+  terminal en 120 horas o la abandonas).
+- Lanzamiento: las misiones van en `G.ESPECIALES` sin `capitulo` y con su propia memoria en `hecho`, antes del
+  capitulo que las lee (G.ofertaEspecial da la primera que calza: el Padre ofrece primero la mision). Ahora
+  `G.ofertaEspecial` tambien mira la condicion `si` de la definicion (mision_eli: no despues del cap. 3). Todas
+  tienen `final_abandonado` (abandonar deja la memoria y no traba el capitulo siguiente).
+- Lo que leen despues:
+  - Cap. 3 (`cap_nacho_3`): Lucia vive en San Judas de March Ridge (CANON): ya no se sortea entre cinco pueblos;
+    vuelve a `lugar.san_judas` o la busca en March Ridge. Lee `eli_danner` (`vars_desde_memoria`): lo que dice el
+    Padre, como te saluda Lucia y su respuesta a la carta (ahora la carta N.P.: "aqui me quedo, venga o no venga;
+    el pulgar afuera"); con Eli salvado o en Riverside, Lucia baja por la cuerda a recibirte sin esperar a que
+    limpies. Partidas que ya iban por el capitulo conservan su iglesia y los textos de antes.
+  - Cap. 4 (`cap_nacho_4`): el Padre comenta la despensa (flaca o con porotos para todos) y a Tomas; en la misa
+    Tomas entra y se sienta en la primera fila (con su hermana o en su lugar), o el Padre lee su nombre con cruz, o
+    Lucia sigue cantando su recado; Curtis deja dos baldes al fondo; con la despensa robada, seis latas en el
+    tercer escalon (las de Duggan, que nadie admite).
+- "Los que ya no estan": Curtis Mabry, Eli Danner y Tomas Ferrada. Diario: NarradorLoreCapitulos.lua (cap. 2 y 3)
+  y NarradorLoreRiverside.lua (las dos misiones).
+- Canon unificado: el chico de los Salinas (bandido_3) se llamaba Tomasito; pasa a **Pablito Salinas** (Bandido.lua,
+  NarradorLoreBandido.lua, NarradorCaidosDefs.lua; `Motor.NOMBRES_NUEVOS` lo cambia en partidas guardadas). Esas
+  eran las unicas referencias a "Tomas" en el codigo y no eran Tomas Ferrada.
+- Herramientas: `memorias.py` (despensa_riverside, curtis, eli_danner, lugar.san_judas, tomas);
+  `escaner_memorias.py` y `mapa_historias.py` leen las misiones de G.ESPECIALES (sin capitulo) y el mapa saca los
+  cortes de un `{ "no", ... }` en la condicion `si`; `prueba_capitulos.lua` deja fuera de la cadena de capitulos a
+  las entradas sin `capitulo` (y espera la mision de Tomas antes del cap. 4).
+
+## La panaderia Hollis: cuatro misiones del rol (0.14.3, falta probar en el juego)
+Archivos: `shared/Narrador/Arcos/Hollis.lua` (los cuatro arcos y las charlas nuevas de los Bell),
+`shared/Narrador/Conversas/ConversasHollis.lua`, `shared/Narrador/NarradorLoreHollis.lua` (diario),
+`server/Narrador/NarradorHollis.lua` (ofertas de la Misia Rosa y sus frases despues). Prueba:
+`herramientas/pruebas/prueba_hollis.lua` (todas las ramas de las cuatro).
+
+- **El raton de la harina** (`raton_harina`, mision 6): la lanza el director (peso 14, tono vida,
+  una vez) con Yvonne y Wade viviendo en tu refugio hace 48 horas. Wade avisa que la harina no le
+  cuadra y pone una trampa. Con alguien en el refugio entre las 3 y las 5, la trampa pilla a
+  Yvonne con una cucharada para la Vieja. Callar, preguntarle (confiesa lo que dice su ficha: la
+  Vieja, la verguenza de ser feliz, la cuenta de Wade; despues guardarle el secreto o que lo cuente
+  ella) o despertar a Daniel (si vive). Si nadie aparece en 72 horas, Wade lo descubre solo.
+  Deja `harina` = callado, secreto, confeso, daniel o wade, y abre el primer pan (36 horas).
+- **El primer pan** (`primer_pan`, mision 11): lo pide Yvonne (o Wade, con harina = wade; Daniel
+  ofrece armarlo). Hay que traer la puerta de un horno de una panaderia o restaurante; Daniel lo
+  arma en el refugio y Yvonne hornea a las 3:30. Con `receta_walt` sale el pan de Hazel (1931) y
+  rollos de canela. Deja `pan_bell` = vieja o walt: desde ahi Yvonne deja pan cada 48 horas en el
+  refugio si esta en casa (`B.hornear` en NarradorBell, memoria `pan_bell_ultima`). Si Yvonne deja
+  el refugio antes, no hay horno.
+- **La camioneta del pan** (`camioneta_pan`, mision 2): oferta de la Misia Rosa despues de su
+  cap. 2, con confianza 3, ademas del capitulo que toque. La camioneta de Walt esta en la 31 cerca de
+  la barricada sur de la Guardia (decision del creador, CANON "Dia 0"): un vehiculo blanco, Walt
+  transformado (zombi jefe de cocinero) y su nota. Uno elige llevarse la libreta de recetas, la foto
+  del parasol o las llaves (la camioneta queda tuya). En la gasolinera, si la cura salvo a Hector
+  Jr., aparece para su escena: se entera de que el tata si paso por la 31, cierra lo de Walt y le
+  cuenta a su tia lo de Shively. Si murio o sigue con fiebre, habla la Misia Rosa. Despues, si
+  Yvonne vive, falta contarle a ella (y darle la libreta: `receta_walt`). Deja `camioneta_pan`.
+- **La iglesia de Shively** (`iglesia_shively`, mision 3): oferta de la Misia Rosa con la camioneta
+  hecha, Hector vivo y confianza 4. Pago dificil. Una iglesia de Louisville (se busca al suroeste,
+  donde queda Shively). Se sortea: vivos (2), nota (2) o cebo (1). Vivos: defender a Linda Hollis y
+  Nico; con la foto de Walt Linda le cree al tiro, si no con el "lleno o normal" de la Rosa; van
+  solos a Rosewood y se quedan de guardias en la gasolinera (`salvado_campamento`). Nota: se fueron
+  al norte; Junior la lee. Cebo: la voz grabada del Pato Rengo y bandidos; con la radio de la Chela
+  arreglada (`radio_westpoint`) la Misia Rosa avisa antes y hay 3 a 4 bandidos en vez de 5 a 7.
+  Deja `shively` = vivos, uno, nota, trampa o muertos. Linda y Nico estan en "Los que ya no estan".
+- **Lo que cambia despues**: las charlas de los Bell en el refugio (y las de gratitud del engano)
+  segun `harina`, `pan_bell` y `receta_walt`; conversas nuevas de los Bell en el refugio; las frases
+  de la Misia Rosa (o de Hector en la reconquista) segun `camioneta_pan` y `shively`.
+- **Cosas nuevas del motor**:
+  - NarradorBell: condiciones `bell_vive`, `bell_presente`, `bell_hace`; acciones `lugar_bell` y
+    `decir_bell` (los Bell del refugio no son de ningun arco); `st.bell.desde`.
+  - NarradorConversas: los Bell del refugio son hablantes con fuente `res:bell`.
+  - NarradorGenerador: `G.OFERTAS_EXTRA` (ofertas con historia que no son capitulos, salen ademas
+    del capitulo). NarradorContactos: `C.FRASES_EXTRA[id]` (frases con condicion del motor).
+  - Acciones `vehiculo` y `llaves_vehiculo` (Mundo.crearVehiculo / Mundo.llavesVehiculo); la
+    accion `nota` acepta `id` para que la nota sea objeto de la historia.
+  - `mapa_historias.py`: camioneta_pan e iglesia_shively en LANZADORES.
+
+## La prueba del agua de las K-93 (0.14.4, falta probar en el juego)
+- Canon (fichas de Hartmann y Eduardo, CANON.md): el Dr. Hartmann hizo 240 K-93 falsas en junio
+  de 1993; la falsa se deshace en agua en menos de un minuto y su K tiene la pata de abajo mas
+  corta. Antes las pastillas solo se distinguian con Medicina 4 ("Examinar la pastilla").
+- Clic derecho en una K-93 del inventario: "Probar la pastilla en agua"
+  (client/Narrador/NarradorPastillas.lua). Pide agua en el inventario (botella, vaso, olla; sirve
+  la sucia) y gasta un vaso (`Cura.AGUA` = 0.1 L). La falsa se deshace y se pierde; la verdadera
+  sale entera, queda con el nombre "Pastilla K-93 (verdadera)" y marcada (`NarradorK93Probada`).
+- MP: la prueba la hace el servidor (comando publico `pruebaAgua`, `CS.pruebaAgua` en
+  NarradorCuraServer.lua): busca la pastilla por id, gasta el agua, borra la falsa con
+  `Mundo.quitarItem` (sincroniza) o marca la verdadera, y le contesta al cliente (`pruebaAgua` en
+  `Cliente.recibir`), que muestra el halo. Helpers compartidos en NarradorCura.lua
+  (`Cura.buscarAgua`, `Cura.aguaDe`, `Cura.gastarAgua` para el B42 con FluidContainer y el B41).
+- Requisito `{"pastilla", id, "real"}` (NarradorMotor.lua): ahora tambien vale una pastilla
+  probada en agua sin Medicina 4 (`Mundo.pastillaProbada`). La falsa a sabiendas sigue pidiendo
+  Medicina 4. Cambian los textos de "entregar la verdadera" en la cura y en los Bell.
+- Diario: la primera falsa anota la K chueca; en la historia de la pastilla (la cura, los Bell)
+  cuenta `agua_falsas` / `agua_reales`; las sueltas van a "Las pastillas K-93".
+- Eduardo te ensena la prueba al despedirse en el cap. 3 de la Chela ("me lo enseno el doctor por
+  la radio").
+- Lo que abre (memoria `k93_falsa_vista`): el doctor Hartmann confiesa que el hizo las K-93.
+  - Si llega a West Point despues de que viste una falsa (y no confeso ya por los Bell), en el
+    final del cap. 3 la Chela le pregunta como sabia lo del agua y el confiesa.
+  - Si ya estaba en el cuartel: historia corta `hartmann_k93` "La K chueca" (Arcos/Cura.lua), la
+    lanza `CS.revisarHartmann` al pasar cerca de la Chela. Contarle (confiesa) o callarte.
+  - Memoria `hartmann_k93` = confeso / callado (la confesion de los Bell tambien deja confeso).
+    Con confeso, la Chela agrega al pedir la cura: "Y llevate agua, mijo".
+- Prueba: `herramientas/pruebas/prueba_pastillas.lua` (sin agua, falsa, verdadera, entregar sin
+  Medicina, pastilla suelta, la K chueca contar y callar, el agua de la Chela, la confesion al
+  llegar y la de los Bell).
+
+## Bandido: los giros de La Grange (0.14.4, falta probar en el juego)
+- `bandido_giros` (Arcos/Bandido.lua): con Pereira de jefe, la primera vez que vuelves al patio
+  con el capitulo 4 hecho sale esto en vez del 5 (BA.revisar, una sola vez: memoria
+  `danny_pereira`). Con Meulen de jefe no sale. No cuenta como capitulo (`bandido_cap` sigue en 4).
+- Canon (fichas de Pereira y Vargas, CANON.md): Pereira pago la proteccion de su hermano Danny en
+  La Grange con 33 giros a una casilla de Vargas; fueron 34 meses, en abril de 1988 no llego el
+  giro y a Danny le sacaron dos muelas. Vargas lo sabe y calla. Danny trabajaba en una gomeria de
+  la calle Preston, en Louisville.
+- Vargas Toledo (NPC nuevo en el patio) te manda a Louisville a ver si Danny respira: "esto va en
+  mi libreta, no en la de ella". Cinco dias. En la gomeria: horda de 35 +12 por jugador extra y 6
+  a 9 corredores (Louisville, como los ULTRA). Danny puede morir.
+- Con Danny: decirle quien pagaba (te da un recado: "que venga ella, que me lo diga en la cara, es
+  una orden mia") o callarte. De vuelta en el patio: el dato es solo para Vargas (le da cuerda al
+  reloj y paga en latas) o se lo cuentas a la Sargento (la gomeria, las dos muelas, abril del 88).
+- Memorias: `danny_pereira` = vivo / muerto (solo Vargas sabe), vivo_contado / muerto_contado
+  (Pereira sabe), rechazado, no_fue; `danny_sabe` = le dijiste a Danny quien pagaba.
+- Lo que cambia en el capitulo 5 (bandido_5, lee las memorias en la etapa `orden`):
+  - Pereira sabe y Danny mando su orden: tercer camino en el plan, "repetirle la orden de Danny".
+    Te deja el Hamilton de su padre ("Anote la hora...", la frase de su ficha), se va caminando
+    a Louisville y la banda se desarma sola: `final_lena` (redimido, Knox a 0, sin pelea, Vargas
+    te deja su libreta; `danny_pereira` = lena_fue). Despues el Cabo comenta que se fue
+    (`BA.consecuenciaLena`, memoria `lena_comentada`).
+  - Pereira sabe (sin orden, o Danny muerto): en la redencion, su carpeta tiene un papel nuevo
+    ("Danny. Calle Preston. Vivo. Ir." o "...Cruz.").
+  - Solo Vargas sabe: en la redencion Vargas no dispara y te deja su libreta ("lo de la calle
+    Preston quedo en cero").
+  - Camino con Pereira (reconquista_patio): si sabia, cae con un giro sin mandar para Danny.
+  - Con Meulen de jefe despues (bandido_maulen): Meulen encontro el papel de Danny en la carpeta.
+- Danny Pereira esta en "Los que ya no estan". Prueba: `herramientas/pruebas/prueba_giros.lua`
+  (final_lena de punta a punta con el Cabo, la redencion con la libreta de Vargas, Danny muerto,
+  rechazo, Meulen de jefe y no ir).
+
 ## Capitulo 5 de la Misia Rosa: el primer camion (0.13.6, falta probar en el juego)
 - `cap_rosa_5` (Arcos/Capitulos.lua): sale con el capitulo 4 (la carcel) hecho, aunque haya
   salido mal, y confianza 4. Pago dificil. Cierra lo que venia de la capa 4 de su perfil y del

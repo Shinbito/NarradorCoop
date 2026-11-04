@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/client/Narrador/NarradorCliente.lua": {
-    "mtime": 1793712443.3696282,
-    "seen": 1793761461.2718415,
-    "ast_hash": "3a4675cf529b18c161166ac1a11600ac",
+    "mtime": 1793763808.470292,
+    "seen": 1793764106.902556,
+    "ast_hash": "81216daf10b29882c3f9da6e476453ef",
     "semantic_hash": ""
   },
   "42/media/lua/client/Narrador/NarradorConversacion.lua": {
@@ -36,9 +36,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/client/Narrador/NarradorPastillas.lua": {
-    "mtime": 1792108415.1164258,
-    "seen": 1793761461.271869,
-    "ast_hash": "71d960cd725cfcd707d316bc2bc52a64",
+    "mtime": 1793763808.470292,
+    "seen": 1793764106.9025807,
+    "ast_hash": "86748f4a77cbfda25dccd64c36566350",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorAmenazas.lua": {
@@ -48,9 +48,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorBandido.lua": {
-    "mtime": 1793712443.3696282,
-    "seen": 1793761461.271878,
-    "ast_hash": "3e6817c31811f08e203a5569e5651611",
+    "mtime": 1793763808.470292,
+    "seen": 1793764106.9025886,
+    "ast_hash": "82d35aec4e02d4c2c9ec976ab26b0ef1",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorCalendario.lua": {
@@ -60,15 +60,15 @@
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorCampamentos.lua": {
-    "mtime": 1793712443.3721619,
-    "seen": 1793761461.2718892,
-    "ast_hash": "a6c02761336614710fb91e97ef6fe63d",
+    "mtime": 1793763973.1742873,
+    "seen": 1793764106.9025996,
+    "ast_hash": "366c88b3343f116bf7dc1babdef73b30",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorContactos.lua": {
-    "mtime": 1793712443.3763704,
-    "seen": 1793761461.2718942,
-    "ast_hash": "917bbc3769102907e535709cc9464289",
+    "mtime": 1793764019.850286,
+    "seen": 1793764106.902605,
+    "ast_hash": "753f4033fa3197be621f64c29195f788",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorConversacionServer.lua": {
@@ -78,15 +78,15 @@
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorConversas.lua": {
-    "mtime": 1792108415.1186938,
-    "seen": 1793761461.2718992,
-    "ast_hash": "6d5a27fd1a734341b8130427d06ab4b6",
+    "mtime": 1793764019.850286,
+    "seen": 1793764106.9026096,
+    "ast_hash": "33a26003b1760045d8831cdce0d7829e",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorCuraServer.lua": {
-    "mtime": 1793712443.3763704,
-    "seen": 1793761461.2719016,
-    "ast_hash": "5506a17638e919fa2c8d849664d0969f",
+    "mtime": 1793763808.470292,
+    "seen": 1793764106.902612,
+    "ast_hash": "f3a1c381a71b9a83c8d33c4ec1573744",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorDirector.lua": {
@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorGenerador.lua": {
-    "mtime": 1793761417.4358993,
-    "seen": 1793761461.2719157,
-    "ast_hash": "da25a34219044758ea0b0443425e4473",
+    "mtime": 1793764019.854286,
+    "seen": 1793764106.9026253,
+    "ast_hash": "16fc88828b393330ece01afca0fe6958",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorHuellas.lua": {
@@ -132,15 +132,15 @@
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorMotor.lua": {
-    "mtime": 1793712443.378505,
-    "seen": 1793761461.2719316,
-    "ast_hash": "3f630c81ffa59692f48aad43dd724e65",
+    "mtime": 1793763808.470292,
+    "seen": 1793764106.9026403,
+    "ast_hash": "6d6896648ed765c8a35b9f956387c309",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorMundo.lua": {
-    "mtime": 1793712443.378505,
-    "seen": 1793761461.2719457,
-    "ast_hash": "d7f30b973fd6d7503cb69a4955059ebe",
+    "mtime": 1793764019.854286,
+    "seen": 1793764106.9026525,
+    "ast_hash": "4b19c9df57678b58ca9dcf087fd637d3",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorObjetosServer.lua": {
@@ -168,9 +168,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Bandido.lua": {
-    "mtime": 1793712443.382998,
-    "seen": 1793761461.2719746,
-    "ast_hash": "79611b776004f995c46a122d02e6b313",
+    "mtime": 1793763973.1742873,
+    "seen": 1793764106.9026792,
+    "ast_hash": "75ee803a161e41fea3752d2b8a4cbb43",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Calendario.lua": {
@@ -180,9 +180,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Capitulos.lua": {
-    "mtime": 1793712443.382998,
-    "seen": 1793761461.2719796,
-    "ast_hash": "b197ae01cefeb9a1fbb6a4615b5acc0a",
+    "mtime": 1793763995.339419,
+    "seen": 1793764106.9026837,
+    "ast_hash": "10be48689fc559314c6685fa0fdc04f8",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Conquista.lua": {
@@ -198,9 +198,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Cura.lua": {
-    "mtime": 1793712443.382998,
-    "seen": 1793761461.2719884,
-    "ast_hash": "75c2f6ffec0af8512bf555a66c3b6826",
+    "mtime": 1793763808.474292,
+    "seen": 1793764106.9026923,
+    "ast_hash": "db4d5d851cbccd8175c22a11294cdffc",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Desbloqueos.lua": {
@@ -210,9 +210,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/Eduardo.lua": {
-    "mtime": 1793712443.384162,
-    "seen": 1793761461.271993,
-    "ast_hash": "cb5c4eaa590862489d498075b0d8efba",
+    "mtime": 1793763808.474292,
+    "seen": 1793764106.9026961,
+    "ast_hash": "e85de235f81f9cf01088cc53b47b026a",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/EduardoEventos.lua": {
@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/FamiliaInfectada.lua": {
-    "mtime": 1793712443.388475,
-    "seen": 1793761461.2720003,
-    "ast_hash": "09cb3b94dfdd437f45b4e0760fe8564c",
+    "mtime": 1793764093.68111,
+    "seen": 1793764106.9027047,
+    "ast_hash": "5529d938713f6ac1fca54a32b6c2e3fd",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/FavoresSous.lua": {
@@ -288,9 +288,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorCampamentosDefs.lua": {
-    "mtime": 1793712443.3917983,
-    "seen": 1793761461.2720366,
-    "ast_hash": "96dd04c185011003970f83f9db2411b2",
+    "mtime": 1793763804.062292,
+    "seen": 1793764106.9027483,
+    "ast_hash": "751ab440aad65e0bc9877c7c8a2ee24c",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorConversasDefs.lua": {
@@ -300,9 +300,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorCura.lua": {
-    "mtime": 1792108415.126155,
-    "seen": 1793761461.2720413,
-    "ast_hash": "a4dc3cc86ab1f6695a44857a3c26462a",
+    "mtime": 1793763808.474292,
+    "seen": 1793764106.9027529,
+    "ast_hash": "cb616a2e3a855401a1f0b4c5447f8286",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorDefs.lua": {
@@ -348,15 +348,15 @@
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorLoreBandido.lua": {
-    "mtime": 1793712443.393296,
-    "seen": 1793761461.2720587,
-    "ast_hash": "02a91d4f92f7fae793b34f0d3fda96e9",
+    "mtime": 1793763973.1782873,
+    "seen": 1793764106.9027693,
+    "ast_hash": "dd7faf85271fba6c9ab6182c12a45c24",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorLoreCapitulos.lua": {
-    "mtime": 1793712443.393296,
-    "seen": 1793761461.2720606,
-    "ast_hash": "8513af26c6f5b52ff61ef7bfad2a9323",
+    "mtime": 1793763973.1782873,
+    "seen": 1793764106.9027712,
+    "ast_hash": "f3d3c397ebf225e76de9d5cd95499ffa",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorLoreGenerados.lua": {
@@ -366,9 +366,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorLoreHistorias.lua": {
-    "mtime": 1793712443.393296,
-    "seen": 1793761461.2720644,
-    "ast_hash": "4fa5a8454dd3c8b4d432f2b3bffc25fe",
+    "mtime": 1793763808.474292,
+    "seen": 1793764106.902775,
+    "ast_hash": "e32820a59ffe5d72a42428c43cb4dea8",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorObjetos.lua": {
@@ -804,15 +804,15 @@
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorBell.lua": {
-    "mtime": 1793712443.3696282,
-    "seen": 1793761461.2718806,
-    "ast_hash": "3c04adfa7692e7769e39f63bf6e9eb74",
+    "mtime": 1793764019.850286,
+    "seen": 1793764106.9025915,
+    "ast_hash": "a4b39c9eda04e9ea88cbd783240e6121",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorMotorAcciones.lua": {
-    "mtime": 1793712443.378505,
-    "seen": 1793761461.2719345,
-    "ast_hash": "9cddb35607dd607a41171f53c36d6696",
+    "mtime": 1793764019.854286,
+    "seen": 1793764106.9026434,
+    "ast_hash": "c2e459cdb6531ba893c473ddb30d7c5d",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorMotorCharlas.lua": {
@@ -828,9 +828,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorMotorGrupos.lua": {
-    "mtime": 1793712443.378505,
-    "seen": 1793761461.2719426,
-    "ast_hash": "44df76221bd82e8f040f1f521d534045",
+    "mtime": 1793763973.1742873,
+    "seen": 1793764106.9026504,
+    "ast_hash": "812a83c3323fd4ff9bfc100a73eb4bd2",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorMundoALife.lua": {
@@ -840,9 +840,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/LeyendaEduardo.lua": {
-    "mtime": 1793712443.3906858,
-    "seen": 1793761461.2720153,
-    "ast_hash": "75874bf131102dd0aa617be88b557682",
+    "mtime": 1793763808.474292,
+    "seen": 1793764106.9027224,
+    "ast_hash": "4575dbb642168264be26fdd376c5e683",
     "semantic_hash": ""
   },
   "42/media/lua/server/Narrador/NarradorCaidos.lua": {
@@ -852,9 +852,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorCaidosDefs.lua": {
-    "mtime": 1793712443.3917983,
-    "seen": 1793761461.2720332,
-    "ast_hash": "0e482e8e89634997d2ef6d62e51c8daf",
+    "mtime": 1793764019.858286,
+    "seen": 1793764106.9027462,
+    "ast_hash": "14048e8694e45b21ff3c5817e07ef8a6",
     "semantic_hash": ""
   },
   "42/media/lua/client/Narrador/NarradorEduardoCliente.lua": {
@@ -918,9 +918,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/ConsecuenciasExtra.lua": {
-    "mtime": 1793712443.382998,
-    "seen": 1793761461.2719846,
-    "ast_hash": "1428676e99526502fcea897f8f16a26d",
+    "mtime": 1793763804.062292,
+    "seen": 1793764106.9026878,
+    "ast_hash": "ade5f1a317f72759d3137b14dcdb6fba",
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/Arcos/HistoriasSous1.lua": {
@@ -1008,9 +1008,9 @@
     "semantic_hash": ""
   },
   "42/media/lua/shared/Narrador/NarradorVidasDatos.lua": {
-    "mtime": 1793761437.443889,
-    "seen": 1793761461.2720747,
-    "ast_hash": "ec3880d12a59193d052e4820fe2ca11e",
+    "mtime": 1793764042.8516786,
+    "seen": 1793764106.9027898,
+    "ast_hash": "f0be0879c6f48251fa2069ee1a22bfd5",
     "semantic_hash": ""
   },
   "personajes/secundarios/datos/piezas.json": {
@@ -1020,9 +1020,9 @@
     "semantic_hash": ""
   },
   "personajes/secundarios/datos/secundarios.json": {
-    "mtime": 1793745198.1341903,
-    "seen": 1793761461.2720914,
-    "ast_hash": "e325e1ef0093478ab01e461bf4caaa38",
+    "mtime": 1793764027.4462857,
+    "seen": 1793764106.9028106,
+    "ast_hash": "084334162e5abd31df82ec7291297652",
     "semantic_hash": ""
   },
   "personajes/secundarios/lotes.json": {
@@ -1047,6 +1047,48 @@
     "mtime": 1793712443.40421,
     "seen": 1793761461.2721632,
     "ast_hash": "53d45ed3f4cf1babc18068699745312e",
+    "semantic_hash": ""
+  },
+  "42/media/lua/server/Narrador/NarradorHollis.lua": {
+    "mtime": 1793764019.854286,
+    "seen": 1793764106.9026318,
+    "ast_hash": "4db78dc68dec8333a22d77143d42c51e",
+    "semantic_hash": ""
+  },
+  "42/media/lua/shared/Narrador/Arcos/Hollis.lua": {
+    "mtime": 1793764019.854286,
+    "seen": 1793764106.9027176,
+    "ast_hash": "92333aea397cff7dcc1ffedfd4c187d2",
+    "semantic_hash": ""
+  },
+  "42/media/lua/shared/Narrador/Arcos/MisionesRiverside.lua": {
+    "mtime": 1793763973.1782873,
+    "seen": 1793764106.9027238,
+    "ast_hash": "1ff327328e8c66837bdf13b1bb784b5c",
+    "semantic_hash": ""
+  },
+  "42/media/lua/shared/Narrador/Arcos/PlacasPope.lua": {
+    "mtime": 1793763804.062292,
+    "seen": 1793764106.902726,
+    "ast_hash": "ad915a8f089359c0509429b5972c5355",
+    "semantic_hash": ""
+  },
+  "42/media/lua/shared/Narrador/Conversas/ConversasHollis.lua": {
+    "mtime": 1793764019.854286,
+    "seen": 1793764106.9027393,
+    "ast_hash": "fb31525f1fa92245db29eea7fc449e03",
+    "semantic_hash": ""
+  },
+  "42/media/lua/shared/Narrador/NarradorLoreHollis.lua": {
+    "mtime": 1793764019.858286,
+    "seen": 1793764106.9027767,
+    "ast_hash": "131e390a31e0286cb6759bb8298e14c2",
+    "semantic_hash": ""
+  },
+  "42/media/lua/shared/Narrador/NarradorLoreRiverside.lua": {
+    "mtime": 1793763973.1782873,
+    "seen": 1793764106.9027786,
+    "ast_hash": "12b8bd0866f2db2bc0d6aa10da7da592",
     "semantic_hash": ""
   }
 }
