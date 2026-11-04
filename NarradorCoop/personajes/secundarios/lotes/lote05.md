@@ -761,7 +761,7 @@ Muldraugh. Es mía, cielo. Es lo único que escribí en mi vida, y es mentira. T
 
 ### Ficha "después"
 
-- **Primera noche**: viernes 9 de julio de 1993, 2:15 de la madrugada, piso de cirugía del Hospital Ireland (Fort Knox). Calma a treinta pacientes con un "simulacro de incendio" mientras amarran a un policía militar que se volvió en la cama. El 11 al amanecer sacan a los civiles en bus y cierran la reja.
+- **Primera noche**: madrugada del sábado 10 de julio de 1993, 2:15, piso de cirugía del Hospital Ireland (Fort Knox). Calma a treinta pacientes con un "simulacro de incendio" mientras amarran a un policía militar que se volvió en la cama. El 11 al amanecer sacan a los civiles en bus y cierran la reja.
 - **Familia**
   - Natalie Petrov de Doak (hija, Louisville, Highlands) y Glen Doak (yerno): sin saber. Sadie le pregunta por ellos a cada viajero.
   - Dmitri "Dima" Petrov (exmarido, McKeesport): fuera del cordón, sin noticias.

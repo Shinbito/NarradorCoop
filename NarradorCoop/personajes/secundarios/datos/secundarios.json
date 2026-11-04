@@ -3132,7 +3132,7 @@
    "llegada": "Vaya, cara nueva. Si viene a pedir que le escriba algo, cobro en latas. Si es otra cosa, cierre la puerta.",
    "rescate": "Ay, carino, llego justo. Le debo una y yo pago. No en efectivo, pero pago.",
    "gracias": "Eso es, carino. Lo anoto con mi letra mas bonita, que es la de verdad.",
-   "revelacion1": "Eula Keeton, camionera de Rosewood. Mi Peterbilt se llama la Comadreja. La primera noche pase frente a la bomba de la Misia Rosa, la unica luz del pueblo, y no pare.",
+   "revelacion1": "Eula Keeton, camionera de Rosewood. Mi Peterbilt se llama la Comadreja. La primera noche pase frente a la bomba de la Misia Rosa, la unica luz prendida de la calle, y no pare.",
    "revelacion2": "En Louisville firme titulos de autos que no eran de nadie. Bucky Tussey se comio cuatro inviernos de carcel solo. Nunca le escribi una linea. Me daba miedo la letra.",
    "revelacion3": "La Comadreja no esta en Louisville. Esta en el granero del tio Alvis, con medio estanque. Y tengo un salvoconducto de la Guardia con una firma que hice yo. No se lo diga a nadie.",
    "diario_conocer": "Eula Keeton, camionera de Rosewood. Escribe recados para la gente a cambio de latas. Tiene la letra mas linda que he visto y miente con ella.",
@@ -3439,7 +3439,7 @@
    },
    {
     "con": "otro",
-    "que": "Walt Hollis: le compraba el pan todos los dias a las seis; el 10 de julio la panaderia amanecio con llave"
+    "que": "Walt Hollis: le compraba el pan todos los dias a las seis; el 10 de julio a las ocho la panaderia ya estaba con llave"
    }
   ],
   "vive": true,

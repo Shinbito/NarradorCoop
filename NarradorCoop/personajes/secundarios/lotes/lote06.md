@@ -597,7 +597,7 @@ Yo como poco. Sé hacerlo. Es lo único de la pista que me sirve.
 
 ### Monólogo
 
-Esa noche la calle Main ardía abajo, se veía desde mi loma. A las diez y media subieron dos vecinos quemados. Los acosté en la mesa de la cocina y los curé con miel y gasa, como en Phát Diệm. Hartsel estaba en su sillón, con el tanque de oxígeno y el rifle en las rodillas.
+Esa noche la calle Main ardía abajo, se veía desde mi loma. A las once y cuarto subieron dos vecinos quemados. Los acosté en la mesa de la cocina y los curé con miel y gasa, como en Phát Diệm. Hartsel estaba en su sillón, con el tanque de oxígeno y el rifle en las rodillas.
 
 Al más joven le encontré la mordida debajo de la quemadura, en la pantorrilla, a las dos de la mañana. A las tres tenía fiebre. A las cinco se murió. A las cinco y veinte se sentó en mi mesa. Hartsel le disparó desde el sillón sin pararse. Fue lo último que pudo hacer de soldado.
 
@@ -613,7 +613,7 @@ Eso no lo dicen los libros.
 
 ### Ficha "después"
 
-- **Primera noche:** 9 de julio de 1993, de 22:30 al amanecer, en la cocina de su casa en la loma de West Point, con la calle Main ardiendo abajo. Cura a dos quemados con miel; uno estaba mordido, muere y se levanta, y Hartsel le dispara desde el sillón.
+- **Primera noche:** 9 de julio de 1993, de 23:15 al amanecer, en la cocina de su casa en la loma de West Point, con la calle Main ardiendo abajo. Cura a dos quemados con miel; uno estaba mordido, muere y se levanta, y Hartsel le dispara desde el sillón.
 - **Familia:**
   - Marido, Hartsel Cavanaugh: murió el 4 de agosto de 1993, cuando se acabó el oxígeno. Está enterrado debajo de las colmenas.
   - Hija, Grace (Ân) Cavanaugh (Lexington): sin saber; fuera del cordón.
@@ -802,7 +802,7 @@ Ahora tengo miedo de que Shelly vaya sola al Doe Run a preguntar.
 
 ### Monólogo
 
-Esa noche la calle Main se veía roja desde la tienda. A las diez la tía Zelda dijo "al bote". Nos metimos al Ohio en el bote de aluminio, con un termo de café y la treinta-treinta, y anclamos en la mitad del río hasta que salió el sol. Por la orilla caminaban. Ninguno sabe nadar.
+Esa noche la calle Main se veía roja desde la tienda. A las diez y media la tía Zelda dijo "al bote". Nos metimos al Ohio en el bote de aluminio, con un termo de café y la treinta-treinta, y anclamos en la mitad del río hasta que salió el sol. Por la orilla caminaban. Ninguno sabe nadar.
 
 Vivimos de lo mismo de antes. Pescado, ardillas, un venado cuando se puede. Lo faeno yo ahora, mal. Las lombrices siguen vivas en las tinas; la tía dice que van a heredar la tierra.
 
@@ -822,7 +822,7 @@ No sé. Da igual. Es lo único que funciona.
 
 ### Ficha "después"
 
-- **Primera noche:** 9 de julio de 1993, de 22:00 al amanecer, en el bote de aluminio de la tía Zelda, anclado en la mitad del río Ohio frente a West Point, con un termo de café y la treinta-treinta.
+- **Primera noche:** 9 de julio de 1993, de 22:30 al amanecer, en el bote de aluminio de la tía Zelda, anclado en la mitad del río Ohio frente a West Point, con un termo de café y la treinta-treinta.
 - **Familia:**
   - Tía abuela, Zelda Sloan (74): viva, con ella en la tienda de carnada; la artritis no la deja salir.
   - Padre y madre, Dock Napier y Verlie Sloan de Napier (Hyden): sin saber; fuera del cordón.

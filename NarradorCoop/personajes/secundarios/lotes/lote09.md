@@ -891,7 +891,7 @@ Mi hijo Konrad se pasó al otro lado de la mesa y no le hablo desde el 84. Hable
 ## s084 · Charlene Cooksey (Rosewood, camionera)
 
 ### Monólogo
-—El nueve de julio yo iba por la 31 al norte con treinta y ocho novillos de Ekron para la feria del sábado en los corrales. Once y cuarto. Antes de Muldraugh, una barricada de la Guardia con focos y un soldado gritando que me diera vuelta. Detrás de él, en la cuneta, gente tirada. Di vuelta el Peterbilt en tres maniobras, con las vacas cagándose de miedo, y volví a Rosewood. Pasé por la bomba de doña Rosa como a la una. La luz estaba prendida. No paré. Es la única vez en quince años que no paré.
+—El nueve de julio yo iba por la 31 al norte con treinta y ocho novillos de Ekron para la feria del sábado en los corrales. Once y cuarto. Antes de Muldraugh, una barricada de la Guardia con focos y un soldado gritando que me diera vuelta. Detrás de él, en la cuneta, gente sentada, esperando. Di vuelta el Peterbilt en tres maniobras, con las vacas cagándose de miedo, y volví a Rosewood. Pasé por la bomba de doña Rosa como a la una. La luz estaba prendida. No paré. Es la única vez en quince años que no paré.
 
 Solté los novillos en el potrero de mi papá. Con eso ha comido media calle desde julio: uno cada tanto, faenado en el galpón, carne salada.
 
@@ -905,7 +905,7 @@ Un sobre, cariño. Igualito que él. Ni una libra de más.
 
 ### Ficha "después"
 - **Primera noche:** viernes 9 de julio, 23:15, en la 31 al sur de Muldraugh: la Guardia la hace devolverse con 38
-  novillos; pasa frente a la gasolinera BENCINA hacia la 1:00 con la luz prendida y, por única vez, no para.
+  novillos (en la cuneta, gente sentada esperando); pasa frente a la gasolinera BENCINA hacia la 1:00 con la luz prendida y, por única vez, no para.
 - **Familia:**
   - Kristi Hamm (31), en Bowling Green con sus dos hijos (fuera del cordón): sin saber.
   - Rex Hamm, el ex: sin saber.
@@ -1238,7 +1238,7 @@ En septiembre mi mamá se fue con un grupo a Brandenburg, a la farmacia del hosp
 Si mi mamá aparece viva por esa puerta, corazón, yo pierdo dos veces. Y lo peor: hay noches que rezo para que no aparezca.
 
 ### Ficha "después"
-- **Primera noche:** viernes 9 de julio, de la 1:40 a las 7:00, en el comedor del hogar de ancianos Ohio Bend (West
+- **Primera noche:** madrugada del sábado 10 de julio, de la 1:40 a las 7:00, en el comedor del hogar de ancianos Ohio Bend (West
   Point): la señora Ludell se transforma en la pieza 9; las ayudantes huyen; Inez junta a 27 residentes en el comedor y
   les canta hasta el amanecer. A las 8:00 va por Dalton y su madre.
 - **Familia:**

@@ -915,9 +915,8 @@ La logia cumple cincuenta años en marzo. Va a tener caja. Orden en la sala.
 ### Monólogo
 
 —El viernes 9 a las siete y media fui a la oficina de correos de West Point a devolverle a la jefa, la señora Ardena
-Pruden, seis sacos de lona que le había remendado. A las ocho y media sonó la sirena del cuartel y por la vitrina se vio
-la calle Main colorada. La señora Pruden cerró con llave y nos metimos en el cuarto de los sacos, entre los de la ruta
-2, que yo cargué dieciocho años. Toda la noche oímos arder la calle Main: vidrios que reventaban, un perro, gente
+Pruden, seis sacos de lona que le había remendado. A las ocho y media sonó la sirena del cuartel. La señora Pruden cerró con llave y nos metimos en el cuarto de los sacos, entre los de la ruta
+2, que yo cargué dieciocho años. Desde las diez y media oímos arder la calle Main: vidrios que reventaban, un perro, gente
 gritando nombres. El 12 la señora Pruden se fue a Brandenburg, con su hermana.
 
 En julio no podía caminar ni media milla. En la ferretería encontré una bicicleta Schwinn con canasto. Sentada
@@ -938,7 +937,7 @@ De Starla, en Valley Station, no sé nada.
 ### Ficha "después"
 
 - **Primera noche**: viernes 9 de julio, de 20:30 a 6:00, en el cuarto de los sacos de la oficina de correos de West
-  Point, con la jefa de la oficina, la señora Ardena Pruden, oyendo arder la calle Main.
+  Point, con la jefa de la oficina, la señora Ardena Pruden; desde las 22:30, oyendo arder la calle Main.
 - **Familia**
   - Starla (Valley Station, dentro del mapa): sin saber. Es lo primero que le va a pedir al jugador.
   - Kenton (Fort Campbell) y Eldon (Jeffersonville): fuera del cordón, sin saber.
@@ -1187,7 +1186,7 @@ Me queda un inhalador y un cuarto. Cuento las aspiraciones como cuento los compa
 ### Monólogo
 
 —La primera noche cosí once, potrillo. En la mesa de la cocina, con la lámpara de parafina, porque se cortó la luz a las
-nueve. Me traían quemados y cortados de la calle Main, que ardía entera. Fumé el último cartón de Pall
+nueve. Primero me traían cortados; desde las diez y media, quemados de la calle Main, que ardía entera. Fumé el último cartón de Pall
 Mall entero esa noche. Entre punto y punto, una pitada. Pulso firme.
 
 Después vinieron los mordidos, y esos no se cosen. Aprendí a mirarles la fiebre como le miraba las patas a un caballo
@@ -1211,7 +1210,7 @@ De mi Lanny, en Louisville, nada. Cada vez que golpean, pienso que es él.
 ### Ficha "después"
 
 - **Primera noche**: viernes 9 de julio, de 21:00 a 6:00, en la cocina de su casa de la calle Spruce (West Point),
-  cosiendo a once quemados y cortados de la calle Main con lámpara de parafina.
+  cosiendo a once cortados y (desde las 22:30) quemados de la calle Main, con lámpara de parafina.
 - **Familia**
   - Lanny Elam (36, Louisville): sin saber.
   - Judy Elam de Whitcomb (Cincinnati) y sus hijos: fuera del cordón, sin saber.
@@ -1395,8 +1394,8 @@ De Obi y los niños, en Atlanta, nada. Prometió venir en Navidad.
 
 ### Monólogo
 
-—El viernes 9, a las nueve y cuarto, estaba en el patio mirando el cielo, como todas las tardes. Había humo para el norte
-y otro más grande para el lado de West Point. Ese humo no era de pasto.
+—El viernes 9, a las once menos cuarto, salí al patio a mirar el cielo, como todas las tardes. Había humo para el norte
+y otro más grande para el lado de West Point, colorado por abajo. Ese humo no era de pasto.
 
 A las once llegó mi hija Sue Ellen con la guagua, Haley, y con el marido, Troy Pate. Clavé tablones en las ventanas
 hasta las tres. Lois rezaba.
@@ -1418,7 +1417,7 @@ banco.
 
 ### Ficha "después"
 
-- **Primera noche**: viernes 9 de julio, 21:15, en el patio de su casa junto a las vías (punta sur de Muldraugh),
+- **Primera noche**: viernes 9 de julio, 22:45, en el patio de su casa junto a las vías (punta sur de Muldraugh),
   leyendo el humo de West Point; después, clavando tablones en las ventanas hasta las 3:00.
 - **Familia**
   - Lois (51): viva, con él.

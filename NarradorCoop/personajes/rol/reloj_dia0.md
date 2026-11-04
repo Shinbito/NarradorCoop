@@ -1,7 +1,13 @@
 # Reloj del día 0 — jueves 8 a sábado 10 de julio de 1993
 
-Base común para la ronda "¿Qué hacías el día 0?". Editor de continuidad. No cambia ningún archivo del repo: solo junta lo que ya
-está fijado, marca los huecos, los choques y propone cruces.
+Base común para la ronda "¿Qué hacías el día 0?". Editor de continuidad. Junta lo que ya está fijado, marca los huecos, los choques
+y propone cruces.
+
+**Versión 2 (después de la decisión del creador, CANON.md "Dia 0", C:222-228):** a Walt lo paró la barricada sur de la 31 y la
+camioneta quedó en la 31, cerca de la barricada. Cuando choca la hora de un secundario con la de un principal, manda la del
+principal. Con eso se corrigieron los secundarios s014, s026, s030, s042, s054, s058, s062, s066, s069, s072, s079, s084 y s090 (en
+`secundarios/datos/secundarios.json` y en `secundarios/lotes/`). Los números de línea de los lotes citados abajo son los de antes de
+esa corrección y pueden correrse una o dos líneas en lote07. En la sección 4 se marca qué quedó resuelto y qué sigue pendiente.
 
 **Cómo leer las fuentes**
 - `F:cabo:76` = `personajes/fichas/cabo.md`, línea 76. `C:91` = `CANON.md`, línea 91.
@@ -18,7 +24,7 @@ está fijado, marca los huecos, los choques y propone cruces.
 la 31/31W cruza Muldraugh de norte a sur. Al norte de Muldraugh está la barricada de Pereira (entrada norte). Al sur, la
 barricada sur de la Compañía Bravo (Garrity, Ray), que corta la 31 entre Muldraugh y Rosewood: Charlene sube de Rosewood "al
 norte" y la encuentra "antes de Muldraugh" (L09:894). Rosewood queda sobre la 31 (la isla de la bomba mira la 31: F:hector:249).
-La báscula de Earl está en la 31 entre Brandenburg y Muldraugh (F:earl:8). Ver conflicto C6.
+La báscula de Earl está en la 31 entre Brandenburg y Muldraugh (F:earl:8). Confirmado por el creador (C6, resuelto).
 
 ---
 
@@ -68,12 +74,12 @@ La báscula de Earl está en la 31 entre Brandenburg y Muldraugh (F:earl:8). Ver
 | 22:05 | La 31 pasado el cruce de Ekron | Flossie atropella al chofer transformado de un Chevy y se encierra en la litera; oye cómo se calla el canal 19. (p) | L02:675 |
 | 22:15 | **Canal 19** | Thelma habla por última vez con **Bobby Lee Tackett**, mordido, que va camino a lo de Rosa. El canal está lleno: el "Pato Rengo" grita que en Louisville la gente se come en la calle, otros que **la Guardia cortó el puente**, uno reza sin soltar el botón. (P: lo oye cualquiera con CB) | L03:624 · R2:849 · R2:608 · F:duarte:230 |
 | 22:40 | Trampa de velocidad, entrada sur de Rosewood (la 31) | Ora Click mata al chofer transformado de un Buick y lo anota en el libro rojo. (p) | L02:871 |
-| ~23:00 | **Calle Main, West Point** | La ferretería Haskins arde (una camioneta metida en la vitrina; la pintura y la parafina revientan). El fuego pasa a la casa de Irma y a la de la Chela. **Arde la calle Main entera y nadie la apaga.** Se ve desde la loma, desde el río y desde Muldraugh. Olor a goma y a pelo quemado. (P) — hora de inicio en C4 | R2:72-74 · F:chela:15 · F:chela:71 · L01:587 · L09:1011 · L10:1122 |
+| ~23:00 | **Calle Main, West Point** | La ferretería Haskins arde **desde las 22:30** (una camioneta metida en la vitrina; la pintura y la parafina revientan). El fuego pasa a la casa de Irma y a la de la Chela. **Arde la calle Main entera y nadie la apaga.** Se ve desde la loma, desde el río y desde Muldraugh. Olor a goma y a pelo quemado. (P) — C4, resuelto | R2:72-74 · F:chela:15 · F:chela:71 · L01:587 · L09:1011 · L10:1122 |
 | 23:00 | Calle Hill, Muldraugh | **Suena la sirena de la comisaría** y alguien grita por el megáfono. Ezra Freeman cruza la calle Hill con Mattie en silla de ruedas y abre con sus llaves viejas de conserje el gimnasio de la secundaria: al amanecer son 23. (P) | L02:902 · L02:916 · L09:1176 |
 | 23:00 | 31W, Muldraugh | Un soldado mordido se lleva un auto del taller de Whisman; otro se sube a la pantalla del autocine Starlite y cae transformado al amanecer. (p) | L03:677 · L03:462 |
 | 23:00 | Preston Highway, Louisville | Choque de un Oldsmobile contra un poste (el de la camisa de bolos). El University Hospital está desbordado: gente gritando en el estacionamiento, camillas en la vereda. (P en Louisville) | F:eduardo:302 · R2:303-305 |
 | 23:10 | Logia de los Elks, ruta 31 (Muldraugh) | Waylon Damron sale por la cocina con el mazo y la caja del fondo de viudas; nueve quedan arriba. (p) | L07:869 |
-| 23:15 | La 31 antes de Muldraugh (viniendo de Rosewood) | **Barricada de la Guardia** con focos: un soldado hace devolverse a Charlene Cooksey con 38 novillos. En la cuneta hay gente (ver C5). (p) | L09:894 |
+| 23:15 | La 31 antes de Muldraugh (viniendo de Rosewood) | **Barricada de la Guardia** con focos: un soldado hace devolverse a Charlene Cooksey con 38 novillos. En la cuneta, gente sentada, esperando: los que a la 1:00 serán los 40 (C3, resuelto). (p) | L09:894 |
 | 23:40 | Río Salt, West Point | Sybil Hall hace su primer disparo, a un mayor del Fuerte al que había guiado. (p) | L01:1019 |
 | **23:50** | **Patio de los patrulleros, comisaría** | Sale por la puerta de atrás una fila de **once** agachados, contados en voz alta; el Cabo al final. Puerta y portón del patio quedan abiertos. Esa noche los once duermen en la casa del Cabo, a cuatro cuadras. (p: los once lo cuentan; Pereira lo vio) | R2:382 · F:cabo:79-80 · C:160 |
 | esa noche | Comisaría | El comisario Bishop se sube al camión de la Guardia. (p: lo vio el Cabo) | F:cabo:104 · F:pereira:415 |
@@ -107,14 +113,16 @@ La báscula de Earl está en la 31 entre Brandenburg y Muldraugh (F:earl:8). Ver
 | 03:30 | Panadería Hollis | Yvonne entra como siempre. **Tomás no llega**, por primera vez en un año. (p) | F:yvonne:174 · C:132 |
 | 05:00 | Panadería Hollis | Walt le da los bollos a Forrest Stanfill: "Tom no llegó hoy, Forrest. ¿Lo viste?" (p) | L07:1262 · L07:1304 |
 | 06:00 | Panadería Hollis | Entra el cartero, el señor Purdy, mordido por su mujer. (p) | F:yvonne:175 |
-| 07:20 | Panadería Hollis | Purdy se levanta distinto; Walt lo mata con la pala del horno y lo muerden en el brazo. Se envuelve con el delantal: "Cierra tú, Yvonne. Voy por Linda". Sale en la **camioneta blanca con un pan pintado en la puerta** hacia Rosewood. Las bandejas de las seis se queman; Yvonne saca la Vieja y cierra con llave. (p) — ver C3 | F:yvonne:175-177 · C:184 · R4:2273 |
+| 07:20 | Panadería Hollis | Purdy se levanta distinto; Walt lo mata con la pala del horno y lo muerden en el brazo. Se envuelve con el delantal: "Cierra tú, Yvonne. Voy por Linda". Hacia las 7:30 sale en la **camioneta blanca con un pan pintado en la puerta**, "hacia Rosewood"; la camioneta deja Riverside recién en la tarde (C1, resuelto). Las bandejas de las seis se queman; Yvonne saca la Vieja y cierra con llave. (p) | F:yvonne:175-177 · C:184 · R4:2273 |
 | mañana | Iglesia de piedra | Ike Justice llega a la iglesia abierta; el Padre lo pone a cargar agua y lo anota: "Ike Justice, 10 de julio, cargó agua". (p) | L01:645 |
 | desde la mañana | Isla de la bomba, Rosewood | Héctor Jr. pasa **todo el día** mirando la 31: no ve pasar la camioneta blanca. (p) | F:hector:249 · F:rosa:376 · R4:2180 |
 | mañana | Louisville | Keisha Brown sale al turno doble del University Hospital y no vuelve. Hartmann, con tos, entra al Hospital Mercy ("soy el doctor Hartmann") y se encierra en el sótano. Toño Ibarra, con el overol "Eddie", saca a la familia Stroud del paso bajo nivel de Preston Highway. (P en Louisville la historia de "Eddie Giovanns") | F:valentina:140 · F:hartmann:154 · F:eduardo:290 · F:eduardo:338 |
 | día | La 31 cerca de Ekron | Daniel Bell ve a un hombre de rodillas en la berma, comiendo. (p) | F:daniel:50 · R2:669 |
 | día | Barricada de Brandenburg | La mujer y los dos hijos de Nolan Sturgill mueren en un choque tratando de salir (se sabe el 18 por radio). (p) | L02:811 |
-| tarde | Riverside | Cletus Gabbard ve pasar la camioneta blanca hacia la 31, zigzagueando. (p) — ver C3 | L08:1056 |
+| 08:00 | Panadería Hollis | Cletus Gabbard va por el pan, tarde por primera vez: la Hollis ya está con llave. (p) | L08:1056 |
+| tarde | Riverside | Cletus ve pasar la camioneta blanca hacia la 31, zigzagueando. (p) — C1, resuelto | L08:1056 · C:223 |
 | **16:00-17:00** | **La 31 a la salida de Muldraugh** | El Cabo, llevando a los once al aserradero, ve pasar **hacia el sur, zigzagueando**, la camioneta blanca del pan pintado. No ve quién maneja. (p) | F:cabo:242 · R4:1409 · F:nacho:172 |
+| después de las 17:00 | **Barricada sur de la 31** | La barricada no deja pasar a la camioneta del pan; la camioneta queda en la 31, cerca de la barricada. (p: lo ven los soldados de Garrity) Qué fue de Walt no está decidido. | C:223-226 |
 | tarde | Aserradero de la ruta 31 | El aserradero está **vacío**: el sereno se fue al amanecer. Los once se instalan en el galpón de secado. (p) | C:151 · C:160 · F:cabo:80 · R3:206 |
 | noche del 10 | Riverside, casa del porche verde | Primera noche de los Bell: 88 clavos, 17 disparos. (p) | F:daniel:50 · F:wade:318 |
 
@@ -353,11 +361,11 @@ Pueblo y oficio salen de `datos/secundarios.json`; la primera noche, de la líne
 | s051 | Ned Perkins | Riverside | electricista | porche, curva del molino; apaga la luz · 23:00 | Nacho · (+ Delbert Moody) | L06:467 |
 | s052 | Nadine Yonts | Rosewood | policia | cocina del gimnasio de la primaria (bingo, 23 personas) · 21:40-4:00 | Rosa, Pereira | L06:517 |
 | s053 | Emmett Stamper | Muldraugh | profesora | saca a los Blanton por la ventana · 23:15 | Gladys, Valentina | L06:567 |
-| s054 | Thuy Cavanaugh | West Point | enfermera | su cocina en la loma, quemados de la Main · 22:30-amanecer | Chela | L06:616 |
+| s054 | Thuy Cavanaugh | West Point | enfermera | su cocina en la loma, quemados de la Main · 23:15-amanecer | Chela | L06:616 |
 | s055 | Ralph Spencer | Riverside | cocinera | plancha del Vesta's Kitchen, calle principal · 22:15; 3 días arriba | Reyes · (+ Walt Hollis) | L06:664 |
 | s056 | Hester Tolliver | Rosewood | pastora | capilla metodista de Sardis, toca la campana · 23:00-amanecer | Rosa, Reyes | L06:719 |
 | s057 | Benny Watts | Muldraugh | carpintero | cancha de sóftbol de la secundaria · 21:30; taller 2:00 | Cabo | L06:773 |
-| s058 | Maxine Sloan | West Point | cazador | bote en medio del Ohio frente a West Point · 22:00-amanecer | Chela | L06:825 |
+| s058 | Maxine Sloan | West Point | cazador | bote en medio del Ohio frente a West Point · 22:30-amanecer | Chela | L06:825 |
 | s059 | Quincy Wisniewski | Riverside | granjero | patio de su granja, Ivo Goins · 23:30 | Yvonne, Nacho | L06:876 |
 | s060 | Kay Harmon | Rosewood | camionero | detrás del molino, salida a la 31, en la litera · 23:40 | Rosa, Earl | L06:928 |
 | s061 | Waylon Damron | Muldraugh | mecanico | logia de los Elks (ruta 31) 20:00-23:10; fosa de Damron Garage | Cabo · (+ Bishop) | L07:869 |
@@ -368,7 +376,7 @@ Pueblo y oficio salen de `datos/secundarios.json`; la primera noche, de la líne
 | s066 | Reba Elam | West Point | enfermera | su cocina, calle Spruce, cose quemados de la Main · 21:00-6:00 | Chela, Pereira | L07:1213 |
 | s067 | Forrest Stanfill | Riverside | cocinera | plancha del Bluebird Grill · 22:00-5:00; 5:00 bollos de Walt | Yvonne · (+ Walt / Tom) | L07:1283 |
 | s068 | Beulah Okonkwo | Rosewood | pastora | mecedora del porche, calle principal · 21:00-6:00 | Rosa | L07:1355 |
-| s069 | Homer Reynolds | Muldraugh | carpintero | patio junto a las vías (punta sur) · 21:15; tablones hasta 3:00 | Cabo · (+ Legión) | L07:1421 |
+| s069 | Homer Reynolds | Muldraugh | carpintero | patio junto a las vías (punta sur) · 22:45; tablones hasta 3:00 | Cabo · (+ Legión) | L07:1421 |
 | s070 | Imogene Pham | West Point | cazador | camino a la hondonada del río Salt · 1:00 del sábado | Chela | L07:1490 |
 | s071 | Rollie Dixon | Riverside | granjero | potrero de la granja Dixon · 23:00 | Nacho · (+ Delbert Moody) | L08:615 |
 | s072 | Eula Keeton | Rosewood | camionero | cabina de la Comadreja, calle principal → Ekron · 22:00-1:00 (pasa la bomba sin parar) | Rosa | L08:670 |
@@ -463,7 +471,7 @@ además tienen lazo en sus datos con ese principal.
 
 ---
 
-## 4. Conflictos de continuidad (con propuesta; no se tocó ningún archivo)
+## 4. Conflictos de continuidad (con propuesta y estado)
 
 Ordenados por importancia para la ronda.
 
@@ -474,7 +482,10 @@ Ordenados por importancia para la ronda.
   entró a las 6:00), y la camioneta sale de Riverside en la tarde, no a las 7:30.
 - El Cabo la ve a las 16:00-17:00 a la salida de Muldraugh, hacia el sur (F:cabo:242). Héctor no la ve pasar por la isla en todo el día
   (F:hector:249) y deduce que "no pasó por la 31" (F:yvonne:259 · R4:2180).
-- **Propuesta:** dejar que Walt salga de la panadería a las 7:30, pero que la camioneta recién deje Riverside **en la tarde** (con fiebre:
+- **RESUELTO (creador, C:222-226).** Se aplicó la propuesta: Walt sale de la panadería hacia las 7:30 y la camioneta deja Riverside en la
+  tarde; la barricada sur la para y queda en la 31, cerca de la barricada. s079 Cletus cambiado: va por el pan **a las 8:00** (lote08,
+  monólogo y "Su gente"; JSON, lazo con Walt: "el 10 de julio a las ocho la panaderia ya estaba con llave"). La propuesta original era:
+  dejar que Walt salga de la panadería a las 7:30, pero que la camioneta recién deje Riverside **en la tarde** (con fiebre:
   pasa por su casa, por la de Linda o se queda sentado en la cabina; eso lo decide el creador o la ronda). Así calzan Cletus ("esa
   tarde") y el Cabo (16-17 h). Cambiar la hora de Cletus de "a las seis" a "a las ocho" (después de que Yvonne cerró). La frase de
   Héctor queda como **creencia del personaje** ("no pasó por la isla"), no como hecho: él no sabe lo que vio el Cabo. No decidir el
@@ -484,13 +495,15 @@ Ordenados por importancia para la ronda.
 - F:ray:263-264 y R4:565: **1:00 del sábado 10**; Pope mordido a las 4:00 del 10. C:123 y R2:392: "la segunda noche".
 - R3:3419: "la noche del 10 al 11 de julio, a las 4:00"; R3:3237: "la segunda noche de Ray es el 10". Si el cordón empieza el 9 en la
   tarde, la 1:00 del 10 es la *primera* noche, no la segunda.
-- **Propuesta:** fijar la 1:00 del sábado 10 (lo dicen la ficha y Pereira en la ronda 4) y explicar "segunda noche **del cordón**": la
+- **PENDIENTE** (es entre principales y notas de la ronda 3; no se tocó). **Propuesta:** fijar la 1:00 del sábado 10 (lo dicen la ficha y Pereira en la ronda 4) y explicar "segunda noche **del cordón**": la
   Compañía Bravo tomó posiciones la noche del jueves 8, cuando activaron a la PM (F:pereira:364), en un cordón "silencioso" que nadie
   en Knox notó. Marcar R3:3419 como error de nota.
 
 **C3. Charlene ve "gente tirada" en la barricada sur a las 23:15, antes de la balacera de la 1:00.**
 - L09:894: "Once y cuarto. Antes de Muldraugh, una barricada… Detrás de él, en la cuneta, gente tirada."
-- **Propuesta:** cambiar "gente tirada" por "gente sentada en la cuneta, esperando". Son los civiles que se van juntando y que a la 1:00
+- **RESUELTO.** s084 Charlene cambiado en lote09 (monólogo: "en la cuneta, gente sentada, esperando"; ficha "Primera noche"). En el JSON
+  no estaba. Ojo: `datos/piezas.json` (línea ~16299) tiene una pieza de primera noche con "habia gente tirada" en la cuneta; no la toqué
+  (piezas fuera de alcance), conviene cambiarla igual. La propuesta era: cambiar "gente tirada" por "gente sentada en la cuneta, esperando". Son los civiles que se van juntando y que a la 1:00
   serán los 40 (F:ray:263). El choque se vuelve un cruce (idea 7).
 
 **C4. ¿Cuándo empezó a arder la calle Main de West Point?**
@@ -500,13 +513,16 @@ Ordenados por importancia para la ronda.
   ve la Main roja **a las 22:00** (L06:805); Thuy recibe quemados **a las 22:30** (L06:600); Reba cose quemados de la Main desde las 21:00
   (L07:1190).
 - Una bombera de turno a cinco cuadras no puede ver el fuego dos horas tarde.
-- **Propuesta:** la camioneta se mete en la vitrina de la Haskins **hacia las 22:30**; a las 23:00 el fuego pasa a la casa de Irma y la
+- **RESUELTO: la Main arde desde las 22:30.** Cambiados en los lotes: s026 Lan (el resplandor a las 22:30, después de la llamada de
+  Truett), s030 Etta (maneja con la sirena del cuartel; la Main arde después), s054 Thuy (quemados a las 23:15), s058 Maxine (al bote a las
+  22:30), s062 Goldie (la sirena a las 20:30, el fuego se oye desde las 22:30), s066 Reba (primero cortados, quemados desde las 22:30), s069
+  Homer (22:45) y s014 Minnie (mira arder desde las 22:30). Ninguno tenía la hora en los textos del JSON. La propuesta era: la camioneta se mete en la vitrina de la Haskins **hacia las 22:30**; a las 23:00 el fuego pasa a la casa de Irma y la
   Chela corre. Ajustar Lan (21:00 → 22:30), Homer (21:15 → 22:45), Maxine (22:00 → 22:30) y Thuy (22:30 → 23:15). Reba puede coser
   cortados desde las 21:00, pero los quemados llegan después de las 22:30.
 
 **C5. Vargas ve pasar "los camiones de la Guardia hacia la comisaría" a las 23:00.**
 - R2:787 (Vargas). El Cabo y Pereira: un camión a las **21:30** (R2:13 · R2:376). La ficha de Vargas no da hora.
-- **Propuesta:** lo de las 23:00 es **otro convoy**: el que baja por la 31 a reforzar la barricada sur (la de Garrity, C2/C3). Así
+- **PENDIENTE** (entre principales). **Propuesta:** lo de las 23:00 es **otro convoy**: el que baja por la 31 a reforzar la barricada sur (la de Garrity, C2/C3). Así
   calzan Vargas, Charlene (23:15) y Ray (1:00).
 
 **C6. La geografía de la 31 (Muldraugh, Rosewood, Riverside, la báscula).**
@@ -514,56 +530,58 @@ Ordenados por importancia para la ronda.
   a Rosewood y el Cabo lo ve en la 31 al sur de Muldraugh (F:cabo:242): o sea, el camino Riverside → Rosewood pasa por Muldraugh. Earl
   va "al café de las tres" y se esconde en la báscula **entre Brandenburg y Muldraugh** (F:earl:8, 49): venía por el oeste.
 - El Cabo mismo pidió cruzar su avistamiento "con el Narrador: si la ruta de Walt no pasa por Muldraugh, se borra" (R4:1439).
-- **Propuesta:** fijar un mapa simple para la ronda: Riverside → (camino del río) → Muldraugh → la 31 al sur → barricada sur → Rosewood.
-  Consecuencia: la camioneta de Walt, a las 16-17 h del 10, iba derecho hacia la barricada sur. Si eso explica por qué "nunca llegó" lo
-  decide el creador; no se escribe en la ronda.
+- **RESUELTO (creador).** El mapa queda así: Riverside → Muldraugh → la 31 al sur → barricada sur → Rosewood. A Walt lo paró la barricada sur;
+  la camioneta quedó en la 31, cerca de la barricada (C:223-226). Héctor sigue creyendo que "no pasó por la 31": es lo que él cree. Qué fue
+  de Walt después de la barricada sigue sin decidir.
 
 **C7. La primera noche de los Bell es el 10, pero Riverside ardió el 9.**
 - Daniel, Yvonne y Wade: primer contacto el sábado 10 (F:daniel:50 · R3:2127). Ese mismo viernes en Riverside: se apaga la calle Front
   (20:15), la radio dice "no salgan" (21:10), cae la carpa de Reyes, el Chato de Duggan, el viejo Quarles, la red se corta a las 3:10.
   Y Yvonne va igual a trabajar a las 3:30 del sábado, y Daniel sale a vender pólizas.
-- **Propuesta:** no es contradicción dura, pero hay que escribir el porqué: la casa del porche verde está en una orilla tranquila; la
+- **PENDIENTE** (entre principales; se llena en la ronda). **Propuesta:** no es contradicción dura, pero hay que escribir el porqué: la casa del porche verde está en una orilla tranquila; la
   noche del 9 la leen como un apagón y "disturbios en Louisville"; Daniel calcula "las probabilidades" y manda a todos a dormir. Llenar
   ese hueco en la ronda (Daniel h2, Yvonne h1, Wade h2).
 
 **C8. ¿Qué luces había en Rosewood esa noche?**
 - Eula: la bomba era "la única luz prendida del pueblo" (L08:656). Pero en Rosewood la luz se corta recién en agosto (R2:219 · F:hector:260),
   y esa noche funcionan la policía, el gimnasio del bingo y las iglesias.
-- **Propuesta:** la gente apagó sus luces para no llamar a los muertos (como Ned en Riverside, L06:467, y como Rosa entiende "después",
+- **RESUELTO** cambiando al secundario: s072 Eula dice ahora "la única luz prendida de la calle; los demás habíamos apagado todo" (lote08) y
+  en revelacion1 "la unica luz prendida de la calle" (JSON y lote08). La lectura: la gente apagó sus luces para no llamar a los muertos (como Ned en Riverside, L06:467, y como Rosa entiende "después",
   R2:213). La bomba es la única luz **de negocio prendida a propósito**.
 
 **C9. ¿Cuándo se fue Linda Hollis a Louisville?**
 - Rosa en R2:217: "el sábado anterior" (sábado 3). Héctor en R2:606: "una semana después" del 30 de junio, con "Vuelvo el domingo". Las
   fichas: "la semana del brote" (F:rosa:256 · F:hector:243).
-- **Propuesta:** miércoles 7 de julio en la mañana, en su camioneta, con vuelta prometida para el domingo 11. Borrar lo del "sábado
+- **PENDIENTE** (entre principales). **Propuesta:** miércoles 7 de julio en la mañana, en su camioneta, con vuelta prometida para el domingo 11. Borrar lo del "sábado
   anterior".
 
 **C10. Dónde estaba Kell cuando mordieron a Ballard.**
 - R2:807-809: cambiando sábanas en la pieza 14 cuando el de la pieza 9 muerde al gerente; baja por la escalera de atrás. La ficha: Ballard
   la echó **a las 16:00** (F:kell:175, 231).
-- **Propuesta:** después de comprar el bidón se queda en la bomba de la 31W, frente al motel (o vuelve a buscar su último sobre de pago)
+- **PENDIENTE** (ronda 2 contra ficha de principal). **Propuesta:** después de comprar el bidón se queda en la bomba de la 31W, frente al motel (o vuelve a buscar su último sobre de pago)
   y desde ahí ve lo del Pontiac. Se borra lo de la pieza 14.
 
 **C11. CANON contra CANON: la oficina del aserradero.**
 - C:102-104 todavía dice que Vargas encierra a cuatro en la oficina y que el Cabo encuentra la oficina "con llave y golpes adentro". C:151 y
   C:160 lo borran: el aserradero estaba **vacío**. La ficha de Vargas sigue la versión nueva (F:vargas:65).
-- **Propuesta:** marcar C:102-104 como reemplazado. Para la ronda: los cuatro que pagaron se fueron por su cuenta durante la mañana del 10
+- **PENDIENTE** (es del CANON). **Propuesta:** marcar C:102-104 como reemplazado. Para la ronda: los cuatro que pagaron se fueron por su cuenta durante la mañana del 10
   (hueco de Vargas 4).
 
 **C12. Eduardo "amarrado por Toño tres días", pero Toño muere el 10.**
 - F:eduardo:289, 302 (fiebre del 9 al 12, amarrado por Toño) contra F:eduardo:338-339 (el 10 Toño saca a los Stroud, lo muerden y se
   encierra en la lavandería).
-- **Propuesta:** Toño lo amarra la noche del 9 y lo deja así; el 10 sale con la grúa. Eduardo pasa amarrado y solo el 11 y el 12. Es solo
+- **PENDIENTE** (redacción de una ficha de principal). **Propuesta:** Toño lo amarra la noche del 9 y lo deja así; el 10 sale con la grúa. Eduardo pasa amarrado y solo el 11 y el 12. Es solo
   redacción.
 
 **C13. Bobby Lee: medianoche o las 2:00.**
 - R2:215 (Rosa): "A las dos de la mañana entró Bobby Lee". C:91 lo corrigió: "cerca de la medianoche"; a las 2:00 es Merle. Thelma habló con
   él a las 22:15 (L03:624).
-- **Propuesta:** en la ronda, Bobby Lee llega **~0:00** y Merle a las **2:00**. Nadie use la hora de la ronda 2.
+- **Ya lo resolvía el CANON** (C:91); solo hay que no usar la ronda 2. **Propuesta:** en la ronda, Bobby Lee llega **~0:00** y Merle a las **2:00**. Nadie use la hora de la ronda 2.
 
 **C14. Fechas de los secundarios "viernes 9, 1:00".**
 - Varios secundarios fechan la madrugada como "viernes 9" (s042 a las 2:15, s070 a la 1:00, s090 desde la 1:40). Es el sábado 10.
-- **Propuesta:** en la ronda, escribir siempre "la madrugada del sábado 10" para lo que pase después de medianoche.
+- **RESUELTO en las fichas:** s042 Sadie y s090 Inez dicen ahora "madrugada del sábado 10" en su "Primera noche" (lote05, lote09); s070
+  ya lo decía. En la ronda, escribir siempre "la madrugada del sábado 10" para lo que pase después de medianoche.
 
 ---
 
@@ -626,6 +644,8 @@ Cada idea: cuándo, quiénes, qué pasa, y por qué no rompe nada (lo que cada u
   Ray no dispara (F:ray:263). 6:00: Chester le muestra la foto de Delia a "un muchacho de la Guardia" mientras queman los cuerpos con
   diésel, y ve a un soldado sin casco entrar al maizal hacia el norte (L01:745 · F:ray:265).
 - Homer, en la punta sur de Muldraugh, oye la balacera desde su patio (L07:1421).
+- Y la tarde del 10, la misma barricada para la camioneta del pan, que queda en la 31 a la vista de los soldados (C:223-226). Chester o
+  Charlene, si vuelven a pasar, pueden haberla visto estacionada ahí, sin saber de quién es.
 - No rompe nada: Chester no sabe quién es el soldado; Ray no sabe de Charlene ni de Chester; el cambio de placas no lo ve nadie. El destino
   de Ruark no se toca (solo que esa noche había patrullas de Rosewood en la 31).
 
@@ -660,7 +680,7 @@ Cada idea: cuándo, quiénes, qué pasa, y por qué no rompe nada (lo que cada u
   el bus de las 5:40 pasó o no**: un dato público que acota el gancho "El de las 5:40" sin decidir nada sobre Tomás.
 - 7:20: Walt sale mordido (F:yvonne:176). Tarde: Cletus ve la camioneta hacia la 31 (C1). 16-17 h: el Cabo la ve al sur de Muldraugh
   (F:cabo:242). Todo el día: Héctor en la isla sin verla (F:hector:249). Daniel vuelve de Ekron esa tarde por la 31 (hueco 4).
-- No rompe nada: cada uno tiene un pedazo. Solo el Padre los junta (sabe lo del Cabo, F:nacho:129). El final de Walt queda abierto.
+- No rompe nada: cada uno tiene un pedazo. Solo el Padre los junta (sabe lo del Cabo, F:nacho:129). Lo que sí está decidido: la barricada sur paró la camioneta (C:223-226). Qué fue de Walt sigue abierto.
 
 **12. [DÍA 0 y DESPUÉS] El camino que Duarte no tomó.**
 - 22:00-5:30: Thelma entra a Knox **desde Valley Station** hasta Rosewood por caminos del condado, con las luces apagadas (L03:624). Esa misma

@@ -713,7 +713,7 @@ Con tinta, amigazo. Ahora es verdad."
 ## s026 · Lan Turpin (West Point, costurera)
 
 ### Monólogo
-"La noche del 9 le estaba haciendo los ruedos al pantalón de gala del jefe Booker, dos dedos más largo, como siempre, para que no le vieran los calcetines de colores. A las nueve vi el resplandor de la calle Main por la ventana, rojo como forro de ataúd. A las diez sonó el teléfono. Truett, desde Elizabethtown: 'Mamá, no salga, cierre todo, mañana voy'. Le dije: 'Hilvanado nomás, mijo, no prometa'. Fue la última vez que oí su voz. Me quedé cosiendo hasta las cuatro, con la nitroglicerina debajo de la lengua, porque si paraba las manos se me paraba el corazón. Lo terminé. El jefe nunca vino a buscarlo. Sigue colgado en mi puerta, planchado.
+"La noche del 9 le estaba haciendo los ruedos al pantalón de gala del jefe Booker, dos dedos más largo, como siempre, para que no le vieran los calcetines de colores. A las diez sonó el teléfono. Truett, desde Elizabethtown: 'Mamá, no salga, cierre todo, mañana voy'. Le dije: 'Hilvanado nomás, mijo, no prometa'. Fue la última vez que oí su voz. A las diez y media vi el resplandor de la calle Main por la ventana, rojo como forro de ataúd. Me quedé cosiendo hasta las cuatro, con la nitroglicerina debajo de la lengua, porque si paraba las manos se me paraba el corazón. Lo terminé. El jefe nunca vino a buscarlo. Sigue colgado en mi puerta, planchado.
 
 Ahora coso mortajas. Sábanas de la gente, con vuelta doble y punto atrás. Me traen al muerto, o la medida, y yo coso. En el ruedo, por dentro, le bordo las iniciales en punto de cruz, hilo azul. Como me enseñó la otra sin enseñarme.
 
@@ -724,7 +724,7 @@ El sobre de Frankfort sigue en la lata de galletas danesas, con los alfileres. S
 ¿Sabe dónde queda el hogar de ancianos de Brandenburg? Diez millas por el río. Por si alguna vez tiene que ir a buscar hilo para allá. Pregunte nomás quién sigue viva. Una señora de noventa y dos, de apellido Rowlett. Por curiosidad, mi alma. Hilvanado nomás."
 
 ### Ficha "después"
-- **Primera noche:** viernes 9 de julio, de las 21:00 a las 4:00, en su sala de la calle Locust (West Point), haciéndole los ruedos al pantalón de gala del jefe Virgil Booker, con la nitroglicerina debajo de la lengua, mirando el resplandor de la calle Main. A las 22:00, la última llamada de Truett.
+- **Primera noche:** viernes 9 de julio, de las 21:00 a las 4:00, en su sala de la calle Locust (West Point), haciéndole los ruedos al pantalón de gala del jefe Virgil Booker, con la nitroglicerina debajo de la lengua. A las 22:00, la última llamada de Truett; desde las 22:30, el resplandor de la calle Main.
 - **Su gente:**
   - Truett (43), Darlis y las nietas Kim (17) y Amber (14), en Elizabethtown: sin saber (fuera del cordón). Truett prometió ir "mañana".
   - Cora Mae Rowlett (92): su madre biológica, según el sobre de Frankfort. En 1991 vivía en el hogar de ancianos del condado Meade, en Brandenburg. Sin saber.
@@ -920,7 +920,7 @@ No lo vendí, joven. Desde agosto cuelga de la cadena un soldado de la Guardia, 
 ### Monólogo
 "Respire. Así. La primera noche yo estaba tomándole la presión a don Arvis Pelley, ochenta y un años, en su sillón reclinable, con el noticiero de Louisville prendido. Ciento ochenta sobre cien. A las nueve y cuarenta se le fue la cabeza para el lado y se murió, así de simple, con el brazalete puesto. Le busqué el pulso en el cuello. Nada. Anoté la hora, porque eso se hace. A las nueve y cincuenta y dos abrió los ojos. Le dije 'don Arvis, quédese tranquilo', con mi voz de enfermera. Se me vino encima con el brazalete colgando. Salí por la cocina. Me dejé el maletín.
 
-Manejé las cuatro cuadras hasta la casa de la señora Velma entre el humo de la calle Main. Ella estaba en camisa de dormir, sentada en el suelo al lado del piano. '¿Es la guerra, Etta?' Le conté el pulso toda la noche. Setenta y dos, setenta y dos. El mío no lo conté.
+Manejé las cuatro cuadras hasta la casa de la señora Velma con la sirena del cuartel sonando. La calle Main empezó a arder más tarde, cuando ya estábamos adentro. Ella estaba en camisa de dormir, sentada en el suelo al lado del piano. '¿Es la guerra, Etta?' Le conté el pulso toda la noche. Setenta y dos, setenta y dos. El mío no lo conté.
 
 Vivo con ella. Hago las rondas a pie, con un maletín de la farmacia: presiones, curaciones, pies de diabéticos. Me pagan con frascos de okra, leña, huevos. La Chela me cambia agua hervida por yodo. Esa mujer no se deja curar nada, pero cuenta los platos.
 

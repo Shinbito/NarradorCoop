@@ -771,7 +771,7 @@ Ya pasó el 1 de noviembre. Siéntate derecho.
 
 ### Ficha "después"
 
-- **Primera noche**: viernes 9 de julio, de las 21:00 al amanecer, en el entretecho de su casa de la calle Pine (West Point), con la Singer, el vestido de Jolie Barr y la caja de galletas, mirando arder la calle Main.
+- **Primera noche**: viernes 9 de julio, de las 21:00 al amanecer, en el entretecho de su casa de la calle Pine (West Point), con la Singer, el vestido de Jolie Barr y la caja de galletas; desde las 22:30, mirando arder la calle Main.
 - **Su gente**
   - Elwood, Lum y Bertha: muertos antes del brote.
   - Dovie, Ronald Tharp y los nietos (Okolona, Louisville): sin saber.

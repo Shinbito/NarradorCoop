@@ -653,7 +653,7 @@ Mire, joven. En el bolsillo de la camisa ando con dos cartuchos aparte. Uno tien
 
 ### Monólogo
 
-A las diez de la noche mi mamá no podía sostener el teléfono, de tanto que le temblaban las manos. La radio decía "quédense en sus casas". Yo nunca he hecho caso a la radio, cariño. Desenganché el remolque, subí a mi mamá a la cabina de la Comadreja con su Biblia y su almohada, y salí por la calle principal de Rosewood tocando la bocina para que se corrieran. Pasé frente a la bomba de los Bencina. Era la única luz prendida del pueblo. No paré. Todavía me pregunto por qué.
+A las diez de la noche mi mamá no podía sostener el teléfono, de tanto que le temblaban las manos. La radio decía "quédense en sus casas". Yo nunca he hecho caso a la radio, cariño. Desenganché el remolque, subí a mi mamá a la cabina de la Comadreja con su Biblia y su almohada, y salí por la calle principal de Rosewood tocando la bocina para que se corrieran. Pasé frente a la bomba de los Bencina. Era la única luz prendida de la calle; los demás habíamos apagado todo. No paré. Todavía me pregunto por qué.
 
 Llegamos a la granja del tío Alvis, en Ekron, a la una. El tío estaba en el porche con la escopeta y los perros. "Sabía que ibas a venir manejando", me dijo.
 
@@ -696,7 +696,7 @@ En Rosewood todos preguntan quién tiene algo con ruedas. Yo digo que la Comadre
 - llegada: Vaya, cara nueva. Si viene a pedir que le escriba algo, cobro en latas. Si es otra cosa, cierre la puerta.
 - rescate: Ay, carino, llego justo. Le debo una y yo pago. No en efectivo, pero pago.
 - gracias: Eso es, carino. Lo anoto con mi letra mas bonita, que es la de verdad.
-- revelacion1: Eula Keeton, camionera de Rosewood. Mi Peterbilt se llama la Comadreja. La primera noche pase frente a la bomba de la Misia Rosa, la unica luz del pueblo, y no pare.
+- revelacion1: Eula Keeton, camionera de Rosewood. Mi Peterbilt se llama la Comadreja. La primera noche pase frente a la bomba de la Misia Rosa, la unica luz prendida de la calle, y no pare.
 - revelacion2: En Louisville firme titulos de autos que no eran de nadie. Bucky Tussey se comio cuatro inviernos de carcel solo. Nunca le escribi una linea. Me daba miedo la letra.
 - revelacion3: La Comadreja no esta en Louisville. Esta en el granero del tio Alvis, con medio estanque. Y tengo un salvoconducto de la Guardia con una firma que hice yo. No se lo diga a nadie.
 - diario_conocer: Eula Keeton, camionera de Rosewood. Escribe recados para la gente a cambio de latas. Tiene la letra mas linda que he visto y miente con ella.
@@ -1053,7 +1053,7 @@ Brazo. Respira. No me mires así. Yo ya estuve sola una vez.
 
 El viernes nueve dejé la plancha prendida hasta las cuatro de la mañana. Treinta y un platos. Huevos, bizcochos, el chili que sobraba. Entraba gente con los ojos así de grandes y yo les decía: "Siéntese, soldado, coma primero". En Baumholder aprendí que la tropa asustada come el doble.
 
-El sábado a las seis fui por el pan a la Hollis, como hace diecisiete años. Estaba con llave. Primera vez. Esa tarde vi pasar la camioneta blanca hacia la 31, zigzagueando.
+El sábado fui por el pan a la Hollis a las ocho, tarde por primera vez en diecisiete años, porque había cerrado el mesón a las cuatro. Estaba con llave. Eso también era la primera vez. Esa tarde vi pasar la camioneta blanca hacia la 31, zigzagueando.
 
 Tengo harina, manteca y porotos para un regimiento chico. Los domingos le mando una olla al Padre. La banda de Duggan cobra en todo Riverside menos aquí: el Padre come en mi mesón y no se meten. Rollie y su niño comen aquí después de misa. Los jueves Orval juega en el mesón y pierde, y yo le sirvo café y me callo lo que pienso.
 
@@ -1074,7 +1074,7 @@ La correa la ando trayendo puesta. No me pregunte por qué. ¿Más café?
   - Velvie (47), en Hamilton (Ohio): sin saber.
   - Arlis y Vina: muertos antes del brote.
   - Clientes: Rollie y Jamie Dixon y Orval Quintero, vivos.
-  - Walt Hollis: Cletus solo sabe que la panadería amaneció con llave el 10 y que vio salir la camioneta blanca esa tarde.
+  - Walt Hollis: Cletus solo sabe que a las ocho del 10 la panadería ya estaba con llave y que vio salir la camioneta blanca esa tarde.
 - **Cómo vive hoy**
   - Duerme arriba del mesón, con la escalera tapiada. Abre el mesón de día con las ventanas tapadas de tablas.
   - Cocina para el que llega: cambia platos por leña, carne o agua. Los domingos le manda una olla de porotos a la iglesia del Padre. La banda de Duggan no le cobra a Gabbard's porque el Padre come ahí.
