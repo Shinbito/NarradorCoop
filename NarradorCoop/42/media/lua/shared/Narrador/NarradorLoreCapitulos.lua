@@ -60,7 +60,10 @@ Lore.arcos.leyenda_eduardo = {
         escolta = "Llevo al doctor Hartmann donde la Chela. Camina detras de mi hablando de la cura que tiene. No le creo.",
     },
     finales = {
-        final_cumplido = "El doctor Hartmann no tenia ninguna cura: era un charlatan. Pero sabe hacer remedios, y la Chela le va a poner una consulta. Y le conte de Eduardo, o no se lo conte. Eso lo se yo.",
+        final_cumplido = { por_var = "k_chueca", textos = {
+            ["true"] = "El doctor Hartmann no tenia ninguna cura: tenia doscientas cuarenta pastillas de azucar con una K chueca, y lo confeso apenas la Chela le pregunto por el agua. Pero sabe hacer remedios, y la Chela le va a poner una consulta. A pelar papas primero.",
+            otro = "El doctor Hartmann no tenia ninguna cura: era un charlatan. Pero sabe hacer remedios, y la Chela le va a poner una consulta. Y le conte de Eduardo, o no se lo conte. Eso lo se yo.",
+        } },
         final_muerto = "El doctor Hartmann murio antes de llegar donde la Chela. Si tenia la cura, se fue con el.",
     },
 }

@@ -65,6 +65,8 @@ MEMORIAS = {
     "eduardo_vivo": "Eduardo volvio vivo al cuartel despues de caer.",
     "eduardo_muerto_duelo": "Mataste a Eduardo en el duelo de Fallas Lake. Corta sus eventos.",
     "cientifico_hartmann": "El doctor Hartmann: en_west_point o muerto. Muerto, el curandero de la Chela es un mercader.",
+    "k93_falsa_vista": "Alguien vio deshacerse una K-93 falsa en la prueba del agua (NarradorCuraServer). Hartmann puede tener que confesar (leyenda_eduardo, hartmann_k93).",
+    "hartmann_k93": "La K chueca: confeso (Hartmann admitio que hizo las 240 K-93 de azucar; la Chela manda agua al pedir la cura) o callado.",
     "eduardo_ev_dia": "Ultimo dia en que se tiro el evento fortuito de Eduardo.",
     "eduardo_ev_hora": "Hora del ultimo evento fortuito de Eduardo.",
     # --- Camino del bandido ---
@@ -83,6 +85,9 @@ MEMORIAS = {
     "pereira_desconfia": "Pereira descubrio un sabotaje (castigo): desde ahi cada sabotaje pesa 45% en vez de 30%.",
     "pereira_aviso_desconfia": "Ya se aviso que el jefe del patio te vigila.",
     "julio_vivo": "Dejaste ir a Julio Cardenas en el cap. 1.",
+    "danny_pereira": "Los giros de La Grange (bandido_giros): vivo / muerto (solo Vargas sabe), vivo_contado / muerto_contado (Pereira sabe), rechazado, no_fue; lena_fue si Pereira se fue a Louisville (final_lena del cap. 5).",
+    "danny_sabe": "Le dijiste a Danny Pereira que los giros los pagaba su hermana: su orden ('que venga ella') abre final_lena en el cap. 5.",
+    "lena_comentada": "El Cabo ya comento que Pereira se fue a Louisville (NarradorBandido BA.consecuenciaLena).",
     "maulen_hora": "Hora en que se perdono a Meulen (72 horas despues toma el patio).",
     "lugar.bandido_patio": "Lugar de la casa de Pereira en el patio de trenes.",
     "conquista_<id>": "Esa ciudad (o 'sous') ya fue conquistada.",

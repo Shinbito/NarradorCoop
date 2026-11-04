@@ -97,6 +97,32 @@ Lore.arcos.bandido_4 = {
     },
 }
 
+Lore.arcos.bandido_giros = {
+    etapas = {
+        cuenta = "Vargas Toledo, el contador de la banda, me llamo al vagon de raciones mientras la Sargento plancha. Fue guardia en La Grange. Tiene una cuenta abierta que no es de latas: Danny Pereira, el hermano de ella.",
+        viaje = "Voy a Louisville, a {lugar:gomeria}, a ver si Danny Pereira respira. Vargas lo cuido en La Grange treinta y tres meses de treinta y cuatro. Del mes que falta no quiso hablar. Dice que esto va en su libreta, no en la de ella.",
+        gomeria = "Llegue a {lugar:gomeria}. Louisville cayo la segunda semana y se nota. Detras de la cortina metalica se oye una radio a pilas, muy bajito. Hay muertos por todos lados, y algunos corren.",
+        hablar = "Danny Pereira esta vivo. Mastica del lado izquierdo. En abril del 88 no llego la plata a La Grange y en las duchas le sacaron dos muelas. Nunca supo quien pagaba. Alla adentro decia 'Lena me metio aqui'. Yo se quien pagaba.",
+        volver = { por_var = "danny", textos = {
+            muerto = "Danny Pereira murio en la gomeria antes de que pudiera hablar con el. Vuelvo al patio con una cruz para la libreta de Vargas. " .. VOLVER,
+            otro = "Danny Pereira respira. Vuelvo al patio con el dato. Vargas lo quiere para el; la Sargento ni sabe que fui. " .. VOLVER,
+        } },
+        informe = "Vargas me espera en el vagon de raciones. La Sargento esta a diez metros, contando latas. Puedo darle el dato a el y a nadie mas, o contarselo a ella: la gomeria, las dos muelas, abril del 88.",
+    },
+    finales = {
+        final_vargas = { por_var = "danny", textos = {
+            muerto = "Le di a Vargas la cruz de Danny Pereira. La anoto en su libreta con letra derecha y le dio cuerda al reloj. La Sargento sigue sin saber que mes falto. Yo si.",
+            otro = "Le dije a Vargas que Danny Pereira respira. Le dio cuerda al reloj, despacio, como si le debiera algo. La Sargento sigue sin saber que mes falto. La cuenta quedo en la libreta de el.",
+        } },
+        final_sargento = { por_var = "danny", textos = {
+            muerto = "Le conte a la Sargento Pereira que su hermano murio en la calle Preston, y lo de abril del 88. Dijo 'anotado' y 'fuera'. Esa noche no plancho: desde el furgon de cola se oia un fado.",
+            otro = "Le conte a la Sargento Pereira que Danny esta vivo en la calle Preston, sin dos muelas, y lo de abril del 88. Dijo 'anotado' y 'fuera'. Esa noche no plancho: desde el furgon de cola se oia un fado.",
+        } },
+        final_rechazo = "Vargas me pidio ir a Louisville por el hermano de la Sargento. Le dije que esa cuenta no es mia. Lo anoto igual. Todo lo anota.",
+        final_no_fue = "No fui a la calle Preston. La cuenta de Vargas se cerro sola, como dijo, y no a su favor. Ni al mio.",
+    },
+}
+
 Lore.arcos.bandido_5 = {
     etapas = {
         plan = { por_var = "bandido_jefe", textos = {
@@ -109,7 +135,12 @@ Lore.arcos.bandido_5 = {
     },
     finales = {
         final_con_pereira = "Le dije que si a {jefe_corto}. Manana empieza la guerra. Despues, Knox. Me deberia temblar la mano al escribir esto. No me tiembla.",
-        final_redencion = "{jefe_nombre} murio en el patio de trenes. No lo hice solo: vino gente que todavia creia en mi. En Knox me van a perdonar. Yo me acuerdo de cada nombre igual.",
+        final_redencion = { por_var = "danny_carpeta", textos = {
+            vivo = "La Sargento Pereira murio en el patio de trenes. En su carpeta habia un papel nuevo: 'Danny. Calle Preston. Vivo. Ir.' No alcanzo a ir. No lo hice solo: vino gente que todavia creia en mi. En Knox me van a perdonar. Yo me acuerdo de cada nombre igual, y del de Danny.",
+            muerto = "La Sargento Pereira murio en el patio de trenes, con la cruz de su hermano en la carpeta y el talon de abril del 88 que nunca mando. No lo hice solo: vino gente que todavia creia en mi. En Knox me van a perdonar. Yo me acuerdo de cada nombre igual.",
+            otro = "{jefe_nombre} murio en el patio de trenes. No lo hice solo: vino gente que todavia creia en mi. En Knox me van a perdonar. Yo me acuerdo de cada nombre igual.",
+        } },
+        final_lena = "Le repeti a la Sargento Pereira la orden de su hermano: que vaya ella a la calle Preston y se lo diga en la cara. Me dio el reloj de su padre, me dijo que ahora doy yo las ordenes y se fue caminando por las vias hacia Louisville. La banda se desarmo sola. Nadie murio en el patio. A las cinco le doy cuerda al Hamilton, y no lo dejo parar.",
         final_escapo = "{jefe_corto} se me escapo del patio de trenes. Sigue en algun lado, y sabe mi cara. Duermo con las botas puestas.",
         final_abandonado = "No le respondi a {jefe_corto}. Ni si ni no. Ella va a tomar la comisaria igual, conmigo o sin mi.",
     },
@@ -309,7 +340,7 @@ Lore.arcos.eduardo_evento = {
 }
 
 -- Redimido: se puede llegar desde cualquier capitulo menos el 5 (ver finalRedimido en Arcos/Bandido.lua).
-for _, id in ipairs({ "bandido_1", "bandido_2", "bandido_3", "bandido_4", "bandido_maulen" }) do
+for _, id in ipairs({ "bandido_1", "bandido_2", "bandido_3", "bandido_4", "bandido_giros", "bandido_maulen" }) do
     local l = Lore.arcos[id]
     if l ~= nil then
         l.finales = l.finales or {}

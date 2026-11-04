@@ -937,6 +937,12 @@ function Mundo.pastillaEs(item)
     return ok and v or nil
 end
 
+-- Paso la prueba del agua (NarradorCuraServer): se sabe que es la verdadera sin Medicina 4.
+function Mundo.pastillaProbada(item)
+    local ok, v = pcall(function() return item:getModData().NarradorK93Probada end)
+    return ok and v == true
+end
+
 function Mundo.nivelMedicina(jugador)
     if jugador == nil or Perks == nil then return 0 end
     local ok, n = pcall(function() return jugador:getPerkLevel(Perks.Doctor) end)

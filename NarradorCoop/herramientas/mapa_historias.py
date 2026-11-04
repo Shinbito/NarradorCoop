@@ -43,6 +43,8 @@ LANZADORES = {
                   [("bandido_cap", "1"), "historia_muldraugh_1"], []),
     "bandido_3": ("volver al patio de trenes (NarradorBandido)", [("bandido_cap", "2")], []),
     "bandido_4": ("volver al patio de trenes (NarradorBandido)", [("bandido_cap", "3")], []),
+    "bandido_giros": ("volver al patio con el cap. 4 hecho y Pereira de jefe, antes del 5 (NarradorBandido)",
+                      [("bandido_cap", "4")], ["danny_pereira", ("bandido_jefe", "maulen")]),
     "bandido_5": ("volver al patio de trenes (NarradorBandido)", [("bandido_cap", "4")], []),
     "bandido_castigo": ("al volver al patio, 30% por sabotaje (NarradorBandido)", ["bandido_sospecha"], []),
     "bandido_maulen": ("72 horas despues de perdonar a Meulen (NarradorBandido)", ["maulen_salvado"], []),
@@ -72,6 +74,8 @@ LANZADORES = {
     "venganza_meulen": ("120 horas despues de que Meulen muere en Sous o en el patio (NarradorVenganzaMeulen)",
                         ["meulen_muerte_hora"], ["meulen_venganza", "meulen_final"]),
     "encargo_cura": ("pedirle 'algo especial' a un misionero, cada 20 dias (NarradorCuraServer)", [], []),
+    "hartmann_k93": ("al pasar cerca de la Chela con el doctor en el cuartel y una K-93 falsa vista (NarradorCuraServer)",
+                     [("k93_falsa_vista", "true"), ("cientifico_hartmann", "en_west_point")], ["hartmann_k93"]),
 }
 for rol in ["benjamin", "martin_z", "martin_a", "david", "bastian", "hanz", "cristian", "jorge", "cristobal"]:
     LANZADORES["favor_" + rol] = ("pedirle el favor en la base de Sous (FavoresSous)", [("sous", "aliados")], [])
@@ -106,6 +110,7 @@ DESENLACES = {
     ("bandido", "rechazado"): "Rechaza a la banda (la puerta queda abierta)",
     ("bandido", "redimido"): "Redencion: Knox vuelve a 0",
     ("bandido", "pereira_escapo"): "El jefe del patio escapa",
+    ("danny_pereira", "lena_fue"): "Pereira se va a Louisville por su hermano: la banda se desarma",
     ("fin", "eduardo_muerto"): "FIN: Eduardo muerto, Knox es de la banda",
     ("fin", "reconquista"): "FIN: Knox vuelve a ser luz de esperanza",
     ("sous", "eliminado"): "Sous eliminado",

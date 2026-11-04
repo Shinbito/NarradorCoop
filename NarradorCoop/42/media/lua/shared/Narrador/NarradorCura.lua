@@ -2,7 +2,8 @@
 -- Todas se ven iguales. Cada una lleva en su modData si es la verdadera ("real") o azucar
 -- ("falsa"). La verdadera cura la infeccion zombi (mordida incluida); las falsas solo dan
 -- dolor de estomago. Con Medicina (First Aid) 4 o mas se pueden examinar para saber cual es
--- cual; si no, toca probarlas. Las usan la mision de la cura (Louisville) y los Bell.
+-- cual; si no, queda la prueba del agua (la falsa se deshace, ver Cura.AGUA) o probarlas.
+-- Las usan la mision de la cura (Louisville) y los Bell.
 -- El juego llama a NarradorCuraZ_OnEat al tomarla. En MP tambien se avisa al servidor.
 -- Sin tildes ni enies a proposito.
 
@@ -17,6 +18,113 @@ function Cura.es(item)
     local ok, v = pcall(function() return item:getModData().NarradorK93 end)
     if ok then return v end
     return nil
+end
+
+function Cura.esPastilla(item)
+    local ok, tipo = pcall(function() return item:getFullType() end)
+    return ok and tipo == Cura.TIPO
+end
+
+-- Ya se sabe que es la verdadera: la examino alguien con Medicina 4+ o paso la prueba del agua.
+function Cura.conocida(item)
+    local ok, si = pcall(function()
+        local md = item:getModData()
+        return md.NarradorK93Vista == true or md.NarradorK93Probada == true
+    end)
+    return ok and si == true
+end
+
+-- La prueba del agua (canon: la falsa del Dr. Hartmann se deshace en agua en menos de un
+-- minuto; la verdadera no). Gasta un vaso de agua (Cura.AGUA litros) de cualquier recipiente
+-- del inventario, limpia o sucia. La falsa se deshace (el item se pierde); la verdadera sale
+-- entera y queda marcada (NarradorK93Probada): desde ahi se puede entregar "la verdadera" sin
+-- Medicina 4. La hace el servidor (server/Narrador/NarradorCuraServer.lua, comando pruebaAgua);
+-- el cliente solo pone la opcion del menu (client/Narrador/NarradorPastillas.lua).
+Cura.AGUA = 0.1
+
+local function fluidoEsAgua(fc)
+    local si = false
+    pcall(function()
+        if Fluid == nil then return end
+        if Fluid.Water ~= nil and fc:contains(Fluid.Water) then si = true end
+        if not si and Fluid.TaintedWater ~= nil and fc:contains(Fluid.TaintedWater) then si = true end
+    end)
+    if si then return true end
+    pcall(function()
+        local f = fc:getPrimaryFluid()
+        if f == nil then return end
+        local n = f.getFluidTypeString ~= nil and f:getFluidTypeString() or tostring(f)
+        if string.find(string.lower(tostring(n)), "water", 1, true) then si = true end
+    end)
+    return si
+end
+
+-- Cuanta agua tiene un item: en el B42, su recipiente de fluidos; en el B41, un item con agua.
+function Cura.aguaDe(item)
+    local cant = 0
+    pcall(function()
+        local fc = item.getFluidContainer ~= nil and item:getFluidContainer() or nil
+        if fc ~= nil and not fc:isEmpty() and fluidoEsAgua(fc) then cant = tonumber(fc:getAmount()) or 0 end
+    end)
+    if cant > 0 then return cant end
+    pcall(function()
+        if item.isWaterSource ~= nil and item:isWaterSource() then
+            local d = item.getCurrentUsesFloat ~= nil and item:getCurrentUsesFloat() or item:getUsedDelta()
+            if (tonumber(d) or 0) > 0 then cant = 1 end
+        end
+    end)
+    return cant
+end
+
+-- El primer recipiente con agua del inventario (y de las mochilas que lleva).
+function Cura.buscarAgua(jugador)
+    local hallado
+    pcall(function()
+        local function recorrer(inv, prof)
+            if inv == nil or prof > 2 or hallado ~= nil then return end
+            local items = inv:getItems()
+            for i = 0, items:size() - 1 do
+                local it = items:get(i)
+                if it ~= nil and hallado == nil then
+                    if Cura.aguaDe(it) > 0 then hallado = it; return end
+                    if instanceof(it, "InventoryContainer") then recorrer(it:getInventory(), prof + 1) end
+                end
+            end
+        end
+        recorrer(jugador:getInventory(), 0)
+    end)
+    return hallado
+end
+
+-- Saca un vaso de agua del recipiente. Devuelve true si pudo (si la version del juego no deja,
+-- la prueba se hace igual: es mejor eso que trabar la mision).
+function Cura.gastarAgua(item)
+    local ok = false
+    pcall(function()
+        local fc = item:getFluidContainer()
+        if fc == nil then return end
+        local antes = tonumber(fc:getAmount()) or 0
+        local quitar = math.min(antes, Cura.AGUA)
+        pcall(function() fc:removeFluid(quitar) end)
+        if (tonumber(fc:getAmount()) or 0) >= antes then pcall(function() fc:adjustAmount(antes - quitar) end) end
+        ok = (tonumber(fc:getAmount()) or 0) < antes
+    end)
+    if ok then return true end
+    pcall(function()
+        if item.isWaterSource ~= nil and item:isWaterSource() then item:Use(); ok = true end
+    end)
+    return ok
+end
+
+-- La que paso la prueba del agua (o el examen): nombre a la vista y marcada.
+function Cura.marcarVerdadera(item, probada)
+    pcall(function()
+        item:setName("Pastilla K-93 (verdadera)")
+        item:setCustomName(true)
+        local md = item:getModData()
+        md.NarradorK93Vista = true
+        if probada then md.NarradorK93Probada = true end
+    end)
 end
 
 -- Saca la infeccion zombi de un personaje. Devuelve true si estaba infectado.

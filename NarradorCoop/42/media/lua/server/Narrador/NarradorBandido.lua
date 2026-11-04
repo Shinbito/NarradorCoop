@@ -6,6 +6,8 @@
 --     anterior. Si rechazaste el primero, la puerta queda abierta: vuelve al patio.
 --   * Con sospecha (misiones saboteadas), al volver al patio Pereira puede descubrirte:
 --     BA.CHANCE_SOSPECHA % por cada sabotaje. Entonces manda cazadores (bandido_castigo).
+--   * Entre el 4 y el 5, con Pereira de jefe: Vargas te pide ir a Louisville por Danny, el
+--     hermano de la Sargento (bandido_giros, una vez: memoria "danny_pereira").
 --   * Si dejaste ir a Meulen en Sous (memoria "maulen_salvado"), BA.ESPERA_MAULEN horas despues
 --     mata a Pereira y se queda con el patio (bandido_maulen): desde ahi el jefe es el
 --     (memoria "bandido_jefe" = "maulen"), sin importar tu Knox.
@@ -35,7 +37,7 @@ BA.ESPERA_MAULEN = 72
 -- nota solo vuelve sola pasadas BA.ESPERA_NOTA horas.
 BA.ENFRIAMIENTO = 48
 BA.ESPERA_NOTA = 168
-BA.IDS = { "bandido_1", "bandido_2", "bandido_3", "bandido_4", "bandido_5", "bandido_castigo", "bandido_maulen",
+BA.IDS = { "bandido_1", "bandido_2", "bandido_3", "bandido_4", "bandido_giros", "bandido_5", "bandido_castigo", "bandido_maulen",
     "conquista_sous", "conquista_muldraugh", "conquista_westpoint", "conquista_riverside", "conquista_rosewood",
     "eduardo_atentado", "eduardo_fallas", "reconquista_muldraugh", "reconquista_westpoint", "reconquista_riverside",
     "reconquista_rosewood", "reconquista_patio" }
@@ -222,6 +224,19 @@ function BA.consecuenciaUltimo(m)
     end
 end
 
+-- Despues de final_lena (Pereira se fue a Louisville, danny_pereira = "lena_fue"): la primera
+-- vez que alguien pasa cerca del Cabo, ya lo sabe. Ella pidio que no se lo contaran; el se entera igual.
+BA.RADIO_CABO = 12
+function BA.consecuenciaLena(m)
+    if m.danny_pereira ~= "lena_fue" or m.lena_comentada then return end
+    local D = Narrador.Dominios
+    if not C.desbloqueado("muldraugh") or (D ~= nil and D.dominio("muldraugh") ~= "mision") then return end
+    local l = C.lugar("muldraugh")
+    if l == nil or Mundo.jugadorCerca(l.x, l.y, BA.RADIO_CABO) == nil then return end
+    m.lena_comentada = true
+    C.decir("muldraugh", "Civil. Me dicen que la Sargento Pereira se fue caminando por las vias hacia Louisville, sin disparar un tiro. ... Tenia una pregunta para ella en mi libreta. La dejo con signo. Retirese.")
+end
+
 function BA.esDelBandido(defId)
     for _, id in ipairs(BA.IDS) do if id == defId then return true end end
     return false
@@ -238,6 +253,7 @@ function BA.revisar()
     if BA.enCurso() then return end
     if Motor.historiaAbierta ~= nil and not Motor.historiaAbierta() then return end
     pcall(BA.consecuenciaUltimo, m)
+    pcall(BA.consecuenciaLena, m)
     local abandono = tonumber(m.bandido_abandono_hora)
     if abandono ~= nil and Mundo.horas() - abandono < BA.ENFRIAMIENTO then return end
     if m.bandido == "pereira" then
@@ -289,6 +305,11 @@ function BA.revisar()
     if sospecha > 0 and Mundo.azar(100) <= sospecha * chance then
         m.bandido_sospecha = 0
         BA.lanzar("bandido_castigo", j)
+        return
+    end
+    -- Antes de lo grande, con Pereira de jefe: Vargas y la cuenta de Danny (una sola vez).
+    if cap == 4 and BA.jefe() == "pereira" and m.danny_pereira == nil then
+        BA.lanzar("bandido_giros", j)
         return
     end
     BA.lanzar("bandido_" .. (cap + 1), j)

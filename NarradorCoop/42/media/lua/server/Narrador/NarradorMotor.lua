@@ -943,14 +943,18 @@ Motor.requisitos = Motor.requisitos or {}
 
 -- {"pastilla", id, "real" | "falsa" | "cualquiera"}: entregar una pastilla K-93 de la historia.
 -- Elegir a sabiendas la real o la falsa exige Medicina 4 o mas (si no, no se sabe cual es cual).
+-- La real tambien se reconoce si paso la prueba del agua (Mundo.pastillaProbada); la falsa no,
+-- porque en el agua se deshace.
 -- Deja inst.vars.pastilla_dada = "real" o "falsa".
 Motor.requisitos.pastilla = function(inst, op, jugador)
     local etiqueta = inst.id .. ":" .. tostring(op.requiere[2])
     local cual = op.requiere[3] or "cualquiera"
-    if cual ~= "cualquiera" and Mundo.nivelMedicina(jugador) < 4 then return nil end
+    local medico = Mundo.nivelMedicina(jugador) >= 4
+    if cual == "falsa" and not medico then return nil end
     local lista = Mundo.buscarItems(jugador, function(it)
         if not Mundo.tieneEtiqueta(it, etiqueta) then return false end
         if cual == "cualquiera" then return true end
+        if cual == "real" and not medico and not Mundo.pastillaProbada(it) then return false end
         return Mundo.pastillaEs(it) == cual
     end)
     if #lista == 0 then return nil end
