@@ -4,7 +4,8 @@
 -- la da, los otros no la tienen hasta que pasen los 20 dias (ver server/Narrador/NarradorCuraServer.lua).
 -- En el lugar hay varias pastillas K-93 iguales: de 1 a 4 son verdaderas (siempre al menos
 -- una) y el resto son de azucar. Con Medicina 4 o
--- mas se distinguen; si no, hay que entregar una al azar o probarlas. Puedes entregar la
+-- mas se distinguen; si no, queda la prueba del agua (la falsa se deshace; la verdadera sale
+-- entera y queda marcada, ver NarradorCura.lua) o entregar una al azar. Puedes entregar la
 -- verdadera, una cualquiera, una falsa a proposito (y quedarte con la buena) o ninguna.
 -- Textos sin tildes a proposito.
 
@@ -55,8 +56,8 @@ Narrador.Defs.registrar({
             opciones = {
                 { id = "entregar", texto = "Entregarle una pastilla a {contacto_nombre} (cualquiera)", requiere = { "pastilla", "cura", "cualquiera" },
                   falta = "No llevas las pastillas." },
-                { id = "entregar_real", texto = "Entregarle la verdadera (Medicina 4+)", requiere = { "pastilla", "cura", "real" },
-                  falta = "No llevas una que sepas que es la verdadera (Medicina 4 o mas para distinguirla)." },
+                { id = "entregar_real", texto = "Entregarle la verdadera (Medicina 4+ o probada en agua)", requiere = { "pastilla", "cura", "real" },
+                  falta = "No llevas una que sepas que es la verdadera (Medicina 4 o mas, o meterla en agua: la falsa se deshace)." },
                 { id = "entregar_falsa", texto = "Entregarle una falsa y quedarte con la verdadera (Medicina 4+)", requiere = { "pastilla", "cura", "falsa" },
                   falta = "No llevas una que sepas que es falsa (Medicina 4 o mas para distinguirla).",
                   acciones = { { "variable", nombre = "engano", valor = true } } },
@@ -126,3 +127,62 @@ Narrador.CuraMuerte = {
     riverside = "El Padre Nacho te manda decir: el feligres se fue con el Senor. 'Tu hiciste tu parte, hijo. El resto no era tuyo.'",
     rosewood = "Misia Rosa te manda decir: su sobrino no lo logro. 'No me mires asi, mijo. Fuiste. Eso es lo que importa.'",
 }
+
+-- Lo que agrega la Chela al pedir la cura si el doctor Hartmann ya confeso (hartmann_k93).
+Narrador.CuraAguaChela = "Y llevate agua, mijo. El doctor dice que las de azucar se deshacen en un vaso en menos de un minuto. El sabra por que."
+
+-- ===========================================================================
+-- La K chueca: alguien vio deshacerse una K-93 falsa en agua (memoria k93_falsa_vista) y el
+-- doctor Hartmann ya vive en el cuartel de la Chela (cientifico_hartmann = en_west_point). Lo
+-- lanza server/Narrador/NarradorCuraServer.lua (CS.revisarHartmann) cuando pasas cerca de la
+-- Chela. Canon (fichas de Hartmann y de Eduardo): Hartmann fabrico 240 K-93 falsas en junio de
+-- 1993 para Lonnie Gaskins, con la K grabada a mano y la pata de abajo mas corta; la prueba del
+-- agua la dijo por la radio. Si se lo cuentas a la Chela, ella le pregunta como sabia y el
+-- confiesa (hartmann_k93 = confeso). Si no, queda callado. Si lo trajiste despues de ver la
+-- falsa, la misma confesion pasa al llegar (final de leyenda_eduardo).
+-- ===========================================================================
+Narrador.Defs.registrar({
+    id = "hartmann_k93",
+    titulo = "La K chueca",
+    titulo_menu = "La K chueca (el doctor Hartmann y las K-93)",
+    requiere_alife = true, automatico = false, max_veces = 1,
+    inicio = "cocina",
+    etapas = {
+        cocina = {
+            pista = "Contarle a la Tia Chela lo de la K-93 que se deshizo en el agua, o callarte (clic derecho cerca de ella).",
+            ancla = "contacto",
+            al_entrar = {
+                { "aviso", texto = "En la cocina del cuartel, el doctor Hartmann pela papas con la bata abotonada hasta arriba. La Chela revuelve la olla y lo mira de reojo." },
+                { "diario", texto = "Vi deshacerse una K-93 en un vaso de agua: la K grabada a mano, con la pata de abajo mas corta. El doctor Hartmann dijo lo del agua por la radio antes que nadie. Esta pelando papas en la cocina de la Chela." },
+            },
+            opciones = {
+                { id = "contar", texto = "Contarle a la Chela lo de la pastilla que se deshizo, y la K chueca" },
+                { id = "callar", texto = "No decir nada",
+                  respuesta = "Te sirves un plato y no dices nada. El doctor sigue pelando papas, una por una, sin levantar la vista." },
+            },
+            salidas = {
+                { cuando = { "eleccion", "contar" }, ir = "confesion" },
+                { cuando = { "eleccion", "callar" }, ir = "final_callado" },
+                { cuando = { "horas", 6 }, ir = "final_callado" },
+            },
+        },
+        confesion = {
+            al_entrar = {
+                { "decir_contacto", texto = "Una K grabada a mano, con la pata de abajo mas corta? ... Doctor. Usted dijo lo del agua por la radio antes que nadie. Como sabia?" },
+                { "aviso", retraso = 0.05, texto = "El doctor Hartmann deja el cuchillo y se abotona la bata, aunque ya esta abotonada: 'Porque la K la grabe yo, estimada. Con mi lima de relojero. Doscientas cuarenta, en junio, para un tecnico que tenia que cuadrar un inventario. Agua, azucar, almidon y colorante. Pense que nadie iba a llegar tan lejos por una caja de pastillas.'" },
+                { "decir_contacto", retraso = 0.1, texto = "Aqui trabaja hasta el charlatan, mijo. Que siga pelando papas. Pero en mi cocina no se le vende nada a nadie. Ni una pastilla." },
+                { "decir_eduardo", retraso = 0.12, texto = "El doctor me enseno lo del agua por la radio y yo le crei todo. ... Igual me dio algo que creer, amigo. Eso tambien cuenta." },
+            },
+            salidas = { { cuando = { "horas", 0.15 }, ir = "final_confeso" } },
+        },
+        final_confeso = { final = true, al_entrar = {
+            { "memoria", clave = "hartmann_k93", valor = "confeso" },
+            { "huella", acto = "verdad", texto = "Le conte a la Chela lo de la K-93 que se deshizo en agua. El doctor Hartmann confeso que las hizo el." },
+            { "diario", texto = "El doctor Hartmann hizo las K-93 de azucar: doscientas cuarenta, con la K grabada a mano. Se lo confeso a la Chela delante de mi. Ella lo dejo pelando papas." },
+        } },
+        final_callado = { final = true, al_entrar = {
+            { "memoria", clave = "hartmann_k93", valor = "callado" },
+            { "diario", texto = "No dije nada de la K chueca. El doctor Hartmann sigue pelando papas en la cocina de la Chela. A veces me mira las manos." },
+        } },
+    },
+})

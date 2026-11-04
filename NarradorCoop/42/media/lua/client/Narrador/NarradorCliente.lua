@@ -482,6 +482,9 @@ function Cliente.recibir(comando, datos)
         Cliente.marcar(datos)
     elseif comando == "ofertas" then
         Cliente.ofertas = datos
+    elseif comando == "pruebaAgua" then
+        -- Resultado de la prueba del agua de una K-93 (client/Narrador/NarradorPastillas.lua).
+        if Narrador.Cura ~= nil and Narrador.Cura.resultadoAgua ~= nil then pcall(Narrador.Cura.resultadoAgua, datos) end
     end
     if comando == "estado" then pcall(Cliente.avisarPreguntas, datos) end
 end

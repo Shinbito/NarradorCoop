@@ -337,6 +337,9 @@ registrar({
             { "knox", cantidad = 45, motivo = "redencion" },
             { "confianza_todos", cantidad = 100 },
             { "retirar_lejos", grupo = EDUARDO, lugar = "patio", radio = 70, retraso = 0.5 },
+            -- Los giros de La Grange (bandido_giros): Pereira sabia que su hermano estaba vivo y nunca fue.
+            { "aviso", retraso = 0.1, si = { { "var", "bandido_jefe", "pereira" }, { "memoria", "danny_pereira", "vivo_contado" } },
+              texto = "La Sargento Pereira cae al lado del vagon 14. En el bolsillo del uniforme, doblado en cuatro, lleva un giro sin mandar a nombre de Danny Pereira, calle Preston, Louisville. Treinta y cuatro." },
             { "memoria", clave = "fin", valor = "reconquista" },
             { "diario", texto = "El patio de trenes cayo. {jefe_nombre} ya no manda en nada. En cada ciudad hay alguien que cree en la gente, y en West Point, Eduardo cocina para todos. Knox vuelve a ser luz de esperanza. Yo vuelvo a tener nombre." },
         } },

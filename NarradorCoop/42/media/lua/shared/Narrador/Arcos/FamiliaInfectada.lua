@@ -228,8 +228,8 @@ Narrador.Defs.registrar({
             opciones = {
                 { id = "entregar", texto = "Darles una de las pastillas K-93 (cualquiera)", requiere = { "pastilla", "suero", "cualquiera" },
                   falta = "No tienes las pastillas. Estan en {lugar:laboratorio}." },
-                { id = "entregar_real", texto = "Darles la pastilla verdadera (Medicina 4+)", requiere = { "pastilla", "suero", "real" },
-                  falta = "No llevas una pastilla que sepas que es verdadera (necesitas Medicina 4 o mas para distinguirla)." },
+                { id = "entregar_real", texto = "Darles la pastilla verdadera (Medicina 4+ o probada en agua)", requiere = { "pastilla", "suero", "real" },
+                  falta = "No llevas una pastilla que sepas que es verdadera (Medicina 4 o mas, o meterla en agua: la falsa se deshace)." },
                 { id = "entregar_falsa", texto = "Darles una falsa y quedarte con la verdadera (Medicina 4+)",
                   requiere = { "pastilla", "suero", "falsa" },
                   falta = "No llevas una pastilla que sepas que es falsa (necesitas Medicina 4 o mas para distinguirla).",

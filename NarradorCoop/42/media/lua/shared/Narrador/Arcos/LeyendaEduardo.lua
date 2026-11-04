@@ -115,6 +115,9 @@ Narrador.Defs.registrar({
         despedida = {
             al_entrar = {
                 { "decir", grupo = EDUARDO, rol = "eduardo", texto = "Toma. Yo me arreglo con menos. Tu la vas a necesitar: vas por el mismo camino que yo. Cuida a la gente." },
+                -- La prueba del agua (NarradorCura.lua): Eduardo la sabe porque el doctor la dijo por la radio.
+                { "decir", grupo = EDUARDO, rol = "eduardo", retraso = 0.03,
+                  texto = "Y otra cosa, amigo: si te topas con pastillas celestes, las K-93, echalas al agua antes de creerles. La de azucar se deshace en menos de un minuto. Me lo enseno el doctor por la radio." },
                 { "legendario", lugar = "objetivo", radio = 30, clase = "arma" },
                 { "aviso", texto = "Eduardo deja un arma a tus pies y se va sin mirar atras." },
                 { "retirar_lejos", grupo = EDUARDO, lugar = "objetivo", radio = 70, retraso = 0.3 },
@@ -169,7 +172,23 @@ Narrador.Defs.registrar({
                   texto = "...Yo te conozco. Fuiste a buscar el suero para la familia del refugio, los Bell. Si. Las pastillas las vendi yo. Agua, azucar y colorante. Pense que nadie iba a llegar tan lejos por una caja de pastillas." },
                 { "diario", si = { "memoria", "curandero_falso", true },
                   texto = "El doctor Hartmann es el que vendio las pastillas falsas de los Bell. Lo traje vivo igual. Todavia no se si hice bien." },
+                { "memoria", clave = "hartmann_k93", valor = "confeso", si = { "memoria", "curandero_falso", true } },
                 { "decir_contacto", retraso = 0.05, texto = "Charlatan. Pero un charlatan que hace remedios sirve. Cuando el campamento crezca, te pongo una consulta. Mientras tanto, te lavas las manos." },
+                -- La prueba del agua (k93_falsa_vista): si ya viste deshacerse una K-93 falsa, la Chela
+                -- le pregunta como sabia lo del agua y confiesa (lo mismo que la historia hartmann_k93, Arcos/Cura.lua).
+                { "variable", nombre = "k_chueca", valor = true,
+                  si = { { "memoria", "k93_falsa_vista", true }, { "no", { "memoria", "curandero_falso", true } } } },
+                { "aviso", retraso = 0.06, si = { "var", "k_chueca", true },
+                  texto = "Le cuentas a la Chela lo de la K-93 que se deshizo en el vaso de agua, con la K grabada a mano y la pata de abajo mas corta." },
+                { "decir_contacto", retraso = 0.07, si = { "var", "k_chueca", true },
+                  texto = "Doctor. Usted dijo lo del agua por la radio antes que nadie. Como sabia?" },
+                { "decir", grupo = DOC, rol = "cientifico", retraso = 0.09, si = { "var", "k_chueca", true },
+                  texto = "...Porque la K la grabe yo, estimada. Con esta lima de relojero. Doscientas cuarenta, en junio. Agua, azucar, almidon y colorante. Pense que nadie iba a llegar tan lejos por una caja de pastillas." },
+                { "decir_contacto", retraso = 0.11, si = { "var", "k_chueca", true },
+                  texto = "Aqui trabaja hasta el charlatan. Usted pela papas, doctor. Y en mi cocina no se le vende nada a nadie. Ni una pastilla." },
+                { "memoria", clave = "hartmann_k93", valor = "confeso", si = { "var", "k_chueca", true } },
+                { "diario", si = { "var", "k_chueca", true },
+                  texto = "El doctor Hartmann hizo las K-93 de azucar: doscientas cuarenta, con la K grabada a mano. Se lo confeso a la Chela apenas llego. Ella lo puso a pelar papas." },
                 { "decir_contacto", texto = "Lo viste? A mi Eduardo? Y esta bien? ... Ese muchacho porfiado. Ya. Ya. No me mires, que se me metio algo en el ojo.",
                   si = { "var", "dijo_eduardo", true } },
                 { "decir_contacto", texto = "Lo trajiste vivo, mijo. Ya veremos si lo de la cura es verdad. Mientras tanto, que coma algo.",

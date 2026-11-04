@@ -31,6 +31,17 @@ Lore.arcos.encargo_cura = {
     },
 }
 
+-- La K chueca (Arcos/Cura.lua): la K-93 falsa que se deshizo en agua y el doctor Hartmann.
+Lore.arcos.hartmann_k93 = {
+    etapas = {
+        cocina = "En la cocina del cuartel de West Point, el doctor Hartmann pela papas. Yo vi deshacerse una K-93 en un vaso de agua, con la K grabada a mano. El dijo lo del agua por la radio antes que nadie. La Chela revuelve la olla y espera que alguien hable.",
+    },
+    finales = {
+        final_confeso = "Le conte a la Chela lo de la K chueca. Ella le pregunto al doctor como sabia lo del agua, y el dejo el cuchillo y confeso: doscientas cuarenta pastillas de azucar, en junio, con su lima de relojero. La Chela no lo echo. Lo dejo pelando papas, que en su cocina es lo mismo que una condena y un perdon.",
+        final_callado = "No le conte a nadie lo de la K chueca. El doctor Hartmann pela papas en la cocina de la Chela y a veces me mira las manos, como si supiera lo que guardo. Yo tambien lo miro a el.",
+    },
+}
+
 -- ===========================================================================
 -- Fechas de Sous (ver Arcos/Calendario.lua)
 -- ===========================================================================

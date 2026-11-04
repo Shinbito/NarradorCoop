@@ -10,8 +10,12 @@
 --   2 La comisaria: robarle las reservas al Cabo (o avisarle y llevar una caja con piedras).
 --   3 La familia: matar a los que escondieron a sus desertores (o dejarlos huir).
 --   4 Las latas: quitarle la comida a un grupo de sobrevivientes (o dejarles la mitad).
+--   (entre el 4 y el 5, con Pereira de jefe) Los giros de La Grange: Vargas te manda a
+--     Louisville a ver si respira Danny, el hermano de Pereira (bandido_giros).
 --   5 La decision: matar al Cabo con Pereira (fase 2, por escribir) o matar a Pereira y
 --     redimirte, con los misioneros que te tengan confianza 4 y con Eduardo si lo conociste.
+--     Si Pereira sabe de Danny y Danny le mando su orden ("que venga ella"), hay un tercer
+--     camino: darle la orden. Te deja el reloj de su padre y se va a Louisville (final_lena).
 -- Cada mision cumplida: -15 de Knox (KD.BANDIDOS_MISION). Las saboteadas no restan Knox pero
 -- suman sospecha: al volver al patio Pereira puede descubrirte (bandido_castigo).
 -- Textos sin tildes a proposito.
@@ -732,6 +736,228 @@ registrar({
 })
 
 -- ===========================================================================
+-- Entre el 4 y el 5: Los giros de La Grange (con Pereira de jefe; lo lanza NarradorBandido.lua
+-- la primera vez que vuelves al patio con el capitulo 4 hecho).
+-- Canon (fichas de Pereira y Vargas, CANON.md): Pereira pago la proteccion de su hermano Danny
+-- en el Reformatorio de La Grange con 33 giros "PEREIRA" a una casilla de Vargas, que era
+-- guardia. Fueron 34 meses: en abril de 1988 no llego el giro, Vargas no lo protegio y en las
+-- duchas le sacaron dos muelas. Danny nunca supo quien pagaba ("alguien de afuera") y alla
+-- adentro decia "Lena me metio aqui". Vargas lo sabe y calla; Pereira solo sabe que falto un
+-- giro y le pidio que no le dijera cual. Danny trabajaba en una gomeria de la calle Preston, en
+-- Louisville. Vargas te manda a ver si respira: es su cuenta, no la de ella.
+-- Memorias: danny_pereira = vivo / muerto (solo Vargas sabe), vivo_contado / muerto_contado
+-- (se lo contaste a Pereira), rechazado o no_fue; danny_sabe = true si le dijiste a Danny quien
+-- pagaba (entonces te manda un recado: "que venga ella"). El capitulo 5 las lee.
+-- ===========================================================================
+local VARGAS = "vargas"
+local DANNY = "danny"
+local PERFIL_VARGAS = { { "vargas", "k93_muldraugh_pd_03" } }
+local NOMBRE_VARGAS = { vargas = { "Vargas", "Toledo" } }
+
+local function vargasEnPatio()
+    return { "npcs", id = VARGAS, lugar = "patio", radio = 30, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 4,
+        inmortales = true, postura = "friendly", perfiles = PERFIL_VARGAS, nombres = NOMBRE_VARGAS }
+end
+
+local DANNY_VIVO = { "no", { "var", "danny", "muerto" } }
+
+registrar({
+    id = "bandido_giros",
+    titulo = "El camino del bandido: los giros de La Grange",
+    titulo_menu = "Bandido: los giros de La Grange (Vargas)",
+    requiere_alife = true, automatico = false,
+    inicio = "orden",
+    etapas = {
+        orden = {
+            al_entrar = { patio(), vargasEnPatio() },
+            salidas = {
+                { cuando = { "grupo_listo", VARGAS }, ir = "cuenta" },
+                { cuando = { "horas", 6 }, ir = "final_no_fue" },
+            },
+        },
+        cuenta = {
+            pista = "Hablar con Vargas Toledo en el vagon de raciones del patio (clic derecho cerca).",
+            ancla = "patio", ancla_grupo = VARGAS, radio = 20,
+            al_entrar = {
+                { "decir", grupo = VARGAS, rol = "vargas", texto = "Recluso. Firme ahi. La Sargento esta planchando y no nos oye. Tengo una cuenta abierta que no es de latas." },
+                { "decir", grupo = VARGAS, rol = "vargas", retraso = 0.05, texto = "Danny Pereira. El hermano. Lo cuide en La Grange por encargo: treinta y tres meses de treinta y cuatro. Entro con setenta y un kilos y salio con sesenta y cuatro. Conste." },
+                { "decir", grupo = VARGAS, rol = "vargas", retraso = 0.1, texto = "Despues trabajo en una gomeria de la calle Preston, en Louisville. Le dije a la Sargento que le preguntara por la gomeria, no por La Grange. No va a ir. Vaya usted, mire si respira y vuelva con un dato. Esto va en mi libreta, no en la de ella." },
+            },
+            opciones = {
+                { id = "aceptar", texto = "Voy a Louisville",
+                  dice = { rol = "vargas", texto = "Conste. Cinco dias. Despues de eso la cuenta se cierra sola, y no a mi favor." } },
+                { id = "rechazar", texto = "Esa cuenta no es mia",
+                  dice = { rol = "vargas", texto = "Anotado. Hay cuentas que no se cierran, recluso. Uno da vuelta la pagina y siguen ahi." } },
+            },
+            salidas = {
+                { cuando = { "eleccion", "aceptar" }, ir = "encargo" },
+                { cuando = { "eleccion", "rechazar" }, ir = "final_rechazo" },
+                { cuando = { "horas", 24 }, ir = "final_no_fue" },
+            },
+        },
+        encargo = {
+            al_entrar = {
+                { "lugar", id = "gomeria", pueblo = "Louisville", nombre = "la gomeria de la calle Preston",
+                  salas = { "mechanic", "carsupply", "garagestorage" }, respaldo = { "gasstore", "garage", "storageunit", "warehouse" } },
+                { "mapa", lugar = "gomeria", titulo = "Mapa de Vargas: la gomeria de la calle Preston" },
+                { "reloj", id = "plazo", horas = 120 },
+                { "diario", texto = "Vargas Toledo, el contador de Pereira, me mando a Louisville: a {lugar:gomeria}, a ver si Danny Pereira, el hermano de la Sargento, sigue vivo. Dice que es su cuenta, no la de ella." },
+            },
+            salidas = { { ir = "viaje" } },
+        },
+        viaje = {
+            pista = "Ir a {lugar:gomeria}, en Louisville, a buscar a Danny Pereira.",
+            objetivo = "gomeria",
+            salidas = {
+                { cuando = { "cerca", "gomeria", 60 }, ir = "gomeria" },
+                { cuando = { "reloj_vencido", "plazo" }, ir = "final_no_fue" },
+            },
+        },
+        gomeria = {
+            pista = "Llegar a Danny Pereira en {lugar:gomeria}: van {bajas:gomeria} de {meta_gomeria}.",
+            objetivo = "gomeria",
+            al_entrar = {
+                { "variable", nombre = "meta_gomeria", valor = 9999 },
+                { "aviso", texto = "Louisville cayo la segunda semana. En la calle Preston no queda una vitrina sana. Detras de la cortina metalica de la gomeria se oye una radio a pilas, muy bajito." },
+                { "npcs", id = DANNY, lugar = "gomeria", radio = 40, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 4,
+                  postura = "friendly", perfiles = { { "danny", "k93_kessinger_06" } }, nombres = { danny = { "Danny", "Pereira" } } },
+                { "oleada", lugar = "gomeria", radio = 60, cantidad = 35, por_jugador = 12, fija = true, caminantes = true,
+                  min = 15, max = 40, meta = "meta_gomeria", meta_frac = 0.8, retraso = 0.05 },
+                { "corredores", lugar = "gomeria", radio = 60, cantidad = { 6, 9 }, retraso = 0.3 },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", DANNY }, ir = "muerto" },
+                { cuando = { { "grupo_listo", DANNY }, { "o", { "bajas_en", "gomeria", "var:meta_gomeria", 70 },
+                    { { "horas", 1 }, { "sin_zombis", "gomeria", 15 } } } }, ir = "hablar" },
+                { cuando = { "reloj_vencido", "plazo" }, ir = "final_no_fue" },
+            },
+        },
+        hablar = {
+            pista = "Hablar con Danny Pereira (clic derecho cerca).",
+            ancla = "gomeria", ancla_grupo = DANNY, radio = 20,
+            al_entrar = {
+                { "detener_reloj", id = "plazo" },
+                { "decir", grupo = DANNY, rol = "danny", texto = "Quien te manda? A mi nadie me manda a nadie desde el 86. ... Pasa y baja la cortina. Y no me mires la boca: mastico del lado izquierdo." },
+                { "decir", grupo = DANNY, rol = "danny", retraso = 0.05, texto = "Vargas? El guardia de la libreta? ... En La Grange alguien pagaba para que no me tocaran. Treinta y tres meses nadie me toco. En abril del 88 no llego la plata y en las duchas me sacaron dos muelas. En mayo le pregunte quien pagaba. 'Alguien de afuera', me dijo." },
+                { "decir", grupo = DANNY, rol = "danny", retraso = 0.1, texto = "Alla adentro yo decia 'Lena me metio aqui'. Lo sigo diciendo cuando me duele la muela que no tengo." },
+            },
+            opciones = {
+                { id = "contarle", texto = "Decirle quien pagaba: su hermana, con treinta y tres giros firmados PEREIRA",
+                  dice = { rol = "danny", texto = "...Lena. Con la mitad del sueldo, seguro. Treinta y tres de treinta y cuatro. Para Lena eso es reprobar." },
+                  acciones = { { "variable", nombre = "danny_sabe", valor = true },
+                               { "huella", acto = "verdad", texto = "Le dije a Danny Pereira que los giros de La Grange los pagaba su hermana." } } },
+                { id = "callar", texto = "No decirle quien pagaba",
+                  dice = { rol = "danny", texto = "Alguien de afuera, entonces. Como dijo el guardia. Ya me acostumbre a deberle a un fantasma." } },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", DANNY }, ir = "muerto" },
+                { cuando = { "eleccion", "contarle" }, ir = "recado" },
+                { cuando = { "eleccion", "callar" }, ir = "despedida" },
+            },
+        },
+        recado = {
+            al_entrar = {
+                { "decir", grupo = DANNY, rol = "danny", texto = "Si la ves, dile esto. No que la perdono, eso no. Que venga ella. Que me lo diga en la cara, aca, en la calle Preston. A Lena hay que darle ordenes, si no no se mueve. Es una orden mia." },
+                { "retirar_lejos", grupo = DANNY, lugar = "gomeria", radio = 40, retraso = 0.3 },
+                { "diario", texto = "Danny Pereira esta vivo en {lugar:gomeria}, sin dos muelas. Le dije que los giros los pagaba su hermana. Me dio un recado para ella: que venga ella, que se lo diga en la cara. Una orden." },
+            },
+            salidas = { { ir = "volver" } },
+        },
+        despedida = {
+            al_entrar = {
+                { "decir", grupo = DANNY, rol = "danny", texto = "Dile a Vargas que respiro. Que la cuenta la cierre el. Yo no le debo nada a nadie." },
+                { "retirar_lejos", grupo = DANNY, lugar = "gomeria", radio = 40, retraso = 0.3 },
+                { "diario", texto = "Danny Pereira esta vivo en {lugar:gomeria}, sin dos muelas. No le dije quien pagaba. Sigue creyendo que fue alguien de afuera." },
+            },
+            salidas = { { ir = "volver" } },
+        },
+        muerto = {
+            al_entrar = {
+                { "variable", nombre = "danny", valor = "muerto" },
+                { "detener_reloj", id = "plazo" },
+                { "diario", texto = "Danny Pereira murio en {lugar:gomeria} antes de que pudiera hablar con el. Llevaba un overol con su nombre bordado. Nunca voy a saber que mas." },
+            },
+            salidas = { { ir = "volver" } },
+        },
+        volver = {
+            pista = "Volver al patio de trenes de Muldraugh con el dato para Vargas.",
+            objetivo = "patio",
+            al_entrar = { pereiraEnPatio(), vargasEnPatio() },
+            salidas = { { cuando = { { "grupo_listo", VARGAS }, { "cerca", "patio", 20 } }, ir = "informe" } },
+        },
+        informe = {
+            pista = "Darle el dato a Vargas, o contarselo a la Sargento Pereira (clic derecho cerca de Vargas).",
+            ancla = "patio", ancla_grupo = VARGAS, radio = 20,
+            al_entrar = {
+                { "decir", grupo = VARGAS, rol = "vargas", texto = "Recluso. Primero me dice que trae, despues me dice que quiere." },
+            },
+            opciones = {
+                { id = "vargas", texto = "Darle el dato a Vargas y a nadie mas",
+                  acciones = { { "huella", acto = "cumpliste", texto = "Le lleve a Vargas el dato de Danny Pereira y no se lo conte a la Sargento." } } },
+                { id = "sargento", texto = "Contarselo a la Sargento Pereira: la gomeria, las dos muelas, abril del 88",
+                  acciones = { { "huella", acto = "verdad", texto = "Le conte a la Sargento Pereira lo de su hermano y el giro de abril del 88." } } },
+            },
+            salidas = {
+                { cuando = { "eleccion", "vargas" }, ir = "final_vargas" },
+                { cuando = { "eleccion", "sargento" }, ir = "sargento" },
+            },
+        },
+        sargento = {
+            al_entrar = {
+                { "decir", grupo = PEREIRA, rol = "pereira", texto = { por_var = "danny", textos = {
+                    muerto = "Hable. ... Calle Preston. Muerto. Hora? ... No importa la hora.",
+                    otro = "Hable. ... Calle Preston. Vivo. Dos muelas. Abril del ochenta y ocho." } } },
+                { "decir", grupo = VARGAS, rol = "vargas", retraso = 0.04, texto = "Usted pago treinta y tres, Sargento, y yo cumpli todo lo que se me pago. Lo demas no estaba en el trato. Conste." },
+                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.08, si = { { "var", "danny_sabe", true }, DANNY_VIVO },
+                  texto = "Le dijo quien pagaba. ... Y le mando una orden. A mi. ... Treinta y tres. Anotado. Fuera." },
+                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.08, si = { { "no", { "var", "danny_sabe", true } }, DANNY_VIVO },
+                  texto = "Treinta y tres de treinta y cuatro. El trato lo hice yo. Anotado. Fuera." },
+                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.08, si = { "var", "danny", "muerto" },
+                  texto = "El trato lo hice yo. Anotado. Fuera." },
+                { "aviso", retraso = 0.12, texto = "Pereira saca la carpeta de carton y escribe algo entre los talones de los giros. Despues se encierra en el furgon de cola. Esa noche no plancha: desde adentro se oye un fado, muy bajito." },
+            },
+            salidas = { { cuando = { "horas", 0.15 }, ir = "final_sargento" } },
+        },
+        final_vargas = { final = true, al_entrar = {
+            { "decir", grupo = VARGAS, rol = "vargas", texto = { por_var = "danny", textos = {
+                muerto = "Cruz. ... Mi padre decia que la muerte es el unico cobrador honrado. Conste en la libreta: usted cumplio.",
+                otro = "Respira. ... Conste en la libreta: usted cumplio. Aqui eso vale mas que un gracias." } } },
+            { "aviso", retraso = 0.05, texto = "Vargas saca el reloj de oro del bolsillo y le da cuerda, despacio, como si le debiera algo." },
+            { "recompensa", lugar = "patio", radio = 8,
+              items = { { "Base.TinnedBeans", "Base.CannedBeans" }, { "Base.TinnedSoup", "Base.CannedSoup" }, { "Base.Bullets9mmBox", "Base.ShotgunShellsBox" } } },
+            { "memoria", clave = "danny_pereira", valor = "vivo", si = DANNY_VIVO },
+            { "memoria", clave = "danny_pereira", valor = "muerto", si = { "var", "danny", "muerto" } },
+            { "memoria", clave = "danny_sabe", valor = true, si = { "var", "danny_sabe", true } },
+            { "retirar", grupo = VARGAS, retraso = 0.5 },
+            { "diario", texto = { por_var = "danny", textos = {
+                muerto = "Le dije a Vargas que Danny Pereira murio en la gomeria. Puso una cruz en su libreta y le dio cuerda al reloj. La Sargento no sabe nada.",
+                otro = "Le dije a Vargas que Danny Pereira respira. Le dio cuerda al reloj. La Sargento no sabe nada: la cuenta quedo en la libreta de el." } } },
+        } },
+        final_sargento = { final = true, al_entrar = {
+            { "recompensa", lugar = "patio", radio = 8,
+              items = { { "Base.TinnedBeans", "Base.CannedBeans" }, { "Base.TinnedSoup", "Base.CannedSoup" } } },
+            { "memoria", clave = "danny_pereira", valor = "vivo_contado", si = DANNY_VIVO },
+            { "memoria", clave = "danny_pereira", valor = "muerto_contado", si = { "var", "danny", "muerto" } },
+            { "memoria", clave = "danny_sabe", valor = true, si = { "var", "danny_sabe", true } },
+            { "retirar", grupo = VARGAS, retraso = 0.5 },
+            { "diario", texto = { por_var = "danny", textos = {
+                muerto = "Le conte a la Sargento Pereira que su hermano murio en la gomeria de la calle Preston, y lo de abril del 88. Dijo 'anotado' y 'fuera'. Esa noche no plancho.",
+                otro = "Le conte a la Sargento Pereira que Danny esta vivo en la calle Preston, sin dos muelas, y lo de abril del 88. Dijo 'anotado' y 'fuera'. Esa noche no plancho." } } },
+        } },
+        final_rechazo = { final = true, al_entrar = {
+            { "memoria", clave = "danny_pereira", valor = "rechazado" },
+            { "retirar", grupo = VARGAS, retraso = 0.2 },
+            { "diario", texto = "Vargas me pidio ir a Louisville a ver si respira el hermano de la Sargento. Le dije que esa cuenta no es mia. Lo anoto igual." },
+        } },
+        final_no_fue = { final = true, al_entrar = {
+            { "memoria", clave = "danny_pereira", valor = "no_fue" },
+            { "retirar", grupo = VARGAS },
+            { "diario", texto = "No fui a la calle Preston. La cuenta de Vargas se cerro sola, como dijo, y no a su favor." },
+        } },
+    },
+})
+
+-- ===========================================================================
 -- Capitulo 5: La decision
 -- ===========================================================================
 local ALIADOS = {
@@ -771,7 +997,19 @@ registrar({
     inicio = "orden",
     etapas = {
         orden = {
-            al_entrar = { patio(), pereiraEnPatio() },
+            al_entrar = {
+                patio(), pereiraEnPatio(),
+                -- Lo que dejo bandido_giros (memoria danny_pereira, danny_sabe). Solo con Pereira de jefe.
+                { "variable", nombre = "danny_carpeta", valor = "vivo",
+                  si = { { "var", "bandido_jefe", "pereira" }, { "memoria", "danny_pereira", "vivo_contado" } } },
+                { "variable", nombre = "danny_carpeta", valor = "muerto",
+                  si = { { "var", "bandido_jefe", "pereira" }, { "memoria", "danny_pereira", "muerto_contado" } } },
+                { "variable", nombre = "danny_orden", valor = true,
+                  si = { { "var", "danny_carpeta", "vivo" }, { "memoria", "danny_sabe", true } } },
+                { "variable", nombre = "vargas_cero", valor = true,
+                  si = { { "var", "bandido_jefe", "pereira" },
+                         { "o", { "memoria", "danny_pereira", "vivo" }, { "memoria", "danny_pereira", "muerto" } } } },
+            },
             salidas = {
                 { cuando = { "grupo_listo", PEREIRA }, ir = "plan" },
                 { cuando = { "horas", 6 }, ir = "final_abandonado" },
@@ -783,18 +1021,37 @@ registrar({
             al_entrar = {
                 { "decir", grupo = PEREIRA, rol = "pereira", texto = J("Lo grande. Manana tomamos la comisaria. El cabo muere en la misma puerta que abrio. Tu vas adelante, a mi derecha.", "Lo grande: manana vamos por Sous. Me echaron, me cazaron, me dejaron solo con atun y lechuga. Akagami muere colgado de su barra oxidada.") },
                 { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.08, texto = J("Despues Muldraugh. Despues Knox entero. Los misioneros son curitas en una herida que hay que cauterizar.", "Despues el cabo y despues Knox entero. Pero primero Sous. Mi chuchu decia que uno es de la tierra. Esa base es mia.") },
+                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.12, si = { "var", "danny_carpeta", "vivo" },
+                  texto = "Y lo de la calle Preston no lo vuelva a nombrar delante de la banda. Aqui se habla de la comisaria. Hasta ahi le cuento." },
             },
             opciones = {
                 { id = "con_pereira", texto = "A tu derecha, {jefe_corto}",
                   dice = { rol = "pereira", texto = J("Eso queria escuchar. Duerme. Manana empieza Knox.", "Sabia que no me ibas a fallar, peni. Tu me dejaste vivir. Ahora vivimos los dos.") } },
                 { id = "contra_pereira", texto = "Irte en silencio. Esto se termina, pero no como ella quiere",
                   respuesta = "Asientes, te das la vuelta y caminas sin apuro. Ya sabes a quien le vas a pedir ayuda." },
+                -- Los giros de La Grange (bandido_giros): Danny le mando una orden.
+                { id = "danny", texto = "Repetirle la orden de Danny: que vaya ella a la calle Preston y se lo diga en la cara",
+                  si = { "var", "danny_orden", true },
+                  dice = { rol = "pereira", texto = "...Una orden. De Danny. Nadie me da una orden desde que el teniente se quedo quieto en el sector cuatro." } },
             },
             salidas = {
                 { cuando = { "eleccion", "con_pereira" }, ir = "final_con_pereira" },
                 { cuando = { "eleccion", "contra_pereira" }, ir = "preparar" },
+                { cuando = { "eleccion", "danny" }, ir = "lena" },
                 { cuando = { "horas", 24 }, ir = "final_abandonado" },
             },
+        },
+        -- Pereira cumple la orden de su hermano: deja el patio y el reloj de su padre.
+        lena = {
+            al_entrar = {
+                { "decir", grupo = PEREIRA, rol = "pereira", texto = "Anote la hora. Tome: a las cinco le da cuerda y no lo deje parar. Ahora usted da las ordenes; vamos a ver cuanto le dura." },
+                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.05, texto = "Y al Cabo no le diga nada. Que siga creyendo que tuvo suerte." },
+                { "objeto", id = "hamilton", lugar = "patio", radio = 4, tipo = { "Base.Pocketwatch", "Base.WristWatch_Left_ClassicBrown" },
+                  nombre = "El Hamilton 992B de Manuel Pereira" },
+                { "aviso", retraso = 0.08, texto = "La Sargento Pereira se abotona el uniforme hasta arriba, se cuelga el fusil y camina hacia el norte por las vias, rumbo a Louisville. No mira atras. La banda del patio se queda mirando a quien le dejo el reloj." },
+                { "retirar_lejos", grupo = PEREIRA, lugar = "patio", radio = 80, retraso = 0.1 },
+            },
+            salidas = { { cuando = { "horas", 0.2 }, ir = "final_lena" } },
         },
         preparar = {
             pista = "Pedir ayuda y volver al patio de trenes a terminar con {jefe_corto}. Los misioneros que te tengan confianza 4 van a mandar a su gente.",
@@ -851,10 +1108,30 @@ registrar({
             { "decir", grupo = JULIO, rol = "julio", si = { "mem", "julio_vivo" },
               texto = "Te debia una. Marisol esta bien. Ahora estamos a mano." },
             { "legendario", lugar = "patio", radio = 30, clase = "arma" },
+            -- Los giros de La Grange (bandido_giros): lo que queda en la carpeta y en la libreta.
+            { "aviso", retraso = 0.1, si = { "var", "danny_carpeta", "vivo" },
+              texto = "En la carpeta de carton de Pereira, entre los treinta y tres talones de los giros, hay un papel nuevo con su letra: 'Danny. Calle Preston. Vivo. Ir.' No alcanzo a ir." },
+            { "aviso", retraso = 0.1, si = { "var", "danny_carpeta", "muerto" },
+              texto = "En la carpeta de carton de Pereira, entre los treinta y tres talones de los giros, hay un papel nuevo con su letra: 'Danny. Calle Preston. Cruz.' Al lado, el talon de abril del 88 que nunca mando." },
+            { "aviso", retraso = 0.15, si = { "var", "vargas_cero", true },
+              texto = "Vargas Toledo no disparo un tiro. Te deja su libreta de deudas sobre el riel: 'Ahi esta lo que me deben. Cobrelo usted, o quemela. Lo de la calle Preston quedo en cero. Conste.'" },
             { "memoria", clave = "bandido", valor = "redimido" },
             { "memoria", clave = "bandido_cap", valor = 5 },
             { "memoria", clave = "bandido_ultimo", valor = "hecho" },
             { "diario", texto = J("La Sargento Pereira esta muerta en el patio de trenes. No lo hice solo. Me queda su fusil y una lista de nombres que voy a cargar siempre.", "Meulen Canupan esta muerto en el patio de trenes. Esta vez de verdad. Lo deje vivir una vez y me costo caro a mi y a todo Knox. No lo hice solo: vino gente que todavia creia en mi.") },
+        } },
+        -- Pereira se fue a Louisville con la orden de Danny. Sin pelea: la banda se desarma sola.
+        final_lena = { final = true, al_entrar = {
+            { "retirar", grupo = CAMPAMENTO },
+            { "retirar", grupo = PEREIRA },
+            { "knox_reiniciar", texto = "La gente perdonara tus pecados del pasado, pero en tu mente sigue existiendo cada acto malvado que hiciste." },
+            { "huella", acto = "convenciste", texto = "Le di a la Sargento Pereira la orden de su hermano. Se fue a Louisville sin disparar un tiro y me dejo el reloj de su padre." },
+            { "aviso", texto = "Sin la Sargento, el patio de trenes se vacia en una noche: los desertores se reparten las latas y se van cada uno por su lado. Nadie pasa lista a las cinco y media. Vargas Toledo te deja su libreta sobre el riel: 'Ahi esta lo que me deben. Cobrelo usted, o quemela.'" },
+            { "memoria", clave = "danny_pereira", valor = "lena_fue" },
+            { "memoria", clave = "bandido", valor = "redimido" },
+            { "memoria", clave = "bandido_cap", valor = 5 },
+            { "memoria", clave = "bandido_ultimo", valor = "hecho" },
+            { "diario", texto = "La Sargento Pereira se fue caminando por las vias hacia Louisville, a la calle Preston, porque su hermano se lo ordeno. Me dejo el reloj de su padre. A las cinco le doy cuerda. La banda se desarmo sola." },
         } },
         final_escapo = { final = true, al_entrar = {
             { "retirar", grupo = "banda" },
@@ -936,6 +1213,9 @@ registrar({
                   texto = "Tu trabajabas para ella, cierto? Lo se todo. Llevaba una libreta. Yo tambien llevo una. Sigues conmigo, peni, donde quedaste." },
                 { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.05, si = { "no", { "var", "venia_de_pereira", true } },
                   texto = "La sargento me recibio con un fusil. Yo la recibi con una sonrisa. Ahora el patio es mio. Y tu me dejaste vivir. Eso se paga." },
+                -- Los giros de La Grange (bandido_giros): Pereira sabia que su hermano estaba vivo.
+                { "decir", grupo = PEREIRA, rol = "pereira", retraso = 0.12, si = { "memoria", "danny_pereira", "vivo_contado" },
+                  texto = "La sargento tenia un papel en la carpeta, peni: 'Danny. Calle Preston. Vivo.' Iba para alla, creo. Yo llegue primero. Mi chuchu decia que el que llega tarde no come." },
             },
             opciones = {
                 { id = "unirse", texto = "Que necesitas, Meulen?",
@@ -986,7 +1266,7 @@ local function campamentoEnPatio()
         postura = "friendly", perfiles = CAMPAMENTO_PATIO }
 end
 
-for _, id in ipairs({ "bandido_1", "bandido_2", "bandido_3", "bandido_4", "bandido_5", "bandido_maulen" }) do
+for _, id in ipairs({ "bandido_1", "bandido_2", "bandido_3", "bandido_4", "bandido_giros", "bandido_5", "bandido_maulen" }) do
     local def = Narrador.Defs.get(id)
     if def ~= nil and def.etapas ~= nil then
         for _, etapa in pairs(def.etapas) do
