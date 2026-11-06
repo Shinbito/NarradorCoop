@@ -26,6 +26,7 @@ flowchart LR
   cal_fonda["La fonda de Sous"]
   cap_cabo_2["La puerta de atras"]
   cap_cabo_4["Los signos de pregunta"]
+  cap_cabo_5["El aprendiz"]
   cap_chela_2["La radio del cuartel"]
   cap_chela_4["La calle Main"]
   cap_nacho_2["El ring de Lexington"]
@@ -78,6 +79,7 @@ flowchart LR
   hsous_martin_a["La luz de Sous"]
   hsous_martin_z["La Awp de SOUS"]
   leyenda_eduardo["Un cientifico que dice tener la cura"]
+  miguel_evento["Miguel Angel, en apuros"]
   reconquista_muldraugh["La reconquista: la comisaria de Muldraugh"]
   reconquista_patio["La reconquista: el patio de trenes"]
   reconquista_riverside["La reconquista: la iglesia de Riverside"]
@@ -117,6 +119,8 @@ flowchart LR
   bandido_maulen -->|final_unido: sigue el camino con Meulen de jefe| bandido_2
   bandido_maulen -->|final_redimido: Meulen muere (era el jefe)| venganza_meulen
   cap_cabo_2 -->|final_cumplido, final_muerta: historia_muldraugh_2| hija_cabo
+  cap_cabo_4 -->|final_cruces, final_cumplido, final_sin_reloj: historia_muldraugh_4| cap_cabo_5
+  cap_cabo_5 -->|final_lo_trajo_eduardo, final_reencuentro: miguel_angel| miguel_evento
   cap_chela_2 -->|final_cumplido: historia_westpoint_2| leyenda_eduardo
   cap_nacho_2 -->|final_cumplido: historia_riverside_2| cap_nacho_3
   cap_nacho_3 -->|final_cumplido, final_muerta: historia_riverside_3| cap_nacho_4
@@ -198,9 +202,15 @@ flowchart LR
   trueque_trampa -->|final_escapaste: eco| asalto_nocturno
   trueque_trampa -->|final_ganada: trueque = ganado| eco_trueque_cobro
   bandido_5 --x|corta: final_con_pereira: bandido = pereira| eduardo_evento
+  bandido_5 --x|corta: final_con_pereira: bandido = pereira| miguel_evento
+  conquista_muldraugh --x|corta: knox_conquistado| miguel_evento
+  conquista_riverside --x|corta: knox_conquistado| miguel_evento
+  conquista_rosewood --x|corta: knox_conquistado| miguel_evento
+  conquista_westpoint --x|corta: knox_conquistado| miguel_evento
   eduardo_fallas --x|corta: final_eduardo_muerto: fin| eduardo_atentado
   eduardo_fallas --x|corta: final_eduardo_muerto: eduardo_muerto_duelo| eduardo_evento
   eduardo_fallas --x|corta: final_eduardo_muerto: fin| eduardo_evento
+  eduardo_fallas --x|corta: final_eduardo_muerto: fin| miguel_evento
   eduardo_fallas --x|corta: final_eduardo_muerto: fin| reconquista_muldraugh
   eduardo_fallas --x|corta: final_eduardo_muerto: fin| reconquista_patio
   eduardo_fallas --x|corta: final_eduardo_muerto: fin| reconquista_riverside
@@ -209,6 +219,7 @@ flowchart LR
   reconquista_patio --x|corta: final_luz: fin| eduardo_atentado
   reconquista_patio --x|corta: final_luz: fin| eduardo_evento
   reconquista_patio --x|corta: final_luz: fin| eduardo_fallas
+  reconquista_patio --x|corta: final_luz: fin| miguel_evento
   reconquista_patio --x|corta: final_luz: fin| reconquista_muldraugh
   reconquista_patio --x|corta: final_luz: fin| reconquista_riverside
   reconquista_patio --x|corta: final_luz: fin| reconquista_rosewood
@@ -335,9 +346,16 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_cruces` | "Decirles que vayan con el Cabo; te espera en la comisaria", y despues `todos_muertos ortiz`<br>`todos_muertos ortiz` | `historia_muldraugh_4` = fallido | - |
-| `final_cumplido` | "Darle al Cabo el reloj de Amos Pruitt" | `historia_muldraugh_4` = true | - |
-| `final_sin_reloj` | "Contarle lo de Amos (el reloj se perdio)" | `historia_muldraugh_4` = true | - |
+| `final_cruces` | "Decirles que vayan con el Cabo; te espera en la comisaria", y despues `todos_muertos ortiz`<br>`todos_muertos ortiz` | `historia_muldraugh_4` = fallido | cap_cabo_5 |
+| `final_cumplido` | "Darle al Cabo el reloj de Amos Pruitt" | `historia_muldraugh_4` = true | cap_cabo_5 |
+| `final_sin_reloj` | "Contarle lo de Amos (el reloj se perdio)" | `historia_muldraugh_4` = true | cap_cabo_5 |
+
+### El aprendiz (`cap_cabo_5`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_lo_trajo_eduardo` | `pasan 120 h` | `historia_muldraugh_5` = fallido, `miguel_angel` = en_muldraugh | miguel_evento |
+| `final_reencuentro` | "Eduardo, llevatelo un tiempo contigo" o "Tu papa te esta esperando en la comisaria", y despues `npc_cerca miguel contacto 15` | `historia_muldraugh_5` = true, `miguel_angel` = en_muldraugh | miguel_evento |
 
 ### La calle Main (`cap_chela_4`)
 
@@ -683,6 +701,15 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 | `final_cumplido` | "No decirle nada" o "Giovanns... Eduardo? Tu mama, la Tia Chela, te espera en el cuartel de West Point.", y despues `npc_cerca cientifico contacto 15` | `cientifico_hartmann` = en_west_point, `historia_westpoint_3` = true | cap_chela_4 |
 | `final_muerto` | "No decirle nada" o "Giovanns... Eduardo? Tu mama, la Tia Chela, te espera en el cuartel de West Point.", y despues `todos_muertos cientifico`<br>`todos_muertos cientifico` | `cientifico_hartmann` = muerto, `historia_westpoint_3` = fallido | cap_chela_4 |
 
+### Miguel Angel, en apuros (`miguel_evento`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_eduardo` | `(bajas_en llegada var:horda_meta 70 o pasan 0.5 h y sin_zombis llegada 15)`<br>`ausente aqui 120 0.2`<br>`pasan 2 h` | - | - |
+| `final_nada` | `pasan 2 h` | - | - |
+| `final_solo` | `ausente aqui 120 0.2`<br>`pasan 2 h` | - | - |
+| `final_tu` | `(bajas_en llegada var:horda_meta 70 o pasan 0.5 h y sin_zombis llegada 15)` | - | - |
+
 ### La reconquista: la comisaria de Muldraugh (`reconquista_muldraugh`)
 
 | Final | Como se llega | Deja | Lleva a |
@@ -771,6 +798,7 @@ un texto que cambia, una variante o lo que decide un final.
 | La fonda de Sous | `cal_fonda` | del 10 al 18 de septiembre (asado el 18), con Sous aliado (NarradorCalendario) | `sous = aliados` | - | - | `cal.fonda` = hecha (final_fonda)<br>`cal.fonda` = sin (final_sin_fonda) |
 | La puerta de atras | `cap_cabo_2` | capitulo 2 de muldraugh, entre sus ofertas (confianza 2+) | `historia_muldraugh_1` | - | - | `historia_muldraugh_2` = fallido (final_muerta)<br>`historia_muldraugh_2` = true (final_cumplido) |
 | Los signos de pregunta | `cap_cabo_4` | capitulo 4 de muldraugh, entre sus ofertas (confianza 4+) | `historia_muldraugh_3` | `hija_cabo` | - | `historia_muldraugh_4` = fallido (final_cruces)<br>`historia_muldraugh_4` = true (final_cumplido)<br>`historia_muldraugh_4` = true (final_sin_reloj) |
+| El aprendiz | `cap_cabo_5` | capitulo 5 de muldraugh, entre sus ofertas (confianza 4+) | `historia_muldraugh_4` | `hija_cabo` | - | `historia_muldraugh_5` = fallido (final_lo_trajo_eduardo)<br>`historia_muldraugh_5` = true (final_reencuentro)<br>`miguel_angel` = en_muldraugh (final_lo_trajo_eduardo)<br>`miguel_angel` = en_muldraugh (final_reencuentro) |
 | La radio del cuartel | `cap_chela_2` | capitulo 2 de westpoint, entre sus ofertas (confianza 2+) | `historia_westpoint_1` | - | - | `historia_westpoint_2` = true (final_cumplido)<br>`radio_westpoint` = true (final_cumplido) |
 | La calle Main | `cap_chela_4` | capitulo 4 de westpoint, entre sus ofertas (confianza 4+) | `historia_westpoint_3` | - | - | `historia_westpoint_4` = fallido (final_muerta)<br>`historia_westpoint_4` = true (final_descansa)<br>`historia_westpoint_4` = true (final_relicario) |
 | El ring de Lexington | `cap_nacho_2` | capitulo 2 de riverside, entre sus ofertas (confianza 2+) | `historia_riverside_1` | - | - | `historia_riverside_2` = true (final_cumplido) |
@@ -824,6 +852,7 @@ un texto que cambia, una variante o lo que decide un final.
 | La luz de Sous | `hsous_martin_a` | al pasar por la base de Sous, de a una y con horas entre una y otra (NarradorHistoriasSous1) | `sous = aliados` | - | `hsous_martin_a`, `sous_murio_martin_a` | `hsous_martin_a` = fallido (final_fallido)<br>`hsous_martin_a` = hecho (final_hecho)<br>`hsous_martin_a` = murio (final_murio) |
 | La Awp de SOUS | `hsous_martin_z` | al pasar por la base de Sous, de a una y con horas entre una y otra (NarradorHistoriasSous1) | `sous = aliados` | - | `hsous_martin_z`, `sous_murio_martin_z` | `hsous_martin_z` = fallido (final_fallido)<br>`hsous_martin_z` = hecho (final_hecho)<br>`hsous_martin_z` = murio (final_murio) |
 | Un cientifico que dice tener la cura | `leyenda_eduardo` | capitulo 3 de westpoint, entre sus ofertas (confianza 3+) | `historia_westpoint_2` | `curandero_falso` | - | `cientifico_hartmann` = en_west_point (final_cumplido)<br>`cientifico_hartmann` = muerto (final_muerto)<br>`eduardo_conocido` = true (caido)<br>`eduardo_conocido` = true (despedida)<br>`historia_westpoint_3` = fallido (final_muerto)<br>`historia_westpoint_3` = true (final_cumplido) |
+| Miguel Angel, en apuros | `miguel_evento` | tirada diaria, lejos de Muldraugh (NarradorMiguel) | `miguel_angel` | - | `bandido = pereira`, `fin`, `knox_conquistado` | - |
 | La reconquista: la comisaria de Muldraugh | `reconquista_muldraugh` | al entrar a Muldraugh (NarradorBandido) | `reconquista = true` | `misionero_muerto_muldraugh` | `fin` | `reconquista_muldraugh` = true (final_reconquistado) |
 | La reconquista: el patio de trenes | `reconquista_patio` | con las 4 ciudades reconquistadas (NarradorBandido) | `reconquista_muldraugh`, `reconquista_riverside`, `reconquista_rosewood`, `reconquista_westpoint` | - | `fin` | `fin` = reconquista (final_luz) |
 | La reconquista: la iglesia de Riverside | `reconquista_riverside` | al entrar a Riverside (NarradorBandido) | `reconquista = true` | `misionero_muerto_riverside` | `fin` | `reconquista_riverside` = true (final_reconquistado) |
@@ -851,7 +880,7 @@ un texto que cambia, una variante o lo que decide un final.
 | `arsenal` | Que sacaste del arsenal de Louisville (arma, auto o traje). Un misionero te lo comenta (NarradorConsecuencias). | sous_arsenal | - | - | escribe: Sous; lee: NarradorConsecuencias |
 | `arsenal_comentado` | Que misionero ya te comento lo del arsenal (una sola vez). | - | - | - | escribe: NarradorConsecuencias; lee: NarradorConsecuencias |
 | `asalto` | El asalto nocturno: rechazado. | asalto_nocturno | - | - | escribe: EventosCortos |
-| `bandido` | Camino del bandido: pereira, rechazado, redimido o pereira_escapo. | bandido_1, bandido_2, bandido_3, bandido_4, bandido_5, bandido_maulen | conquista_muldraugh, conquista_sous, eduardo_evento | - | escribe: Bandido, NarradorBandido; lee: NarradorBandido, NarradorEduardo, NarradorEduardoResidente, NarradorVenganzaMeulen |
+| `bandido` | Camino del bandido: pereira, rechazado, redimido o pereira_escapo. | bandido_1, bandido_2, bandido_3, bandido_4, bandido_5, bandido_maulen | conquista_muldraugh, conquista_sous, eduardo_evento, miguel_evento | - | escribe: Bandido, NarradorBandido; lee: NarradorBandido, NarradorEduardo, NarradorEduardoResidente, NarradorMiguel, NarradorVenganzaMeulen |
 | `bandido_abandono_hora` | Hora en que se boto el ultimo capitulo del bandido (enfriamiento en NarradorBandido BA.revisar). | - | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `bandido_aviso_cabo` | Ya se aviso que el cap. 2 espera el campamento del Cabo. | - | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `bandido_cap` | Ultimo capitulo del bandido hecho (1 a 5). | bandido_1, bandido_2, bandido_3, bandido_4, bandido_5 | bandido_2, bandido_3, bandido_4, bandido_5 | - | escribe: Bandido, NarradorBandido; lee: NarradorBandido |
@@ -890,9 +919,9 @@ un texto que cambia, una variante o lo que decide un final.
 | `estanque_ultima` | Hora del ultimo bidon del estanque de la Misia Rosa (NarradorConsecuencias). | - | - | - | escribe: NarradorConsecuencias; lee: NarradorConsecuencias |
 | `faccion.<id>` | Postura de las facciones propias en A-Life (accion 'faccion'). | - | - | - | escribe: NarradorMotorAcciones |
 | `favor_<rol>` | El favor de ese miembro de Sous: hecho o murio. Con 'hecho' ya no se ofrece. | favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z | - | - | escribe: FavoresSous; lee: FavoresSous |
-| `fin` | Final del juego: eduardo_muerto o reconquista. Corta el bandido y los eventos de Eduardo. | eduardo_fallas, reconquista_patio | eduardo_atentado, eduardo_evento, eduardo_fallas, reconquista_muldraugh, reconquista_patio, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | - | escribe: Eduardo; lee: NarradorBandido, NarradorEduardo, NarradorVenganzaMeulen |
-| `hija_cabo` | Valentina: salvada o muerta. Si murio, en la reconquista la reemplaza otro (NUEVO_MURIO). | hija_cabo | - | cap_cabo_4 | escribe: HijaCabo; lee: Capitulos, NarradorDominiosDefs |
-| `historia_<id>_<n>` | Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento. | cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint, hija_cabo, leyenda_eduardo | bandido_2, cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, eduardo_vuelve, hija_cabo, leyenda_eduardo | - | escribe: Capitulos, Desbloqueos, HijaCabo, LeyendaEduardo, NarradorContactos, NarradorGenerador; lee: Capitulos, NarradorCampamentos, NarradorContactos, NarradorGenerador |
+| `fin` | Final del juego: eduardo_muerto o reconquista. Corta el bandido y los eventos de Eduardo. | eduardo_fallas, reconquista_patio | eduardo_atentado, eduardo_evento, eduardo_fallas, miguel_evento, reconquista_muldraugh, reconquista_patio, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | - | escribe: Eduardo; lee: NarradorBandido, NarradorEduardo, NarradorMiguel, NarradorVenganzaMeulen |
+| `hija_cabo` | Valentina: salvada o muerta. Si murio, en la reconquista la reemplaza otro (NUEVO_MURIO). | hija_cabo | - | cap_cabo_4, cap_cabo_5 | escribe: HijaCabo; lee: Capitulos, MiguelAngel, NarradorDominiosDefs |
+| `historia_<id>_<n>` | Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento. | cap_cabo_2, cap_cabo_4, cap_cabo_5, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint, hija_cabo, leyenda_eduardo | bandido_2, cap_cabo_2, cap_cabo_4, cap_cabo_5, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, eduardo_vuelve, hija_cabo, leyenda_eduardo | - | escribe: Capitulos, Desbloqueos, HijaCabo, LeyendaEduardo, MiguelAngel, NarradorContactos, NarradorGenerador; lee: Capitulos, NarradorCampamentos, NarradorContactos, NarradorGenerador |
 | `historia_abierta` | true desde que alguien reclamo un refugio: abre el modo historia (Motor.historiaAbierta). | - | - | - | escribe: NarradorMotor; lee: NarradorMotor |
 | `historia_abierta_hora` | Hora en que se abrio el modo historia (solo para mirar). | - | - | - | escribe: Capitulos, NarradorMotor; lee: NarradorCampamentos |
 | `hora_hsous` | Hora en que se lanzo la ultima historia personal de Sous (horas entre una y otra). | - | - | - | escribe: NarradorHistoriasSous1; lee: NarradorHistoriasSous1, NarradorHistoriasSous2 |
@@ -900,7 +929,7 @@ un texto que cambia, una variante o lo que decide un final.
 | `hsous_primos` | Lo que le dijiste a Matric de los primos en su historia: contado, verdad o secreto (ecos en la base). | hsous_benjamin | - | - | escribe: HistoriasSous1; lee: HistoriasSous1, NarradorHistoriasSous1 |
 | `julio_vivo` | Dejaste ir a Julio Cardenas en el cap. 1. | bandido_1 | - | bandido_5 | escribe: Bandido; lee: Bandido |
 | `knox_bandido_<grupo>` | 'listo' la primera vez que el grupo llega a -5 de Knox (abre a Pereira). | - | bandido_1 | - | escribe: NarradorKnox; lee: NarradorKnox |
-| `knox_conquistado` | Las conquistas terminaron (la comisaria, West Point, Riverside y Rosewood; antes la base de Sous si Meulen es el jefe y Sous sigue en pie): Knox es de la banda. | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_westpoint | eduardo_atentado | - | escribe: NarradorBandido; lee: NarradorBandido, NarradorEduardoResidente |
+| `knox_conquistado` | Las conquistas terminaron (la comisaria, West Point, Riverside y Rosewood; antes la base de Sous si Meulen es el jefe y Sous sigue en pie): Knox es de la banda. | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_westpoint | eduardo_atentado, miguel_evento | - | escribe: NarradorBandido; lee: NarradorBandido, NarradorEduardoResidente, NarradorMiguel |
 | `knox_conquistado_hora` | Hora en que Knox quedo conquistado (cuenta para el primer atentado). | - | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `lucas` | Lucas (hijo perdido): rescatado, muerto, asesinado o transformado. Rescatado: te marca una farmacia; asesinado: Loretta lo cuenta (Knox -15). | hijo_perdido | eco_lucas_farmacia, eco_lucas_loretta | - | escribe: EventosCortos; lee: ConsecuenciasExtra |
 | `lucia` | Que paso con la Hermana Lucia en el cap. 3 del Padre Nacho (en_riverside o muerta). Si murio, la reemplaza otro. | cap_nacho_3 | - | cap_nacho_4 | escribe: Capitulos; lee: Capitulos, NarradorDominiosDefs |
@@ -915,6 +944,9 @@ un texto que cambia, una variante o lo que decide un final.
 | `meulen_final` | Como termino la venganza de Meulen: muerto (de verdad; abre el reclutamiento de Sous). | venganza_meulen | venganza_meulen | - | escribe: VenganzaMeulen; lee: NarradorSousConfianza, NarradorVenganzaMeulen |
 | `meulen_muerte_hora` | Hora en que el lanzador vio a Meulen muerto (en Sous o en el patio): 120 horas despues vuelve (venganza_meulen). | - | venganza_meulen | - | escribe: NarradorVenganzaMeulen; lee: NarradorVenganzaMeulen |
 | `meulen_venganza` | La venganza de Meulen ya se lanzo ('lanzada'): no se repite. | - | venganza_meulen | - | escribe: NarradorVenganzaMeulen; lee: NarradorVenganzaMeulen |
+| `miguel_angel` | Miguel Angel volvio a la comisaria (en_muldraugh). Abre sus eventos fortuitos y sus conversaciones. | cap_cabo_5 | miguel_evento | - | escribe: MiguelAngel; lee: MiguelAngel, NarradorMiguel |
+| `miguel_ev_dia` | Ultimo dia en que se tiro el evento fortuito de Miguel Angel. | - | - | - | escribe: NarradorMiguel; lee: NarradorMiguel |
+| `miguel_ev_hora` | Hora del ultimo evento fortuito de Miguel Angel. | - | - | - | escribe: NarradorMiguel; lee: NarradorMiguel |
 | `misionero_muerto_<id>` | El misionero de esa ciudad murio en la conquista. | - | - | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_westpoint, reconquista_muldraugh, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | escribe: NarradorDominios; lee: NarradorDominios |
 | `nuevo_<id>` | Quien reemplaza al misionero nuevo de la reconquista que murio antes: bell_padre, bell_madre, bell_hijo o forastero. | - | - | - | escribe: NarradorDominios; lee: NarradorDominios |
 | `pereira_aviso_desconfia` | Ya se aviso que el jefe del patio te vigila. | - | - | - | escribe: NarradorBandido; lee: NarradorBandido |

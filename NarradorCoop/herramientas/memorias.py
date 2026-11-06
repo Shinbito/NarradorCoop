@@ -67,6 +67,10 @@ MEMORIAS = {
     "cientifico_hartmann": "El doctor Hartmann: en_west_point o muerto. Muerto, el curandero de la Chela es un mercader.",
     "eduardo_ev_dia": "Ultimo dia en que se tiro el evento fortuito de Eduardo.",
     "eduardo_ev_hora": "Hora del ultimo evento fortuito de Eduardo.",
+    # --- Miguel Angel, el hijo del Cabo (cap. 5 del Cabo) ---
+    "miguel_angel": "Miguel Angel volvio a la comisaria (en_muldraugh). Abre sus eventos fortuitos y sus conversaciones.",
+    "miguel_ev_dia": "Ultimo dia en que se tiro el evento fortuito de Miguel Angel.",
+    "miguel_ev_hora": "Hora del ultimo evento fortuito de Miguel Angel.",
     # --- Camino del bandido ---
     "knox_bandido_<grupo>": "'listo' la primera vez que el grupo llega a -5 de Knox (abre a Pereira).",
     "bandido": "Camino del bandido: pereira, rechazado, redimido o pereira_escapo.",

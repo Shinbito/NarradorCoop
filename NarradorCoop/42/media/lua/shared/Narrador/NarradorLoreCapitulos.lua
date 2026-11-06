@@ -247,4 +247,40 @@ Lore.arcos.cap_rosa_5 = {
     },
 }
 
+Lore.arcos.cap_cabo_5 = {
+    etapas = {
+        viaje = "El Cabo tiene un hijo: Miguel Angel. Se fue detras de Eduardo Giovanns para ser su aprendiz. Lo vieron en {lugar:sitio}. El Cabo no lo anoto en el censo. Dice que no sabe donde ponerlo.",
+        sitio = "En {lugar:sitio} un muchacho con casco de policia pelea solo contra una horda. Tiene la mandibula del Cabo y ninguna de sus precauciones.",
+        pelea = "Miguel Angel grita las frases de Eduardo mientras pelea. Las grita bien. Las pelea peor.",
+        cae = "Miguel Angel se tropezo con su propio pie y quedo bajo tres muertos. Y entonces, un silbido.",
+        rescate = "Llego Eduardo, como si lo hubieran llamado. Dice que es la cuarta vez esta semana. Miguel Angel dice que tres.",
+        hablar = "La horda se acabo. Miguel Angel esta entero, como siempre. Falta decirle que su papa lo espera.",
+        escolta = "Llevo a Miguel Angel a la comisaria. Me cuenta todos sus rescates. Casi todos se los hicieron a el.",
+    },
+    finales = {
+        final_reencuentro = "Miguel Angel volvio a la comisaria. El Cabo le dijo 'firme' y despues 'descanse', y en el medio le temblo la voz. Ahora vive ahi, con su libreta de rescates.",
+        final_lo_trajo_eduardo = "No fui por Miguel Angel. Lo trajo Eduardo a la comisaria, en el hombro, vivo. Siempre vivo. El Cabo no me lo va a olvidar.",
+    },
+}
+
+-- ===========================================================================
+-- Miguel Angel, en apuros (evento fortuito)
+-- ===========================================================================
+local function MR(e, j) return { por_var = "rescate", textos = { eduardo = e, otro = j } } end
+Lore.arcos.miguel_evento = {
+    etapas = {
+        llega = "Alguien viene corriendo y gritando mi nombre. Con un casco de policia que le baila en la cabeza.",
+        apuro = "Es Miguel Angel, el hijo del Cabo. Trae una horda detras. Dice que fue sin querer. Un poco queriendo.",
+        cae = MR("Miguel Angel cayo bajo los muertos. Y se escucha un silbido.", "Miguel Angel cayo bajo los muertos. Esta vez no llega nadie. Solo yo."),
+        con_eduardo = "Eduardo llego a salvarlo, otra vez. Peleo a su lado.",
+        contigo = "Le saco los muertos de encima a Miguel Angel. Si me voy, nadie lo va a salvar. Aunque igual se salva.",
+    },
+    finales = {
+        final_eduardo = "Miguel Angel llego con una horda, cayo, y lo salvo Eduardo. Como siempre. Perdio la cuenta de los rescates.",
+        final_tu = "Esta vez lo salve yo. Miguel Angel me anoto en su pagina de leyendas.",
+        final_solo = "Deje solo a Miguel Angel con la horda. Se salvo igual, por las minimas. Siempre se salva.",
+        final_nada = "Escuche a alguien gritar mi nombre a lo lejos, y despues un golpe, y despues nada.",
+    },
+}
+
 return Lore

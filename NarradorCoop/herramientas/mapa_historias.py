@@ -61,6 +61,8 @@ LANZADORES = {
     "reconquista_patio": ("con las 4 ciudades reconquistadas (NarradorBandido)",
                           ["reconquista_muldraugh", "reconquista_westpoint", "reconquista_riverside", "reconquista_rosewood"], FIN),
     "eduardo_evento": ("tirada diaria (NarradorEduardo)", ["eduardo_conocido"], ["eduardo_muerto_duelo", ("bandido", "pereira"), "fin"]),
+    "miguel_evento": ("tirada diaria, lejos de Muldraugh (NarradorMiguel)", ["miguel_angel"],
+                      [("bandido", "pereira"), "fin", "knox_conquistado"]),
     "eduardo_vuelve": ("al pasar por el cuartel de la Chela, con su campamento (NarradorContactos)",
                      ["caido_eduardo", "historia_westpoint_1"], []),
     "desbloqueo_muldraugh": ("al andar por Muldraugh (NarradorContactos)", [], []),
