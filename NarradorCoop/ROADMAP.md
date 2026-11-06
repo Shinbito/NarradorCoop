@@ -9,6 +9,27 @@ memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias
 memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 
+## Voces de los personajes con ElevenLabs (falta generar los audios y probar en el juego)
+- Voces por proximidad (`client/Narrador/NarradorVoces.lua`): cerca la frase clara, lejos (desde 8
+  casillas hasta `Narrador.VocesDistancia`) la misma frase apagada; las frases sin audio (con lugares
+  o nombres) suenan como murmullo de la voz de ese personaje. Varias a la vez se mezclan solas, con
+  tope de 6. Opciones de sandbox: `Voces`, `VocesMurmullos`, `VocesDistancia`.
+- Herramientas en `herramientas/voces/` (ver su `LEEME.md`): `exportar.py` arma el guion (1.867
+  frases, 1.674 para grabar, ~124.000 caracteres), `textos_voz.json` tiene el texto con tildes
+  revisado frase por frase, `voces.json` el catalogo (Sous, Meulen, Eduardo y Miguel Angel con voz
+  disenada; el resto de la biblioteca de ElevenLabs) y `generar.py` pide los audios y arma los .ogg
+  (cerca y lejos), los sonidos y el indice.
+- Falta: crear/elegir las voces en ElevenLabs y pegar sus ids en `voces.json`; generar; probar en el
+  juego que `getEmitter():playSound` suene desde los NPCs de A-Life y que el tope de voces alcance.
+
+## Miguel Angel, el hijo del Cabo (falta probar en el juego)
+- `cap_cabo_5` (Arcos/MiguelAngel.lua): el Cabo pide traer a su hijo, que se fue detras de Eduardo
+  para ser su aprendiz. Pelea solo contra una horda, cae, y llega Eduardo a salvarlo. Vuelve contigo
+  a la comisaria y se queda de residente (inmortal) con su charla y conversaciones con Valentina y el
+  Cabo. Si no vas en 120 horas, lo trae Eduardo igual.
+- `miguel_evento` (NarradorMiguel.lua): cada tanto aparece en apuros lejos de Muldraugh. 3 de cada
+  4 veces lo salva Eduardo; si no, te toca a ti; si lo dejas, se salva igual. Nunca muere.
+
 ## Capitulo 5 de la Misia Rosa: el primer camion (0.13.6, falta probar en el juego)
 - `cap_rosa_5` (Arcos/Capitulos.lua): sale con el capitulo 4 (la carcel) hecho, aunque haya
   salido mal, y confianza 4. Pago dificil. Cierra lo que venia de la capa 4 de su perfil y del

@@ -1,0 +1,630 @@
+{
+  "_leeme": "Catalogo de voces. 'diseñada': crear la voz en ElevenLabs (Voice Design) con la descripcion y pegar su voice_id. 'biblioteca': elegir una voz de la Voice Library que calce con la descripcion y pegar su voice_id. 'nombres_juego': como se llama el personaje en el juego (el cliente reconoce la voz por ese nombre).",
+  "modelo": "eleven_multilingual_v2",
+  "ajustes": {
+    "stability": 0.45,
+    "similarity_boost": 0.8,
+    "style": 0.25,
+    "use_speaker_boost": true
+  },
+  "voces": {
+    "akagami": {
+      "nombre": "Martin Akagami (Sous)",
+      "tipo": "diseñada",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Martin Akagami",
+        "Akagami"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Young Chilean man, around 24, the natural leader of his group of friends. Confident, energetic mid-range voice, organized and a bit bossy but warm, talks like a team captain and a competitive gamer. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+    },
+    "zent": {
+      "nombre": "Martin Zent (Sous)",
+      "tipo": "diseñada",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Martin Zent",
+        "Zent"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Young Chilean man, around 24, dry deadpan humor. Low, flat, slightly nasal voice, speaks slowly and sarcastically as if nothing impresses him, short sentences. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+    },
+    "matric": {
+      "nombre": "Benjamin Matric (Sous)",
+      "tipo": "diseñada",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Benjamin Matric",
+        "Matric"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Young Chilean man, around 22, talkative and a little nervous, gym guy. Bright, fast, slightly higher voice that rushes when excited, friendly and flirty, says 'bro' and 'hermano' a lot. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+    },
+    "shinbo": {
+      "nombre": "David Shinbo (Sous)",
+      "tipo": "diseñada",
+      "genero": "hombre",
+      "nombres_juego": [
+        "David Shinbo",
+        "Shinbo"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Young Chilean man, around 23, introverted and analytical, likes to explain things like a sociology student. Calm, soft, precise and slightly monotone voice, thoughtful pauses. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+    },
+    "tati": {
+      "nombre": "Bastian Tati (Sous)",
+      "tipo": "diseñada",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Bastian Tati",
+        "Tati"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Young Chilean man, around 22, stylish and cheeky, football lover. Relaxed, playful street-smart voice with a lazy drawl, ends sentences with 'po' and calls everyone 'loco'. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+    },
+    "walita": {
+      "nombre": "Hanz Walita (Sous)",
+      "tipo": "diseñada",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Hanz Walita",
+        "Walita",
+        "Hanz"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Young man from northern Chile (Iquique and Arica), around 25, a woodcarver. Warm, easygoing, slightly husky voice with a relaxed northern Chilean accent, generous and teasing, says 'vale broder'."
+    },
+    "cristonks": {
+      "nombre": "Cristian Cristonks (Sous)",
+      "tipo": "diseñada",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Cristian Cristonks",
+        "Cristonks"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Young Chilean man, around 21, the joker of the group who laughs 'akkakaka'. High-energy, cheerful, slightly raspy voice, quick and mischievous, calls people 'compadre' and 'primo'. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+    },
+    "hasag": {
+      "nombre": "Jorge Hasag (Sous)",
+      "tipo": "diseñada",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Jorge Hasag",
+        "Hasag"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Young Chilean man, around 24, the group's careful accountant who counts every can. Medium-low, steady, slightly worried voice, practical and meticulous, says 'broder' and 'manito'. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+    },
+    "wertres": {
+      "nombre": "Cristobal Wertres (Sous)",
+      "tipo": "diseñada",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Cristobal Wertres",
+        "Wertres"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Young Chilean man, around 23, loud and teasing, always making fun of his friends. Brash, punchy, rough-edged voice with lots of attitude, says 'hermanito' and 'wn'. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+    },
+    "meulen": {
+      "nombre": "Meulen Canupan",
+      "tipo": "diseñada",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Meulen Canupan",
+        "Meulen",
+        "Maulen"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Chilean man, around 27, former friend who became a traitor and later a bandit leader. Charismatic, smooth, low voice with a cold undertone; friendly on the surface, menacing underneath. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+    },
+    "eduardo": {
+      "nombre": "Eduardo Giovanns",
+      "tipo": "diseñada",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Eduardo Giovanns",
+        "Eduardo",
+        "Giovanns"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Latin American man, around 40, a humble legendary hero who helps everyone. Deep, warm, calm baritone, steady and reassuring even in danger, quiet strength and a little tired, speaks neutral Latin American Spanish."
+    },
+    "miguel_angel": {
+      "nombre": "Miguel Angel Mandados",
+      "tipo": "diseñada",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Miguel Angel Mandados",
+        "Miguel Angel",
+        "Miguel"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Young Latin American man, around 19, an over-eager apprentice hero who idolizes his mentor. Bright, enthusiastic, slightly cracking voice that talks fast and gets louder when excited, clumsy and sincere, neutral Latin American Spanish."
+    },
+    "cabo_ramiro": {
+      "nombre": "Cabo Ramiro",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Cabo Ramiro",
+        "Ramiro"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre de 55 anos, ex cabo de policia. Voz firme, seca y formal, habla como si diera ordenes; espanol latino neutro."
+    },
+    "tia_chela": {
+      "nombre": "Tia Chela",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Tia Chela",
+        "Chela"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer de 60 anos, bombera voluntaria. Voz calida pero reganona de tia, rapida y con caracter; espanol latino (dice mijo)."
+    },
+    "padre_nacho": {
+      "nombre": "Padre Nacho",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Padre Nacho",
+        "Nacho"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre de 65 anos, pastor de pueblo. Voz suave, grave y paciente, con humor tranquilo; espanol latino."
+    },
+    "misia_rosa": {
+      "nombre": "Misia Rosa",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Misia Rosa",
+        "Rosa"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer de 70 anos, duena de una gasolinera. Voz gastada, ronca y carinosa, habla lento; espanol latino rural."
+    },
+    "daniel_bell": {
+      "nombre": "Daniel Bell",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Daniel Bell",
+        "Daniel"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Padre de familia de 45 anos, cansado y protector; espanol latino neutro."
+    },
+    "yvonne_bell": {
+      "nombre": "Yvonne Bell",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Yvonne Bell",
+        "Yvonne"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Madre de familia de 43 anos, firme y preocupada; espanol latino neutro."
+    },
+    "wade_bell": {
+      "nombre": "Wade Bell",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Wade Bell",
+        "Wade"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Adolescente de 16 anos, inquieto e ingenioso; espanol latino neutro."
+    },
+    "valentina": {
+      "nombre": "Valentina Mandados",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Valentina Mandados",
+        "Valentina"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer de 23 anos, hija del Cabo, dura y valiente, voz decidida; espanol latino neutro."
+    },
+    "pereira": {
+      "nombre": "Sargento Pereira",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Sargento Pereira",
+        "Pereira"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer de 45 anos, sargento convertida en jefa de bandidos. Voz autoritaria, fria y cortante; espanol latino."
+    },
+    "clau": {
+      "nombre": "Clau",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Claudio Clau",
+        "Clau"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Chico chileno de 20 anos, tranquilo y buena onda, amigo de Waton; acento chileno."
+    },
+    "waton": {
+      "nombre": "Waton Ju",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Waton Ju",
+        "Waton"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Chico chileno de 22 anos, gamer exagerado y dramatico; acento chileno del norte."
+    },
+    "renato": {
+      "nombre": "Renato",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Renaaaaaato",
+        "Renato"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Chileno joven, ruidoso y exagerado; acento chileno."
+    },
+    "luengo": {
+      "nombre": "Luengo",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Fucking Luengo",
+        "Luengo"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Chileno joven, bravucon y chistoso; acento chileno."
+    },
+    "ray_doyle": {
+      "nombre": "Ray Doyle",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Ray Doyle",
+        "Ray"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre de 50 anos, sobreviviente desconfiado; espanol latino neutro."
+    },
+    "extra_hombre": {
+      "nombre": "Extras (hombre)",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Sobreviviente generico, hombre adulto; espanol latino neutro. Se usa para encuentros, vecinos y rehenes."
+    },
+    "extra_mujer": {
+      "nombre": "Extras (mujer)",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Sobreviviente generica, mujer adulta; espanol latino neutro."
+    },
+    "andre_mercer": {
+      "nombre": "Andre Mercer",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Andre Mercer"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "benjamin_sotelo": {
+      "nombre": "Benjamin Sotelo",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Benjamin Sotelo"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "campamento_carpintero": {
+      "nombre": "Residente de campamento (carpintero)",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "campamento_curandero": {
+      "nombre": "Residente de campamento (curandero)",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "campamento_herrero": {
+      "nombre": "Residente de campamento (herrero)",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "campamento_mecanico": {
+      "nombre": "Residente de campamento (mecanico)",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "capitan_tito_duarte": {
+      "nombre": "Capitan Tito Duarte",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Capitan Tito Duarte"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "capitan_vargas_toledo": {
+      "nombre": "Capitan Vargas Toledo",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Capitan Vargas Toledo"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "capitana_morrigan_kell": {
+      "nombre": "Capitana Morrigan Kell",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Capitana Morrigan Kell"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+    },
+    "celia_ortiz": {
+      "nombre": "Celia Ortiz",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Celia Ortiz"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+    },
+    "denise_hensley": {
+      "nombre": "Denise Hensley",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Denise Hensley"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+    },
+    "diacono_saul_reyes": {
+      "nombre": "Diacono Saul Reyes",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Diacono Saul Reyes"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "dona_elba_quispe": {
+      "nombre": "Dona Elba Quispe",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Dona Elba Quispe"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+    },
+    "doris_kemper": {
+      "nombre": "Doris Kemper",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Doris Kemper"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+    },
+    "earl_whitaker": {
+      "nombre": "Earl Whitaker",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Earl Whitaker"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "elias_hartmann": {
+      "nombre": "Elias Hartmann",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Elias Hartmann"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "ellen_turner": {
+      "nombre": "Ellen Turner",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Ellen Turner"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+    },
+    "frank_duggan": {
+      "nombre": "Frank Duggan",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Frank Duggan"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "gladys_moreno": {
+      "nombre": "Gladys Moreno",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Gladys Moreno"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+    },
+    "hector_bencina_jr": {
+      "nombre": "Hector Bencina Jr",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Hector Bencina Jr"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "hermana_lucia_pegas": {
+      "nombre": "Hermana Lucia Pegas",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Hermana Lucia Pegas"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+    },
+    "joaquin_ortiz": {
+      "nombre": "Joaquin Ortiz",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Joaquin Ortiz"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "julio_cardenas": {
+      "nombre": "Julio Cardenas",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Julio Cardenas"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "lucas_pike": {
+      "nombre": "Lucas Pike",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Lucas Pike"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "lucia_ferrada": {
+      "nombre": "Lucia Ferrada",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Lucia Ferrada"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+    },
+    "luis_ibanez": {
+      "nombre": "Luis Ibanez",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Luis Ibanez"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "marta_ibanez": {
+      "nombre": "Marta Ibanez",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Marta Ibanez"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+    },
+    "marta_quiroz": {
+      "nombre": "Marta Quiroz",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Marta Quiroz"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+    },
+    "oscar_lagos": {
+      "nombre": "Oscar Lagos",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Oscar Lagos"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "otis_barker": {
+      "nombre": "Otis Barker",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Otis Barker"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "ramon_quispe": {
+      "nombre": "Ramon Quispe",
+      "tipo": "biblioteca",
+      "genero": "hombre",
+      "nombres_juego": [
+        "Ramon Quispe"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+    },
+    "ruth_haney": {
+      "nombre": "Ruth Haney",
+      "tipo": "biblioteca",
+      "genero": "mujer",
+      "nombres_juego": [
+        "Ruth Haney"
+      ],
+      "elevenlabs_voice_id": "",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+    }
+  }
+}

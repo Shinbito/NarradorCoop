@@ -119,3 +119,21 @@ option Narrador.HistoriaConRefugio = {
     page = Narrador, translation = Narrador.HistoriaConRefugio,
     _tooltip = Narrador.HistoriaConRefugio_tooltip,
 }
+
+option Narrador.Voces = {
+    type = boolean, default = true,
+    page = Narrador, translation = Narrador.Voces,
+    _tooltip = Narrador.Voces_tooltip,
+}
+
+option Narrador.VocesMurmullos = {
+    type = boolean, default = true,
+    page = Narrador, translation = Narrador.VocesMurmullos,
+    _tooltip = Narrador.VocesMurmullos_tooltip,
+}
+
+option Narrador.VocesDistancia = {
+    type = integer, min = 10, max = 30, default = 25,
+    page = Narrador, translation = Narrador.VocesDistancia,
+    _tooltip = Narrador.VocesDistancia_tooltip,
+}

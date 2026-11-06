@@ -54,5 +54,11 @@
     "Sandbox_Narrador.DesbloqueoMisioneros": "Unlockable missionaries",
     "Sandbox_Narrador.DesbloqueoMisioneros_tooltip": "Each missionary shows up after you help them clear their building to set up a camp. If off, they are there from the start.",
     "Sandbox_Narrador.HistoriaConRefugio": "Story starts with a safehouse",
-    "Sandbox_Narrador.HistoriaConRefugio_tooltip": "Stories, missionaries, rumors and events start once someone claims a safehouse (or marks a house as base in A-Life). If off, they start right away."
+    "Sandbox_Narrador.HistoriaConRefugio_tooltip": "Stories, missionaries, rumors and events start once someone claims a safehouse (or marks a house as base in A-Life). If off, they start right away.",
+    "Sandbox_Narrador.Voces": "Character voices",
+    "Sandbox_Narrador.Voces_tooltip": "Narrator characters speak with their own voice. Up close you understand them; from afar it sounds muffled, like murmuring.",
+    "Sandbox_Narrador.VocesMurmullos": "Murmurs for lines without audio",
+    "Sandbox_Narrador.VocesMurmullos_tooltip": "Lines with no recorded audio (the ones that name places or people) play as a murmur in the character's voice.",
+    "Sandbox_Narrador.VocesDistancia": "Voice distance (tiles)",
+    "Sandbox_Narrador.VocesDistancia_tooltip": "How far voices can be heard. Beyond 8 tiles they sound muffled."
 }

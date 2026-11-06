@@ -1,0 +1,4 @@
+/* Generado por herramientas/voces/generar.py. No editar a mano. */
+module Base
+{
+}

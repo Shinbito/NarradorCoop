@@ -1,3 +1,6 @@
 graphify-out/cache/
 graphify-out/.graphify_*
 __pycache__/
+NarradorCoop/herramientas/voces/audio/
+NarradorCoop/herramientas/voces/pendientes.json
+NarradorCoop/herramientas/voces/guion.json

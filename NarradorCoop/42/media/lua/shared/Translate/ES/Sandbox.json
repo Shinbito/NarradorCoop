@@ -54,5 +54,11 @@
     "Sandbox_Narrador.DesbloqueoMisioneros": "Misioneros se desbloquean",
     "Sandbox_Narrador.DesbloqueoMisioneros_tooltip": "Cada misionero aparece cuando lo ayudas a limpiar su edificio para armar un campamento. Si esta apagado, estan desde el principio.",
     "Sandbox_Narrador.HistoriaConRefugio": "Historia empieza con refugio",
-    "Sandbox_Narrador.HistoriaConRefugio_tooltip": "Las historias, misioneros, rumores y eventos empiezan cuando alguien reclama un refugio (o marca una casa como base en A-Life). Si esta apagado, empiezan desde el principio."
+    "Sandbox_Narrador.HistoriaConRefugio_tooltip": "Las historias, misioneros, rumores y eventos empiezan cuando alguien reclama un refugio (o marca una casa como base en A-Life). Si esta apagado, empiezan desde el principio.",
+    "Sandbox_Narrador.Voces": "Voces de los personajes",
+    "Sandbox_Narrador.Voces_tooltip": "Los personajes del Narrador hablan con su voz. Cerca se entiende lo que dicen; de lejos se escucha apagado, como un murmullo.",
+    "Sandbox_Narrador.VocesMurmullos": "Murmullos en frases sin voz",
+    "Sandbox_Narrador.VocesMurmullos_tooltip": "Las frases que no tienen audio grabado (las que nombran lugares o personas) suenan como un murmullo con la voz del personaje.",
+    "Sandbox_Narrador.VocesDistancia": "Distancia de las voces (casillas)",
+    "Sandbox_Narrador.VocesDistancia_tooltip": "Hasta donde se escuchan las voces. A partir de 8 casillas suenan apagadas."
 }
