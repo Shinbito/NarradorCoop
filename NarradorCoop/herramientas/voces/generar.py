@@ -19,6 +19,7 @@ Uso (desde la raiz del repo; necesita lupa y ffmpeg):
     python3 NarradorCoop/herramientas/voces/generar.py --limite 20       # como mucho 20 frases nuevas
     python3 NarradorCoop/herramientas/voces/generar.py --sin-api         # solo rehace ogg, sonidos e indice
     python3 NarradorCoop/herramientas/voces/generar.py --rehacer <id>    # vuelve a pedir una frase (otra toma)
+    python3 NarradorCoop/herramientas/voces/generar.py --sin-api --reconvertir   # tras cambiar "velocidad"
 """
 import argparse
 import json
@@ -42,8 +43,18 @@ INDICE = os.path.join(MEDIA, "lua", "shared", "Narrador", "NarradorVocesIndice.l
 API = "https://api.elevenlabs.io/v1/text-to-speech/{voz}?output_format=mp3_44100_128"
 
 # Filtros de ffmpeg. Mono para que el juego lo ponga en el espacio (3D).
+# Primero se recorta el silencio del principio y del final y se acelera (atempo no cambia el tono):
+# ElevenLabs habla lento para un juego. La velocidad sale de voces.json ("velocidad" del catalogo o
+# de cada voz; 1.0 = como viene).
+RECORTE = ("silenceremove=start_periods=1:start_threshold=-45dB,areverse,"
+           "silenceremove=start_periods=1:start_threshold=-45dB,areverse")
 CERCA = "highpass=f=70,loudnorm=I=-18:TP=-2:LRA=11"
 LEJOS = "highpass=f=180,lowpass=f=850,aecho=0.7:0.6:35|70:0.25|0.15,loudnorm=I=-26:TP=-6:LRA=11"
+
+
+def filtro(base, velocidad):
+    v = max(0.5, min(2.0, float(velocidad or 1.0)))
+    return RECORTE + ("" if v == 1.0 else ",atempo=%.3f" % v) + "," + base
 DISTANCIA_MAX = 30  # casillas: mas alla no se escucha nada
 
 
@@ -144,7 +155,7 @@ def escribir_sonidos(hechos):
     for i in sorted(hechos):
         for sufijo in ("", "_lejos"):
             out += ["    sound NarradorVoz_%s%s" % (i, sufijo), "    {",
-                    "        category = World,", "        is3D = true,",
+                    "        category = World,", "        master = Primary,", "        is3D = true,",
                     "        clip", "        {",
                     "            file = media/sound/NarradorVoces/%s%s.ogg," % (i, sufijo),
                     "            distanceMin = 2,", "            distanceMax = %d," % DISTANCIA_MAX,
@@ -161,6 +172,7 @@ def main():
     ap.add_argument("--voz", action="append", help="solo estas voces")
     ap.add_argument("--limite", type=int, default=0, help="como mucho N frases nuevas")
     ap.add_argument("--rehacer", action="append", default=[], help="ids a volver a pedir")
+    ap.add_argument("--reconvertir", action="store_true", help="rehace todos los ogg (por ejemplo, al cambiar la velocidad)")
     a = ap.parse_args()
 
     filas, _ = exportar.guion()
@@ -200,9 +212,11 @@ def main():
             continue
         cerca = os.path.join(SONIDOS, r["id"] + ".ogg")
         lejos = os.path.join(SONIDOS, r["id"] + "_lejos.ogg")
-        if r["id"] in a.rehacer or not os.path.exists(cerca) or os.path.getmtime(cerca) < os.path.getmtime(mp3):
-            convertir(mp3, cerca, CERCA)
-            convertir(mp3, lejos, LEJOS)
+        vel = cat["voces"][r["voz"]].get("velocidad", cat.get("velocidad", 1.0))
+        if (r["id"] in a.rehacer or a.reconvertir or not os.path.exists(cerca)
+                or os.path.getmtime(cerca) < os.path.getmtime(mp3)):
+            convertir(mp3, cerca, filtro(CERCA, vel))
+            convertir(mp3, lejos, filtro(LEJOS, vel))
         hechos[r["id"]] = duracion(cerca)
     # Sonidos de frases que ya no estan en el guion (se cambio el texto): fuera del mod.
     for f in os.listdir(SONIDOS):
