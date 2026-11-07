@@ -514,6 +514,187 @@ Motor.revisarSalidas(inst, 0)
 check(inst.final == "final_abandono" and m.historia_muldraugh_5 == "fallido", "no fue en 96 horas: fallido")
 m.hija_cabo = nil
 
+-- ---------------------------------------------------------------------------
+-- 8. Tia Chela, capitulo 5
+-- ---------------------------------------------------------------------------
+local function hales(inst, martha, walt)
+    inst.grupos.martha = { estado = "listo", nombres = {}, roles = { martha = "h1" },
+        miembros = { h1 = { rol = "martha", vivo = martha ~= false } } }
+    inst.grupos.walt = { estado = "listo", nombres = {}, roles = { walt = "h2" },
+        miembros = { h2 = { rol = "walt", vivo = walt ~= false } } }
+end
+local function pendienteCon(inst, texto)
+    for _, p in ipairs(inst.pendientes) do
+        if (p[1] == "decir_contacto" or p[1] == "decir" or p[1] == "aviso") and tostring(p.texto):find(texto, 1, true) then return true end
+    end
+    return false
+end
+limpiar()
+Mundo.zombiCerca = function() return true end
+Mundo.posicionActor = function() return 0, 0 end
+m.historia_westpoint_4, m.historia_westpoint_5 = nil, nil
+o = G.ofertaEspecial("westpoint", "medio", "g1")
+check(o == nil or o.def ~= "cap_chela_5", "sin el capitulo 4 no sale el 5 de la Chela")
+m.historia_westpoint_4 = "fallido"
+o = G.ofertaEspecial("westpoint", "medio", "g1")
+check(o ~= nil and o.def == "cap_chela_5" and o.vars.nivel == "dificil", "con el 4 hecho (aunque saliera mal) sale el 5 de la Chela, pago dificil")
+m.radio_westpoint, m["cap_chela_4.final"] = true, "final_relicario"
+lugares.casa_hale = { x = 2500, y = 2000 }
+px, py = CUARTEL.x, CUARTEL.y
+inst = G.iniciarOferta(J, "westpoint", "medio", o)
+check(inst ~= nil and inst.etapa == "viaje", "arranca: a la casa de los Hale")
+check(dichos[1] ~= nil and dichos[1]:find("Hale", 1, true) ~= nil, "la Chela nombra a los Hale")
+check(pendienteCon(inst, "radio") and pendienteCon(inst, "camion rojo") and not pendienteCon(inst, "Yo no apago fuegos"),
+    "con la radio y el relicario: Martha llamo y la Chela vuelve a apagar fuegos")
+px, py = 2500, 2000
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "casa", "llega donde los Hale")
+local dosGrupos = 0
+for _, p in ipairs(inst.pendientes) do if p[1] == "npcs" and (p.id == "martha" or p.id == "walt") then dosGrupos = dosGrupos + 1 end end
+check(dosGrupos == 2, "aparecen Martha y Walt")
+hales(inst, true, true)
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "casa", "con la horda encima todavia no se habla")
+inst.vars.meta_hale = 20
+bajas = 20
+Mundo.posicionActor = function() return 2502, 2000 end
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "hablar", "aguanta la horda: hablar con los Hale")
+Motor.elegir(J, inst.id, "llevar")
+check(inst.etapa == "escolta" and inst.vars.walt == "viene", "se lleva a Walt mordido y todo")
+Mundo.posicionActor = function() return CUARTEL.x + 2, CUARTEL.y end
+px, py = CUARTEL.x, CUARTEL.y
+Motor.revisarSalidas(inst, 0)
+check(inst.final == "final_juntos" and m.historia_westpoint_5 == true and m.hale == "juntos", "llegan los dos: final_juntos")
+check(#guardias == 1 and guardias[1][1] == "westpoint" and guardias[1][2] == "Martha", "solo Martha queda de guardia (Walt viene mordido)")
+
+-- Walt pide quedarse: Martha llega sola.
+limpiar()
+m.historia_westpoint_5, m.hale, m["cap_chela_4.final"] = nil, nil, "final_descansa"
+Mundo.posicionActor = function() return 0, 0 end
+px, py = CUARTEL.x, CUARTEL.y
+inst = G.iniciarOferta(J, "westpoint", "medio", G.ofertaEspecial("westpoint", "medio", "g1"))
+check(pendienteCon(inst, "Yo no apago fuegos") and not pendienteCon(inst, "camion rojo"), "sin el relicario la Chela sigue sin apagar fuegos")
+hales(inst, true, true)
+Mundo.posicionActor = function() return 2502, 2000 end
+px, py = 2500, 2000
+Motor.entrar(inst, "hablar", 0)
+Motor.elegir(J, inst.id, "quedarse")
+check(inst.etapa == "sola" and inst.vars.walt == "se_quedo", "Walt se queda: Martha va sola")
+Mundo.posicionActor = function() return CUARTEL.x + 2, CUARTEL.y end
+px, py = CUARTEL.x, CUARTEL.y
+Motor.revisarSalidas(inst, 0)
+check(inst.final == "final_sola" and m.historia_westpoint_5 == true and m.hale == "se_quedo" and #guardias == 1,
+    "Martha llega sola: final_sola, de guardia")
+
+-- Walt muere en la casa y despues Martha en el camino: fallido.
+limpiar()
+m.historia_westpoint_5, m.hale = nil, nil
+Mundo.posicionActor = function() return 2502, 2000 end
+inst = G.iniciarOferta(J, "westpoint", "medio", G.ofertaEspecial("westpoint", "medio", "g1"))
+Motor.entrar(inst, "casa", 0)
+hales(inst, true, false)
+inst.vars.meta_hale = 20
+bajas = 20
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "sola" and inst.vars.walt == "murio", "murio Walt: Martha va sola")
+inst.grupos.martha.miembros.h1.vivo = false
+Motor.revisarSalidas(inst, 0)
+check(inst.final == "final_muertos" and m.historia_westpoint_5 == "fallido" and m.hale == "muertos" and #guardias == 0,
+    "Martha muere en el camino: fallido")
+
+-- Si nunca va: a las 24 horas se apago el fuego.
+limpiar()
+m.historia_westpoint_5, m.hale = nil, nil
+px, py = 0, 0
+inst = G.iniciarOferta(J, "westpoint", "medio", G.ofertaEspecial("westpoint", "medio", "g1"))
+ahora = ahora + 25
+Motor.revisarSalidas(inst, 0)
+check(inst.final == "final_tarde" and m.historia_westpoint_5 == "fallido", "no fue en 24 horas: fallido")
+m.radio_westpoint, m["cap_chela_4.final"], m.hale = nil, nil, nil
+
+-- ---------------------------------------------------------------------------
+-- 9. Padre Nacho, capitulo 5
+-- ---------------------------------------------------------------------------
+local function duggan(inst, vivo)
+    inst.grupos.duggan = { estado = "listo", nombres = {}, roles = { duggan = "d5" },
+        miembros = { d5 = { rol = "duggan", vivo = vivo ~= false } } }
+end
+limpiar()
+Mundo.zombiCerca = function() return true end
+Mundo.posicionActor = function() return 0, 0 end
+m.historia_riverside_4, m.historia_riverside_5 = nil, nil
+o = G.ofertaEspecial("riverside", "facil", "g1")
+check(o == nil or o.def ~= "cap_nacho_5", "sin el capitulo 4 no sale el 5 del Padre")
+m.historia_riverside_4 = "fallido"
+o = G.ofertaEspecial("riverside", "facil", "g1")
+check(o ~= nil and o.def == "cap_nacho_5" and o.vars.nivel == "dificil", "con el 4 hecho (aunque saliera mal) sale el 5 del Padre, pago dificil")
+m.lucia, m["cap_nacho_4.final"] = "en_riverside", "final_cumplido"
+lugares.guarida = { x = 6500, y = 6000 }
+px, py = IGLESIA.x, IGLESIA.y
+inst = G.iniciarOferta(J, "riverside", "facil", o)
+check(inst ~= nil and inst.etapa == "viaje", "arranca: a la guarida de Duggan")
+check(dichos[1] ~= nil and dichos[1]:find("Duggan", 1, true) ~= nil and pendienteCon(inst, "Lucia dice que vaya yo"),
+    "el Padre nombra a Duggan y, con Lucia en Riverside, a Lucia")
+px, py = 6500, 6000
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "guarida", "llega a la guarida")
+duggan(inst, true)
+ahora = ahora + 0.3
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "guarida", "con zombis cerca todavia no se habla")
+Mundo.zombiCerca = function() return false end
+Mundo.posicionActor = function() return 6502, 6000 end
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "hablar", "la guarida tranquila: hablar con Duggan")
+check(pendienteCon(inst, "Fui a su misa"), "si la misa salio bien, Duggan cuenta que fue")
+Motor.elegir(J, inst.id, "llevar")
+check(inst.etapa == "camino", "Duggan va a la iglesia")
+Mundo.posicionActor = function() return IGLESIA.x + 2, IGLESIA.y end
+px, py = IGLESIA.x, IGLESIA.y
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "confesion", "Duggan llega a la iglesia: la confesion")
+Motor.elegir(J, inst.id, "dejar")
+check(inst.final == "final_absuelto" and m.historia_riverside_5 == true and m.duggan == "iglesia", "se confiesa con el Padre: final_absuelto")
+
+-- Escucharlo ahi mismo, en nombre del Padre.
+limpiar()
+m.historia_riverside_5, m.duggan = nil, nil
+Mundo.posicionActor = function() return 6502, 6000 end
+px, py = 6500, 6000
+inst = G.iniciarOferta(J, "riverside", "facil", G.ofertaEspecial("riverside", "facil", "g1"))
+duggan(inst, true)
+Motor.entrar(inst, "hablar", 0)
+Motor.elegir(J, inst.id, "escuchar")
+check(inst.etapa == "volver", "lo escucha ahi: volver con el Padre")
+px, py = IGLESIA.x, IGLESIA.y
+Motor.elegir(J, inst.id, "contar")
+check(inst.final == "final_estola" and m.historia_riverside_5 == true and m.duggan == "escuchado", "le cuenta la confesion: final_estola")
+
+-- Si tarda mas de 4 horas en llegar, Duggan se da vuelta en el camino.
+limpiar()
+m.historia_riverside_5, m.duggan = nil, nil
+Mundo.posicionActor = function() return 0, 0 end
+inst = G.iniciarOferta(J, "riverside", "facil", G.ofertaEspecial("riverside", "facil", "g1"))
+duggan(inst, true)
+Motor.entrar(inst, "camino", 0)
+px, py = 0, 0
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "camino", "recien sale: sigue el camino")
+ahora = ahora + 4.1
+Motor.revisarSalidas(inst, 0)
+check(inst.final == "final_tarde" and m.historia_riverside_5 == "fallido" and m.duggan == "se_dio_vuelta"
+    and inst.grupos.duggan.miembros.d5.causa == "transformado", "a las 4 horas se da vuelta: fallido")
+
+-- Si nunca va: a las 48 horas, fallido.
+limpiar()
+m.historia_riverside_5, m.duggan = nil, nil
+inst = G.iniciarOferta(J, "riverside", "facil", G.ofertaEspecial("riverside", "facil", "g1"))
+ahora = ahora + 49
+Motor.revisarSalidas(inst, 0)
+check(inst.final == "final_abandono" and m.historia_riverside_5 == "fallido", "no fue en 48 horas: fallido")
+m["cap_nacho_4.final"], m.duggan = nil, nil
+
 -- El guardia no aparece mientras el NPC de la historia siga en el mundo.
 st.arcos["x#1"] = { grupos = { ortiz = { roles = { celia = "u1" }, miembros = { u1 = { vivo = true } } } } }
 local g = { esperar = { arco = "x#1", grupo = "ortiz", rol = "celia", hasta = ahora + 24 } }

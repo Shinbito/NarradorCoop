@@ -82,6 +82,24 @@ Lore.arcos.cap_chela_4 = {
     },
 }
 
+Lore.arcos.cap_chela_5 = {
+    etapas = {
+        viaje = "Hay humo sobre {lugar:casa_hale}. Se quema la casa del lado de los Hale y el fuego trae a los muertos de toda la cuadra. La Chela quiere que saque a Martha Hale y a su papa, Walt.",
+        casa = "Llegue a {lugar:casa_hale}. La casa de al lado arde entera y los muertos caminan hacia la luz. Martha y Walt Hale aguantan adentro.",
+        hablar = "Los Hale estan vivos. A Walt lo mordieron anoche. Pide que lo deje aqui: dice que la Chela ya dejo a la Irma en la vereda y que no le lleve otro mordido.",
+        sola = "Martha Hale va al cuartel de la Chela. Sin su papa.",
+        escolta = "Llevo a Martha y a Walt Hale al cuartel. Walt camina despacio y no se queja. Sabe lo que viene.",
+    },
+    finales = {
+        final_juntos = "Lleve a los Hale al cuartel, Walt mordido y todo. La Chela no lo dejo en la vereda: se quedo con el toda la noche, al lado de la estufa, y lo que hubo que hacer lo hizo ella. Martha se queda en el cuartel.",
+        final_sola = { por_var = "walt", textos = {
+            se_quedo = "Walt Hale se quedo en su casa, como pidio. Lleve a Martha sola al cuartel. La Chela dijo que si lo pidio el, no es lo mismo que la vereda.",
+            otro = "Walt Hale no salio vivo de su casa. Lleve a Martha sola al cuartel. La Chela le hizo un lugar al lado de la estufa." } },
+        final_muertos = "Martha Hale no llego al cuartel. La Chela escribio dos nombres mas en la pared de la cocina.",
+        final_tarde = "Nunca fui donde los Hale. El humo se apago solo al otro dia.",
+    },
+}
+
 -- ===========================================================================
 -- Cabo Ramiro
 -- ===========================================================================
@@ -198,6 +216,24 @@ Lore.arcos.cap_nacho_4 = {
             todos = "Tocamos las campanas de Riverside y vino gente de todo el pueblo. El Padre dijo la misa sin hablar de Dios: dijo que la fe es venir. Otis, Ruth y Helen se quedan en la iglesia.",
             otro = "Tocamos las campanas de Riverside. No todos los que venian llegaron. El Padre rezo por ellos y dijo que la fe es venir. Los que quedaron se quedan en la iglesia." } },
         final_vacia = "Las campanas de Riverside sonaron y a la iglesia no llego nadie vivo. El Padre hizo la misa igual, para los bancos vacios y para mi.",
+    },
+}
+
+Lore.arcos.cap_nacho_5 = {
+    etapas = {
+        viaje = "A Frank Duggan lo mordieron y quiere confesarse con el Padre Nacho. El Padre juro no irse de su iglesia, asi que voy yo, a {lugar:guarida}.",
+        guarida = "Llegue a {lugar:guarida}. Los muertos olieron la mordida de Duggan antes que yo.",
+        hablar = "Frank Duggan esta vivo, por ahora. Quiere confesarse. Lo llevo a la iglesia o lo escucho aqui, en nombre del Padre.",
+        camino = "Frank Duggan camina a la iglesia de Riverside, por la puerta grande. No le queda mucho.",
+        confesion = "Duggan esta de rodillas frente al Padre Nacho. Cuarenta anos despues del ring de Lexington.",
+        volver = "Escuche la confesion de Frank Duggan: en el 79 se dejo ganar. Tengo que contarselo al Padre.",
+    },
+    finales = {
+        final_absuelto = "Lleve a Frank Duggan a la iglesia y se confeso con el Padre: en el 79 se dejo ganar. En la manana habia una tumba nueva en el atrio, donde pelearon.",
+        final_estola = "Escuche la confesion de Frank Duggan en nombre del Padre y se la conte en la sacristia. El Padre se rio hasta llorar, y despues lloro sin reirse.",
+        final_tarde = "Frank Duggan se dio vuelta en el camino a la iglesia. El Padre dijo que la confesion valia igual, porque queria llegar.",
+        final_muerto = "Frank Duggan murio sin confesarse. El Padre rezo por el, y no por costumbre.",
+        final_abandono = "Nunca fui a buscar a Frank Duggan. El Padre lo nombro un domingo entre los difuntos.",
     },
 }
 

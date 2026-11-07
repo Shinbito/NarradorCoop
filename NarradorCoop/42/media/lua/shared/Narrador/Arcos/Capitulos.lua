@@ -2,9 +2,9 @@
 -- desbloqueo (fundar el campamento, Arcos/Desbloqueos.lua). Estos salen entre sus ofertas
 -- cuando el anterior ya se hizo (G.ESPECIALES en server/Narrador/NarradorGenerador.lua) y cada
 -- uno deja la memoria "historia_<id>_<n>" (requisito para subir el campamento de nivel).
---   Tia Chela  2: La radio del cuartel        (3: el cientifico, LeyendaEduardo.lua)  4: La calle Main
+--   Tia Chela  2: La radio del cuartel        (3: el cientifico, LeyendaEduardo.lua)  4: La calle Main  5: El primer fuego
 --   Cabo       2: La puerta de atras          (3: Valentina, HijaCabo.lua)  4: Los signos de pregunta  5: El libro de guardia
---   Padre Nacho 2: El ring de Lexington       3: La muchacha que esperaba  4: Las campanas de Riverside
+--   Padre Nacho 2: El ring de Lexington       3: La muchacha que esperaba  4: Las campanas de Riverside  5: La ultima confesion
 --   Misia Rosa 2: La ruta 31                  3: El tanque      4: La carcel de Rosewood  5: El primer camion
 -- Textos sin tildes a proposito.
 
@@ -1404,5 +1404,355 @@ registrar({
         final_abandono = fracaso("muldraugh", 5,
             "Nunca fui a buscar el libro de guardia. El Cabo no lo volvio a pedir. Los cuatro signos de pregunta siguen en su libreta, y el comisario Haines sigue vivo en alguna parte.",
             { { "decir_contacto", texto = "Entendido, civil. Hay paginas que se quedan abiertas." } }),
+    },
+})
+
+-- ===========================================================================
+-- Tia Chela, capitulo 5: El primer fuego
+-- Desde la calle Main la Chela no apaga fuegos: "el fuego, por lo menos, avisa" (capa 4 de su
+-- perfil). Si en el cap. 4 le diste el relicario a Doris (cap_chela_4.final = final_relicario)
+-- prometio volver a apagarlos, y este es el primero. Se quema la casa del lado de los Hale y el
+-- fuego trae a los muertos de la cuadra. A Walt Hale lo mordieron: es Irma otra vez. Walt pide
+-- quedarse; se elige si llevarlo igual al cuartel (la Chela no lo deja en la vereda: se queda
+-- con el hasta el final) o respetar lo que pide. Martha, la hija, se queda de guardia.
+-- Lee radio_westpoint (cap. 2), eduardo_conocido y cientifico_hartmann (cap. 3) y como termino
+-- el cap. 4 (Doris en el cuartel).
+-- ===========================================================================
+local MARTHA, WALT = "martha", "walt"
+local PERFIL_MARTHA, PERFIL_WALT = "k93_kessinger_05", "k93_kessinger_06"
+local SI_RELICARIO = { "memoria", "cap_chela_4.final", "final_relicario" }
+local SI_DORIS = { "o", SI_RELICARIO, { "memoria", "cap_chela_4.final", "final_descansa" } }
+local CALMA_HALE = { "o", { "bajas_en", "casa_hale", "var:meta_hale", 60 }, { { "horas", 1 }, { "sin_zombis", "casa_hale", 15 } } }
+
+-- Martha llega al cuartel: se queda de guardia; los Hale de la historia se retiran.
+local function marthaSeQueda(como)
+    return {
+        { "salvado_campamento", contacto = "westpoint", nombre = "Martha", apellido = "Hale", perfil = PERFIL_MARTHA,
+          grupo = MARTHA, rol = "martha", si = { "vivo", MARTHA, "martha" } },
+        { "memoria", clave = "hale", valor = como },
+        { "retirar_lejos", grupo = MARTHA, lugar = "contacto", radio = 40, retraso = 1.5 },
+        { "retirar_lejos", grupo = WALT, lugar = "contacto", radio = 40, retraso = 1.5 },
+    }
+end
+
+registrar({
+    id = "cap_chela_5",
+    titulo = "El primer fuego",
+    titulo_menu = "Historia de la Tia Chela, cap. 5: el primer fuego",
+    requiere_alife = true, automatico = false,
+    inicio = "encargo",
+    etapas = {
+        encargo = {
+            al_entrar = {
+                { "lugar", id = "casa_hale", desde = "contacto", salas = { "livingroom", "bedroom", "kitchen" }, min = 300, max = 1000 },
+                { "decir_contacto", texto = "Mijo, mira ese humo. Es para el lado de {lugar:casa_hale}. Se esta quemando la casa del lado de los Hale, y el fuego trae a todos los muertos de la cuadra. Martha Hale y su papa, Walt, siguen adentro. Sacalos y traemelos." },
+                { "decir_contacto", retraso = 0.05, si = { "memoria", "radio_westpoint", true },
+                  texto = "Martha llamo por la radio hace un rato. Algo le pasa al Walt y no me lo quiso decir por la radio. Eso nunca es bueno, mijo." },
+                { "decir_contacto", retraso = 0.08, si = SI_RELICARIO,
+                  texto = "Y te dije que volvia a apagar fuegos. Este es el primero desde la calle Main. Tu sacas a los Hale; yo me subo al camion rojo y le tiro agua a la cuadra. Sin licencia y sin frenos, como siempre." },
+                { "decir_contacto", retraso = 0.08, si = { "no", SI_RELICARIO },
+                  texto = "Yo no apago fuegos, mijo, ya lo sabes. Que se queme esa casa. Pero los Hale no." },
+                { "decir_eduardo", retraso = 0.1, texto = "Los Hale? El viejo Walt me enseno a pescar. ... Anda tu, amigo. Yo me quedo cuidando a la vieja." },
+                { "mapa", lugar = "casa_hale", titulo = "Mapa de la Tia Chela: los Hale" },
+                { "diario", texto = "Hay humo sobre {lugar:casa_hale}: se quema la casa del lado de los Hale y el fuego trae a los muertos de la cuadra. La Tia Chela quiere que saque a Martha Hale y a su papa, Walt." },
+            },
+            salidas = { { ir = "viaje" } },
+        },
+        viaje = {
+            pista = "Ir a {lugar:casa_hale}, donde Martha y Walt Hale aguantan al lado del incendio.",
+            objetivo = "casa_hale",
+            salidas = {
+                { cuando = { "cerca", "casa_hale", 45 }, ir = "casa" },
+                { cuando = { "horas", 24 }, ir = "final_tarde" },
+            },
+        },
+        casa = {
+            pista = "Mantener vivos a Martha y Walt Hale en {lugar:casa_hale}: van {bajas:casa_hale} de {meta_hale}.",
+            objetivo = "casa_hale",
+            al_entrar = {
+                { "variable", nombre = "meta_hale", valor = 9999 },
+                -- Si Walt no llega a hablar, "murio" (se_queda y escolta lo cambian).
+                { "variable", nombre = "walt", valor = "murio" },
+                { "aviso", texto = "La casa del lado de los Hale arde entera. El humo se ve desde todo West Point y los muertos de la cuadra caminan hacia la luz." },
+                { "npcs", id = MARTHA, lugar = "casa_hale", radio = 40, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 4,
+                  postura = "friendly", perfiles = { { "martha", PERFIL_MARTHA } }, nombres = { martha = { "Martha", "Hale" } }, femeninos = { "martha" } },
+                { "npcs", id = WALT, lugar = "casa_hale", radio = 40, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 4,
+                  postura = "friendly", perfiles = { { "walt", PERFIL_WALT } }, nombres = { walt = { "Walt", "Hale" } } },
+                { "oleada", lugar = "casa_hale", radio = 50, cantidad = 20, por_jugador = 8, fija = true, caminantes = true,
+                  min = 14, max = 32, meta = "meta_hale", meta_frac = 0.8 },
+                { "oleada", lugar = "casa_hale", radio = 50, cantidad = { 6, 9 }, correr = true, min = 20, max = 35, retraso = 0.4 },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", MARTHA }, ir = "final_muertos" },
+                { cuando = { { "grupo_listo", MARTHA }, { "todos_muertos", WALT }, CALMA_HALE }, ir = "sola" },
+                { cuando = { { "grupo_listo", MARTHA }, { "grupo_listo", WALT }, CALMA_HALE }, ir = "hablar" },
+            },
+        },
+        hablar = {
+            pista = "Hablar con los Hale (clic derecho cerca de Martha).",
+            ancla = "casa_hale", ancla_grupo = MARTHA, radio = 20,
+            al_entrar = {
+                { "decir", grupo = MARTHA, rol = "martha", texto = "Te manda la Chela? Gracias a Dios. ... Pero mira a mi papa. Lo mordieron anoche, sacando agua del pozo." },
+                { "decir", grupo = WALT, rol = "walt", retraso = 0.03, texto = "No me mires asi, muchacho. Se lo que viene. La Chela dejo a la Irma en la vereda y todavia la ve cada noche. No le lleves otro mordido. Llevate a Martha y dejame aqui." },
+            },
+            opciones = {
+                { id = "llevar", texto = "Llevarlos a los dos con la Chela, aunque Walt este mordido",
+                  dice = { rol = "martha", texto = "Vamos, papa. La Chela no deja a nadie en la vereda. Ya no." } },
+                { id = "quedarse", texto = "Hacer lo que pide Walt: que se quede",
+                  dice = { rol = "martha", texto = "Papa. ... Esta bien. Esta bien." } },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", MARTHA }, ir = "final_muertos" },
+                { cuando = { "eleccion", "llevar" }, ir = "escolta" },
+                { cuando = { "eleccion", "quedarse" }, ir = "se_queda" },
+                { cuando = { "todos_muertos", WALT }, ir = "sola" },
+            },
+        },
+        se_queda = {
+            al_entrar = {
+                { "variable", nombre = "walt", valor = "se_quedo" },
+                { "decir", grupo = WALT, rol = "walt", texto = "Gracias, muchacho. Dile a la Chela que esta vez no fue ella. Fui yo." },
+                { "retirar_lejos", grupo = WALT, lugar = "casa_hale", radio = 40, retraso = 0.5 },
+            },
+            salidas = { { ir = "sola" } },
+        },
+        sola = {
+            pista = "Martha Hale va por su cuenta al cuartel de la Tia Chela. Vuelve con la Chela: te espera alla.",
+            objetivo = "contacto",
+            al_entrar = {
+                { "acompanante", grupo = MARTHA, rol = "martha", nombre = "Martha Hale", inmortal = false },
+                { "banderas", grupo = MARTHA, quietos = false, correa = 0 },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", MARTHA }, ir = "final_muertos" },
+                { cuando = { "npc_cerca", MARTHA, "contacto", 15 }, ir = "cuartel" },
+            },
+        },
+        escolta = {
+            pista = "Martha y Walt Hale van por su cuenta al cuartel de la Tia Chela. Vuelve con la Chela: te esperan alla.",
+            objetivo = "contacto",
+            al_entrar = {
+                { "variable", nombre = "walt", valor = "viene" },
+                { "acompanante", grupo = MARTHA, rol = "martha", nombre = "Martha Hale", inmortal = false },
+                { "acompanante", grupo = WALT, rol = "walt", nombre = "Walt Hale", inmortal = false },
+                { "banderas", grupo = MARTHA, quietos = false, correa = 0 },
+                { "banderas", grupo = WALT, quietos = false, correa = 0 },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", MARTHA }, ir = "final_muertos" },
+                { cuando = { "npc_cerca", MARTHA, "contacto", 15 }, ir = "cuartel" },
+            },
+        },
+        cuartel = {
+            al_entrar = {
+                -- Si Walt murio en el camino, llega Martha sola.
+                { "variable", nombre = "walt", valor = "murio", si = { { "var", "walt", "viene" }, { "no", { "vivo", WALT, "walt" } } } },
+                { "soltar_acompanante", grupo = MARTHA, rol = "martha" },
+                { "soltar_acompanante", grupo = WALT, rol = "walt" },
+                { "decir", grupo = MARTHA, rol = "martha", texto = "Chela." },
+                { "aviso", retraso = 0.05, si = SI_DORIS,
+                  texto = "Doris Kemper sale del cuartel con un tazon de sopa para Martha. Sabe lo que es llegar aca con la mitad de la familia." },
+            },
+            salidas = {
+                { cuando = { "var", "walt", "viene" }, ir = "final_juntos" },
+                { ir = "final_sola" },
+            },
+        },
+        final_juntos = cierre("westpoint", 5,
+            "Lleve a Martha y a Walt Hale al cuartel, Walt mordido y todo. La Chela no lo dejo en la vereda: le armo un catre al lado de la estufa y se quedo con el toda la noche, tomandole la mano. En la manana me dijo que ya estaba, y que lo hizo ella, como corresponde. Martha se queda en el cuartel.",
+            unir({
+                { "decir_contacto", texto = "Walt. Ay, Walt. ... Mordido y todo me lo trajeron. Pasa, viejo. Aca nadie se queda en la vereda. Nunca mas." },
+                { "decir_contacto", retraso = 0.04, si = { "mem", "eduardo_conocido" },
+                  texto = "Tapalo con la frazada, mijo. La de Eduardo. El ya volvio; ya no la necesita." },
+                { "aviso", retraso = 0.06, si = { "memoria", "cientifico_hartmann", "en_west_point" },
+                  texto = "El doctor Hartmann mira la mordida de Walt y, por primera vez desde que llego, no ofrece venderle nada." },
+                { "decir_eduardo", retraso = 0.08, texto = "Walt me enseno a pescar, amigo. Gracias por traerlo. Yo me quedo con la vieja esta noche." },
+                { "decir_contacto", retraso = 0.1, texto = "Anda a dormir, mijo. Yo me quedo con el. ... Toma. Te lo ganaste. Y gracias por no dejarme hacerlo otra vez." },
+            }, marthaSeQueda("juntos"))),
+        final_sola = cierre("westpoint", 5, { por_var = "walt", textos = {
+            se_quedo = "Walt Hale se quedo en su casa, como pidio, al lado del fuego. Lleve a Martha sola al cuartel. La Chela me pregunto si fue el quien lo pidio. Le dije que si. 'Entonces no es lo mismo', dijo, y no se si me lo decia a mi o a la Irma. Martha se queda en el cuartel.",
+            otro = "Walt Hale no salio vivo de su casa. Lleve a Martha sola al cuartel. La Chela le hizo un lugar al lado de la estufa y no le pregunto nada. Martha se queda en el cuartel." } },
+            unir({
+                { "decir_contacto", texto = { por_var = "walt", textos = {
+                    se_quedo = "Lo pidio el? ... Lo pidio el. Entonces no es lo mismo, mijo. No es lo mismo. Pasa, Martha, que aca se come.",
+                    otro = "Martha, mijita. Y el Walt? ... Ya. No me digas. Pasa, que aca se come." } } },
+                { "decir_contacto", retraso = 0.1, texto = "Toma, mijo. Y anda a lavarte, que hueles a humo. Como yo antes." },
+            }, marthaSeQueda("var:walt"))),
+        final_muertos = fracaso("westpoint", 5,
+            "Martha Hale no llego al cuartel. La Chela no pregunto como. Esa noche no apago la estufa y escribio dos nombres mas en la pared de la cocina, debajo de los de la calle Main.",
+            { { "soltar_acompanante", grupo = MARTHA, rol = "martha" },
+              { "soltar_acompanante", grupo = WALT, rol = "walt" },
+              { "memoria", clave = "hale", valor = "muertos" },
+              { "decir_contacto", texto = "Los dos, mijo. ... El fuego avisa. Avisa, y uno llega tarde igual. Anda a descansar." },
+              { "retirar_lejos", grupo = WALT, lugar = "contacto", radio = 40, retraso = 1 } }),
+        final_tarde = fracaso("westpoint", 5,
+            "Nunca fui donde los Hale. El humo se apago solo al otro dia. La Chela no me pregunto nada; esa noche durmio con las botas puestas.",
+            { { "memoria", clave = "hale", valor = "tarde" },
+              { "decir_contacto", texto = "Ya no sale humo, mijo. ... Ya no sale nada." } }),
+    },
+})
+
+-- ===========================================================================
+-- Padre Nacho, capitulo 5: La ultima confesion
+-- A Frank Duggan, el Martillo (cap. 2), lo mordieron, y pide confesarse con el Padre antes de
+-- darse vuelta. El Padre juro no irse nunca mas de su iglesia (capa 5 de su perfil): "No me voy
+-- a ir de nuevo". Asi que vas tu. Se elige: traer a Duggan a la iglesia (va solo y, si tarda
+-- mas de 4 horas, se da vuelta en el camino) o escucharlo ahi mismo en nombre del Padre. La
+-- confesion cierra lo del ring: en el 79 Duggan se dejo ganar ("esta vez no me agacho").
+-- Lee lucia (cap. 3) y como termino el cap. 4 (si Duggan fue a la misa de las campanas).
+-- ===========================================================================
+local DUGGAN5 = "duggan"
+local PERFIL_DUGGAN = "k93_kessinger_10"
+local SI_LUCIA = { "memoria", "lucia", "en_riverside" }
+local SI_MISA = { "memoria", "cap_nacho_4.final", "final_cumplido" }
+local CONFESION = "En el 79 me deje ganar, Nacho. En el tercero. Me agache. Tu tenias a tu mama enferma y la bolsa te hacia falta. Cuarenta anos sin decirlo. Por eso te dije que esta vez no me agachaba."
+
+registrar({
+    id = "cap_nacho_5",
+    titulo = "La ultima confesion",
+    titulo_menu = "Historia del Padre Nacho, cap. 5: la ultima confesion",
+    requiere_alife = true, automatico = false,
+    inicio = "encargo",
+    etapas = {
+        encargo = {
+            al_entrar = {
+                { "lugar", id = "guarida", desde = "contacto", salas = { "gym", "bar", "barstorage", "warehouse" },
+                  respaldo = { "livingroom", "garagestorage" }, min = 400, max = 1200 },
+                { "decir_contacto", texto = "Hijo, anoche vino un muchacho de la banda de Frank Duggan. A Frank lo mordieron. Esta en {lugar:guarida} y pide confesarse antes de darse vuelta. Conmigo. Cuarenta anos pegandonos y me pide a mi." },
+                { "decir_contacto", retraso = 0.05, texto = "Y yo jure no irme de esta iglesia. No otra vez. Asi que vas tu. Si puede caminar, traemelo. Si no, escuchalo tu: Dios no es exigente con el cura, hijo. Yo soy la prueba." },
+                { "decir_contacto", retraso = 0.08, si = SI_LUCIA,
+                  texto = "Lucia dice que vaya yo. Que ir no es irse. ... Lucia tiene razon y yo tengo miedo. Anda tu." },
+                { "decir_contacto", retraso = 0.08, si = { "memoria", "lucia", "muerta" },
+                  texto = "Si Lucia estuviera, me diria que fuera yo. Pero Lucia no esta, y yo no me muevo de esta puerta." },
+                { "mapa", lugar = "guarida", titulo = "Mapa del Padre Nacho: Frank Duggan" },
+                { "diario", texto = "A Frank Duggan, el Martillo, lo mordieron. Esta en {lugar:guarida} y quiere confesarse con el Padre Nacho. El Padre juro no irse de su iglesia, asi que voy yo: o lo traigo, o lo escucho en su nombre." },
+            },
+            salidas = { { ir = "viaje" } },
+        },
+        viaje = {
+            pista = "Ir a {lugar:guarida}, donde Frank Duggan espera para confesarse.",
+            objetivo = "guarida",
+            salidas = {
+                { cuando = { "cerca", "guarida", 40 }, ir = "guarida" },
+                { cuando = { "horas", 48 }, ir = "final_abandono" },
+            },
+        },
+        guarida = {
+            pista = "Encontrar a Frank Duggan en {lugar:guarida}. Los muertos ya lo olieron.",
+            objetivo = "guarida",
+            al_entrar = {
+                { "npcs", id = DUGGAN5, lugar = "guarida", radio = 35, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 4,
+                  postura = "friendly", perfiles = { { "duggan", PERFIL_DUGGAN } }, nombres = { duggan = { "Frank", "Duggan" } } },
+                { "oleada", lugar = "guarida", radio = 45, cantidad = { 14, 20 }, min = 12, max = 30 },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", DUGGAN5 }, ir = "final_muerto" },
+                { cuando = { { "grupo_listo", DUGGAN5 }, { "o", { { "horas", 0.25 }, { "sin_zombis", "guarida", 15 } }, { "horas", 1 } } },
+                  ir = "hablar" },
+            },
+        },
+        hablar = {
+            pista = "Hablar con Frank Duggan (clic derecho cerca).",
+            ancla = "guarida", ancla_grupo = DUGGAN5, radio = 20,
+            al_entrar = {
+                { "decir", grupo = DUGGAN5, rol = "duggan", texto = "Te manda Nacho? Y el no vino. ... Claro que no vino. Ese cura no se mueve de su iglesia ni con el fin del mundo encima." },
+                { "decir", grupo = DUGGAN5, rol = "duggan", retraso = 0.03, si = SI_MISA,
+                  texto = "Fui a su misa, sabes? La de las campanas. Al fondo, con el sombrero en la mano. Me fui antes de la bendicion. No me la merecia." },
+            },
+            opciones = {
+                { id = "llevar", texto = "Llevarlo a la iglesia, a confesarse con el Padre",
+                  dice = { rol = "duggan", texto = "A la iglesia, entonces. Por la puerta grande. Y rapido, que esto no espera." } },
+                { id = "escuchar", texto = "Escucharlo aqui, en nombre del Padre",
+                  dice = { rol = "duggan", texto = "Tu? ... Bueno. Nacho dice que Dios no es exigente. Escucha, pues." } },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", DUGGAN5 }, ir = "final_muerto" },
+                { cuando = { "eleccion", "llevar" }, ir = "camino" },
+                { cuando = { "eleccion", "escuchar" }, ir = "confiesa_aqui" },
+            },
+        },
+        camino = {
+            pista = "Frank Duggan va por su cuenta a la iglesia del Padre Nacho. Vuelve con el Padre: a Duggan no le queda mucho.",
+            objetivo = "contacto",
+            al_entrar = {
+                { "acompanante", grupo = DUGGAN5, rol = "duggan", nombre = "Frank Duggan", inmortal = false },
+                { "banderas", grupo = DUGGAN5, quietos = false, correa = 0 },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", DUGGAN5 }, ir = "final_muerto" },
+                { cuando = { "npc_cerca", DUGGAN5, "contacto", 15 }, ir = "confesion" },
+                { cuando = { "horas", 4 }, ir = "se_da_vuelta" },
+            },
+        },
+        se_da_vuelta = {
+            al_entrar = {
+                { "soltar_acompanante", grupo = DUGGAN5, rol = "duggan" },
+                { "aviso", texto = "Frank Duggan se para en medio del camino y se agarra el pecho. Cuando levanta la cabeza, ya no es el Martillo." },
+                { "transformar", grupo = DUGGAN5, rol = "duggan" },
+            },
+            salidas = { { ir = "final_tarde" } },
+        },
+        confesion = {
+            pista = "Frank Duggan y el Padre Nacho, frente a frente en la iglesia.",
+            ancla = "contacto",
+            al_entrar = {
+                { "soltar_acompanante", grupo = DUGGAN5, rol = "duggan" },
+                { "decir", grupo = DUGGAN5, rol = "duggan", texto = "Nacho." },
+                { "decir_contacto", retraso = 0.03, texto = "Frank. Llegaste. Arrodillate, que de pie no te alcanzo la cabeza para la bendicion." },
+                { "decir", grupo = DUGGAN5, rol = "duggan", retraso = 0.06, texto = CONFESION },
+                { "aviso", retraso = 0.08, si = SI_LUCIA,
+                  texto = "Lucia cierra la puerta de la iglesia para dejarlos solos. Es la primera vez en anos que alguien la cierra, y el Padre la deja." },
+            },
+            opciones = { { id = "dejar", texto = "Dejar solos al Padre y a Frank Duggan" } },
+            salidas = {
+                { cuando = { "eleccion", "dejar" }, ir = "final_absuelto" },
+                { cuando = { "todos_muertos", DUGGAN5 }, ir = "final_absuelto" },
+            },
+        },
+        confiesa_aqui = {
+            al_entrar = {
+                { "decir", grupo = DUGGAN5, rol = "duggan", texto = CONFESION },
+                { "decir", grupo = DUGGAN5, rol = "duggan", retraso = 0.04,
+                  texto = "Ahora vete. No quiero que el cura sepa como termina esto. Dile que llego tarde. Como siempre." },
+                { "retirar_lejos", grupo = DUGGAN5, lugar = "guarida", radio = 40, retraso = 0.5 },
+            },
+            salidas = { { ir = "volver" } },
+        },
+        volver = {
+            pista = "Volver con el Padre Nacho y contarle la confesion de Frank Duggan.",
+            ancla = "contacto",
+            opciones = { { id = "contar", texto = "Contarle al Padre la confesion de Frank Duggan" } },
+            salidas = { { cuando = { "eleccion", "contar" }, ir = "final_estola" } },
+        },
+        final_absuelto = cierre("riverside", 5,
+            "Lleve a Frank Duggan a la iglesia de Riverside. Se confeso con el Padre de rodillas y le conto que en el 79 se dejo ganar. El Padre se rio hasta llorar. Despues me pidio que los dejara solos. En la manana habia una tumba nueva en el atrio, donde pelearon, y el Padre tenia los ojos rojos y los nudillos limpios.",
+            {
+                { "decir_contacto", texto = "Cuarenta anos creyendo que tenia una derecha, hijo. ... Dejame con el. Toma, y gracias por traerlo por la puerta grande." },
+                { "aviso", retraso = 0.05, si = SI_MISA,
+                  texto = "Los feligreses que llegaron con las campanas cavan la tumba en el atrio sin que nadie se lo pida." },
+                { "memoria", clave = "duggan", valor = "iglesia" },
+                { "retirar_lejos", grupo = DUGGAN5, lugar = "contacto", radio = 40, retraso = 1 },
+            }),
+        final_estola = cierre("riverside", 5,
+            "Escuche la confesion de Frank Duggan en nombre del Padre Nacho: en el 79 se dejo ganar. Se lo conte al Padre en la sacristia. Se rio hasta llorar, y despues lloro sin reirse. Dijo que Dios no es exigente con el cura, y que yo tampoco lo fui.",
+            {
+                { "decir_contacto", texto = "Se dejo ganar. El muy... ... Gracias, hijo. Lo escuchaste tu y vale igual. Yo hice bien en quedarme. Creo. Toma." },
+                { "decir_contacto", retraso = 0.05, si = SI_LUCIA,
+                  texto = "Lucia dice que la proxima vez voy yo. Que ir no es irse. ... Puede ser, hija. Puede ser." },
+                { "memoria", clave = "duggan", valor = "escuchado" },
+            }),
+        final_tarde = fracaso("riverside", 5,
+            "Frank Duggan se dio vuelta en el camino, a medio llegar a la iglesia. El Padre dijo que la confesion valia igual, porque el queria llegar. Despues se encerro en la sacristia y no salio hasta el otro dia.",
+            { { "decir_contacto", texto = "Queria llegar, hijo. Eso cuenta. Eso es lo unico que cuenta. ... Dejame solo un rato." },
+              { "memoria", clave = "duggan", valor = "se_dio_vuelta" } }),
+        final_muerto = fracaso("riverside", 5,
+            "Frank Duggan murio sin confesarse. El Padre Nacho rezo por el esa noche, y no por costumbre.",
+            { { "soltar_acompanante", grupo = DUGGAN5, rol = "duggan" },
+              { "decir_contacto", texto = "Sin confesion, hijo. ... Rezare por el igual. Por costumbre no: por Frank." },
+              { "memoria", clave = "duggan", valor = "muerto" } }),
+        final_abandono = fracaso("riverside", 5,
+            "Nunca fui a buscar a Frank Duggan. Un domingo el Padre lo nombro en la misa, entre los difuntos, y se le quebro la voz.",
+            { { "decir_contacto", texto = "Frank ya no espera, hijo. Hay confesiones que se quedan sin decir." },
+              { "memoria", clave = "duggan", valor = "abandonado" } }),
     },
 })

@@ -221,6 +221,12 @@ Novedades 0.11.0:
 - Capitulo 5 del Cabo Ramiro: el libro de guardia. El comisario que mando cerrar la comisaria
   la primera noche esta vivo y tiene el libro con los nombres de los que quedaron adentro; tu
   decides si lo llevas detenido o lo dejas ir.
+- Capitulo 5 de la Tia Chela: el primer fuego. Se quema la casa del lado de los Hale y al viejo
+  Walt lo mordieron; tu decides si lo llevas igual al cuartel o lo dejas, como pide. Cambia
+  segun lo que paso con Doris, la radio y Eduardo.
+- Capitulo 5 del Padre Nacho: la ultima confesion. A Frank Duggan lo mordieron y quiere
+  confesarse con el Padre, que no sale de su iglesia: lo llevas antes de que se de vuelta o lo
+  escuchas tu.
 - La cura: entre 1 y 4 pastillas K-93 verdaderas, siempre al menos una.
 - Diario: entradas para las misiones que no tenian texto (la cura, las fechas de Sous, los
   encuentros, los favores, los desbloqueos y los capitulos).
