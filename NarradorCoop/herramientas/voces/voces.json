@@ -1,5 +1,5 @@
 {
-  "_leeme": "Catalogo de voces. 'diseñada': crear la voz en ElevenLabs (Voice Design) con la descripcion y pegar su voice_id. 'biblioteca': elegir una voz de la Voice Library que calce con la descripcion y pegar su voice_id. 'nombres_juego': como se llama el personaje en el juego (el cliente reconoce la voz por ese nombre). 'velocidad': cuanto se acelera el audio al convertirlo (1.15 = 15% mas rapido); se puede poner por voz.",
+  "_leeme": "Catalogo de voces. 'diseñada': crear la voz en ElevenLabs (Voice Design) con la descripcion y pegar su voice_id. 'biblioteca': elegir una voz de la Voice Library que calce con la descripcion y pegar su voice_id. 'nombres_juego': como se llama el personaje en el juego (el cliente reconoce la voz por ese nombre). 'velocidad': cuanto se acelera el audio al convertirlo (1.2 = 20% mas rapido); se puede poner por voz.",
   "modelo": "eleven_v3",
   "ajustes": {
     "stability": 0.5,
@@ -625,5 +625,5 @@
       "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
     }
   },
-  "velocidad": 1.15
+  "velocidad": 1.2
 }
