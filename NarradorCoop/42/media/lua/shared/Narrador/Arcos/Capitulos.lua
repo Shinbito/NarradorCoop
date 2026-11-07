@@ -3,7 +3,7 @@
 -- cuando el anterior ya se hizo (G.ESPECIALES en server/Narrador/NarradorGenerador.lua) y cada
 -- uno deja la memoria "historia_<id>_<n>" (requisito para subir el campamento de nivel).
 --   Tia Chela  2: La radio del cuartel        (3: el cientifico, LeyendaEduardo.lua)  4: La calle Main
---   Cabo       2: La puerta de atras          (3: Valentina, HijaCabo.lua)  4: Los signos de pregunta
+--   Cabo       2: La puerta de atras          (3: Valentina, HijaCabo.lua)  4: Los signos de pregunta  5: El libro de guardia
 --   Padre Nacho 2: El ring de Lexington       3: La muchacha que esperaba  4: Las campanas de Riverside
 --   Misia Rosa 2: La ruta 31                  3: El tanque      4: La carcel de Rosewood  5: El primer camion
 -- Textos sin tildes a proposito.
@@ -1246,4 +1246,163 @@ registrar({
     requiere_alife = true, automatico = false,
     inicio = "encargo",
     etapas = etapasCamion,
+})
+
+-- ===========================================================================
+-- Cabo Ramiro, capitulo 5: El libro de guardia
+-- Quedan cuatro signos de pregunta en la libreta (cap. 4) y ninguno tiene direccion: los
+-- cuatro estaban adentro la noche en que el comisario mando cerrar la comisaria "por
+-- protocolo" (capa 4 de su perfil). El comisario Walter Haines anoto en el libro de guardia a
+-- todos los que quedaron adentro y se fue en la patrulla. Esta vivo, escondido en una casa.
+-- Hay que traer el libro (cierra el censo) y decidir que pasa con Haines: llevarlo detenido
+-- (el Cabo lo deja de guardia en la puerta de atras) o dejarlo ir. Con Valentina viva
+-- (hija_cabo = salvada, cap. 3) ella tambien habla.
+-- ===========================================================================
+local HAINES = "haines"
+local PERFIL_HAINES = "k93_muldraugh_pd_03"
+local SI_VALENTINA = { "memoria", "hija_cabo", "salvada" }
+
+registrar({
+    id = "cap_cabo_5",
+    titulo = "El libro de guardia",
+    titulo_menu = "Historia del Cabo Ramiro, cap. 5: el libro de guardia",
+    requiere_alife = true, automatico = false,
+    inicio = "encargo",
+    etapas = {
+        encargo = {
+            al_entrar = {
+                { "lugar", id = "casa_haines", desde = "contacto", salas = { "livingroom", "bedroom", "kitchen" },
+                  respaldo = { "office" }, min = 500, max = 1400 },
+                { "decir_contacto", texto = "Civil. Quedan cuatro signos de pregunta y ninguno tiene direccion. Los cuatro estaban adentro la noche en que el comisario Haines mando cerrar 'por protocolo'. Haines anoto en el libro de guardia a cada uno que quedo adentro, con la hora. Despues se subio a la patrulla y se fue. Dicen que esta vivo, en {lugar:casa_haines}. Traigame ese libro. Y si esta vivo, traigamelo a el. Detenido." },
+                { "decir_residente", rol = "hija", retraso = 0.05, si = SI_VALENTINA,
+                  texto = "No ha dormido desde que supo que Haines esta vivo. Traele el libro. Con el otro, haz lo que te parezca justo." },
+                { "decir_contacto", retraso = 0.05, si = { "memoria", "hija_cabo", "muerta" },
+                  texto = "Valentina habria querido que esto se hiciera bien. Asi que nada de venganza, civil. Detenido y con sus derechos." },
+                { "mapa", lugar = "casa_haines", titulo = "Mapa del Cabo Ramiro: el comisario Haines" },
+                { "diario", texto = "El Cabo me hablo del comisario Walter Haines, el que mando cerrar la comisaria con la gente adentro. Anoto en el libro de guardia a todos los que quedaron. Esta vivo en {lugar:casa_haines}. El Cabo quiere el libro, y a Haines detenido." },
+            },
+            salidas = { { ir = "viaje" } },
+        },
+        viaje = {
+            pista = "Ir a {lugar:casa_haines}, donde se esconde el comisario Haines.",
+            objetivo = "casa_haines",
+            salidas = {
+                { cuando = { "cerca", "casa_haines", 45 }, ir = "casa" },
+                { cuando = { "horas", 96 }, ir = "final_abandono" },
+            },
+        },
+        casa = {
+            pista = "Encontrar el libro de guardia en {lugar:casa_haines} y ver que pasa con el comisario Haines.",
+            objetivo = "casa_haines",
+            al_entrar = {
+                -- Si Haines no llega a la comisaria, el Cabo escribe su cruz ("soltado" lo cambia).
+                { "variable", nombre = "haines", valor = "muerto" },
+                { "npcs", id = HAINES, lugar = "casa_haines", radio = 35, no_mas_cerca = 6, modo = "guard", quietos = true, correa = 4,
+                  postura = "friendly", perfiles = { { "haines", PERFIL_HAINES } }, nombres = { haines = { "Walter", "Haines" } } },
+                { "oleada", lugar = "casa_haines", radio = 45, cantidad = { 12, 16 }, min = 12, max = 30 },
+                { "objeto", id = "libro", lugar = "casa_haines", radio = 30, tipo = { "Base.Journal", "Base.Notebook" },
+                  nombre = "El libro de guardia de la comisaria" },
+            },
+            salidas = {
+                { cuando = { { "todos_muertos", HAINES }, { "alguien_tiene", "libro" } }, ir = "volver" },
+                { cuando = { { "grupo_listo", HAINES }, { "alguien_tiene", "libro" },
+                    { "o", { { "horas", 0.25 }, { "sin_zombis", "casa_haines", 15 } }, { "horas", 1 } } }, ir = "hablar" },
+            },
+        },
+        hablar = {
+            pista = "Hablar con el comisario Haines (clic derecho cerca).",
+            ancla = "casa_haines", ancla_grupo = HAINES, radio = 20,
+            al_entrar = {
+                { "decir", grupo = HAINES, rol = "haines", texto = "Te manda Ramiro? Claro. Ramiro siempre fue de los que abren puertas. Yo cerre una. Treinta y cuatro personas. Estan en ese libro, y estan aqui, en la cabeza, todas las noches." },
+            },
+            opciones = {
+                { id = "detenido", texto = "Llevarlo detenido con el Cabo Ramiro",
+                  dice = { rol = "haines", texto = "Detenido. Si. Ya era hora de que alguien me lo dijera." } },
+                { id = "soltar", texto = "Dejarlo ir: que cargue solo con lo que hizo",
+                  dice = { rol = "haines", texto = "Solo. Como esa noche. ... Esta bien." } },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", HAINES }, ir = "volver" },
+                { cuando = { "eleccion", "detenido" }, ir = "escolta" },
+                { cuando = { "eleccion", "soltar" }, ir = "soltado" },
+            },
+        },
+        soltado = {
+            al_entrar = {
+                { "variable", nombre = "haines", valor = "soltado" },
+                { "retirar_lejos", grupo = HAINES, lugar = "casa_haines", radio = 40, retraso = 0.5 },
+            },
+            salidas = { { ir = "volver" } },
+        },
+        escolta = {
+            pista = "El comisario Haines va por su cuenta a la comisaria, detenido. Vuelve con el Cabo Ramiro: te espera alla.",
+            objetivo = "contacto",
+            al_entrar = {
+                { "acompanante", grupo = HAINES, rol = "haines", nombre = "Walter Haines", inmortal = false },
+                { "banderas", grupo = HAINES, quietos = false, correa = 0 },
+            },
+            salidas = {
+                { cuando = { "todos_muertos", HAINES }, ir = "volver" },
+                { cuando = { "npc_cerca", HAINES, "contacto", 15 }, ir = "entrega" },
+            },
+        },
+        entrega = {
+            pista = "Darle al Cabo Ramiro el libro de guardia. El comisario Haines espera a su lado.",
+            ancla = "contacto",
+            al_entrar = {
+                { "soltar_acompanante", grupo = HAINES, rol = "haines" },
+                { "decir", grupo = HAINES, rol = "haines", texto = "Ramiro." },
+                { "decir_contacto", retraso = 0.03, texto = "Comisario. Queda detenido. Tiene derecho a guardar silencio. Lo que no tiene es derecho a olvidarse." },
+            },
+            opciones = {
+                { id = "libro", texto = "Darle al Cabo el libro de guardia", requiere = { "objeto", "libro" }, falta = "No llevas el libro de guardia." },
+                { id = "contar", texto = "Contarle que el libro se perdio" },
+            },
+            salidas = {
+                { cuando = { "eleccion", "libro" }, ir = "final_juicio" },
+                { cuando = { "eleccion", "contar" }, ir = "final_sin_libro" },
+            },
+        },
+        volver = {
+            pista = "Llevarle el libro de guardia al Cabo Ramiro.",
+            ancla = "contacto",
+            opciones = {
+                { id = "libro", texto = "Darle al Cabo el libro de guardia", requiere = { "objeto", "libro" }, falta = "No llevas el libro de guardia." },
+                { id = "contar", texto = "Contarle que el libro se perdio" },
+            },
+            salidas = {
+                { cuando = { "eleccion", "libro" }, ir = "final_libro" },
+                { cuando = { "eleccion", "contar" }, ir = "final_sin_libro" },
+            },
+        },
+        final_juicio = cierre("muldraugh", 5,
+            "Le lleve al Cabo el libro de guardia y al comisario Haines, detenido. El Cabo leyo los treinta y cuatro nombres en voz alta, uno por uno. Sus cuatro signos de pregunta estaban ahi. Escribio cuatro cruces y cerro la libreta: el censo de Muldraugh esta completo. A Haines no lo encerro. Lo puso de guardia en la puerta de atras, 'para que aprenda a abrirla'.",
+            {
+                { "decir_contacto", texto = "Treinta y cuatro. ... Ahi estan mis cuatro, civil. Cruz, cruz, cruz, cruz. Se acabaron los signos de pregunta. Comisario: desde hoy usted hace guardia en la puerta de atras. Y la abre cada vez que alguien golpee. Es una orden." },
+                { "decir", grupo = HAINES, rol = "haines", retraso = 0.03, texto = "Entendido, cabo." },
+                { "decir_residente", rol = "hija", retraso = 0.05, si = SI_VALENTINA,
+                  texto = "Nunca lo habia visto cerrar la libreta. Gracias por traerle las dos cosas." },
+                { "salvado_campamento", contacto = "muldraugh", nombre = "Walter", apellido = "Haines", perfil = PERFIL_HAINES,
+                  grupo = HAINES, rol = "haines", si = { "vivo", HAINES, "haines" } },
+                { "retirar_lejos", grupo = HAINES, lugar = "contacto", radio = 40, retraso = 1 },
+            }),
+        final_libro = cierre("muldraugh", 5, { por_var = "haines", textos = {
+            muerto = "Le lleve al Cabo el libro de guardia. El comisario Haines no llego. El Cabo leyo los treinta y cuatro nombres en voz alta y encontro sus cuatro signos de pregunta. Escribio cuatro cruces. Mas abajo escribio una quinta, la de Haines: 'Tambien era de Muldraugh', dijo.",
+            otro = "Le lleve al Cabo el libro de guardia. Al comisario Haines lo deje ir. El Cabo leyo los treinta y cuatro nombres en voz alta y escribio cuatro cruces. Al lado de Haines dejo un signo de pregunta nuevo, el ultimo: 'Ese que lo cargue el', dijo." } },
+            {
+                { "decir_contacto", texto = { por_var = "haines", textos = {
+                    muerto = "Treinta y cuatro. Y Haines, treinta y cinco. ... Cruz, civil. Se acabaron los signos de pregunta. Retirese y descanse. Es una orden.",
+                    otro = "Lo dejo ir. ... Bien. Castigar no es trabajo nuestro, civil. Acordarse si. Cuatro cruces. Y un signo de pregunta que ya no es mio." } } },
+                { "decir_residente", rol = "hija", retraso = 0.05, si = SI_VALENTINA,
+                  texto = "Nunca lo habia visto cerrar la libreta. Gracias." },
+            }),
+        final_sin_libro = fracaso("muldraugh", 5,
+            "Volvi sin el libro de guardia. El Cabo no me grito. Dejo los cuatro signos de pregunta como estaban y esa noche se plancho el uniforme dos veces.",
+            { { "soltar_acompanante", grupo = HAINES, rol = "haines" },
+              { "decir_contacto", texto = "Sin libro no hay censo, civil. ... Los cuatro se quedan como estan. Retirese." },
+              { "retirar_lejos", grupo = HAINES, lugar = "contacto", radio = 40, retraso = 1 } }),
+        final_abandono = fracaso("muldraugh", 5,
+            "Nunca fui a buscar el libro de guardia. El Cabo no lo volvio a pedir. Los cuatro signos de pregunta siguen en su libreta, y el comisario Haines sigue vivo en alguna parte.",
+            { { "decir_contacto", texto = "Entendido, civil. Hay paginas que se quedan abiertas." } }),
+    },
 })

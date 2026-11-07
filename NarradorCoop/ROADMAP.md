@@ -9,6 +9,23 @@ memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias
 memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 
+## Capitulo 5 del Cabo Ramiro: el libro de guardia (0.13.7, 06-11-2026, falta probar en el juego)
+- `cap_cabo_5` (Arcos/Capitulos.lua): sale con el capitulo 4 (los signos de pregunta) hecho,
+  aunque haya salido mal, y confianza 4. Pago dificil. Cierra lo que venia de la capa 4 de su
+  perfil (el comisario que mando cerrar la comisaria "por protocolo") y del cap. 4 (quedan
+  cuatro signos de pregunta, sin direccion).
+- El comisario Walter Haines anoto en el libro de guardia a todos los que quedaron adentro y se
+  fue en la patrulla. Esta vivo en una casa (500 a 1400 casillas): horda chica, el libro es un
+  objeto de la historia (`Base.Journal`) y, con el libro en la mano y la casa tranquila, se
+  habla con Haines. Se elige: llevarlo detenido (va solo a la comisaria y el Cabo lo deja de
+  guardia en la puerta de atras, `salvado_campamento`) o dejarlo ir.
+- Finales: `final_juicio` (libro y Haines), `final_libro` (libro sin Haines: muerto o suelto,
+  cambia el texto), `final_sin_libro` (fallido) y `final_abandono` (96 horas sin ir, fallido).
+  Lee `hija_cabo`: con Valentina viva ella habla al empezar y al final; muerta, el Cabo la nombra.
+- Haines esta en "Los que ya no estan". Prueba: `prueba_capitulos.lua` (las tres salidas con
+  libro, sin libro y el abandono). Falta ver en el juego el perfil de Haines
+  (`k93_muldraugh_pd_03`, el mismo de un guardia de la comisaria y del Capitan Vargas).
+
 ## Capitulo 5 de la Misia Rosa: el primer camion (0.13.6, falta probar en el juego)
 - `cap_rosa_5` (Arcos/Capitulos.lua): sale con el capitulo 4 (la carcel) hecho, aunque haya
   salido mal, y confianza 4. Pago dificil. Cierra lo que venia de la capa 4 de su perfil y del
@@ -120,7 +137,7 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está
 - El fuego de "quemar un refugio" (encargos inmorales de los capitanes).
 - El camino del bandido completo, por las dos rutas (Pereira y Meulen), y la reconquista.
 - La brújula con Project Viewpoint (ver "Brújula sigue a la cámara").
-- Cuando esté probado: fusionar el PR #1 a `main` (`main` sigue en la versión del 15 de octubre).
+- Los PR #1 y #2 ya están fusionados a `main` (06-11-2026: `main` está en 0.13.6).
 
 ### 2. Errores de historia (arreglados en 0.11.0, falta probar en el juego)
 - Si el misionero nuevo de la reconquista murió antes, lo reemplaza un Bell que siga vivo en tu
@@ -200,7 +217,8 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está
 - Capítulos 5 en adelante de cada misionero. Los cuatro tienen ya su capitulo 4: Misia Rosa (la
   carcel, 0.13.0), Cabo Ramiro (los signos de pregunta, 0.13.3), Tia Chela (la calle Main,
   0.13.4) y Padre Nacho (las campanas de Riverside, 0.13.5). La Misia Rosa tiene tambien el 5
-  (el primer camion, 0.13.6); faltan los capitulos 5 del Cabo, la Chela y el Padre.
+  (el primer camion, 0.13.6) y el Cabo Ramiro tambien (el libro de guardia, 0.13.7); faltan
+  los capitulos 5 de la Chela y el Padre.
 - ~~Más consecuencias para las memorias "solo de registro" (encuentros, alijo, trueque...).~~ Hecho
   para arsenal, denise, lucas, trueque, alijo y desertor (ver "Consecuencias de las decisiones");
   quedan solo de registro cal.fonda, eduardo_vivo, bandido_ultimo, asalto y las del motor.
@@ -485,8 +503,9 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está
 - Cada misionero tiene sus capitulos. Capitulo 1 = su desbloqueo (fundar el campamento).
   Los siguientes salen entre sus ofertas cuando el anterior ya se hizo (`G.ESPECIALES` en
   `server/Narrador/NarradorGenerador.lua`; cada capitulo deja la memoria `historia_<id>_<n>`).
-- Hechos los capitulos 1 a 4 de los cuatro y el 5 de la Misia Rosa (detalle en "C. Modo historia
-  de los misioneros"). Por escribir: capitulos 5 en adelante del Cabo, la Chela y el Padre.
+- Hechos los capitulos 1 a 4 de los cuatro y el 5 de la Misia Rosa y del Cabo (detalle en "C.
+  Modo historia de los misioneros"). Por escribir: capitulos 5 de la Chela y el Padre, y 6 en
+  adelante.
 - Falta revisar en el juego los perfiles de Eduardo (`k93_stockyard_05`) y del doctor
   (`k93_red_cross_02`), y si A-Life le deja el arma en la mano.
 
@@ -665,7 +684,9 @@ frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
   -> 4 La calle Main (darle descanso a Irma Kemper y traer a su hija Doris).
 - Cabo Ramiro: 2 La puerta de atras (rescatar a Gladys Moreno, una de los once; nombra a
   Pereira) -> 3 Valentina (la mision que estaba desactivada, ahora con confianza 4) -> 4 Los
-  signos de pregunta (Amos Pruitt y los Ortiz; los que llegan quedan de guardias).
+  signos de pregunta (Amos Pruitt y los Ortiz; los que llegan quedan de guardias) -> 5 El libro
+  de guardia (el libro del comisario Haines cierra el censo; Haines detenido queda de guardia
+  en la puerta de atras, o se lo deja ir).
 - Padre Nacho: 2 El ring de Lexington (reto a puno limpio con el Martillo Duggan) -> 3 La
   muchacha que esperaba (traer a Lucia de una iglesia de otro pueblo) -> 4 Las campanas de
   Riverside (una misa de verdad; defender la iglesia mientras llegan los feligreses).
@@ -682,7 +703,7 @@ frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
   `min_iguales = n`: el edificio debe tener n salas del tipo buscado (una escuela de verdad).
 - Los capitulos que salen mal tambien cuentan como hechos (memoria = "fallido"), para no trabar
   el campamento.
-- Por escribir: capitulos 5 en adelante (la Misia Rosa ya tiene el 5).
+- Por escribir: capitulos 5 en adelante (la Misia Rosa y el Cabo ya tienen el 5).
 
 ### Piezas listas para armar historias
 - Oleadas: `{ "oleada", cantidad, fija = true, por_jugador = n, caminantes = true,
