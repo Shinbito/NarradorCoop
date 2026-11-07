@@ -44,6 +44,7 @@ def guion():
                           "elevenlabs_voice_id": "", "descripcion": "Personaje nuevo: describir y elegir voz."}
             nuevas.append(voz)
         tv, ok = acentos.texto_voz(f["texto"])
+        te, _ = acentos.texto_voz(f["texto"], emocion=True)
         filas.append({
             "id": voz + "_" + acentos.ident(f["texto"]),
             "voz": voz,
@@ -51,6 +52,7 @@ def guion():
             "tipo_voz": voces[voz]["tipo"],
             "texto_juego": f["texto"],
             "texto_voz": tv,
+            "texto_emocion": te,
             "revisado": ok,
             "variable": tiene_variable(f["texto"]),
             "fuente": f["fuente"],
@@ -67,10 +69,10 @@ def main():
     json.dump(filas, open(os.path.join(AQUI, "guion.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     with open(os.path.join(AQUI, "guion.csv"), "w", encoding="utf-8", newline="") as fh:
         w = csv.writer(fh)
-        w.writerow(["id", "voz", "personaje", "tipo_voz", "texto_juego", "texto_voz", "revisado", "variable"])
+        w.writerow(["id", "voz", "personaje", "tipo_voz", "texto_juego", "texto_voz", "texto_emocion", "revisado", "variable"])
         for r in filas:
             w.writerow([r["id"], r["voz"], r["personaje"], r["tipo_voz"], r["texto_juego"], r["texto_voz"],
-                        "si" if r["revisado"] else "no", "si" if r["variable"] else "no"])
+                        r["texto_emocion"], "si" if r["revisado"] else "no", "si" if r["variable"] else "no"])
     grabar = [r for r in filas if not r["variable"]]
     print(f"{len(filas)} frases ({len(grabar)} para grabar, {len(filas) - len(grabar)} con partes variables: solo murmullo)")
     print(f"{sum(len(r['texto_voz']) for r in grabar)} caracteres para ElevenLabs")

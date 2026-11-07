@@ -2,7 +2,8 @@
 """Genera las voces con ElevenLabs y las deja listas para el juego.
 
 Por cada frase del guion (exportar.py) cuya voz tenga elevenlabs_voice_id en voces.json:
-  1. Pide el audio a ElevenLabs (texto con tildes de textos_voz.json) y lo guarda en
+  1. Pide el audio a ElevenLabs (texto con tildes de textos_voz.json; con los modelos v3/v4, la
+     version con etiquetas de emocion) y lo guarda en
      herramientas/voces/audio/<id>.mp3 (el original: no se vuelve a pedir si ya esta).
   2. Con ffmpeg hace dos versiones mono en .ogg, en 42/media/sound/NarradorVoces/:
        <id>.ogg        cerca: la frase clara.
@@ -46,9 +47,32 @@ LEJOS = "highpass=f=180,lowpass=f=850,aecho=0.7:0.6:35|70:0.25|0.15,loudnorm=I=-
 DISTANCIA_MAX = 30  # casillas: mas alla no se escucha nada
 
 
+# Modelos que entienden las etiquetas de emocion ([laughs], [sighs]...).
+CON_EMOCION = ("eleven_v3", "eleven_v4")
+
+
+def con_emocion(cat):
+    return str(cat.get("modelo", "")).startswith(CON_EMOCION)
+
+
+def texto_de(r, cat):
+    return r["texto_emocion"] if con_emocion(cat) else r["texto_voz"]
+
+
+def ajustes(cat):
+    a = dict(cat.get("ajustes", {}))
+    if con_emocion(cat):
+        # v3/v4: sin style ni speaker boost; la estabilidad va en pasos (0 creativa, 0.5 natural, 1 firme).
+        a.pop("style", None)
+        a.pop("use_speaker_boost", None)
+        if "stability" in a:
+            a["stability"] = min((0.0, 0.5, 1.0), key=lambda x: abs(x - float(a["stability"])))
+    return a
+
+
 def pedir(texto, voice_id, cat, clave):
     cuerpo = {"text": texto, "model_id": cat.get("modelo", "eleven_multilingual_v2"),
-              "voice_settings": cat.get("ajustes", {})}
+              "voice_settings": ajustes(cat)}
     if cat.get("idioma"):
         cuerpo["language_code"] = cat["idioma"]
     req = urllib.request.Request(API.format(voz=voice_id), data=json.dumps(cuerpo).encode("utf-8"), method="POST",
@@ -151,7 +175,7 @@ def main():
     if a.limite:
         nuevas = nuevas[:a.limite]
     sin_revisar = sum(1 for r in nuevas if not r["revisado"])
-    print(f"{len(nuevas)} frases por pedir ({sum(len(r['texto_voz']) for r in nuevas)} caracteres)"
+    print(f"{len(nuevas)} frases por pedir ({sum(len(texto_de(r, cat)) for r in nuevas)} caracteres, modelo {cat.get('modelo')})"
           + (f", {sin_revisar} con tildes automaticas (sin revisar)" if sin_revisar else ""))
     if sin_id:
         print("Voces sin elevenlabs_voice_id en voces.json (se saltan):", ", ".join(sin_id))
@@ -163,9 +187,9 @@ def main():
         if not clave:
             raise SystemExit("Falta ELEVENLABS_API_KEY (la clave de la API de ElevenLabs).")
         for n, r in enumerate(nuevas, 1):
-            audio = pedir(r["texto_voz"], cat["voces"][r["voz"]]["elevenlabs_voice_id"], cat, clave)
+            audio = pedir(texto_de(r, cat), cat["voces"][r["voz"]]["elevenlabs_voice_id"], cat, clave)
             open(os.path.join(AUDIO, r["id"] + ".mp3"), "wb").write(audio)
-            print(f"  [{n}/{len(nuevas)}] {r['id']}: {r['texto_voz'][:70]}")
+            print(f"  [{n}/{len(nuevas)}] {r['id']}: {texto_de(r, cat)[:70]}")
 
     # Convertir todo lo que tenga audio y sea del guion actual.
     hechos = {}

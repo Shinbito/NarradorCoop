@@ -4,7 +4,8 @@
 El mod escribe sin tildes a proposito (el juego no siempre las muestra), pero la voz las necesita
 para pronunciar bien ("manana" -> "mañana", "esta" -> "está"). Hay dos capas:
 
-1. textos_voz.json: el texto revisado a mano, frase por frase (clave = id del texto original).
+1. textos_voz.json: el texto revisado a mano, frase por frase (clave = id del texto original):
+   {"original", "voz" (con tildes), "emocion" (ademas con etiquetas de emocion para v3/v4)}.
    Es lo que manda. Ver exportar.py --pendientes para sacar las frases nuevas sin revisar.
 2. corregir(): un arreglo automatico basico (palabras sin ambiguedad + signos de apertura) para
    las frases que todavia no estan revisadas. No resuelve esta/está, el/él, si/sí, llego/llegó...
@@ -106,10 +107,13 @@ def corregir(texto):
     return " ".join(_abrir(p) for p in partes)
 
 
-def texto_voz(texto):
-    """(texto para ElevenLabs, revisado a mano?)"""
+def texto_voz(texto, emocion=False):
+    """(texto para ElevenLabs, revisado a mano?). Con emocion=True, la version con etiquetas de
+    emocion ([laughs], [sighs]...) si la tiene: solo para los modelos que las entienden (v3, v4)."""
     r = revisados().get(ident(texto))
     if r is not None and r.get("original") == texto:
+        if emocion and r.get("emocion"):
+            return r["emocion"], True
         return r["voz"], True
     return corregir(texto), False
 

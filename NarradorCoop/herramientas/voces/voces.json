@@ -1,11 +1,9 @@
 {
   "_leeme": "Catalogo de voces. 'diseñada': crear la voz en ElevenLabs (Voice Design) con la descripcion y pegar su voice_id. 'biblioteca': elegir una voz de la Voice Library que calce con la descripcion y pegar su voice_id. 'nombres_juego': como se llama el personaje en el juego (el cliente reconoce la voz por ese nombre).",
-  "modelo": "eleven_multilingual_v2",
+  "modelo": "eleven_v3",
   "ajustes": {
-    "stability": 0.45,
-    "similarity_boost": 0.8,
-    "style": 0.25,
-    "use_speaker_boost": true
+    "stability": 0.5,
+    "similarity_boost": 0.8
   },
   "voces": {
     "akagami": {

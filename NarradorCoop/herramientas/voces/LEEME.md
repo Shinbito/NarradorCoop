@@ -18,10 +18,16 @@ sonidos y su índice los genera `generar.py`.
 | Archivo | Qué es |
 |---|---|
 | `voces.json` | Catálogo de voces: una por personaje, con su `elevenlabs_voice_id`. |
-| `textos_voz.json` | Texto con tildes, eñes y ¿¡ para cada frase (revisado frase por frase). |
+| `textos_voz.json` | Texto con tildes, eñes y ¿¡ para cada frase (`voz`) y la misma con etiquetas de emoción como `[laughs]`, `[sighs]`, `[whispers]` (`emocion`). Revisado frase por frase. |
 | `guion.csv` / `guion.json` | El guion completo: id, voz, texto del juego y texto para la voz. Lo arma `exportar.py`. |
 | `audio/` | Los mp3 originales de ElevenLabs (no van al repo: **guárdalos**, cuestan créditos). |
 | `../../42/media/sound/NarradorVoces/` | Los .ogg del mod (cerca y `_lejos`). |
+
+## Emociones
+
+Con los modelos `eleven_v3` y `eleven_v4` (`"modelo"` en `voces.json`) se manda el texto con
+etiquetas de emoción: el modelo las actúa (suspira, se ríe, susurra) y no las lee. Las etiquetas
+cuentan como caracteres (~11% más). Con `eleven_multilingual_v2` se manda el texto sin etiquetas.
 
 ## Paso a paso
 
