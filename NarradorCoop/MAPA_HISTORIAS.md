@@ -26,6 +26,7 @@ flowchart LR
   cal_fonda["La fonda de Sous"]
   cap_cabo_2["La puerta de atras"]
   cap_cabo_4["Los signos de pregunta"]
+  cap_cabo_5["El libro de guardia"]
   cap_chela_2["La radio del cuartel"]
   cap_chela_4["La calle Main"]
   cap_nacho_2["El ring de Lexington"]
@@ -117,6 +118,7 @@ flowchart LR
   bandido_maulen -->|final_unido: sigue el camino con Meulen de jefe| bandido_2
   bandido_maulen -->|final_redimido: Meulen muere (era el jefe)| venganza_meulen
   cap_cabo_2 -->|final_cumplido, final_muerta: historia_muldraugh_2| hija_cabo
+  cap_cabo_4 -->|final_cruces, final_cumplido, final_sin_reloj: historia_muldraugh_4| cap_cabo_5
   cap_chela_2 -->|final_cumplido: historia_westpoint_2| leyenda_eduardo
   cap_nacho_2 -->|final_cumplido: historia_riverside_2| cap_nacho_3
   cap_nacho_3 -->|final_cumplido, final_muerta: historia_riverside_3| cap_nacho_4
@@ -335,9 +337,18 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_cruces` | "Decirles que vayan con el Cabo; te espera en la comisaria", y despues `todos_muertos ortiz`<br>`todos_muertos ortiz` | `historia_muldraugh_4` = fallido | - |
-| `final_cumplido` | "Darle al Cabo el reloj de Amos Pruitt" | `historia_muldraugh_4` = true | - |
-| `final_sin_reloj` | "Contarle lo de Amos (el reloj se perdio)" | `historia_muldraugh_4` = true | - |
+| `final_cruces` | "Decirles que vayan con el Cabo; te espera en la comisaria", y despues `todos_muertos ortiz`<br>`todos_muertos ortiz` | `historia_muldraugh_4` = fallido | cap_cabo_5 |
+| `final_cumplido` | "Darle al Cabo el reloj de Amos Pruitt" | `historia_muldraugh_4` = true | cap_cabo_5 |
+| `final_sin_reloj` | "Contarle lo de Amos (el reloj se perdio)" | `historia_muldraugh_4` = true | cap_cabo_5 |
+
+### El libro de guardia (`cap_cabo_5`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandono` | `pasan 96 h` | `historia_muldraugh_5` = fallido | - |
+| `final_juicio` | "Darle al Cabo el libro de guardia" | `historia_muldraugh_5` = true | - |
+| `final_libro` | "Darle al Cabo el libro de guardia" | `historia_muldraugh_5` = true | - |
+| `final_sin_libro` | "Contarle que el libro se perdio" | `historia_muldraugh_5` = fallido | - |
 
 ### La calle Main (`cap_chela_4`)
 
@@ -771,6 +782,7 @@ un texto que cambia, una variante o lo que decide un final.
 | La fonda de Sous | `cal_fonda` | del 10 al 18 de septiembre (asado el 18), con Sous aliado (NarradorCalendario) | `sous = aliados` | - | - | `cal.fonda` = hecha (final_fonda)<br>`cal.fonda` = sin (final_sin_fonda) |
 | La puerta de atras | `cap_cabo_2` | capitulo 2 de muldraugh, entre sus ofertas (confianza 2+) | `historia_muldraugh_1` | - | - | `historia_muldraugh_2` = fallido (final_muerta)<br>`historia_muldraugh_2` = true (final_cumplido) |
 | Los signos de pregunta | `cap_cabo_4` | capitulo 4 de muldraugh, entre sus ofertas (confianza 4+) | `historia_muldraugh_3` | `hija_cabo` | - | `historia_muldraugh_4` = fallido (final_cruces)<br>`historia_muldraugh_4` = true (final_cumplido)<br>`historia_muldraugh_4` = true (final_sin_reloj) |
+| El libro de guardia | `cap_cabo_5` | capitulo 5 de muldraugh, entre sus ofertas (confianza 4+) | `historia_muldraugh_4` | `hija_cabo` | - | `historia_muldraugh_5` = fallido (final_abandono)<br>`historia_muldraugh_5` = fallido (final_sin_libro)<br>`historia_muldraugh_5` = true (final_juicio)<br>`historia_muldraugh_5` = true (final_libro) |
 | La radio del cuartel | `cap_chela_2` | capitulo 2 de westpoint, entre sus ofertas (confianza 2+) | `historia_westpoint_1` | - | - | `historia_westpoint_2` = true (final_cumplido)<br>`radio_westpoint` = true (final_cumplido) |
 | La calle Main | `cap_chela_4` | capitulo 4 de westpoint, entre sus ofertas (confianza 4+) | `historia_westpoint_3` | - | - | `historia_westpoint_4` = fallido (final_muerta)<br>`historia_westpoint_4` = true (final_descansa)<br>`historia_westpoint_4` = true (final_relicario) |
 | El ring de Lexington | `cap_nacho_2` | capitulo 2 de riverside, entre sus ofertas (confianza 2+) | `historia_riverside_1` | - | - | `historia_riverside_2` = true (final_cumplido) |
@@ -891,8 +903,8 @@ un texto que cambia, una variante o lo que decide un final.
 | `faccion.<id>` | Postura de las facciones propias en A-Life (accion 'faccion'). | - | - | - | escribe: NarradorMotorAcciones |
 | `favor_<rol>` | El favor de ese miembro de Sous: hecho o murio. Con 'hecho' ya no se ofrece. | favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z | - | - | escribe: FavoresSous; lee: FavoresSous |
 | `fin` | Final del juego: eduardo_muerto o reconquista. Corta el bandido y los eventos de Eduardo. | eduardo_fallas, reconquista_patio | eduardo_atentado, eduardo_evento, eduardo_fallas, reconquista_muldraugh, reconquista_patio, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | - | escribe: Eduardo; lee: NarradorBandido, NarradorEduardo, NarradorVenganzaMeulen |
-| `hija_cabo` | Valentina: salvada o muerta. Si murio, en la reconquista la reemplaza otro (NUEVO_MURIO). | hija_cabo | - | cap_cabo_4 | escribe: HijaCabo; lee: Capitulos, NarradorDominiosDefs |
-| `historia_<id>_<n>` | Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento. | cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint, hija_cabo, leyenda_eduardo | bandido_2, cap_cabo_2, cap_cabo_4, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, eduardo_vuelve, hija_cabo, leyenda_eduardo | - | escribe: Capitulos, Desbloqueos, HijaCabo, LeyendaEduardo, NarradorContactos, NarradorGenerador; lee: Capitulos, NarradorCampamentos, NarradorContactos, NarradorGenerador |
+| `hija_cabo` | Valentina: salvada o muerta. Si murio, en la reconquista la reemplaza otro (NUEVO_MURIO). | hija_cabo | - | cap_cabo_4, cap_cabo_5 | escribe: HijaCabo; lee: Capitulos, NarradorDominiosDefs |
+| `historia_<id>_<n>` | Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento. | cap_cabo_2, cap_cabo_4, cap_cabo_5, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint, hija_cabo, leyenda_eduardo | bandido_2, cap_cabo_2, cap_cabo_4, cap_cabo_5, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, eduardo_vuelve, hija_cabo, leyenda_eduardo | - | escribe: Capitulos, Desbloqueos, HijaCabo, LeyendaEduardo, NarradorContactos, NarradorGenerador; lee: Capitulos, NarradorCampamentos, NarradorContactos, NarradorGenerador |
 | `historia_abierta` | true desde que alguien reclamo un refugio: abre el modo historia (Motor.historiaAbierta). | - | - | - | escribe: NarradorMotor; lee: NarradorMotor |
 | `historia_abierta_hora` | Hora en que se abrio el modo historia (solo para mirar). | - | - | - | escribe: Capitulos, NarradorMotor; lee: NarradorCampamentos |
 | `hora_hsous` | Hora en que se lanzo la ultima historia personal de Sous (horas entre una y otra). | - | - | - | escribe: NarradorHistoriasSous1; lee: NarradorHistoriasSous1, NarradorHistoriasSous2 |

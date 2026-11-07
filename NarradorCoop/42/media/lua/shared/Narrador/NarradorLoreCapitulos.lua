@@ -133,6 +133,25 @@ Lore.arcos.cap_cabo_4 = {
     },
 }
 
+Lore.arcos.cap_cabo_5 = {
+    etapas = {
+        viaje = "Quedan cuatro signos de pregunta en la libreta del Cabo, sin direccion. Los cuatro quedaron adentro la noche en que el comisario Haines mando cerrar. Haines esta vivo en {lugar:casa_haines} y tiene el libro de guardia.",
+        casa = "Llegue a {lugar:casa_haines}. Las ventanas estan tapadas con paginas de diario. El libro de guardia tiene que estar aqui adentro.",
+        hablar = "El comisario Haines esta vivo. Dice que tiene los treinta y cuatro nombres en la cabeza todas las noches. Tengo que decidir que hago con el.",
+        escolta = "El comisario Haines va a la comisaria, detenido. Camina derecho, como si fuera a declarar.",
+        entrega = "Haines y el Cabo, frente a frente en la comisaria. Falta darle al Cabo el libro de guardia.",
+        volver = "Tengo el libro de guardia de la comisaria. Treinta y cuatro nombres con su hora. El Cabo me espera.",
+    },
+    finales = {
+        final_juicio = "Le lleve al Cabo el libro y a Haines, detenido. Escribio cuatro cruces y cerro la libreta: el censo de Muldraugh esta completo. Haines hace guardia en la puerta de atras.",
+        final_libro = { por_var = "haines", textos = {
+            muerto = "Le lleve al Cabo el libro de guardia. Haines no llego. El Cabo escribio cuatro cruces y una quinta, la de Haines: 'Tambien era de Muldraugh'.",
+            otro = "Le lleve al Cabo el libro de guardia. A Haines lo deje ir. El Cabo escribio cuatro cruces y le dejo a Haines el ultimo signo de pregunta." } },
+        final_sin_libro = "Volvi sin el libro de guardia. Los cuatro signos de pregunta siguen en la libreta del Cabo.",
+        final_abandono = "Nunca fui a buscar el libro de guardia. El comisario Haines sigue vivo en alguna parte.",
+    },
+}
+
 -- ===========================================================================
 -- Padre Nacho
 -- ===========================================================================

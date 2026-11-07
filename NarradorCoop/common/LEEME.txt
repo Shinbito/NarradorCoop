@@ -218,6 +218,9 @@ Novedades 0.11.0:
 - Capitulo 5 de la Misia Rosa: el primer camion. Una marea baja por la ruta 31 y hay que juntar
   a dos familias en la gasolinera; lo que pasa depende de si defendiste el tanque y de si
   limpiaste la carcel.
+- Capitulo 5 del Cabo Ramiro: el libro de guardia. El comisario que mando cerrar la comisaria
+  la primera noche esta vivo y tiene el libro con los nombres de los que quedaron adentro; tu
+  decides si lo llevas detenido o lo dejas ir.
 - La cura: entre 1 y 4 pastillas K-93 verdaderas, siempre al menos una.
 - Diario: entradas para las misiones que no tenian texto (la cura, las fechas de Sous, los
   encuentros, los favores, los desbloqueos y los capitulos).

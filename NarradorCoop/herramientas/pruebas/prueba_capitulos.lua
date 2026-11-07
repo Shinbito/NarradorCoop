@@ -425,6 +425,95 @@ Motor.entrar(inst, "reunion", 0)
 Motor.revisarSalidas(inst, 0)
 check(inst.final == "final_perdidos" and m.historia_rosewood_5 == "fallido" and #guardias == 0, "no llega nadie: fallido")
 
+-- ---------------------------------------------------------------------------
+-- 7. Cabo Ramiro, capitulo 5
+-- ---------------------------------------------------------------------------
+local function haines(inst, vivo)
+    inst.grupos.haines = { estado = "listo", nombres = {}, roles = { haines = "h1" },
+        miembros = { h1 = { rol = "haines", vivo = vivo ~= false } } }
+end
+limpiar()
+Mundo.zombiCerca = function() return true end
+Mundo.posicionActor = function() return 0, 0 end
+m.historia_muldraugh_1, m.historia_muldraugh_2, m.historia_muldraugh_3 = true, true, true
+m.historia_muldraugh_4, m.historia_muldraugh_5, m.hija_cabo = nil, nil, "muerta"
+o = G.ofertaEspecial("muldraugh", "facil", "g1")
+check(o == nil or o.def ~= "cap_cabo_5", "sin el capitulo 4 no sale el 5 del Cabo")
+m.historia_muldraugh_4 = "fallido"
+o = G.ofertaEspecial("muldraugh", "facil", "g1")
+check(o ~= nil and o.def == "cap_cabo_5" and o.vars.nivel == "dificil", "con el 4 hecho (aunque saliera mal) sale el 5, pago dificil")
+lugares.casa_haines = { x = 1000, y = 0 }
+px, py = CASA.x, CASA.y
+inst = G.iniciarOferta(J, "muldraugh", "facil", o)
+check(inst ~= nil and inst.etapa == "viaje", "arranca: a la casa de Haines")
+local nombraHaines, nombraValentina = false, false
+for _, d in ipairs(dichos) do
+    if d:find("Haines", 1, true) then nombraHaines = true end
+end
+for _, p in ipairs(inst.pendientes) do
+    if p[1] == "decir_contacto" and tostring(p.texto):find("Valentina", 1, true) then nombraValentina = true end
+end
+check(nombraHaines and nombraValentina, "el Cabo nombra a Haines y, con Valentina muerta, la recuerda")
+px, py = 1000, 0
+Mundo.posicionActor = function() return 1002, 0 end
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "casa", "llega a la casa de Haines")
+haines(inst, true)
+ahora = ahora + 0.3
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "casa", "sin el libro no sigue")
+tiene[1] = { etiqueta = inst.id .. ":libro" }
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "casa", "con zombis cerca todavia no se habla")
+Mundo.zombiCerca = function() return false end
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "hablar", "con el libro y la casa tranquila: hablar con Haines")
+Motor.elegir(J, inst.id, "detenido")
+check(inst.etapa == "escolta", "se lo lleva detenido")
+Mundo.posicionActor = function() return CASA.x + 2, CASA.y end
+px, py = CASA.x, CASA.y
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "entrega", "Haines llega a la comisaria")
+Motor.elegir(J, inst.id, "libro")
+check(inst.final == "final_juicio" and m.historia_muldraugh_5 == true, "entrega el libro: final_juicio")
+check(#guardias == 1 and guardias[1][1] == "muldraugh" and guardias[1][2] == "Walter" and guardias[1][3] ~= nil,
+    "Haines queda de guardia en la comisaria")
+
+-- Haines suelto: el libro igual cierra el censo, sin guardia.
+limpiar()
+m.historia_muldraugh_5 = nil
+Mundo.posicionActor = function() return 0, 0 end
+inst = G.iniciarOferta(J, "muldraugh", "facil", G.ofertaEspecial("muldraugh", "facil", "g1"))
+haines(inst, true)
+Motor.entrar(inst, "hablar", 0)
+Motor.elegir(J, inst.id, "soltar")
+check(inst.etapa == "volver" and inst.vars.haines == "soltado", "lo deja ir: volver con el libro")
+tiene[1] = { etiqueta = inst.id .. ":libro" }
+Motor.elegir(J, inst.id, "libro")
+check(inst.final == "final_libro" and m.historia_muldraugh_5 == true and #guardias == 0, "con Haines suelto: final_libro sin guardia")
+
+-- Haines muere en la casa: con el libro se vuelve igual.
+limpiar()
+m.historia_muldraugh_5 = nil
+inst = G.iniciarOferta(J, "muldraugh", "facil", G.ofertaEspecial("muldraugh", "facil", "g1"))
+Motor.entrar(inst, "casa", 0)
+haines(inst, false)
+tiene[1] = { etiqueta = inst.id .. ":libro" }
+Motor.revisarSalidas(inst, 0)
+check(inst.etapa == "volver" and inst.vars.haines == "muerto", "murio Haines: volver con el libro")
+Motor.elegir(J, inst.id, "contar")
+check(inst.final == "final_sin_libro" and m.historia_muldraugh_5 == "fallido", "sin el libro: fallido")
+
+-- Si nunca va: a las 96 horas queda fallido.
+limpiar()
+m.historia_muldraugh_5 = nil
+inst = G.iniciarOferta(J, "muldraugh", "facil", G.ofertaEspecial("muldraugh", "facil", "g1"))
+ahora = ahora + 97
+px, py = CASA.x, CASA.y
+Motor.revisarSalidas(inst, 0)
+check(inst.final == "final_abandono" and m.historia_muldraugh_5 == "fallido", "no fue en 96 horas: fallido")
+m.hija_cabo = nil
+
 -- El guardia no aparece mientras el NPC de la historia siga en el mundo.
 st.arcos["x#1"] = { grupos = { ortiz = { roles = { celia = "u1" }, miembros = { u1 = { vivo = true } } } } }
 local g = { esperar = { arco = "x#1", grupo = "ortiz", rol = "celia", hasta = ahora + 24 } }
