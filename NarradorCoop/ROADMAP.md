@@ -9,6 +9,36 @@ memoria nueva, anotarla ahi y correr `python3 NarradorCoop/herramientas/memorias
 memoria no esta en la lista, si se lee y nadie la escribe, o si se escribe y nadie la lee.
 El grafo ignora los `.md`, `herramientas/` y `common/` (`NarradorCoop/.graphifyignore`).
 
+## Capitulos 5 de la Tia Chela y del Padre Nacho (0.13.8, 06-11-2026, falta probar en el juego)
+Con esto los cuatro misioneros tienen su capitulo 5. Los dos salen con el capitulo 4 hecho
+(aunque haya salido mal) y confianza 4; pago dificil. Pruebas de todas las salidas en
+`prueba_capitulos.lua` (secciones 8 y 9).
+- `cap_chela_5`, El primer fuego (Arcos/Capitulos.lua): se quema la casa del lado de los Hale
+  (300 a 1000 casillas del cuartel) y el fuego trae a la cuadra: 20 +8 por jugador extra, sin
+  corredores, y 6 a 9 corredores. A Walt Hale lo mordieron (es Irma otra vez, capa 4 de su
+  perfil) y pide que lo dejen. Se elige: llevarlo igual (la Chela no lo deja en la vereda: se
+  queda con el toda la noche, `final_juntos`) o hacer lo que pide (`final_sola`). Martha, la
+  hija, queda de guardia en el cuartel. Si Martha muere, o no vas en 24 horas, fallido.
+  Lee decisiones de antes: `cap_chela_4.final` (con el relicario la Chela vuelve a apagar
+  fuegos y saca el camion rojo; sin el, "que se queme"; con Doris viva, Doris le lleva sopa a
+  Martha), `radio_westpoint` (Martha llamo por la radio), `eduardo_conocido` (tapan a Walt con
+  la frazada que la Chela guardaba para Eduardo) y `cientifico_hartmann` (el doctor no ofrece
+  venderle nada). Deja `hale` (solo de registro, para un capitulo 6).
+- `cap_nacho_5`, La ultima confesion: a Frank Duggan (el Martillo del cap. 2) lo mordieron y
+  pide confesarse con el Padre, que juro no irse de su iglesia (capa 5). Vas tu (400 a 1200
+  casillas, horda chica). Se elige: llevarlo a la iglesia (va solo; si tarda mas de 4 horas se
+  da vuelta en el camino, `transformar`, y queda fallido) o escucharlo ahi en nombre del Padre.
+  La confesion cierra el ring: en el 79 se dejo ganar ("esta vez no me agacho"). Finales:
+  `final_absuelto`, `final_estola`, `final_tarde`, `final_muerto` y `final_abandono` (48 horas).
+  Lee `lucia` (Lucia le dice que vaya el; cierra la puerta para dejarlos solos) y
+  `cap_nacho_4.final` (Duggan fue al fondo de la misa de las campanas). Deja `duggan` (solo de
+  registro).
+- Martha y Walt Hale estan en "Los que ya no estan"; Duggan ya estaba (rol `duggan`).
+- **Revisar en el juego** los perfiles nuevos: Martha Hale `k93_kessinger_05` (de la lista de
+  mujeres, `G.PERFILES_M`) y Walt Hale `k93_kessinger_06` (de la lista de hombres,
+  `G.PERFILES_H`). Duggan sigue con `k93_kessinger_10`, el mismo del cap. 2. Mirar tambien que
+  Duggan se transforme bien en el camino y que Walt se retire de su casa cuando te vas.
+
 ## Capitulo 5 del Cabo Ramiro: el libro de guardia (0.13.7, 06-11-2026, falta probar en el juego)
 - `cap_cabo_5` (Arcos/Capitulos.lua): sale con el capitulo 4 (los signos de pregunta) hecho,
   aunque haya salido mal, y confianza 4. Pago dificil. Cierra lo que venia de la capa 4 de su
@@ -133,11 +163,12 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está
 - Perfiles de A-Life: Valentina (`k93_hensley_family_03`, que se vea como una muchacha), la
   Capitana Kell (`k93_vfd_05`, que sea mujer), la Hermana Lucía (`k93_red_cross_08`), Eduardo
   (`k93_stockyard_05`) y el doctor Hartmann (`k93_red_cross_02`); y si A-Life le deja el arma en
-  la mano a Eduardo.
+  la mano a Eduardo. Nuevos (0.13.8): Martha Hale (`k93_kessinger_05`, mujer) y Walt Hale
+  (`k93_kessinger_06`, hombre).
 - El fuego de "quemar un refugio" (encargos inmorales de los capitanes).
 - El camino del bandido completo, por las dos rutas (Pereira y Meulen), y la reconquista.
 - La brújula con Project Viewpoint (ver "Brújula sigue a la cámara").
-- Los PR #1 y #2 ya están fusionados a `main` (06-11-2026: `main` está en 0.13.6).
+- Los PR #1, #2 y #3 ya están fusionados a `main` (06-11-2026: `main` está en 0.13.7).
 
 ### 2. Errores de historia (arreglados en 0.11.0, falta probar en el juego)
 - Si el misionero nuevo de la reconquista murió antes, lo reemplaza un Bell que siga vivo en tu
@@ -217,8 +248,9 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está
 - Capítulos 5 en adelante de cada misionero. Los cuatro tienen ya su capitulo 4: Misia Rosa (la
   carcel, 0.13.0), Cabo Ramiro (los signos de pregunta, 0.13.3), Tia Chela (la calle Main,
   0.13.4) y Padre Nacho (las campanas de Riverside, 0.13.5). La Misia Rosa tiene tambien el 5
-  (el primer camion, 0.13.6) y el Cabo Ramiro tambien (el libro de guardia, 0.13.7); faltan
-  los capitulos 5 de la Chela y el Padre.
+  (el primer camion, 0.13.6), el Cabo Ramiro (el libro de guardia, 0.13.7), la Tia Chela (el
+  primer fuego, 0.13.8) y el Padre Nacho (la ultima confesion, 0.13.8). Por escribir:
+  capitulos 6 en adelante.
 - ~~Más consecuencias para las memorias "solo de registro" (encuentros, alijo, trueque...).~~ Hecho
   para arsenal, denise, lucas, trueque, alijo y desertor (ver "Consecuencias de las decisiones");
   quedan solo de registro cal.fonda, eduardo_vivo, bandido_ultimo, asalto y las del motor.
@@ -499,13 +531,12 @@ Todo lo de las versiones 0.10, 0.11, 0.12, 0.12.1, 0.12.2, 0.12.3 y 0.12.4 está
   (14). El herrero forja un arma con el mango que lleves: con el normal sale excepcional, con
   el noble, legendaria (machete, hacha, katana, lanza o hacha de mano).
 
-### Modo historia de cada misionero (hecho hasta el capitulo 4, falta probar)
+### Modo historia de cada misionero (hecho hasta el capitulo 5, falta probar)
 - Cada misionero tiene sus capitulos. Capitulo 1 = su desbloqueo (fundar el campamento).
   Los siguientes salen entre sus ofertas cuando el anterior ya se hizo (`G.ESPECIALES` en
   `server/Narrador/NarradorGenerador.lua`; cada capitulo deja la memoria `historia_<id>_<n>`).
-- Hechos los capitulos 1 a 4 de los cuatro y el 5 de la Misia Rosa y del Cabo (detalle en "C.
-  Modo historia de los misioneros"). Por escribir: capitulos 5 de la Chela y el Padre, y 6 en
-  adelante.
+- Hechos los capitulos 1 a 5 de los cuatro (detalle en "C. Modo historia de los
+  misioneros"). Por escribir: capitulos 6 en adelante.
 - Falta revisar en el juego los perfiles de Eduardo (`k93_stockyard_05`) y del doctor
   (`k93_red_cross_02`), y si A-Life le deja el arma en la mano.
 
@@ -681,7 +712,8 @@ frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
   se registran en `G.ESPECIALES`. Fundar el campamento es el capitulo 1 (memoria
   `historia_<id>_1`, tambien en partidas viejas).
 - Tia Chela: 2 La radio del cuartel (repuestos, antena y la voz de Eduardo) -> 3 el cientifico
-  -> 4 La calle Main (darle descanso a Irma Kemper y traer a su hija Doris).
+  -> 4 La calle Main (darle descanso a Irma Kemper y traer a su hija Doris) -> 5 El primer
+  fuego (sacar a los Hale de al lado de un incendio; Walt viene mordido o se queda).
 - Cabo Ramiro: 2 La puerta de atras (rescatar a Gladys Moreno, una de los once; nombra a
   Pereira) -> 3 Valentina (la mision que estaba desactivada, ahora con confianza 4) -> 4 Los
   signos de pregunta (Amos Pruitt y los Ortiz; los que llegan quedan de guardias) -> 5 El libro
@@ -689,7 +721,8 @@ frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
   en la puerta de atras, o se lo deja ir).
 - Padre Nacho: 2 El ring de Lexington (reto a puno limpio con el Martillo Duggan) -> 3 La
   muchacha que esperaba (traer a Lucia de una iglesia de otro pueblo) -> 4 Las campanas de
-  Riverside (una misa de verdad; defender la iglesia mientras llegan los feligreses).
+  Riverside (una misa de verdad; defender la iglesia mientras llegan los feligreses) -> 5 La
+  ultima confesion (Duggan, mordido, se confiesa con el Padre o contigo).
 - Misia Rosa: 2 La ruta 31 (traer al Gordo Earl y su carga) -> 3 El estanque (defender la
   bencinera de noche, con la luz apagada por primera vez) -> 4 La carcel de Rosewood (confianza
   4: limpiar la carcel, dos oleadas grandes con meta de bajas y el patio sin zombis; premio: el
@@ -703,7 +736,7 @@ frase de misionero en `server/Narrador/NarradorConsecuencias.lua`:
   `min_iguales = n`: el edificio debe tener n salas del tipo buscado (una escuela de verdad).
 - Los capitulos que salen mal tambien cuentan como hechos (memoria = "fallido"), para no trabar
   el campamento.
-- Por escribir: capitulos 5 en adelante (la Misia Rosa y el Cabo ya tienen el 5).
+- Por escribir: capitulos 6 en adelante (los cuatro tienen ya el 5).
 
 ### Piezas listas para armar historias
 - Oleadas: `{ "oleada", cantidad, fija = true, por_jugador = n, caminantes = true,

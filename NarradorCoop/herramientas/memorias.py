@@ -50,8 +50,10 @@ MEMORIAS = {
     "caido_<quien>": "Un NPC inmune (Eduardo) cayo: true; 'volvio' cuando reaparece en el cuartel.",
     "dominio_<id>": "De quien es la ciudad: nil = mision, 'bandido' o 'nuevo' (NarradorDominios).",
     "misionero_muerto_<id>": "El misionero de esa ciudad murio en la conquista.",
-    "radio_westpoint": "La radio del cuartel de la Chela quedo arreglada (cap. 2): las amenazas se avisan antes y por la radio.",
-    "lucia": "Que paso con la Hermana Lucia en el cap. 3 del Padre Nacho (en_riverside o muerta). Si murio, la reemplaza otro.",
+    "radio_westpoint": "La radio del cuartel de la Chela quedo arreglada (cap. 2): las amenazas se avisan antes y por la radio. En el cap. 5 Martha Hale llama por la radio.",
+    "lucia": "Que paso con la Hermana Lucia en el cap. 3 del Padre Nacho (en_riverside o muerta). Si murio, la reemplaza otro. Los caps. 4 y 5 la nombran.",
+    "hale": "Como termino el cap. 5 de la Chela (el primer fuego): juntos (Walt llego mordido al cuartel), se_quedo (Walt pidio quedarse), murio, muertos (Martha no llego) o tarde.",
+    "duggan": "Como termino el cap. 5 del Padre Nacho (la ultima confesion): iglesia (se confeso con el Padre), escuchado (lo escuchaste tu), se_dio_vuelta, muerto o abandonado.",
     "estanque_rosewood": "El estanque de bencina de la Misia Rosa (cap. 3): defendido (cada 72 horas te deja un bidon lleno) o saqueado (no estabas cuando llegaron; en el cap. 5 hay que buscar bencina para el camion).",
     "carcel_rosewood": "La carcel de Rosewood (Misia Rosa, cap. 4): limpiada, con el arsenal legendario de la armeria. En el cap. 5 el camion lleva a las familias a vivir alla.",
     "estanque_ultima": "Hora del ultimo bidon del estanque de la Misia Rosa (NarradorConsecuencias).",
@@ -107,7 +109,7 @@ MEMORIAS = {
     "asalto": "El asalto nocturno: rechazado.",
     "alijo": "El alijo custodiado: encontrado; despues compartido, negado o viuda_muerta (la viuda del dueno, ConsecuenciasExtra).",
     # --- Motor ---
-    "<def>.final": "Ultimo final de cada historia (sous.final = 'final_aliados'). Lo escribe el motor al terminar.",
+    "<def>.final": "Ultimo final de cada historia (sous.final = 'final_aliados'). Lo escribe el motor al terminar. Los caps. 5 leen cap_chela_4.final (relicario) y cap_nacho_4.final (la misa).",
     "lugar.<clave>": "Lugares guardados con memoria_lugar (ver lugar.base_sous y compania).",
     "faccion.<id>": "Postura de las facciones propias en A-Life (accion 'faccion').",
     "conv.<conv>": "Respuesta elegida en una conversacion de 'pregunta' (NarradorConversas).",
@@ -122,6 +124,8 @@ SIN_LECTOR = {
     "faccion.<id>": "registro del motor",
     "conv.<conv>.quien": "registro",
     "conv.<conv>.hora": "registro",
+    "hale": "registro (para un capitulo 6 de la Chela)",
+    "duggan": "registro (para un capitulo 6 del Padre Nacho)",
 }
 
 

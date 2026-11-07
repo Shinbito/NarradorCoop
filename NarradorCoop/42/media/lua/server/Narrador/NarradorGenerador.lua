@@ -802,6 +802,11 @@ G.ESPECIALES = {
       titulo = "Las campanas de Riverside",
       resumen = { "Historia del Padre Nacho, cap. 4", "Para: una misa de verdad, con campanas",
                   "Donde: una ferreteria y despues la iglesia", "Pago: botin dificil", "Ojo: las campanas traen a todo el pueblo" } },
+    { def = "cap_nacho_5", contacto = "riverside", capitulo = 5, requiere = "historia_riverside_4",
+      hecho = "historia_riverside_5", confianza = 4, pago = "dificil", chance = 1,
+      titulo = "La ultima confesion",
+      resumen = { "Historia del Padre Nacho, cap. 5", "Para: Frank Duggan, mordido, quiere confesarse",
+                  "Donde: su guarida y quizas la iglesia", "Pago: botin dificil", "Ojo: a Duggan no le queda mucho" } },
     { def = "cap_rosa_2", contacto = "rosewood", capitulo = 2, requiere = "historia_rosewood_1",
       hecho = "historia_rosewood_2", confianza = 2, pago = "medio", chance = 1,
       titulo = "La ruta 31",
@@ -833,6 +838,11 @@ G.ESPECIALES = {
       titulo = "La calle Main",
       resumen = { "Historia de la Tia Chela, cap. 4", "Para: Irma y Doris Kemper, la vecina y su hija",
                   "Donde: la calle Main y otro pueblo", "Pago: botin dificil", "Ojo: hay que traer a Doris viva" } },
+    { def = "cap_chela_5", contacto = "westpoint", capitulo = 5, requiere = "historia_westpoint_4",
+      hecho = "historia_westpoint_5", confianza = 4, pago = "dificil", chance = 1,
+      titulo = "El primer fuego",
+      resumen = { "Historia de la Tia Chela, cap. 5", "Para: Martha y Walt Hale, al lado de un incendio",
+                  "Donde: una casa de West Point", "Pago: botin dificil", "Ojo: el fuego trae a toda la cuadra" } },
 }
 
 -- El capitulo que deja esa memoria ("historia_<id>_<n>") ya esta escrito? Si no, no se pide.

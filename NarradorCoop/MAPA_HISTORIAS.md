@@ -29,9 +29,11 @@ flowchart LR
   cap_cabo_5["El libro de guardia"]
   cap_chela_2["La radio del cuartel"]
   cap_chela_4["La calle Main"]
+  cap_chela_5["El primer fuego"]
   cap_nacho_2["El ring de Lexington"]
   cap_nacho_3["La muchacha que esperaba"]
   cap_nacho_4["Las campanas de Riverside"]
+  cap_nacho_5["La ultima confesion"]
   cap_rosa_2["La ruta 31"]
   cap_rosa_3["El tanque"]
   cap_rosa_4["La carcel de Rosewood"]
@@ -120,8 +122,10 @@ flowchart LR
   cap_cabo_2 -->|final_cumplido, final_muerta: historia_muldraugh_2| hija_cabo
   cap_cabo_4 -->|final_cruces, final_cumplido, final_sin_reloj: historia_muldraugh_4| cap_cabo_5
   cap_chela_2 -->|final_cumplido: historia_westpoint_2| leyenda_eduardo
+  cap_chela_4 -->|final_descansa, final_muerta, final_relicario: historia_westpoint_4| cap_chela_5
   cap_nacho_2 -->|final_cumplido: historia_riverside_2| cap_nacho_3
   cap_nacho_3 -->|final_cumplido, final_muerta: historia_riverside_3| cap_nacho_4
+  cap_nacho_4 -->|final_cumplido, final_vacia: historia_riverside_4| cap_nacho_5
   cap_rosa_2 -->|final_cumplido, final_muerto: historia_rosewood_2| cap_rosa_3
   cap_rosa_3 -->|final_cumplido, final_saqueado: historia_rosewood_3| cap_rosa_4
   cap_rosa_4 -->|final_abandono, final_cumplido: historia_rosewood_4| cap_rosa_5
@@ -354,9 +358,18 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_descansa` | "Decirle a Doris que su mama ya descansa" | `historia_westpoint_4` = true | - |
-| `final_muerta` | "Decirle que la Chela la espera en el cuartel de West Point", y despues `todos_muertos doris`<br>`todos_muertos doris` | `historia_westpoint_4` = fallido | - |
-| `final_relicario` | "Darle a Doris el relicario de su mama" | `historia_westpoint_4` = true | - |
+| `final_descansa` | "Decirle a Doris que su mama ya descansa" | `historia_westpoint_4` = true | cap_chela_5 |
+| `final_muerta` | "Decirle que la Chela la espera en el cuartel de West Point", y despues `todos_muertos doris`<br>`todos_muertos doris` | `historia_westpoint_4` = fallido | cap_chela_5 |
+| `final_relicario` | "Darle a Doris el relicario de su mama" | `historia_westpoint_4` = true | cap_chela_5 |
+
+### El primer fuego (`cap_chela_5`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_juntos` | "Llevarlos a los dos con la Chela, aunque Walt este mordido" o "Hacer lo que pide Walt: que se quede", y despues `walt = viene` | `hale` = juntos, `historia_westpoint_5` = true | - |
+| `final_muertos` | "Hacer lo que pide Walt: que se quede", y despues `todos_muertos martha`<br>"Llevarlos a los dos con la Chela, aunque Walt este mordido", y despues `todos_muertos martha`<br>`todos_muertos martha` | `hale` = muertos, `historia_westpoint_5` = fallido | - |
+| `final_sola` | "Llevarlos a los dos con la Chela, aunque Walt este mordido" o "Hacer lo que pide Walt: que se quede", y despues `nil` | `hale` = var:walt, `historia_westpoint_5` = true | - |
+| `final_tarde` | `pasan 24 h` | `hale` = tarde, `historia_westpoint_5` = fallido | - |
 
 ### La muchacha que esperaba (`cap_nacho_3`)
 
@@ -369,8 +382,18 @@ y la condicion que lo decide (lo sorteado al empezar, quien murio, el tiempo...)
 
 | Final | Como se llega | Deja | Lleva a |
 | --- | --- | --- | --- |
-| `final_cumplido` | "Tocar las campanas de Riverside", y despues `pasan 0.3 h` | `historia_riverside_4` = true | - |
-| `final_vacia` | "Tocar las campanas de Riverside", y despues `ausente contacto 80 1`<br>"Tocar las campanas de Riverside", y despues `todos_muertos feligreses` | `historia_riverside_4` = fallido | - |
+| `final_cumplido` | "Tocar las campanas de Riverside", y despues `pasan 0.3 h` | `historia_riverside_4` = true | cap_nacho_5 |
+| `final_vacia` | "Tocar las campanas de Riverside", y despues `ausente contacto 80 1`<br>"Tocar las campanas de Riverside", y despues `todos_muertos feligreses` | `historia_riverside_4` = fallido | cap_nacho_5 |
+
+### La ultima confesion (`cap_nacho_5`)
+
+| Final | Como se llega | Deja | Lleva a |
+| --- | --- | --- | --- |
+| `final_abandono` | `pasan 48 h` | `duggan` = abandonado, `historia_riverside_5` = fallido | - |
+| `final_absuelto` | "Dejar solos al Padre y a Frank Duggan"<br>"Llevarlo a la iglesia, a confesarse con el Padre", y despues `todos_muertos duggan` | `duggan` = iglesia, `historia_riverside_5` = true | - |
+| `final_estola` | "Contarle al Padre la confesion de Frank Duggan" | `duggan` = escuchado, `historia_riverside_5` = true | - |
+| `final_muerto` | "Llevarlo a la iglesia, a confesarse con el Padre", y despues `todos_muertos duggan`<br>`todos_muertos duggan` | `duggan` = muerto, `historia_riverside_5` = fallido | - |
+| `final_tarde` | "Llevarlo a la iglesia, a confesarse con el Padre", y despues `nil` | `duggan` = se_dio_vuelta, `historia_riverside_5` = fallido | - |
 
 ### La ruta 31 (`cap_rosa_2`)
 
@@ -785,9 +808,11 @@ un texto que cambia, una variante o lo que decide un final.
 | El libro de guardia | `cap_cabo_5` | capitulo 5 de muldraugh, entre sus ofertas (confianza 4+) | `historia_muldraugh_4` | `hija_cabo` | - | `historia_muldraugh_5` = fallido (final_abandono)<br>`historia_muldraugh_5` = fallido (final_sin_libro)<br>`historia_muldraugh_5` = true (final_juicio)<br>`historia_muldraugh_5` = true (final_libro) |
 | La radio del cuartel | `cap_chela_2` | capitulo 2 de westpoint, entre sus ofertas (confianza 2+) | `historia_westpoint_1` | - | - | `historia_westpoint_2` = true (final_cumplido)<br>`radio_westpoint` = true (final_cumplido) |
 | La calle Main | `cap_chela_4` | capitulo 4 de westpoint, entre sus ofertas (confianza 4+) | `historia_westpoint_3` | - | - | `historia_westpoint_4` = fallido (final_muerta)<br>`historia_westpoint_4` = true (final_descansa)<br>`historia_westpoint_4` = true (final_relicario) |
+| El primer fuego | `cap_chela_5` | capitulo 5 de westpoint, entre sus ofertas (confianza 4+) | `historia_westpoint_4` | `cap_chela_4.final`, `cientifico_hartmann`, `eduardo_conocido`, `radio_westpoint` | - | `hale` = juntos (final_juntos)<br>`hale` = muertos (final_muertos)<br>`hale` = tarde (final_tarde)<br>`hale` = var:walt (final_sola)<br>`historia_westpoint_5` = fallido (final_muertos)<br>`historia_westpoint_5` = fallido (final_tarde)<br>`historia_westpoint_5` = true (final_juntos)<br>`historia_westpoint_5` = true (final_sola) |
 | El ring de Lexington | `cap_nacho_2` | capitulo 2 de riverside, entre sus ofertas (confianza 2+) | `historia_riverside_1` | - | - | `historia_riverside_2` = true (final_cumplido) |
 | La muchacha que esperaba | `cap_nacho_3` | capitulo 3 de riverside, entre sus ofertas (confianza 3+) | `historia_riverside_2` | - | - | `historia_riverside_3` = fallido (final_muerta)<br>`historia_riverside_3` = true (final_cumplido)<br>`lucia` = en_riverside (final_cumplido)<br>`lucia` = muerta (final_muerta) |
 | Las campanas de Riverside | `cap_nacho_4` | capitulo 4 de riverside, entre sus ofertas (confianza 4+) | `historia_riverside_3` | `historia_riverside_2`, `lucia` | - | `historia_riverside_4` = fallido (final_vacia)<br>`historia_riverside_4` = true (final_cumplido) |
+| La ultima confesion | `cap_nacho_5` | capitulo 5 de riverside, entre sus ofertas (confianza 4+) | `historia_riverside_4` | `cap_nacho_4.final`, `lucia` | - | `duggan` = abandonado (final_abandono)<br>`duggan` = escuchado (final_estola)<br>`duggan` = iglesia (final_absuelto)<br>`duggan` = muerto (final_muerto)<br>`duggan` = se_dio_vuelta (final_tarde)<br>`historia_riverside_5` = fallido (final_abandono)<br>`historia_riverside_5` = fallido (final_muerto)<br>`historia_riverside_5` = fallido (final_tarde)<br>`historia_riverside_5` = true (final_absuelto)<br>`historia_riverside_5` = true (final_estola) |
 | La ruta 31 | `cap_rosa_2` | capitulo 2 de rosewood, entre sus ofertas (confianza 2+) | `historia_rosewood_1` | - | - | `historia_rosewood_2` = fallido (final_muerto)<br>`historia_rosewood_2` = true (final_cumplido) |
 | El tanque | `cap_rosa_3` | capitulo 3 de rosewood, entre sus ofertas (confianza 3+) | `historia_rosewood_2` | - | - | `estanque_rosewood` = defendido (final_cumplido)<br>`estanque_rosewood` = saqueado (final_saqueado)<br>`historia_rosewood_3` = fallido (final_saqueado)<br>`historia_rosewood_3` = true (final_cumplido) |
 | La carcel de Rosewood | `cap_rosa_4` | capitulo 4 de rosewood, entre sus ofertas (confianza 4+) | `historia_rosewood_3` | - | - | `carcel_rosewood` = limpiada (final_cumplido)<br>`historia_rosewood_4` = fallido (final_abandono)<br>`historia_rosewood_4` = true (final_cumplido) |
@@ -854,7 +879,7 @@ un texto que cambia, una variante o lo que decide un final.
 
 | Memoria | Que guarda | La dejan | La piden (para lanzarse o cortarse) | La miran (por dentro) | Archivos |
 | --- | --- | --- | --- | --- | --- |
-| `<def>.final` | Ultimo final de cada historia (sous.final = 'final_aliados'). Lo escribe el motor al terminar. | - | - | - | escribe: NarradorMotor; lee: NarradorVenganzaMeulen |
+| `<def>.final` | Ultimo final de cada historia (sous.final = 'final_aliados'). Lo escribe el motor al terminar. Los caps. 5 leen cap_chela_4.final (relicario) y cap_nacho_4.final (la misa). | - | - | cap_chela_5, cap_nacho_5 | escribe: NarradorMotor; lee: Capitulos, NarradorVenganzaMeulen |
 | `<prefijo>_lider` | Quien lidera un grupo despues de las bajas (accion 'bajas' del motor, prefijo = 'sous'). | - | - | sous_arsenal | escribe: NarradorMotorAcciones; lee: Sous |
 | `<prefijo>_lider_nombre` | Nombre del lider del grupo (accion 'bajas'). | - | - | sous_arsenal, venganza_meulen | escribe: NarradorMotorAcciones; lee: Sous, VenganzaMeulen |
 | `<prefijo>_lider_perfil` | Perfil de A-Life del lider del grupo (accion 'bajas'). | - | - | sous_arsenal | escribe: NarradorMotorAcciones; lee: Sous |
@@ -878,7 +903,7 @@ un texto que cambia, una variante o lo que decide un final.
 | `cal.fonda` | Como salio la fonda del 18 de septiembre (hecha o sin). | cal_fonda | - | - | escribe: Calendario |
 | `campamento_<id>` | El campamento de ese misionero se fundo (Desbloqueos). Hoy el codigo mira C.desbloqueado(). | desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint | - | asalto_nocturno | escribe: Desbloqueos; lee: EventosCortos |
 | `carcel_rosewood` | La carcel de Rosewood (Misia Rosa, cap. 4): limpiada, con el arsenal legendario de la armeria. En el cap. 5 el camion lleva a las familias a vivir alla. | cap_rosa_4 | - | cap_rosa_5 | escribe: Capitulos; lee: Capitulos |
-| `cientifico_hartmann` | El doctor Hartmann: en_west_point o muerto. Muerto, el curandero de la Chela es un mercader. | leyenda_eduardo | - | - | escribe: LeyendaEduardo; lee: NarradorCampamentosDefs |
+| `cientifico_hartmann` | El doctor Hartmann: en_west_point o muerto. Muerto, el curandero de la Chela es un mercader. | leyenda_eduardo | - | cap_chela_5 | escribe: LeyendaEduardo; lee: Capitulos, NarradorCampamentosDefs |
 | `conquista_<id>` | Esa ciudad (o 'sous') ya fue conquistada. | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_sous, conquista_westpoint | conquista_riverside, conquista_rosewood, conquista_westpoint | - | escribe: Conquista; lee: NarradorBandido |
 | `conquista_aviso` | Ya se aviso que empieza la conquista. | - | - | - | escribe: Conquista, NarradorBandido; lee: NarradorBandido |
 | `conv.<conv>` | Respuesta elegida en una conversacion de 'pregunta' (NarradorConversas). | - | - | - | escribe: NarradorConversas; lee: ConversasSous |
@@ -889,8 +914,9 @@ un texto que cambia, una variante o lo que decide un final.
 | `denise` | Denise (sobreviviente acorralada): rescatada, muerta o asesinada. Rescatada: Lonnie te trae su comida; asesinada: Lonnie te caza (ConsecuenciasExtra). | sobreviviente_acorralada | eco_denise_lonnie, eco_denise_olla | - | escribe: EventosCortos; lee: ConsecuenciasExtra |
 | `desertor` | El desertor: protegido, entregado, echado, muerto o asesinado. Protegido: Ray vuelve con la Guardia detras (ConsecuenciasExtra). | eco_desertor_vuelve, el_desertor | eco_desertor_vuelve | - | escribe: ConsecuenciasExtra, EventosCortos; lee: ConsecuenciasExtra |
 | `dominio_<id>` | De quien es la ciudad: nil = mision, 'bandido' o 'nuevo' (NarradorDominios). | - | - | - | escribe: NarradorDominios; lee: NarradorDominios |
+| `duggan` | Como termino el cap. 5 del Padre Nacho (la ultima confesion): iglesia (se confeso con el Padre), escuchado (lo escuchaste tu), se_dio_vuelta, muerto o abandonado. | cap_nacho_5 | - | - | escribe: Capitulos |
 | `eduardo_atentados` | Atentados de Eduardo hechos (3). | - | - | - | escribe: NarradorBandido; lee: NarradorBandido |
-| `eduardo_conocido` | Ya conociste a Eduardo (cap. 3 de la Chela). Abre sus eventos fortuitos. | leyenda_eduardo | eduardo_evento | bandido_5 | escribe: LeyendaEduardo; lee: Bandido, Encuentros, NarradorEduardo, NarradorEduardoResidente |
+| `eduardo_conocido` | Ya conociste a Eduardo (cap. 3 de la Chela). Abre sus eventos fortuitos. | leyenda_eduardo | eduardo_evento | bandido_5, cap_chela_5 | escribe: LeyendaEduardo; lee: Bandido, Capitulos, Encuentros, NarradorEduardo, NarradorEduardoResidente |
 | `eduardo_desde` | Hora del ultimo atentado de Eduardo. | - | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `eduardo_ev_dia` | Ultimo dia en que se tiro el evento fortuito de Eduardo. | - | - | - | escribe: NarradorEduardo; lee: NarradorEduardo |
 | `eduardo_ev_hora` | Hora del ultimo evento fortuito de Eduardo. | - | - | - | escribe: NarradorEduardo; lee: NarradorEduardo |
@@ -903,8 +929,9 @@ un texto que cambia, una variante o lo que decide un final.
 | `faccion.<id>` | Postura de las facciones propias en A-Life (accion 'faccion'). | - | - | - | escribe: NarradorMotorAcciones |
 | `favor_<rol>` | El favor de ese miembro de Sous: hecho o murio. Con 'hecho' ya no se ofrece. | favor_bastian, favor_benjamin, favor_cristian, favor_cristobal, favor_david, favor_hanz, favor_jorge, favor_martin_a, favor_martin_z | - | - | escribe: FavoresSous; lee: FavoresSous |
 | `fin` | Final del juego: eduardo_muerto o reconquista. Corta el bandido y los eventos de Eduardo. | eduardo_fallas, reconquista_patio | eduardo_atentado, eduardo_evento, eduardo_fallas, reconquista_muldraugh, reconquista_patio, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | - | escribe: Eduardo; lee: NarradorBandido, NarradorEduardo, NarradorVenganzaMeulen |
+| `hale` | Como termino el cap. 5 de la Chela (el primer fuego): juntos (Walt llego mordido al cuartel), se_quedo (Walt pidio quedarse), murio, muertos (Martha no llego) o tarde. | cap_chela_5 | - | - | escribe: Capitulos |
 | `hija_cabo` | Valentina: salvada o muerta. Si murio, en la reconquista la reemplaza otro (NUEVO_MURIO). | hija_cabo | - | cap_cabo_4, cap_cabo_5 | escribe: HijaCabo; lee: Capitulos, NarradorDominiosDefs |
-| `historia_<id>_<n>` | Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento. | cap_cabo_2, cap_cabo_4, cap_cabo_5, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint, hija_cabo, leyenda_eduardo | bandido_2, cap_cabo_2, cap_cabo_4, cap_cabo_5, cap_chela_2, cap_chela_4, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, eduardo_vuelve, hija_cabo, leyenda_eduardo | - | escribe: Capitulos, Desbloqueos, HijaCabo, LeyendaEduardo, NarradorContactos, NarradorGenerador; lee: Capitulos, NarradorCampamentos, NarradorContactos, NarradorGenerador |
+| `historia_<id>_<n>` | Capitulo n de la historia de ese misionero hecho (true) o fallido. Lo piden G.ESPECIALES y los niveles del campamento. | cap_cabo_2, cap_cabo_4, cap_cabo_5, cap_chela_2, cap_chela_4, cap_chela_5, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_nacho_5, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, desbloqueo_muldraugh, desbloqueo_riverside, desbloqueo_rosewood, desbloqueo_westpoint, hija_cabo, leyenda_eduardo | bandido_2, cap_cabo_2, cap_cabo_4, cap_cabo_5, cap_chela_2, cap_chela_4, cap_chela_5, cap_nacho_2, cap_nacho_3, cap_nacho_4, cap_nacho_5, cap_rosa_2, cap_rosa_3, cap_rosa_4, cap_rosa_5, eduardo_vuelve, hija_cabo, leyenda_eduardo | - | escribe: Capitulos, Desbloqueos, HijaCabo, LeyendaEduardo, NarradorContactos, NarradorGenerador; lee: Capitulos, NarradorCampamentos, NarradorContactos, NarradorGenerador |
 | `historia_abierta` | true desde que alguien reclamo un refugio: abre el modo historia (Motor.historiaAbierta). | - | - | - | escribe: NarradorMotor; lee: NarradorMotor |
 | `historia_abierta_hora` | Hora en que se abrio el modo historia (solo para mirar). | - | - | - | escribe: Capitulos, NarradorMotor; lee: NarradorCampamentos |
 | `hora_hsous` | Hora en que se lanzo la ultima historia personal de Sous (horas entre una y otra). | - | - | - | escribe: NarradorHistoriasSous1; lee: NarradorHistoriasSous1, NarradorHistoriasSous2 |
@@ -915,7 +942,7 @@ un texto que cambia, una variante o lo que decide un final.
 | `knox_conquistado` | Las conquistas terminaron (la comisaria, West Point, Riverside y Rosewood; antes la base de Sous si Meulen es el jefe y Sous sigue en pie): Knox es de la banda. | conquista_muldraugh, conquista_riverside, conquista_rosewood, conquista_westpoint | eduardo_atentado | - | escribe: NarradorBandido; lee: NarradorBandido, NarradorEduardoResidente |
 | `knox_conquistado_hora` | Hora en que Knox quedo conquistado (cuenta para el primer atentado). | - | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `lucas` | Lucas (hijo perdido): rescatado, muerto, asesinado o transformado. Rescatado: te marca una farmacia; asesinado: Loretta lo cuenta (Knox -15). | hijo_perdido | eco_lucas_farmacia, eco_lucas_loretta | - | escribe: EventosCortos; lee: ConsecuenciasExtra |
-| `lucia` | Que paso con la Hermana Lucia en el cap. 3 del Padre Nacho (en_riverside o muerta). Si murio, la reemplaza otro. | cap_nacho_3 | - | cap_nacho_4 | escribe: Capitulos; lee: Capitulos, NarradorDominiosDefs |
+| `lucia` | Que paso con la Hermana Lucia en el cap. 3 del Padre Nacho (en_riverside o muerta). Si murio, la reemplaza otro. Los caps. 4 y 5 la nombran. | cap_nacho_3 | - | cap_nacho_4, cap_nacho_5 | escribe: Capitulos; lee: Capitulos, NarradorDominiosDefs |
 | `lugar.<clave>` | Lugares guardados con memoria_lugar (ver lugar.base_sous y compania). | - | - | - | escribe: NarradorMotorAcciones; lee: NarradorMotorAcciones |
 | `lugar.bandido_patio` | Lugar de la casa de Pereira en el patio de trenes. | - | - | - | escribe: Bandido, NarradorMotorAcciones; lee: Bandido, Eduardo, NarradorBandido, NarradorMotorAcciones |
 | `lugar.base_sous` | Lugar de la base de Sous (memoria_lugar), lo reusan favores, conquista y calendario. | - | - | - | escribe: NarradorMotorAcciones, Sous; lee: Calendario, Conquista, FavoresSous, HistoriasSous1, HistoriasSous2, NarradorBandido, NarradorCalendario, NarradorEncuentros, NarradorHistoriasSous1, NarradorMotorAcciones, NarradorObjetosServer, NarradorSousBase, Sous |
@@ -932,7 +959,7 @@ un texto que cambia, una variante o lo que decide un final.
 | `pereira_aviso_desconfia` | Ya se aviso que el jefe del patio te vigila. | - | - | - | escribe: NarradorBandido; lee: NarradorBandido |
 | `pereira_desconfia` | Pereira descubrio un sabotaje (castigo): desde ahi cada sabotaje pesa 45% en vez de 30%. | bandido_castigo | - | - | escribe: Bandido; lee: NarradorBandido |
 | `poster_sous` | Ya se entrego el poster de Sous. | - | - | - | escribe: NarradorObjetosServer; lee: NarradorObjetosServer |
-| `radio_westpoint` | La radio del cuartel de la Chela quedo arreglada (cap. 2): las amenazas se avisan antes y por la radio. | cap_chela_2 | - | - | escribe: Capitulos; lee: NarradorAmenazas |
+| `radio_westpoint` | La radio del cuartel de la Chela quedo arreglada (cap. 2): las amenazas se avisan antes y por la radio. En el cap. 5 Martha Hale llama por la radio. | cap_chela_2 | - | cap_chela_5 | escribe: Capitulos; lee: Capitulos, NarradorAmenazas |
 | `reconquista` | Elegiste hablar con Eduardo: empieza la reconquista. | eduardo_fallas | reconquista_muldraugh, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | - | escribe: Eduardo; lee: NarradorBandido |
 | `reconquista_<id>` | Esa ciudad ya fue reconquistada. | reconquista_muldraugh, reconquista_riverside, reconquista_rosewood, reconquista_westpoint | reconquista_patio | - | escribe: Eduardo; lee: NarradorBandido |
 | `reconquista_aviso` | Ya se aviso que empieza la reconquista. | - | - | - | escribe: Eduardo, NarradorBandido; lee: NarradorBandido |
@@ -949,6 +976,6 @@ un texto que cambia, una variante o lo que decide un final.
 Se escriben y nadie las lee todavia (ver `SIN_LECTOR` en `memorias.py`).
 
 
-Solo de registro: `asalto`, `cal.fonda`, `conv.<conv>.hora`, `conv.<conv>.quien`, `faccion.<id>`.
+Solo de registro: `asalto`, `cal.fonda`, `conv.<conv>.hora`, `conv.<conv>.quien`, `duggan`, `faccion.<id>`, `hale`.
 
 Encargos que se repiten (no son trama): `enc`, `encargo`, `encargo_alijo`, `encargo_gen`, `encargo_medicina`, `encargo_paquete`, `encargo_planos`, `encargo_radio`, `encargo_rescate`, `encargo_ultra`, `inmoral`, `recado`.
