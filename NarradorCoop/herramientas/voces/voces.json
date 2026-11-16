@@ -249,8 +249,8 @@
         "Claudio Clau",
         "Clau"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Chico chileno de 20 anos, tranquilo y buena onda, amigo de Waton; acento chileno."
+      "elevenlabs_voice_id": "htFfPSZGJwjBv1CL0aMD",
+      "descripcion": "Chico chileno de 20 anos, tranquilo y buena onda, amigo de Waton; acento chileno. Voz de biblioteca: 'Antonio - Confident, Gentle and Clear'."
     },
     "waton": {
       "nombre": "Waton Ju",
@@ -260,8 +260,8 @@
         "Waton Ju",
         "Waton"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Chico chileno de 22 anos, gamer exagerado y dramatico; acento chileno del norte."
+      "elevenlabs_voice_id": "15bJsujCI3tcDWeoZsQP",
+      "descripcion": "Chico chileno de 22 anos, gamer exagerado y dramatico; acento chileno del norte. Voz de biblioteca: 'Santiago - Clear, Playful, Warm'."
     },
     "renato": {
       "nombre": "Renato",
@@ -271,8 +271,8 @@
         "Renaaaaaato",
         "Renato"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Chileno joven, ruidoso y exagerado; acento chileno."
+      "elevenlabs_voice_id": "YKUjKbMlejgvkOZlnnvt",
+      "descripcion": "Chileno joven, ruidoso y exagerado; acento chileno. Voz de biblioteca: 'Alejandro Ballesteros-Warm and Joyful'."
     },
     "luengo": {
       "nombre": "Luengo",
@@ -282,8 +282,8 @@
         "Fucking Luengo",
         "Luengo"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Chileno joven, bravucon y chistoso; acento chileno."
+      "elevenlabs_voice_id": "bnes5tb6xZ5GxqUjhUSq",
+      "descripcion": "Chileno joven, bravucon y chistoso; acento chileno. Voz de biblioteca: 'Sebastian - Nonchalant, Chatty, Neutral'."
     },
     "ray_doyle": {
       "nombre": "Ray Doyle",
@@ -293,16 +293,16 @@
         "Ray Doyle",
         "Ray"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre de 50 anos, sobreviviente desconfiado; espanol latino neutro."
+      "elevenlabs_voice_id": "l1zE9xgNpUTaQCZzpNJa",
+      "descripcion": "Hombre de 50 anos, sobreviviente desconfiado; espanol latino neutro. Voz de biblioteca: 'Alberto Rodríguez - Serious, Narrative'."
     },
     "extra_hombre": {
       "nombre": "Extras (hombre)",
       "tipo": "biblioteca",
       "genero": "hombre",
       "nombres_juego": [],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Sobreviviente generico, hombre adulto; espanol latino neutro. Se usa para encuentros, vecinos y rehenes."
+      "elevenlabs_voice_id": "YExhVa4bZONzeingloMX",
+      "descripcion": "Sobreviviente generico, hombre adulto; espanol latino neutro. Se usa para encuentros, vecinos y rehenes. Voz de biblioteca: 'Juan Carlos - Warm and Conversational'."
     },
     "extra_mujer": {
       "nombre": "Extras (mujer)",
@@ -319,8 +319,8 @@
       "nombres_juego": [
         "Andre Mercer"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "jBlmi27XRORxjPquUeCh",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Brian - Warm, Smooth, Confident'."
     },
     "benjamin_sotelo": {
       "nombre": "Benjamin Sotelo",
@@ -329,8 +329,8 @@
       "nombres_juego": [
         "Benjamin Sotelo"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "jBlmi27XRORxjPquUeCh",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Brian - Warm, Smooth, Confident'."
     },
     "campamento_carpintero": {
       "nombre": "Residente de campamento (carpintero)",
@@ -371,8 +371,8 @@
       "nombres_juego": [
         "Capitan Tito Duarte"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "sKgg4MPUDBy69X7iv3fA",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Alejandro Duràn - Warm, Deep and Hoarse'."
     },
     "capitan_vargas_toledo": {
       "nombre": "Capitan Vargas Toledo",
@@ -381,8 +381,8 @@
       "nombres_juego": [
         "Capitan Vargas Toledo"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "YqZLNYWZm98oKaaLZkUA",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Edoardo - Dark, Measured, Natural'."
     },
     "capitana_morrigan_kell": {
       "nombre": "Capitana Morrigan Kell",
@@ -391,8 +391,8 @@
       "nombres_juego": [
         "Capitana Morrigan Kell"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "ZpEtuMdTIlJXYXAhevhG",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Mía García - Business Asesor'."
     },
     "celia_ortiz": {
       "nombre": "Celia Ortiz",
@@ -401,8 +401,8 @@
       "nombres_juego": [
         "Celia Ortiz"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "hHjbwzYZW17oh0p05AKv",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Gabriela - Warm, Rich and Balanced'."
     },
     "denise_hensley": {
       "nombre": "Denise Hensley",
@@ -411,8 +411,8 @@
       "nombres_juego": [
         "Denise Hensley"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "2rigMbVWLdqtBSCahJFX",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Tatiana Martin - Wise-speaking, calm'."
     },
     "diacono_saul_reyes": {
       "nombre": "Diacono Saul Reyes",
@@ -421,8 +421,8 @@
       "nombres_juego": [
         "Diacono Saul Reyes"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "Wl3O9lmFSMgGFTTwuS6f",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Martin Alvarez - Soothing and Hopeful'."
     },
     "dona_elba_quispe": {
       "nombre": "Dona Elba Quispe",
@@ -431,8 +431,8 @@
       "nombres_juego": [
         "Dona Elba Quispe"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "UOxKeHS7lixzgw35mtAR",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Grandma Titina - Relaxed and Reassuring'."
     },
     "doris_kemper": {
       "nombre": "Doris Kemper",
@@ -441,8 +441,8 @@
       "nombres_juego": [
         "Doris Kemper"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "gxSxrhNNXvdHpOH0EHjV",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Gabriela González - Bubbly, Clear, Warm'."
     },
     "earl_whitaker": {
       "nombre": "Earl Whitaker",
@@ -451,8 +451,8 @@
       "nombres_juego": [
         "Earl Whitaker"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "Yb8JGzcZyW5YYzenhRCm",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'El Abuelo Charlie - Wise-sounding, Calm'."
     },
     "elias_hartmann": {
       "nombre": "Elias Hartmann",
@@ -461,8 +461,8 @@
       "nombres_juego": [
         "Elias Hartmann"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "k8cFOyAg7B9qwBlDDNTC",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Miguel - Deep, Rich and Cinematic'."
     },
     "ellen_turner": {
       "nombre": "Ellen Turner",
@@ -471,8 +471,8 @@
       "nombres_juego": [
         "Ellen Turner"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "CaJslL1xziwefCeTNzHv",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Cristina Campos - Friendly and Soft'."
     },
     "frank_duggan": {
       "nombre": "Frank Duggan",
@@ -481,8 +481,8 @@
       "nombres_juego": [
         "Frank Duggan"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "w7IU2bIH6xHcyfkUUWi3",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Santiago - Enthusiastic, Assertive'."
     },
     "gladys_moreno": {
       "nombre": "Gladys Moreno",
@@ -491,8 +491,8 @@
       "nombres_juego": [
         "Gladys Moreno"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "zl1Ut8dvwcVSuQSB9XkG",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Ninoska - Spanish Teacher'."
     },
     "hector_bencina_jr": {
       "nombre": "Hector Bencina Jr",
@@ -501,8 +501,8 @@
       "nombres_juego": [
         "Hector Bencina Jr"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "94zOad0g7T7K4oa7zhDq",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Mauricio - Calm and Conversational'."
     },
     "hermana_lucia_pegas": {
       "nombre": "Hermana Lucia Pegas",
@@ -511,8 +511,8 @@
       "nombres_juego": [
         "Hermana Lucia Pegas"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "2Lb1en5ujrODDIqmp7F3",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Jhenny - Soft, Calm, Sweet'."
     },
     "joaquin_ortiz": {
       "nombre": "Joaquin Ortiz",
@@ -521,8 +521,8 @@
       "nombres_juego": [
         "Joaquin Ortiz"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "FT9r1rAZNP1NDa9qgrTd",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Oliver Prada'."
     },
     "julio_cardenas": {
       "nombre": "Julio Cardenas",
@@ -531,8 +531,8 @@
       "nombres_juego": [
         "Julio Cardenas"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "dlGxemPxFMTY7iXagmOj",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Fernando Martínez - Rapid, Persuasive'."
     },
     "lucas_pike": {
       "nombre": "Lucas Pike",
@@ -541,8 +541,8 @@
       "nombres_juego": [
         "Lucas Pike"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "rpqlUOplj0Q0PIilat8h",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Jaider - Clear, Balanced, Calm'."
     },
     "lucia_ferrada": {
       "nombre": "Lucia Ferrada",
@@ -551,8 +551,8 @@
       "nombres_juego": [
         "Lucia Ferrada"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "qBvury71WUJfVeT1STkG",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Samanta - Warm, Tender, Expressive'."
     },
     "luis_ibanez": {
       "nombre": "Luis Ibanez",
@@ -561,8 +561,8 @@
       "nombres_juego": [
         "Luis Ibanez"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "gbTn1bmCvNgk0QEAVyfM",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Enrique M. Nieto - Credible and Rich'."
     },
     "marta_ibanez": {
       "nombre": "Marta Ibanez",
@@ -571,8 +571,8 @@
       "nombres_juego": [
         "Marta Ibanez"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "qHkrJuifPpn95wK3rm2A",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Andrea - Polite, Cheerful and Calm'."
     },
     "marta_quiroz": {
       "nombre": "Marta Quiroz",
@@ -581,8 +581,8 @@
       "nombres_juego": [
         "Marta Quiroz"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "1BxAZWANeDIxeyHKSJF2",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Isabela - Pleasant, Calm and Melodic'."
     },
     "oscar_lagos": {
       "nombre": "Oscar Lagos",
@@ -591,8 +591,8 @@
       "nombres_juego": [
         "Oscar Lagos"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "gbTn1bmCvNgk0QEAVyfM",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Enrique M. Nieto - Credible and Rich'."
     },
     "otis_barker": {
       "nombre": "Otis Barker",
@@ -601,8 +601,8 @@
       "nombres_juego": [
         "Otis Barker"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "GxqThEDZF0RjxmGomt0o",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Javier - Calm, Clean, Balanced'."
     },
     "ramon_quispe": {
       "nombre": "Ramon Quispe",
@@ -611,8 +611,8 @@
       "nombres_juego": [
         "Ramon Quispe"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "Rt1JHkPO27QCUX6Nd5bV",
+      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Jorge - Neutral Latin American Spanish '."
     },
     "ruth_haney": {
       "nombre": "Ruth Haney",
@@ -621,8 +621,8 @@
       "nombres_juego": [
         "Ruth Haney"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario."
+      "elevenlabs_voice_id": "efcRUax7uSa9kpBwtDPe",
+      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Luisa - Friendly, Calm, Versatile'."
     }
   },
   "velocidad": 1.05
