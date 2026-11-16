@@ -20,7 +20,7 @@ sonidos y su índice los genera `generar.py`.
 | `voces.json` | Catálogo de voces: una por personaje, con su `elevenlabs_voice_id`. |
 | `textos_voz.json` | Texto con tildes, eñes y ¿¡ para cada frase (`voz`) y la misma con etiquetas de emoción como `[laughs]`, `[sighs]`, `[whispers]` (`emocion`). Revisado frase por frase. |
 | `guion.csv` / `guion.json` | El guion completo: id, voz, texto del juego y texto para la voz. Lo arma `exportar.py`. |
-| `audio/` | Los mp3 originales de ElevenLabs (no van al repo: **guárdalos**, cuestan créditos). |
+| `audio/` | Los mp3 originales de ElevenLabs. Van al repo: rehacerlos cuesta créditos y sirven para reconvertir (por ejemplo, al cambiar la velocidad). |
 | `../../42/media/sound/NarradorVoces/` | Los .ogg del mod (cerca y `_lejos`). |
 
 ## Emociones
