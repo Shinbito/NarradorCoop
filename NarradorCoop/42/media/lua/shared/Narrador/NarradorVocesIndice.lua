@@ -3,10 +3,17 @@
 Narrador = Narrador or {}
 Narrador.VocesIndice = {
     lineas = {
+        ["Hijo, toma. Y vuelve el domingo, que la proxima la tocas tu sin que yo te lo pida."] = { { "cabo_ramiro", "cabo_ramiro_004e3b340d", 4.0 } },
+        ["Le guarde el mejor catre, soldado. No le diga a nadie."] = { { "cabo_ramiro", "cabo_ramiro_023dccb204", 2.52 } },
+        ["Pereira. La anote en la libreta hace mucho, sargento. Negativo a rendirme. Abri esa puerta y la volveria a abrir."] = { { "cabo_ramiro", "cabo_ramiro_01bd84865d", 6.1 } },
     },
     porVoz = {
+        cabo_ramiro = { "cabo_ramiro_004e3b340d", "cabo_ramiro_01bd84865d", "cabo_ramiro_023dccb204" },
     },
     duracion = {
+        ["cabo_ramiro_004e3b340d"] = 4.0,
+        ["cabo_ramiro_01bd84865d"] = 6.1,
+        ["cabo_ramiro_023dccb204"] = 2.52,
     },
     nombres = {
         ["Akagami"] = "akagami",

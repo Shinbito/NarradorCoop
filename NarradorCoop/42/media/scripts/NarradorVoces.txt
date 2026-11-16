@@ -1,4 +1,88 @@
 /* Generado por herramientas/voces/generar.py. No editar a mano. */
 module Base
 {
+    sound NarradorVoz_cabo_ramiro_004e3b340d
+    {
+        category = World,
+        master = Primary,
+        is3D = true,
+        clip
+        {
+            file = media/sound/NarradorVoces/cabo_ramiro_004e3b340d.ogg,
+            distanceMin = 2,
+            distanceMax = 30,
+            reverbFactor = 0.1,
+            volume = 1.0,
+        }
+    }
+    sound NarradorVoz_cabo_ramiro_004e3b340d_lejos
+    {
+        category = World,
+        master = Primary,
+        is3D = true,
+        clip
+        {
+            file = media/sound/NarradorVoces/cabo_ramiro_004e3b340d_lejos.ogg,
+            distanceMin = 2,
+            distanceMax = 30,
+            reverbFactor = 0.1,
+            volume = 1.0,
+        }
+    }
+    sound NarradorVoz_cabo_ramiro_01bd84865d
+    {
+        category = World,
+        master = Primary,
+        is3D = true,
+        clip
+        {
+            file = media/sound/NarradorVoces/cabo_ramiro_01bd84865d.ogg,
+            distanceMin = 2,
+            distanceMax = 30,
+            reverbFactor = 0.1,
+            volume = 1.0,
+        }
+    }
+    sound NarradorVoz_cabo_ramiro_01bd84865d_lejos
+    {
+        category = World,
+        master = Primary,
+        is3D = true,
+        clip
+        {
+            file = media/sound/NarradorVoces/cabo_ramiro_01bd84865d_lejos.ogg,
+            distanceMin = 2,
+            distanceMax = 30,
+            reverbFactor = 0.1,
+            volume = 1.0,
+        }
+    }
+    sound NarradorVoz_cabo_ramiro_023dccb204
+    {
+        category = World,
+        master = Primary,
+        is3D = true,
+        clip
+        {
+            file = media/sound/NarradorVoces/cabo_ramiro_023dccb204.ogg,
+            distanceMin = 2,
+            distanceMax = 30,
+            reverbFactor = 0.1,
+            volume = 1.0,
+        }
+    }
+    sound NarradorVoz_cabo_ramiro_023dccb204_lejos
+    {
+        category = World,
+        master = Primary,
+        is3D = true,
+        clip
+        {
+            file = media/sound/NarradorVoces/cabo_ramiro_023dccb204_lejos.ogg,
+            distanceMin = 2,
+            distanceMax = 30,
+            reverbFactor = 0.1,
+            volume = 1.0,
+        }
+    }
 }
