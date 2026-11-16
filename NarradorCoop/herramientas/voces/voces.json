@@ -144,69 +144,69 @@
     },
     "cabo_ramiro": {
       "nombre": "Cabo Ramiro",
-      "tipo": "biblioteca",
+      "tipo": "diseñada",
       "genero": "hombre",
       "nombres_juego": [
         "Cabo Ramiro",
         "Ramiro"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre de 55 anos, ex cabo de policia. Voz firme, seca y formal, habla como si diera ordenes; espanol latino neutro."
+      "elevenlabs_voice_id": "PnGV0JHEZgJmdrEUbP1x",
+      "descripcion": "Latin American man, 55, a former police corporal. Firm, dry, gravelly baritone; formal and commanding, speaks as if giving orders to a detainee, short clipped sentences, with a hidden tenderness. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
     },
     "tia_chela": {
       "nombre": "Tia Chela",
-      "tipo": "biblioteca",
+      "tipo": "diseñada",
       "genero": "mujer",
       "nombres_juego": [
         "Tia Chela",
         "Chela"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer de 60 anos, bombera voluntaria. Voz calida pero reganona de tia, rapida y con caracter; espanol latino (dice mijo)."
+      "elevenlabs_voice_id": "EG9FiEyDOGupYISY0Dn4",
+      "descripcion": "Latin American woman, 60, a lifelong volunteer firefighter. Warm but scolding aunt voice, a bit raspy, talks fast with lots of character, bossy and loving at the same time. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
     },
     "padre_nacho": {
       "nombre": "Padre Nacho",
-      "tipo": "biblioteca",
+      "tipo": "diseñada",
       "genero": "hombre",
       "nombres_juego": [
         "Padre Nacho",
         "Nacho"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Hombre de 65 anos, pastor de pueblo. Voz suave, grave y paciente, con humor tranquilo; espanol latino."
+      "elevenlabs_voice_id": "6yCUhBGPdoxDWTxuru8D",
+      "descripcion": "Latin American man, 65, a small-town pastor. Soft, deep, patient and kind voice, calm pace, gentle dry humor, sounds like he is smiling. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
     },
     "misia_rosa": {
       "nombre": "Misia Rosa",
-      "tipo": "biblioteca",
+      "tipo": "diseñada",
       "genero": "mujer",
       "nombres_juego": [
         "Misia Rosa",
         "Rosa"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer de 70 anos, duena de una gasolinera. Voz gastada, ronca y carinosa, habla lento; espanol latino rural."
+      "elevenlabs_voice_id": "tfskn98ISc2QPjOMCP67",
+      "descripcion": "Elderly Latin American woman, 72, owner of a rural gas station. Worn, husky, affectionate grandmotherly voice, speaks slowly and warmly, a little tired but tough. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
     },
     "daniel_bell": {
       "nombre": "Daniel Bell",
-      "tipo": "biblioteca",
+      "tipo": "diseñada",
       "genero": "hombre",
       "nombres_juego": [
         "Daniel Bell",
         "Daniel"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Padre de familia de 45 anos, cansado y protector; espanol latino neutro."
+      "elevenlabs_voice_id": "bpgO9S5BaOlcIWRL3i3I",
+      "descripcion": "Latin American man, 45, a family father in a zombie apocalypse. Tired, earnest, protective mid-low voice, gentle but strained, trying to stay strong for his family. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
     },
     "yvonne_bell": {
       "nombre": "Yvonne Bell",
-      "tipo": "biblioteca",
+      "tipo": "diseñada",
       "genero": "mujer",
       "nombres_juego": [
         "Yvonne Bell",
         "Yvonne"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Madre de familia de 43 anos, firme y preocupada; espanol latino neutro."
+      "elevenlabs_voice_id": "AhSY0Tm8sHL2nEhtTzFc",
+      "descripcion": "Latin American woman, 43, a mother protecting her family. Firm, clear, slightly stern voice, worried underneath, practical and no-nonsense. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
     },
     "wade_bell": {
       "nombre": "Wade Bell",
@@ -216,30 +216,30 @@
         "Wade Bell",
         "Wade"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Adolescente de 16 anos, inquieto e ingenioso; espanol latino neutro."
+      "elevenlabs_voice_id": "tomkxGQGz4b1kE0EM722",
+      "descripcion": "Adolescente de 16 anos, inquieto e ingenioso; espanol latino neutro. Voz de biblioteca: 'Mario - Animated and chatty' (ElevenLabs bloquea el diseño de voces de menores)."
     },
     "valentina": {
       "nombre": "Valentina Mandados",
-      "tipo": "biblioteca",
+      "tipo": "diseñada",
       "genero": "mujer",
       "nombres_juego": [
         "Valentina Mandados",
         "Valentina"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer de 23 anos, hija del Cabo, dura y valiente, voz decidida; espanol latino neutro."
+      "elevenlabs_voice_id": "84fGkwjWYb9aCwUcUcSC",
+      "descripcion": "Latin American woman, 23, the tough daughter of a police corporal. Strong, decisive, brave voice with a dry sense of humor, a fighter who does not retreat. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
     },
     "pereira": {
       "nombre": "Sargento Pereira",
-      "tipo": "biblioteca",
+      "tipo": "diseñada",
       "genero": "mujer",
       "nombres_juego": [
         "Sargento Pereira",
         "Pereira"
       ],
-      "elevenlabs_voice_id": "",
-      "descripcion": "Mujer de 45 anos, sargento convertida en jefa de bandidos. Voz autoritaria, fria y cortante; espanol latino."
+      "elevenlabs_voice_id": "xH7zGGv96Cl8ZXNJaaSk",
+      "descripcion": "Latin American woman, 45, a former army sergeant turned ruthless bandit leader. Cold, authoritative, clipped low voice, calm and menacing, used to being obeyed. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
     },
     "clau": {
       "nombre": "Clau",

@@ -54,6 +54,13 @@ cuentan como caracteres (~11% más). Con `eleven_multilingual_v2` se manda el te
    Después, todo: `python3 NarradorCoop/herramientas/voces/generar.py`. Si una toma salió mal:
    `--rehacer <id>` (el id está en `guion.csv`).
 
+   Para cuidar los créditos del mes:
+   - `--max-caracteres N`: para antes de gastar más de N caracteres.
+   - `--sin-compartidas`: salta las frases que dicen varias voces (los encargos que repite cada
+     misionero); suenan como murmullo hasta que se graben.
+   - Las voces de la Voice Library no ocupan lugar de voz propia; las diseñadas y clonadas sí.
+     ElevenLabs no deja diseñar voces de menores de edad (Wade Bell usa una de biblioteca).
+
 ## Cuando se agregan o cambian diálogos
 
 El id de cada frase sale de su texto: si se cambia una frase, pasa a ser otra y hay que

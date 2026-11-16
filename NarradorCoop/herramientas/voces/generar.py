@@ -171,6 +171,9 @@ def main():
     ap.add_argument("--sin-api", action="store_true", help="no pide audio nuevo, solo convierte lo que ya hay")
     ap.add_argument("--voz", action="append", help="solo estas voces")
     ap.add_argument("--limite", type=int, default=0, help="como mucho N frases nuevas")
+    ap.add_argument("--max-caracteres", type=int, default=0, help="para antes de pasar este gasto de caracteres")
+    ap.add_argument("--sin-compartidas", action="store_true",
+                    help="salta las frases que dicen varias voces (los encargos de los misioneros)")
     ap.add_argument("--rehacer", action="append", default=[], help="ids a volver a pedir")
     ap.add_argument("--reconvertir", action="store_true", help="rehace todos los ogg (por ejemplo, al cambiar la velocidad)")
     a = ap.parse_args()
@@ -184,8 +187,21 @@ def main():
     sin_id = sorted({r["voz"] for r in grabables if not cat["voces"][r["voz"]].get("elevenlabs_voice_id")})
     nuevas = [r for r in grabables if cat["voces"][r["voz"]].get("elevenlabs_voice_id")
               and (r["id"] in a.rehacer or not os.path.exists(os.path.join(AUDIO, r["id"] + ".mp3")))]
+    if a.sin_compartidas:
+        voces_por_texto = {}
+        for r in filas:
+            voces_por_texto.setdefault(r["texto_juego"], set()).add(r["voz"])
+        nuevas = [r for r in nuevas if len(voces_por_texto[r["texto_juego"]]) == 1]
     if a.limite:
         nuevas = nuevas[:a.limite]
+    if a.max_caracteres:
+        recorte, gasto = [], 0
+        for r in nuevas:
+            gasto += len(texto_de(r, cat))
+            if gasto > a.max_caracteres:
+                break
+            recorte.append(r)
+        nuevas = recorte
     sin_revisar = sum(1 for r in nuevas if not r["revisado"])
     print(f"{len(nuevas)} frases por pedir ({sum(len(texto_de(r, cat)) for r in nuevas)} caracteres, modelo {cat.get('modelo')})"
           + (f", {sin_revisar} con tildes automaticas (sin revisar)" if sin_revisar else ""))
