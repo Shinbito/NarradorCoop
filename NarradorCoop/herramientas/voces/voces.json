@@ -1,5 +1,5 @@
 {
-  "_leeme": "Catalogo de voces. 'diseñada': crear la voz en ElevenLabs (Voice Design) con la descripcion y pegar su voice_id. 'biblioteca': elegir una voz de la Voice Library que calce con la descripcion y pegar su voice_id. 'nombres_juego': como se llama el personaje en el juego (el cliente reconoce la voz por ese nombre). 'velocidad': cuanto se acelera el audio al convertirlo (1.05 = 5% mas rapido); se puede poner por voz.",
+  "_leeme": "Catalogo de voces. 'diseñada': crear la voz en ElevenLabs (Voice Design) con la descripcion y pegar su voice_id. 'biblioteca': elegir una voz de la Voice Library que calce con la descripcion y pegar su voice_id. 'nombres_juego': como se llama el personaje en el juego (el cliente reconoce la voz por ese nombre). 'velocidad': cuanto se acelera el audio al convertirlo (1.05 = 5% mas rapido); se puede poner por voz. Todas las voces: español latino neutro, sin acento de un país.",
   "modelo": "eleven_v3",
   "ajustes": {
     "stability": 0.5,
@@ -15,7 +15,7 @@
         "Akagami"
       ],
       "elevenlabs_voice_id": "",
-      "descripcion": "Young Chilean man, around 24, the natural leader of his group of friends. Confident, energetic mid-range voice, organized and a bit bossy but warm, talks like a team captain and a competitive gamer. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+      "descripcion": "Young Chilean man, around 24, the natural leader of his group of friends. Confident, energetic mid-range voice, organized and a bit bossy but warm, talks like a team captain and a competitive gamer. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "zent": {
       "nombre": "Martin Zent (Sous)",
@@ -26,7 +26,7 @@
         "Zent"
       ],
       "elevenlabs_voice_id": "",
-      "descripcion": "Young Chilean man, around 24, dry deadpan humor. Low, flat, slightly nasal voice, speaks slowly and sarcastically as if nothing impresses him, short sentences. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+      "descripcion": "Young Chilean man, around 24, dry deadpan humor. Low, flat, slightly nasal voice, speaks slowly and sarcastically as if nothing impresses him, short sentences. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "matric": {
       "nombre": "Benjamin Matric (Sous)",
@@ -37,7 +37,7 @@
         "Matric"
       ],
       "elevenlabs_voice_id": "",
-      "descripcion": "Young Chilean man, around 22, talkative and a little nervous, gym guy. Bright, fast, slightly higher voice that rushes when excited, friendly and flirty, says 'bro' and 'hermano' a lot. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+      "descripcion": "Young Chilean man, around 22, talkative and a little nervous, gym guy. Bright, fast, slightly higher voice that rushes when excited, friendly and flirty, says 'bro' and 'hermano' a lot. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "shinbo": {
       "nombre": "David Shinbo (Sous)",
@@ -48,7 +48,7 @@
         "Shinbo"
       ],
       "elevenlabs_voice_id": "",
-      "descripcion": "Young Chilean man, around 23, introverted and analytical, likes to explain things like a sociology student. Calm, soft, precise and slightly monotone voice, thoughtful pauses. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+      "descripcion": "Young Chilean man, around 23, introverted and analytical, likes to explain things like a sociology student. Calm, soft, precise and slightly monotone voice, thoughtful pauses. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "tati": {
       "nombre": "Bastian Tati (Sous)",
@@ -59,7 +59,7 @@
         "Tati"
       ],
       "elevenlabs_voice_id": "",
-      "descripcion": "Young Chilean man, around 22, stylish and cheeky, football lover. Relaxed, playful street-smart voice with a lazy drawl, ends sentences with 'po' and calls everyone 'loco'. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+      "descripcion": "Young Chilean man, around 22, stylish and cheeky, football lover. Relaxed, playful street-smart voice with a lazy drawl, ends sentences with 'po' and calls everyone 'loco'. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "walita": {
       "nombre": "Hanz Walita (Sous)",
@@ -71,7 +71,7 @@
         "Hanz"
       ],
       "elevenlabs_voice_id": "",
-      "descripcion": "Young man from northern Chile (Iquique and Arica), around 25, a woodcarver. Warm, easygoing, slightly husky voice with a relaxed northern Chilean accent, generous and teasing, says 'vale broder'."
+      "descripcion": "Young man, around 25, a woodcarver. Warm, easygoing, slightly husky voice ,, generous and teasing, says 'vale broder'."
     },
     "cristonks": {
       "nombre": "Cristian Cristonks (Sous)",
@@ -82,7 +82,7 @@
         "Cristonks"
       ],
       "elevenlabs_voice_id": "",
-      "descripcion": "Young Chilean man, around 21, the joker of the group who laughs 'akkakaka'. High-energy, cheerful, slightly raspy voice, quick and mischievous, calls people 'compadre' and 'primo'. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+      "descripcion": "Young Chilean man, around 21, the joker of the group who laughs 'akkakaka'. High-energy, cheerful, slightly raspy voice, quick and mischievous, calls people 'compadre' and 'primo'. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "hasag": {
       "nombre": "Jorge Hasag (Sous)",
@@ -93,7 +93,7 @@
         "Hasag"
       ],
       "elevenlabs_voice_id": "",
-      "descripcion": "Young Chilean man, around 24, the group's careful accountant who counts every can. Medium-low, steady, slightly worried voice, practical and meticulous, says 'broder' and 'manito'. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+      "descripcion": "Young Chilean man, around 24, the group's careful accountant who counts every can. Medium-low, steady, slightly worried voice, practical and meticulous, says 'broder' and 'manito'. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "wertres": {
       "nombre": "Cristobal Wertres (Sous)",
@@ -104,7 +104,7 @@
         "Wertres"
       ],
       "elevenlabs_voice_id": "",
-      "descripcion": "Young Chilean man, around 23, loud and teasing, always making fun of his friends. Brash, punchy, rough-edged voice with lots of attitude, says 'hermanito' and 'wn'. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+      "descripcion": "Young Chilean man, around 23, loud and teasing, always making fun of his friends. Brash, punchy, rough-edged voice with lots of attitude, says 'hermanito' and 'wn'. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "meulen": {
       "nombre": "Meulen Canupan",
@@ -116,7 +116,7 @@
         "Maulen"
       ],
       "elevenlabs_voice_id": "",
-      "descripcion": "Chilean man, around 27, former friend who became a traitor and later a bandit leader. Charismatic, smooth, low voice with a cold undertone; friendly on the surface, menacing underneath. Speaks Chilean Spanish with a natural Santiago accent and Chilean slang."
+      "descripcion": "Chilean man, around 27, former friend who became a traitor and later a bandit leader. Charismatic, smooth, low voice with a cold undertone; friendly on the surface, menacing underneath. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "eduardo": {
       "nombre": "Eduardo Giovanns",
@@ -128,7 +128,7 @@
         "Giovanns"
       ],
       "elevenlabs_voice_id": "",
-      "descripcion": "Latin American man, around 40, a humble legendary hero who helps everyone. Deep, warm, calm baritone, steady and reassuring even in danger, quiet strength and a little tired, speaks neutral Latin American Spanish."
+      "descripcion": "Latin American man, around 40, a humble legendary hero who helps everyone. Deep, warm, calm baritone, steady and reassuring even in danger, quiet strength and a little tired, speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "miguel_angel": {
       "nombre": "Miguel Angel Mandados",
@@ -151,7 +151,7 @@
         "Ramiro"
       ],
       "elevenlabs_voice_id": "PnGV0JHEZgJmdrEUbP1x",
-      "descripcion": "Latin American man, 55, a former police corporal. Firm, dry, gravelly baritone; formal and commanding, speaks as if giving orders to a detainee, short clipped sentences, with a hidden tenderness. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
+      "descripcion": "Latin American man, 55, a former police corporal. Firm, dry, gravelly baritone; formal and commanding, speaks as if giving orders to a detainee, short clipped sentences, with a hidden tenderness. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "tia_chela": {
       "nombre": "Tia Chela",
@@ -162,7 +162,7 @@
         "Chela"
       ],
       "elevenlabs_voice_id": "EG9FiEyDOGupYISY0Dn4",
-      "descripcion": "Latin American woman, 60, a lifelong volunteer firefighter. Warm but scolding aunt voice, a bit raspy, talks fast with lots of character, bossy and loving at the same time. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
+      "descripcion": "Latin American woman, 60, a lifelong volunteer firefighter. Warm but scolding aunt voice, a bit raspy, talks fast with lots of character, bossy and loving at the same time. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "padre_nacho": {
       "nombre": "Padre Nacho",
@@ -173,7 +173,7 @@
         "Nacho"
       ],
       "elevenlabs_voice_id": "6yCUhBGPdoxDWTxuru8D",
-      "descripcion": "Latin American man, 65, a small-town pastor. Soft, deep, patient and kind voice, calm pace, gentle dry humor, sounds like he is smiling. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
+      "descripcion": "Latin American man, 65, a small-town pastor. Soft, deep, patient and kind voice, calm pace, gentle dry humor, sounds like he is smiling. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "misia_rosa": {
       "nombre": "Misia Rosa",
@@ -184,7 +184,7 @@
         "Rosa"
       ],
       "elevenlabs_voice_id": "tfskn98ISc2QPjOMCP67",
-      "descripcion": "Elderly Latin American woman, 72, owner of a rural gas station. Worn, husky, affectionate grandmotherly voice, speaks slowly and warmly, a little tired but tough. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
+      "descripcion": "Elderly Latin American woman, 72, owner of a rural gas station. Worn, husky, affectionate grandmotherly voice, speaks slowly and warmly, a little tired but tough. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "daniel_bell": {
       "nombre": "Daniel Bell",
@@ -195,7 +195,7 @@
         "Daniel"
       ],
       "elevenlabs_voice_id": "bpgO9S5BaOlcIWRL3i3I",
-      "descripcion": "Latin American man, 45, a family father in a zombie apocalypse. Tired, earnest, protective mid-low voice, gentle but strained, trying to stay strong for his family. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
+      "descripcion": "Latin American man, 45, a family father in a zombie apocalypse. Tired, earnest, protective mid-low voice, gentle but strained, trying to stay strong for his family. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "yvonne_bell": {
       "nombre": "Yvonne Bell",
@@ -206,7 +206,7 @@
         "Yvonne"
       ],
       "elevenlabs_voice_id": "AhSY0Tm8sHL2nEhtTzFc",
-      "descripcion": "Latin American woman, 43, a mother protecting her family. Firm, clear, slightly stern voice, worried underneath, practical and no-nonsense. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
+      "descripcion": "Latin American woman, 43, a mother protecting her family. Firm, clear, slightly stern voice, worried underneath, practical and no-nonsense. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "wade_bell": {
       "nombre": "Wade Bell",
@@ -217,7 +217,7 @@
         "Wade"
       ],
       "elevenlabs_voice_id": "tomkxGQGz4b1kE0EM722",
-      "descripcion": "Adolescente de 16 anos, inquieto e ingenioso; espanol latino neutro. Voz de biblioteca: 'Mario - Animated and chatty' (ElevenLabs bloquea el diseño de voces de menores)."
+      "descripcion": "Adolescente de 16 anos, inquieto e ingenioso; español latino neutro, sin acento de ningún país. Voz de biblioteca: 'Mario - Animated and chatty' (ElevenLabs bloquea el diseño de voces de menores)."
     },
     "valentina": {
       "nombre": "Valentina Mandados",
@@ -228,7 +228,7 @@
         "Valentina"
       ],
       "elevenlabs_voice_id": "84fGkwjWYb9aCwUcUcSC",
-      "descripcion": "Latin American woman, 23, the tough daughter of a police corporal. Strong, decisive, brave voice with a dry sense of humor, a fighter who does not retreat. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
+      "descripcion": "Latin American woman, 23, the tough daughter of a police corporal. Strong, decisive, brave voice with a dry sense of humor, a fighter who does not retreat. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "pereira": {
       "nombre": "Sargento Pereira",
@@ -239,7 +239,7 @@
         "Pereira"
       ],
       "elevenlabs_voice_id": "xH7zGGv96Cl8ZXNJaaSk",
-      "descripcion": "Latin American woman, 45, a former army sergeant turned ruthless bandit leader. Cold, authoritative, clipped low voice, calm and menacing, used to being obeyed. Speaks Spanish with a natural Latin American accent (Chilean flavor), not Spain Spanish."
+      "descripcion": "Latin American woman, 45, a former army sergeant turned ruthless bandit leader. Cold, authoritative, clipped low voice, calm and menacing, used to being obeyed. Speaks neutral Latin American Spanish with no regional accent (not Chilean, Mexican, Argentine, Colombian or Spain Spanish)."
     },
     "clau": {
       "nombre": "Clau",
@@ -250,7 +250,7 @@
         "Clau"
       ],
       "elevenlabs_voice_id": "htFfPSZGJwjBv1CL0aMD",
-      "descripcion": "Chico chileno de 20 anos, tranquilo y buena onda, amigo de Waton; acento chileno. Voz de biblioteca: 'Antonio - Confident, Gentle and Clear'."
+      "descripcion": "Chico chileno de 20 anos, tranquilo y buena onda, amigo de Waton; español latino neutro, sin acento de ningún país. Voz de biblioteca: 'Antonio - Confident, Gentle and Clear'."
     },
     "waton": {
       "nombre": "Waton Ju",
@@ -261,7 +261,7 @@
         "Waton"
       ],
       "elevenlabs_voice_id": "15bJsujCI3tcDWeoZsQP",
-      "descripcion": "Chico chileno de 22 anos, gamer exagerado y dramatico; acento chileno del norte. Voz de biblioteca: 'Santiago - Clear, Playful, Warm'."
+      "descripcion": "Chico chileno de 22 anos, gamer exagerado y dramatico; español latino neutro, sin acento de ningún país. Voz de biblioteca: 'Santiago - Clear, Playful, Warm'."
     },
     "renato": {
       "nombre": "Renato",
@@ -272,7 +272,7 @@
         "Renato"
       ],
       "elevenlabs_voice_id": "YKUjKbMlejgvkOZlnnvt",
-      "descripcion": "Chileno joven, ruidoso y exagerado; acento chileno. Voz de biblioteca: 'Alejandro Ballesteros-Warm and Joyful'."
+      "descripcion": "Chileno joven, ruidoso y exagerado; español latino neutro, sin acento de ningún país. Voz de biblioteca: 'Alejandro Ballesteros-Warm and Joyful'."
     },
     "luengo": {
       "nombre": "Luengo",
@@ -283,7 +283,7 @@
         "Luengo"
       ],
       "elevenlabs_voice_id": "bnes5tb6xZ5GxqUjhUSq",
-      "descripcion": "Chileno joven, bravucon y chistoso; acento chileno. Voz de biblioteca: 'Sebastian - Nonchalant, Chatty, Neutral'."
+      "descripcion": "Chileno joven, bravucon y chistoso; español latino neutro, sin acento de ningún país. Voz de biblioteca: 'Sebastian - Nonchalant, Chatty, Neutral'."
     },
     "ray_doyle": {
       "nombre": "Ray Doyle",
@@ -294,7 +294,7 @@
         "Ray"
       ],
       "elevenlabs_voice_id": "l1zE9xgNpUTaQCZzpNJa",
-      "descripcion": "Hombre de 50 anos, sobreviviente desconfiado; espanol latino neutro. Voz de biblioteca: 'Alberto Rodríguez - Serious, Narrative'."
+      "descripcion": "Hombre de 50 anos, sobreviviente desconfiado; español latino neutro, sin acento de ningún país. Voz de biblioteca: 'Alberto Rodríguez - Serious, Narrative'."
     },
     "extra_hombre": {
       "nombre": "Extras (hombre)",
@@ -302,7 +302,7 @@
       "genero": "hombre",
       "nombres_juego": [],
       "elevenlabs_voice_id": "YExhVa4bZONzeingloMX",
-      "descripcion": "Sobreviviente generico, hombre adulto; espanol latino neutro. Se usa para encuentros, vecinos y rehenes. Voz de biblioteca: 'Juan Carlos - Warm and Conversational'."
+      "descripcion": "Sobreviviente generico, hombre adulto; español latino neutro, sin acento de ningún país. Se usa para encuentros, vecinos y rehenes. Voz de biblioteca: 'Juan Carlos - Warm and Conversational'."
     },
     "extra_mujer": {
       "nombre": "Extras (mujer)",
@@ -310,7 +310,7 @@
       "genero": "mujer",
       "nombres_juego": [],
       "elevenlabs_voice_id": "",
-      "descripcion": "Sobreviviente generica, mujer adulta; espanol latino neutro."
+      "descripcion": "Sobreviviente generica, mujer adulta; español latino neutro, sin acento de ningún país."
     },
     "andre_mercer": {
       "nombre": "Andre Mercer",
@@ -320,7 +320,7 @@
         "Andre Mercer"
       ],
       "elevenlabs_voice_id": "jBlmi27XRORxjPquUeCh",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Brian - Warm, Smooth, Confident'."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Brian - Warm, Smooth, Confident'."
     },
     "benjamin_sotelo": {
       "nombre": "Benjamin Sotelo",
@@ -330,7 +330,7 @@
         "Benjamin Sotelo"
       ],
       "elevenlabs_voice_id": "jBlmi27XRORxjPquUeCh",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Brian - Warm, Smooth, Confident'."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Brian - Warm, Smooth, Confident'."
     },
     "campamento_carpintero": {
       "nombre": "Residente de campamento (carpintero)",
@@ -338,7 +338,7 @@
       "genero": "hombre",
       "nombres_juego": [],
       "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario."
     },
     "campamento_curandero": {
       "nombre": "Residente de campamento (curandero)",
@@ -346,7 +346,7 @@
       "genero": "hombre",
       "nombres_juego": [],
       "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario."
     },
     "campamento_herrero": {
       "nombre": "Residente de campamento (herrero)",
@@ -354,7 +354,7 @@
       "genero": "hombre",
       "nombres_juego": [],
       "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario."
     },
     "campamento_mecanico": {
       "nombre": "Residente de campamento (mecanico)",
@@ -362,7 +362,7 @@
       "genero": "hombre",
       "nombres_juego": [],
       "elevenlabs_voice_id": "",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario."
     },
     "capitan_tito_duarte": {
       "nombre": "Capitan Tito Duarte",
@@ -372,7 +372,7 @@
         "Capitan Tito Duarte"
       ],
       "elevenlabs_voice_id": "sKgg4MPUDBy69X7iv3fA",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Alejandro Duràn - Warm, Deep and Hoarse'."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Alejandro Duràn - Warm, Deep and Hoarse'."
     },
     "capitan_vargas_toledo": {
       "nombre": "Capitan Vargas Toledo",
@@ -382,7 +382,7 @@
         "Capitan Vargas Toledo"
       ],
       "elevenlabs_voice_id": "YqZLNYWZm98oKaaLZkUA",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Edoardo - Dark, Measured, Natural'."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Edoardo - Dark, Measured, Natural'."
     },
     "capitana_morrigan_kell": {
       "nombre": "Capitana Morrigan Kell",
@@ -392,7 +392,7 @@
         "Capitana Morrigan Kell"
       ],
       "elevenlabs_voice_id": "ZpEtuMdTIlJXYXAhevhG",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Mía García - Business Asesor'."
+      "descripcion": "Mujer adulta; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Mía García - Business Asesor'."
     },
     "celia_ortiz": {
       "nombre": "Celia Ortiz",
@@ -402,7 +402,7 @@
         "Celia Ortiz"
       ],
       "elevenlabs_voice_id": "hHjbwzYZW17oh0p05AKv",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Gabriela - Warm, Rich and Balanced'."
+      "descripcion": "Mujer adulta; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Gabriela - Warm, Rich and Balanced'."
     },
     "denise_hensley": {
       "nombre": "Denise Hensley",
@@ -412,7 +412,7 @@
         "Denise Hensley"
       ],
       "elevenlabs_voice_id": "2rigMbVWLdqtBSCahJFX",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Tatiana Martin - Wise-speaking, calm'."
+      "descripcion": "Mujer adulta; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Tatiana Martin - Wise-speaking, calm'."
     },
     "diacono_saul_reyes": {
       "nombre": "Diacono Saul Reyes",
@@ -422,7 +422,7 @@
         "Diacono Saul Reyes"
       ],
       "elevenlabs_voice_id": "Wl3O9lmFSMgGFTTwuS6f",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Martin Alvarez - Soothing and Hopeful'."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Martin Alvarez - Soothing and Hopeful'."
     },
     "dona_elba_quispe": {
       "nombre": "Dona Elba Quispe",
@@ -432,7 +432,7 @@
         "Dona Elba Quispe"
       ],
       "elevenlabs_voice_id": "UOxKeHS7lixzgw35mtAR",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Grandma Titina - Relaxed and Reassuring'."
+      "descripcion": "Mujer adulta; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Grandma Titina - Relaxed and Reassuring'."
     },
     "doris_kemper": {
       "nombre": "Doris Kemper",
@@ -442,7 +442,7 @@
         "Doris Kemper"
       ],
       "elevenlabs_voice_id": "gxSxrhNNXvdHpOH0EHjV",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Gabriela González - Bubbly, Clear, Warm'."
+      "descripcion": "Mujer adulta; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Gabriela González - Bubbly, Clear, Warm'."
     },
     "earl_whitaker": {
       "nombre": "Earl Whitaker",
@@ -452,7 +452,7 @@
         "Earl Whitaker"
       ],
       "elevenlabs_voice_id": "Yb8JGzcZyW5YYzenhRCm",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'El Abuelo Charlie - Wise-sounding, Calm'."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'El Abuelo Charlie - Wise-sounding, Calm'."
     },
     "elias_hartmann": {
       "nombre": "Elias Hartmann",
@@ -462,7 +462,7 @@
         "Elias Hartmann"
       ],
       "elevenlabs_voice_id": "k8cFOyAg7B9qwBlDDNTC",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Miguel - Deep, Rich and Cinematic'."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Miguel - Deep, Rich and Cinematic'."
     },
     "ellen_turner": {
       "nombre": "Ellen Turner",
@@ -472,7 +472,7 @@
         "Ellen Turner"
       ],
       "elevenlabs_voice_id": "CaJslL1xziwefCeTNzHv",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Cristina Campos - Friendly and Soft'."
+      "descripcion": "Mujer adulta; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Cristina Campos - Friendly and Soft'."
     },
     "frank_duggan": {
       "nombre": "Frank Duggan",
@@ -482,7 +482,7 @@
         "Frank Duggan"
       ],
       "elevenlabs_voice_id": "w7IU2bIH6xHcyfkUUWi3",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Santiago - Enthusiastic, Assertive'."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Santiago - Enthusiastic, Assertive'."
     },
     "gladys_moreno": {
       "nombre": "Gladys Moreno",
@@ -492,7 +492,7 @@
         "Gladys Moreno"
       ],
       "elevenlabs_voice_id": "zl1Ut8dvwcVSuQSB9XkG",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Ninoska - Spanish Teacher'."
+      "descripcion": "Mujer adulta; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Ninoska - Spanish Teacher'."
     },
     "hector_bencina_jr": {
       "nombre": "Hector Bencina Jr",
@@ -502,7 +502,7 @@
         "Hector Bencina Jr"
       ],
       "elevenlabs_voice_id": "94zOad0g7T7K4oa7zhDq",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Mauricio - Calm and Conversational'."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Mauricio - Calm and Conversational'."
     },
     "hermana_lucia_pegas": {
       "nombre": "Hermana Lucia Pegas",
@@ -512,7 +512,7 @@
         "Hermana Lucia Pegas"
       ],
       "elevenlabs_voice_id": "2Lb1en5ujrODDIqmp7F3",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Jhenny - Soft, Calm, Sweet'."
+      "descripcion": "Mujer adulta; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Jhenny - Soft, Calm, Sweet'."
     },
     "joaquin_ortiz": {
       "nombre": "Joaquin Ortiz",
@@ -522,7 +522,7 @@
         "Joaquin Ortiz"
       ],
       "elevenlabs_voice_id": "FT9r1rAZNP1NDa9qgrTd",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Oliver Prada'."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Oliver Prada'."
     },
     "julio_cardenas": {
       "nombre": "Julio Cardenas",
@@ -532,7 +532,7 @@
         "Julio Cardenas"
       ],
       "elevenlabs_voice_id": "dlGxemPxFMTY7iXagmOj",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Fernando Martínez - Rapid, Persuasive'."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Fernando Martínez - Rapid, Persuasive'."
     },
     "lucas_pike": {
       "nombre": "Lucas Pike",
@@ -542,7 +542,7 @@
         "Lucas Pike"
       ],
       "elevenlabs_voice_id": "rpqlUOplj0Q0PIilat8h",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Jaider - Clear, Balanced, Calm'."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Jaider - Clear, Balanced, Calm'."
     },
     "lucia_ferrada": {
       "nombre": "Lucia Ferrada",
@@ -552,7 +552,7 @@
         "Lucia Ferrada"
       ],
       "elevenlabs_voice_id": "qBvury71WUJfVeT1STkG",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Samanta - Warm, Tender, Expressive'."
+      "descripcion": "Mujer adulta; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Samanta - Warm, Tender, Expressive'."
     },
     "luis_ibanez": {
       "nombre": "Luis Ibanez",
@@ -562,7 +562,7 @@
         "Luis Ibanez"
       ],
       "elevenlabs_voice_id": "gbTn1bmCvNgk0QEAVyfM",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Enrique M. Nieto - Credible and Rich'."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Enrique M. Nieto - Credible and Rich'."
     },
     "marta_ibanez": {
       "nombre": "Marta Ibanez",
@@ -572,7 +572,7 @@
         "Marta Ibanez"
       ],
       "elevenlabs_voice_id": "qHkrJuifPpn95wK3rm2A",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Andrea - Polite, Cheerful and Calm'."
+      "descripcion": "Mujer adulta; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Andrea - Polite, Cheerful and Calm'."
     },
     "marta_quiroz": {
       "nombre": "Marta Quiroz",
@@ -582,7 +582,7 @@
         "Marta Quiroz"
       ],
       "elevenlabs_voice_id": "1BxAZWANeDIxeyHKSJF2",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Isabela - Pleasant, Calm and Melodic'."
+      "descripcion": "Mujer adulta; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Isabela - Pleasant, Calm and Melodic'."
     },
     "oscar_lagos": {
       "nombre": "Oscar Lagos",
@@ -592,7 +592,7 @@
         "Oscar Lagos"
       ],
       "elevenlabs_voice_id": "gbTn1bmCvNgk0QEAVyfM",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Enrique M. Nieto - Credible and Rich'."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Enrique M. Nieto - Credible and Rich'."
     },
     "otis_barker": {
       "nombre": "Otis Barker",
@@ -602,7 +602,7 @@
         "Otis Barker"
       ],
       "elevenlabs_voice_id": "GxqThEDZF0RjxmGomt0o",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Javier - Calm, Clean, Balanced'."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Javier - Calm, Clean, Balanced'."
     },
     "ramon_quispe": {
       "nombre": "Ramon Quispe",
@@ -612,7 +612,7 @@
         "Ramon Quispe"
       ],
       "elevenlabs_voice_id": "Rt1JHkPO27QCUX6Nd5bV",
-      "descripcion": "Hombre adulto; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Jorge - Neutral Latin American Spanish '."
+      "descripcion": "Hombre adulto; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Jorge - Neutral Latin American Spanish '."
     },
     "ruth_haney": {
       "nombre": "Ruth Haney",
@@ -622,7 +622,7 @@
         "Ruth Haney"
       ],
       "elevenlabs_voice_id": "efcRUax7uSa9kpBwtDPe",
-      "descripcion": "Mujer adulta; espanol latino neutro. Personaje secundario. Voz de biblioteca: 'Luisa - Friendly, Calm, Versatile'."
+      "descripcion": "Mujer adulta; español latino neutro, sin acento de ningún país. Personaje secundario. Voz de biblioteca: 'Luisa - Friendly, Calm, Versatile'."
     }
   },
   "velocidad": 1.05
