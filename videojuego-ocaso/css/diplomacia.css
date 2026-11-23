@@ -1,1 +1,131 @@
-/* estilos del sistema: diplomacia */
+/* estilos del sistema: diplomacia y sociedad */
+.tag.dip-tre {
+  background: #5a4a1e;
+}
+.tag.dip-vas {
+  background: #3d3470;
+}
+.dip-r {
+  border-top: 2px solid #10151a;
+  padding: 6px 0;
+}
+.dip-r:first-of-type {
+  border-top: 0;
+}
+.dip-r > summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  list-style: none;
+  min-height: 32px;
+}
+.dip-r > summary::-webkit-details-marker {
+  display: none;
+}
+.dip-r > summary::before {
+  content: "▸";
+  color: var(--dim);
+  width: 10px;
+}
+.dip-r[open] > summary::before {
+  content: "▾";
+}
+.dip-r > summary b {
+  flex: 1;
+  min-width: 0;
+}
+.dip-op {
+  font:
+    400 10px/1.4 "Press Start 2P",
+    monospace;
+  min-width: 34px;
+  text-align: right;
+}
+.dip-op.pos,
+.dip-mot b.pos,
+b.pos {
+  color: #7fd17f;
+}
+.dip-op.mid {
+  color: #e8b632;
+}
+.dip-op.neg,
+.dip-mot b.neg,
+b.neg {
+  color: #f07a6a;
+}
+.dip-mot,
+.dip-tr {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.dip-mot b {
+  display: inline-block;
+  min-width: 34px;
+  font-variant-numeric: tabular-nums;
+}
+.dip-tr li {
+  border-left: 3px solid #22603a;
+  padding-left: 6px;
+  margin: 2px 0;
+}
+.dip-x {
+  min-height: 0;
+  padding: 0 5px;
+  font-size: 8px;
+  vertical-align: middle;
+}
+.dip-cb {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #e8c07a;
+}
+.dip-b button {
+  flex: 1 1 30%;
+}
+.dip-op-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.dip-op-row button {
+  min-width: 82px;
+  min-height: 38px;
+}
+/* sociedad */
+.soc-e {
+  border-top: 2px solid #10151a;
+  padding: 8px 0;
+}
+.soc-e:first-of-type {
+  border-top: 0;
+}
+.soc-e details summary {
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--dim);
+  margin-top: 4px;
+}
+.soc-e .btns button {
+  flex: 1 1 40%;
+}
+.soc-c {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-top: 2px solid #10151a;
+}
+.soc-c button {
+  min-height: 36px;
+  font-size: 9px;
+  padding: 4px 6px;
+  flex: none;
+}
