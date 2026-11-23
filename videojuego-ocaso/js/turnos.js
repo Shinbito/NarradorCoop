@@ -22,6 +22,7 @@ async function yearEnd() {
     F.dip = {};
   });
   addLog(`Año ${G.year} d.C.`, "turn");
+  OC.modales = 0;
   await OC.emitir("finAnio", G.year);
   checkEnd();
 }
@@ -47,7 +48,10 @@ function checkEnd() {
   const need = Math.ceil(G.P.length * 0.6);
   for (const f of G.human) if (alive(f) && owned(f).length >= need) G.over = { win: f };
   if (!G.over && G.human.every((f) => !alive(f))) G.over = { win: -1 };
-  if (G.over || !alive(ME)) showEnd();
+  if (G.over || !alive(ME)) {
+    OC.emitirSync("finPartida", { win: G.over ? G.over.win : -1, vivo: alive(ME) });
+    showEnd();
+  }
 }
 function showEnd() {
   const w = G.over?.win,

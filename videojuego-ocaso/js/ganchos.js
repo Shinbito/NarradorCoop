@@ -8,6 +8,8 @@ const OC = {
   _mod: {},
   acciones: {},
   paneles: [],
+  /* modales abiertos desde el último cambio de año (para dosificar eventos) */
+  modales: 0,
   secciones: { prov: [], dyn: [], dip: [] },
 
   /* --- eventos: OC.on('finAnio', async (anio) => {...}) --- */

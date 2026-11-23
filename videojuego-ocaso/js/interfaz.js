@@ -318,6 +318,7 @@ function centerOn(i) {
 setZoom(zoom);
 /* ---------- modal ---------- */
 function modal(title, html, btns) {
+  OC.modales = (OC.modales || 0) + 1;
   const pr = mq.then(
     () =>
       new Promise((res) => {

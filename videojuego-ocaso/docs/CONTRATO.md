@@ -75,6 +75,7 @@ Secciones de provincia actuales: `reclutar` (20, combate), `edificios` (30, tecn
 | `economiaFaccion` | `f` | turnos | tras `economy(f)` de cada facción |
 | `turnoIA` | `f` | turnos | tras mover la IA de la facción `f` |
 | `finAnio` | `anio` | turnos | tras envejecer la corte y pasar al año nuevo |
+| `finPartida` | `{win, vivo}` | turnos (`checkEnd`) | justo antes del modal de victoria/derrota |
 | `conquista` | `{p, de, a}` | combate | una provincia cambia de dueño por las armas |
 | `batallaResuelta` | `{p, atacante, defensor, gana, A, D, s0, gA, gD, ...}` | combate | después de cualquier batalla (auto o táctica) |
 | `revuelta` | `{p, de}` | economía (y sociedad en traiciones/guerra civil) | una provincia se subleva y pasa a `REB` (se emite antes del cambio de dueño) |
@@ -119,3 +120,6 @@ correspondientes. Los demás solo escuchan.
 - Tratados: `dipTr(f, g, tipo)` indica si hay un tratado activo (p.ej. `"paso"` = derecho de paso).
 - `dipModalGuerra(g)` abre el modal de declarar guerra con coste en reputación y aliados que acudirán.
 - Personajes rehenes llevan `c.dipReh`: no deben nombrarse generales.
+- `OC.modales`: número de modales abiertos desde el último cambio de año. Úsalo para no saturar al jugador (narrativa: máx. 2 por año).
+- Narrativa expone `narLegado(f)`, `narApodoActual(f)`, `narTiene(f, k)`, `narFe(f)`; modifica también `rendimiento` y `aceptacionDiplomatica`.
+- `G.log` guarda las últimas 250 entradas.

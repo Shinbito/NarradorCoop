@@ -426,7 +426,7 @@ function relAdd(a, b, v) {
 }
 function addLog(m, c = "") {
   G.log.unshift({ m, c });
-  if (G.log.length > 60) G.log.length = 60;
+  if (G.log.length > 250) G.log.length = 250;
 }
 function trait(o) {
   const t = o.tr;
