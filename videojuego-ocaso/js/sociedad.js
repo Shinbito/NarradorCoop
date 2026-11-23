@@ -139,7 +139,12 @@ const socCap = (f) => {
 
 /* ---------- consejo ---------- */
 function socNomCargo(f, k) {
-  if (k === "mag") return SOC_GRUPO(f) === "rom" ? "Magister militum" : SOC_GRUPO(f) === "per" ? "Spahbed" : "Jefe de la hueste";
+  if (k === "mag")
+    return SOC_GRUPO(f) === "rom"
+      ? "Magister militum"
+      : SOC_GRUPO(f) === "per"
+        ? "Spahbed"
+        : "Jefe de la hueste";
   if (k === "obi") return { pagano: "Gran sacerdote", zoroastra: "Mobad" }[CIV[f].rel] || "Obispo";
   return { can: "Canciller", tes: "Tesorero", esp: "Maestro de espías" }[k];
 }
@@ -177,7 +182,14 @@ function socNoble(f, k) {
   return c;
 }
 function socEfCargo(f, k, c) {
-  if (!c) return { can: "sin efecto", mag: "sin efecto", tes: "sin efecto", obi: "−4 lealtad del clero", esp: "sin efecto" }[k];
+  if (!c)
+    return {
+      can: "sin efecto",
+      mag: "sin efecto",
+      tes: "sin efecto",
+      obi: "−4 lealtad del clero",
+      esp: "sin efecto",
+    }[k];
   const s = (v, u = "") => dipSg(v) + u;
   return {
     can: s((c.di - 4) * 1.5, "% aceptación"),
@@ -304,19 +316,31 @@ function socObjetivo(f, k) {
       add(tx, (1 - tax) * 8);
       add("Mercados", Math.min(8, merc));
       add("Consejeros de su linaje", cort * 3);
-      if (ten > 0.2) add(s.pol === "celo" ? "Persecución" : s.pol === "tol" ? "Tolerancia" : "Fe distinta", { celo: -12, tol: 6, neu: -3 }[s.pol]);
+      if (ten > 0.2)
+        add(
+          s.pol === "celo" ? "Persecución" : s.pol === "tol" ? "Tolerancia" : "Fe distinta",
+          { celo: -12, tol: 6, neu: -3 }[s.pol],
+        );
       break;
   }
   const mag = socCargo(f, "mag"),
     obi = socCargo(f, "obi");
-  if (mag && (k === "ej" || (k === "ari" && !s.e.ej))) add(socNomCargo(f, "mag") + " " + mag.n, (mag.ma - 4) * 1.5);
-  if (k === "cle") add(obi ? socNomCargo(f, "obi") + " " + obi.n : "Sin " + socNomCargo(f, "obi").toLowerCase(), obi ? 4 + (obi.di - 5) : -4);
+  if (mag && (k === "ej" || (k === "ari" && !s.e.ej)))
+    add(socNomCargo(f, "mag") + " " + mag.n, (mag.ma - 4) * 1.5);
+  if (k === "cle")
+    add(
+      obi ? socNomCargo(f, "obi") + " " + obi.n : "Sin " + socNomCargo(f, "obi").toLowerCase(),
+      obi ? 4 + (obi.di - 5) : -4,
+    );
   const rt = SOC_RASGO[r.tr]?.[k];
   if (rt) add(`${ttl(r)} ${r.tr.toLowerCase()}`, rt);
   if (r.age < 16 && (k === "nob" || k === "ari")) add("Regencia", -8);
   const lg = socLegit(f, G.C[F.heir]);
   if (lg.d[k]) add("Sucesión", lg.d[k]);
-  return { v: clamp(55 + mot.reduce((a, m) => a + m[1], 0), 5, 95), mot: mot.sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])) };
+  return {
+    v: clamp(55 + mot.reduce((a, m) => a + m[1], 0), 5, 95),
+    mot: mot.sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])),
+  };
 }
 
 /* ---------- sucesión: legitimidad del heredero ---------- */
@@ -536,7 +560,8 @@ function socComplot(f, s, k) {
   dipS().hist.complots = (dipS().hist.complots || 0) + 1;
   if (k === "nob" || k === "pro") {
     const t = R() < 0.4 ? ruler(f) : G.C[G.F[f].heir] || ruler(f);
-    if (R() < clamp(0.3 - (esp ? (esp.in - 4) * 0.04 : 0), 0.08, 0.45)) kill(t, `muere a manos de los conjurados del ${nm.toLowerCase()}`);
+    if (R() < clamp(0.3 - (esp ? (esp.in - 4) * 0.04 : 0), 0.08, 0.45))
+      kill(t, `muere a manos de los conjurados del ${nm.toLowerCase()}`);
     else {
       s.e[k].l += 8;
       s.e[k].i = Math.max(8, s.e[k].i - 5);
@@ -552,7 +577,11 @@ function socComplot(f, s, k) {
     own.forEach((p) => (p.order = clamp(p.order - 8, 0, 100)));
     addLog(`${nm} lanza anatemas contra el soberano de ${CIV[f].s}.`, cls);
   } else {
-    for (const p of own.slice().sort(() => R() - 0.5).slice(0, 2)) p.order = clamp(p.order - 20, 0, 100);
+    for (const p of own
+      .slice()
+      .sort(() => R() - 0.5)
+      .slice(0, 2))
+      p.order = clamp(p.order - 20, 0, 100);
     addLog(`Revueltas de ${nm.toLowerCase()} en ${CIV[f].s}.`, cls);
   }
 }
@@ -574,7 +603,8 @@ function socFavor(f, k) {
 function socCrisis(f, s) {
   const bajos = Object.keys(s.e).filter((k) => s.e[k].l < 22),
     inf = bajos.reduce((a, k) => a + s.e[k].i, 0);
-  if (bajos.length >= 2 && inf >= 45 && socOwn(f).length >= 3 && R() < 0.3) return socGuerraCivil(f, s, bajos);
+  if (bajos.length >= 2 && inf >= 45 && socOwn(f).length >= 3 && R() < 0.3)
+    return socGuerraCivil(f, s, bajos);
   for (const k in s.e) {
     const e = s.e[k];
     if (e.l < 25 && R() < ((25 - e.l) / 100) * (e.i / 25)) return socComplot(f, s, k);
@@ -622,13 +652,14 @@ function socIA(f) {
         .filter((c) => !socCargoNombre(c))
         .sort((a, b) => b[st] - a[st])[0];
     if (c && c[st] >= 4) socNombrar(f, k, c);
-    else if (F.gold > 90 && R() < 0.3) {
+    else if (F.gold > 60 && R() < 0.5) {
       F.gold -= 25;
       socNoble(f, k);
     }
   }
   for (const k in s.e)
-    if (s.e[k].l < 38 && (s.uso[k] || 0) < G.year && R() < 0.6 && OC.pagar(f, SOC_DON[k][1])) socConceder(f, k);
+    if (s.e[k].l < 38 && (s.uso[k] || 0) < G.year && R() < 0.6 && OC.pagar(f, SOC_DON[k][1]))
+      socConceder(f, k);
   if ((s.uso.pol || 0) < G.year - 5 && R() < 0.3) {
     const ten = socTension(f),
       want = ruler(f).tr === "Piadoso" || s.e.cle.l < 35 ? "celo" : ten > 0.35 ? "tol" : "neu";
@@ -656,7 +687,8 @@ OC.on("batallaResuelta", ({ atacante, defensor, gana }) => {
 });
 OC.on("conquista", ({ p, de, a }) => {
   if (a < NF) socImp(a, { ej: 2, nob: 2 });
-  if (de < NF) socImp(de, p.cap && p.home === de ? { nob: -8, ej: -8, pue: -6, cle: -4 } : { nob: -3, pue: -2 });
+  if (de < NF)
+    socImp(de, p.cap && p.home === de ? { nob: -8, ej: -8, pue: -6, cle: -4 } : { nob: -3, pue: -2 });
 });
 OC.on("guerraDeclarada", ({ a, b }) => {
   for (const f of [a, b]) socImp(f, { pue: -3, ari: 3 });
@@ -687,13 +719,20 @@ OC.on("sucesion", ({ f, anterior, nuevo }) => {
   if (s.e[nk].l < 30 && R() < 0.4) socGuerraCivil(f, s, [nk]);
 });
 OC.on("edificioConstruido", ({ f, id }) => {
-  if (f < NF) socImp(f, { temple: { cle: 4 }, market: { pro: 2 }, farm: { pue: 2 }, walls: { ej: 1 } }[id] || { nob: 1 });
+  if (f < NF)
+    socImp(
+      f,
+      { temple: { cle: 4 }, market: { pro: 2 }, farm: { pue: 2 }, walls: { ej: 1 } }[id] || { nob: 1 },
+    );
 });
 OC.on("revuelta", ({ de }) => {
   if (de < NF) socImp(de, { nob: -3, pue: -2 });
 });
 OC.on("crisisEconomica", ({ f, tipo }) => {
-  socImp(f, tipo === "hambre" ? { pue: -8, ej: -4 } : tipo === "bancarrota" ? { ej: -6, nob: -4 } : { pue: -3 });
+  socImp(
+    f,
+    tipo === "hambre" ? { pue: -8, ej: -4 } : tipo === "bancarrota" ? { ej: -6, nob: -4 } : { pue: -3 },
+  );
 });
 OC.on("tecnologiaInvestigada", ({ f }) => socImp(f, { pro: 1 }));
 OC.on("eraNueva", ({ f }) => socImp(f, { nob: 2 }));
@@ -777,13 +816,23 @@ function socPanel(dis) {
       st = SOC_CARGOS[k];
     h += `<div class="soc-c"><div><b>${socNomCargo(f, k)}</b> <span class="stats">${c ? `${c.n} · ${{ ma: "mando", in: "intriga", di: "diplomacia", ge: "gestión" }[st]} ${c[st]}` : "vacante"}</span><br><span class="stats">${socEfCargo(f, k, c)}</span></div><button data-act="soccar-${k}" ${dis ? "disabled" : ""}>${c ? "Cambiar" : "Nombrar"}</button></div>`;
   }
-  h += `<h3>Religión</h3><p class="stats">${SOC_POL[s.pol]}: ${{ tol: "poca conversión, el clero protesta", neu: "conversión lenta", celo: "conversión rápida, más desorden en tierras de otra fe" }[s.pol]}.</p><div class="g3">${Object.keys(SOC_POL)
-    .map((p) => `<button data-act="socpol-${p}" class="${s.pol === p ? "on" : ""}" ${dis || (s.uso.pol || 0) >= G.year ? "disabled" : ""}>${SOC_POL[p]}</button>`)
+  h += `<h3>Religión</h3><p class="stats">${SOC_POL[s.pol]}: ${{ tol: "poca conversión, el clero protesta", neu: "conversión lenta", celo: "conversión rápida, más desorden en tierras de otra fe" }[s.pol]}.</p><div class="g3">${Object.keys(
+    SOC_POL,
+  )
+    .map(
+      (p) =>
+        `<button data-act="socpol-${p}" class="${s.pol === p ? "on" : ""}" ${dis || (s.uso.pol || 0) >= G.year ? "disabled" : ""}>${SOC_POL[p]}</button>`,
+    )
     .join("")}</div>`;
-  const conv = ["niceno", "arriano"].filter((x) => x !== CIV[f].rel && CIV[f].rel !== "zoroastra" && !(CIV[f].rel === "niceno" && x === "arriano"));
+  const conv = ["niceno", "arriano"].filter(
+    (x) => x !== CIV[f].rel && CIV[f].rel !== "zoroastra" && !(CIV[f].rel === "niceno" && x === "arriano"),
+  );
   if (conv.length)
     h += `<div class="btns">${conv.map((x) => `<button data-act="socconv-${x}" ${dis || F.gold < 60 || (s.uso.conv || -99) > G.year - 15 ? "disabled" : ""}>Abrazar la fe ${SOC_FEN[x]} · 60 oro</button>`).join("")}</div>`;
-  return h + '<p class="note">Cada estamento tiende a su lealtad objetivo. Muy descontentos, conspiran o se alzan.</p>';
+  return (
+    h +
+    '<p class="note">Cada estamento tiende a su lealtad objetivo. Muy descontentos, conspiran o se alzan.</p>'
+  );
 }
 OC.panel({ id: "corte", titulo: "Corte", orden: 25, render: socPanel });
 

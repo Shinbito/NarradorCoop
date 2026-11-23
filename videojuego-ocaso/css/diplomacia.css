@@ -106,6 +106,12 @@ b.neg {
 .soc-e:first-of-type {
   border-top: 0;
 }
+.soc-e .hd {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
 .soc-e details summary {
   cursor: pointer;
   font-size: 14px;

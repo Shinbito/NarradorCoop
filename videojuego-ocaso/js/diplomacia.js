@@ -28,7 +28,7 @@ const DIP_ART = {
 const DIP_DESC = {
   alianza: "Defensiva: acudís si atacan al otro. Ofensiva: también en las guerras que declaréis.",
   nag: "Ninguno atacará al otro en 10 años. Romperlo cuesta reputación.",
-  comercio: "Caravanas y puertos abiertos: oro para ambos cada año durante 10 años.",
+  comercio: "10 años de aranceles rebajados: +2 oro al año, +2 por cada ruta comercial entre ambos.",
   paso: "Tus ejércitos se abastecen en sus tierras: +6% en batallas junto a su territorio. 8 años.",
   rehenes: "Cada corte acoge a un joven de la otra durante 10 años. Romper un pacto los condena.",
   vasallaje: "Pasas a pagar tributo a cambio de su protección: acudirán si te atacan.",
@@ -62,7 +62,10 @@ const DIP_RASGO = {
   Erudito: { neg: 0.1, agr: -0.05 },
 };
 const dipK = (a, b) => (a < b ? a + "-" + b : b + "-" + a);
-const dipSg = (v) => (v > 0 ? "+" : v < 0 ? "−" : "±") + Math.abs(Math.round(v));
+const dipSg = (v) => {
+  const r = Math.round(v);
+  return (r > 0 ? "+" : r < 0 ? "−" : "±") + Math.abs(r);
+};
 const dipPct = (p) => Math.round(clamp(p, 0, 1) * 100) + "%";
 const dipRepTxt = (r) =>
   r >= 80 ? "intachable" : r >= 60 ? "fiable" : r >= 40 ? "dudosa" : r >= 20 ? "pérfida" : "perjura";
@@ -121,7 +124,8 @@ function dipAmbLea(o) {
   const t = o.tr;
   if (o.amb == null)
     o.amb = clamp(ri(1, 7) + (t === "Ambicioso" ? 3 : t === "Leal" ? -3 : t === "Codicioso" ? 1 : 0), 0, 10);
-  if (o.lea == null) o.lea = clamp(55 + (t === "Leal" ? 20 : t === "Ambicioso" ? -10 : 0) + ri(-5, 5), 0, 100);
+  if (o.lea == null)
+    o.lea = clamp(55 + (t === "Leal" ? 20 : t === "Ambicioso" ? -10 : 0) + ri(-5, 5), 0, 100);
   return o;
 }
 function dipGuerraNueva(a, b) {
@@ -164,7 +168,9 @@ function dipQuitar(x) {
   if (x.t === "rehenes") dipLiberar(x);
 }
 function dipTributo(f) {
-  return clamp(Math.round(inc(f).g * 0.15), 5, 30);
+  /* sobre los ingresos brutos (inc(f).g es el saldo neto con la economía) */
+  const e = inc(f);
+  return clamp(Math.round((e.gi ?? e.g) * 0.15), 5, 30);
 }
 const dipNomVas = (lord) => (lord <= 1 ? "federado (foedus)" : "tributario");
 function dipVasallaje(lord, vas) {
@@ -291,7 +297,8 @@ function declareWar(a, b, o = {}) {
     if (x.t === "rehenes") dipEjecutarRehen(x, a, b);
     dipQuitar(x);
   }
-  for (let g = 0; g < NF; g++) if (g !== a && g !== b && roto.length) relAdd(a, g, was === "alianza" ? -8 : -4);
+  for (let g = 0; g < NF; g++)
+    if (g !== a && g !== b && roto.length) relAdd(a, g, was === "alianza" ? -8 : -4);
   if (was === "alianza") {
     dipMem(a, b, "traicion", `Traición de la alianza (${CIV[a].s})`, -45, 1);
     dipAgravio(b, a, "Traición de " + CIV[a].s, 15);
@@ -492,6 +499,8 @@ function dipAceptacion(f, g, tipo, ext = {}) {
     fe = CIV[f].rel && CIV[f].rel === CIV[g].rel;
   let p = 0;
   if (tipo !== "llamada") {
+    const nr = dipRutas(f, g);
+    if (nr) p += add(`${nr} rutas comerciales`, Math.min(0.15, nr * 0.05));
     p += add("Opinión " + dipSg(rl), tipo === "paz" ? rl / 250 : rl / 120);
     p += add("Reputación " + dipRepTxt(S.rep[f]), (S.rep[f] - 55) / 220);
     p += add("Diplomacia de " + rf.n, (rf.di - 5) * 0.025);
@@ -507,7 +516,10 @@ function dipAceptacion(f, g, tipo, ext = {}) {
         m = dipMarcador(f, g);
       p += 0.12;
       p += add(`${anios} años de guerra`, Math.min(0.3, anios * 0.06));
-      p += add(m > 0 ? "Les vas ganando" : m < 0 ? "Te van ganando" : "Guerra igualada", clamp(m * 0.06, -0.3, 0.3));
+      p += add(
+        m > 0 ? "Les vas ganando" : m < 0 ? "Te van ganando" : "Guerra igualada",
+        clamp(m * 0.06, -0.3, 0.3),
+      );
       p += add(ratio > 1 ? "Eres más fuerte" : "Son más fuertes", clamp((ratio - 1) * 0.25, -0.25, 0.25));
       p += add(P.agr > 0.6 ? "Pueblo belicoso" : "Pueblo pacífico", (0.5 - P.agr) * 0.3);
       const otras = dipGuerras(g).length - 1;
@@ -621,7 +633,10 @@ function dipPuede(f, g, tipo) {
 function dipProvExigible(f, g) {
   const S = dipS(),
     val = (p) =>
-      (p.home === f || S.rec.some((r) => r.f === f && r.p === p.id) ? 100 : 0) + p.market * 5 + p.farm * 4 + tot(p.u);
+      (p.home === f || S.rec.some((r) => r.f === f && r.p === p.id) ? 100 : 0) +
+      p.market * 5 +
+      p.farm * 4 +
+      tot(p.u);
   return owned(g)
     .filter((p) => !p.cap && MAP.adj[p.id].some((i) => G.P[i].owner === f))
     .sort((a, b) => val(b) - val(a))[0];
@@ -635,12 +650,33 @@ function dipCeder(p, a) {
   const old = p.owner,
     cap = G.P[G.F[old].capId];
   if (cap && cap.owner === old && cap !== p) add(cap.u, p.u);
-  Object.assign(p, { owner: a, u: { i: 2, a: 0, c: 0 }, gen: null, recent: 2, tax: 1, order: Math.min(p.order, 50) });
+  Object.assign(p, {
+    owner: a,
+    u: { i: 2, a: 0, c: 0 },
+    gen: null,
+    recent: 2,
+    tax: 1,
+    order: Math.min(p.order, 50),
+  });
 }
+/* tributo anual: en oro y, si no llega, en especie (bienes al precio del mercado de economía) */
+function dipPagarTributo(x) {
+  let falta = x.trib - dipPagar(x.b, x.a, x.trib);
+  for (const id of ["seda", "vino", "sal", "caballos", "hierro", "madera", "piedra", "comida"]) {
+    if (falta <= 0) break;
+    const pr = Math.max(0.5, typeof comPrecio === "function" ? +comPrecio(id) || 2 : 2),
+      n = Math.min(Math.floor(OC.saldo(x.b, id)), Math.ceil(falta / pr));
+    if (n > 0 && OC.pagar(x.b, { [id]: n })) {
+      OC.ganar(x.a, { [id]: n });
+      falta -= n * pr;
+    }
+  }
+  return falta <= 0.5;
+}
+/* transfiere hasta n oro de un reino a otro (lo que pueda pagar) con la API de recursos */
 function dipPagar(de, a, n) {
-  const v = Math.max(0, Math.min(n, G.F[de].gold));
-  G.F[de].gold -= v;
-  G.F[a].gold += v;
+  const v = Math.max(0, Math.min(n, Math.floor(OC.saldo(de, "oro"))));
+  if (v && OC.pagar(de, { oro: v })) OC.ganar(a, { oro: v });
   return v;
 }
 function dipAplicarTerminos(f, g, t = {}) {
@@ -701,6 +737,10 @@ function dipEjecutar(f, g, tipo, ext = {}) {
   if (tipo === "alianza") ally(f, g, ext.sub || "defensiva");
   else if (tipo === "nag" || tipo === "comercio" || tipo === "paso") {
     dipAdd(tipo, f, g);
+    if (tipo === "comercio") {
+      dipAbrirRuta(f, g);
+      dipAbrirRuta(g, f);
+    }
     dipMem(f, g, tipo, DIP_N[tipo], 6, 1);
     addLog(`${CIV[f].s} y ${CIV[g].s} firman ${DIP_ART[tipo]}${txt ? " (" + txt + ")" : ""}.`, cls);
   } else if (tipo === "rehenes") dipRehenes(f, g);
@@ -743,7 +783,8 @@ function dipFabricar(f, g) {
   if (!p) return false;
   if (R() < clamp(0.35 + (it - 5) * 0.06, 0.15, 0.85)) {
     S.rec.push({ f, p: p.id, h: G.year + 20 });
-    if (isMe(f)) addLog(`Tus juristas documentan derechos antiguos sobre ${p.name}: reclamación válida.`, "good");
+    if (isMe(f))
+      addLog(`Tus juristas documentan derechos antiguos sobre ${p.name}: reclamación válida.`, "good");
     return true;
   }
   if (R() < 0.5) {
@@ -832,17 +873,14 @@ function drift() {
       if (rest >= 1) relAdd(a, b, -1);
       else if (rest <= -1) relAdd(a, b, 1);
     }
-  const ecoLee = typeof ecoComercioDiplomacia !== "undefined" && ecoComercioDiplomacia;
   for (const x of S.tr.slice()) {
     if (!alive(x.a) || !alive(x.b)) {
       dipQuitar(x);
       continue;
     }
     if (x.t === "vasallaje") {
-      if (G.F[x.b].gold >= x.trib) {
-        dipPagar(x.b, x.a, x.trib);
-        x.imp = 0;
-      } else {
+      if (dipPagarTributo(x)) x.imp = 0;
+      else {
         x.imp = (x.imp || 0) + 1;
         dipMem(x.a, x.b, "impago", "Tributo impagado", -8, 1, 20);
         if (x.imp >= 2) dipAgravio(x.a, x.b, "Vasallo moroso", 6);
@@ -850,7 +888,7 @@ function drift() {
       }
     }
     if (x.t === "comercio") {
-      if (!ecoLee) for (const f of [x.a, x.b]) G.F[f].gold += dipComercio(f, f === x.a ? x.b : x.a);
+      for (const f of [x.a, x.b]) OC.ganar(f, { oro: dipComercio(f, f === x.a ? x.b : x.a) });
       dipMem(x.a, x.b, "comercio", "Comercio próspero", 1, 0, 10);
     }
     if (x.h && x.h <= G.year) {
@@ -870,7 +908,29 @@ function drift() {
 /* oro anual que da un acuerdo comercial a f (economía puede leer G.dip.tr y definir
    ecoComercioDiplomacia = true para encargarse ella del pago) */
 function dipComercio(f, g) {
-  return clamp(Math.round(3 + Math.min(owned(f).length, owned(g).length) * 0.6), 3, 10);
+  return Math.min(10, 2 + 2 * dipRutas(f, g));
+}
+/* rutas comerciales de economía (G.eco.rutas) que unen a f y g en cualquier sentido */
+function dipRutas(f, g) {
+  const R = G.eco && G.eco.rutas;
+  if (!R) return 0;
+  return R.filter((r) => {
+    const A = G.P[r.a],
+      B = G.P[r.b];
+    return A && B && ((A.owner === f && B.owner === g) || (A.owner === g && B.owner === f));
+  }).length;
+}
+/* al firmar el acuerdo, la IA abre una ruta hacia su socio si la economía lo permite */
+function dipAbrirRuta(f, g) {
+  if (human(f) || typeof comMotivo !== "function" || typeof comAbrir !== "function") return;
+  let best = null;
+  for (const A of owned(f))
+    for (const B of owned(g))
+      if (!comMotivo(f, A, B)) {
+        const v = typeof comValor === "function" ? comValor(f, A, B).v : 1;
+        if (!best || v > best.v) best = { A, B, v };
+      }
+  if (best) comAbrir(f, best.A, best.B);
 }
 /* marcador de guerra y abastecimiento por derecho de paso */
 OC.on("conquista", ({ de, a }) => {
@@ -1012,7 +1072,8 @@ function dipIAPropuesta(f) {
       c = (tipo, peso, ext = {}) => {
         if (ok(tipo)) l.push({ g, tipo, ext, s: dipAceptacion(f, g, tipo, ext).p * peso });
       };
-    if (rl > 30 || com) c("alianza", 0.6 + com * 0.3, { sub: P.agr > 0.6 && R() < 0.5 ? "ofensiva" : "defensiva" });
+    if (rl > 30 || com)
+      c("alianza", 0.6 + com * 0.3, { sub: P.agr > 0.6 && R() < 0.5 ? "ofensiva" : "defensiva" });
     if (bo && rl > -15 && (P.agr < 0.6 || ratio < 1)) c("nag", 0.45);
     if (rl > -5) c("comercio", 0.25 + P.cod * 0.5);
     if (dipGuerras(f).some((e) => border(g, e))) c("paso", 0.35);
@@ -1041,7 +1102,13 @@ function aiDiplo(f) {
       const w = S.gu[dipK(f, g)],
         anios = w ? G.year - w.y : 0,
         m = dipMarcador(f, g),
-        q = 0.08 + anios * 0.05 + (m < 0 ? 0.15 : 0) + (dipGuerras(f).length - 1) * 0.1 + P.neg * 0.15 - P.agr * 0.1;
+        q =
+          0.12 +
+          anios * 0.06 +
+          (m < 0 ? 0.15 : 0) +
+          (dipGuerras(f).length - 1) * 0.1 +
+          P.neg * 0.15 -
+          P.agr * 0.1;
       if (R() < q) dipProponer(f, g, "paz", dipTerminosIA(f, g));
       continue;
     }
@@ -1051,11 +1118,18 @@ function aiDiplo(f) {
       continue;
     }
     const d = dipDeseoGuerra(f, g);
-    if (d > 0.6 && R() < 0.12 + (d - 0.6)) {
+    if (d > 0.7 && R() < 0.1 + (d - 0.7)) {
       declareWar(f, g);
       continue;
     }
-    if (d > 0.35 && !dipCB(f, g).length && P.agr > 0.55 && F.gold > 50 && (S.uso[f]?.rec || 0) < G.year - 2 && R() < 0.3) {
+    if (
+      d > 0.35 &&
+      !dipCB(f, g).length &&
+      P.agr > 0.55 &&
+      F.gold > 50 &&
+      (S.uso[f]?.rec || 0) < G.year - 2 &&
+      R() < 0.3
+    ) {
       F.gold -= 30;
       dipFabricar(f, g);
     }
@@ -1098,20 +1172,22 @@ function dipTag(f, g) {
   const st = G.st[f][g],
     tg = (c, t) => `<span class="tag ${c}">${t}</span>`;
   if (st === "guerra") return tg("guerra", "guerra");
-  if (st === "alianza") return tg("alianza", dipTr(f, g, "alianza")?.sub === "ofensiva" ? "alianza of." : "alianza");
+  if (st === "alianza")
+    return tg("alianza", dipTr(f, g, "alianza")?.sub === "ofensiva" ? "alianza of." : "alianza");
   if (dipSenor(g) === f) return tg("dip-vas", "tributario");
   if (dipSenor(f) === g) return tg("dip-vas", "tu señor");
   const t = dipTr(f, g, "tregua");
-  if (t) return tg("dip-tre", `tregua ${t.h - G.year}a`);
+  if (t) return tg("dip-tre", `tregua ${Math.max(1, t.h - G.year)}a`);
   return tg("", dipTr(f, g, "nag") ? "pacto" : "paz");
 }
 function dipLineaTratado(x, f) {
   const g = x.a === f ? x.b : x.a,
-    left = x.h ? ` · ${x.h - G.year} años` : "";
+    left = x.h ? ` · ${Math.max(1, x.h - G.year)} años` : "";
   let t = DIP_N[x.t];
   if (x.t === "alianza") t = `Alianza ${x.sub}`;
-  if (x.t === "vasallaje") t = x.a === f ? `Tributario: te paga ${x.trib} oro/año` : `Pagas ${x.trib} oro/año de tributo`;
-  if (x.t === "comercio") t += ` · +${dipComercio(f, g)} oro/año`;
+  if (x.t === "vasallaje")
+    t = x.a === f ? `Tributario: te paga ${x.trib} oro/año` : `Pagas ${x.trib} oro/año de tributo`;
+  if (x.t === "comercio") t += ` · +${dipComercio(f, g)} oro/año · ${dipRutas(f, g)} rutas`;
   if (x.t === "rehenes") {
     const c = G.C[x.a === f ? x.rb : x.ra];
     t += c ? ` · tienes a ${c.n}` : "";
@@ -1262,12 +1338,16 @@ function dipJugadorPropone(g, tipo, ext) {
   }
   dipRechazo(ME, g, tipo);
   if (tipo !== "tributo") addLog(`${CIV[g].s} rechaza tu propuesta: ${DIP_N[tipo].toLowerCase()}.`, "bad");
-  const co = tipo !== "tributo" && R() < 0.3 + dipPers(g).neg * 0.6 ? dipContraoferta(ME, g, tipo, ext) : null;
+  const co =
+    tipo !== "tributo" && R() < 0.3 + dipPers(g).neg * 0.6 ? dipContraoferta(ME, g, tipo, ext) : null;
   if (co)
     modal(
       "Contraoferta",
       `<p>${ttl(ruler(g))} ${ruler(g).n} no acepta tus condiciones, pero firmaría ${tipo === "paz" ? "la paz" : DIP_N[tipo].toLowerCase()} si ${dipTxtExt(ME, g, co) || "no hay más exigencias"}.</p>`,
-      [{ t: "Aceptar la contraoferta", cls: "gold", fn: () => dipEjecutar(ME, g, tipo, co) }, { t: "Rechazar" }],
+      [
+        { t: "Aceptar la contraoferta", cls: "gold", fn: () => dipEjecutar(ME, g, tipo, co) },
+        { t: "Rechazar" },
+      ],
     );
 }
 function dipModalGuerra(g) {
@@ -1278,7 +1358,9 @@ function dipModalGuerra(g) {
     S = dipS();
   const suyos = [
       ...dipAliados(g).filter((z) => z !== ME),
-      ...S.tr.filter((x) => x.t === "vasallaje" && (x.a === g || x.b === g)).map((x) => (x.a === g ? x.b : x.a)),
+      ...S.tr
+        .filter((x) => x.t === "vasallaje" && (x.a === g || x.b === g))
+        .map((x) => (x.a === g ? x.b : x.a)),
     ].filter((z, i, a) => z !== ME && alive(z) && a.indexOf(z) === i),
     mios = [
       ...dipAliados(ME).filter((z) => dipTr(ME, z, "alianza")?.sub === "ofensiva"),
@@ -1287,7 +1369,10 @@ function dipModalGuerra(g) {
   modal(
     tr ? "¿Traicionar la alianza?" : "¿Declarar la guerra?",
     `<p>${cb.length ? "Casus belli: " + cb.join("; ") + "." : "No tienes casus belli: los demás reinos lo verán como una agresión."}</p>${trs.length ? `<p>Romperás: ${trs.map((x) => DIP_ART[x.t]).join(", ")}.</p>` : ""}<p class="dim">Reputación: −${rep}.${suyos.length ? " Pueden acudir en su ayuda: " + suyos.map((z) => CIV[z].s).join(", ") + "." : ""}${mios.length ? " Llamarás a: " + mios.map((z) => CIV[z].s).join(", ") + "." : ""}</p>`,
-    [{ t: tr ? "Traicionar" : "Declarar la guerra", cls: "red", fn: () => declareWar(ME, g) }, { t: "Cancelar" }],
+    [
+      { t: tr ? "Traicionar" : "Declarar la guerra", cls: "red", fn: () => declareWar(ME, g) },
+      { t: "Cancelar" },
+    ],
   );
 }
 function marryModal(c) {
