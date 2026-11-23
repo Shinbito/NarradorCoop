@@ -197,11 +197,20 @@ const UN = {
   c: { s: "Caballería", cost: 22, atk: 6, hp: 14, food: 2, mv: 5 },
 };
 const MULT = { i: { i: 1, a: 0.75, c: 1.6 }, a: { i: 1.5, a: 1, c: 0.7 }, c: { i: 0.7, a: 1.6, c: 1 } };
+/* Edificios de provincia: [nombre, efecto por nivel, coste base en oro, nivel máximo].
+   El nivel vive en G.P[i][clave] (número). Detalles (años, requisitos) en TEC_EDI (tecnologia.js). */
 const BLD = {
-  farm: ["Granja", "+5 comida", 30],
-  market: ["Mercado", "+5 oro", 40],
-  walls: ["Murallas", "+25% defensa", 50],
-  temple: ["Templo", "+12 orden", 35],
+  farm: ["Granja", "+5 comida", 30, 3],
+  market: ["Mercado", "+5 oro", 40, 3],
+  walls: ["Murallas", "+25% defensa", 50, 3],
+  temple: ["Templo", "+12 orden", 35, 3],
+  cuartel: ["Cuartel", "−4% coste de tropa, veteranía", 40, 3],
+  establo: ["Establo", "jinetes: −6% coste, +4% ataque", 40, 2],
+  arqueria: ["Campo de tiro", "arqueros: −6% coste, +4% ataque", 35, 2],
+  herreria: ["Herrería", "+4% ataque y vida de las tropas", 50, 2],
+  escuela: ["Escuela", "+1 investigación (+2 en la capital)", 35, 3],
+  acueducto: ["Acueducto", "+4 orden, +1 comida", 60, 2],
+  puerto: ["Puerto", "+3 oro (solo en la costa)", 45, 2],
 };
 const TAX = ["Bajos", "Normales", "Altos"],
   TAXM = [0.6, 1, 1.5],
