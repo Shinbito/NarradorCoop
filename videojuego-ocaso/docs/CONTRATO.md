@@ -86,7 +86,7 @@ Secciones de provincia actuales: `reclutar` (20, combate), `edificios` (30, tecn
 | `bodaCelebrada` | `{a, b}` (personajes) | diplomacia | |
 | `muertePersonaje` | `{c, motivo}` | diplomacia (`kill`) | |
 | `sucesion` | `{f, anterior, nuevo}` (personajes, no ids) | diplomacia | |
-| `crisisEconomica` | `{f, tipo}` con tipo `hambre`, `impagos`, `bancarrota`, `peste`, `inflacion` | economía | |
+| `crisisEconomica` | `{f, tipo}` con tipo `hambre`, `impagos`, `bancarrota`, `peste`, `inflacion`, `descontento` | economía | |
 
 Quien emite un evento de esta tabla debe hacerlo en todos los caminos de código
 correspondientes. Los demás solo escuchan.
@@ -123,3 +123,5 @@ correspondientes. Los demás solo escuchan.
 - `OC.modales`: número de modales abiertos desde el último cambio de año. Úsalo para no saturar al jugador (narrativa: máx. 2 por año).
 - Narrativa expone `narLegado(f)`, `narApodoActual(f)`, `narTiene(f, k)`, `narFe(f)`; modifica también `rendimiento` y `aceptacionDiplomatica`.
 - `G.log` guarda las últimas 250 entradas.
+- Ánimo del pueblo: `ecoAnimo(p)` → `{id, nombre, icono, color, orden, objetivo, tendencia, causas}`; `ecoNivel(p)` (rápido, sin causas); `ecoApoyoAsedio(p, sitiador?)` → −1 (abre las puertas) … +1 (resiste). Sección de provincia `animo` (orden 38).
+- Decisiones de ciudad: `ecoPuedeDecidir(f, p, k)` / `ecoDecision(f, p, k)` sobre `ECO_DEC`.
