@@ -1,18 +1,25 @@
-/* ---------- tecnología, edificios y progreso de las civilizaciones ----------
-   Sistema de TECNOLOGÍA. Edificios por provincia con niveles y obras que tardan años,
-   árbol de investigación por ramas, eras de cada civilización y la IA que lo usa.
+/* ---------- tecnología, ciudades y progreso de las civilizaciones ----------
+   Sistema de TECNOLOGÍA. Dos niveles:
+   - DESCUBRIMIENTOS del reino: el árbol se investiga con el saber que generan las ciudades.
+   - ADOPCIÓN LOCAL: un descubrimiento «de ciudad» solo rinde donde se implanta (obra pagada con el oro
+     nacional). Los «del reino» (leyes, gobierno, doctrinas) rigen en todas partes.
+   Cada ciudad tiene edificios con niveles y huecos limitados por su población; lo que construye y adopta
+   define su perfil (Plaza fuerte, Ciudad mercantil, Granero, Ciudad de saber...) y qué tropas recluta.
    Estado en G.tec (ver docs/tecnologia.md). Lo propio de cada pueblo, en civilizaciones.js. */
 
 const TEC_CAT = ["i", "a", "c"],
   TEC_ROM = ["0", "I", "II", "III", "IV", "V"],
-  TEC_COLA = 2, // obras por provincia: una en marcha y una en espera
+  TEC_COLA = 3, // obras y adopciones por ciudad: una en marcha y dos en espera
   TEC_SUPLE = 3; // oro por cada unidad de material que falte
 
 const TEC_RAMAS = { mil: "Milicia", eco: "Economía", civ: "Gobierno", rel: "Culto", pro: "Propias" };
 
-/* Árbol común. c = coste en puntos; req = técnicas previas; ef = texto corto.
-   Efectos: st (stats por clase o 'all'), cu (coste de tropa), mant (mantenimiento), bono (batalla),
-   dip / dipRel (aceptación diplomática), gpct / fpct (oro y comida %), ren/ord/pts (funciones). */
+/* Árbol. c = puntos; req = técnicas previas; anio = año mínimo; ef = texto corto.
+   amb: "ciudad" (hay que adoptarla en cada ciudad; en = edificio que pide allí, enN = su nivel)
+        o "reino" (por defecto: rige en todo el reino).
+   saber: nivel de Escuela que debe tener alguna ciudad del reino para poder investigarla.
+   Efectos: st (stats por clase o 'all'), cu (coste de tropa), mant, bono, dip, dipRel, gpct/fpct (%),
+   ren(y, p) / ord(p) (por ciudad), ptsC(p) (saber de la ciudad, solo «ciudad»), pts(f, own) (solo «reino»). */
 const TEC = {
   disciplina: {
     n: "Disciplina de campaña",
@@ -20,6 +27,8 @@ const TEC = {
     c: 12,
     anio: 410,
     req: [],
+    amb: "ciudad",
+    en: "cuartel",
     ef: "+6% vida de la infantería",
     st: { i: { hp: 0.06 } },
   },
@@ -29,6 +38,8 @@ const TEC = {
     c: 12,
     anio: 410,
     req: [],
+    amb: "ciudad",
+    en: "establo",
     ef: "+6% ataque y −8% coste de jinetes",
     st: { c: { atk: 0.06 } },
     cu: { c: -0.08 },
@@ -39,6 +50,8 @@ const TEC = {
     c: 12,
     anio: 410,
     req: [],
+    amb: "ciudad",
+    en: ["arqueria", "cuartel"],
     ef: "+8% ataque de arqueros",
     st: { a: { atk: 0.08 } },
   },
@@ -48,7 +61,9 @@ const TEC = {
     c: 24,
     anio: 425,
     req: ["disciplina"],
-    ef: "+6% vida de todas las tropas",
+    amb: "ciudad",
+    en: "herreria",
+    ef: "mejores armaduras: +6% vida",
     st: { all: { hp: 0.06 } },
   },
   poliorcetica: {
@@ -61,12 +76,14 @@ const TEC = {
     bono: { atacante: 0.08 },
   },
   spatha: {
-    n: "Spatha larga",
+    n: "Hierro templado",
     r: "mil",
     c: 26,
     anio: 440,
     req: ["lorigas"],
-    ef: "+6% ataque de todas las tropas",
+    amb: "ciudad",
+    en: "herreria",
+    ef: "armas con más filo: +6% ataque",
     st: { all: { atk: 0.06 } },
   },
   limitanei: {
@@ -75,6 +92,7 @@ const TEC = {
     c: 40,
     anio: 460,
     req: ["poliorcetica"],
+    saber: 2,
     ef: "+10% al defender · −15% comida de tropa",
     bono: { defensor: 0.1 },
     mant: { comida: -0.15 },
@@ -85,17 +103,21 @@ const TEC = {
     c: 60,
     anio: 490,
     req: ["spatha"],
+    saber: 2,
+    amb: "ciudad",
+    en: "cuartel",
+    enN: 2,
     ef: "+5% ataque y vida · −10% coste de tropa",
     st: { all: { atk: 0.05, hp: 0.05 } },
     cu: { all: -0.1 },
   },
-
   strategikon: {
     n: "Strategikon",
     r: "mil",
     c: 80,
     anio: 540,
     req: ["comitatenses", "limitanei"],
+    saber: 3,
     ef: "+8% al atacar y al defender",
     bono: { atacante: 0.08, defensor: 0.08 },
   },
@@ -106,8 +128,21 @@ const TEC = {
     c: 12,
     anio: 410,
     req: [],
+    amb: "ciudad",
+    en: "farm",
     ef: "Granja III · +1 comida por nivel de granja",
     ren: (y, p) => ({ ...y, fo: y.fo + (p.farm || 0) }),
+  },
+  rotacion: {
+    n: "Rotación de cultivos",
+    r: "eco",
+    c: 18,
+    anio: 420,
+    req: ["arado"],
+    amb: "ciudad",
+    en: "farm",
+    ef: "+10% comida",
+    fpct: 0.1,
   },
   moneda: {
     n: "Reforma del sólido",
@@ -124,8 +159,11 @@ const TEC = {
     c: 24,
     anio: 425,
     req: ["arado"],
-    ef: "+2 comida en provincias con granja",
-    ren: (y, p) => (p.farm ? { ...y, fo: y.fo + 2 } : y),
+    amb: "ciudad",
+    en: "farm",
+    enN: 2,
+    ef: "+3 comida",
+    ren: (y) => ({ ...y, fo: y.fo + 3 }),
   },
   vias: {
     n: "Calzadas reparadas",
@@ -133,7 +171,7 @@ const TEC = {
     c: 26,
     anio: 430,
     req: ["moneda"],
-    ef: "+1 oro por provincia · −10% oro de tropa",
+    ef: "+1 oro por ciudad · −10% oro de tropa",
     ren: (y) => ({ ...y, g: y.g + 1 }),
     mant: { oro: -0.1 },
   },
@@ -143,8 +181,9 @@ const TEC = {
     c: 45,
     anio: 465,
     req: ["molinos", "vias"],
-    ef: "+8% comida · −10% comida de tropa",
-    fpct: 0.08,
+    saber: 2,
+    ef: "+5% comida · −10% comida de tropa",
+    fpct: 0.05,
     mant: { comida: -0.1 },
   },
   gremios: {
@@ -153,11 +192,26 @@ const TEC = {
     c: 45,
     anio: 470,
     req: ["vias"],
-    ef: "+8% oro",
-    gpct: 0.08,
+    saber: 2,
+    amb: "ciudad",
+    en: "market",
+    enN: 2,
+    ef: "+12% oro",
+    gpct: 0.12,
   },
-
-  sericultura: { n: "Sericultura", r: "eco", c: 75, anio: 550, req: ["gremios"], ef: "+10% oro", gpct: 0.1 },
+  sericultura: {
+    n: "Sericultura",
+    r: "eco",
+    c: 75,
+    anio: 550,
+    req: ["gremios"],
+    saber: 3,
+    amb: "ciudad",
+    en: "market",
+    enN: 2,
+    ef: "+15% oro",
+    gpct: 0.15,
+  },
 
   censo: { n: "Censo y catastro", r: "civ", c: 12, anio: 410, req: [], ef: "+5% oro", gpct: 0.05 },
   letras: {
@@ -166,8 +220,10 @@ const TEC = {
     c: 14,
     anio: 410,
     req: [],
-    ef: "Escuela III · +2 investigación",
-    pts: () => 2,
+    amb: "ciudad",
+    en: "escuela",
+    ef: "Escuela III · +1 investigación",
+    ptsC: () => 1,
   },
   ingenieria: {
     n: "Ingeniería",
@@ -176,6 +232,18 @@ const TEC = {
     anio: 435,
     req: ["censo"],
     ef: "Acueductos · obras un año más breves",
+  },
+  sanidad: {
+    n: "Termas y sanidad",
+    r: "civ",
+    c: 26,
+    anio: 445,
+    req: ["ingenieria"],
+    amb: "ciudad",
+    en: "acueducto",
+    ef: "+4 orden, +2 comida",
+    ord: () => 4,
+    ren: (y) => ({ ...y, fo: y.fo + 2 }),
   },
   derecho: {
     n: "Codificación del derecho",
@@ -192,17 +260,18 @@ const TEC = {
     c: 45,
     anio: 475,
     req: ["derecho", "letras"],
+    saber: 2,
     ef: "+8% aceptación diplomática · +2 orden",
     ord: () => 2,
     dip: 0.08,
   },
-
   corpus: {
     n: "Corpus Iuris Civilis",
     r: "civ",
     c: 75,
     anio: 530,
     req: ["cancilleria"],
+    saber: 3,
     ef: "+5 orden · +5% aceptación diplomática",
     ord: () => 5,
     dip: 0.05,
@@ -214,8 +283,10 @@ const TEC = {
     c: 12,
     anio: 410,
     req: [],
-    ef: "+4 orden donde hay templo",
-    ord: (p) => (p.temple ? 4 : 0),
+    amb: "ciudad",
+    en: "temple",
+    ef: "+5 orden",
+    ord: () => 5,
   },
   clero: {
     n: "Jerarquía sacerdotal",
@@ -232,8 +303,11 @@ const TEC = {
     c: 30,
     anio: 445,
     req: ["clero"],
-    ef: "+1 investigación por templo II o más (hasta 6)",
-    pts: (f, own) => Math.min(6, own.filter((p) => (p.temple || 0) >= 2).length),
+    amb: "ciudad",
+    en: "temple",
+    enN: 2,
+    ef: "+1,5 investigación",
+    ptsC: () => 1.5,
   },
   concilios: {
     n: "Concilios",
@@ -241,6 +315,7 @@ const TEC = {
     c: 48,
     anio: 480,
     req: ["clero"],
+    saber: 2,
     ef: "+3 orden en el reino · +5% aceptación",
     ord: () => 3,
     dip: 0.05,
@@ -251,30 +326,37 @@ const TEC = {
     c: 70,
     anio: 520,
     req: ["concilios", "monacato"],
+    saber: 3,
+    amb: "ciudad",
+    en: "temple",
+    enN: 2,
     ef: "+4 orden · +2 investigación",
     ord: () => 4,
-    pts: () => 2,
+    ptsC: () => 2,
   },
 };
 
 /* Detalle de los edificios de BLD (nucleo.js) y de los propios de cada pueblo (civilizaciones.js).
-   t = años por nivel; req = {nivel: técnica}; mat = material extra si la economía lo define;
-   costa = solo en provincias costeras; ren/ord/pts = efecto de la provincia; reino = efecto en todo el reino
-   (se toma el mejor nivel que haya); ia = peso para la IA. */
+   t = años por nivel; anio = {nivel: año mínimo}; req = {nivel: técnica}; mat = material extra;
+   costa = solo en ciudades costeras; cat = "mil" | "eco" | "saber" (perfil de la ciudad; null = neutro);
+   ren/ord/pts = efecto en la ciudad; local(b, L) = bonos a las tropas de la ciudad;
+   reino(b, L) = efecto en todo el reino (mejor nivel); ia = peso para la IA. */
 const TEC_EDI = {
   farm: {
     t: [1, 1, 2],
     anio: { 2: 420, 3: 450 },
     req: { 3: "arado" },
     mat: "madera",
+    cat: "eco",
     ia: (p, x) => (x.e.net < 3 ? 5 : 1.4),
   },
-  market: { t: [1, 1, 2], anio: { 2: 420, 3: 450 }, req: { 3: "moneda" }, ia: () => 2.2 },
+  market: { t: [1, 1, 2], anio: { 2: 420, 3: 450 }, req: { 3: "moneda" }, cat: "eco", ia: () => 2.2 },
   walls: {
     t: [1, 2, 3, 3],
     anio: { 2: 425, 3: 460, 4: 480 },
     req: { 3: "poliorcetica", 4: "teodosianas" },
     mat: "piedra",
+    cat: "mil",
     ia: (p, x) => (x.amen ? 2.5 + (p.id === G.F[x.f].capId ? 1.5 : 0) : 0.3),
   },
   temple: {
@@ -282,56 +364,62 @@ const TEC_EDI = {
     anio: { 2: 420, 3: 455 },
     req: { 3: "clero" },
     mat: "piedra",
-    ia: (p) => (p.order < 45 ? 5 : p.order < 60 ? 1.5 : 0.4),
+    cat: "saber",
+    ia: (p) => (p.order < 45 ? 5 : p.order < 60 ? 1.5 : 0.6),
   },
   cuartel: {
     t: [1, 2, 2],
     anio: { 2: 430, 3: 465 },
     mat: "madera",
-    reino: (b, L) => {
+    cat: "mil",
+    local: (b, L) => {
       for (const c of TEC_CAT) b.cu[c] -= 0.04 * L;
       b.st.i.hp += 0.03 * L;
     },
-    ia: (p, x) => (x.L > (p.cuartel || 0) ? 0.4 : x.front || p.id === G.F[x.f].capId ? 2 : 0.4),
+    ia: (p, x) => (x.front || p.id === G.F[x.f].capId ? 2 : 0.6),
   },
   establo: {
     t: [1, 2],
     anio: { 2: 445 },
     mat: "madera",
-    reino: (b, L) => {
+    cat: "mil",
+    local: (b, L) => {
       b.st.c.atk += 0.04 * L;
       b.cu.c -= 0.06 * L;
     },
-    ia: (p, x) => (x.L > (p.establo || 0) ? 0.3 : x.front ? 1.4 : 0.6),
+    ia: (p, x) => (x.front ? 1.5 : 0.5),
   },
   arqueria: {
     t: [1, 2],
     anio: { 2: 445 },
     mat: "madera",
-    reino: (b, L) => {
+    cat: "mil",
+    local: (b, L) => {
       b.st.a.atk += 0.04 * L;
       b.cu.a -= 0.06 * L;
     },
-    ia: (p, x) => (x.L > (p.arqueria || 0) ? 0.3 : x.front ? 1.2 : 0.5),
+    ia: (p, x) => (x.front ? 1.2 : 0.4),
   },
   herreria: {
     t: [2, 2],
     anio: { 1: 420, 2: 460 },
     mat: "hierro",
-    reino: (b, L) => {
+    cat: "mil",
+    local: (b, L) => {
       for (const c of TEC_CAT) {
         b.st[c].atk += 0.04 * L;
         b.st[c].hp += 0.04 * L;
       }
     },
-    ia: (p, x) => (x.L > (p.herreria || 0) ? 0.2 : p.id === G.F[x.f].capId ? 2 : 1),
+    ia: (p, x) => (x.front || p.id === G.F[x.f].capId ? 1.6 : 0.6),
   },
   escuela: {
     t: [1, 2, 2],
     anio: { 2: 430, 3: 470 },
     req: { 3: "letras" },
-    pts: (p, L, f) => (G.F[f] && G.F[f].capId === p.id ? 2 : 1) * L,
-    ia: (p, x) => (p.id === G.F[x.f].capId ? 2.6 : 0.8),
+    cat: "saber",
+    pts: (p, L) => 1.5 * L,
+    ia: (p, x) => (p.id === G.F[x.f].capId ? 2.6 : 1),
   },
   acueducto: {
     t: [2, 3],
@@ -347,9 +435,20 @@ const TEC_EDI = {
     anio: { 1: 415, 2: 450 },
     costa: true,
     mat: "madera",
+    cat: "eco",
     ren: (y, p, L) => ({ ...y, g: y.g + 3 * L }),
     ia: () => 2,
   },
+};
+
+/* Perfiles de ciudad: emergen de lo construido y adoptado; los especializados tienen sinergias. */
+const TEC_PERFIL = {
+  fuerte: { nombre: "Plaza fuerte", icono: "⚔", sin: "tropas de aquí −10% coste, +5% vida; +5% al defender" },
+  mercantil: { nombre: "Ciudad mercantil", icono: "◉", sin: "+10% oro" },
+  granero: { nombre: "Granero", icono: "❦", sin: "+10% comida" },
+  saber: { nombre: "Ciudad de saber", icono: "✎", sin: "+25% investigación" },
+  mixta: { nombre: "Ciudad mixta", icono: "◇", sin: "" },
+  aldea: { nombre: "Aldea", icono: "·", sin: "" },
 };
 
 /* Requisitos de cada era (la 0 es la de partida): técnicas, provincias, niveles de edificio y año. */
@@ -367,13 +466,13 @@ const TEC_ERA_TXT = [
 ];
 
 let tecRama = "mil",
-  tecCache = { k: "", v: [] },
+  tecCache = { k: "", v: [], c: {} },
   tecCostas = { seed: null, s: [] };
 
 /* ---------- estado ---------- */
 const tecNueva = () => ({ inv: null, pts: 0, h: [], era: 0, ult: 0 });
 function tecS() {
-  return OC.estado("tec", () => ({ v: 1, rev: 0, ini: false, f: [], obras: {} }));
+  return OC.estado("tec", () => ({ v: 2, rev: 0, ini: false, f: [], obras: {}, ad: {} }));
 }
 /* Puertas por año de partida (G.year empieza en 410): verdadero si ya se ha llegado a ese año. */
 const tecDesde = (anio) => !anio || (!!G && G.year >= anio);
@@ -386,7 +485,13 @@ const tecListo = (f) => !!(G && G.tec && G.tec.f && f != null && f >= 0 && f < N
 const tecF = (f) => G.tec.f[f];
 const tecTiene = (f, id) => tecListo(f) && tecF(f).h.includes(id);
 const tecCola = (pid) => (G.tec && G.tec.obras[pid]) || [];
+const tecLocal = (T) => !!T && T.amb === "ciudad";
+const tecAdopciones = (p) => (G.tec && G.tec.ad && G.tec.ad[p.id]) || [];
+const tecAdoptada = (p, id) => tecAdopciones(p).includes(id);
+/* ¿rige la técnica en esta ciudad para su dueño f? (las «del reino», si f la conoce; las «de ciudad», si se adoptó allí) */
+const tecRige = (f, p, id) => (tecLocal(TEC[id]) ? tecAdoptada(p, id) : tecTiene(f, id));
 const tecEdificios = () => Object.keys(BLD).concat(Object.keys(TEC_EDI).filter((k) => !BLD[k]));
+const tecEsCapital = (p) => !!p && (p.cap || (G.F[p.owner] && G.F[p.owner].capId === p.id));
 function tecB(k) {
   const b = BLD[k],
     e = TEC_EDI[k] || {};
@@ -395,8 +500,15 @@ function tecB(k) {
 function tecEras(f) {
   return (CIV[f] && CIV[f].eras) || ["Tribal", "Federado", "Reino", "Reino consolidado"];
 }
+/* Población de la ciudad en miles (economía); si no existe, una estimación. */
+function tecPob(p) {
+  try {
+    if (typeof ecoPob === "function" && G.eco) return ecoPob(p);
+  } catch (e) {}
+  return 8 + (p.cap ? 10 : 0);
+}
 
-/* Partida nueva, cargada o recibida: idempotente. Normaliza partidas antiguas. */
+/* Partida nueva, cargada o recibida: idempotente. Migra partidas antiguas. */
 function tecPreparar() {
   if (!G) return;
   const s = tecS();
@@ -405,19 +517,39 @@ function tecPreparar() {
   s.obras = s.obras || {};
   s.rev = (s.rev || 0) + 1;
   for (const p of G.P) for (const k of tecEdificios()) if (typeof p[k] !== "number") p[k] = 0;
+  if (!s.ad) {
+    /* partida de la versión 1 (técnicas nacionales): lo investigado queda adoptado en las ciudades que ya
+       tenía cada reino, y cada capital recibe cuartel y establo para poder seguir reclutando */
+    s.ad = {};
+    for (const p of G.P) {
+      const f = p.owner;
+      if (!tecListo(f)) continue;
+      const l = tecF(f).h.filter((id) => tecLocal(TEC[id]));
+      if (l.length) s.ad[p.id] = l.slice();
+      if (G.F[f].capId === p.id) {
+        p.cuartel = Math.max(1, p.cuartel || 0);
+        p.establo = Math.max(1, p.establo || 0);
+      }
+    }
+  }
+  s.v = 2;
   if (!s.ini) {
     s.ini = true;
     for (let f = 0; f < NF; f++) {
       const ini = CIV[f].tecIni || {},
         cap = G.F[f] && G.P[G.F[f].capId];
       for (const id of ini.tec || []) if (TEC[id] && !s.f[f].h.includes(id)) s.f[f].h.push(id);
-      if (cap && cap.owner === f)
-        for (const [k, v] of Object.entries(ini.edi || {}))
+      if (cap && cap.owner === f) {
+        const edi = { cuartel: 1, establo: 1, ...(ini.edi || {}) };
+        for (const [k, v] of Object.entries(edi))
           if (!tecB(k).costa || tecCosta(cap)) cap[k] = Math.max(cap[k] || 0, v);
+        for (const id of ini.tec || [])
+          if (tecLocal(TEC[id]) && !tecAdoptada(cap, id)) (s.ad[cap.id] = s.ad[cap.id] || []).push(id);
+      }
       if (!human(f)) tecIAInvestigar(f);
     }
   }
-  tecCache = { k: "", v: [] };
+  tecCache = { k: "", v: [], c: {} };
 }
 
 /* Provincias con costa: alguna casilla suya toca el mar. */
@@ -442,30 +574,75 @@ function tecCosta(p) {
   return !!tecCostas.s[p.id];
 }
 
-/* ---------- bonificaciones de una facción (caché por año y revisión) ---------- */
+/* ---------- perfil y huecos de la ciudad ---------- */
+/* {id, nombre, icono, sin, militar, economico, saber}: puntos de cada vocación = niveles de sus edificios
+   + técnicas adoptadas de su rama. Especializada si la mayor llega a 4 y es al menos el 55% del total. */
+function tecPerfil(p) {
+  const v = { mil: 0, eco: 0, saber: 0 };
+  for (const k of tecEdificios()) {
+    const c = tecB(k).cat;
+    if (c && p[k] > 0) v[c] += p[k];
+  }
+  for (const id of tecAdopciones(p)) {
+    const T = TEC[id];
+    if (T) v[T.r === "mil" ? "mil" : T.r === "eco" ? "eco" : "saber"]++;
+  }
+  const tot = v.mil + v.eco + v.saber,
+    top = Object.keys(v).sort((a, b) => v[b] - v[a])[0];
+  let id = "mixta";
+  if (tot < 3) id = "aldea";
+  else if (v[top] >= 4 && v[top] >= tot * 0.55)
+    id =
+      top === "mil"
+        ? "fuerte"
+        : top === "saber"
+          ? "saber"
+          : (p.farm || 0) >= (p.market || 0) + (p.puerto || 0)
+            ? "granero"
+            : "mercantil";
+  return { id, ...TEC_PERFIL[id], militar: v.mil, economico: v.eco, saber: v.saber };
+}
+/* Huecos de edificio: 2 + 1 por cada 5.000 almas (+2 la capital), entre 3 y 9. Mejorar no gasta hueco. */
+function tecHuecos(p) {
+  const total = clamp(2 + Math.floor(tecPob(p) / 5) + (tecEsCapital(p) ? 2 : 0), 3, 9),
+    q = tecCola(p.id),
+    usados = tecEdificios().filter((k) => p[k] > 0 || q.some((o) => o.k === k)).length;
+  return { usados, total, libres: total - usados };
+}
+
+/* ---------- bonificaciones (caché por año y revisión) ---------- */
+function tecCacheOk() {
+  const k = G.seed + "|" + G.year + "|" + G.tec.rev;
+  if (tecCache.k !== k) tecCache = { k, v: [], c: {} };
+}
+const tecVacio = () => {
+  const z = () => ({ atk: 0, hp: 0 });
+  return { st: { i: z(), a: z(), c: z() }, cu: { i: 0, a: 0, c: 0 } };
+};
+const tecCats = (c) => (c === "all" ? TEC_CAT : [c]);
+function tecSumarTropa(b, T) {
+  for (const c in T.st || {}) for (const x of tecCats(c)) for (const s in T.st[c]) b.st[x][s] += T.st[c][s];
+  for (const c in T.cu || {}) for (const x of tecCats(c)) b.cu[x] += T.cu[c];
+}
+/* Bonos del reino: técnicas «del reino» y edificios propios con efecto de reino. */
 function tecBon(f) {
   if (!tecListo(f)) return null;
-  const k = G.seed + "|" + G.year + "|" + G.tec.rev;
-  if (tecCache.k !== k) tecCache = { k, v: [] };
+  tecCacheOk();
   return tecCache.v[f] || (tecCache.v[f] = tecCalcBon(f));
 }
 function tecCalcBon(f) {
-  const z = () => ({ atk: 0, hp: 0 }),
-    b = {
-      st: { i: z(), a: z(), c: z() },
-      cu: { i: 0, a: 0, c: 0 },
-      mant: { comida: 0, oro: 0 },
-      bono: { atacante: 0, defensor: 0 },
-      best: {},
-      dip: 0,
-      dipRel: 0,
-    },
-    cats = (c) => (c === "all" ? TEC_CAT : [c]);
+  const b = {
+    ...tecVacio(),
+    mant: { comida: 0, oro: 0 },
+    bono: { atacante: 0, defensor: 0 },
+    best: {},
+    dip: 0,
+    dipRel: 0,
+  };
   for (const id of tecF(f).h) {
     const T = TEC[id];
-    if (!T) continue;
-    for (const c in T.st || {}) for (const x of cats(c)) for (const s in T.st[c]) b.st[x][s] += T.st[c][s];
-    for (const c in T.cu || {}) for (const x of cats(c)) b.cu[x] += T.cu[c];
+    if (!T || tecLocal(T)) continue;
+    tecSumarTropa(b, T);
     for (const s in T.mant || {}) b.mant[s] += T.mant[s];
     for (const s in T.bono || {}) b.bono[s] += T.bono[s];
     b.dip += T.dip || 0;
@@ -475,7 +652,47 @@ function tecCalcBon(f) {
   for (const k in TEC_EDI) if (TEC_EDI[k].reino && b.best[k]) TEC_EDI[k].reino(b, b.best[k]);
   return b;
 }
+/* Bonos de las tropas de una ciudad: reino + edificios de la ciudad + técnicas adoptadas allí + perfil. */
+function tecCiudad(f, p) {
+  const n = tecBon(f);
+  if (!n) return null;
+  const key = f + ":" + p.id;
+  if (tecCache.c[key]) return tecCache.c[key];
+  const b = tecVacio();
+  for (const c of TEC_CAT) {
+    b.st[c] = { ...n.st[c] };
+    b.cu[c] = n.cu[c];
+  }
+  for (const k in TEC_EDI) if (TEC_EDI[k].local && p[k] > 0) TEC_EDI[k].local(b, p[k]);
+  for (const id of tecAdopciones(p)) if (TEC[id]) tecSumarTropa(b, TEC[id]);
+  if (tecPerfil(p).id === "fuerte")
+    for (const c of TEC_CAT) {
+      b.cu[c] -= 0.1;
+      b.st[c].hp += 0.05;
+    }
+  return (tecCache.c[key] = b);
+}
+/* Sin ciudad de origen: la media de las ciudades del reino (criterio prudente). */
+function tecMedia(f) {
+  const n = tecBon(f);
+  if (!n) return null;
+  if (n.media) return n.media;
+  const own = owned(f),
+    b = tecVacio();
+  if (!own.length) return (n.media = { st: n.st, cu: n.cu });
+  for (const p of own) {
+    const x = tecCiudad(f, p);
+    for (const c of TEC_CAT) {
+      b.st[c].atk += x.st[c].atk / own.length;
+      b.st[c].hp += x.st[c].hp / own.length;
+      b.cu[c] += x.cu[c] / own.length;
+    }
+  }
+  return (n.media = b);
+}
+const tecTropas = (f, p) => (p && p.owner === f ? tecCiudad(f, p) : tecMedia(f));
 
+/* ---------- tropas: qué se recluta en cada ciudad ---------- */
 /* Categoría básica (i/a/c) de un tipo de tropa, aunque combate cree tipos nuevos en UN. */
 function tecCat(t) {
   if (TEC_CAT.includes(t)) return t;
@@ -490,8 +707,8 @@ function tecReqUnidad(t) {
   const u = UN[t] || {},
     cat = tecCat(t),
     edif = u.edif && BLD[u.edif] ? u.edif : { i: "cuartel", a: "arqueria", c: "establo" }[cat],
-    elite = UN[cat] && u.cost > UN[cat].cost * 1.4;
-  return { edif, nivel: u.nivel || (edif === "cuartel" ? (elite ? 3 : 2) : elite ? 2 : 1) };
+    elite = !!(UN[cat] && u.cost > UN[cat].cost * 1.4);
+  return { edif, nivel: u.nivel || (edif === "cuartel" ? (elite ? 3 : 2) : elite ? 2 : 1), elite };
 }
 /* Año desde el que se puede reclutar una clase: UN[t].anio, o el del nivel de edificio que pide. */
 function tecAnioUnidad(t) {
@@ -506,25 +723,67 @@ function tecUnidadPropia(t, f) {
     c = u.civ ?? u.civs;
   return c == null || c === f || (Array.isArray(c) && c.includes(f));
 }
+/* Doctrina que una clase de élite necesita adoptada en la ciudad (salvo UN[t].tec). */
+const TEC_ELITE = { i: "disciplina", a: "arcos", c: "remonta" };
+/* ¿Se puede reclutar t en la ciudad p? {ok, motivo}. Las clases básicas: infantería siempre; arqueros con
+   cuartel o campo de tiro; jinetes con establo (salvo los pueblos de CIV[f].tecLibres). */
+function tecPuedeReclutar(f, p, t) {
+  const u = (typeof UN !== "undefined" && UN[t]) || null,
+    libres = (CIV[f] && CIV[f].tecLibres) || [];
+  if (!u) return { ok: false, motivo: "desconocida" };
+  if (t === "i" || libres.includes(t)) return { ok: true, motivo: "" };
+  if (t === "a")
+    return p.cuartel > 0 || p.arqueria > 0
+      ? { ok: true, motivo: "" }
+      : { ok: false, motivo: "requiere Cuartel o Campo de tiro" };
+  if (t === "c") return p.establo > 0 ? { ok: true, motivo: "" } : { ok: false, motivo: "requiere Establo" };
+  if (!tecUnidadPropia(t, f)) return { ok: false, motivo: "no es de tu pueblo" };
+  const r = tecReqUnidad(t);
+  if ((p[r.edif] || 0) < r.nivel)
+    return { ok: false, motivo: `requiere ${tecB(r.edif).n} ${TEC_ROM[r.nivel]}` };
+  const an = tecAnioUnidad(t);
+  if (!tecDesde(an)) return { ok: false, motivo: "desde el año " + an };
+  const doc = u.tec && TEC[u.tec] ? u.tec : r.elite ? TEC_ELITE[tecCat(t)] : null;
+  if (doc && !tecRige(f, p, doc))
+    return {
+      ok: false,
+      motivo: `requiere «${TEC[doc].n}» ${tecLocal(TEC[doc]) ? "adoptada aquí" : ""}`.trim(),
+    };
+  return { ok: true, motivo: "" };
+}
+/* Lista para la interfaz: todas las clases conocidas con su estado en la ciudad. */
+function tecReclutables(f, p) {
+  const ks = [...new Set([...(typeof TYP !== "undefined" ? TYP : TEC_CAT), ...Object.keys(UN)])];
+  return ks.filter((t) => tecUnidadPropia(t, f)).map((t) => ({ t, ...tecPuedeReclutar(f, p, t) }));
+}
 
-/* ---------- puntos de investigación ---------- */
+/* ---------- puntos de investigación: los generan las ciudades ---------- */
+function tecPuntosCiudad(p, f = p.owner) {
+  if (!tecListo(f)) return 0;
+  let v = 0.4 + tecPob(p) * 0.07;
+  for (const k in TEC_EDI) {
+    const L = p[k] || 0,
+      e = TEC_EDI[k];
+    if (L && e.pts) v += e.pts(p, L, f);
+  }
+  for (const id of tecAdopciones(p)) if (TEC[id] && TEC[id].ptsC) v += TEC[id].ptsC(p);
+  if (G.F[f] && G.F[f].capId === p.id) {
+    const r = ruler(f);
+    v += 1.5 + tecF(f).era;
+    for (const id of tecF(f).h)
+      if (TEC[id] && !tecLocal(TEC[id]) && TEC[id].pts) v += TEC[id].pts(f, owned(f));
+    if (r) v += (r.ge - 5) * 0.3 - (r.age < 16 ? 1 : 0);
+  }
+  if (tecPerfil(p).id === "saber") v *= 1.25;
+  return Math.max(0, Math.round(v * 10) / 10);
+}
 function tecPuntos(f) {
   if (!tecListo(f) || !alive(f)) return 0;
-  const F = tecF(f),
-    own = owned(f),
-    r = ruler(f);
-  let v = 4 + own.length * 0.25 + F.era;
-  for (const p of own)
-    for (const k in TEC_EDI) {
-      const L = p[k] || 0,
-        e = TEC_EDI[k];
-      if (L && e.pts) v += e.pts(p, L, f);
-    }
-  for (const id of F.h) if (TEC[id] && TEC[id].pts) v += TEC[id].pts(f, own);
-  if (r) v += (r.ge - 5) * 0.3 - (r.age < 16 ? 1 : 0);
+  const v = owned(f).reduce((s, p) => s + tecPuntosCiudad(p, f), 0);
   /* OC 'puntosInvestigacion': puntos por año. ctx {f} */
   return Math.max(1, Math.round(OC.calc("puntosInvestigacion", v, { f }) * 10) / 10);
 }
+const tecMejorEscuela = (f) => Math.max(0, ...owned(f).map((p) => p.escuela || 0));
 function tecDisponible(f, id) {
   const T = TEC[id];
   return (
@@ -533,6 +792,7 @@ function tecDisponible(f, id) {
     (T.civ == null || T.civ === f) &&
     T.req.every((x) => tecTiene(f, x)) &&
     (T.era == null || tecF(f).era >= T.era) &&
+    (!T.saber || tecMejorEscuela(f) >= T.saber) &&
     tecDesde(T.anio)
   );
 }
@@ -541,8 +801,13 @@ function tecAprender(f, id) {
   if (F.h.includes(id)) return;
   F.h.push(id);
   G.tec.rev++;
-  if (isMe(f)) addLog(`Los sabios de la corte culminan «${TEC[id].n}»: ${TEC[id].ef}.`, "good");
-  else if (TEC[id].civ != null) addLog(`${CIV[f].s} perfecciona «${TEC[id].n}».`);
+  const T = TEC[id];
+  if (isMe(f))
+    addLog(
+      `Los sabios de la corte culminan «${T.n}»: ${T.ef}${tecLocal(T) ? " (hay que implantarla en cada ciudad)" : ""}.`,
+      "good",
+    );
+  else if (T.civ != null) addLog(`${CIV[f].s} perfecciona «${T.n}».`);
   OC.emitirSync("tecnologiaInvestigada", { f, id });
 }
 function tecInvestigacion(f) {
@@ -582,13 +847,13 @@ function tecComprobarEra(f) {
     if (isMe(f))
       modal(
         `Una nueva era: ${nm}`,
-        `<p>${TEC_ERA_TXT[F.era]}</p><p class="dim">Cada era suma +1 investigación al año, +1 orden en las provincias y +4% de oro.</p>`,
+        `<p>${TEC_ERA_TXT[F.era]}</p><p class="dim">Cada era suma +1 investigación en la capital, +1 orden en las ciudades y +4% de oro.</p>`,
         [{ t: "Que lo registren los cronistas", cls: "gold" }],
       );
   }
 }
 
-/* ---------- obras ---------- */
+/* ---------- obras: edificios ---------- */
 function tecMax(k, f, p) {
   let m = tecB(k).max;
   if (tecListo(f) && G.F[f] && G.F[f].capId === p.id)
@@ -612,7 +877,7 @@ function tecCoste(f, p, k, n) {
   /* OC 'costeConstruccion': objeto coste. ctx {f, p, id, nivel} */
   return OC.calc("costeConstruccion", c, { f, p, id: k, nivel: n });
 }
-/* Lo que se paga de verdad: el material que falte se suple con oro. null si no alcanza. */
+/* Lo que se paga de verdad (oro nacional): el material que falte se suple con oro. null si no alcanza. */
 function tecPago(f, coste) {
   const pago = {};
   let extra = 0;
@@ -629,7 +894,7 @@ function tecPago(f, coste) {
   if (extra) pago.oro = (pago.oro || 0) + Math.ceil(extra);
   return OC.puedePagar(f, pago) ? pago : null;
 }
-/* Siguiente nivel de un edificio en una provincia: {ok, n, motivo, coste, pago, anios} */
+/* Siguiente nivel de un edificio en una ciudad: {ok, n, motivo, coste, pago, anios} */
 function tecMejora(f, p, k) {
   const B = tecB(k),
     q = tecCola(p.id),
@@ -640,9 +905,17 @@ function tecMejora(f, p, k) {
   if (B.unico && owned(f).some((q) => q.id !== p.id && (q[k] > 0 || tecCola(q.id).some((o) => o.k === k))))
     return { ...r, motivo: "ya hay uno en el reino" };
   const req = B.req && B.req[n];
-  if (req && !tecTiene(f, req)) return { ...r, motivo: "requiere " + (TEC[req] ? TEC[req].n : req) };
+  if (req && !tecRige(f, p, req))
+    return {
+      ...r,
+      motivo:
+        "requiere " +
+        (TEC[req] ? TEC[req].n : req) +
+        (tecLocal(TEC[req]) && tecTiene(f, req) ? " adoptada aquí" : ""),
+    };
   const an = tecAnioEdi(k, n);
   if (!tecDesde(an)) return { ...r, motivo: "desde el año " + an };
+  if (n === 1 && tecHuecos(p).libres <= 0) return { ...r, motivo: "sin hueco" };
   r.coste = tecCoste(f, p, k, n);
   r.anios = tecAnios(f, k, n);
   r.pago = tecPago(f, r.coste);
@@ -656,8 +929,48 @@ function tecEncolar(f, p, k) {
   if (!m.ok || !OC.pagar(f, m.pago)) return null;
   const s = G.tec;
   (s.obras[p.id] = s.obras[p.id] || []).push({ k, n: m.n, a: m.anios, t: m.anios, f, c: m.pago });
+  s.rev++;
   return m;
 }
+
+/* ---------- obras: adopción local de descubrimientos ---------- */
+const tecEnTxt = (T) => {
+  const en = [].concat(T.en || []);
+  return en.map((k) => tecB(k).n + (T.enN > 1 ? " " + TEC_ROM[T.enN] : "")).join(" o ");
+};
+function tecAdopcion(f, p, id) {
+  const T = TEC[id],
+    q = tecCola(p.id),
+    r = { ok: false, motivo: "", coste: null, pago: null, anios: 0 };
+  if (!tecLocal(T)) return { ...r, motivo: "rige en todo el reino" };
+  if (!tecTiene(f, id)) return { ...r, motivo: "sin descubrir" };
+  if (tecAdoptada(p, id)) return { ...r, motivo: "adoptada" };
+  if (q.some((o) => o.ad === id)) return { ...r, motivo: "en curso" };
+  const en = [].concat(T.en || []);
+  if (en.length && !en.some((k) => (p[k] || 0) >= (T.enN || 1)))
+    return { ...r, motivo: "requiere " + tecEnTxt(T) };
+  const c = { oro: 15 + T.c },
+    mat = { mil: "hierro", eco: "madera" }[T.r] || "piedra";
+  if (OC.recursos.some((x) => x.id === mat)) c[mat] = T.r === "mil" ? 4 : 3;
+  r.coste = OC.calc("costeConstruccion", c, { f, p, id: "tec:" + id, nivel: 1 });
+  r.anios = Math.max(1, (T.c > 20 ? 2 : 1) - (tecTiene(f, "ingenieria") && T.c > 20 ? 1 : 0));
+  r.pago = tecPago(f, r.coste);
+  if (q.length >= TEC_COLA) r.motivo = "obras ocupadas";
+  else if (!r.pago) r.motivo = "sin fondos";
+  r.ok = !r.motivo;
+  return r;
+}
+function tecAdoptar(f, p, id) {
+  const m = tecAdopcion(f, p, id);
+  if (!m.ok || !OC.pagar(f, m.pago)) return null;
+  (G.tec.obras[p.id] = G.tec.obras[p.id] || []).push({ ad: id, a: m.anios, t: m.anios, f, c: m.pago });
+  G.tec.rev++;
+  return m;
+}
+/* Descubrimientos «de ciudad» que f conoce y aún no rigen en p. */
+const tecPorAdoptar = (f, p) =>
+  tecListo(f) ? tecF(f).h.filter((id) => tecLocal(TEC[id]) && !tecAdoptada(p, id)) : [];
+
 function tecObras(f) {
   const s = G.tec;
   for (const id of Object.keys(s.obras)) {
@@ -676,9 +989,16 @@ function tecObras(f) {
     if (--o.a > 0) continue;
     q.shift();
     if (!q.length) delete s.obras[id];
+    s.rev++;
+    if (o.ad) {
+      if (tecAdoptada(p, o.ad)) continue;
+      (s.ad[p.id] = s.ad[p.id] || []).push(o.ad);
+      if (isMe(f)) addLog(`En ${p.name} se implanta «${TEC[o.ad].n}»: ${TEC[o.ad].ef}.`, "good");
+      OC.emitirSync("tecnologiaAdoptada", { f, p, id: o.ad });
+      continue;
+    }
     if ((p[o.k] || 0) >= tecMax(o.k, f, p)) continue;
     p[o.k] = (p[o.k] || 0) + 1;
-    s.rev++;
     if (isMe(f)) addLog(`Concluye la obra en ${p.name}: ${tecB(o.k).n} ${TEC_ROM[p[o.k]]}.`, "good");
     OC.emitirSync("edificioConstruido", { f, p, id: o.k, nivel: p[o.k] });
   }
@@ -707,32 +1027,72 @@ function tecIAInvestigar(f) {
     .sort((a, b) => b.s - a.s);
   F.inv = op.length ? op[0].id : null;
 }
+/* Vocación que la IA da a una ciudad: la que ya tiene si está especializada; si no, según su situación. */
+function tecIAVocacion(f, p, x) {
+  const per = tecPerfil(p).id;
+  if (per === "fuerte") return "mil";
+  if (per === "saber") return "saber";
+  if (per === "granero" || per === "mercantil") return "eco";
+  if (x.amen) return "mil";
+  if (G.F[f].capId === p.id) return "saber";
+  return x.front && (p.cuartel || 0) > 0 ? "mil" : "eco";
+}
 function tecIAConstruir(f) {
   const F = G.F[f],
     own = owned(f);
   if (!own.length) return;
   const e = inc(f),
     fav = CIV[f].tecEdi || [],
-    reserva = 6 + own.length, // el resto lo gasta ia.js en tropas
-    bestL = {};
-  for (const p of own) for (const k of tecEdificios()) bestL[k] = Math.max(bestL[k] || 0, p[k] || 0);
+    reserva = 6 + own.length; // el resto lo gasta ia.js en tropas
   for (let n = F.gold > 220 ? 2 : 1; n > 0; n--) {
     let best = null;
     for (const p of own) {
       if (tecCola(p.id).length) continue;
-      const x = { e, f, amen: hostile(p, f).length, front: foes(p, f).length };
+      const x = { e, f, amen: hostile(p, f).length, front: foes(p, f).length },
+        voc = tecIAVocacion(f, p, x);
       for (const k of tecEdificios()) {
         const m = tecMejora(f, p, k);
         if (!m.ok || F.gold - (m.pago.oro || 0) < reserva) continue;
         const B = tecB(k);
-        let w = B.ia ? B.ia(p, { ...x, L: bestL[k] || 0 }) : 2.4;
-        if (fav.includes(k)) w *= 1.5;
+        let w = B.ia ? B.ia(p, x) : 2.4;
+        if (fav.includes(k)) w *= 1.4;
+        if (B.cat) w *= B.cat === voc ? 2 : 0.5;
+        if (m.n === 1) w *= 0.8; // gastar un hueco pesa
         w *= (0.85 + R() * 0.3) / (((m.pago.oro || 20) / 40) * (1 + 0.25 * (m.n - 1)));
         if (!best || w > best.w) best = { p, k, w };
       }
     }
     if (!best) break;
     tecEncolar(f, best.p, best.k);
+  }
+}
+/* Adopta descubrimientos donde más rinden: milicia en plazas fuertes y fronteras, economía en graneros y
+   mercados, saber y culto en ciudades de saber o con desorden. */
+function tecIAAdoptar(f) {
+  const F = G.F[f],
+    own = owned(f),
+    reserva = 6 + own.length;
+  for (let n = F.gold > 200 ? 2 : 1; n > 0; n--) {
+    let best = null;
+    for (const p of own) {
+      if (tecCola(p.id).length >= 2) continue;
+      const per = tecPerfil(p).id,
+        front = foes(p, f).length;
+      for (const id of tecPorAdoptar(f, p)) {
+        const m = tecAdopcion(f, p, id);
+        if (!m.ok || F.gold - (m.pago.oro || 0) < reserva) continue;
+        const r = TEC[id].r;
+        let w = 1.5;
+        if (r === "mil") w *= (per === "fuerte" ? 2.5 : 1) * (front ? 1.5 : 0.6);
+        else if (r === "eco") w *= per === "granero" || per === "mercantil" ? 2.5 : 1;
+        else w *= (per === "saber" ? 2.2 : 1) * (p.order < 50 ? 1.6 : 1);
+        if (G.F[f].capId === p.id) w *= 1.3;
+        w *= (0.85 + R() * 0.3) / ((m.pago.oro || 20) / 30);
+        if (!best || w > best.w) best = { p, id, w };
+      }
+    }
+    if (!best) break;
+    tecAdoptar(f, best.p, best.id);
   }
 }
 
@@ -743,6 +1103,7 @@ OC.on("economiaFaccion", (f) => {
   if (!human(f)) {
     tecIAInvestigar(f);
     tecIAConstruir(f);
+    tecIAAdoptar(f);
   }
   tecObras(f);
   tecInvestigacion(f);
@@ -764,32 +1125,38 @@ OC.on("conquista", (x) => {
 OC.on("revuelta", tecSinObras);
 
 /* ---------- efectos sobre los cálculos de los demás sistemas ---------- */
+/* Rendimiento de una ciudad: técnicas del reino + adoptadas allí + edificios + era + perfil. */
 OC.mod("rendimiento", (y, { p, f } = {}) => {
   if (!tecListo(f) || !p || !y) return;
   const F = tecF(f);
   let r = { ...y },
     gm = 1 + 0.04 * F.era,
     fm = 1;
-  for (const id of F.h) {
-    const T = TEC[id];
-    if (!T) continue;
+  const aplica = (T) => {
     if (T.ren) r = T.ren(r, p, f) || r;
     gm += T.gpct || 0;
     fm += T.fpct || 0;
-  }
+  };
+  for (const id of F.h) if (TEC[id] && !tecLocal(TEC[id])) aplica(TEC[id]);
+  for (const id of tecAdopciones(p)) if (TEC[id]) aplica(TEC[id]);
   for (const k in TEC_EDI) if (p[k] && TEC_EDI[k].ren) r = TEC_EDI[k].ren(r, p, p[k], f) || r;
+  const per = tecPerfil(p).id;
+  if (per === "mercantil") gm += 0.1;
+  if (per === "granero") fm += 0.1;
   return { ...r, g: r.g * gm, fo: r.fo * fm };
 });
 OC.mod("ordenObjetivo", (o, { p, f } = {}) => {
   if (!tecListo(f) || !p) return;
   const F = tecF(f);
   let v = o + F.era;
-  for (const id of F.h) if (TEC[id] && TEC[id].ord) v += TEC[id].ord(p, f) || 0;
+  for (const id of F.h) if (TEC[id] && !tecLocal(TEC[id]) && TEC[id].ord) v += TEC[id].ord(p, f) || 0;
+  for (const id of tecAdopciones(p)) if (TEC[id] && TEC[id].ord) v += TEC[id].ord(p, f) || 0;
   for (const k in TEC_EDI) if (p[k] && TEC_EDI[k].ord) v += TEC_EDI[k].ord(p, p[k], f) || 0;
   return v;
 });
+/* ctx.p = ciudad de origen de las tropas (o la que defienden). Sin ella, la media del reino. */
 OC.mod("statsUnidad", (st, x = {}) => {
-  const b = tecBon(x.f);
+  const b = tecListo(x.f) && tecTropas(x.f, x.p);
   if (!b || !st || typeof st !== "object") return;
   const m = b.st[tecCat(x.t)],
     hp = m.hp + (x.p && x.p.owner === x.f && x.lado === "defensor" ? 0.04 * (x.p.cuartel || 0) : 0),
@@ -800,10 +1167,13 @@ OC.mod("statsUnidad", (st, x = {}) => {
 });
 OC.mod("bonoBatalla", (v, x = {}) => {
   const b = tecBon(x.f);
-  if (b && typeof v === "number") return v * (1 + (b.bono[x.lado] || 0));
+  if (!b || typeof v !== "number") return;
+  const fuerte =
+    x.lado === "defensor" && x.p && x.p.owner === x.f && tecPerfil(x.p).id === "fuerte" ? 0.05 : 0;
+  return v * (1 + (b.bono[x.lado] || 0) + fuerte);
 });
 OC.mod("costeUnidad", (v, x = {}) => {
-  const b = tecBon(x.f);
+  const b = tecListo(x.f) && tecTropas(x.f, x.p);
   if (b && typeof v === "number") return v * Math.max(0.6, 1 + b.cu[tecCat(x.t)]);
 });
 OC.mod("mantenimientoTropa", (v, x = {}) => {
@@ -813,19 +1183,16 @@ OC.mod("mantenimientoTropa", (v, x = {}) => {
   for (const k of ["comida", "oro"]) if (typeof o[k] === "number") o[k] *= Math.max(0.5, 1 + b.mant[k]);
   return o;
 });
+/* Con ctx.p (ciudad propia): lo que esa ciudad puede reclutar. Sin p: lo que alguna ciudad del reino puede. */
 OC.mod("unidadesDisponibles", (arr, x = {}) => {
-  const b = tecBon(x.f);
-  if (!b || !Array.isArray(arr) || typeof UN === "undefined") return;
-  const nivel = (k) => (x.p && x.p.owner === x.f ? x.p[k] || 0 : b.best[k] || 0),
-    ok = (t) => {
-      if (TEC_CAT.includes(t) || !UN[t]) return true;
-      const r = tecReqUnidad(t);
-      return nivel(r.edif) >= r.nivel && tecDesde(tecAnioUnidad(t));
-    },
+  if (!tecListo(x.f) || !Array.isArray(arr) || typeof UN === "undefined") return;
+  const ps = x.p && x.p.owner === x.f ? [x.p] : owned(x.f);
+  if (!ps.length) return;
+  const ok = (t) => !UN[t] || ps.some((p) => tecPuedeReclutar(x.f, p, t).ok),
     out = arr.filter(ok);
-  /* clases nuevas que combate marque con UN[t].edif: se añaden en cuanto hay edificio */
+  /* clases nuevas que combate marque con UN[t].edif: se añaden en cuanto la ciudad puede */
   for (const t of Object.keys(UN))
-    if (!out.includes(t) && !arr.includes(t) && UN[t].edif && tecUnidadPropia(t, x.f) && ok(t)) out.push(t);
+    if (!out.includes(t) && !arr.includes(t) && UN[t].edif && ok(t)) out.push(t);
   return out;
 });
 OC.mod("aceptacionDiplomatica", (v, x = {}) => {
@@ -836,7 +1203,7 @@ OC.mod("aceptacionDiplomatica", (v, x = {}) => {
   return v + b.dip + (misma ? b.dipRel : 0) + Math.max(0, dEra) * 0.03;
 });
 
-/* ---------- interfaz: edificios de la provincia ---------- */
+/* ---------- interfaz: la ciudad ---------- */
 function tecPips(p, k, f) {
   const max = tecMax(k, f, p),
     L = p[k] || 0,
@@ -845,7 +1212,7 @@ function tecPips(p, k, f) {
   for (let i = 1; i <= max; i++) h += `<i class="${i <= L ? "on" : i <= L + q ? "obra" : ""}"></i>`;
   return `<span class="tec-niv" aria-label="nivel ${L} de ${max}">${h}</span>`;
 }
-/* Resumen de lo que rinden los edificios de una provincia (también útil para la interfaz). */
+/* Resumen de lo que rinden los edificios de una ciudad (también útil para la interfaz). */
 function tecResumen(p) {
   let y = { g: 5 * (p.market || 0), fo: 5 * (p.farm || 0) },
     o = 12 * (p.temple || 0),
@@ -868,30 +1235,43 @@ function tecResumen(p) {
     .filter(Boolean)
     .join(" · ");
 }
-/* Línea corta con los edificios construidos: «Granja II · Murallas I · ...» */
+/* Línea corta con los edificios construidos y el perfil: «⚔ Plaza fuerte · Murallas II · Cuartel I» */
 function tecLineaEdificios(p) {
   const l = tecEdificios()
     .filter((k) => p[k] > 0)
     .map((k) => `${tecB(k).n} ${TEC_ROM[p[k]]}`);
-  return l.length ? l.join(" · ") : "Sin edificios";
+  const per = G && G.tec ? tecPerfil(p) : null;
+  return (
+    (per && per.id !== "aldea" ? `${per.icono} ${per.nombre} · ` : "") +
+    (l.length ? l.join(" · ") : "Sin edificios")
+  );
 }
 const tecAnioTxt = (a) => `${a} año${a > 1 ? "s" : ""}`;
+const tecPct = (v) => `${v >= 0 ? "+" : "−"}${Math.round(Math.abs(v) * 100)}%`;
+function tecTropasTxt(f, p) {
+  const b = tecCiudad(f, p),
+    m = (k) => TEC_CAT.reduce((s, c) => s + b.st[c][k], 0) / 3,
+    cu = TEC_CAT.reduce((s, c) => s + b.cu[c], 0) / 3;
+  return `ataque ${tecPct(m("atk"))} · vida ${tecPct(m("hp"))} · coste ${tecPct(Math.max(-0.4, cu))}`;
+}
 OC.seccion("prov", {
   id: "edificios",
   orden: 30,
   visible: (c) => c.mine,
   render: ({ p, f }, dis) => {
     if (!tecListo(f)) return "";
-    const q = tecCola(p.id);
-    let h = `<h3>Edificios</h3>`;
+    const q = tecCola(p.id),
+      per = tecPerfil(p),
+      hu = tecHuecos(p);
+    let h = `<h3>La ciudad</h3><div class="tec-perfil"><span class="tec-pico">${per.icono}</span><div><b>${per.nombre}</b> <span class="stats">· huecos ${hu.usados}/${hu.total} · saber +${tecPuntosCiudad(p, f)}</span><br><span class="stats">⚔ ${per.militar} · ◉ ${per.economico} · ✎ ${per.saber}${per.sin ? " — " + per.sin : ""}</span></div></div>`;
     if (q.length)
       h += `<div class="tec-cola">${q
         .map(
           (o, i) =>
-            `<div class="tec-obra"><span>⚒ <b>${tecB(o.k).n} ${TEC_ROM[o.n]}</b><br><small>${i ? "en espera" : "faltan " + tecAnioTxt(o.a)}</small></span><button data-act="tecanu-${i}" ${dis ? "disabled" : ""} title="Se recupera la mitad de lo pagado">Cancelar</button></div>`,
+            `<div class="tec-obra"><span>${o.ad ? "✎ <b>" + TEC[o.ad].n : "⚒ <b>" + tecB(o.k).n + " " + TEC_ROM[o.n]}</b><br><small>${i ? "en espera" : "faltan " + tecAnioTxt(o.a)}</small></span><button data-act="tecanu-${i}" ${dis ? "disabled" : ""} title="Se recupera la mitad de lo pagado">Cancelar</button></div>`,
         )
         .join("")}</div>`;
-    h += `<div class="g2 tec-edis">${tecEdificios()
+    h += `<h3>Edificios</h3><div class="g2 tec-edis">${tecEdificios()
       .filter((k) => tecVisible(k, f, p))
       .map((k) => {
         const B = tecB(k),
@@ -901,7 +1281,37 @@ OC.seccion("prov", {
       })
       .join("")}</div>`;
     const r = tecResumen(p);
-    return h + (r ? `<p class="stats tec-res">${r}</p>` : "");
+    if (r) h += `<p class="stats tec-res">${r}</p>`;
+    /* técnicas: adoptadas aquí y descubrimientos por implantar */
+    const ad = tecAdopciones(p),
+      pend = tecPorAdoptar(f, p);
+    h += `<h3>Técnicas de la ciudad</h3>`;
+    h += ad.length
+      ? `<p class="tec-chips">${ad.map((id) => `<span class="tag" title="${esc(TEC[id].ef)}">${TEC[id].n}</span>`).join(" ")}</p>`
+      : `<p class="stats">Aún no se ha implantado ningún descubrimiento.</p>`;
+    if (pend.length)
+      h += `<div class="tec-lista">${pend
+        .map((id) => {
+          const m = tecAdopcion(f, p, id),
+            sub = m.coste
+              ? `${OC.textoCoste(m.pago || m.coste)} · ${tecAnioTxt(m.anios)} · ${TEC[id].ef}`
+              : m.motivo;
+          return `<button data-act="tecado-${id}" class="tec-t" ${dis || !m.ok ? "disabled" : ""}><span>Implantar ${TEC[id].n}</span><small>${sub}</small></button>`;
+        })
+        .join("")}</div>`;
+    /* tropas */
+    const rc = tecReclutables(f, p),
+      nom = (t) => (CIV[f].un && CIV[f].un[t]) || UN[t].s;
+    h += `<h3>Tropas de esta ciudad</h3><p class="stats">Recluta: <b class="tec-ok">${
+      rc
+        .filter((x) => x.ok)
+        .map((x) => nom(x.t))
+        .join(", ") || "nada"
+    }</b>${rc
+      .filter((x) => !x.ok)
+      .map((x) => `<br>✗ ${nom(x.t)}: ${x.motivo}`)
+      .join("")}<br>Sus tropas: ${tecTropasTxt(f, p)}</p>`;
+    return h;
   },
 });
 OC.accion("bld", (v) => {
@@ -910,19 +1320,26 @@ OC.accion("bld", (v) => {
   const m = tecEncolar(ME, p, v);
   if (m) addLog(`Comienzan las obras de ${tecB(v).n} ${TEC_ROM[m.n]} en ${p.name} (${tecAnioTxt(m.anios)}).`);
 });
+OC.accion("tecado", (v) => {
+  const p = G.P[sel];
+  if (!p || p.owner !== ME || !TEC[v]) return;
+  const m = tecAdoptar(ME, p, v);
+  if (m) addLog(`${p.name} empieza a implantar «${TEC[v].n}» (${tecAnioTxt(m.anios)}).`);
+});
 OC.accion("tecanu", (v) => {
   const p = G.P[sel],
     q = p && G.tec.obras[p.id],
     o = q && q[+v];
   if (!o || o.f !== ME || p.owner !== ME) return;
   q.splice(+v, 1);
-  for (const x of q) if (x.k === o.k && x.n > o.n) x.n--;
+  if (o.k) for (const x of q) if (x.k === o.k && x.n > o.n) x.n--;
   if (!q.length) delete G.tec.obras[p.id];
+  G.tec.rev++;
   const dev = {};
   for (const [id, c] of Object.entries(o.c || {})) dev[id] = Math.floor(c / 2);
   OC.ganar(ME, dev);
   addLog(
-    `Se abandonan las obras de ${tecB(o.k).n} en ${p.name}; se recupera ${OC.textoCoste(dev) || "nada"}.`,
+    `Se abandona en ${p.name} ${o.ad ? "la implantación de «" + TEC[o.ad].n + "»" : "la obra de " + tecB(o.k).n}; se recupera ${OC.textoCoste(dev) || "nada"}.`,
   );
 });
 
@@ -934,6 +1351,7 @@ function tecPanel(dis) {
     pts = tecPuntos(ME),
     sig = TEC_ERA[F.era + 1],
     v = tecProgreso(ME),
+    own = owned(ME),
     req = (a, b, t) => `<span class="${a >= b ? "tec-ok" : ""}">${t} ${a}/${b}</span>`;
   let h = `<h2>Progreso</h2><div class="tec-era"><span class="tec-era-n" style="border-color:${CIV[ME].c}">${TEC_ROM[F.era + 1]}</span><div><b>${eras[F.era]}</b><br><span class="stats">${
     sig
@@ -941,7 +1359,7 @@ function tecPanel(dis) {
       : "La cumbre de tu linaje."
   }</span></div></div>`;
   const T = F.inv && TEC[F.inv];
-  h += `<h3>Investigación</h3>`;
+  h += `<h3>Descubrimientos</h3>`;
   if (T) {
     const pc = Math.min(100, (F.pts / T.c) * 100),
       anios = Math.max(0, Math.ceil((T.c - F.pts) / Math.max(1, pts)));
@@ -956,9 +1374,11 @@ function tecPanel(dis) {
   for (const id of Object.keys(TEC)
     .filter((id) => TEC[id].r === tecRama && (TEC[id].civ == null || TEC[id].civ === ME))
     .sort((a, b) => (TEC[a].anio || 0) - (TEC[b].anio || 0))) {
-    const X = TEC[id];
+    const X = TEC[id],
+      amb = tecLocal(X) ? `ciudad · ${tecEnTxt(X)}` : "reino";
     if (tecTiene(ME, id)) {
-      h += `<div class="tec-t hecha"><span>✓ ${X.n}</span><small>${X.ef}</small></div>`;
+      const n = tecLocal(X) ? own.filter((p) => tecAdoptada(p, id)).length : 0;
+      h += `<div class="tec-t hecha"><span>✓ ${X.n}<b>${tecLocal(X) ? `${n}/${own.length} ciudades` : "todo el reino"}</b></span><small>${X.ef}</small></div>`;
       continue;
     }
     const falta = X.req.filter((r) => !tecTiene(ME, r)).map((r) => TEC[r].n),
@@ -969,8 +1389,17 @@ function tecPanel(dis) {
           ? "disponible en el año " + X.anio
           : X.era != null && F.era < X.era
             ? "requiere la era «" + eras[X.era] + "»"
-            : X.ef;
+            : X.saber && tecMejorEscuela(ME) < X.saber
+              ? `requiere una ciudad con Escuela ${TEC_ROM[X.saber]}`
+              : `${X.ef} (${amb})`;
     h += `<button data-act="tecinv-${id}" class="tec-t ${F.inv === id ? "on" : ""}" ${dis || !tecDisponible(ME, id) ? "disabled" : ""}><span>${X.n}<b>${X.c}</b></span><small>${sub}</small></button>`;
+  }
+  /* ciudades: quién aporta saber y qué ha adoptado */
+  h += `</div><h3>Tus ciudades</h3><div class="tec-ciu">`;
+  for (const p of own.slice().sort((a, b) => tecPuntosCiudad(b) - tecPuntosCiudad(a))) {
+    const per = tecPerfil(p),
+      ad = tecAdopciones(p);
+    h += `<button data-act="tecver-${p.id}" title="${esc(ad.map((id) => TEC[id].n).join(", ") || "sin técnicas implantadas")}"><span>${per.icono} ${p.name}</span><span>${per.nombre}</span><span>${ad.length} téc.</span><span>+${tecPuntosCiudad(p)}</span></button>`;
   }
   h += `</div><h3>Las potencias</h3><div class="tec-cmp">`;
   for (let f = 0; f < NF; f++) {
@@ -980,7 +1409,7 @@ function tecPanel(dis) {
   }
   return (
     h +
-    `</div><p class="note">Escuelas, templos, provincias y la gestión del soberano dan puntos cada año. Las obras se mandan desde cada provincia.</p>`
+    `</div><p class="note">El saber nace en las ciudades (escuelas, templos, población, la corte). Un descubrimiento «de ciudad» solo rinde donde se implanta: hazlo desde cada provincia.</p>`
   );
 }
 OC.panel({ id: "tec", titulo: "Progreso", orden: 40, render: tecPanel });
@@ -994,3 +1423,14 @@ OC.accion(
 OC.accion("tecinv", (v) => {
   if (tecDisponible(ME, v)) tecF(ME).inv = v;
 });
+OC.accion(
+  "tecver",
+  (v) => {
+    const p = G.P[+v];
+    if (!p) return;
+    sel = p.id;
+    tab = "prov";
+    if (typeof centerOn === "function") centerOn(p.id);
+  },
+  { libre: true },
+);

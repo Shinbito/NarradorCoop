@@ -154,3 +154,57 @@
 .tec-res {
   margin: 6px 0 0;
 }
+.tec-perfil {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+  line-height: 1.25;
+}
+.tec-perfil .stats {
+  font-size: 13px;
+}
+.tec-pico {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  color: var(--gold);
+  background: #141a1f;
+  border: 2px solid #000;
+}
+.tec-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 0 6px;
+}
+.tec-chips .tag {
+  white-space: normal;
+  font-size: 8px;
+  background: #1f3326;
+}
+.tec-ciu {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.tec-ciu button {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.3fr) auto auto;
+  gap: 6px;
+  align-items: center;
+  min-height: 32px;
+  padding: 4px 6px;
+  text-align: left;
+  font:
+    14px/1.2 "Pixelify Sans",
+    sans-serif;
+}
+.tec-ciu button span:nth-child(n + 3) {
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

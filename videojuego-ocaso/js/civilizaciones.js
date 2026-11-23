@@ -1,7 +1,8 @@
 /* ---------- civilizaciones ----------
    Sistema de TECNOLOGÍA. Identidad y progreso propio de cada pueblo: nombres de sus eras,
    prioridades de la IA, lo que trae al empezar, dos técnicas propias y un edificio propio.
-   Los campos de progreso se añaden a CIV[f] al cargar: eras, tecPri, tecEdi, tecIni. */
+   Los campos de progreso se añaden a CIV[f] al cargar: eras, tecPri, tecEdi, tecIni, tecLibres
+   (clases básicas que ese pueblo recluta en cualquier ciudad, sin cuartel ni establo). */
 const TEC_CIV = [
   {
     eras: ["Imperio en crisis", "Restauración", "Renovatio Imperii", "Imperio renacido"],
@@ -25,6 +26,7 @@ const TEC_CIV = [
     eras: ["Horda de la estepa", "Confederación", "Imperio de la estepa", "Azote de Dios"],
     pri: { mil: 5, eco: 1, civ: 1, rel: 1 },
     edi: ["establo", "arqueria", "campamento"],
+    libres: ["a", "c"], // la horda monta y tira con arco en cualquier campamento
     ini: { tec: ["arcos"], edi: { establo: 1 } },
   },
   {
@@ -47,10 +49,17 @@ const TEC_CIV = [
   },
 ];
 TEC_CIV.forEach((c, f) =>
-  Object.assign(CIV[f], { eras: c.eras, tecPri: c.pri, tecEdi: c.edi, tecIni: c.ini }),
+  Object.assign(CIV[f], {
+    eras: c.eras,
+    tecPri: c.pri,
+    tecEdi: c.edi,
+    tecIni: c.ini,
+    tecLibres: c.libres || [],
+  }),
 );
 
-/* Técnicas propias (rama «Propias»). La segunda exige haber dejado atrás la primera era. */
+/* Técnicas propias (rama «Propias»). La segunda exige haber dejado atrás la primera era.
+   Las militares y la flota se implantan ciudad a ciudad; las leyes y políticas rigen en todo el reino. */
 Object.assign(TEC, {
   legio: {
     n: "Legión palatina",
@@ -59,6 +68,8 @@ Object.assign(TEC, {
     c: 20,
     anio: 415,
     req: [],
+    amb: "ciudad",
+    en: "cuartel",
     ef: "+8% ataque y vida de la infantería",
     st: { i: { atk: 0.08, hp: 0.08 } },
   },
@@ -126,6 +137,8 @@ Object.assign(TEC, {
     c: 18,
     anio: 415,
     req: [],
+    amb: "ciudad",
+    en: ["establo", "arqueria"],
     ef: "+12% ataque de arqueros",
     st: { a: { atk: 0.12 } },
   },
@@ -147,6 +160,8 @@ Object.assign(TEC, {
     c: 18,
     anio: 415,
     req: [],
+    amb: "ciudad",
+    en: "puerto",
     ef: "+3 oro por nivel de puerto",
     ren: (y, p) => ({ ...y, g: y.g + 3 * (p.puerto || 0) }),
   },
@@ -169,6 +184,8 @@ Object.assign(TEC, {
     c: 18,
     anio: 415,
     req: [],
+    amb: "ciudad",
+    en: "cuartel",
     ef: "+10% ataque de la infantería",
     st: { i: { atk: 0.1 } },
   },
@@ -191,6 +208,8 @@ Object.assign(TEC, {
     c: 20,
     anio: 415,
     req: [],
+    amb: "ciudad",
+    en: "establo",
     ef: "+10% vida de la caballería",
     st: { c: { hp: 0.1 } },
   },
@@ -242,6 +261,7 @@ Object.assign(TEC_EDI, {
     max: 1,
     unico: true,
     civ: 2,
+    cat: "saber",
     t: [1],
     anio: { 1: 425 },
     ord: () => 6,
@@ -254,6 +274,7 @@ Object.assign(TEC_EDI, {
     max: 1,
     unico: true,
     civ: 3,
+    cat: "mil",
     t: [1],
     anio: { 1: 415 },
     reino: (b) => {
@@ -269,6 +290,7 @@ Object.assign(TEC_EDI, {
     max: 1,
     unico: true,
     civ: 4,
+    cat: "eco",
     t: [2],
     anio: { 1: 440 },
     costa: true,
@@ -296,6 +318,7 @@ Object.assign(TEC_EDI, {
     max: 1,
     unico: true,
     civ: 6,
+    cat: "saber",
     t: [1],
     anio: { 1: 425 },
     mat: "piedra",
