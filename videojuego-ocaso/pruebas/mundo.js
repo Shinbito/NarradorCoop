@@ -156,7 +156,12 @@ fs.mkdirSync(capt, { recursive: true });
             c.pueblo
           ),
       ),
-      nuevos = CIV.slice(7, NF).filter((c) => c.m.length < 12 || c.f.length < 10 || TYP.some((t) => !c.un[t])),
+      nuevos = CIV.slice(7, NF).filter(
+        (c, i) => c.m.length < 12 || c.f.length < 10 || ["l", "i", "p", "h", "a", "x", "c", "k", "m"].some((t) => civPuede(i + 7, t) && !c.un[t]),
+      ),
+      unicas = CIV.slice(0, NF).flatMap((c) =>
+        c.unicas.filter((k) => !UN[k] || !((UN[k].civIds || UN[k].civs || []).includes(c.id))).map((k) => c.id + ":" + k),
+      ),
       iconos = [];
     for (let f = 0; f <= REB; f++)
       for (const t of TYP) {
@@ -174,6 +179,7 @@ fs.mkdirSync(capt, { recursive: true });
       idx: civIdx("nor") === ids.indexOf("nor") && civIdx("zzz") === -1,
       campos: campos.map((c) => c.id),
       nuevos: nuevos.map((c) => c.id),
+      unicas,
       pal: PAL.length === CIV.length,
       iconos,
       dmin,
@@ -195,6 +201,7 @@ fs.mkdirSync(capt, { recursive: true });
   ok(est.unicos && est.idx, "ids únicos y civIdx()");
   ok(!est.campos.length, "todos los pueblos tienen los campos completos " + est.campos.join(","));
   ok(!est.nuevos.length, "los pueblos nuevos traen nombres para las 9 clases y muchos soberanos " + est.nuevos.join(","));
+  ok(!est.unicas.length, "las únicas de cada pueblo existen en UN y son suyas " + est.unicas.join(","));
   ok(est.pal && !est.iconos.length, "PAL e iconos de tropa para todos los pueblos y clases " + est.iconos.slice(0, 5));
   ok(est.dmin.m >= 40, `colores distinguibles (distancia mínima ${est.dmin.m}, ${est.dmin.par})`);
   ok(!est.oscuros.length, "colores legibles sobre el panel oscuro " + est.oscuros.join(","));
@@ -351,8 +358,8 @@ fs.mkdirSync(capt, { recursive: true });
     const sinCab = [];
     const vigila = () =>
       page.evaluate(() =>
-        G.P.filter((p) => p.owner < NF && CIV[p.owner].sinTipos.some((t) => (p.u[t] || 0) > 0)).map(
-          (p) => `${G.year} ${CIV[p.owner].s} en ${p.name}: ${CIV[p.owner].sinTipos.filter((t) => p.u[t]).map((t) => t + p.u[t]).join(" ")}`,
+        G.P.filter((p) => p.owner < NF && Object.keys(p.u).some((t) => p.u[t] > 0 && !civPuede(p.owner, t))).map(
+          (p) => `${G.year} ${CIV[p.owner].s} en ${p.name}: ${Object.keys(p.u).filter((t) => p.u[t] > 0 && !civPuede(p.owner, t)).map((t) => t + p.u[t]).join(" ")}`,
         ),
       );
     const t0 = Date.now();

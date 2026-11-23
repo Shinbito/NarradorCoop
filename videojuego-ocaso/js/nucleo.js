@@ -272,8 +272,8 @@ const CIV = [
     icost: 0.85,
     u0: { i: 7, a: 3, c: 0, h: 3 },
     desc: "Los cuatro suyos unidos por caminos, depósitos y la mita. Sin caballos, pero con honderos temibles y un orden férreo.",
-    sinTipos: ["x", "c", "k", "m"],
-    unicas: ["ore"],
+    sinTipos: ["x", "c", "k", "m", "caballos"],
+    unicas: ["mac"],
     base: "occ",
     pueblo: "el pueblo inca",
     m: ["Manco Cápac", "Sinchi Roca", "Lloque Yupanqui", "Mayta Cápac", "Cápac Yupanqui", "Inca Roca", "Yáhuar Huácac", "Viracocha", "Pachacútec", "Túpac Yupanqui", "Huayna Cápac", "Huáscar", "Atahualpa", "Ninan Cuyochi"],
@@ -295,8 +295,8 @@ const CIV = [
     ord: 2,
     u0: { i: 7, a: 4, c: 0, h: 2 },
     desc: "Ciudades de piedra en la selva, astrónomos y escribas. Sin caballos; emboscadas en la jungla y holcanes de élite.",
-    sinTipos: ["x", "c", "k", "m"],
-    unicas: ["hol"],
+    sinTipos: ["x", "c", "k", "m", "caballos"],
+    unicas: ["atl"],
     base: "ori",
     pueblo: "el pueblo maya",
     m: ["Siyaj Chan K'awiil", "Yax Nuun Ayiin", "Chak Tok Ich'aak", "K'inich Janaab Pakal", "Yax Ehb Xook", "Jasaw Chan K'awiil", "Yuknoom Ch'een", "K'ak' Tiliw", "Itzamnaaj B'alam", "Yaxuun B'alam", "Kan B'alam", "Uaxaclajuun Ub'aah", "K'inich Yax K'uk' Mo'", "Bajlaj Chan K'awiil"],
@@ -318,7 +318,7 @@ const CIV = [
     ord: -1,
     u0: { i: 8, a: 3, c: 0, h: 2 },
     desc: "Hijos del Sol en la laguna de Texcoco. Guerras floridas para tomar cautivos; guerreros jaguar y águila.",
-    sinTipos: ["x", "c", "k", "m"],
+    sinTipos: ["x", "c", "k", "m", "caballos"],
     unicas: ["jag", "agu"],
     base: "fra",
     pueblo: "el pueblo mexica",
@@ -363,7 +363,7 @@ const CIV = [
     ord: 3,
     desc: "Hijos del Nilo bajo el sol de Ra. Graneros rebosantes, arqueros nubios y carros de guerra.",
     sinTipos: [],
-    unicas: ["car"],
+    unicas: ["car", "cam"],
     base: "per",
     pueblo: "el pueblo egipcio",
     m: ["Ramsés", "Tutmosis", "Amenhotep", "Seti", "Keops", "Kefrén", "Micerino", "Narmer", "Ahmose", "Psamético", "Necao", "Taharqa", "Horemheb", "Merneptah", "Senusret", "Mentuhotep"],
@@ -407,7 +407,7 @@ const CIV = [
     ord: -2,
     desc: "Clanes de las islas y los bosques, con druidas y bardos. Cargas feroces y emboscadas en la niebla.",
     sinTipos: ["m"],
-    unicas: ["gae"],
+    unicas: ["fia"],
     base: "fra",
     pueblo: "el pueblo celta",
     m: ["Niall", "Dathí", "Lóegaire", "Cormac", "Conn", "Brian", "Fergus", "Vortigern", "Ambrosio", "Caratacus", "Cassivellaunus", "Cunobelino", "Conall", "Eochaid", "Vercingétorix", "Arturo"],
@@ -429,7 +429,7 @@ const CIV = [
     ord: 1,
     desc: "Pueblos de los bosques y los grandes ríos. Infantería que aguanta lo indecible, emboscadas en los pantanos y bogatyres de leyenda.",
     sinTipos: [],
-    unicas: ["bog"],
+    unicas: ["bos"],
     base: "vis",
     pueblo: "el pueblo eslavo",
     m: ["Bozh", "Kiy", "Ardagast", "Pirogost", "Rurik", "Oleg", "Igor", "Sviatoslav", "Vladimir", "Yaroslav", "Mstislav", "Boleslao", "Mieszko", "Samo", "Vseslav", "Dobrynia"],
@@ -452,7 +452,7 @@ const CIV = [
     u0: { i: 3, a: 4, c: 5 },
     desc: "Los hijos del Cielo Eterno. La mejor caballería del mundo, arqueros a caballo incansables, pero pocas ciudades y menos paciencia.",
     sinTipos: [],
-    unicas: ["m"],
+    unicas: ["kes"],
     base: "hun",
     pueblo: "el pueblo mongol",
     m: ["Temujin", "Ögedei", "Tolui", "Chagatai", "Jochi", "Kublai", "Möngke", "Hulagu", "Batu", "Berke", "Subotai", "Jebe", "Toghrul", "Yesugei", "Kaidu", "Arik Böke"],
@@ -485,9 +485,19 @@ const CIV = [
     per: "la Persia sasánida",
     reb: "los rebeldes",
   };
+  /* únicas de las originales (las define combate en UN) */
+  const uq = {
+    occ: ["com"],
+    ori: ["sif"],
+    vis: ["esg"],
+    hun: ["hpa"],
+    van: ["cor"],
+    fra: ["fca"],
+    per: ["inm", "ele"],
+  };
   for (const c of CIV) {
     c.sinTipos = c.sinTipos || [];
-    c.unicas = c.unicas || [];
+    c.unicas = c.unicas || uq[c.id] || [];
     c.base = c.base || c.id;
     c.pueblo = c.pueblo || pb[c.id];
   }

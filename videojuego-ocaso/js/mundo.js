@@ -33,8 +33,13 @@ function mundoLienzo(w, h) {
 const mundoActivas = () => (G && Array.isArray(G.activas) ? G.activas : MUNDO_HIST);
 const civActiva = (f) => mundoActivas().includes(f);
 const mundoLeyendas = () => !!(G && G.modo === "leyendas");
-/* ¿puede el pueblo f tener tropas de la clase t? (CIV[f].sinTipos: p.ej. sin caballos en América) */
-const civPuede = (f, t) => !(CIV[f] && CIV[f].sinTipos && CIV[f].sinTipos.includes(t));
+/* ¿puede el pueblo f tener tropas de la clase t? CIV[f].sinTipos: clases vetadas y, si incluye
+   "caballos" (o es esa cadena), toda montura con UN[t].caballo (jinetes, carros...). P.ej. América. */
+const civPuede = (f, t) => {
+  const no = CIV[f] && CIV[f].sinTipos;
+  if (!no || !no.length) return true;
+  return !(no.includes(t) || ((no === "caballos" || no.includes("caballos")) && UN[t] && UN[t].caballo));
+};
 /* índice del pueblo original «pariente» (CIV[f].base), para usar su contenido mientras falte el propio */
 const civBase = (f) => {
   const i = CIV[f] ? civIdx(CIV[f].base) : -1;
@@ -43,7 +48,7 @@ const civBase = (f) => {
 /* motivo legible del veto de una clase */
 function mundoMotivoVeto(f) {
   const no = CIV[f].sinTipos || [];
-  return ["x", "c", "k", "m"].every((t) => no.includes(t))
+  return no === "caballos" || no.includes("caballos")
     ? "No hay caballos en estas tierras"
     : "Ajeno a la tradición de tu pueblo";
 }
@@ -252,11 +257,35 @@ OC.mod(
     if (!Array.isArray(arr) || x.f == null || !CIV[x.f]) return;
     const no = CIV[x.f].sinTipos || [];
     if (!no.length) return;
-    if (x.motivos) for (const t of no) x.motivos[t] = mundoMotivoVeto(x.f);
-    return arr.filter((t) => !no.includes(t));
+    const fuera = arr.filter((t) => !civPuede(x.f, t));
+    if (x.motivos) for (const t of fuera) x.motivos[t] = mundoMotivoVeto(x.f);
+    return arr.filter((t) => civPuede(x.f, t));
   },
   100,
 );
+
+/* Garantía de sinTipos: si algún sistema da a un pueblo tropas que no puede tener (p.ej. un favor de la
+   aristocracia que regala jinetes a los incas), se convierten en su equivalente a pie al cerrar el año. */
+const MUNDO_A_PIE = { x: "h", c: "i", k: "p", m: "a" };
+function mundoDepurar() {
+  if (!G || !Array.isArray(G.P)) return;
+  for (const p of G.P) {
+    const f = p.owner;
+    if (f == null || f >= NF || !p.u || !CIV[f].sinTipos || !CIV[f].sinTipos.length) continue;
+    for (const t of Object.keys(p.u)) {
+      if (!(p.u[t] > 0) || civPuede(f, t)) continue;
+      let d = MUNDO_A_PIE[t] || (UN[t] && MUNDO_A_PIE[UN[t].rol]) || "i";
+      if (!civPuede(f, d)) d = "i";
+      p.u[d] = (p.u[d] || 0) + p.u[t];
+      p.u[t] = 0;
+    }
+  }
+}
+/* se registra al terminar de cargar la página, para correr DESPUÉS de los oyentes de los demás sistemas */
+if (typeof window !== "undefined")
+  window.addEventListener("load", () => {
+    for (const ev of ["economiaFaccion", "turnoIA", "finAnio", "inicioTurno", "partidaLista"]) OC.on(ev, mundoDepurar);
+  });
 
 /* --- estilos de la pantalla de inicio (no hay css propio: se inyectan aquí) --- */
 (() => {

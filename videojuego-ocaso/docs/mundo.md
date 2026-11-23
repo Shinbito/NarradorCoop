@@ -51,6 +51,10 @@ Relleno provisional (`mundoRelleno`, en `partidaLista`): si tecnología no defin
 o `tecLibres` de un pueblo nuevo, se copian de su pariente (`base`), sin clases vetadas. Solo rellena
 lo que falta; las eras y edificios propios se dejan al respaldo genérico de tecnología.
 
+Garantía `mundoDepurar` (tras `economiaFaccion`, `turnoIA`, `finAnio`, `inicioTurno` y `partidaLista`,
+registrada al cargar la página para correr después de los demás): las tropas que un pueblo no puede tener
+(p.ej. jinetes regalados a los incas) pasan a su equivalente a pie (x→h, c→i, k→p, m→a; resto → i).
+
 Modificador `unidadesDisponibles` (prioridad 100, se aplica el último): quita los tipos de
 `CIV[f].sinTipos` y rellena `motivos[t]` («No hay caballos en estas tierras»).
 
@@ -65,68 +69,65 @@ código anterior).
 
 ## 3. Pueblos
 
-| id | f | Nombre | Religión (`rel`) | `sinTipos` | Únicas sugeridas (`unicas`) | `base` | Rasgos (bon, gold, ord, otros) |
+| id | f | Nombre | Religión (`rel`) | `sinTipos` | Únicas (`unicas`, claves reales de `UN`) | `base` | Rasgos (bon, gold, ord, otros) |
 |---|---|---|---|---|---|---|---|
-| occ | 0 | Imperio de Occidente | niceno | — | — | occ | infantería resistente, orden +6 |
-| ori | 1 | Imperio de Oriente | niceno | — | — | ori | oro ×1,25, catafractos |
-| vis | 2 | Visigodos | arriano | — | — | vis | infantería al ataque |
-| hun | 3 | Hunos | pagano | — | — | hun | caballería y arqueros, oro ×0,85, `u0` a caballo |
-| van | 4 | Vándalos | arriano | — | — | van | botín 30 |
-| fra | 5 | Francos | pagano | — | — | fra | infantería barata (`icost` 0,8) |
-| per | 6 | Persia Sasánida | zoroastra | — | — | per | arqueros y caballería pesada |
+| occ | 0 | Imperio de Occidente | niceno | — | `com` comitatenses | occ | infantería resistente, orden +6 |
+| ori | 1 | Imperio de Oriente | niceno | — | `sif` sifonarios | ori | oro ×1,25, catafractos |
+| vis | 2 | Visigodos | arriano | — | `esg` escuderos godos | vis | infantería al ataque |
+| hun | 3 | Hunos | pagano | — | `hpa` jinetes de Atila | hun | caballería y arqueros, oro ×0,85, `u0` a caballo |
+| van | 4 | Vándalos | arriano | — | `cor` corsarios | van | botín 30 |
+| fra | 5 | Francos | pagano | — | `fca` lanzadores de francisca | fra | infantería barata (`icost` 0,8) |
+| per | 6 | Persia Sasánida | zoroastra | — | `inm` inmortales, `ele` elefantes | per | arqueros y caballería pesada |
 | ara | 7 | Reinos de Arabia (Árabes) | `arabe` (politeísmo árabe preislámico) | — | `cam` jinetes de camello | per | oro ×1,15, jinetes +15%, botín 15 |
 | nor | 8 | Reinos del Norte (Nórdicos) | `nordico` | m | `ber` berserkers | fra | infantería +20%, huscarles, botín 25, caballería floja |
 | chi | 9 | Imperio del Centro (Chinos) | `confuciano` | — | `bal` ballesteros | ori | oro ×1,2, orden +4, alabarderos |
-| inc | 10 | Imperio del Tahuantinsuyo (Incas) | `andino` | x c k m | `ore` orejones (infantería de élite) | occ | honderos +25%, orden +5, infantería barata (mita) |
-| may | 11 | Señoríos mayas | `mesoamericano` | x c k m | `hol` holcanes | ori | oro ×1,1, arqueros y átlatl |
-| azt | 12 | Imperio mexica (Aztecas) | `mesoamericano` | x c k m | `jag` guerreros jaguar, `agu` guerreros águila | fra | infantería +15% |
+| inc | 10 | Imperio del Tahuantinsuyo (Incas) | `andino` | x c k m + `"caballos"` | `mac` guerreros de maza | occ | honderos +25%, orden +5, infantería barata (mita) |
+| may | 11 | Señoríos mayas | `mesoamericano` | x c k m + `"caballos"` | `atl` lanzadores de átlatl | ori | oro ×1,1, arqueros y átlatl |
+| azt | 12 | Imperio mexica (Aztecas) | `mesoamericano` | x c k m + `"caballos"` | `jag` guerreros jaguar, `agu` guerreros águila | fra | infantería +15% |
 | gri | 13 | Liga Helénica (Griegos) | `olimpico` | — | `hop` hoplitas | ori | falange resistente, oro ×1,1 |
-| egi | 14 | Reino del Nilo (Egipcios) | `egipcio` | — | `car` carros de guerra | per | oro ×1,2, arqueros nubios, orden +3 |
+| egi | 14 | Reino del Nilo (Egipcios) | `egipcio` | — | `car` carros de guerra, `cam` camellos | per | oro ×1,2, arqueros nubios, orden +3 |
 | ind | 15 | Imperio Gupta (Indios) | `hindu` | — | `ele` elefantes de guerra | per | arco largo +15%, oro ×1,15 |
-| cel | 16 | Reinos celtas | `druidico` | m | `gae` gaesatae (carga desnuda) | fra | infantería +15%, honderos, orden −2 |
-| esl | 17 | Tribus eslavas | `eslavo` | — | `bog` bogatyres | vis | infantería muy resistente, jabalineros |
-| mon | 18 | Hordas mongolas | `tengri` | — | `m` (arqueros a caballo, ya existe: solo darlo en su repertorio) | hun | arqueros a caballo +25%, oro ×0,85, orden −4, `u0` a caballo |
+| cel | 16 | Reinos celtas | `druidico` | m | `fia` fianna | fra | infantería +15%, honderos, orden −2 |
+| esl | 17 | Tribus eslavas | `eslavo` | — | `bos` lanceros del bosque | vis | infantería muy resistente, jabalineros |
+| mon | 18 | Hordas mongolas | `tengri` | — | `kes` keshig | hun | arqueros a caballo +25%, oro ×0,85, orden −4, `u0` a caballo |
 | reb | 19 | Rebeldes | — | — | — | reb | |
 
-Todos los nuevos traen `un` para las 9 clases permitidas, `tm`/`tf`, 14-16 soberanos y 12 soberanas
+`sinTipos` es un array: clases vetadas y, si incluye `"caballos"`, además toda montura con
+`UN[t].caballo` (jinetes, carros, únicas montadas). Combate lo respeta en su repertorio; Mundo lo
+aplica en `unidadesDisponibles` y lo expone como `civPuede(f, t)`.
+
+Todos los nuevos traen `un` para las 9 clases básicas permitidas (combate completa el resto con
+`cmbCivSync()` y puede renombrar algunas desde `CMB_CIV`), `tm`/`tf`, 14-16 soberanos y 12 soberanas
 auténticos, `desc`, `pueblo` («el pueblo nórdico», para la crónica) y 14 nombres de provincia
 (`MUNDO_PN`, el primero es la capital). Colores claros y distintos entre sí (distancia RGB mínima 44,
 todos legibles sobre el panel oscuro).
 
-**Claves de unidad única que debe crear combate** (en `UN`, con `civs: [id]`, sprite en `SP` y
-habilidades de la lista del contrato): `cam` (ara, `espanto`), `ber` (nor, `berserker`),
-`bal` (chi, `lluviaFlechas`), `ore` (inc), `hol` (may, `emboscada`), `jag` y `agu` (azt, `sacrificio`),
-`hop` (gri, `muroEscudos`), `car` (egi, `carga`), `ele` (ind, `espanto`/`estampida`), `gae` (cel, `grito`),
-`bog` (esl, `juramento`), y `m` en el repertorio de mon (`disparoParto`). Ninguna existe todavía: la
-pantalla de inicio muestra «Únicas: …» en cuanto `UN[k]` exista.
+Las únicas ya existen en `UN` (combate v2) con `civs`/`civIds`; `pruebas/mundo.js` comprueba que cada
+clave de `CIV[f].unicas` existe y pertenece a ese pueblo. La pantalla de inicio las muestra como «Únicas: …».
 
 ## 4. Peticiones a cada sistema (contenido por pueblo nuevo)
 
 Lo que falte cae en un respaldo razonable, pero conviene completarlo. Usad `CIV[f].id`, nunca el índice.
 
 **Combate** (`clases.js`, `habilidades.js`, `batalla.js`)
-- `CMB_CIV` es un array posicional cuyo 8.º elemento (índice 7) son los rebeldes: ahora el 7 es **ara**
-  (los árabes reciben «Campesinos armados» como lanceros) y los rebeldes (19) se quedan sin entrada.
-  Pasadlo a un objeto por id o poned los rebeldes en `CMB_CIV[REB]`. Igual `UN[t].civs` (calculado de CMB_CIV).
-- Crear las únicas de la tabla (stats, `civs`, `hab`, sprites `SP`) y añadir repertorio (`CMB_CIV`) para los 12 nuevos.
-- Respetar `CIV[f].sinTipos` en todo lo que dé tropas fuera de `cmbDisp` (el veto ya está en
-  `unidadesDisponibles`) y no listar esas clases en el panel de ejército de la provincia
-  (hoy los aztecas ven «0 Caballería»).
-- Elefantes y camellos espantan caballos (`espanto`): las civs sin caballos son vulnerables a nada de eso.
+- Hecho en combate v2: `CMB_CIV` por id, únicas, `sinTipos`. Pendiente: dar a cada pueblo nuevo sus
+  nombres de las clases básicas en `CMB_CIV` solo si se quieren distintos de los de `CIV[f].un`
+  (hoy `CMB_CIV` pisa algunos, p.ej. inc `p` «Guardia del Inca» en vez de «Orejones»; es aceptable).
 
 **Campaña** (`ia.js`, `campana.js`, `mercenarios.js`)
-- `CMB_DOC` (ia.js) es posicional con los rebeldes en el 7 (`CMB_DOC[f] || CMB_DOC[7]`): añadir doctrina
-  por id para los nuevos (incas/mayas/aztecas sin caballería; mongoles a caballo) y para `REB`.
+- `CMB_DOC` (ia.js) es posicional con los rebeldes en el 7 (`CMB_DOC[f] || CMB_DOC[7]`): ahora el 7 es
+  **ara** y los rebeldes (19) caen en el respaldo. Indexar por id, con doctrina para los nuevos
+  (incas/mayas/aztecas sin caballería; mongoles a caballo) y para `reb`, y añadir `ele`, `cam` y únicas.
 - Mercenarios: no ofrecer clases vetadas (`civPuede(f, t)`); en América no hay mercenarios a caballo.
 
 **Tecnología** (`civilizaciones.js`, `tecnologia.js`)
 - `TEC_CIV` solo tiene las 7: añadir eras, prioridades, edificio propio y técnicas para los 12
   (p.ej. chi: imprenta/pólvora temprana; may: calendario/escritura; inc: quipu, caminos, terrazas;
   egi: graneros del Nilo; gri: filosofía, fuego griego; ind: cifras, elefantes; nor: drakkar).
-  Hoy usan las eras genéricas de respaldo.
-- La línea «Recluta:» de la ciudad (`tecReclutables`) no pasa por `unidadesDisponibles` y muestra
+  Hoy usan las eras genéricas y, provisionalmente, `tecIni`/`tecPri`/`tecLibres` del pariente (`mundoRelleno`).
+- La línea «Recluta:» de la ciudad (`tecReclutables`) no pasa por `unidadesDisponibles` y mostraba
   «Caballería» a los aztecas: filtrar con `civPuede`.
-- Establo/caballería no deberían ofrecerse a quien tiene `sinTipos` con todas las montadas.
+- El establo no debería ofrecerse a quien tiene `"caballos"` en `sinTipos` (o darle otro uso).
 
 **Narrativa** (`narrativa.js`, `historia.js`)
 - `NAR_PUEBLO[f]` cae en «los rebeldes» para los nuevos: usar `CIV[f].pueblo`.
@@ -140,6 +141,8 @@ Lo que falte cae en un respaldo razonable, pero conviene completarlo. Usad `CIV[
 - `SOC_GRUPO(f)` es posicional (`f <= 1`, `f === 3`, `f === 6`): todos los nuevos caen en «ger».
   Proponer grupos: chi/egi/inc → burocracia imperial; may/azt/gri → ciudades-estado; mon → estepa (como hun);
   nor/cel/esl → tribal (como ger); ara/ind → como per.
+- `socFavor(f, "ari")` regala 2 jinetes a la capital (`c.u.c += 2`) también a incas, mayas y aztecas:
+  usar `civPuede(f, "c")` (hoy Mundo los desmonta al cerrar el año). Igual en la guerra civil (`c: 1`).
 - `SOC_CLE` / `SOC_FEN` / sumo sacerdote (`socCargo 'obi'`) para las religiones nuevas: `arabe`,
   `nordico`, `confuciano`, `andino`, `mesoamericano`, `olimpico`, `egipcio`, `hindu`, `druidico`,
   `eslavo`, `tengri`. Disputas de credo entre religiones nuevas (hoy solo niceno/arriano).
@@ -151,8 +154,11 @@ Lo que falte cae en un respaldo razonable, pero conviene completarlo. Usad `CIV[
 
 **Interfaz**
 - Con 19 pueblos la lista «Potencias» es larga; el mapa grande se ve pequeño al 100 % (hay zoom).
+- La rejilla de tropas de la provincia lista todas las clases (los aztecas ven «0 Caballería»): mostrar solo `p.u[t] > 0` y, si acaso, las que `civPuede(f, t)`.
 
 **Orquestador**
+- `pruebas/combate.js` falla «en campo abierto las máquinas son casi inútiles» también en la rama
+  `claude/gifted-gauss-pdu6a2` sin los cambios de Mundo (no es de este sistema).
 - `docs/CONTRATO.md` §2 dice aún «`REB = 7`»: ahora `REB = NF = 19` (la §8 ya lo recoge).
 
 ## 5. Pruebas
