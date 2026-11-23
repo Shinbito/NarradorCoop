@@ -51,6 +51,46 @@ inmunidad 12 años. −15 % comida, −20 % oro, −8 orden, −10 % población 
 
 **Revueltas.** Igual que antes (orden < 20, 35 %), con bagaudas proporcionales a la población.
 
+**Ánimo del pueblo** (sobre `p.order`). El orden se acerca ±8/año al *orden objetivo*
+(`ordTarget`) = 55 + causas visibles + modificadores de otros sistemas (`OC.calc('ordenObjetivo')`).
+
+| Ánimo | Orden | Oro | Comida | Crec. | Levas | Guarnición |
+|---|---|---|---|---|---|---|
+| ✖ Furioso | < 15 | ×0,4 | ×0,7 | −3 % | ×0,3 | deserta 10 %/año |
+| ☹ Disgustado | 15–29 | ×0,6 | ×0,85 | −1,5 % | ×0,6 | deserta 4 %/año |
+| ! Inquieto | 30–44 | ×0,85 | — | −0,5 % | ×0,8 | |
+| ○ Neutral | 45–59 | — | — | — | ×0,9 | |
+| ☺ Contento | 60–74 | ×1,05 | — | +0,4 % | ×0,95 | |
+| ✿ Feliz | 75–89 | ×1,1 | ×1,05 | +0,8 % | ×1 | |
+| ★ Leal | ≥ 90 | ×1,15 | ×1,05 | +1 % | ×1,1 | |
+
+(Antes: oro ×0,5 por debajo de 35 de orden.) Causas propias: impuestos (+12/0/−20), templo (+12/nivel),
+costumbres del pueblo, guarnición ≥ 6 (+6), soberano piadoso +5 / justo +3 / cruel −3, regencia −10,
+conquista reciente −25, diezmo +5, lujos +2 c/u, graneros llenos (≥ 60 %) +3, hambre −10, moneda
+devaluada, deudas, peste −8, enemigos armados en la frontera −4 (no bagaudas), batallas en los dos
+últimos años −6, hacinamiento −4 y los efectos de las decisiones. Lo que suman los modificadores
+ajenos se agrupa por sistema («Corte y estamentos», «Técnicas y edificios», «Sucesos», «Otros»), y la
+fe de la provincia distinta del soberano (de sociedad, `socFe`) se muestra aparte.
+
+*Decisiones de ciudad* (sección de provincia; enfriamiento en años):
+
+| Decisión | Disponible | Coste | Efecto | Espera |
+|---|---|---|---|---|
+| Juegos y fiestas | siempre | 8 + almas oro | +10 ánimo 3 años, +5 orden ya | 4 |
+| Reparto de grano | siempre | 10 + 0,8·almas comida | +8 ánimo 2 años, +4 ya, +2 % almas | 3 |
+| Escuchar a los notables | orden < 60 | 15 oro | +6 ánimo 3 años, +3 ya | 3 |
+| Condonar tributos | orden < 75 | — | sin impuestos 1 año, +12 ánimo 2 años | 5 |
+| Negociar con los descontentos | < 30 | 10 oro | impuestos bajos, +15 ánimo 3 años | 5 |
+| Castigar a los cabecillas | < 30, ≥ 2 tropas | — | +12 orden ya, −5 ánimo 3 años, −2 % almas | 4 |
+| Ley marcial | < 45, ≥ 3 tropas | — | +20 orden ya, −8 ánimo 4 años, −5 % almas | 5 |
+| Exención para colonos | ≥ 30, almas < 85 % cap. | 20 oro | +8 % almas, +4 ánimo, ½ impuestos 3 años | 8 |
+
+Si un 35 % de las ciudades (mín. 2) están Disgustadas o peor: `crisisEconomica {tipo:'descontento'}`
+(como mucho cada 3 años). La IA toma hasta 2 decisiones al año en sus ciudades por debajo de 42 de
+orden que no mejoran solas (con < 22 prefiere negociar o la ley marcial), sin bajar de 15 de oro ni
+vaciar el granero. El ánimo se ve en la sección de provincia (causas plegables y decisiones), en el
+Tesoro (recuento y las tres peores, con botón para ir a ellas) y en la línea de información del mapa.
+
 **Comercio** (`comercio.js`).
 - *Mercado común* de comida y los 7 recursos. Precio = `base · (s0/existencias)^0,6` (×0,45–×2,6).
   Lotes de 5 (comida 10); comprar = precio·1,12·inflación, vender = precio·0,88. Cada año las
@@ -81,6 +121,12 @@ tesoro rebosante, los baja.
 - `ecoBalance(f)` → desglose completo (`ing`, `gas`, `prod`, `cons`, `res`, `granero`...).
 - `ecoPob(p)`, `ecoEspecialidad(p)` → `{id, n, d, y}`, `ecoCapacidad(p)`, `ecoDiezmar(p, fracción)`.
 - `comPrecio(id)`, `comComprar(f,id)`, `comVender(f,id)`, `comDe(f)` (rutas de f), `G.eco.rutas`.
+- `ecoAnimo(p)` → `{id, nombre, icono, color, orden, objetivo, tendencia, causas:[{texto, valor}]}`;
+  `ecoNivel(p)` → fila de `ECO_ANIMO` (rápido, sin causas).
+- `ecoApoyoAsedio(p, sitiador?)` → −1 (abriría las puertas) … +1 (resiste): `(orden−50)/50`, +0,2 Leal,
+  +0,1 Feliz, −0,2 con hambre, −0,1 con peste; si se da el sitiador: −0,3 si era su tierra (`p.home`),
+  −0,2 si la provincia comparte su fe y no la del dueño. Para el futuro sistema de asedios.
+- `ecoDecision(f, p, k)` / `ecoPuedeDecidir(f, p, k)` con `k` en `ECO_DEC` (también para narrativa).
 - Una clase de `UN` con `montada: true` (o `mv ≥ 4`) cuenta como caballería (caballos).
 
 ## Ganchos
@@ -88,13 +134,19 @@ tesoro rebosante, los baja.
 - Llama: `rendimiento` (`{g, fo, madera, piedra, hierro, caballos, sal, vino, seda}`, ctx `{p,f}`),
   `ordenObjetivo` (ctx `{p,f}`), `mantenimientoTropa` (`{comida, oro}`, ctx `{f,t}`, por cada clase de `p.u`).
 - Emite: `revuelta` `{p, de}`; `crisisEconomica` `{f, tipo, ...}` con `tipo` = `hambre`
-  (`perdidas`), `impagos` (`perdidas`), `bancarrota` (`perdidas`), `peste` (`p`), `inflacion` (`inflacion`).
+  (`perdidas`), `impagos` (`perdidas`), `bancarrota` (`perdidas`), `peste` (`p`), `inflacion` (`inflacion`),
+  `descontento` (`ciudades`).
 - Modifica: `costeUnidad` (inflación, hierro ≥10 −8 % / sin hierro +12 %, caballos ≥6 −12 % / sin
   caballos +20 %, levas agotadas, impagos +20 %), `costeConstruccion` (oro × inflación).
 - Escucha: `partidaLista`, `antesFinAnio` (peste, mercado, rutas), `economiaFaccion` y `turnoIA`
   (IA), `batallaResuelta` y `conquista` (población, rutas), `guerraDeclarada` (corta rutas).
 - Acciones: `tax`, `eco` (diezmo, annona, recorte, reacunar, prestamo, saldar), `ecov` (libre,
-  subpestaña), `mer` (`c:id` / `v:id`), `ruta` (`nueva`, `hasta:p`, `cortar:i`).
+  subpestaña), `mer` (`c:id` / `v:id`), `ruta` (`nueva`, `hasta:p`, `cortar:i`), `eca` (`k:p`,
+  decisión de ciudad), `ecoir` (libre, ir a una provincia).
+- Secciones de provincia: `animo` (38) e `impuestos` (40). Estado nuevo: `G.eco.efe` (efectos
+  temporales), `G.eco.dec` (esperas), `G.eco.saq` (último año de batalla por provincia).
+- El hover del mapa se amplía con un `mousemove` en `document` que añade el ánimo al texto de `#hv`
+  después de que lo escriba la interfaz (sin tocar `interfaz.js`).
 
 Probado junto a tecnología (commit 1ffc8c6): sus obras piden 4·n de madera/piedra/hierro (o 3 de oro por
 unidad que falte), sus técnicas modifican `mantenimientoTropa` y `rendimiento` (aparecen como «Otros»),
@@ -106,9 +158,8 @@ iniciales en `F.res` si faltan. Probado con `pruebas/economia.js`.
 
 ## Peticiones al orquestador
 
-1. **Interfaz**: la barra superior pinta `+${e.g}`; como `g` ya es neto puede salir «+-5». Usar el
-   signo real, y mostrar los recursos con `ecoResumen(ME)`. Con 5 pestañas la rejilla de 4 columnas
-   deja «Crónica» sola en otra fila.
+1. **Interfaz**: mostrar los recursos en la barra superior con `ecoResumen(ME)`. Con 5 o más pestañas
+   la rejilla de 4 columnas deja pestañas sueltas en otra fila.
 2. **Combate** (`ia.js`): fija `p.tax` cada año; economía lo afina después en `turnoIA`. Se puede
    quitar esa línea de `ai()`. Si la IA recluta, conviene que deje una reserva de oro para la soldada.
 3. **Diplomacia**: emitir `guerraDeclarada` en todos los caminos (corta rutas al instante). Los
@@ -118,4 +169,11 @@ iniciales en `F.res` si faltan. Probado con `pruebas/economia.js`.
    (ya encajan). Los edificios cuestan 0,4 oro/nivel/año. Su edificio «Puerto» y mi especialidad
    «Puerto franco» conviven; si se quiere, el Puerto podría sumar huecos de ruta (`comMax`).
    `pruebas/tecnologia.js` falla a veces porque un modal de sucesión tapa un clic (no es de economía).
-5. **Contrato**: anotar los `tipo` de `crisisEconomica` y que `inc(f).g` es saldo neto.
+5. **Contrato**: añadir `descontento` a los `tipo` de `crisisEconomica`, la sección `animo` (38) y
+   `ecoAnimo`/`ecoApoyoAsedio` a las notas de integración.
+6. **Sociedad**: la penalización de fe por provincia va dentro de su modificador de `ordenObjetivo`;
+   el panel la separa leyendo `socFe`/`socF().pol`. Si cambia esa fórmula, conviene exponer
+   `socOrdenFe(p)` para no duplicarla. Las guerras civiles pasan provincias a `REB`: pueden emitir
+   `revuelta` (economía ya recorta graneros y efectos al recibirla).
+7. **Interfaz**: el hover del mapa podría usar `ecoNivel(p)` directamente en lugar de mi añadido.
+8. **Combate/asedios**: usar `ecoApoyoAsedio(p, atacante)` para rendiciones o puertas abiertas.
