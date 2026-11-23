@@ -1,1 +1,169 @@
-/* estilos del sistema: narrativa */
+/* estilos del sistema: narrativa (eventos, crónica, anales, epílogo) */
+
+/* --- modal de evento --- */
+.nar-ev p,
+.nar-res p,
+.nar-epi p {
+  line-height: 1.5;
+}
+.nar-kick {
+  margin: 0 0 8px;
+  font:
+    400 9px/1.6 "Press Start 2P",
+    monospace;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.nar-pj {
+  margin: 0 0 10px;
+  padding: 6px 8px;
+  background: #161d23;
+  border: 2px solid #000;
+  box-shadow: inset 0 0 0 2px #2e3a44;
+}
+.nar-pj .hd {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.mbtn button.nar-op {
+  flex: 1 1 100%;
+  text-align: left;
+  font-size: 10px;
+  line-height: 1.6;
+  padding: 8px 10px;
+  min-height: 40px;
+}
+.mbtn button.nar-op small {
+  font:
+    15px/1.3 "Pixelify Sans",
+    sans-serif;
+  color: #e6cf8f;
+  margin-top: 4px;
+}
+.mbtn button.nar-op:disabled small {
+  color: #f08a7a;
+}
+.nar-res {
+  border-left: 3px solid var(--gold);
+  padding-left: 10px;
+}
+
+/* --- crónica (pestaña Crónica de la interfaz) --- */
+#log li.nar-dec {
+  border-color: var(--gold);
+  color: #f3e6c0;
+}
+#log li.nar-cap {
+  border-color: #b8862b;
+  color: #f3e6c0;
+  background: rgba(184, 134, 43, 0.08);
+}
+#log li.nar-fin {
+  border-color: var(--gold);
+  border-left-width: 5px;
+  background: rgba(242, 193, 78, 0.1);
+  color: var(--gold);
+}
+#log li.nar-rumor {
+  border-color: #2a343c;
+  color: var(--dim);
+  font-style: italic;
+}
+
+/* --- pestaña Anales --- */
+.nar-leg {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) 28px;
+  gap: 4px 8px;
+  align-items: center;
+  font-size: 15px;
+}
+.nar-leg b {
+  text-align: right;
+  font-weight: 400;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.nar-li {
+  font-size: 15px;
+  margin: 4px 0;
+  padding-left: 8px;
+  border-left: 3px solid var(--edge);
+}
+.nar-li.nar-dec,
+.nar-li.nar-cap {
+  border-color: #b8862b;
+}
+.nar-li.nar-fin {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.nar-y {
+  font:
+    400 9px/1.6 "Press Start 2P",
+    monospace;
+  color: var(--gold);
+  margin: 8px 0 2px;
+}
+span.nar-y {
+  margin: 0 4px 0 0;
+}
+.nar-arc {
+  border-top: 2px solid #10151a;
+  padding: 6px 0;
+}
+.nar-arc:first-of-type {
+  border-top: 0;
+}
+.nar-arc .hd {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.nar-arc.fin b {
+  color: var(--gold);
+}
+.nar-det {
+  margin-top: 10px;
+  border-top: 2px solid #10151a;
+  padding-top: 6px;
+}
+.nar-det summary {
+  cursor: pointer;
+  font:
+    400 11px/1.6 "Press Start 2P",
+    monospace;
+  color: var(--dim);
+  min-height: 28px;
+  padding: 4px 0;
+}
+.nar-det summary:focus-visible {
+  outline: 3px solid var(--gold);
+}
+.nar-det[open] summary {
+  color: var(--ink);
+}
+.nar-det > div:not(.nar-epi) {
+  max-height: 260px;
+}
+.nar-det .nar-li:last-child {
+  margin-bottom: 0;
+}
+
+/* --- epílogo --- */
+.nar-epi {
+  max-height: 60vh;
+  overflow: auto;
+}
+.nar-cierre {
+  font-style: italic;
+  color: var(--gold);
+  text-align: center;
+  margin-top: 10px;
+}
