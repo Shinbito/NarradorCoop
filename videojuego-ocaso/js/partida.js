@@ -34,6 +34,7 @@ function newGame(me, cand) {
     over: null,
     human: [me],
   };
+  G.dip = dipInit();
   G.P = MAP.pts.map((p, i) => ({
     id: i,
     name: nm[i],
@@ -77,10 +78,15 @@ function newGame(me, cand) {
       q.u = { i: 3, a: 1, c: 0 };
     });
   }
+  /* opinión inicial: trato general al azar + recuerdos permanentes de fe */
   for (let a = 0; a < NF; a++)
     for (let b = a + 1; b < NF; b++) {
-      const v = (CIV[a].rel === CIV[b].rel ? 12 : 0) + ri(-10, 10);
-      G.rel[a][b] = G.rel[b][a] = v;
+      G.rel[a][b] = G.rel[b][a] = ri(-10, 10);
+      const ra = CIV[a].rel,
+        rb = CIV[b].rel;
+      if (ra === rb) dipMem(a, b, "fe", "Misma fe", 12, 0);
+      else if ((ra === "niceno" && rb === "arriano") || (ra === "arriano" && rb === "niceno"))
+        dipMem(a, b, "credo", "Disputa de credo", -8, 0);
     }
   const set = (a, b, s, v) => {
     G.st[a][b] = G.st[b][a] = s;
@@ -92,6 +98,10 @@ function newGame(me, cand) {
   set(2, 0, "paz", -20);
   set(6, 1, "guerra", -35);
   set(4, 0, "paz", -15);
+  dipMem(1, 6, "rival", "Rivales de siempre", -10, 0);
+  dipAdd("alianza", 0, 1, { sub: "defensiva" }, true);
+  /* los francos, federados de Roma en la Galia */
+  dipAdd("vasallaje", 0, 5, { trib: 6, imp: 0 }, true);
   sel = G.F[me].capId;
   aim = 0;
   tab = "prov";
@@ -113,9 +123,19 @@ function setup(f, p, cand) {
     order: 70,
   });
   const r = mkChar(f, cand ? cand.sex : R() < 0.9 ? "m" : "f", cand ? cand.age : ri(28, 46));
-  if (cand) Object.assign(r, { n: cand.n, ma: cand.ma, in: cand.in, di: cand.di, ge: cand.ge, tr: cand.tr });
+  if (cand)
+    Object.assign(r, {
+      n: cand.n,
+      ma: cand.ma,
+      in: cand.in,
+      di: cand.di,
+      ge: cand.ge,
+      tr: cand.tr,
+      amb: cand.amb,
+      lea: cand.lea,
+    });
   const sp = mkChar(f, r.sex === "m" ? "f" : "m", clamp(r.age + ri(-6, 3), 18, 60));
-  marry(r, sp);
+  marry(r, sp, true);
   const [fa, mo] = r.sex === "m" ? [r.id, sp.id] : [sp.id, r.id];
   for (let k = ri(1, 3); k > 0; k--) mkChar(f, R() < 0.55 ? "m" : "f", ri(0, 15), fa, mo);
   const br = mkChar(f, "m", ri(20, 34));
@@ -140,7 +160,7 @@ function heirCands(f) {
       .sort((a, b) => (a.sex === b.sex ? b.age - a.age : a.sex === "m" ? -1 : 1));
   return ks.concat(
     family(f)
-      .filter((c) => c.id !== r.id && !ks.includes(c) && c.age >= 16 && c.id !== r.sp)
+      .filter((c) => c.id !== r.id && !ks.includes(c) && c.age >= 16 && c.id !== r.sp && !c.dipCort)
       .sort((a, b) => b.age - a.age),
   );
 }
@@ -157,6 +177,7 @@ function kill(c, why) {
     if (p.gen === c.id) p.gen = null;
   });
   if (c.sp != null && G.C[c.sp]) G.C[c.sp].sp = null;
+  OC.emitirSync("muertePersonaje", { c, motivo: why });
   const F = G.F[c.f];
   if (!F) return;
   const imp = isMe(c.f) || F.ruler === c.id;
@@ -172,7 +193,12 @@ function succession(f, dead) {
   let h = G.C[F.heir];
   if (!h || !h.alive || h.f !== f) h = heirCands(f)[0];
   if (!h) {
-    h = mkChar(f, "m", ri(25, 40));
+    /* sin sangre real: el consejero más capaz, o un noble cualquiera */
+    h = family(f)
+      .filter((c) => c.dipCort && c.age >= 16)
+      .sort((a, b) => b.ma + b.in + b.di + b.ge - (a.ma + a.in + a.di + a.ge))[0];
+    if (h) delete h.dipCort;
+    else h = mkChar(f, "m", ri(25, 40));
     addLog(
       `Sin herederos en ${CIV[f].s}: el noble ${h.n} toma el poder y funda una nueva dinastía.`,
       isMe(f) ? "bad" : "",
@@ -184,6 +210,7 @@ function succession(f, dead) {
   autoHeir(f);
   const m = `Muere ${dead.n}. ${ttl(h)} ${h.n} (${h.age} años) asciende al trono de ${CIV[f].s}${h.age < 16 ? " bajo una regencia" : ""}.`;
   addLog(m, isMe(f) ? "bad" : "");
+  OC.emitirSync("sucesion", { f, anterior: dead, nuevo: h });
   if (isMe(f))
     modal(
       "El trono pasa a otras manos",
@@ -193,40 +220,63 @@ function succession(f, dead) {
 }
 
 /* ---------- panel de dinastía ---------- */
+function dipRol(c, F, r) {
+  const car = typeof socCargoNombre === "function" ? socCargoNombre(c) : "";
+  if (c.id === F.heir) return "Heredero";
+  if (c.dipReh != null) return "Rehén en " + CIV[c.dipReh].s;
+  if (genOf(c)) return "General en " + genOf(c).name;
+  if (car) return car;
+  if (c.id === r.sp) return "Consorte";
+  if (c.age < 16) return "Menor";
+  return c.dipCort ? "Cortesano" : "Noble";
+}
 function dynPanel(dis) {
   const F = G.F[ME],
     r = ruler(ME),
     hr = G.C[F.heir],
-    sp = G.C[r.sp];
-  let h = `<h2 style="color:var(--gold)">${ttl(r)} ${r.n}</h2><p class="dim">${r.age} años${r.age < 16 ? " · regencia" : ""}<br>${cline(r)}</p><p>Consorte: ${sp && sp.alive ? `${sp.n} (${sp.age})` : '<span class="dim">ninguno</span>'}<br>Heredero: ${hr ? `<b>${hr.n}</b> (${hr.age})` : '<span class="dim">sin designar</span>'}</p>`;
+    sp = G.C[r.sp],
+    lg = typeof socLegit === "function" ? socLegit(ME, hr) : null;
+  let h = `<h2 style="color:var(--gold)">${ttl(r)} ${r.n}</h2><p class="dim">${r.age} años${r.age < 16 ? " · regencia" : ""} · ${r.tr}: ${TRAITS[r.tr] || ""}<br>${cline(r)}</p>`;
+  h += `<p>Consorte: ${sp && sp.alive ? `${sp.n} (${sp.age})` : '<span class="dim">ninguno</span>'}<br>Heredero: ${hr ? `<b>${hr.n}</b> (${hr.age})` : '<span class="dim">sin designar</span>'}${lg && lg.t.length ? `<br><span class="dip-cb">Sucesión discutida: ${lg.t.join("; ")}</span>` : ""}</p>`;
   h += `<h3>Familia y corte</h3>`;
   for (const c of family(ME)
     .filter((c) => c.id !== r.id)
     .sort((a, b) => b.age - a.age)) {
-    const role =
-      c.id === F.heir
-        ? "Heredero"
-        : genOf(c)
-          ? "General en " + genOf(c).name
-          : c.id === r.sp
-            ? "Consorte"
-            : c.age < 16
-              ? "Menor"
-              : "Noble";
-    const par = c.fa != null && G.C[c.fa] ? `${c.sex === "m" ? "hijo" : "hija"} de ${G.C[c.fa].n}` : "";
-    const spc = G.C[c.sp];
-    h += `<div class="row"><div class="hd"><b>${c.n}</b><span class="tag">${role}</span></div><span class="stats">${c.sex === "m" ? "♂" : "♀"} ${c.age} años ${par ? "· " + par : ""}${spc && spc.alive ? " · casado/a con " + spc.n : ""}</span><br>${cline(c)}
-   <div class="btns">${c.id !== F.heir && c.id !== r.sp ? `<button data-act="heir-${c.id}" ${dis ? "disabled" : ""}>Designar heredero</button>` : ""}${c.sp == null && c.age >= 16 ? `<button data-act="marry-${c.id}" ${dis ? "disabled" : ""}>Concertar boda</button>` : ""}</div></div>`;
+    const role = dipRol(c, F, r),
+      par = c.fa != null && G.C[c.fa] ? `${c.sex === "m" ? "hijo" : "hija"} de ${G.C[c.fa].n}` : "",
+      spc = G.C[c.sp],
+      lea = Math.round(c.lea ?? 50);
+    h += `<div class="row"><div class="hd"><b>${c.n}</b><span class="tag">${role}</span></div><span class="stats">${c.sex === "m" ? "♂" : "♀"} ${c.age} años ${par ? "· " + par : ""}${spc && spc.alive ? " · casado/a con " + spc.n : ""}</span><br>${cline(c)}`;
+    if (c.age >= 12)
+      h += `<br><span class="stats">Lealtad <b class="${lea < 30 ? "neg" : lea > 70 ? "pos" : ""}">${lea}</b> · ambición ${c.amb ?? 5}</span>`;
+    h += `<div class="btns">${c.id !== F.heir && c.id !== r.sp && !c.dipCort ? `<button data-act="heir-${c.id}" ${dis ? "disabled" : ""}>Designar heredero</button>` : ""}${c.sp == null && c.age >= 16 && c.dipReh == null ? `<button data-act="marry-${c.id}" ${dis ? "disabled" : ""}>Concertar boda</button>` : ""}</div></div>`;
   }
+  const reh = G.C.filter((c) => c.alive && c.dipReh === ME);
+  if (reh.length)
+    h += `<p class="stats">Rehenes en tu corte: ${reh.map((c) => `${c.n} (${CIV[c.f].s})`).join(", ")}</p>`;
   h += OC.renderSecciones("dyn", { F, r }, dis);
   return (
     h +
-    '<p class="note">Cada año la corte envejece, nacen hijos y alguno muere. Si cae tu soberano, reina tu heredero.</p>'
+    '<p class="note">Cada año la corte envejece, nacen hijos y alguno muere. Los parientes desleales y ambiciosos conspiran.</p>'
   );
 }
 OC.accion("heir", (v) => {
-  G.F[ME].heir = +v;
-  addLog(`${G.C[+v].n} es designado heredero.`);
+  const c = G.C[+v],
+    F = G.F[ME];
+  if (!c || !c.alive || c.f !== ME || c.id === F.ruler) return;
+  const lg = typeof socLegit === "function" ? socLegit(ME, c) : { t: [] },
+    hazlo = () => {
+      const prev = G.C[F.heir];
+      F.heir = c.id;
+      if (typeof socNuevoHeredero === "function") socNuevoHeredero(ME, c, prev);
+      addLog(`${c.n} es designado heredero.`);
+    };
+  if (!lg.t.length) return hazlo();
+  modal(
+    "¿Designar heredero?",
+    `<p>${c.n} no es el heredero que la corte espera.</p><p class="dim">${lg.t.join("<br>")}</p>`,
+    [{ t: "Designarlo igualmente", cls: "red", fn: hazlo }, { t: "Cancelar" }],
+  );
 });
 OC.accion("marry", (v) => {
   marryModal(G.C[+v]);

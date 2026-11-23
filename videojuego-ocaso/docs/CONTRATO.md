@@ -77,15 +77,15 @@ Secciones de provincia actuales: `reclutar` (20, combate), `edificios` (30, tecn
 | `finAnio` | `anio` | turnos | tras envejecer la corte y pasar al año nuevo |
 | `conquista` | `{p, de, a}` | combate | una provincia cambia de dueño por las armas |
 | `batallaResuelta` | `{p, atacante, defensor, gana, A, D, s0, gA, gD, ...}` | combate | después de cualquier batalla (auto o táctica) |
-| `revuelta` | `{p, de}` | economía | una provincia se subleva y pasa a `REB` |
+| `revuelta` | `{p, de}` | economía (y sociedad en traiciones/guerra civil) | una provincia se subleva y pasa a `REB` (se emite antes del cambio de dueño) |
 | `tecnologiaInvestigada` | `{f, id}` | tecnología | |
 | `eraNueva` | `{f, era}` | tecnología | |
 | `edificioConstruido` | `{f, p, id, nivel}` | tecnología | |
 | `guerraDeclarada` / `pazFirmada` / `alianzaSellada` | `{a, b}` | diplomacia | |
 | `bodaCelebrada` | `{a, b}` (personajes) | diplomacia | |
 | `muertePersonaje` | `{c, motivo}` | diplomacia (`kill`) | |
-| `sucesion` | `{f, anterior, nuevo}` | diplomacia | |
-| `crisisEconomica` | `{f, tipo}` (`hambre`, `bancarrota`...) | economía | |
+| `sucesion` | `{f, anterior, nuevo}` (personajes, no ids) | diplomacia | |
+| `crisisEconomica` | `{f, tipo}` con tipo `hambre`, `impagos`, `bancarrota`, `peste`, `inflacion` | economía | |
 
 Quien emite un evento de esta tabla debe hacerlo en todos los caminos de código
 correspondientes. Los demás solo escuchan.
@@ -103,10 +103,19 @@ correspondientes. Los demás solo escuchan.
 | `bonoBatalla` | multiplicador | `{f, lado:'atacante'/'defensor', p}` | combate | tecnología, narrativa, social |
 | `costeConstruccion` | objeto coste | `{f, p, id, nivel}` | tecnología | economía |
 | `puntosInvestigacion` | número por año | `{f}` | tecnología | economía, social, narrativa |
-| `aceptacionDiplomatica` | probabilidad 0-1 | `{f, g, tipo}` | diplomacia | social, narrativa |
+| `aceptacionDiplomatica` | probabilidad 0-1 | `{f, g, tipo, ...términos}`; tipo: paz, alianza, nag, comercio, paso, rehenes, vasallaje, tributo, embajada, boda, llamada | diplomacia | social, narrativa |
 
 ## 6. Pruebas
 
 - `node pruebas/humo.js [años] [civ]` debe acabar en `OK sin errores`.
 - Cada sistema puede añadir `pruebas/<sistema>.js` con sus propias comprobaciones.
 - Comprueba también que una partida guardada **antes** de tus cambios sigue cargando.
+
+## 7. Notas de integración
+
+- `inc(f).g` es el **saldo neto** de oro del año (puede ser negativo). Ingresos brutos en `inc(f).gi`, gastos en `inc(f).gg`.
+- `ecoResumen(f)` → `[{id, nombre, icono, saldo, anual}]` para pintar la barra de recursos.
+- `tecLineaEdificios(p)` → texto corto con los edificios construidos de una provincia.
+- Tratados: `dipTr(f, g, tipo)` indica si hay un tratado activo (p.ej. `"paso"` = derecho de paso).
+- `dipModalGuerra(g)` abre el modal de declarar guerra con coste en reputación y aliados que acudirán.
+- Personajes rehenes llevan `c.dipReh`: no deben nombrarse generales.
