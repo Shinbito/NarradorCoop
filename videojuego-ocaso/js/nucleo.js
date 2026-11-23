@@ -208,7 +208,7 @@ const BLD = {
   establo: ["Establo", "jinetes: −6% coste, +4% ataque", 40, 2],
   arqueria: ["Campo de tiro", "arqueros: −6% coste, +4% ataque", 35, 2],
   herreria: ["Herrería", "+4% ataque y vida de las tropas", 50, 2],
-  escuela: ["Escuela", "+1 investigación (+2 en la capital)", 35, 3],
+  escuela: ["Escuela", "+1,5 investigación", 35, 3],
   acueducto: ["Acueducto", "+4 orden, +1 comida", 60, 2],
   puerto: ["Puerto", "+3 oro (solo en la costa)", 45, 2],
 };

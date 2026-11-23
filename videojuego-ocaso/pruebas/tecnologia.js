@@ -78,7 +78,14 @@ fs.mkdirSync(capt, { recursive: true });
   const ini = await page.evaluate(() => {
     const s = G.tec,
       cap = G.P[G.F[ME].capId];
-    window.__tec = { ed: Array(NF).fill(0), inv: Array(NF).fill(0), era: [], pronto: [] };
+    window.__tec = {
+      ed: Array(NF).fill(0),
+      inv: Array(NF).fill(0),
+      ad: Array(NF).fill(0),
+      era: [],
+      pronto: [],
+    };
+    OC.on("tecnologiaAdoptada", (x) => window.__tec.ad[x.f]++);
     OC.on("edificioConstruido", (x) => {
       window.__tec.ed[x.f]++;
       if (tecAnioEdi(x.id, x.nivel) > G.year) window.__tec.pronto.push(`${x.id} ${x.nivel} en ${G.year}`);
@@ -94,7 +101,7 @@ fs.mkdirSync(capt, { recursive: true });
     // clase de élite ficticia para probar la puerta por año en unidadesDisponibles
     const yr = G.year,
       est = cap.establo;
-    UN.__elite = { s: "Élite", cost: 40, atk: 8, hp: 18, food: 2, mv: 5, edif: "establo", nivel: 2 };
+    UN.__elite = { s: "Élite", cost: 25, atk: 8, hp: 18, food: 2, mv: 5, edif: "establo", nivel: 2 };
     cap.establo = 2;
     G.tec.rev++;
     const uAntes = OC.calc("unidadesDisponibles", ["i", "a", "c"], { f: ME, p: cap }).includes("__elite");
@@ -105,7 +112,39 @@ fs.mkdirSync(capt, { recursive: true });
     cap.establo = est;
     delete UN.__elite;
     G.tec.rev++;
+    // la ciudad decide: tropas, bonos, perfil y huecos
+    const otra = owned(ME).find((p) => p.id !== cap.id && !p.cuartel && !p.establo && !p.arqueria),
+      dOtra = otra ? OC.calc("unidadesDisponibles", ["i", "a", "c"], { f: ME, p: otra }) : null,
+      dCap = OC.calc("unidadesDisponibles", ["i", "a", "c"], { f: ME, p: cap }),
+      lleno = otra
+        ? tecMejora(
+            ME,
+            {
+              ...otra,
+              farm: 1,
+              market: 1,
+              temple: 1,
+              walls: 1,
+              cuartel: 1,
+              establo: 1,
+              arqueria: 1,
+              herreria: 1,
+              escuela: 0,
+            },
+            "escuela",
+          ).motivo
+        : "sin hueco";
     return {
+      otra: !!otra,
+      libres: (CIV[ME].tecLibres || []).includes("c"),
+      dOtra,
+      dCap,
+      hpCap: tecCiudad(ME, cap).st.i.hp,
+      hpOtra: otra ? tecCiudad(ME, otra).st.i.hp : 0,
+      per: tecPerfil(cap),
+      hu: tecHuecos(cap),
+      lleno,
+      motivoC: otra ? tecPuedeReclutar(ME, otra, "c").motivo : "requiere Establo",
       ok: !!(s && s.f.length === NF && s.obras),
       campos: G.P.every((p) => tecEdificios().every((k) => typeof p[k] === "number")),
       cap: { cuartel: cap.cuartel, escuela: cap.escuela, walls: cap.walls },
@@ -132,10 +171,29 @@ fs.mkdirSync(capt, { recursive: true });
   comprobar(/año 420/.test(ini.granjaII), "Granja II espera al año 420: «" + ini.granjaII + "»");
   comprobar(!ini.uAntes && ini.uDespues, "una clase de élite (establo II) se desbloquea en 445, no antes");
   console.log("  capital:", JSON.stringify(ini.cap));
+  comprobar(
+    ini.libres || !ini.otra || ini.dOtra.join() === "i",
+    "ciudad sin cuartel ni establo: solo infantería (" + (ini.dOtra || []).join() + ")",
+  );
+  comprobar(ini.libres || /Establo/.test(ini.motivoC), "y explica por qué no jinetes: «" + ini.motivoC + "»");
+  comprobar(
+    ini.dCap.includes("a") && ini.dCap.includes("c"),
+    "la capital (cuartel y establo) recluta " + ini.dCap.join(),
+  );
+  comprobar(
+    !ini.otra || ini.hpCap > ini.hpOtra,
+    `las tropas de la capital salen mejor (vida +${Math.round(ini.hpCap * 100)}% frente a +${Math.round(ini.hpOtra * 100)}%)`,
+  );
+  comprobar(
+    ini.per && ini.per.nombre && "militar" in ini.per,
+    `tecPerfil(capital): ${ini.per.icono} ${ini.per.nombre} (⚔${ini.per.militar} ◉${ini.per.economico} ✎${ini.per.saber})`,
+  );
+  comprobar(ini.hu.total >= 3 && ini.hu.total <= 9, `huecos de la capital ${ini.hu.usados}/${ini.hu.total}`);
+  comprobar(/hueco/.test(ini.lleno), "una ciudad llena no admite edificios nuevos: «" + ini.lleno + "»");
 
   // pestaña Progreso: elegir investigación con un clic
   await clic('[data-act="tab-tec"]');
-  await page.screenshot({ path: path.join(capt, "tec-panel-inicio.png") });
+  await page.screenshot({ path: path.join(capt, "tec-panel-inicio.png"), fullPage: true });
   comprobar(
     /(disponible en el año|desde) \d+/.test(await page.$eval("#panel", (e) => e.textContent)),
     "el panel muestra «disponible en el año ...»",
@@ -145,7 +203,7 @@ fs.mkdirSync(capt, { recursive: true });
   const inv = await page.evaluate(() => G.tec.f[ME].inv);
   comprobar(inv && pri.endsWith(inv), "el jugador elige investigar «" + inv + "»");
   for (const r of ["eco", "civ", "rel", "pro"]) await clic(`[data-act="tecrama-${r}"]`);
-  await page.screenshot({ path: path.join(capt, "tec-panel-propias.png") });
+  await page.screenshot({ path: path.join(capt, "tec-panel-propias.png"), fullPage: true });
   await clic('[data-act="tecrama-mil"]');
 
   // provincia: encargar una obra con un clic
@@ -162,7 +220,7 @@ fs.mkdirSync(capt, { recursive: true });
     obra.q.length === 1 && obra.oro < oro0,
     `obra encargada (${b1}) y pagada: ${oro0} → ${obra.oro} oro`,
   );
-  await page.screenshot({ path: path.join(capt, "tec-provincia.png") });
+  await page.screenshot({ path: path.join(capt, "tec-provincia.png"), fullPage: true });
   const k1 = b1.slice(4),
     lv1 = await page.evaluate((k) => G.P[sel][k], k1);
 
@@ -184,6 +242,8 @@ fs.mkdirSync(capt, { recursive: true });
           ui();
           if (!tecCola(p.id).length)
             document.querySelector('#panel button[data-act^="bld-"]:not([disabled])')?.click();
+          ui();
+          document.querySelector('#panel button[data-act^="tecado-"]:not([disabled])')?.click();
         }
       } catch (e) {
         console.error("prueba-accion", e);
@@ -203,15 +263,41 @@ fs.mkdirSync(capt, { recursive: true });
           owned(f).reduce((a, p) => a + tecEdificios().reduce((b, k) => b + (p[k] || 0), 0), 0);
       const b = tecBon(ME),
         base = { ...UN.i },
-        st = OC.calc("statsUnidad", { ...UN.i }, { f: ME, t: "i", p: cap, lado: "defensor" }),
+        mejor = owned(ME).sort((a, b) => (b.cuartel || 0) - (a.cuartel || 0))[0] || cap,
+        st = OC.calc("statsUnidad", { ...UN.i }, { f: ME, t: "i", p: mejor, lado: "defensor" }),
         /* solo los modificadores de tecnología: economía (inflación, hierro) puede encarecer */
         cu = (OC._mod.costeUnidad || [])
-          .filter((m) => /tecBon/.test(String(m.fn)))
+          .filter((m) => /tecTropas/.test(String(m.fn)))
           .reduce((v, m) => m.fn(v, { f: ME, t: "c" }) ?? v, UN.c.cost),
         y0 = { g: 10, fo: 10 },
         y1 = G.P.filter((p) => p.owner < NF)
           .map((p) => OC.calc("rendimiento", { ...y0 }, { p, f: p.owner }))
           .find((y) => y.g !== 10 || y.fo !== 10);
+      /* una técnica adoptada solo rinde en su ciudad: quitarla de una ciudad cambia su rendimiento u orden */
+      const pAd = G.P.find(
+          (p) =>
+            p.owner < NF &&
+            tecAdopciones(p).some((id) => TEC[id].ren || TEC[id].gpct || TEC[id].fpct || TEC[id].ord),
+        ),
+        mide = (p) =>
+          JSON.stringify([
+            OC.calc("rendimiento", { ...y0 }, { p, f: p.owner }),
+            OC.calc("ordenObjetivo", 50, { p, f: p.owner }),
+          ]);
+      let local = null;
+      if (pAd) {
+        const con = mide(pAd),
+          ad = G.tec.ad[pAd.id];
+        G.tec.ad[pAd.id] = [];
+        G.tec.rev++;
+        const sin = mide(pAd);
+        G.tec.ad[pAd.id] = ad;
+        G.tec.rev++;
+        local = { con, sin, ciudad: pAd.name, tecs: ad.join(",") };
+      }
+      const perfiles = {};
+      for (const p of G.P)
+        if (p.owner < NF && p.owner !== ME) perfiles[tecPerfil(p).id] = (perfiles[tecPerfil(p).id] || 0) + 1;
       return {
         vivo: alive(ME),
         k1niv: cap[k1],
@@ -226,6 +312,8 @@ fs.mkdirSync(capt, { recursive: true });
         ren: y1,
         bon: b && b.st,
         pts: tecPuntos(ME),
+        local,
+        perfiles,
         disp: OC.calc("unidadesDisponibles", ["i", "a", "c"], { f: ME, p: cap }),
       };
     },
@@ -241,9 +329,9 @@ fs.mkdirSync(capt, { recursive: true });
     fin.ev.inv.join(","),
   );
   console.log("  eras nuevas:", JSON.stringify(fin.ev.era));
-  comprobar(fin.ev.inv[CIVN] >= 3, `el jugador ha investigado ${fin.ev.inv[CIVN]} técnicas`);
+  comprobar(!fin.vivo || fin.ev.inv[CIVN] >= 3, `el jugador ha investigado ${fin.ev.inv[CIVN]} técnicas`);
   comprobar(!fin.vivo || fin.k1niv > lv1, `la obra del primer año subió ${k1}: ${lv1} → ${fin.k1niv}`);
-  comprobar(fin.ev.ed[CIVN] >= 3, `obras del jugador terminadas: ${fin.ev.ed[CIVN]}`);
+  comprobar(!fin.vivo || fin.ev.ed[CIVN] >= 3, `obras del jugador terminadas: ${fin.ev.ed[CIVN]}`);
   const iaInv = fin.vivos.filter((f) => fin.ev.inv[f] >= 2).length,
     iaEd = fin.vivos.filter((f) => fin.ev.ed[f] >= 2).length;
   comprobar(iaInv === fin.vivos.length, `todas las IA vivas investigan (${iaInv}/${fin.vivos.length})`);
@@ -253,11 +341,36 @@ fs.mkdirSync(capt, { recursive: true });
   );
   comprobar(fin.ev.era.length >= 1, "al menos un pueblo alcanza una era nueva");
   comprobar(
-    fin.st.hp > fin.st.hp0,
+    !fin.vivo || fin.st.hp > fin.st.hp0,
     `statsUnidad: vida de la infantería ${fin.st.hp0} → ${fin.st.hp.toFixed(2)}`,
   );
-  comprobar(fin.cu.cu < fin.cu.base, `costeUnidad: jinetes ${fin.cu.base} → ${fin.cu.cu.toFixed(1)}`);
+  comprobar(
+    !fin.vivo || fin.cu.cu < fin.cu.base,
+    `costeUnidad: jinetes ${fin.cu.base} → ${fin.cu.cu.toFixed(1)}`,
+  );
   comprobar(!!fin.ren, `rendimiento modificado por técnicas y edificios: 10/10 → ${JSON.stringify(fin.ren)}`);
+  console.log(
+    "  adopciones (eventos):",
+    fin.ev.ad.join(","),
+    "· perfiles de ciudades de la IA:",
+    JSON.stringify(fin.perfiles),
+  );
+  comprobar(
+    !fin.vivo || fin.ev.ad[CIVN] >= 1,
+    `el jugador ha implantado ${fin.ev.ad[CIVN]} técnicas en sus ciudades`,
+  );
+  const iaAd = fin.vivos.filter((f) => fin.ev.ad[f] >= 1).length;
+  comprobar(
+    iaAd >= Math.ceil(fin.vivos.length * 0.7),
+    `las IA implantan técnicas en sus ciudades (${iaAd}/${fin.vivos.length})`,
+  );
+  const esp = ["fuerte", "mercantil", "granero", "saber"].reduce((s, k) => s + (fin.perfiles[k] || 0), 0);
+  comprobar(esp >= 3, `la IA especializa ciudades (${esp} especializadas)`);
+  comprobar(
+    !!fin.local && fin.local.con !== fin.local.sin,
+    "una técnica adoptada solo rinde en su ciudad: " +
+      (fin.local ? `${fin.local.ciudad} (${fin.local.tecs})` : "ninguna"),
+  );
   comprobar(!fin.ev.pronto.length, "nadie (jugador ni IA) se adelanta a su año: " + fin.ev.pronto.join(", "));
   comprobar(
     fin.disp.includes("i") && fin.disp.includes("c"),
@@ -268,13 +381,44 @@ fs.mkdirSync(capt, { recursive: true });
     tab = "tec";
     ui();
   });
-  await page.screenshot({ path: path.join(capt, "tec-panel-final.png") });
+  await page.screenshot({ path: path.join(capt, "tec-panel-final.png"), fullPage: true });
   await page.evaluate(() => {
     sel = G.F[ME].capId;
     tab = "prov";
     ui();
   });
-  await page.screenshot({ path: path.join(capt, "tec-provincia-final.png") });
+  await page.screenshot({ path: path.join(capt, "tec-provincia-final.png"), fullPage: true });
+
+  // partida de la versión 1: técnicas nacionales, sin adopciones por ciudad
+  console.log("Partida de la versión 1");
+  await page.evaluate(() => {
+    save();
+    const s = JSON.parse(localStorage.getItem("ocaso-save"));
+    delete s.G.tec.ad;
+    s.G.tec.v = 1;
+    s.G.tec.f[s.ME].h = [...new Set([...s.G.tec.f[s.ME].h, "disciplina", "arado"])];
+    const cap = s.G.P[s.G.F[s.ME].capId];
+    cap.cuartel = 0;
+    cap.establo = 0;
+    localStorage.setItem("ocaso-save", JSON.stringify(s));
+  });
+  await page.evaluate(() => openStart("home"));
+  await page.waitForTimeout(100);
+  await clic('[data-act="s-cnt"]');
+  await page.waitForTimeout(300);
+  await cerrarModales();
+  const v1 = await page.evaluate(() => {
+    const cap = G.P[G.F[ME].capId];
+    return {
+      ad: owned(ME).every((p) => tecAdoptada(p, "disciplina") && tecAdoptada(p, "arado")),
+      cap: cap.cuartel >= 1 && cap.establo >= 1,
+      v: G.tec.v,
+    };
+  });
+  comprobar(
+    v1.ad && v1.cap && v1.v === 2,
+    "partida v1 migrada: lo investigado queda adoptado en sus ciudades; la capital recluta",
+  );
 
   // partida guardada ANTES del sistema: sin G.tec ni campos nuevos, niveles viejos
   console.log("Partida antigua");
