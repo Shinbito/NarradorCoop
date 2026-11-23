@@ -1,45 +1,91 @@
-/* ---------- IA ---------- */
+/* ---------- IA ----------
+   Sistema de COMBATE (parte militar). Recluta una mezcla de clases según la doctrina de su pueblo
+   y las tropas enemigas vecinas, y ataca solo cuando sus capitanes ven la batalla ganable
+   (simula el mismo modelo de factores: murallas, terreno, veteranía, general, clases). */
+const CMB_DOC = [
+  { l: 2, i: 4, p: 2, h: 1, a: 2, x: 1, c: 1.5, k: 1 },
+  { l: 1.5, i: 2.5, p: 1, h: 1, a: 2.5, x: 1, c: 2, k: 1.5, m: 1.5 },
+  { l: 3, i: 4, p: 1.5, h: 1.5, a: 1, c: 2, k: 1.5 },
+  { l: 1, i: 1.5, a: 1, x: 2, c: 3, k: 1, m: 4 },
+  { l: 2, i: 3, p: 1, h: 1.5, a: 1, x: 2, c: 2.5 },
+  { l: 3, i: 5, p: 2, h: 2, a: 1, c: 1 },
+  { l: 2, i: 1.5, p: 1, h: 1, a: 3.5, x: 1.5, c: 2.5, k: 2, m: 1.5 },
+  { l: 2, i: 4, a: 1, c: 1 },
+];
+/* elige qué clase reclutar en p: la que más se aleja de la proporción deseada */
+function cmbIAElegir(f, p, disp, F, net) {
+  const doc = CMB_DOC[f] || CMB_DOC[7],
+    ene = cmbVacio();
+  hostile(p, f).forEach((q) => cmbSuma(ene, q.u));
+  const ne = tot(ene) || 1,
+    sh = (l) => l.reduce((s, t) => s + (ene[t] || 0), 0) / ne,
+    eCab = sh(["x", "c", "k", "m"]),
+    eDis = sh(["h", "a", "m"]),
+    eInf = sh(["l", "i", "p"]),
+    w = {};
+  for (const t of disp) {
+    let v = doc[t] || 0.3;
+    if (t === "l") v *= 1 + 2.5 * eCab;
+    if (t === "x" || t === "c") v *= 1 + 1.5 * eDis;
+    if (t === "a" || t === "k" || t === "p") v *= 1 + eInf;
+    if (UN[t].food > 1 && net < 2) v *= 0.15;
+    const c = cmbCoste(f, t, p);
+    if (c > F.gold) v = 0;
+    if (c > 24 && F.gold < c * 1.6) v *= 0.4;
+    w[t] = v;
+  }
+  const sw = Object.values(w).reduce((a, b) => a + b, 0);
+  if (!sw) return null;
+  if (R() < 0.2) {
+    let x = R() * sw;
+    for (const t in w) if ((x -= w[t]) < 0) return t;
+  }
+  const n = tot(p.u) + 1;
+  return Object.keys(w)
+    .filter((t) => w[t] > 0)
+    .sort((a, b) => w[b] / sw - (p.u[b] || 0) / n - (w[a] / sw - (p.u[a] || 0) / n))[0];
+}
 async function ai(f) {
   if (!alive(f) || G.over) return;
   const F = G.F[f];
   aiDiplo(f);
-  const own = owned(f),
-    th = (p) =>
-      hostile(p, f).reduce((s, q) => s + pw(q.u) * (q.owner === REB ? 0.4 : 1), 0) + foes(p, f).length;
-  own.forEach((p) => {
-    p.tax = p.order < 38 ? 0 : p.order > 72 ? 2 : 1;
-  });
-  const e = inc(f),
-    by = (a, b) => th(a) - th(b),
-    bld = (p, k) => {
-      if (p && F.gold >= BLD[k][2] && p[k] < 2) {
-        p[k]++;
-        F.gold -= BLD[k][2];
-      }
-    };
-  if (e.net < 2) bld(own.filter((p) => p.farm < 2).sort(by)[0], "farm");
-  else if (own.some((p) => p.order < 42)) bld(own.filter((p) => p.order < 42 && p.temple < 2)[0], "temple");
-  else if (F.gold >= 110) bld(own.filter((p) => p.market < 2).sort(by)[0], "market");
-  if (F.gold >= 140) bld(own.filter((p) => p.walls < 2).sort((a, b) => by(b, a))[0], "walls");
+  const own = owned(f);
+  own.forEach((p) => cmbNorm(p.u));
+  const th = (p) =>
+    hostile(p, f).reduce((s, q) => s + pw(q.u) * (q.owner === REB ? 0.4 : 1), 0) + foes(p, f).length;
+  /* impuestos: economía (turnoIA); edificios: tecnología (economiaFaccion) */
   const bord = own.filter((p) => foes(p, f).length).sort((a, b) => th(b) - th(a));
-  for (const c of family(f).filter((c) => c.age >= 18 && c.sex === "m" && !genOf(c) && c.id !== F.ruler)) {
+  for (const c of family(f).filter(
+    (c) => c.age >= 18 && c.sex === "m" && !genOf(c) && c.id !== F.ruler && !c.dipReh,
+  )) {
     const p = bord.find((p) => p.gen == null);
     if (!p) break;
     p.gen = c.id;
   }
-  for (let g = 0; F.gold >= 10 && bord.length && g < 40; g++) {
+  /* dónde reclutar: las dos fronteras más amenazadas y, si arma mejor (cada ciudad tiene sus cuarteles),
+     la provincia propia con más clases disponibles; desde allí marchará luego al frente */
+  const sitios = bord.slice(0, 2),
+    mejor = own
+      .filter((p) => !sitios.includes(p))
+      .map((p) => ({ p, n: cmbDisp(f, p).ok.length }))
+      .sort((a, b) => b.n - a.n)[0];
+  if (mejor && sitios.length && mejor.n > Math.max(...sitios.map((p) => cmbDisp(f, p).ok.length)))
+    sitios.push(mejor.p);
+  for (let g = 0; F.gold >= 8 && sitios.length && g < 40; g++) {
     const ee = inc(f);
     if (ee.net < 0 && F.food + ee.net * 3 < 0) break;
-    const p = bord[g % Math.min(2, bord.length)],
-      mix = { i: 0, a: 0, c: 0 };
-    hostile(p, f).forEach((q) => add(mix, q.u));
-    let t = tot(mix) ? { i: "a", a: "c", c: "i" }[TYP.slice().sort((a, b) => mix[b] - mix[a])[0]] : "i";
-    if (R() < 0.3) t = pick(TYP);
-    if (cost(f, t) > F.gold || (t === "c" && ee.net < 2)) t = "i";
-    if (cost(f, t) > F.gold) break;
-    p.u[t]++;
-    F.gold -= cost(f, t);
+    /* soldada: inc(f).g es el saldo neto del año; no endeudarse por reclutar */
+    if (ee.g < -Math.max(3, owned(f).length)) break;
+    const p = sitios[g % sitios.length],
+      t = cmbIAElegir(f, p, cmbDisp(f, p).ok, F, ee.net);
+    if (!t) break;
+    const sold = typeof ecoMant === "function" ? ecoMant(f, t).oro : 0;
+    if (F.gold - cmbCoste(f, t, p) < Math.max(0, -ee.g) * 2 + sold * 3 || !cmbReclutar(f, p, t)) break;
   }
+  /* oro ocioso (p. ej. sin comida para más levas): instrucción de las guarniciones de frontera */
+  const gNeto = inc(f).g;
+  for (const p of [...bord, ...own.filter((x) => !bord.includes(x))])
+    if (gNeto > 0 && F.gold > 120 + 12 * own.length + cmbInstrCoste(p)) cmbInstruir(f, p);
   for (const p of own) {
     if (G.over) return;
     if (p.owner !== f || p.tired || pw(p.u) < 10) continue;
@@ -53,16 +99,35 @@ async function ai(f) {
       continue;
     }
     if (!hs.length) continue;
-    const my = pw(p.u) * gb(p.gen);
-    const tg = hs
-      .map((q) => ({
-        q,
-        s:
-          (my / (pw(q.u) * (1 + 0.25 * q.walls) * gb(q.gen) + 3)) *
-          (q.owner === REB ? 1.15 : 1) *
-          (q.cap ? 1.2 : 1),
-      }))
-      .sort((a, b) => b.s - a.s)[0];
-    if (tg.s > 1.45) await march(p.id, tg.q.id, foes(p, f).length > 1 ? 0.8 : 1, true);
+    const fr = foes(p, f).length > 1 ? 0.8 : 1,
+      u = cmbVacio();
+    for (const t of TYP) u[t] = fr >= 1 ? p.u[t] : Math.floor(p.u[t] * fr);
+    const my = pw(u) * gb(p.gen),
+      cand = hs
+        .map((q) => ({
+          q,
+          s:
+            (my / (pw(q.u) * (1 + 0.25 * q.walls) * gb(q.gen) + 3)) *
+            (q.owner === REB ? 1.15 : 1) *
+            (q.cap ? 1.2 : 1),
+        }))
+        .filter((c) => c.s > 0.9)
+        .sort((a, b) => b.s - a.s)
+        .slice(0, 2);
+    let mejor = null;
+    for (const c of cand) {
+      const q = c.q,
+        pr = tot(q.u)
+          ? cmbEstimar(
+              { f, u, gen: fr >= 1 ? p.gen : null, vet: cmbVetDe(p), ori: cmbOriDe(p), fat: 10 },
+              { f: q.owner, u: q.u, gen: q.gen, vet: cmbVetDe(q), ori: cmbOriDe(q) },
+              { fort: q.walls || 0, p: q, terreno: cmbTerreno(q) },
+              5,
+            )
+          : 1,
+        lim = 0.66 / ((q.owner === REB ? 1.1 : 1) * (q.cap ? 1.1 : 1));
+      if (pr >= lim && (!mejor || pr * c.s > mejor.v)) mejor = { q, v: pr * c.s };
+    }
+    if (mejor) await march(p.id, mejor.q.id, fr, true);
   }
 }

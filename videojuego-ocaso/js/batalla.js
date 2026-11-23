@@ -1,4 +1,9 @@
-/* ---------- batalla táctica ---------- */
+/* ---------- batalla táctica ----------
+   Sistema de COMBATE. Mismo modelo de factores que la resolución automática (campana.js), pero
+   continuo y con geometría: frente/flanco/retaguardia, cargas que se atascan, munición, terreno
+   (bosque, colina, río), murallas, cansancio, moral que se erosiona y desbandadas.
+   Entrada: cmbTactica(ejA, ejD, ctx, modo). El bando 0 del campo es siempre el del jugador
+   (ctx.jugador = 1 si el jugador manda ejD; ctx.auto = true: los dos bandos los lleva la IA). */
 const BW = 40,
   BH = 24,
   TS = 20,
@@ -8,54 +13,60 @@ bc.width = BW * TS;
 bc.height = BH * TS;
 const SPU = 10,
   PH = 3,
-  CD = 1.05;
-const BS = {
-  i: { atk: 6, def: 7, hp: 10, spd: 1.6, mor: 70 },
-  a: { atk: 3, def: 3, hp: 7, spd: 1.7, mor: 55, ratk: 4.2, rng: 8, rel: 2.2 },
-  c: { atk: 8, def: 5, hp: 14, spd: 3.2, mor: 65 },
-};
-const fcols = (u) => Math.min(10, Math.max(4, Math.ceil(Math.sqrt(u.n0 * (u.t === "c" ? 1.2 : 2.2))))),
-  rad = (u) => Math.max(0.55, (fcols(u) * (u.t === "c" ? 6 : 4)) / 2 / TS),
+  CD = 1.05,
+  CMB_KT = 0.055;
+const cmbCab = (t) => UN[t].cl === "cab";
+const fcols = (u) => Math.min(10, Math.max(4, Math.ceil(Math.sqrt(u.n0 * (cmbCab(u.t) ? 1.2 : 2.2))))),
+  rad = (u) => Math.max(0.55, (fcols(u) * (cmbCab(u.t) ? 6 : 4)) / 2 / TS),
   crd = (a, b) => rad(a) + rad(b) - 0.1;
 const MODES = { t3: "Por turnos · 3 acciones", t1: "Por turnos · 1 acción", rt: "Tiempo real" };
 const STN = { agr: "Agresiva", def: "Defensiva" };
+const cmbPies = (a, b) => [
+  [...a, ".f.f..", ".k.k.."],
+  [...a, "f...f.", "k...k."],
+];
+const cmbPatas = (a, c) => [
+  [...a, `.${c}.${c}.${c}.${c}.`, ".k.k.k.k."],
+  [...a, `${c}..${c}..${c}.${c}`, "k..k..k.k"],
+];
 const MS = {
-  i: [
-    ["..h..t", ".hhh.p", "..b..p", ".fffbp", "bfff.p", ".fff..", ".f.f..", ".k.k.."],
-    ["..h..t", ".hhh.p", "..b..p", ".fffbp", "bfff.p", ".fff..", "f...f.", "k...k."],
+  l: cmbPies(["..h..t", ".hhh.p", "..b..p", "rrffbp", "rrff.p", "rrff.."]),
+  i: cmbPies(["..h..t", ".hhh.p", "..b..p", ".fffbp", "bfff.p", ".fff.."]),
+  p: [
+    ["..r...", ".hhh.t", "..b..h", "rhhhbh", "rhfh.h", "rhhh..", ".h.h..", ".k.k.."],
+    ["..r...", ".hhh.t", "..b..h", "rhhhbh", "rhfh.h", "rhhh..", "h...h.", "k...k."],
   ],
-  a: [
-    ["..h...", ".hhh.n", "..b..n", ".fffbn", "bfff.n", ".fff.n", ".f.f..", ".k.k.."],
-    ["..h...", ".hhh.n", "..b..n", ".fffbn", "bfff.n", ".fff.n", "f...f.", "k...k."],
-  ],
-  c: [
-    ["...h.....", "..hhh....", "...b.....", "..fff..n.", "..fffnnnn", "nnnnnnnn.", ".n.n.n.n.", ".k.k.k.k."],
-    ["...h.....", "..hhh....", "...b.....", "..fff..n.", "..fffnnnn", "nnnnnnnn.", "n..n..n.n", "k..k..k.k"],
-  ],
+  h: cmbPies(["..p..t", ".pbp.p", "..b.p.", ".fffb.", "bfff..", ".fff.."]),
+  a: cmbPies(["..h...", ".hhh.n", "..b..n", ".fffbn", "bfff.n", ".fff.n"]),
+  x: cmbPatas(["......t..", "..pp.p...", "...b.p...", "..fffb.w.", "..fffwwww", "wwwwwwww."], "w"),
+  c: cmbPatas(["...h.....", "..hhh....", "...b.....", "..fff..n.", "..fffnnnn", "nnnnnnnn."], "n"),
+  k: cmbPatas(["...h....t", "..hhh..p.", "...h..p..", "..hhhp.h.", "..hhhhhhh", "rrrrrrrh."], "h"),
+  m: cmbPatas(["...h..n..", "..hhh..n.", "...b...n.", "..fffbn..", "..fff.nnn", "nnnnnnnn."], "n"),
 };
 function sprF(c, rows, x, y, pal, fl) {
   const w = rows[0].length;
   rows.forEach((row, j) => {
     for (let i = 0; i < w; i++) {
       const k = row[i];
-      if (k === ".") continue;
+      if (k === "." || !k) continue;
       c.fillStyle = pal[k];
       c.fillRect(x + (fl ? w - 1 - i : i), y + j, 1, 1);
     }
   });
 }
-function paintField(c, terr) {
+/* terreno: 0 llano, 1 bosque, 2 colina, 3 río, 4 vado */
+function paintField(c, terr, fort, def) {
   const r = mul(ri(1, 1e6));
   for (let y = 0; y < BH; y++)
     for (let x = 0; x < BW; x++) {
       const t = terr[y][x],
         X = x * TS,
         Y = y * TS;
-      c.fillStyle = t === 2 ? "#7c8850" : "#5a983f";
+      c.fillStyle = t === 2 ? "#7c8850" : t === 3 ? "#2c5f8a" : t === 4 ? "#8fa37a" : "#5a983f";
       c.fillRect(X, Y, TS, TS);
       for (let k = 0; k < 9; k++) {
-        c.fillStyle = r() < 0.5 ? "#6aae49" : "#4b8434";
-        c.fillRect(X + Math.floor(r() * TS), Y + Math.floor(r() * TS), 1, 1);
+        c.fillStyle = t === 3 ? (r() < 0.5 ? "#4a86b8" : "#1f4a6e") : r() < 0.5 ? "#6aae49" : "#4b8434";
+        c.fillRect(X + Math.floor(r() * TS), Y + Math.floor(r() * TS), t === 3 ? 3 : 1, 1);
       }
       if (t === 1)
         for (let k = 0; k < 3; k++) spr(c, SP.tree, X + Math.floor(r() * 14), Y + Math.floor(r() * 14), BP);
@@ -64,48 +75,113 @@ function paintField(c, terr) {
         spr(c, SP.hill, X + 10, Y + 12, BP);
       }
     }
-}
-function tactical(fa, fd, A, D, fort, gA, gD, place, mode) {
-  return new Promise((done) => {
-    const r = mul(ri(1, 1e9)),
-      nz = noise(r, 9, 6),
-      terr = [];
+  if (fort) {
+    const wx = (def ? 29.5 : 10.5) * TS;
     for (let y = 0; y < BH; y++) {
-      terr.push([]);
-      for (let x = 0; x < BW; x++) {
-        const v = nz((x / BW) * 9, (y / BH) * 6);
-        terr[y].push(x < 6 || x > BW - 7 ? 0 : v > 0.7 ? 1 : v < 0.18 ? 2 : 0);
-      }
+      if (y % 6 === 2 || y % 6 === 3) continue;
+      const Y = y * TS;
+      c.fillStyle = "#000";
+      c.fillRect(wx - 5, Y, 10, TS);
+      c.fillStyle = "#b7ad9a";
+      c.fillRect(wx - 4, Y, 8, TS);
+      c.fillStyle = "#857c6b";
+      for (let k = 0; k < TS; k += 5) c.fillRect(wx - 4, Y + k, 8, 1);
+      c.fillStyle = "#d8cfbd";
+      c.fillRect(wx - 4 + (y % 2) * 4, Y, 4, 3);
     }
-    const units = [];
+  }
+}
+function cmbCampo(env, fort, def) {
+  const r = mul(ri(1, 1e9)),
+    nz = noise(r, 9, 6),
+    terr = [],
+    tr = env.terr,
+    fb = 0.7 - 0.3 * (tr.bosque || 0),
+    fh = 0.18 + 0.3 * (tr.colina || 0);
+  for (let y = 0; y < BH; y++) {
+    terr.push([]);
+    for (let x = 0; x < BW; x++) {
+      const v = nz((x / BW) * 9, (y / BH) * 6);
+      terr[y].push(x < 6 || x > BW - 7 ? 0 : v > fb ? 1 : v < fh ? 2 : 0);
+    }
+  }
+  if (tr.rio) {
+    const x0 = 17 + Math.floor(r() * 6),
+      vados = [ri(2, 6), ri(9, 14), ri(17, 21)];
+    for (let y = 0; y < BH; y++) {
+      const x = Math.round(x0 + Math.sin(y / 3.5 + x0) * 1.5);
+      const t = vados.some((v) => Math.abs(v - y) <= 1) ? 4 : 3;
+      terr[y][x] = t;
+      if (r() < 0.4) terr[y][x + 1] = t;
+    }
+  }
+  if (fort) for (let y = 0; y < BH; y++) for (const x of def ? [28, 29, 30] : [9, 10, 11]) terr[y][x] = 0;
+  return terr;
+}
+/* compatibilidad con la firma antigua */
+function tactical(fa, fd, A, D, fort, gA, gD, place, mode) {
+  return cmbTactica(
+    { f: fa, u: A, gen: gA },
+    { f: fd, u: D, gen: gD },
+    { fort, nombreLugar: place },
+    mode,
+  ).then((r) => ({ win: r.gana === 0, A: r.A, D: r.D, inf: r.informe }));
+}
+function cmbTactica(ejA, ejD, ctx = {}, mode = "rt") {
+  return new Promise((done) => {
+    const env = cmbEntorno(ctx),
+      p = ctx.p || null,
+      fort = ctx.fort || 0,
+      map = ctx.jugador === 1 ? [1, 0] : [0, 1],
+      ejs = [ejA, ejD],
+      def = map.indexOf(1),
+      terr = cmbCampo(env, fort, def),
+      units = [],
+      gens = [],
+      bono = [],
+      gbs = [];
     let id = 0;
-    for (const [side, u, f, g] of [
-      [0, A, fa, gA],
-      [1, D, fd, gD],
-    ]) {
-      const ts = TYP.reduce((s, t) => s + u[t] * SPU, 0),
+    for (const side of [0, 1]) {
+      const ej = ejs[map[side]],
+        f = ej.f,
+        u = ej.u,
+        lado = side === def ? "defensor" : "atacante",
+        gc = ej.gen != null && G.C[ej.gen] && G.C[ej.gen].alive !== false ? G.C[ej.gen] : null,
+        hambre = ej.hambre != null ? ej.hambre : !!(G.F[f] && G.F[f].food <= 0),
+        as = side === def && ctx.asedio ? Math.min(20, ctx.asedio * 4) : 0,
+        ts = TYP.reduce((s, t) => s + (u[t] || 0) * SPU, 0),
         size = Math.max(20, Math.min(40, Math.ceil(ts / 14)));
+      gens.push({ id: gc ? gc.id : null, ok: !!gc, ma: gc ? gc.ma : 0, res: null });
+      gbs.push(gc ? 1 + gc.ma * 0.04 : 1);
+      bono.push(OC.calc("bonoBatalla", 1, { f, lado, p }) || 1);
       for (const t of TYP) {
-        let n = u[t] * SPU;
+        let n = (u[t] || 0) * SPU;
+        const cs = cmbStats(f, t, cmbOrigenP(f, t, ej.ori, p), lado, (ej.vet && ej.vet[t]) || 0),
+          m =
+            cs.mo +
+            (gc ? gc.ma * 1.5 : 0) +
+            (side === def && fort ? 6 + fort * 4 : 0) -
+            (hambre ? 10 : 0) -
+            as;
         while (n > 0) {
           const k = Math.min(size, n);
           n -= k;
-          const b = CIV[f].bon[t],
-            m = BS[t].mor + (g != null ? 10 : 0);
           units.push({
             id: id++,
             side,
             t,
             f,
+            cs,
             n: k,
             n0: k,
+            her: 0,
+            muertos: 0,
             dmg: 0,
-            hpS: BS[t].hp * b.hp,
-            atk: BS[t].atk * b.atk,
-            def: BS[t].def,
+            hpS: cs.vi,
             mor: m,
             morMax: m,
-            fat: 0,
+            fat: ej.fat || 0,
+            ammo: cs.mu,
             x: -1,
             y: -1,
             rel: Math.random() * 2,
@@ -114,23 +190,40 @@ function tactical(fa, fd, A, D, fort, gA, gD, place, mode) {
             moved: 0,
             charge: 0,
             eng: 0,
+            engT: 0,
+            flk: 0,
             face: side ? -1 : 1,
-            plan: [0, 1, 2].map(() => ({ o: null, st: t === "a" ? "def" : "agr" })),
+            plan: [0, 1, 2].map(() => ({ o: null, st: cs.al ? "def" : t === "l" ? "def" : "agr" })),
           });
         }
       }
+      if (gc) {
+        const gu = units.filter((o) => o.side === side && o.cs.cl !== "dis").sort((a, b) => b.n - a.n)[0];
+        if (gu) gu.gen = true;
+      }
+    }
+    for (const u of units) {
+      const nm = CIV[u.f].un[u.t].toLowerCase();
+      u.nm = CIV[ejA.f].un[u.t] === CIV[ejD.f].un[u.t] ? `${nm} (${CIV[u.f].s})` : nm;
     }
     const bg = document.createElement("canvas");
     bg.width = BW * TS;
     bg.height = BH * TS;
-    paintField(bg.getContext("2d"), terr);
+    paintField(bg.getContext("2d"), terr, fort, def);
+    const lim = { t3: env.rmax, t1: Math.round(env.rmax * 2.5), rt: env.rmax * 25 }[mode];
     BT = {
       bg,
       dead: [],
-      fa,
-      fd,
+      fa: ejs[map[0]].f,
+      fd: ejs[map[1]].f,
       fort,
-      place,
+      def,
+      map,
+      ejs,
+      env,
+      lim,
+      place: ctx.nombreLugar || (p && p.name) || "campo abierto",
+      ctx,
       terr,
       units,
       mode,
@@ -140,11 +233,19 @@ function tactical(fa, fd, A, D, fort, gA, gD, place, mode) {
       slot: 0,
       log: [],
       fx: [],
+      tal: [{}, {}],
+      hitos: [],
+      ult: [0, 0],
+      dichos: {},
       t: 0,
+      tH: 0,
       run: false,
       paused: false,
-      speed: 1,
-      gb: [gb(gA), gb(gD)],
+      speed: ctx.velocidad || 1,
+      gb: gbs,
+      gens,
+      bono,
+      auto0: !!ctx.auto,
       init: [
         units.filter((u) => !u.side).reduce((s, u) => s + u.n, 0),
         units.filter((u) => u.side).reduce((s, u) => s + u.n, 0),
@@ -157,25 +258,32 @@ function tactical(fa, fd, A, D, fort, gA, gD, place, mode) {
     BT.sel = units.find((u) => !u.side)?.id ?? null;
     BT.sels = BT.sel == null ? [] : [BT.sel];
     BT.atk = false;
+    bLog(
+      `${env.hora[0].toUpperCase() + env.hora.slice(1)}, ${env.clima} · ${CMB_TERR[env.terr.tag] || env.terr.tag}${fort ? " · murallas " + fort : ""}.`,
+    );
     $("battle").classList.add("show");
     music("battle");
+    if (ctx.auto) battleAct("go");
     bui();
   });
 }
+const cmbGrp = (t) => (cmbCab(t) ? "cab" : t === "h" ? "esc" : UN[t].cl === "dis" ? "arq" : "lin");
 function deploy(side, only) {
   const us = BT.units.filter((u) => u.side === side && (!only || u.x < 0)),
     rows = [12, 10.3, 13.7, 8.6, 15.4, 6.9, 17.1, 5.2, 18.8, 3.5, 20.5, 1.8, 22.2],
-    col = { i: side ? 31.5 : 8.5, a: side ? 36.5 : 3.5, c: side ? 34 : 6 };
-  const cnt = { i: 0, a: 0, c: 0 };
+    col = { lin: side ? 32.5 : 7.5, esc: side ? 30.9 : 9.1, arq: side ? 36.5 : 3.5, cab: side ? 34.5 : 5.5 };
+  const cnt = { lin: 0, esc: 0, arq: 0, cab: 0 };
+  us.sort((a, b) => TYP.indexOf(a.t) - TYP.indexOf(b.t));
   for (const u of us) {
-    const k = cnt[u.t]++;
+    const g = cmbGrp(u.t),
+      k = cnt[g]++;
     let y = rows[k % rows.length],
-      x = col[u.t] + (k >= rows.length ? (side ? 1.6 : -1.6) : 0);
-    if (u.t === "c") y = k % 2 ? BH - 2 - Math.floor(k / 2) * 1.8 : 2 + Math.floor(k / 2) * 1.8;
+      x = col[g] + (k >= rows.length ? (side ? 1.6 : -1.6) : 0);
+    if (g === "cab") y = k % 2 ? BH - 2 - Math.floor(k / 2) * 1.8 : 2 + Math.floor(k / 2) * 1.8;
     for (
-      let g = 0;
-      g < 30 && BT.units.some((o) => o !== u && o.x >= 0 && Math.hypot(o.x - x, o.y - y) < crd(o, u) + 0.1);
-      g++
+      let n = 0;
+      n < 30 && BT.units.some((o) => o !== u && o.x >= 0 && Math.hypot(o.x - x, o.y - y) < crd(o, u) + 0.1);
+      n++
     )
       y = ((y + 1.7) % (BH - 1)) + 0.5;
     u.x = x;
@@ -190,13 +298,49 @@ const act = (u) => u.n > 0 && !u.gone,
 const nearest = (u) => enem(u).sort((a, b) => dd(u, a) - dd(u, b))[0];
 const tile = (u) => BT.terr[clamp(Math.floor(u.y), 0, BH - 1)]?.[clamp(Math.floor(u.x), 0, BW - 1)],
   inForest = (u) => tile(u) === 1,
-  onHill = (u) => tile(u) === 2;
-const reach = (u) => BS[u.t].spd * PH * (1 - u.fat / 300) * (inForest(u) ? 0.75 : 1);
+  onHill = (u) => tile(u) === 2,
+  inRiver = (u) => tile(u) === 3;
+const tirador = (u) => u.cs.al > 0 && u.ammo > 0,
+  alc = (u) => u.cs.al * (BT.env.clima === "niebla" ? 0.7 : 1) * (onHill(u) ? 1.15 : 1),
+  murOk = (u) => BT.fort && u.side === BT.def && (BT.def ? u.x > 29.5 : u.x < 10.5);
+const reach = (u) =>
+  u.cs.ve * PH * (1 - u.fat / 300) * (inForest(u) ? (cmbCab(u.t) ? 0.6 : 0.8) : 1) * (inRiver(u) ? 0.5 : 1);
 function bLog(m, c = "") {
   BT.log.unshift({ m, c });
   if (BT.log.length > 40) BT.log.length = 40;
+  BT.ult = [BT.ult[0], m];
 }
-const uname = (u) => (u.side === 0 ? "Tus " : "Los ") + CIV[u.f].un[u.t].toLowerCase();
+/* registra un hito (una vez por clave) con importancia */
+function bHito(k, pr, m, c) {
+  if (k && BT.dichos[k]) return;
+  if (k) BT.dichos[k] = 1;
+  bLog(m, c);
+  if (!BT.hitoP || pr >= BT.hitoP[0]) BT.hitoP = [pr, m];
+}
+const uname = (u) => (u.side === 0 ? "Tus " : "Los ") + u.nm;
+const cBien = (u) => (u.side ? "good" : "bad");
+const cmbTal = (s, k, v) => {
+  if (v > 0) BT.tal[s][k] = (BT.tal[s][k] || 0) + v;
+};
+function cmbGeneralCae(s, u) {
+  const g = BT.gens[s];
+  if (!g.ok) return;
+  g.ok = false;
+  BT.gb[s] = 1;
+  const muere = R() < 0.35,
+    gc = G.C[g.id];
+  g.res = muere ? "muerto" : "herido";
+  for (const o of BT.units) if (o.side === s && act(o)) o.mor -= muere ? 18 : 12;
+  cmbTal(1 - s, "general", BT.init[s] * 0.08);
+  bHito(
+    "gen" + s,
+    5,
+    muere
+      ? `${gc ? gc.n : "El general"} cae muerto junto a los ${u.nm}; ${s ? "el enemigo titubea" : "tus hombres titubean"}.`
+      : `${gc ? gc.n : "El general"} cae herido y es retirado del frente.`,
+    s ? "good" : "bad",
+  );
+}
 function hurt(b, v) {
   if (b.n <= 0) return 0;
   b.dmg += v;
@@ -205,79 +349,145 @@ function hurt(b, v) {
     b.dmg -= b.hpS;
     b.n--;
     lost++;
-    BT.dead.push({ x: b.x * TS + ri(-11, 9), y: b.y * TS + ri(-7, 7), f: b.f });
+    if (R() < (b.rout ? 0.75 : 0.4)) {
+      b.muertos++;
+      BT.dead.push({ x: b.x * TS + ri(-11, 9), y: b.y * TS + ri(-7, 7), f: b.f });
+    } else b.her++;
   }
   if (lost) {
-    b.mor -= (lost / b.n0) * 75;
+    b.mor -= (lost / b.n0) * 100 * (1 - b.cs.di * 0.05);
+    if (b.gen && R() < (lost / b.n0) * 1.1) cmbGeneralCae(b.side, b);
     if (BT.dead.length > 500) BT.dead.splice(0, BT.dead.length - 500);
   }
   return lost;
 }
+/* posición del atacante respecto al frente del defensor */
+function cmbAngulo(a, b) {
+  const d = dd(a, b) || 1,
+    c = ((a.x - b.x) * b.face) / d;
+  return c > 0.35 ? 0 : c < -0.5 ? 2 : 1;
+}
 function fight(a, b, dt) {
-  if (a.rout) return;
-  const sa = a.st === "agr" ? 1.25 : 0.85,
-    sb = b.rout ? 0.4 : b.st === "agr" ? 0.8 : 1.35,
-    fa = 1 - a.fat / 250,
-    fb = 1 - b.fat / 250;
+  if (a.rout || a.n <= 0) return;
+  /* solo hay flanco si el defensor ya está trabado con otro enemigo (si no, se vuelve hacia el atacante) */
+  const pos = b.rout || b.eng < 2 ? 0 : cmbAngulo(a, b),
+    flm = [1, 1.4, 1.8][pos],
+    sa = a.st === "agr" ? 1.2 : 0.9,
+    sb = b.rout ? 0.3 : b.st === "agr" ? 0.85 : 1.3,
+    fa = Math.max(0.5, 1 - a.fat / 220),
+    fb = Math.max(0.6, 1 - b.fat / 300),
+    mur = murOk(b) ? 1 / (1 + 0.3 * BT.fort) : 1,
+    hill = onHill(b) && !onHill(a) ? 0.8 : 1,
+    rioA = inRiver(a) ? 0.8 : 1,
+    rioB = inRiver(b) ? 0.7 : 1,
+    bos = inForest(a) && cmbCab(a.t) ? 0.7 : 1,
+    stuck = cmbCab(a.t) && a.charge <= 0 && a.engT > 4 ? 0.8 : 1;
+  let cg = a.charge > 0 && a.cs.ca ? 1 + a.cs.ca * 0.11 * (inForest(a) ? 0.4 : 1) : 1;
+  if (cg > 1 && b.t === "l" && pos === 0 && !b.rout) {
+    const c2 = 1 + (cg - 1) * 0.2;
+    if (cmbCab(a.t))
+      bHito("lan" + a.id, 3, `Los ${b.nm} clavan las lanzas: la carga de los ${a.nm} se estrella.`, cBien(a));
+    cmbTal(b.side, "lanceros", ((cg - c2) / cg) * dt * 3);
+    cg = c2;
+  }
+  if (pos && !b.rout) {
+    b.flk = Math.max(b.flk, pos);
+    bHito(
+      "flk" + b.id,
+      3,
+      `Los ${a.nm} ${pos === 2 ? "caen sobre la retaguardia de" : "flanquean a"} los ${b.nm}; su moral se tambalea.`,
+      cBien(b),
+    );
+  }
   let v =
     Math.min(a.n, 8) *
-    a.atk *
+    a.cs.me *
     MULT[a.t][b.t] *
     sa *
     fa *
     BT.gb[a.side] *
-    (a.t === "a" ? 0.45 : 1) *
-    (a.charge > 0 ? 1.8 : 1) *
-    (10 / (10 + b.def * sb * fb)) *
+    BT.bono[a.side] *
+    cg *
+    stuck *
+    rioA *
+    bos *
+    hill *
+    mur *
+    flm *
+    (12 / (12 + b.cs.de * sb * fb * rioB)) *
+    (10 / (10 + b.cs.ar * 1.2 * (pos === 2 ? 0.6 : 1))) *
     dt *
-    0.55;
-  if (b.side === 1 && BT.fort) v /= 1 + 0.25 * BT.fort;
-  if (b.rout) v *= 1.8;
-  hurt(b, v);
+    CMB_KT;
+  if (b.rout) v *= 1.6;
+  const l = hurt(b, v) || v / b.hpS;
+  cmbTal(a.side, "carga", l * (1 - 1 / cg));
+  cmbTal(a.side, "flanqueo", l * (1 - 1 / flm));
+  cmbTal(a.side, "mando", l * (1 - 1 / BT.gb[a.side]));
+  cmbTal(a.side, "veterania", (l * (a.cs.xp / 500)) / (1 + a.cs.xp / 500));
+  cmbTal(a.side, "fatiga", l * (1 / fb - 1));
+  cmbTal(b.side, "armadura", l * (b.cs.ar * 0.12));
+  if (mur < 1) cmbTal(b.side, "murallas", (l * (1 - mur)) / mur);
+  if (hill < 1 || rioB < 1) cmbTal(b.side, "terreno", l * 0.25);
+  if (b.rout) cmbTal(a.side, "persecucion", l);
 }
 function volley(u, t) {
-  let hits = u.n * 0.35 * (1 - u.fat / 300);
-  const sb = t.st === "def" ? 1.6 : 1;
+  const d = dd(u, t) || 1,
+    fr = ((u.x - t.x) * t.face) / d > 0.35,
+    esc = Math.min(0.85, t.cs.es * (fr ? 1 : 0.3) * (u.t === "h" ? 0.5 : 1) * (t.st === "def" ? 1.3 : 1)),
+    arm = 10 / (10 + t.cs.ar * 1.5),
+    mur = murOk(t) ? 1 / (1 + 0.35 * BT.fort) : 1,
+    cl = BT.env.clima;
   let v =
-    hits *
-    BS.a.ratk *
-    CIV[u.f].bon.a.atk *
-    MULT.a[t.t] *
-    (10 / (10 + t.def * sb)) *
+    u.n *
+    0.22 *
+    Math.max(0.5, 1 - u.fat / 300) *
+    u.cs.pr *
+    (1 - esc) *
+    arm *
     (onHill(u) ? 1.25 : 1) *
     (inForest(t) ? 0.6 : 1) *
+    (cl === "lluvia" && u.t !== "h" ? 0.65 : 1) *
+    (cl === "niebla" ? 0.8 : 1) *
     BT.gb[u.side] *
+    BT.bono[u.side] *
+    mur *
     0.8;
   const cover =
-    t.t === "a" &&
+    t.cs.cl === "dis" &&
     BT.units.some(
       (o) =>
         o.side === t.side &&
-        o.t !== "a" &&
+        o.cs.cl !== "dis" &&
         fighting(o) &&
         (o.x - t.x) * (t.side ? -1 : 1) > 0.3 &&
         (o.x - t.x) * (t.side ? -1 : 1) < 2.6 &&
         Math.abs(o.y - t.y) < 1.3,
     );
   if (cover) v *= 0.5;
-  if (t.side === 1 && BT.fort) v /= 1 + 0.25 * BT.fort;
+  u.ammo--;
+  if (u.ammo <= 0) bHito("mu" + u.id, 1, `${uname(u)} agotan sus proyectiles.`);
   const now = performance.now();
-  for (let k = 0; k < Math.min(u.n, 10); k++)
-    BT.fx.push({
-      arrow: 1,
-      x0: u.x + (R() - 0.5) * 0.9,
-      y0: u.y + (R() - 0.5) * 0.7,
-      x: t.x + (R() - 0.5) * 1,
-      y: t.y + (R() - 0.5) * 0.8,
-      t0: now + k * 35,
-    });
+  if (!BT.quiet)
+    for (let k = 0; k < Math.min(u.n, 10); k++)
+      BT.fx.push({
+        arrow: 1,
+        x0: u.x + (R() - 0.5) * 0.9,
+        y0: u.y + (R() - 0.5) * 0.7,
+        x: t.x + (R() - 0.5) * 1,
+        y: t.y + (R() - 0.5) * 0.8,
+        t0: now + k * 35,
+      });
   const l = hurt(t, v);
+  cmbTal(u.side, "proyectiles", l || v / t.hpS);
+  cmbTal(t.side, "armadura", (v / t.hpS) * ((1 - (1 - esc) * arm) / ((1 - esc) * arm)) * 0.5);
+  if (mur < 1) cmbTal(t.side, "murallas", ((v / t.hpS) * (1 - mur)) / mur);
   if (l && !BT.quiet)
     BT.fx.push({ x: t.x, y: t.y, txt: "-" + l, t0: now + 300, c: t.side ? "#ffd36b" : "#ff8a7a" });
 }
 function simStep(dt, slot) {
   const live = BT.units.filter(act),
-    now = performance.now();
+    now = performance.now(),
+    calor = BT.env.clima === "calor" ? 1.3 : 1;
   BT.t += dt;
   for (const u of live) {
     const P = u.plan[slot] || u.plan[0];
@@ -286,7 +496,10 @@ function simStep(dt, slot) {
     if (u.rout) g = { x: u.side ? BW + 2 : -2, y: u.y };
     else if (P.o && P.o.tg != null) {
       const t = bU(P.o.tg);
-      if (t && fighting(t)) g = { x: t.x, y: t.y, stop: crd(u, t) - 0.05, p: 1 };
+      if (t && fighting(t))
+        g = tirador(u)
+          ? { x: t.x, y: t.y, stop: alc(u) - 0.6 }
+          : { x: t.x, y: t.y, stop: crd(u, t) - 0.05, p: 1 };
       else P.o = null;
     } else if (P.o) {
       if (Math.hypot(P.o.x - u.x, P.o.y - u.y) < 0.12) P.o = null;
@@ -295,24 +508,41 @@ function simStep(dt, slot) {
     if (!g && !u.rout) {
       const e = nearest(u);
       if (e) {
-        if (u.t === "a") {
-          if (u.st === "agr" && dd(u, e) > BS.a.rng - 0.3) g = { x: e.x, y: e.y, stop: BS.a.rng - 0.6 };
+        if (tirador(u)) {
+          if (u.st === "agr" && dd(u, e) > alc(u) - 0.3) g = { x: e.x, y: e.y, stop: alc(u) - 0.6 };
         } else if (u.st === "agr" && dd(u, e) < 4) g = { x: e.x, y: e.y, stop: crd(u, e) - 0.05, p: 1 };
+      }
+    }
+    /* los hostigadores rehúyen el cuerpo a cuerpo mientras tengan munición */
+    if (!u.rout && !u.eng && tirador(u) && (u.t === "h" || u.t === "m" || u.st === "def")) {
+      const m = enem(u)
+        .filter((o) => !tirador(o) && dd(u, o) < 2.6 + rad(o))
+        .sort((a, b) => dd(u, a) - dd(u, b))[0];
+      if (m) {
+        const L = dd(u, m) || 1;
+        g = { x: u.x + ((u.x - m.x) / L) * 3, y: u.y + ((u.y - m.y) / L) * 3 };
       }
     }
     u.goal = g;
   }
   for (const u of live) {
-    const was = u.eng;
-    u.eng = enem(u).filter((o) => dd(u, o) < crd(u, o) + 0.08).length;
-    if (u.eng && !was && u.t === "c" && u.moved >= 1.5) {
-      u.charge = 1.5;
-      enem(u)
-        .filter((o) => dd(u, o) < crd(u, o) + 0.08)
-        .forEach((o) => (o.mor -= 8));
+    const was = u.eng,
+      cont = enem(u).filter((o) => dd(u, o) < crd(u, o) + 0.08);
+    u.eng = cont.length;
+    if (u.eng && !was && u.cs.ca >= 2 && u.moved >= (cmbCab(u.t) ? 1.5 : 1)) {
+      u.charge = cmbCab(u.t) ? 1.5 : 0.8;
+      u.fat = Math.min(100, u.fat + 4);
+      cont.forEach((o) => (o.mor -= 6 * (u.cs.ca / 6) * (o.t === "l" ? 0.3 : 1)));
+      if (u.cs.ca >= 6) bHito("car" + u.id, 2, `${uname(u)} cargan contra los ${cont[0].nm}.`);
     }
     u.charge = Math.max(0, u.charge - dt);
-    let sp = BS[u.t].spd * (1 - u.fat / 300) * (inForest(u) ? 0.6 : 1) * (u.rout ? 1.3 : 1);
+    u.engT = u.eng ? u.engT + dt : 0;
+    let sp =
+      u.cs.ve *
+      (1 - u.fat / 250) *
+      (inForest(u) ? (cmbCab(u.t) ? 0.5 : 0.7) : 1) *
+      (inRiver(u) ? 0.45 : 1) *
+      (u.rout ? 1.3 : 1);
     if (u.eng) sp *= u.rout ? 0.5 : 0;
     if (u.goal && sp > 0) {
       const dx = u.goal.x - u.x,
@@ -324,18 +554,21 @@ function simStep(dt, slot) {
         u.y += (dy / L) * m;
         u.moved += m;
         u.mvT = now;
-        if (Math.abs(dx) > 0.05) u.face = Math.sign(dx);
-        u.fat = Math.min(100, u.fat + dt * (u.t === "c" ? 2 : 3) * (u.st === "agr" ? 1.3 : 1));
+        if (Math.abs(dx) > 0.05 && !(tirador(u) && u.t !== "m")) u.face = Math.sign(dx);
+        u.fat = Math.min(100, u.fat + dt * 0.5 * u.cs.fa * calor * (u.st === "agr" ? 1.3 : 1));
       } else u.moved = 0;
     } else if (!u.eng) {
       u.moved = 0;
-      u.fat = Math.max(0, u.fat - dt * 4);
+      u.fat = Math.max(0, u.fat - dt * 1.5);
     }
     if (u.eng) {
-      u.fat = Math.min(100, u.fat + dt * 5 * (u.st === "agr" ? 1.3 : 1));
+      u.fat = Math.min(100, u.fat + dt * 1.1 * u.cs.fa * calor * (u.st === "agr" ? 1.3 : 1));
       u.fT = now;
+      const e = cont.sort((a, b) => b.n - a.n)[0];
+      if (e && !u.rout) u.face = Math.sign(e.x - u.x) || u.face;
+    } else if (!u.rout && !u.goal) {
       const e = nearest(u);
-      if (e) u.face = Math.sign(e.x - u.x) || u.face;
+      if (e && dd(u, e) < 9) u.face = Math.sign(e.x - u.x) || u.face;
     }
   }
   for (const u of live)
@@ -358,10 +591,11 @@ function simStep(dt, slot) {
     if (u.rout) {
       if (u.x < -0.6 || u.x > BW + 0.6) {
         u.gone = true;
-        bLog(`${uname(u)} abandonan el campo (${u.n}).`, u.side ? "good" : "bad");
+        bLog(`${uname(u)} abandonan el campo (${u.n}).`, cBien(u));
       }
     } else u.x = clamp(u.x, 0.5, BW - 0.5);
   }
+  for (const u of live) u.flk = 0;
   for (const u of live)
     if (u.side === 0)
       for (const o of live)
@@ -370,100 +604,172 @@ function simStep(dt, slot) {
           fight(o, u, dt);
         }
   for (const u of live) {
-    if (u.t !== "a" || u.rout || u.eng || u.n <= 0) continue;
+    if (!tirador(u) || u.rout || u.eng || u.n <= 0) continue;
     u.rel -= dt;
     if (u.rel > 0) continue;
     const P = u.plan[slot] || u.plan[0],
       pt = P.o && P.o.tg != null ? bU(P.o.tg) : null;
     const t =
-      pt && fighting(pt) && dd(u, pt) <= BS.a.rng
+      pt && fighting(pt) && dd(u, pt) <= alc(u)
         ? pt
         : enem(u)
-            .filter((o) => dd(u, o) <= BS.a.rng)
+            .filter((o) => dd(u, o) <= alc(u))
             .sort((a, b) => dd(u, a) - dd(u, b))[0];
     if (t) {
       volley(u, t);
-      u.rel = BS.a.rel * (u.mvT && now - u.mvT < 200 ? 1.6 : 1);
+      u.rel =
+        (u.t === "h" ? 1.8 : u.t === "m" ? 2.4 : 2.2) *
+        (u.mvT && now - u.mvT < 200 ? (u.t === "m" ? 1.2 : 1.6) : 1);
     } else u.rel = 0.3;
   }
   for (const u of live) {
     if (u.n <= 0) {
       if (!u.dead) {
         u.dead = 1;
-        bLog(`${uname(u)} han sido aniquilados.`, u.side ? "good" : "bad");
+        bLog(`${uname(u)} han sido aniquilados.`, cBien(u));
       }
       continue;
     }
-    if (u.eng > 1) u.mor -= dt * 3;
-    else if (u.eng) u.mor -= dt * 0.4;
-    else u.mor = Math.min(u.morMax * (0.5 + (0.5 * u.n) / u.n0), u.mor + dt * (u.rout ? 1 : 1.5));
-    if (u.fat > 80) u.mor -= dt * 0.6;
+    const dis = 1 - u.cs.di * 0.05,
+      g = BT.gens[u.side];
+    if (u.eng > 1) u.mor -= dt * (0.3 + 0.35 * (u.eng - 1)) * dis;
+    else if (u.eng) u.mor -= dt * 0.25 * dis;
+    if (u.flk) u.mor -= dt * (u.flk === 2 ? 2 : 1.1) * dis;
+    if (!u.eng && !u.flk) {
+      const cerca = enem(u).some((o) => dd(u, o) < 4);
+      if (!u.rout || !cerca)
+        u.mor = Math.min(
+          u.morMax * (0.5 + (0.5 * u.n) / u.n0),
+          u.mor + dt * (u.rout ? u.cs.di * 0.15 : 0.8 + u.cs.di * 0.15 + (g.ok ? g.ma * 0.05 : 0)),
+        );
+    }
+    if (u.fat > 70) u.mor -= dt * 0.8;
+    if (u.fat > 80 && !u.rout) bHito("fat" + u.id, 1, `${uname(u)} están exhaustos.`);
+    if (!u.rout && u.mor < u.morMax * 0.35 && !u.vac) {
+      u.vac = 1;
+      bLog(`${uname(u)} vacilan.`, cBien(u));
+    } else if (u.mor > u.morMax * 0.6) u.vac = 0;
     if (!u.rout && u.mor <= 0) {
       u.rout = true;
       u.mor = 0;
-      bLog(`¡${uname(u)} rompen filas y huyen!`, u.side ? "good" : "bad");
+      bHito("", 4, `¡${uname(u)} rompen filas y huyen!`, cBien(u));
+      if (u.gen && R() < 0.4) cmbGeneralCae(u.side, u);
       BT.units
-        .filter((o) => o.side === u.side && o !== u && fighting(o) && dd(o, u) < 2.5)
-        .forEach((o) => (o.mor -= 10));
-    } else if (u.rout && u.mor >= 32 && !u.eng && u.n >= u.n0 * 0.3) {
+        .filter((o) => o.side === u.side && o !== u && fighting(o) && dd(o, u) < 3)
+        .forEach((o) => (o.mor -= 10 * (1 - o.cs.di * 0.05)));
+    } else if (
+      u.rout &&
+      u.mor >= u.morMax * 0.3 &&
+      !u.eng &&
+      u.n >= u.n0 * 0.25 &&
+      !enem(u).some((o) => dd(u, o) < 3)
+    ) {
       u.rout = false;
-      bLog(`${uname(u)} se reagrupan.`, u.side ? "bad" : "good");
+      bHito("", 3, `${uname(u)} se reagrupan.`, u.side ? "bad" : "good");
     }
   }
+  if (BT.t - BT.tH >= (BT.mode === "rt" ? 20 : 1e9)) cmbHitoCorte();
 }
-function aiOrders() {
+/* corte del desarrollo de la batalla para el informe (cada turno o cada 20 s) */
+function cmbHitoCorte() {
+  const lost = [0, 1].map((s) => BT.units.filter((u) => u.side === s).reduce((a, u) => a + u.n0 - u.n, 0)),
+    mor = [0, 1].map((s) => {
+      const v = BT.units.filter((u) => u.side === s && fighting(u)),
+        n = v.reduce((a, u) => a + u.n, 0);
+      return n ? (v.reduce((a, u) => a + u.n * clamp(u.mor / u.morMax, 0, 1), 0) / n) * 100 : 0;
+    }),
+    k = BT.hitos.length + 1,
+    eng = BT.units.some((u) => act(u) && u.eng);
+  BT.hitos.push({
+    r: k,
+    f: BT.mode === "rt" ? `${Math.round(BT.t)} s` : `Turno ${BT.turn}`,
+    t: BT.hitoP
+      ? BT.hitoP[1]
+      : eng
+        ? "Se combate cuerpo a cuerpo."
+        : BT.units.some((u) => act(u) && tirador(u))
+          ? "Escaramuzas y descargas."
+          : "Los ejércitos maniobran.",
+    b: [lost[0] - (BT.lc ? BT.lc[0] : 0), lost[1] - (BT.lc ? BT.lc[1] : 0)],
+    m: mor,
+  });
+  BT.lc = lost;
+  BT.hitoP = null;
+  BT.tH = BT.t;
+  if (BT.hitos.length > 16) BT.hitos.splice(1, 1);
+}
+function aiOrders(side = 1) {
+  const back = side ? 1 : -1;
   for (const u of BT.units) {
-    if (u.side !== 1 || !fighting(u)) continue;
+    if (u.side !== side || !fighting(u)) continue;
     const e = nearest(u);
     if (!e) continue;
-    const weak = u.n < u.n0 * 0.35 || u.mor < 22;
+    const weak = u.n < u.n0 * 0.35 || u.mor < u.morMax * 0.25,
+      defMur = BT.fort && side === BT.def && (BT.mode === "rt" ? BT.t < 40 : BT.turn < 3);
     let o = null,
       st = "agr";
-    if (u.t === "a") {
-      const mel = enem(u).filter((x) => x.t !== "a" && dd(u, x) < 3.5);
+    if (tirador(u)) {
+      const mel = enem(u).filter((x) => !tirador(x) && dd(u, x) < 3.5);
       if (mel.length) {
-        o = { x: clamp(u.x + 3, 0.5, BW - 0.5), y: clamp(u.y + (R() - 0.5) * 2, 0.5, BH - 0.5) };
+        o = { x: clamp(u.x + 3 * back, 0.5, BW - 0.5), y: clamp(u.y + (R() - 0.5) * 2, 0.5, BH - 0.5) };
         st = "def";
-      } else st = "agr";
+      } else st = defMur && u.t !== "m" ? "def" : "agr";
     } else if (weak) {
-      o = { x: clamp(u.x + 3, 0.5, BW - 0.5), y: u.y };
+      o = { x: clamp(u.x + 3 * back, 0.5, BW - 0.5), y: u.y };
       st = "def";
-    } else if (u.t === "i") {
-      if ((BT.fort && BT.turn < 3 && BT.mode !== "rt") || (dd(u, e) > 9 && R() < 0.3)) {
-        st = "def";
+    } else if (u.cs.cl !== "cab") {
+      const cab = enem(u).filter((x) => cmbCab(x.t) && dd(u, x) < 6)[0];
+      if (defMur || (dd(u, e) > 9 && R() < 0.3)) st = "def";
+      else if (u.t === "l") {
+        o = { tg: (cab || e).id };
+        st = cab ? "def" : R() < 0.5 ? "agr" : "def";
       } else {
-        const arch = enem(u).filter((x) => x.t === "a" && dd(u, x) < 5)[0];
+        const arch = enem(u).filter((x) => x.cs.cl === "dis" && dd(u, x) < 5)[0];
         o = { tg: (arch || e).id };
         st = R() < 0.75 ? "agr" : "def";
       }
+    } else if (u.fat > 70) {
+      o = { x: clamp(u.x + 4 * back, 0.5, BW - 0.5), y: u.y };
+      st = "def";
     } else {
-      if (u.fat > 70) {
-        o = { x: clamp(u.x + 4, 0.5, BW - 0.5), y: u.y };
-        st = "def";
-      } else {
-        const t =
-          enem(u)
-            .filter((x) => x.t === "a")
-            .sort((a, b) => dd(u, a) - dd(u, b))[0] || enem(u).sort((a, b) => a.n - b.n)[0];
+      const ene = enem(u).filter((x) => x.t !== "l" || x.eng),
+        dis = ene.filter((x) => x.cs.cl === "dis" || x.t === "m").sort((a, b) => dd(u, a) - dd(u, b))[0],
+        trab = ene
+          .filter((x) => x.eng && x.cs.cl !== "cab")
+          .sort((a, b) => b.eng - a.eng || dd(u, a) - dd(u, b))[0],
+        huy = BT.units
+          .filter((x) => x.side !== side && act(x) && x.rout)
+          .sort((a, b) => dd(u, a) - dd(u, b))[0],
+        t =
+          (u.t === "x" && huy && dd(u, huy) < 10 ? huy : null) ||
+          (dis && (u.t !== "k" || !trab) ? dis : null) ||
+          trab ||
+          ene.sort((a, b) => a.n - b.n)[0] ||
+          e;
+      if (defMur) st = "def";
+      else {
         o = { tg: t.id };
         st = "agr";
       }
     }
     u.plan.forEach((p, i) => {
       p.o = i === 0 || BT.mode === "t3" ? (o ? { ...o } : null) : null;
-      p.st = BT.mode === "t3" && u.t !== "a" && R() < 0.25 ? (st === "agr" ? "def" : "agr") : st;
+      p.st =
+        BT.mode === "t3" && !tirador(u) && u.t !== "l" && R() < 0.25 ? (st === "agr" ? "def" : "agr") : st;
     });
   }
 }
 function sideAlive(s) {
   return BT.units.filter((u) => u.side === s && fighting(u)).reduce((a, u) => a + u.n, 0) > BT.init[s] * 0.15;
 }
+/* devuelve el bando (del campo) que gana, o -1 si sigue */
 function battleOver() {
   if (!sideAlive(1)) return 0;
   if (!sideAlive(0)) return 1;
-  const lim = BT.mode === "t3" ? 12 : BT.mode === "t1" ? 30 : -1;
-  if (lim > 0 && BT.turn > lim) return 1;
-  if (BT.mode === "rt" && BT.t > 300) return 1;
+  if ((BT.mode === "rt" ? BT.t : BT.turn - 1) >= BT.lim) {
+    BT.noche = true;
+    return BT.def;
+  }
   return -1;
 }
 async function runPhase(slot) {
@@ -481,7 +787,8 @@ async function runPhase(slot) {
 async function executeTurn() {
   if (!BT || BT.run || BT.mode === "rt") return;
   BT.run = true;
-  aiOrders();
+  aiOrders(1);
+  if (BT.auto0) aiOrders(0);
   bLog(`— Turno ${BT.turn} —`);
   bui();
   const n = BT.mode === "t3" ? 3 : 1;
@@ -490,6 +797,7 @@ async function executeTurn() {
     if (!BT || battleOver() >= 0) break;
   }
   if (!BT) return;
+  cmbHitoCorte();
   BT.turn++;
   BT.run = false;
   for (const u of BT.units)
@@ -504,6 +812,7 @@ async function executeTurn() {
     return;
   }
   bui();
+  if (BT.auto0) setTimeout(executeTurn, 200);
 }
 async function realtime() {
   if (!BT || BT.run) return;
@@ -524,7 +833,8 @@ async function realtime() {
       simStep(1 / 30, 0);
       BT.aiT -= 1 / 30;
       if (BT.aiT <= 0) {
-        aiOrders();
+        aiOrders(1);
+        if (BT.auto0) aiOrders(0);
         BT.aiT = 1.2;
       }
     }
@@ -540,27 +850,117 @@ async function realtime() {
     }
   }
 }
+/* fin: persecución, heridos que vuelven, informe y regreso a la campaña */
 function finishBattle(win, retreat) {
   if (!BT) return;
-  const A = { i: 0, a: 0, c: 0 },
-    D = { i: 0, a: 0, c: 0 };
-  for (const u of BT.units) (u.side ? D : A)[u.t] += u.n;
-  for (const t of TYP) {
-    A[t] = Math.ceil((A[t] * (retreat ? 0.85 : 1)) / SPU);
-    D[t] = win ? 0 : Math.ceil(D[t] / SPU);
+  const w = win ? 0 : 1,
+    lo = 1 - w,
+    noche = BT.noche && !retreat,
+    ganaU = BT.units.filter((u) => u.side === w && fighting(u)),
+    pierdeU = BT.units.filter((u) => u.side === lo && u.n > 0);
+  cmbHitoCorte();
+  if (!noche) {
+    const P = ganaU.reduce((a, u) => a + u.n * CMB_PERS[u.t] * (1 - u.fat / 200), 0),
+      N = pierdeU.reduce((a, u) => a + u.n * (u.gone ? 0.5 : 1), 0),
+      k = Math.min(
+        N,
+        Math.max(N * 0.08, Math.min(N * 0.5, P * CMB_K.pers * (0.85 + R() * 0.3))) * (retreat ? 0.4 : 1),
+      ),
+      pesos = pierdeU.map((u) => u.n * (cmbCab(u.t) ? 0.45 : 1) * (u.gone ? 0.5 : 1)),
+      sp = pesos.reduce((a, b) => a + b, 0) || 1;
+    let caen = 0;
+    pierdeU.forEach((u, i) => {
+      const d = Math.min(u.n, Math.round((k * pesos[i]) / sp));
+      u.n -= d;
+      u.muertos += Math.round(d * 0.75);
+      u.her += d - Math.round(d * 0.75);
+      caen += d;
+    });
+    cmbTal(w, "persecucion", caen);
+    if (caen)
+      BT.hitos.push({
+        r: BT.hitos.length + 1,
+        f: retreat ? "Retirada" : "Persecución",
+        t: retreat
+          ? `Ordenas la retirada; el enemigo hostiga a la columna y caen ${caen}.`
+          : `Desbandada en las filas de ${CIV[[BT.fa, BT.fd][lo]].s}: caen ${caen} en la persecución.`,
+        b: w ? [caen, 0] : [0, caen],
+        m: [0, 1].map((s) => (s === w ? BT.hitos[BT.hitos.length - 1]?.m[s] || 50 : 0)),
+      });
+  } else
+    BT.hitos.push({
+      r: BT.hitos.length + 1,
+      f: "Anochecer",
+      t: `Cae la noche: las tropas de ${CIV[[BT.fa, BT.fd][1 - BT.def]].s} no logran romper al enemigo y se retiran.`,
+      b: [0, 0],
+      m: BT.hitos[BT.hitos.length - 1]?.m || [50, 50],
+    });
+  const rec = [0, 1].map((s) => (s === w ? 0.6 : noche ? 0.45 : retreat ? 0.35 : 0.25)),
+    out = [cmbVacio(), cmbVacio()],
+    bajas = [
+      { m: 0, h: 0, r: 0 },
+      { m: 0, h: 0, r: 0 },
+    ];
+  for (const s of [0, 1]) {
+    const sv = {};
+    for (const u of BT.units.filter((u) => u.side === s)) {
+      const vu = u.her * rec[s];
+      sv[u.t] = (sv[u.t] || 0) + u.n + vu;
+      bajas[s].m += u.muertos + u.her - vu;
+      bajas[s].h += u.her;
+      bajas[s].r += vu;
+    }
+    for (const t in sv) {
+      const x = sv[t] / SPU;
+      out[s][t] = Math.floor(x) + (R() < x % 1 ? 1 : 0);
+    }
   }
-  const done = BT.done,
+  /* de bandos del campo a ejA/ejD */
+  const m = BT.map,
+    ej = (arr) => [arr[m.indexOf(0)], arr[m.indexOf(1)]],
+    gana = m[w],
+    L = ej([0, 1]).map((s) => ({ f: [BT.fa, BT.fd][s], gen: BT.gens[s].id, n0: BT.init[s] })),
+    informe = {
+      f: [BT.ejs[0].f, BT.ejs[1].f],
+      gana,
+      fin: noche ? "noche" : retreat ? "retirada" : "rotura",
+      rondas: BT.hitos.map((h) => ({ ...h, b: ej(h.b), m: ej(h.m) })),
+      factores: cmbFactores(ej(BT.tal), gana, L),
+      bajas: ej(bajas),
+      gen: ej(BT.gens.map((g) => g.res)),
+      n0: ej(BT.init),
+      clima: BT.env.clima,
+      hora: BT.env.hora,
+      terreno: CMB_TERR[BT.env.terr.tag] || BT.env.terr.tag,
+      fort: BT.fort,
+      asedio: BT.ctx.asedio || 0,
+      lugar: BT.place,
+      anio: G ? G.year : 0,
+      modo: BT.mode,
+      dur: Math.round(BT.t),
+    },
+    res = {
+      gana,
+      A: ej(out)[0],
+      D: ej(out)[1],
+      heridos: { A: Math.round(ej(bajas)[0].r), D: Math.round(ej(bajas)[1].r) },
+      informe,
+      gen: informe.gen,
+    },
+    done = BT.done,
     pl = BT.place,
-    lostA = BT.init[0] - BT.units.filter((u) => !u.side).reduce((s, u) => s + u.n, 0),
-    lostD = BT.init[1] - BT.units.filter((u) => u.side).reduce((s, u) => s + u.n, 0);
+    yo = m[0],
+    auto = BT.ctx.auto && BT.ctx.sinModal;
   BT = null;
   $("battle").classList.remove("show");
   music("camp");
-  modal(
-    win ? `Victoria en ${pl}` : `Derrota en ${pl}`,
-    `<p>${win ? "El enemigo huye en desbandada." : retreat ? "Ordenas la retirada; parte del ejército se salva." : "Tus tropas se retiran del campo."}</p><p class="dim">Caídos: ${lostA} de los tuyos, ${lostD} enemigos.</p>`,
-    [{ t: "Continuar", cls: "gold" }],
-  ).then(() => done({ win, A, D }));
+  if (auto) {
+    done(res);
+    return;
+  }
+  modal(gana === yo ? `Victoria en ${pl}` : `Derrota en ${pl}`, cmbInfHtml(informe, yo), [
+    { t: "Continuar", cls: "gold" },
+  ]).then(() => done(res));
 }
 function slotStart(u, sl) {
   let x = u.x,
@@ -602,8 +1002,17 @@ function battleAct(v) {
         : "Tus tropas forman. Mueve cada unidad con el dedo y elige su postura.",
     );
     if (BT.mode === "rt") {
-      aiOrders();
+      aiOrders(1);
+      if (BT.auto0) aiOrders(0);
       realtime();
+    } else if (BT.auto0) setTimeout(executeTurn, 100);
+  }
+  if (a === "cap") {
+    BT.auto0 = !BT.auto0;
+    bLog(BT.auto0 ? "Delegas el mando en tus capitanes." : "Retomas el mando de tus tropas.");
+    if (BT.auto0 && BT.phase === "plan") {
+      aiOrders(0);
+      if (BT.mode !== "rt" && !BT.run) setTimeout(executeTurn, 100);
     }
   }
   if (a === "sel") {
@@ -642,7 +1051,7 @@ function battleAct(v) {
   }
   if (a === "exec") executeTurn();
   if (a === "pause") BT.paused = !BT.paused;
-  if (a === "spd") BT.speed = BT.speed === 1 ? 2 : BT.speed === 2 ? 0.5 : 1;
+  if (a === "spd") BT.speed = BT.speed === 1 ? 2 : BT.speed === 2 ? 4 : BT.speed === 4 ? 0.5 : 1;
   if (a === "flee") {
     finishBattle(false, true);
     return;
@@ -658,6 +1067,16 @@ function ordTxt(o) {
   }
   return "Marchar";
 }
+/* estado legible de una unidad */
+function cmbEstado(o) {
+  if (o.rout) return "huyendo";
+  if (o.mor < o.morMax * 0.35) return "vacila";
+  if (o.fat > 75) return "exhausta";
+  if (o.eng) return o.flk ? "flanqueada" : "en melé";
+  return STN[o.plan[0].st].toLowerCase();
+}
+const cmbMini = (o) =>
+  `<b class="cmb-mb"><i style="width:${clamp((o.mor / o.morMax) * 100, 0, 100)}%;background:${o.mor < o.morMax * 0.35 ? "#e0503f" : "#5b97f0"}"></i></b><b class="cmb-mb"><i style="width:${clamp(o.fat, 0, 100)}%;background:#e8b632"></i></b>`;
 function bui() {
   if (!BT) return;
   const ab = $("atkb");
@@ -666,18 +1085,20 @@ function bui() {
     u = bU(BT.sel),
     c = $("bside"),
     s0 = BT.units.filter((u) => !u.side).reduce((s, u) => s + u.n, 0),
-    s1 = BT.units.filter((u) => u.side).reduce((s, u) => s + u.n, 0);
-  let h = `<h2>Batalla de ${BT.place}</h2><p class="dim"><span style="color:${CIV[BT.fa].c}">${CIV[BT.fa].s} ${s0}</span> contra <span style="color:${CIV[BT.fd].c}">${CIV[BT.fd].s} ${s1}</span>${BT.fort ? " · murallas " + BT.fort : ""}<br>${MODES[BT.mode]}${BT.mode === "rt" ? " · " + Math.floor(BT.t) + " s" : " · turno " + BT.turn}</p>`;
+    s1 = BT.units.filter((u) => u.side).reduce((s, u) => s + u.n, 0),
+    E = BT.env;
+  let h = `<h2>Batalla de ${BT.place}</h2><p class="dim"><span style="color:${CIV[BT.fa].c}">${CIV[BT.fa].s} ${s0}</span> contra <span style="color:${CIV[BT.fd].c}">${CIV[BT.fd].s} ${s1}</span>${BT.fort ? " · murallas " + BT.fort : ""}<br>${MODES[BT.mode]}${BT.mode === "rt" ? ` · ${Math.floor(BT.t)} / ${BT.lim} s` : ` · turno ${BT.turn} / ${BT.lim}`} · ${E.clima}</p>`;
   if (BT.phase === "deploy") {
-    h += `<p>Arrastra tus unidades dentro de la franja clara para desplegarlas. Bosques: cubren y frenan. Colinas: mejor tiro.</p><div class="g2"><button data-act="b-auto">Despliegue automático</button><button data-act="b-go" class="gold">¡A la batalla!</button></div>`;
+    h += `<p>Arrastra tus unidades dentro de la franja clara. Lanceros al frente frenan la caballería; arqueros detrás; caballería en las alas. Bosque: cubre y frena jinetes. Colina: mejor tiro y defensa. Río: frena y debilita; usa los vados.</p><div class="g2"><button data-act="b-auto">Despliegue automático</button><button data-act="b-go" class="gold">¡A la batalla!</button></div>`;
   } else {
     const SG = selU();
     if (SG.length > 1)
       h += `<h3>${SG.length} unidades seleccionadas · ${SG.reduce((a, o) => a + o.n, 0)} soldados</h3><p class="stats">La postura se aplica a todas. Toca el terreno para moverlas en formación o ⚔ y un enemigo para atacar juntas.</p>`;
     if (u && !u.side && act(u)) {
-      h += `<h3>${SG.length > 1 ? "Principal: " : ""}${CIV[u.f].un[u.t]} · ${u.n}/${u.n0}${u.rout ? " · ¡HUYENDO!" : ""}</h3>
-  <div class="stats">Ataque ${Math.round(u.atk * (1 - u.fat / 250) * 10) / 10} · Defensa ${Math.round(u.def * (1 - u.fat / 250) * 10) / 10}${u.t === "a" ? " · alcance " + BS.a.rng : ""}</div>
-  <div class="stats">Moral</div>${bar((u.mor / u.morMax) * 100, u.mor < 20 ? "#e0503f" : "#5b97f0")}<div class="stats">Cansancio</div>${bar(u.fat, "#e8b632")}`;
+      const fm = Math.max(0.5, 1 - u.fat / 220);
+      h += `<h3>${SG.length > 1 ? "Principal: " : ""}${CIV[u.f].un[u.t]} · ${u.n}/${u.n0}${u.gen ? " · ⚑ general" : ""}${u.rout ? " · ¡HUYENDO!" : ""}</h3>
+  <div class="stats">${CMB_INFO[u.t].tag} · ${cmbNivel(u.cs.xp).toLowerCase()} · ${cmbEstado(u)}<br>Ataque ${Math.round(u.cs.me * fm * 10) / 10}${u.cs.ca ? " · carga " + u.cs.ca : ""} · Defensa ${Math.round(u.cs.de * 10) / 10} · Armadura ${u.cs.ar}${u.cs.al ? ` · munición ${u.ammo}/${u.cs.mu}` : ""} · heridos ${u.her}</div>
+  <div class="stats">Moral</div>${bar((u.mor / u.morMax) * 100, u.mor < u.morMax * 0.35 ? "#e0503f" : "#5b97f0")}<div class="stats">Cansancio</div>${bar(u.fat, "#e8b632")}`;
       const n = BT.mode === "t3" ? 3 : 1;
       for (let i = 0; i < n; i++) {
         const p = u.plan[i];
@@ -691,14 +1112,15 @@ function bui() {
             "",
           )}${p.o ? `<button data-act="b-clr:${i}">Quieto</button>` : ""}</div><span class="stats">${ordTxt(p.o)}</span></div></div>`;
       }
-      h += `<div class="btns"><button data-act="b-same">Misma postura para toda la ${UN[u.t].s.toLowerCase()}</button></div>`;
+      h += `<div class="btns"><button data-act="b-same">Misma postura para todos los ${CIV[u.f].un[u.t].toLowerCase()}</button></div>`;
     }
     h += `<p class="note">Toca una unidad para elegirla; mantén pulsada otra para sumarla, o mantén pulsado el terreno y arrastra para rodear varias. Luego toca el destino (o arrastra) y ⚔ + enemigo para atacar.${BT.mode === "rt" ? "" : " Las tropas no pasan de su círculo de alcance."}${BT.mode === "t3" ? " Cada arrastre llena la siguiente acción." : ""}</p>`;
     h +=
       BT.mode === "rt"
         ? `<div class="g3"><button data-act="b-pause" class="gold">${BT.paused ? "Reanudar" : "Pausa"}</button><button data-act="b-spd">Velocidad ×${BT.speed}</button><button data-act="b-flee" class="red">Retirada</button></div>`
         : `<div class="g2"><button data-act="b-exec" class="gold" ${BT.run ? "disabled" : ""}>${BT.run ? "Combatiendo…" : "Ejecutar turno"}</button><button data-act="b-flee" class="red" ${BT.run ? "disabled" : ""}>Retirada</button></div>`;
-    h += `<h3>Tus unidades</h3><div class="ulist">${me.map((o) => `<button data-act="b-sel:${o.id}" class="${(BT.sels || []).includes(o.id) ? "on" : ""}">${CIV[o.f].un[o.t]} ${o.n}/${o.n0}<br><span class="stats">${o.rout ? "huyendo" : STN[o.plan[0].st] + " · moral " + Math.max(0, Math.round(o.mor))}</span></button>`).join("")}</div>`;
+    h += `<div class="btns"><button data-act="b-cap" class="${BT.auto0 ? "on" : ""}">${BT.auto0 ? "Retomar el mando" : "Delegar en los capitanes"}</button></div>`;
+    h += `<h3>Tus unidades</h3><div class="ulist">${me.map((o) => `<button data-act="b-sel:${o.id}" class="${(BT.sels || []).includes(o.id) ? "on" : ""}${o.rout ? " cmb-rt" : ""}">${CIV[o.f].un[o.t]} ${o.n}/${o.n0}${o.gen ? " ⚑" : ""}<br><span class="stats">${cmbEstado(o)}</span>${cmbMini(o)}</button>`).join("")}</div>`;
   }
   h += `<ul id="blog">${BT.log.map((l) => `<li style="border-color:${l.c === "good" ? "#4caf50" : l.c === "bad" ? "#e0503f" : ""}">${l.m}</li>`).join("")}</ul>`;
   c.innerHTML = h;
@@ -758,7 +1180,9 @@ function groupSlots(us, tx, ty) {
   const px = -dy,
     py = dx,
     out = [];
-  const rows = [us.filter((u) => u.t !== "a"), us.filter((u) => u.t === "a")].filter((r) => r.length);
+  const rows = [us.filter((u) => u.cs.cl !== "dis"), us.filter((u) => u.cs.cl === "dis")].filter(
+    (r) => r.length,
+  );
   const ch = [];
   for (const r of rows) for (let i = 0; i < r.length; i += 6) ch.push(r.slice(i, i + 6));
   ch.forEach((row, ri) => {
@@ -1050,8 +1474,8 @@ function arrow(c, x0, y0, x1, y1, col) {
 
 function formation(u) {
   const cols = fcols(u),
-    dx = u.t === "c" ? 6 : 4,
-    dy = u.t === "c" ? 4 : 3,
+    dx = cmbCab(u.t) ? 6 : 4,
+    dy = cmbCab(u.t) ? 4 : 3,
     rows = Math.ceil(u.n / cols),
     out = [];
   for (let k = 0; k < u.n; k++) {
@@ -1096,10 +1520,10 @@ function drawBattle(now) {
     }
   if (s && act(s) && !s.side && BT.phase === "plan" && BT.mode !== "rt" && !BT.run) {
     c.setLineDash([3, 3]);
-    if (s.t === "a") {
+    if (tirador(s)) {
       c.strokeStyle = "rgba(255,210,90,.6)";
       c.beginPath();
-      c.arc(s.x * TS, s.y * TS, BS.a.rng * TS, 0, 7);
+      c.arc(s.x * TS, s.y * TS, alc(s) * TS, 0, 7);
       c.stroke();
     }
     c.setLineDash([]);
@@ -1219,18 +1643,33 @@ function drawBattle(now) {
       const sx = X + (fl ? -rr - 3 : rr + 1);
       for (let k = -6; k <= 6; k += 3) c.fillRect(sx, Y + k, 2, 2);
     }
-    const top = Math.round(Y - (Math.ceil(u.n / fcols(u)) * (u.t === "c" ? 4 : 3)) / 2 - 8);
+    const hh = (Math.ceil(u.n / fcols(u)) * (cmbCab(u.t) ? 4 : 3)) / 2,
+      top = Math.round(Y - hh - 8);
     c.fillStyle = BP.k;
     c.fillRect(X - 1, top - 6, 1, 8);
     c.fillStyle = u.rout ? "#f4f4f4" : CIV[u.f].c;
     c.fillRect(fl ? X - 5 : X, top - 6, 4, 3);
-    const by = Math.round(Y + (Math.ceil(u.n / fcols(u)) * (u.t === "c" ? 4 : 3)) / 2 + 6);
+    if (u.gen && BT.gens[u.side].ok) {
+      c.fillStyle = "#f2c14e";
+      c.fillRect(fl ? X - 5 : X, top - 3, 4, 1);
+    }
+    /* vacila: aviso parpadeante; huye: bandera blanca (arriba) */
+    if (!u.rout && u.mor < u.morMax * 0.35 && Math.floor(now / 300) % 2) {
+      c.fillStyle = "#000";
+      c.fillRect(X + (fl ? 3 : -5), top - 8, 3, 8);
+      c.fillStyle = "#ff5a4a";
+      c.fillRect(X + (fl ? 4 : -4), top - 7, 1, 4);
+      c.fillRect(X + (fl ? 4 : -4), top - 2, 1, 1);
+    }
+    const by = Math.round(Y + hh + 6);
     c.fillStyle = "#000";
-    c.fillRect(X - 9, by, 18, 4);
+    c.fillRect(X - 9, by, 18, 6);
     c.fillStyle = u.side ? "#ff8a7a" : "#8fd18a";
     c.fillRect(X - 9, by, Math.round((18 * u.n) / u.n0), 2);
-    c.fillStyle = "#5b97f0";
+    c.fillStyle = u.mor < u.morMax * 0.35 ? "#e0503f" : "#5b97f0";
     c.fillRect(X - 9, by + 2, Math.round(18 * clamp(u.mor / u.morMax, 0, 1)), 2);
+    c.fillStyle = "#e8b632";
+    c.fillRect(X - 9, by + 4, Math.round(18 * clamp(u.fat / 100, 0, 1)), 2);
   }
   for (const u of BT.units) {
     if (!act(u) || u.x < 0) continue;
@@ -1238,7 +1677,7 @@ function drawBattle(now) {
       Y = Math.round(u.y * TS),
       t = String(u.n),
       tx = u.face < 0 ? X - 6 - t.length * 8 : X + 5,
-      ty = Math.round(Y - (Math.ceil(u.n / fcols(u)) * (u.t === "c" ? 4 : 3)) / 2 - 16);
+      ty = Math.round(Y - (Math.ceil(u.n / fcols(u)) * (cmbCab(u.t) ? 4 : 3)) / 2 - 16);
     c.fillStyle = "#000";
     c.fillText(t, tx + 1, ty + 1);
     c.fillStyle = "#fff";

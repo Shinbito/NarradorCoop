@@ -190,13 +190,58 @@ const CIV = [
 ];
 const REB = 7,
   NF = 7,
-  TYP = ["i", "a", "c"];
+  /* COMBATE: clases de guerreros. Las claves i/a/c son las de siempre (todo el juego crea {i,a,c});
+     las demás pueden faltar en p.u (partidas antiguas, rebeldes): usa siempre (u[t] || 0). */
+  TYP = ["l", "i", "p", "h", "a", "x", "c", "k", "m"];
+/* cl: inf/dis/cab · me ataque cuerpo a cuerpo · ca carga · de defensa · ar armadura · es escudo frente a
+   proyectiles (0-1) · vi vida · mo moral · di disciplina · fa fatiga (×) · ve velocidad · al alcance ·
+   mu munición (descargas) · pr daño a distancia · pw fuerza estimada en campaña. atk/hp: valores antiguos.
+   cat/edif/nivel: categoría básica y edificio de tecnología que la desbloquea (ver docs/tecnologia.md). */
+// prettier-ignore
 const UN = {
-  i: { s: "Infantería", cost: 10, atk: 3, hp: 10, food: 1, mv: 2.6 },
-  a: { s: "Arqueros", cost: 14, atk: 3.4, hp: 7, food: 1, mv: 2.6, rg: 6 },
-  c: { s: "Caballería", cost: 22, atk: 6, hp: 14, food: 2, mv: 5 },
+  l: { s: "Lanceros", cost: 9, food: 1, mv: 2.4, atk: 2.4, hp: 10, cat: "i", edif: "cuartel", nivel: 1, cl: "inf", me: 4, ca: 1, de: 8, ar: 4, es: 0.5, vi: 10, mo: 66, di: 6, fa: 1, ve: 1.45, al: 0, mu: 0, pr: 0, pw: 5.2 },
+  i: { s: "Infantería", cost: 10, food: 1, mv: 2.6, atk: 3, hp: 10, cat: "i", cl: "inf", me: 6, ca: 2, de: 6, ar: 4, es: 0.4, vi: 10, mo: 64, di: 5, fa: 1, ve: 1.6, al: 0, mu: 0, pr: 0, pw: 5.5 },
+  p: { s: "Infantería pesada", cost: 18, food: 1, mv: 2.2, atk: 4.2, hp: 13, cat: "i", edif: "cuartel", nivel: 2, cl: "inf", me: 8, ca: 2, de: 9, ar: 7, es: 0.45, vi: 13, mo: 78, di: 8, fa: 1.3, ve: 1.4, al: 0, mu: 0, pr: 0, pw: 8.4 },
+  h: { s: "Escaramuzadores", cost: 8, food: 1, mv: 3, atk: 2.6, hp: 7, cat: "a", edif: "cuartel", nivel: 1, cl: "dis", me: 3, ca: 0, de: 3, ar: 1, es: 0.15, vi: 8, mo: 46, di: 3, fa: 0.8, ve: 2.1, al: 5, mu: 5, pr: 3.2, pw: 4.2 },
+  a: { s: "Arqueros", cost: 14, food: 1, mv: 2.6, atk: 3.4, hp: 7, cat: "a", cl: "dis", me: 3, ca: 0, de: 3, ar: 2, es: 0.1, vi: 8, mo: 52, di: 4, fa: 0.9, ve: 1.7, al: 8, mu: 8, pr: 3.6, pw: 5.3 },
+  x: { s: "Caballería ligera", cost: 16, food: 2, mv: 5.4, atk: 4.6, hp: 12, cat: "c", edif: "establo", nivel: 1, cl: "cab", me: 6, ca: 4, de: 4, ar: 2, es: 0.2, vi: 13, mo: 56, di: 4, fa: 0.8, ve: 3.7, al: 0, mu: 0, pr: 0, pw: 7 },
+  c: { s: "Caballería", cost: 22, food: 2, mv: 5, atk: 6, hp: 14, cat: "c", cl: "cab", me: 9, ca: 6, de: 5, ar: 4, es: 0.3, vi: 16, mo: 66, di: 5, fa: 1, ve: 3.2, al: 0, mu: 0, pr: 0, pw: 9.2 },
+  k: { s: "Caballería pesada", cost: 32, food: 2, mv: 4.2, atk: 8, hp: 18, cat: "c", edif: "establo", nivel: 2, cl: "cab", me: 10, ca: 9, de: 7, ar: 8, es: 0.25, vi: 20, mo: 76, di: 7, fa: 1.4, ve: 2.6, al: 0, mu: 0, pr: 0, pw: 13 },
+  m: { s: "Arqueros a caballo", cost: 26, food: 2, mv: 5.4, atk: 4.4, hp: 12, cat: "c", edif: "establo", nivel: 1, cl: "cab", me: 4, ca: 2, de: 4, ar: 2, es: 0.1, vi: 12, mo: 58, di: 5, fa: 0.9, ve: 3.5, al: 6, mu: 7, pr: 3.3, pw: 9.6 },
 };
-const MULT = { i: { i: 1, a: 0.75, c: 1.6 }, a: { i: 1.5, a: 1, c: 0.7 }, c: { i: 0.7, a: 1.6, c: 1 } };
+/* MULT[atacante][objetivo]: ventaja de doctrina en el cuerpo a cuerpo (la armadura y el escudo van aparte) */
+const MULT = (() => {
+  const m = {},
+    cab = ["x", "c", "k", "m"],
+    dis = ["h", "a"],
+    inf = ["l", "i", "p"],
+    set = (a, bs, v) => bs.forEach((b) => (m[a][b] = v));
+  for (const a of TYP) {
+    m[a] = {};
+    for (const b of TYP) m[a][b] = 1;
+  }
+  set("l", cab, 1.5);
+  set("l", ["m"], 1.3);
+  set("i", dis, 1.3);
+  set("p", inf, 1.15);
+  set("p", dis, 1.3);
+  set("x", dis, 1.6);
+  set("x", inf, 0.7);
+  set("x", ["l", "k"], 0.5);
+  set("x", ["m"], 1.2);
+  set("c", dis, 1.6);
+  set("c", ["l"], 0.6);
+  set("c", ["x", "m"], 1.3);
+  set("k", ["i", "p"], 1.3);
+  set("k", ["l"], 0.75);
+  set("k", dis, 1.7);
+  set("k", ["x", "c", "m"], 1.3);
+  set("m", TYP, 0.8);
+  set("a", cab, 1.2);
+  set("h", dis, 1.2);
+  set("m", ["i", "l"], 0.9);
+  return m;
+})();
 /* Edificios de provincia: [nombre, efecto por nivel, coste base en oro, nivel máximo].
    El nivel vive en G.P[i][clave] (número). Detalles (años, requisitos) en TEC_EDI (tecnologia.js). */
 const BLD = {
@@ -329,6 +374,42 @@ const SP = {
     ".n.n.n.n.",
     ".k.k.k.k.",
   ],
+  l: ["......t", "..hh..p", ".hhhh.p", "..bb..p", "rrfffbp", "rrfff.p", "rrfff..", ".f..f..", ".k..k.."],
+  p: ["..rr...", "..hh..t", ".hhhh.h", "..bb..h", "rhhhhbh", "rhffh..", "rhhhh..", ".h..h..", ".k..k.."],
+  h: ["......t", "..pp..p", ".pbbp.p", "..bb.p.", ".ffffb.", "bffff..", ".ffff..", ".f..f..", ".k..k.."],
+  x: [
+    ".......t.",
+    "..pp..p..",
+    "..bb.p...",
+    ".ffffb...",
+    ".ffff.ww.",
+    "wwwwwwww.",
+    "wwwwwww..",
+    ".w.w.w.w.",
+    ".k.k.k.k.",
+  ],
+  k: [
+    "..hh....t",
+    ".hhhh..p.",
+    "..hh..p..",
+    ".hhhhp...",
+    ".hhhhhhhh",
+    "rrrrrrrh.",
+    "hhhhhhh..",
+    ".h.h.h.h.",
+    ".k.k.k.k.",
+  ],
+  m: [
+    "..hh..n..",
+    ".hhhh..n.",
+    "..bb...n.",
+    ".ffffbn..",
+    ".ffff.nnn",
+    "nnnnnnnn.",
+    "nnnnnnn..",
+    ".n.n.n.n.",
+    ".k.k.k.k.",
+  ],
   tree: ["..g..", ".gGg.", "gGggg", ".ggg.", "..t.."],
   hill: ["...m...", "..mMm..", ".mmmmm.", "mmmmmmm"],
 };
@@ -398,11 +479,11 @@ const net = {
   games: [],
 };
 const ST = { view: "home", mode: "single", civ: null, cands: [], ci: 0, gname: "" };
-const tot = (u) => u.i + u.a + u.c,
+const tot = (u) => TYP.reduce((s, t) => s + (u[t] || 0), 0),
   add = (a, b) => {
     for (const t in b) a[t] += b[t];
   },
-  pw = (u) => Math.round(u.i * 5.5 + u.a * 5.3 + u.c * 9.2);
+  pw = (u) => Math.round(TYP.reduce((s, t) => s + (u[t] || 0) * UN[t].pw, 0));
 const owned = (f) => G.P.filter((p) => p.owner === f),
   alive = (f) => G.P.some((p) => p.owner === f),
   isMe = (f) => f === ME,
