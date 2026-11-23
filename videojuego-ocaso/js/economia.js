@@ -667,7 +667,22 @@ OC.on("conquista", (r) => {
   if (!G || !r || !r.p) return;
   ecoDiezmar(r.p, 0.05);
   if (typeof comRevisarRutas === "function") comRevisarRutas();
+  ecoPerderAlmacenes(r.de);
 });
+OC.on("revuelta", (r) => r && ecoPerderAlmacenes(r.de));
+/* al perder una provincia se pierden sus graneros y almacenes: lo que ya no cabe, se pierde */
+function ecoPerderAlmacenes(f) {
+  if (!G || f == null || f >= REB || !G.F[f] || !alive(f)) return;
+  const F = G.F[f],
+    gr = ecoGranero(f),
+    tope = ecoTope(f);
+  const antes = F.food;
+  if (F.food > gr) F.food = gr;
+  F.res = F.res || {};
+  for (const r of ECO_RES) if (F.res[r.id] > tope) F.res[r.id] = tope;
+  if (isMe(f) && antes - F.food >= 5)
+    addLog(`Con la provincia perdida se pierden sus graneros: ${antes - F.food} de comida.`, "bad");
+}
 OC.on("partidaLista", () => {
   if (G) ecoE();
 });

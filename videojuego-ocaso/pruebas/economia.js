@@ -338,8 +338,7 @@ const comprueba = (ok, msg) => {
   const malCom = todas.filter((x) => !(x.comida >= 0 && x.comida <= x.gran * 1.5));
   comprueba(!malCom.length, "comida dentro del granero " + JSON.stringify(malCom.slice(0, 3)));
   comprueba(
-    /* el tope se aplica a fin de año; perder provincias a mitad de año puede dejarlo algo por encima */
-    todas.every((x) => Object.values(x.res).every((v) => v >= 0 && v <= x.tope * 1.5)),
+    todas.every((x) => Object.values(x.res).every((v) => v >= 0 && v <= x.tope)),
     "recursos dentro del almacén",
   );
   comprueba(
