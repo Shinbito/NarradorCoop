@@ -224,6 +224,12 @@ const TRAITS = {
   Ambicioso: "propenso a la traición",
   Piadoso: "+5 orden",
   Enfermizo: "salud frágil",
+  Leal: "fiel a su señor, poca ambición",
+  Codicioso: "+1 gestión, propenso al desfalco",
+  Erudito: "+1 gestión, +1 diplomacia",
+  Justo: "+1 gestión, grato al pueblo",
+  Belicoso: "+1 mando, ansía la guerra",
+  Paranoico: "+1 intriga, −1 diplomacia",
 };
 const PNAMES = [
   "Dacia Nova",
@@ -432,8 +438,18 @@ function trait(o) {
     o.ma++;
     o.di--;
   }
+  if (t === "Codicioso" || t === "Justo") o.ge++;
+  if (t === "Erudito") {
+    o.ge++;
+    o.di++;
+  }
+  if (t === "Belicoso") o.ma++;
+  if (t === "Paranoico") {
+    o.in++;
+    o.di--;
+  }
   for (const k of ["ma", "in", "di", "ge"]) o[k] = clamp(o[k], 1, 10);
-  return o;
+  return dipAmbLea(o);
 }
 function mkChar(f, sex, age, fa = null, mo = null) {
   const c = CIV[f],
@@ -459,7 +475,9 @@ function mkChar(f, sex, age, fa = null, mo = null) {
   G.C.push(ch);
   return ch;
 }
-function marry(a, b) {
+/* quiet: bodas del arranque de partida, sin evento */
+function marry(a, b, quiet) {
   a.sp = b.id;
   b.sp = a.id;
+  if (!quiet) OC.emitirSync("bodaCelebrada", { a, b });
 }
