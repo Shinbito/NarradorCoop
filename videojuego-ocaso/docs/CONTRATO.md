@@ -16,6 +16,7 @@ comunica con los demás a través del objeto global `OC` (`js/ganchos.js`).
 | **Interfaz** | `js/interfaz.js`, `js/inicio.js`, `js/mapa.js`, `js/musica.js`, `index.html`, `css/ocaso.css`, `css/interfaz.css`, `docs/interfaz.md` | — |
 | **Mundo (civilizaciones)** | `js/mundo.js`, `docs/mundo.md`, `pruebas/mundo.js`; además `js/mapa.js` (generación), `js/inicio.js` (pantallas de inicio) y en `js/partida.js` solo `newGame`/`setup` | `CIV`, `NF`, `REB`, `PAL`, `PNAMES` |
 | **Campaña (ejércitos en el mapa)** | `js/campana.js`, `js/ia.js`, `js/ejercitos.js`, `js/mercenarios.js`, `css/campana.css`, `docs/campana.md`, `pruebas/campana.js`; en `js/interfaz.js` solo `drawMap`, clics/hover del mapa y `provPanel` sección Ejército; en `js/turnos.js` el bucle de estaciones | — |
+| **Online** | `js/online.js`, `css/online.css`, `docs/online.md`, `pruebas/online.js`; en `js/inicio.js` la parte online (lobby, `createOnline`, `joinGame`, `enterGame`, `endOnline`, `leaveNet`); en `js/batalla.js` solo lo necesario para batallas en vivo entre jugadores (marcado `/* ONL */`) | — |
 | **Orquestador** | `js/ganchos.js`, `js/turnos.js`, `js/arranque.js`, `docs/CONTRATO.md`, `pruebas/humo.js` | resto de `nucleo.js` |
 
 Reglas:
