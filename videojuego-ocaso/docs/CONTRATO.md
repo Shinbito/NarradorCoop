@@ -9,11 +9,13 @@ comunica con los demás a través del objeto global `OC` (`js/ganchos.js`).
 | Sistema | Archivos propios (edición libre) | En `js/nucleo.js` puede tocar solo |
 |---|---|---|
 | **Narrativa** | `js/narrativa.js`, `js/historia.js`, `css/narrativa.css`, `docs/narrativa.md` | `EVENTS` está en narrativa.js; en núcleo nada |
-| **Combate y clases** | `js/batalla.js`, `js/campana.js`, `js/clases.js`, `js/ia.js`, `css/combate.css`, `docs/combate.md` | `UN`, `MULT`, `TYP`, `pw`, `tot`, `SP` (sprites de tropa), `REB`-tropas |
+| **Combate y clases** | `js/batalla.js`, `js/clases.js`, `js/habilidades.js`, `css/combate.css`, `docs/combate.md` (desde la fase 2, `campana.js` e `ia.js` pasan a Campaña) | `UN`, `MULT`, `TYP`, `pw`, `tot`, `SP` (sprites de tropa), `REB`-tropas |
 | **Tecnología y civilizaciones** | `js/tecnologia.js`, `js/civilizaciones.js`, `css/tecnologia.css`, `docs/tecnologia.md` | `BLD` y los campos de `CIV` relativos a progreso (añadir campos, no borrar) |
 | **Economía** | `js/economia.js`, `js/comercio.js`, `css/economia.css`, `docs/economia.md` | `TAX`, `TAXM`, `TAXO` |
 | **Diplomacia y social** | `js/diplomacia.js`, `js/sociedad.js`, `js/partida.js`, `css/diplomacia.css`, `docs/diplomacia.md` | `TRAITS`, `trait`, `mkChar`, `marry` |
 | **Interfaz** | `js/interfaz.js`, `js/inicio.js`, `js/mapa.js`, `js/musica.js`, `index.html`, `css/ocaso.css`, `css/interfaz.css`, `docs/interfaz.md` | — |
+| **Mundo (civilizaciones)** | `js/mundo.js`, `docs/mundo.md`, `pruebas/mundo.js`; además `js/mapa.js` (generación), `js/inicio.js` (pantallas de inicio) y en `js/partida.js` solo `newGame`/`setup` | `CIV`, `NF`, `REB`, `PAL`, `PNAMES` |
+| **Campaña (ejércitos en el mapa)** | `js/campana.js`, `js/ia.js`, `js/ejercitos.js`, `js/mercenarios.js`, `css/campana.css`, `docs/campana.md`, `pruebas/campana.js`; en `js/interfaz.js` solo `drawMap`, clics/hover del mapa y `provPanel` sección Ejército; en `js/turnos.js` el bucle de estaciones | — |
 | **Orquestador** | `js/ganchos.js`, `js/turnos.js`, `js/arranque.js`, `docs/CONTRATO.md`, `pruebas/humo.js` | resto de `nucleo.js` |
 
 Reglas:
@@ -127,3 +129,30 @@ correspondientes. Los demás solo escuchan.
 - Ánimo del pueblo: `ecoAnimo(p)` → `{id, nombre, icono, color, orden, objetivo, tendencia, causas}`; `ecoNivel(p)` (rápido, sin causas); `ecoApoyoAsedio(p, sitiador?)` → −1 (abre las puertas) … +1 (resiste). Sección de provincia `animo` (orden 38).
 - Decisiones de ciudad: `ecoPuedeDecidir(f, p, k)` / `ecoDecision(f, p, k)` sobre `ECO_DEC`.
 - Tecnología por ciudad: `tecPerfil(p)` → `{id, nombre, icono, sin, militar, economico, saber}`; `tecHuecos(p)`, `tecPuedeReclutar(f, p, t)`, `tecReclutables(f, p)`, `tecAdoptada(p, id)`, `tecPuntosCiudad(p)`. `statsUnidad`/`costeUnidad` deben recibir `p` (ciudad de origen o defendida); sin `p` se usa la media del reino. Las adopciones llaman a `costeConstruccion` con `id: "tec:<id>"`.
+
+## 8. Fase 2: identificadores compartidos
+
+**Civilizaciones** (`CIV[f].id`). Las 7 originales mantienen SIEMPRE su índice 0..6; las nuevas van detrás;
+los rebeldes son el ÚLTIMO elemento (`REB = CIV.length - 1`, `NF = REB`). Una partida usa un subconjunto:
+`G.activas` (array de índices). Las facciones no activas no tienen provincias (`alive(f)` falso).
+- Originales: `occ` 0 Occidente, `ori` 1 Oriente, `vis` 2 Visigodos, `hun` 3 Hunos, `van` 4 Vándalos, `fra` 5 Francos, `per` 6 Persia.
+- Nuevas: `ara` árabes, `nor` nórdicos (vikingos), `chi` chinos, `inc` incas, `may` mayas, `azt` aztecas, `gri` griegos, `egi` egipcios, `ind` indios, `cel` celtas, `esl` eslavos, `mon` mongoles. Rebeldes: `reb`.
+- Modos: `G.modo = 'historico'` (410 d.C., las 7 originales) o `'leyendas'` (subconjunto elegido de todas). Los arcos históricos de narrativa solo en modo histórico.
+- Usa `CIV[f].id` para contenido por pueblo; `civIdx(id)` devuelve el índice.
+
+**Tipos de unidad nuevos** (los define combate en `UN`):
+- Asedio (`UN[t].asedio = true`, no se reclutan en ciudad, se construyen durante un asedio): `ari` ariete, `tor` torre de asedio, `cat` catapulta/onagro.
+- `ele` elefantes de guerra, `cam` jinetes de camello.
+- Únicas por pueblo: `UN[t].civs = ['nor']`, `UN[t].hab = ['berserker', ...]`.
+- Mercenarias: `UN[t].merc = true` (las define campaña o combate; campaña lleva los contratos).
+- Tipos vetados por pueblo: `CIV[f].sinTipos = ['c','k',...]` (p.ej. sin caballos en América).
+
+**Habilidades** (combate, `js/habilidades.js`): ids `grito`, `berserker` (bono temporal y luego bajón por debajo de lo normal), `muroEscudos`, `testudo`, `carga`, `lluviaFlechas`, `emboscada`, `fuegoGriego`, `estampida`, `espanto` (camellos/elefantes asustan caballos), `disparoParto`, `juramento`, `veneno`, `sacrificio`, `tambores`. Otros sistemas solo usan estos ids.
+
+**Personajes no dinásticos** (generales de carrera, capitanes): entradas de `G.C` con `linaje: false`,
+`rol: 'capitan'|'general'|'gobernador'`, `xp`, `nivel` (1-10), `fama`. Los crea combate (capitanes que surgen
+tras victorias); no aparecen como herederos ni en bodas. Se pueden renombrar (acción `renombrar-<id>`, la
+implementa social). `p.gob` = id del gobernador de la provincia (lo implementa social).
+
+**Estaciones** (campaña): `G.estacion` 0..3 (primavera..invierno). El movimiento, asedios y máquinas avanzan
+por estación; economía, investigación y eventos siguen siendo anuales (al cerrar el invierno).
