@@ -204,7 +204,10 @@ fs.mkdirSync(capt, { recursive: true });
       const b = tecBon(ME),
         base = { ...UN.i },
         st = OC.calc("statsUnidad", { ...UN.i }, { f: ME, t: "i", p: cap, lado: "defensor" }),
-        cu = OC.calc("costeUnidad", UN.c.cost, { f: ME, t: "c" }),
+        /* solo los modificadores de tecnología: economía (inflación, hierro) puede encarecer */
+        cu = (OC._mod.costeUnidad || [])
+          .filter((m) => /tecBon/.test(String(m.fn)))
+          .reduce((v, m) => m.fn(v, { f: ME, t: "c" }) ?? v, UN.c.cost),
         y0 = { g: 10, fo: 10 },
         y1 = G.P.filter((p) => p.owner < NF)
           .map((p) => OC.calc("rendimiento", { ...y0 }, { p, f: p.owner }))

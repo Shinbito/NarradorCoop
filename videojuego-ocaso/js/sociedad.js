@@ -406,6 +406,7 @@ function socTraicion(f, c) {
   dipS().hist.traiciones = (dipS().hist.traiciones || 0) + 1;
   if (p && !p.cap && R() < 0.5) {
     c.f = REB;
+    OC.emitirSync("revuelta", { p, de: f }); /* OC */
     p.owner = REB;
     p.order = 50;
     p.tax = 1;
