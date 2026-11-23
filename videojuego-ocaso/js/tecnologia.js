@@ -18,6 +18,7 @@ const TEC = {
     n: "Disciplina de campaña",
     r: "mil",
     c: 12,
+    anio: 410,
     req: [],
     ef: "+6% vida de la infantería",
     st: { i: { hp: 0.06 } },
@@ -26,6 +27,7 @@ const TEC = {
     n: "Remonta de caballos",
     r: "mil",
     c: 12,
+    anio: 410,
     req: [],
     ef: "+6% ataque y −8% coste de jinetes",
     st: { c: { atk: 0.06 } },
@@ -35,6 +37,7 @@ const TEC = {
     n: "Arco compuesto",
     r: "mil",
     c: 12,
+    anio: 410,
     req: [],
     ef: "+8% ataque de arqueros",
     st: { a: { atk: 0.08 } },
@@ -43,6 +46,7 @@ const TEC = {
     n: "Lorigas y escamas",
     r: "mil",
     c: 24,
+    anio: 425,
     req: ["disciplina"],
     ef: "+6% vida de todas las tropas",
     st: { all: { hp: 0.06 } },
@@ -51,6 +55,7 @@ const TEC = {
     n: "Poliorcética",
     r: "mil",
     c: 24,
+    anio: 430,
     req: ["disciplina"],
     ef: "Murallas III · +8% al atacar",
     bono: { atacante: 0.08 },
@@ -59,6 +64,7 @@ const TEC = {
     n: "Spatha larga",
     r: "mil",
     c: 26,
+    anio: 440,
     req: ["lorigas"],
     ef: "+6% ataque de todas las tropas",
     st: { all: { atk: 0.06 } },
@@ -67,6 +73,7 @@ const TEC = {
     n: "Limitanei",
     r: "mil",
     c: 40,
+    anio: 460,
     req: ["poliorcetica"],
     ef: "+10% al defender · −15% comida de tropa",
     bono: { defensor: 0.1 },
@@ -76,16 +83,28 @@ const TEC = {
     n: "Comitatenses",
     r: "mil",
     c: 60,
+    anio: 490,
     req: ["spatha"],
     ef: "+5% ataque y vida · −10% coste de tropa",
     st: { all: { atk: 0.05, hp: 0.05 } },
     cu: { all: -0.1 },
   },
 
+  strategikon: {
+    n: "Strategikon",
+    r: "mil",
+    c: 80,
+    anio: 540,
+    req: ["comitatenses", "limitanei"],
+    ef: "+8% al atacar y al defender",
+    bono: { atacante: 0.08, defensor: 0.08 },
+  },
+
   arado: {
     n: "Arado pesado",
     r: "eco",
     c: 12,
+    anio: 410,
     req: [],
     ef: "Granja III · +1 comida por nivel de granja",
     ren: (y, p) => ({ ...y, fo: y.fo + (p.farm || 0) }),
@@ -94,6 +113,7 @@ const TEC = {
     n: "Reforma del sólido",
     r: "eco",
     c: 12,
+    anio: 410,
     req: [],
     ef: "Mercado III · +1 oro por nivel de mercado",
     ren: (y, p) => ({ ...y, g: y.g + (p.market || 0) }),
@@ -102,6 +122,7 @@ const TEC = {
     n: "Molinos de agua",
     r: "eco",
     c: 24,
+    anio: 425,
     req: ["arado"],
     ef: "+2 comida en provincias con granja",
     ren: (y, p) => (p.farm ? { ...y, fo: y.fo + 2 } : y),
@@ -110,6 +131,7 @@ const TEC = {
     n: "Calzadas reparadas",
     r: "eco",
     c: 26,
+    anio: 430,
     req: ["moneda"],
     ef: "+1 oro por provincia · −10% oro de tropa",
     ren: (y) => ({ ...y, g: y.g + 1 }),
@@ -119,18 +141,30 @@ const TEC = {
     n: "Annona",
     r: "eco",
     c: 45,
+    anio: 465,
     req: ["molinos", "vias"],
     ef: "+8% comida · −10% comida de tropa",
     fpct: 0.08,
     mant: { comida: -0.1 },
   },
-  gremios: { n: "Collegia de artesanos", r: "eco", c: 45, req: ["vias"], ef: "+8% oro", gpct: 0.08 },
+  gremios: {
+    n: "Collegia de artesanos",
+    r: "eco",
+    c: 45,
+    anio: 470,
+    req: ["vias"],
+    ef: "+8% oro",
+    gpct: 0.08,
+  },
 
-  censo: { n: "Censo y catastro", r: "civ", c: 12, req: [], ef: "+5% oro", gpct: 0.05 },
+  sericultura: { n: "Sericultura", r: "eco", c: 75, anio: 550, req: ["gremios"], ef: "+10% oro", gpct: 0.1 },
+
+  censo: { n: "Censo y catastro", r: "civ", c: 12, anio: 410, req: [], ef: "+5% oro", gpct: 0.05 },
   letras: {
     n: "Escuelas de retórica",
     r: "civ",
     c: 14,
+    anio: 410,
     req: [],
     ef: "Escuela III · +2 investigación",
     pts: () => 2,
@@ -139,24 +173,46 @@ const TEC = {
     n: "Ingeniería",
     r: "civ",
     c: 24,
+    anio: 435,
     req: ["censo"],
     ef: "Acueductos · obras un año más breves",
   },
-  derecho: { n: "Codificación del derecho", r: "civ", c: 26, req: ["censo"], ef: "+4 orden", ord: () => 4 },
+  derecho: {
+    n: "Codificación del derecho",
+    r: "civ",
+    c: 26,
+    anio: 430,
+    req: ["censo"],
+    ef: "+4 orden",
+    ord: () => 4,
+  },
   cancilleria: {
     n: "Cancillería",
     r: "civ",
     c: 45,
+    anio: 475,
     req: ["derecho", "letras"],
     ef: "+8% aceptación diplomática · +2 orden",
     ord: () => 2,
     dip: 0.08,
   },
 
+  corpus: {
+    n: "Corpus Iuris Civilis",
+    r: "civ",
+    c: 75,
+    anio: 530,
+    req: ["cancilleria"],
+    ef: "+5 orden · +5% aceptación diplomática",
+    ord: () => 5,
+    dip: 0.05,
+  },
+
   liturgia: {
     n: "Liturgia y ritos",
     r: "rel",
     c: 12,
+    anio: 410,
     req: [],
     ef: "+4 orden donde hay templo",
     ord: (p) => (p.temple ? 4 : 0),
@@ -165,6 +221,7 @@ const TEC = {
     n: "Jerarquía sacerdotal",
     r: "rel",
     c: 24,
+    anio: 425,
     req: ["liturgia"],
     ef: "Templo III · mejor trato con correligionarios",
     dipRel: 0.06,
@@ -173,6 +230,7 @@ const TEC = {
     n: "Monasterios",
     r: "rel",
     c: 30,
+    anio: 445,
     req: ["clero"],
     ef: "+1 investigación por templo II o más (hasta 6)",
     pts: (f, own) => Math.min(6, own.filter((p) => (p.temple || 0) >= 2).length),
@@ -181,10 +239,21 @@ const TEC = {
     n: "Concilios",
     r: "rel",
     c: 48,
+    anio: 480,
     req: ["clero"],
     ef: "+3 orden en el reino · +5% aceptación",
     ord: () => 3,
     dip: 0.05,
+  },
+  santuarios: {
+    n: "Grandes santuarios",
+    r: "rel",
+    c: 70,
+    anio: 520,
+    req: ["concilios", "monacato"],
+    ef: "+4 orden · +2 investigación",
+    ord: () => 4,
+    pts: () => 2,
   },
 };
 
@@ -193,22 +262,31 @@ const TEC = {
    costa = solo en provincias costeras; ren/ord/pts = efecto de la provincia; reino = efecto en todo el reino
    (se toma el mejor nivel que haya); ia = peso para la IA. */
 const TEC_EDI = {
-  farm: { t: [1, 1, 2], req: { 3: "arado" }, mat: "madera", ia: (p, x) => (x.e.net < 3 ? 5 : 1.4) },
-  market: { t: [1, 1, 2], req: { 3: "moneda" }, ia: () => 2.2 },
+  farm: {
+    t: [1, 1, 2],
+    anio: { 2: 420, 3: 450 },
+    req: { 3: "arado" },
+    mat: "madera",
+    ia: (p, x) => (x.e.net < 3 ? 5 : 1.4),
+  },
+  market: { t: [1, 1, 2], anio: { 2: 420, 3: 450 }, req: { 3: "moneda" }, ia: () => 2.2 },
   walls: {
     t: [1, 2, 3, 3],
+    anio: { 2: 425, 3: 460, 4: 480 },
     req: { 3: "poliorcetica", 4: "teodosianas" },
     mat: "piedra",
     ia: (p, x) => (x.amen ? 2.5 + (p.id === G.F[x.f].capId ? 1.5 : 0) : 0.3),
   },
   temple: {
     t: [1, 1, 2],
+    anio: { 2: 420, 3: 455 },
     req: { 3: "clero" },
     mat: "piedra",
     ia: (p) => (p.order < 45 ? 5 : p.order < 60 ? 1.5 : 0.4),
   },
   cuartel: {
     t: [1, 2, 2],
+    anio: { 2: 430, 3: 465 },
     mat: "madera",
     reino: (b, L) => {
       for (const c of TEC_CAT) b.cu[c] -= 0.04 * L;
@@ -218,6 +296,7 @@ const TEC_EDI = {
   },
   establo: {
     t: [1, 2],
+    anio: { 2: 445 },
     mat: "madera",
     reino: (b, L) => {
       b.st.c.atk += 0.04 * L;
@@ -227,6 +306,7 @@ const TEC_EDI = {
   },
   arqueria: {
     t: [1, 2],
+    anio: { 2: 445 },
     mat: "madera",
     reino: (b, L) => {
       b.st.a.atk += 0.04 * L;
@@ -236,6 +316,7 @@ const TEC_EDI = {
   },
   herreria: {
     t: [2, 2],
+    anio: { 1: 420, 2: 460 },
     mat: "hierro",
     reino: (b, L) => {
       for (const c of TEC_CAT) {
@@ -247,12 +328,14 @@ const TEC_EDI = {
   },
   escuela: {
     t: [1, 2, 2],
+    anio: { 2: 430, 3: 470 },
     req: { 3: "letras" },
     pts: (p, L, f) => (G.F[f] && G.F[f].capId === p.id ? 2 : 1) * L,
     ia: (p, x) => (p.id === G.F[x.f].capId ? 2.6 : 0.8),
   },
   acueducto: {
     t: [2, 3],
+    anio: { 1: 440, 2: 480 },
     req: { 1: "ingenieria" },
     mat: "piedra",
     ren: (y, p, L) => ({ ...y, fo: y.fo + L }),
@@ -261,6 +344,7 @@ const TEC_EDI = {
   },
   puerto: {
     t: [2, 2],
+    anio: { 1: 415, 2: 450 },
     costa: true,
     mat: "madera",
     ren: (y, p, L) => ({ ...y, g: y.g + 3 * L }),
@@ -268,8 +352,13 @@ const TEC_EDI = {
   },
 };
 
-/* Requisitos de cada era (la 0 es la de partida): técnicas, provincias y niveles de edificio. */
-const TEC_ERA = [null, { t: 4, p: 5, e: 10 }, { t: 9, p: 8, e: 22 }, { t: 15, p: 11, e: 38 }];
+/* Requisitos de cada era (la 0 es la de partida): técnicas, provincias, niveles de edificio y año. */
+const TEC_ERA = [
+  null,
+  { t: 4, p: 5, e: 10, anio: 425 },
+  { t: 9, p: 8, e: 22, anio: 455 },
+  { t: 15, p: 11, e: 38, anio: 490 },
+];
 const TEC_ERA_TXT = [
   "",
   "Leyes, graneros y talleres dan forma a un poder que los vecinos empiezan a respetar.",
@@ -286,6 +375,13 @@ const tecNueva = () => ({ inv: null, pts: 0, h: [], era: 0, ult: 0 });
 function tecS() {
   return OC.estado("tec", () => ({ v: 1, rev: 0, ini: false, f: [], obras: {} }));
 }
+/* Puertas por año de partida (G.year empieza en 410): verdadero si ya se ha llegado a ese año. */
+const tecDesde = (anio) => !anio || (!!G && G.year >= anio);
+/* Año mínimo para empezar el nivel n de un edificio (0 = sin puerta). */
+const tecAnioEdi = (k, n) => {
+  const a = tecB(k).anio;
+  return (a && a[n]) || 0;
+};
 const tecListo = (f) => !!(G && G.tec && G.tec.f && f != null && f >= 0 && f < NF && G.tec.f[f]);
 const tecF = (f) => G.tec.f[f];
 const tecTiene = (f, id) => tecListo(f) && tecF(f).h.includes(id);
@@ -397,6 +493,14 @@ function tecReqUnidad(t) {
     elite = UN[cat] && u.cost > UN[cat].cost * 1.4;
   return { edif, nivel: u.nivel || (edif === "cuartel" ? (elite ? 3 : 2) : elite ? 2 : 1) };
 }
+/* Año desde el que se puede reclutar una clase: UN[t].anio, o el del nivel de edificio que pide. */
+function tecAnioUnidad(t) {
+  if (TEC_CAT.includes(t)) return 0;
+  const u = UN[t] || {};
+  if (u.anio) return u.anio;
+  const r = tecReqUnidad(t);
+  return tecAnioEdi(r.edif, r.nivel);
+}
 function tecUnidadPropia(t, f) {
   const u = UN[t] || {},
     c = u.civ ?? u.civs;
@@ -428,7 +532,8 @@ function tecDisponible(f, id) {
     !tecTiene(f, id) &&
     (T.civ == null || T.civ === f) &&
     T.req.every((x) => tecTiene(f, x)) &&
-    (T.era == null || tecF(f).era >= T.era)
+    (T.era == null || tecF(f).era >= T.era) &&
+    tecDesde(T.anio)
   );
 }
 function tecAprender(f, id) {
@@ -468,7 +573,7 @@ function tecComprobarEra(f) {
   while (F.era < TEC_ERA.length - 1) {
     const r = TEC_ERA[F.era + 1],
       v = tecProgreso(f);
-    if (v.t < r.t || v.p < r.p || v.e < r.e) break;
+    if (v.t < r.t || v.p < r.p || v.e < r.e || !tecDesde(r.anio)) break;
     F.era++;
     G.tec.rev++;
     const nm = tecEras(f)[F.era];
@@ -536,6 +641,8 @@ function tecMejora(f, p, k) {
     return { ...r, motivo: "ya hay uno en el reino" };
   const req = B.req && B.req[n];
   if (req && !tecTiene(f, req)) return { ...r, motivo: "requiere " + (TEC[req] ? TEC[req].n : req) };
+  const an = tecAnioEdi(k, n);
+  if (!tecDesde(an)) return { ...r, motivo: "desde el año " + an };
   r.coste = tecCoste(f, p, k, n);
   r.anios = tecAnios(f, k, n);
   r.pago = tecPago(f, r.coste);
@@ -713,7 +820,7 @@ OC.mod("unidadesDisponibles", (arr, x = {}) => {
     ok = (t) => {
       if (TEC_CAT.includes(t) || !UN[t]) return true;
       const r = tecReqUnidad(t);
-      return nivel(r.edif) >= r.nivel;
+      return nivel(r.edif) >= r.nivel && tecDesde(tecAnioUnidad(t));
     },
     out = arr.filter(ok);
   /* clases nuevas que combate marque con UN[t].edif: se añaden en cuanto hay edificio */
@@ -830,7 +937,7 @@ function tecPanel(dis) {
     req = (a, b, t) => `<span class="${a >= b ? "tec-ok" : ""}">${t} ${a}/${b}</span>`;
   let h = `<h2>Progreso</h2><div class="tec-era"><span class="tec-era-n" style="border-color:${CIV[ME].c}">${TEC_ROM[F.era + 1]}</span><div><b>${eras[F.era]}</b><br><span class="stats">${
     sig
-      ? `Hacia «${eras[F.era + 1]}»: ${req(v.t, sig.t, "técnicas")} · ${req(v.p, sig.p, "provincias")} · ${req(v.e, sig.e, "edificios")}`
+      ? `Hacia «${eras[F.era + 1]}»: ${req(v.t, sig.t, "técnicas")} · ${req(v.p, sig.p, "provincias")} · ${req(v.e, sig.e, "edificios")} · <span class="${tecDesde(sig.anio) ? "tec-ok" : ""}">desde ${sig.anio}</span>`
       : "La cumbre de tu linaje."
   }</span></div></div>`;
   const T = F.inv && TEC[F.inv];
@@ -846,20 +953,23 @@ function tecPanel(dis) {
       (r) => `<button data-act="tecrama-${r}" class="${tecRama === r ? "on" : ""}">${TEC_RAMAS[r]}</button>`,
     )
     .join("")}</div><div class="tec-lista">`;
-  for (const id of Object.keys(TEC).filter(
-    (id) => TEC[id].r === tecRama && (TEC[id].civ == null || TEC[id].civ === ME),
-  )) {
+  for (const id of Object.keys(TEC)
+    .filter((id) => TEC[id].r === tecRama && (TEC[id].civ == null || TEC[id].civ === ME))
+    .sort((a, b) => (TEC[a].anio || 0) - (TEC[b].anio || 0))) {
     const X = TEC[id];
     if (tecTiene(ME, id)) {
       h += `<div class="tec-t hecha"><span>✓ ${X.n}</span><small>${X.ef}</small></div>`;
       continue;
     }
     const falta = X.req.filter((r) => !tecTiene(ME, r)).map((r) => TEC[r].n),
+      tarde = !tecDesde(X.anio),
       sub = falta.length
-        ? "requiere " + falta.join(", ")
-        : X.era != null && F.era < X.era
-          ? "requiere la era «" + eras[X.era] + "»"
-          : X.ef;
+        ? "requiere " + falta.join(", ") + (tarde ? " · desde " + X.anio : "")
+        : tarde
+          ? "disponible en el año " + X.anio
+          : X.era != null && F.era < X.era
+            ? "requiere la era «" + eras[X.era] + "»"
+            : X.ef;
     h += `<button data-act="tecinv-${id}" class="tec-t ${F.inv === id ? "on" : ""}" ${dis || !tecDisponible(ME, id) ? "disabled" : ""}><span>${X.n}<b>${X.c}</b></span><small>${sub}</small></button>`;
   }
   h += `</div><h3>Las potencias</h3><div class="tec-cmp">`;

@@ -78,10 +78,33 @@ fs.mkdirSync(capt, { recursive: true });
   const ini = await page.evaluate(() => {
     const s = G.tec,
       cap = G.P[G.F[ME].capId];
-    window.__tec = { ed: Array(NF).fill(0), inv: Array(NF).fill(0), era: [] };
-    OC.on("edificioConstruido", (x) => window.__tec.ed[x.f]++);
-    OC.on("tecnologiaInvestigada", (x) => window.__tec.inv[x.f]++);
-    OC.on("eraNueva", (x) => window.__tec.era.push(x));
+    window.__tec = { ed: Array(NF).fill(0), inv: Array(NF).fill(0), era: [], pronto: [] };
+    OC.on("edificioConstruido", (x) => {
+      window.__tec.ed[x.f]++;
+      if (tecAnioEdi(x.id, x.nivel) > G.year) window.__tec.pronto.push(`${x.id} ${x.nivel} en ${G.year}`);
+    });
+    OC.on("tecnologiaInvestigada", (x) => {
+      window.__tec.inv[x.f]++;
+      if ((TEC[x.id].anio || 0) > G.year) window.__tec.pronto.push(`${x.id} en ${G.year}`);
+    });
+    OC.on("eraNueva", (x) => {
+      window.__tec.era.push(x);
+      if (TEC_ERA[x.era].anio > G.year) window.__tec.pronto.push(`era ${x.era} en ${G.year}`);
+    });
+    // clase de élite ficticia para probar la puerta por año en unidadesDisponibles
+    const yr = G.year,
+      est = cap.establo;
+    UN.__elite = { s: "Élite", cost: 40, atk: 8, hp: 18, food: 2, mv: 5, edif: "establo", nivel: 2 };
+    cap.establo = 2;
+    G.tec.rev++;
+    const uAntes = OC.calc("unidadesDisponibles", ["i", "a", "c"], { f: ME, p: cap }).includes("__elite");
+    G.year = 450;
+    G.tec.rev++;
+    const uDespues = OC.calc("unidadesDisponibles", ["i", "a", "c"], { f: ME, p: cap }).includes("__elite");
+    G.year = yr;
+    cap.establo = est;
+    delete UN.__elite;
+    G.tec.rev++;
     return {
       ok: !!(s && s.f.length === NF && s.obras),
       campos: G.P.every((p) => tecEdificios().every((k) => typeof p[k] === "number")),
@@ -89,6 +112,11 @@ fs.mkdirSync(capt, { recursive: true });
       tecs: s.f.map((x) => x.h.length),
       iaInv: s.f.filter((x, f) => f !== ME && x.inv).length,
       pts: tecPuntos(ME),
+      desde: tecDesde(410) && !tecDesde(2000),
+      tardias: Object.keys(TEC).filter((id) => (TEC[id].anio || 0) > 410 && tecDisponible(ME, id)).length,
+      granjaII: tecMejora(ME, { ...cap, farm: 1 }, "farm").motivo,
+      uAntes,
+      uDespues,
     };
   });
   comprobar(ini.ok, "G.tec creado con una ficha por facción");
@@ -99,11 +127,19 @@ fs.mkdirSync(capt, { recursive: true });
   );
   comprobar(ini.iaInv >= 5, "la IA ya ha elegido qué investigar (" + ini.iaInv + ")");
   comprobar(ini.pts > 0, "puntos de investigación del jugador: " + ini.pts);
+  comprobar(ini.desde, "tecDesde(anio) responde según G.year");
+  comprobar(ini.tardias === 0, "en 410 no se puede investigar nada con año posterior");
+  comprobar(/año 420/.test(ini.granjaII), "Granja II espera al año 420: «" + ini.granjaII + "»");
+  comprobar(!ini.uAntes && ini.uDespues, "una clase de élite (establo II) se desbloquea en 445, no antes");
   console.log("  capital:", JSON.stringify(ini.cap));
 
   // pestaña Progreso: elegir investigación con un clic
   await clic('[data-act="tab-tec"]');
   await page.screenshot({ path: path.join(capt, "tec-panel-inicio.png") });
+  comprobar(
+    /(disponible en el año|desde) \d+/.test(await page.$eval("#panel", (e) => e.textContent)),
+    "el panel muestra «disponible en el año ...»",
+  );
   const pri = await page.$eval('#panel button[data-act^="tecinv-"]:not([disabled])', (b) => b.dataset.act);
   await clic(`[data-act="${pri}"]`);
   const inv = await page.evaluate(() => G.tec.f[ME].inv);
@@ -219,6 +255,7 @@ fs.mkdirSync(capt, { recursive: true });
   );
   comprobar(fin.cu.cu < fin.cu.base, `costeUnidad: jinetes ${fin.cu.base} → ${fin.cu.cu.toFixed(1)}`);
   comprobar(!!fin.ren, `rendimiento modificado por técnicas y edificios: 10/10 → ${JSON.stringify(fin.ren)}`);
+  comprobar(!fin.ev.pronto.length, "nadie (jugador ni IA) se adelanta a su año: " + fin.ev.pronto.join(", "));
   comprobar(
     fin.disp.includes("i") && fin.disp.includes("c"),
     "unidadesDisponibles conserva las clases básicas",

@@ -42,21 +42,59 @@ edificios que falten y aplica los regalos de partida de cada pueblo.
 
 Puntos al año: `4 + 0,25·provincias + era + escuelas + técnicas + (gestión−5)·0,3` (−1 en regencia),
 por `OC.calc('puntosInvestigacion')`. Los puntos se acumulan aunque no haya encargo.
-Ramas: Milicia (8), Economía (6), Gobierno (5), Culto (4) y Propias (2 por pueblo; la segunda pide era I).
-Costes 12 → 60. Árbol completo ≈ 650 puntos: un reino medio tiene 8–12 técnicas a los 30 años.
+Ramas: Milicia (9), Economía (7), Gobierno (6), Culto (5) y Propias (2 por pueblo; la segunda pide era II).
+Costes 12 → 80. Árbol completo ≈ 950 puntos; además, cada técnica espera a su año (abajo).
 
 ## Eras
 
-| Era | Técnicas | Provincias | Niveles de edificio |
-|---|---|---|---|
-| I (inicio) | — | — | — |
-| II | 4 | 5 | 10 |
-| III | 9 | 8 | 22 |
-| IV | 15 | 11 | 38 |
+| Era | Técnicas | Provincias | Niveles de edificio | Año |
+|---|---|---|---|---|
+| I (inicio) | — | — | — | 410 |
+| II | 4 | 5 | 10 | 425 |
+| III | 9 | 8 | 22 | 455 |
+| IV | 15 | 11 | 38 | 490 |
 
 Cada era: +1 investigación, +1 orden por provincia, +4% oro, +3% de aceptación diplomática por era de
 ventaja. Nombres propios por pueblo (p. ej. visigodos: Pueblo en marcha → Federados de Roma → Reino de
 Tolosa → Reino consolidado). Al jugador se le anuncia con un modal.
+
+## Puertas por año
+
+Además de los prerrequisitos, todo tiene un año mínimo de partida (`G.year`, empieza en 410) para que el
+contenido se despliegue a lo largo de partidas largas (online, 100–150 años). Helper global:
+`tecDesde(anio)` → verdadero si `G.year >= anio` (o si `anio` es 0/indefinido). Campos: `TEC[id].anio`,
+`TEC_EDI[k].anio = {nivel: año}`, `TEC_ERA[n].anio`. Lo bloqueado se ve en el panel («disponible en el año
+455», «desde el año 450» en los edificios, «desde 455» en la era siguiente) y la IA lo respeta igual porque
+usa `tecDisponible` y `tecMejora`. Las obras ya encargadas terminan siempre; los regalos de partida
+(p. ej. murallas II de Constantinopla) no pasan por la puerta.
+
+| Año | Técnicas | Niveles de edificio | Propio de cada pueblo |
+|---|---|---|---|
+| 410 | Disciplina, Remonta, Arco compuesto, Arado, Reforma del sólido, Censo, Escuelas de retórica, Liturgia | nivel I de granja, mercado, murallas, templo, cuartel, establo, campo de tiro, escuela | — |
+| 415 | — | Puerto I | 1.ª técnica propia; Campamento de la horda |
+| 420 | — | Granja II, Mercado II, Templo II, Herrería I | — |
+| 425 | Lorigas, Molinos, Jerarquía sacerdotal | Murallas II | Iglesia arriana, Mallus, Templo del fuego |
+| 430 | Poliorcética, Calzadas, Derecho | Cuartel II, Escuela II | Curia |
+| 435 | Ingeniería | — | Tributo de los pueblos |
+| 440 | Spatha larga | Acueducto I | Hipódromo, Astillero |
+| 445 | Monasterios | Establo II, Campo de tiro II | — |
+| 450 | — | Granja III, Mercado III, Puerto II | Tesoro de Constantinopla, Dihqanes |
+| 455 | — | Templo III | Saqueo de Roma |
+| 460 | Limitanei | Murallas III, Herrería II | Renovatio Imperii |
+| 465 | Annona | Cuartel III | — |
+| 470 | Collegia de artesanos | Escuela III | Código de Eurico |
+| 475 | Cancillería | — | — |
+| 480 | Concilios | Murallas IV (capital), Acueducto II | — |
+| 490 | Comitatenses | — | — |
+| 500 | — | — | Ley Sálica |
+| 520 | Grandes santuarios | — | — |
+| 530 | Corpus Iuris Civilis | — | — |
+| 540 | Strategikon | — | — |
+| 550 | Sericultura | — | — |
+
+Tropas (`unidadesDisponibles`): `i`, `a`, `c` sin puerta. Las demás usan `UN[t].anio` si combate lo define;
+si no, el año del nivel de edificio que piden (`tecAnioUnidad(t)`): cuartel II → 430, cuartel III (élite) → 465,
+establo/campo de tiro I → 410, II (élite) → 445.
 
 ## Civilizaciones (`civilizaciones.js`)
 
@@ -87,15 +125,15 @@ guardando `6 + provincias` de oro.
   (con `rg` → campo de tiro; `mv ≥ 4` → establo; si no, cuartel II; élite —coste > 1,4× su clase base— un
   nivel más). Combate puede fijarlo con `UN[t].edif` y `UN[t].nivel`; las clases con `edif` se **añaden** a la
   lista en cuanto hay edificio (respetando `UN[t].civ`/`civs` si existe). Categoría: `UN[t].cat|base|clase`.
-- Funciones útiles para otros: `tecTiene(f, id)`, `tecPuntos(f)`, `tecResumen(p)`, `tecLineaEdificios(p)`,
-  `tecEras(f)`, `G.tec.f[f].era`.
+- Funciones útiles para otros: `tecDesde(anio)`, `tecTiene(f, id)`, `tecPuntos(f)`, `tecResumen(p)`,
+  `tecLineaEdificios(p)`, `tecAnioUnidad(t)`, `tecEras(f)`, `G.tec.f[f].era`.
 
 ## Peticiones al orquestador
 
-1. **Interfaz** (`provPanel`): la línea `Granja 1/2 · Mercado 1/2 · ...` recorre todo `BLD` con máximo fijo 2;
-   ahora hay 11 edificios y máximos de 2 a 4. Sustituirla por `tecLineaEdificios(p)` (solo lo construido).
-2. **Combate** (`ia.js`): el bloque `bld` construye granja/templo/mercado/murallas al instante y sin
-   `costeConstruccion`. La IA ya construye vía tecnología; conviene quitar ese bloque (funciona igual si se deja).
+1. ~~Interfaz: usar `tecLineaEdificios(p)`~~ (hecho en la integración).
+2. **Combate** (`ia.js`): el bloque `bld` construye granja/templo/mercado/murallas II al instante, sin
+   `costeConstruccion` y **saltándose las puertas por año** (granja II antes de 420...). La IA ya construye vía
+   tecnología; hay que quitar ese bloque.
 3. **Combate**: llamar a `statsUnidad`, `bonoBatalla` y `unidadesDisponibles` (sección «Reclutar» y `ia.js`)
    para que herrería, cuarteles, establos y técnicas militares se noten en batalla; y marcar las clases nuevas
    con `UN[t].edif`/`nivel`/`cat`.
