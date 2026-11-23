@@ -300,6 +300,215 @@ fs.mkdirSync(capt, { recursive: true });
     ok(r && r.hitos >= 2, `la batalla táctica ${modo} termina con informe por fases`);
   }
 
+  /* ---------- 7. FASE 2: asedio, bestias, habilidades, generales y capitanes ---------- */
+  console.log("\n7. Fase 2: asedio, elefantes, berserkers, generales y capitanes");
+  const v2 = await page.evaluate(() => {
+    const v = (a, d, o = {}, n = 150) => {
+      let w = 0,
+        inf = null,
+        brecha = 0;
+      for (let k = 0; k < n; k++) {
+        const r = cmbResolverAuto(
+          { f: 0, u: { ...cmbVacio(), ...a } },
+          { f: 2, u: { ...cmbVacio(), ...d } },
+          { terreno: "llanura", ...o },
+        );
+        if (r.gana === 0) w++;
+        if (r.brecha) brecha++;
+        inf = r.informe;
+      }
+      return { w: w / n, inf, brecha: brecha / n };
+    };
+    const sin = v({ i: 10 }, { i: 6 }, { fort: 2 }),
+      con = v({ i: 10, ari: 2, cat: 2, tor: 1 }, { i: 6 }, { fort: 2 }),
+      campo = v({ i: 8, ari: 2, tor: 1 }, { i: 8 }, {}, 400),
+      campo0 = v({ i: 8 }, { i: 8 }, {}, 400),
+      ele = v({ ele: 4 }, { c: 6 }),
+      cab = v({ c: 4 }, { c: 6 }),
+      ber = v({ ber: 6 }, { i: 8 }, {}, 30);
+    return {
+      sin: sin.w,
+      con: con.w,
+      brecha: con.brecha,
+      rondasAsalto: con.inf.rondas.map((r) => r.f + ": " + r.t),
+      campo: campo.w,
+      campo0: campo0.w,
+      ele: ele.w,
+      cab: cab.w,
+      curva: ber.inf.curva.ber0,
+      berTxt: ber.inf.rondas.map((r) => r.t).join(" | "),
+      maqRecluta: cmbRoster(ME).some((t) => UN[t].asedio),
+      unicas: cmbRoster(ME).filter((t) => t.length > 1),
+    };
+  });
+  console.log(
+    `  asalto a murallas II: sin máquinas gana ${(v2.sin * 100).toFixed(0)}%, con arietes, torre y catapultas ${(v2.con * 100).toFixed(0)}% (brecha en el ${(v2.brecha * 100).toFixed(0)}%)`,
+  );
+  console.log("  " + v2.rondasAsalto.join("\n  "));
+  console.log(
+    `  en campo abierto las máquinas no ayudan: ${(v2.campo * 100).toFixed(0)}% frente a ${(v2.campo0 * 100).toFixed(0)}% sin ellas`,
+  );
+  console.log(
+    `  4 elefantes contra 6 de caballería: ${(v2.ele * 100).toFixed(0)}% (4 caballería: ${(v2.cab * 100).toFixed(0)}%)`,
+  );
+  console.log(`  ataque de los berserkers por ronda: ${v2.curva.join(" → ")}`);
+  ok(v2.con > v2.sin + 0.2 && v2.brecha > 0.5, "las máquinas de asedio abren brecha y ganan asaltos");
+  ok(v2.campo <= v2.campo0 + 0.15, "en campo abierto las máquinas son casi inútiles");
+  ok(v2.ele > v2.cab + 0.2, "los elefantes arrollan a la caballería");
+  const base = v2.curva[0];
+  ok(
+    Math.max(...v2.curva) > base * 1.4 && Math.min(...v2.curva) < base * 0.8,
+    "berserker: subida de furia y luego bajón por debajo de lo normal",
+  );
+  ok(/enloquecen/.test(v2.berTxt) && /flaquean/.test(v2.berTxt), "el informe narra la furia y el bajón");
+  ok(!v2.maqRecluta, "las máquinas de asedio no se reclutan en ciudad");
+  ok(v2.unicas.length > 0, "el pueblo del jugador tiene tropas únicas: " + v2.unicas.join(", "));
+
+  /* táctica: asalto con máquinas y elefantes */
+  for (const [nom, A, D, ctx] of [
+    ["asedio", { i: 6, l: 2, ari: 2, tor: 1, cat: 2, a: 2 }, { i: 5, a: 2 }, { fort: 2 }],
+    ["elefantes", { ele: 3, i: 4, a: 2 }, { c: 4, x: 2, i: 4 }, {}],
+    ["berserker", { ber: 4, i: 4, a: 2 }, { i: 6, l: 2, a: 2 }, {}],
+  ]) {
+    await page.evaluate(
+      ([A, D, ctx]) => {
+        window.__tac = null;
+        window.__log = [];
+        cmbTactica(
+          { f: ME, u: { ...cmbVacio(), ...A }, gen: G.F[ME].ruler },
+          { f: 2, u: { ...cmbVacio(), ...D }, gen: null },
+          { auto: true, sinModal: true, velocidad: 12, terreno: "llanura", nombreLugar: "Prueba", ...ctx },
+          "rt",
+        ).then((r) => (window.__tac = r));
+      },
+      [A, D, ctx],
+    );
+    let shot = false;
+    for (let k = 0; k < 600; k++) {
+      await page.waitForTimeout(200);
+      if (!shot && k === 5) {
+        /* elige una unidad propia con habilidades para ver sus botones */
+        await page.evaluate(() => {
+          const u = BT && BT.units.find((o) => !o.side && act(o) && o.hab && o.hab.length && o.t !== "i");
+          if (u) {
+            BT.sel = u.id;
+            BT.sels = [u.id];
+            bui();
+          }
+        });
+        await page.screenshot({ path: path.join(capt, `combate-v2-${nom}.png`) });
+        shot = true;
+      }
+      if (
+        await page.evaluate(() => {
+          if (BT) window.__log = [...new Set([...(window.__log || []), ...BT.log.map((l) => l.m)])];
+          return !!window.__tac;
+        })
+      )
+        break;
+    }
+    const r = await page.evaluate(() => {
+      const r = window.__tac;
+      return (
+        r && {
+          gana: r.gana,
+          hitos: r.informe.rondas.map((h) => h.t),
+          log: window.__log || [],
+          seg: r.informe.dur,
+          fx: r.informe.factores.map((f) => f.txt),
+        }
+      );
+    });
+    console.log(
+      `  táctica ${nom}: gana ${r && r.gana === 0 ? "el jugador" : "el enemigo"} en ${r && r.seg} s · ${r && r.fx.join("; ")}`,
+    );
+    const txt = r ? r.hitos.join(" ") + " " + r.log.join(" ") : "";
+    if (nom === "asedio") ok(/muralla|adarve|Brecha/i.test(txt), "táctica: las máquinas atacan la muralla");
+    if (nom === "berserker") ok(/enloquecen/.test(txt), "táctica: los berserkers usan su furia");
+    if (nom === "elefantes") ok(r && r.hitos.length >= 2, "táctica: batalla con elefantes completa");
+  }
+
+  /* generales: experiencia y nivel; capitanes que surgen tras victorias sin general */
+  const gm = await page.evaluate(() => {
+    const p = owned(ME).find((q) => q.gen == null) || owned(ME)[0],
+      g = G.F[ME].ruler,
+      c = G.C[g],
+      n0 = cmbNivel(c).nivel;
+    for (let k = 0; k < 6; k++)
+      OC.emitirSync("batallaResuelta", {
+        p,
+        atacante: ME,
+        defensor: REB,
+        gana: true,
+        gA: g,
+        gD: null,
+        s0: { i: 12 },
+        d0: { i: 8 },
+      });
+    const n1 = cmbNivel(c).nivel;
+    p.gen = null;
+    const antes = G.C.length;
+    let k = 0;
+    for (; k < 10 && !G.C.slice(antes).some((x) => x.rol === "capitan"); k++)
+      OC.emitirSync("batallaResuelta", {
+        p,
+        atacante: REB,
+        defensor: ME,
+        gana: false,
+        gA: null,
+        gD: null,
+        s0: { i: 8 },
+        d0: { i: 10 },
+      });
+    const cap = G.C.slice(antes).find((x) => x.rol === "capitan");
+    return {
+      n0,
+      n1,
+      fama: c.fama,
+      k,
+      cap: cap && {
+        id: cap.id,
+        n: cap.n,
+        linaje: cap.linaje,
+        gen: p.gen === cap.id,
+        nivel: cmbNivel(cap).nivel,
+      },
+      log: G.log.slice(0, 6).map((l) => l.m),
+    };
+  });
+  console.log(
+    `  general: nivel ${gm.n0} → ${gm.n1}, fama ${gm.fama}; capitán tras ${gm.k} victorias: ${gm.cap && gm.cap.n}`,
+  );
+  ok(gm.n1 > gm.n0, "el general sube de nivel con las victorias");
+  ok(gm.cap && gm.cap.linaje === false && gm.cap.gen, "surge un capitán sin linaje que queda al mando");
+  ok(
+    gm.log.some((m) => /surge un capitán/.test(m)),
+    "la crónica anuncia al capitán",
+  );
+  /* renombrar y ascender desde la pestaña Ejército */
+  await page.evaluate(() => {
+    tab = "cmb";
+    ui();
+  });
+  await page.waitForTimeout(150);
+  await page.locator("#panel").screenshot({ path: path.join(capt, "combate-v2-mandos.png") });
+  await clic(`[data-act="renombrar-${gm.cap.id}"]`);
+  await page.waitForTimeout(150);
+  await page.fill("#cmbnom", "Aecio <b>Rompeyelmos</b>");
+  await page.evaluate(() =>
+    [...document.querySelectorAll("#modalc button")].find((b) => /Aceptar/.test(b.textContent)).click(),
+  );
+  await page.waitForTimeout(200);
+  await clic(`[data-act="cmbasc-${gm.cap.id}"]`);
+  const ren = await page.evaluate((id) => ({ n: G.C[id].n, rol: G.C[id].rol }), gm.cap.id);
+  console.log(`  renombrado: «${ren.n}» · ${ren.rol}`);
+  ok(ren.n === "Aecio Rompeyelmos", "renombrar valida y limpia el nombre");
+  ok(ren.rol === "general", "un capitán se puede ascender a general");
+  await page.evaluate(() => {
+    tab = "prov";
+    ui();
+  });
+
   /* ---------- 6. partida guardada antigua ({i,a,c} sin G.cmb) ---------- */
   console.log("\n6. Partida guardada antigua");
   await page.evaluate(() => {
