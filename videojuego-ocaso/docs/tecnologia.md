@@ -40,7 +40,8 @@ que ya tenía.
 | Puerto | 2 | +3 oro; solo costa | económica |
 | Murallas | 3 (4) | +25% defensa (combate) | militar |
 | Cuartel | 3 | sus tropas −4% coste, infantería +3% vida; +4% vida al defenderla | militar |
-| Establo / Campo de tiro | 2 | sus jinetes / arqueros −6% coste, +4% ataque | militar |
+| Establo / Campo de tiro | 2 | sus jinetes / arqueros −6% coste, +4% ataque (el establo no se ofrece sin caballos) | militar |
+| Casa de guerreros | 2 | solo pueblos sin caballos (incas «Kallanka», mayas «Casa de los guerreros», aztecas «Casa de los guerreros águila»): infantería y tiradores −5% coste, +4% ataque; abre arqueros y sus únicas | militar |
 | Herrería | 2 | sus tropas +4% ataque y vida | militar |
 | Templo | 3 | +12 orden (economía) | saber |
 | Escuela | 3 | +1,5 investigación | saber |
@@ -67,14 +68,45 @@ Especializada si la mayor llega a **4** y es al menos el **55%** del total; si n
 | ✎ Ciudad de saber | saber | +25% investigación de la ciudad |
 
 ### Tropas por ciudad — `unidadesDisponibles` con `{f, p}`
-- Infantería (`i`): en cualquier ciudad. Arqueros (`a`): con Cuartel o Campo de tiro. Jinetes (`c`): con
-  Establo. Excepción: `CIV[f].tecLibres` (hunos: arqueros y jinetes en cualquier ciudad).
-- Clases nuevas de combate: el edificio y nivel de su perfil (`rg` → Campo de tiro; `mv ≥ 4` → Establo;
-  si no, Cuartel II), o los que fije `UN[t].edif` / `UN[t].nivel`. Élite (coste > 1,4× su clase base): un
-  nivel más **y** la doctrina adoptada en la ciudad (Disciplina, Arco compuesto o Remonta), o la técnica que
-  fije `UN[t].tec`. Año: `UN[t].anio` o el del nivel de edificio (`tecAnioUnidad`). Respeta `UN[t].civ/civs`.
+- Primero `civPuede(f, t)` (Mundo: `CIV[f].sinTipos`, sin caballos en América). Las máquinas (`asedio`) nunca.
+- Infantería (`i`): en cualquier ciudad. Arqueros (`a`): con Cuartel, Campo de tiro o Casa de guerreros.
+  Jinetes (`c`): con Establo. Excepción: `CIV[f].tecLibres` (hunos y mongoles: `a`, `c`, `x`, `m` en
+  cualquier ciudad).
+- Resto de clases: edificio y nivel = `TEC_UNIDADES[t]` (civilizaciones.js) > `UN[t].edif/nivel` > el de su
+  categoría. Técnica que debe regir en la ciudad (adoptada si es «de ciudad»): `UN[t].tec` (si combate la
+  define) > `TEC_UNIDADES[t].tec` (puede ser `{idPueblo: técnica}`) > regla general (élite, coste > 1,4× su
+  clase base: la doctrina Disciplina, Arco compuesto o Remonta). Año: `UN[t].anio` o el del nivel de edificio.
 - Sin `p`: lo que alguna ciudad del reino puede reclutar. Las clases con `UN[t].edif` se añaden a la lista.
-- `tecPuedeReclutar(f, p, t)` → `{ok, motivo}` y `tecReclutables(f, p)` para la interfaz.
+- `tecPuedeReclutar(f, p, t)` → `{ok, motivo}`; `tecReclutables(f, p)` (repertorio `cmbRoster` sin vetos ni
+  máquinas); `tecReclutaAqui(f, p)` = lo que de verdad se recluta (`cmbDisp(f, p).ok`, o
+  `OC.calc('unidadesDisponibles')` + `civPuede`): es lo que muestra la línea «Recluta:» de la ciudad.
+
+#### Únicas y bestias de los 19 pueblos (`TEC_UNIDADES`)
+| Pueblo | Unidad | Edificio | Técnica que debe regir en la ciudad |
+|---|---|---|---|
+| occ | `com` Comitatenses | Cuartel II | Legión palatina (adoptada) |
+| ori | `sif` Sifonarios | Cuartel II | Poliorcética (reino) |
+| vis | `esg` Escuderos godos | Cuartel I | — |
+| hun | `hpa` Jinetes de Atila | Establo I (o libre) | Arco huno (adoptada) |
+| van | `cor` Corsarios | Cuartel I | — |
+| fra | `fca` Lanzadores de francisca | Cuartel I | Francisca (adoptada) |
+| per | `inm` Inmortales | Cuartel II | Lorigas y escamas (adoptada) |
+| per / ind | `ele` Elefantes | Establo II (desde 445) | Clibanarios (persas) / Gajashastra (indios), adoptada |
+| ara / egi | `cam` Camellos | Establo I | — |
+| egi | `car` Carros | Establo I | — |
+| nor | `ber` Berserkers | Cuartel I | Piedras rúnicas (adoptada) |
+| chi | `bal` Ballesteros | Campo de tiro I | Ballesta de repetición (adoptada) |
+| inc | `mac` Guerreros de maza | Cuartel I | — |
+| may | `atl` Lanzadores de átlatl | Casa de los guerreros I | — |
+| azt | `jag` Guerreros jaguar | Casa de los guerreros águila I | Guerras floridas (adoptada) |
+| azt | `agu` Guerreros águila | Casa de los guerreros águila I | — |
+| gri | `hop` Hoplitas | Cuartel I | Disciplina de campaña (adoptada) |
+| cel | `fia` Fianna | Cuartel I | — |
+| esl | `bos` Lanceros del bosque | Cuartel I | — |
+| mon | `kes` Keshig | Establo I (o libre) | Remonta de caballos (adoptada) |
+
+Las bestias y únicas baratas no piden técnica; las caras, una concreta de su pueblo en lugar de la
+doctrina genérica. Los pueblos sin caballos no ven el establo, la Remonta ni ninguna técnica `caballo: true`.
 
 ### Calidad de las tropas — `statsUnidad`, `costeUnidad`
 Con `ctx.p` (ciudad propia de origen, o la que defienden): técnicas del reino + edificios de **esa**
@@ -146,6 +178,35 @@ por era de ventaja. Nombres propios por pueblo. Al jugador se le anuncia con un 
 
 ## Civilizaciones (`civilizaciones.js`)
 
+`TEC_CIV` va **por id** (`CIV[f].id`) y cubre los 19 pueblos; al cargar fija en `CIV[f]` `eras`, `tecPri`,
+`tecEdi`, `tecIni`, `tecLibres` y `tecGuerreros`, de modo que el relleno provisional de Mundo
+(`mundoRelleno`) ya no copia nada del pariente. Las capitales empiezan con Cuartel I y Establo I (o Casa de
+guerreros I si no hay caballos), más lo propio de cada pueblo.
+
+| id | Eras (I → IV) | Técnicas propias (1.ª desde 415 · 2.ª era II) | Edificio propio |
+|---|---|---|---|
+| occ | Imperio en crisis → Imperio renacido | Legión palatina · Renovatio Imperii | Curia |
+| ori | Corte de Constantinopla → Imperio universal | Murallas teodosianas · Tesoro de Constantinopla | Hipódromo |
+| vis | Pueblo en marcha → Reino consolidado | Hospitalitas · Código de Eurico | Iglesia arriana |
+| hun | Horda de la estepa → Azote de Dios | Arco huno · Tributo de los pueblos | Campamento de la horda |
+| van | Pueblo errante → Señores del mar | Flota vándala · Saqueo de Roma | Astillero |
+| fra | Tribus del Rin → Reino consolidado | Francisca · Ley Sálica | Mallus |
+| per | Corte de Ctesifonte → Rey de reyes | Clibanarios · Dihqanes | Templo del fuego |
+| ara | Tribus del desierto → Señores de Arabia | Ruta del incienso (mercado: +4 oro, +10%) · Mu'allaqat (+4 orden, +6% aceptación) | Caravasar (+6 oro, +1 saber) |
+| nor | Clanes del fiordo → Señores de los mares | Piedras rúnicas (orden, saber; berserkers) · Drakkar (+15 oro por conquista, +10% al atacar) | Salón del jarl (tropas +6% ataque) |
+| chi | Reinos divididos → Edad dorada | Ballesta de repetición (+10% arqueros) · Examen imperial (+3 orden, +3 saber) | Talleres de seda (+7 oro) |
+| inc | Curacazgo del Cuzco → Hijos del Sol | Andenes (+3 comida, +10%) · Quipus (oro, orden, saber) | Qollqas (+5 comida, +5 orden) |
+| may | Aldeas del Petén → Edad de las estelas | Cuenta larga (reino: orden, saber) · Códices y estelas (escuela) | Observatorio (+3 saber) |
+| azt | Peregrinos de Aztlán → Imperio mexica | Guerras floridas (+8% infantería; jaguares) · Chinampas (+5 comida) | Templo Mayor (+10 orden) |
+| gri | Ciudades libres → Nueva Hélade | Academia (escuela: +2 saber) · Fuego griego (+12% al defender) | Gimnasio (tropas +6% vida) |
+| egi | Nomos del Nilo → Herederos de los faraones | Canales del Nilo (+15% comida) · Papiro y escribas | Nilómetro (+4 comida, +4 oro) |
+| ind | Janapadas → Edad dorada del Ganges | Gajashastra (elefantes) · Acero wootz (+8% ataque) | Estupa (+8 orden, +2 saber) |
+| cel | Tribus de los bosques → Edad de los bardos | Saber druídico (templo) · Ogam | Oppidum (+12% al defender) |
+| esl | Tribus de los pantanos → Gran Rus | Roza del bosque (+3 comida) · Veche (+5 orden, +10% al defender) | Gord (+12% al defender) |
+| mon | Clanes de la estepa → Señores del mundo | Yam (postas: +1 oro por ciudad) · Kurultái (+10% al atacar) | Ordu del kan (jinetes −10% coste, +6%) |
+
+Edificios propios: un nivel, uno por reino, desde 415-440. `def` (oppidum, gord) suma al defender la ciudad.
+
 Cada pueblo: nombres de era, prioridades de la IA, técnica y edificios de partida (toda capital empieza con
 Cuartel I y Establo I), dos técnicas propias y un edificio propio (uno por reino): Occidente (Legión
 palatina, Renovatio Imperii, Curia), Oriente (Murallas teodosianas, Tesoro, Hipódromo), visigodos
@@ -180,10 +241,14 @@ Guarda `6 + provincias` de oro.
 
 ## Peticiones al orquestador
 
-1. **Contrato**: añadir el evento `tecnologiaAdoptada {f, p, id}` (lo emite tecnología al implantar).
-2. **Combate**: pasar `p` en `costeUnidad` y en `statsUnidad` (ciudad de origen del ejército: la provincia
-   de la que marcha el atacante; la provincia defendida para el defensor), y usar `unidadesDisponibles` con
-   `{f, p}` tanto en «Reclutar» como en `ia.js`. Sin eso, la calidad por ciudad se aplica como media del reino.
-3. **Combate** (`ia.js`): quitar el bloque `bld` (construye al instante, sin huecos ni puertas por año).
-4. **Interfaz**: el orden de la provincia se muestra con decimales («orden 93.8608»); viene de otro
-   modificador, no de tecnología (que solo suma enteros). Redondear al mostrar.
+- **Campaña**: no hay cálculo para las máquinas de asedio. Propongo que `ejercitos.js` pase el coste y las
+  estaciones de `CAM_MAQ` por `OC.calc('costeMaquina', {madera, hierro, oro}, {f, maq, p})` y
+  `OC.calc('estacionesMaquina', n, {f, maq})`; tecnología abarataría/aceleraría con Poliorcética (−20% coste,
+  −1 estación la torre y la catapulta) e Ingeniería. Igual para el alcance: hoy `ejercitos.js` mira
+  `tecTiene(f, "vias")`; un `OC.calc('alcanceEjercito', v, {f, ej})` permitiría que Yam (mongoles) y
+  Calzadas sumen sin tocar campaña.
+- **Mundo**: `mundoRelleno` ya no hace falta (tecnología define los 19); se puede borrar.
+- **Combate**: si quiere fijar otra técnica para una única, basta con `UN[t].tec` (manda sobre la tabla).
+
+(Las peticiones anteriores —evento `tecnologiaAdoptada`, `p` en costeUnidad/statsUnidad, quitar `bld` de
+`ia.js`, redondear el orden— ya están atendidas.)
