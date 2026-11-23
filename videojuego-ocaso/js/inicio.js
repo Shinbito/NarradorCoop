@@ -17,27 +17,65 @@ function renderStart() {
   <div class="g2" style="margin-top:14px"><button class="gold" data-act="s-new">Nueva campaña</button><button data-act="s-cnt" ${sv ? "" : "disabled"}>Continuar</button><button data-act="s-onl" ${net.db && net.uid ? "" : "disabled"}>Partida online</button>${G ? '<button data-act="s-bk">Volver al juego</button>' : ""}</div>
   <p class="dim" style="margin-top:10px">${net.db && net.uid ? "Online por turnos: comparte este enlace con tus amigos (permiso de colaborador) y juegan en la misma partida; las civilizaciones libres las controla la IA." : "El modo online se activa cuando abres el juego publicado con tu cuenta."}</p></div><div><button class="music" data-act="music">${AU.want ? "♪ Música: sí" : "♪ Música: no"}</button></div></div>`;
   }
-  if (v === "civ")
-    h = `<h2>Elige tu pueblo</h2><p class="dim">${ST.mode === "online" ? "Partida online nueva. " : ""}Cada civilización tiene tropas, economía y rivales propios.</p><div class="civs">${CIV.slice(
-      0,
-      NF,
-    )
-      .map(
-        (x, f) =>
-          `<button class="civ" data-act="s-civ-${f}"><i style="background:${x.c}"></i><b>${x.n}</b>${x.desc}<span class="dim">Tropas: ${x.un.i}, ${x.un.a}, ${x.un.c}</span></button>`,
-      )
-      .join("")}</div><div class="btns"><button data-act="s-bk">Atrás</button></div>`;
+  if (v === "civ") {
+    /* MUNDO: dos modos. Histórico = las 7 de siempre; Leyendas = todos los pueblos, rivales a elegir */
+    const ley = ST.modo === "leyendas",
+      lista = ley ? [...Array(NF).keys()] : MUNDO_HIST;
+    h = `<h2>Elige tu pueblo</h2><p class="dim">${ST.mode === "online" ? "Partida online nueva. " : ""}Cada civilización tiene tropas, economía y rivales propios.</p>
+  <div class="mun-modos"><button data-act="s-modo-historico" class="${ley ? "" : "on"}" aria-pressed="${!ley}"><b>Histórico (410 d.C.)</b>Roma se desmorona: los siete pueblos de la época, con sus alianzas, guerras y crónicas reales.</button><button data-act="s-modo-leyendas" class="${ley ? "on" : ""}" aria-pressed="${ley}"><b>Mundo de leyendas</b>Todos los pueblos de la historia en un mismo mundo: tú eliges el tuyo y a tus rivales. El mapa crece con ellos.</button></div>
+  <div class="civs${ley ? " mun-g" : ""}">${lista.map((f) => mundoTarjeta(f, ley)).join("")}</div><div class="btns"><button data-act="s-bk">Atrás</button></div>`;
+  }
+  if (v === "riv") h = mundoVistaRivales();
   if (v === "rul") {
-    const x = CIV[ST.civ];
+    const x = CIV[ST.civ],
+      ley = ST.modo === "leyendas";
     h = `<h2 style="color:${x.c}">Elige a tu soberano</h2><p class="dim">${x.n}. Tu soberano y su descendencia son tu personaje: si muere sin heredero, tu dinastía cae.</p><div class="civs">${ST.cands.map((o, i) => `<button class="civ ${ST.ci === i ? "on" : ""}" data-act="s-rc-${i}"><b>${o.sex === "m" ? x.tm : x.tf} ${o.n}</b>${o.age} años · ${o.tr} (${TRAITS[o.tr]})<span>Mando ${o.ma} · Intriga ${o.in}<br>Diplomacia ${o.di} · Gestión ${o.ge}</span></button>`).join("")}</div>
+  ${ley ? `<p class="dim" style="margin-top:10px">Mundo de leyendas · ${ST.riv.length} rivales: ${ST.riv.map((f) => `<span style="color:${CIV[f].c}">${CIV[f].s}</span>`).join(", ")}</p>` : ""}
   ${ST.mode === "online" ? `<p style="margin-top:12px"><label for="gname">Nombre de la partida</label><input id="gname" maxlength="40" value="${esc(ST.gname || "Partida de " + x.s)}"></p>` : ""}
-  <div class="btns" style="margin-top:12px"><button data-act="s-bk">Atrás</button><button data-act="s-rr">Otros candidatos</button><button class="gold" data-act="s-go">Comenzar en el año 410</button></div>`;
+  <div class="btns" style="margin-top:12px"><button data-act="s-bk">Atrás</button><button data-act="s-rr">Otros candidatos</button><button class="gold" data-act="s-go">${ley ? "Comenzar la leyenda" : "Comenzar en el año 410"}</button></div>`;
   }
   if (v === "lobby") {
     h = `<h2>Partidas online</h2><p class="dim">Partidas por turnos: cada jugador juega su año y el último activa a la IA. Puedes tomar cualquier civilización libre de una partida en curso.</p><div id="games">${lobbyList()}</div><div class="btns" style="margin-top:12px"><button data-act="s-bk">Atrás</button><button class="gold" data-act="s-cre">Crear partida</button></div>`;
   }
   c.innerHTML = h;
 }
+/* MUNDO: tarjeta de un pueblo en la pantalla de elección */
+function mundoTarjeta(f, ley) {
+  const x = CIV[f];
+  if (!ley)
+    return `<button class="civ" data-act="s-civ-${f}"><i style="background:${x.c}"></i><b>${x.n}</b>${x.desc}<span class="dim">Tropas: ${x.un.i}, ${x.un.a}, ${x.un.c}</span></button>`;
+  const sinCab = ["x", "c", "k", "m"].every((t) => x.sinTipos.includes(t)),
+    tropas = ["i", "a", sinCab ? "h" : "c"].filter((t) => civPuede(f, t)),
+    unicas = x.unicas.filter((k) => UN[k] && !["i", "a", "c"].includes(k)).map((k) => x.un[k] || UN[k].s);
+  return `<button class="civ mun-civ" data-act="s-civ-${f}"><i style="background:${x.c}"></i><b style="color:${x.c}">${x.n}</b>${x.desc}<span class="dim">${tropas.map((t) => `<img src="${icon(f, t)}" alt="" width="10" height="10" style="image-rendering:pixelated;vertical-align:middle"> ${x.un[t]}`).join(" · ")}${unicas.length ? `<br>Únicas: ${unicas.join(", ")}` : ""}</span>${sinCab ? '<span class="mun-sin">Sin caballos</span>' : ""}</button>`;
+}
+/* MUNDO: elección de rivales (modo leyendas) */
+function mundoVistaRivales() {
+  const x = CIV[ST.civ],
+    mano = ST.rmodo === "mano",
+    n = ST.riv.length,
+    dim = mundoDims("leyendas", n + 1),
+    nom = (f) => `<span style="color:${CIV[f].c}">${CIV[f].s}</span>`;
+  let h = `<h2>Elige a tus rivales</h2><p class="dim"><span style="color:${x.c}">${x.n}</span> contra ${n} ${n === 1 ? "pueblo" : "pueblos"}. Mapa de ${dim.w}×${dim.h} con unas ${Math.round(dim.gx * dim.gy * 0.82)} provincias.</p>
+  <div class="g2"><button data-act="s-rmodo-azar" class="${mano ? "" : "on"}" aria-pressed="${!mano}">Al azar</button><button data-act="s-rmodo-mano" class="${mano ? "on" : ""}" aria-pressed="${mano}">A mano</button></div>`;
+  if (!mano)
+    h += `<div class="mun-num"><span>Rivales</span><button data-act="s-nriv-dec" aria-label="Menos rivales" ${n <= 1 ? "disabled" : ""}>−</button><b>${n}</b><button data-act="s-nriv-inc" aria-label="Más rivales" ${n >= NF - 1 ? "disabled" : ""}>+</button><button data-act="s-rsort">Sortear de nuevo</button></div><div class="mun-sel">${ST.riv.map((f) => `<span>${nom(f)}</span>`).join("")}</div>`;
+  else
+    h += `<div class="mun-riv">${[...Array(NF).keys()]
+      .filter((f) => f !== ST.civ)
+      .map((f) => {
+        const on = ST.riv.includes(f);
+        return `<button data-act="s-rtog-${f}" class="${on ? "on" : "off"}" aria-pressed="${on}"><i style="background:${CIV[f].c}"></i>${CIV[f].s}</button>`;
+      })
+      .join("")}</div><div class="btns"><button data-act="s-rtodos">Todos</button><button data-act="s-rning">Ninguno</button></div>`;
+  return (
+    h +
+    `<div class="btns" style="margin-top:12px"><button data-act="s-bk">Atrás</button><button class="gold" data-act="s-rok" ${n < 1 ? "disabled" : ""}>Continuar</button></div>`
+  );
+}
+/* opciones de newGame según la pantalla de inicio */
+const mundoOpciones = () =>
+  ST.modo === "leyendas" ? { modo: "leyendas", activas: [ST.civ, ...ST.riv] } : { modo: "historico" };
 function drawHero() {
   const c = $("heroc");
   if (!c) return;
@@ -67,8 +105,9 @@ function lobbyList() {
       const d = g.d,
         seats = d.seats || {},
         mine = Object.keys(seats).find((f) => seats[f] === net.uid),
-        free = [...Array(NF).keys()].filter((f) => !(f in seats));
-      return `<div class="row"><div class="hd"><b>${esc(d.name || "Partida")}</b><span class="stats">año ${+d.year || 410} · ${Object.keys(seats).length} jugador(es)</span></div><span class="stats">${Object.keys(
+        /* MUNDO: solo los pueblos que juegan esa partida */
+        free = (Array.isArray(d.activas) ? d.activas.filter((f) => f >= 0 && f < NF) : MUNDO_HIST).filter((f) => !(f in seats));
+      return `<div class="row"><div class="hd"><b>${esc(d.name || "Partida")}</b><span class="stats">${d.modo === "leyendas" ? "leyendas · " : ""}año ${+d.year || 410} · ${Object.keys(seats).length} jugador(es)</span></div><span class="stats">${Object.keys(
         seats,
       )
         .map(
@@ -87,6 +126,7 @@ function startAct(v) {
   ];
   if (k === "new") {
     ST.mode = "single";
+    ST.modo = ST.modo || "historico";
     openStart("civ");
   }
   if (k === "onl") {
@@ -94,7 +134,45 @@ function startAct(v) {
     openLobby();
   }
   if (k === "cre") {
+    ST.modo = ST.modo || "historico";
     openStart("civ");
+  }
+  /* MUNDO: modo de juego y rivales */
+  if (k === "modo") {
+    ST.modo = x === "leyendas" ? "leyendas" : "historico";
+    renderStart();
+  }
+  if (k === "rmodo") {
+    ST.rmodo = x === "mano" ? "mano" : "azar";
+    renderStart();
+  }
+  if (k === "nriv") {
+    if (x === "dec" && ST.riv.length > 1) ST.riv.pop();
+    if (x === "inc") {
+      const l = [...Array(NF).keys()].filter((f) => f !== ST.civ && !ST.riv.includes(f));
+      if (l.length) ST.riv.push(pick(l));
+    }
+    ST.nriv = ST.riv.length;
+    renderStart();
+  }
+  if (k === "rsort") {
+    ST.riv = mundoRivalesAzar(ST.civ, ST.riv.length);
+    renderStart();
+  }
+  if (k === "rtog") {
+    const f = +x;
+    if (f !== ST.civ && f >= 0 && f < NF) ST.riv = ST.riv.includes(f) ? ST.riv.filter((g) => g !== f) : [...ST.riv, f];
+    ST.nriv = ST.riv.length || ST.nriv;
+    renderStart();
+  }
+  if (k === "rtodos" || k === "rning") {
+    ST.riv = k === "rtodos" ? [...Array(NF).keys()].filter((f) => f !== ST.civ) : [];
+    renderStart();
+  }
+  if (k === "rok" && ST.riv.length) {
+    ST.cands = cands(ST.civ);
+    ST.ci = 0;
+    openStart("rul");
   }
   if (k === "cnt") {
     try {
@@ -103,7 +181,7 @@ function startAct(v) {
         leaveNet();
         G = s.G;
         ME = s.ME;
-        MAP = gen(G.seed);
+        MAP = gen(G.seed, G.mapa);
         drawBase();
         OC.emitirSync("partidaLista");
         sel = G.F[ME].capId;
@@ -117,16 +195,24 @@ function startAct(v) {
     }
   }
   if (k === "bk") {
-    if (ST.view === "rul") openStart("civ");
+    if (ST.view === "rul") openStart(ST.modo === "leyendas" ? "riv" : "civ");
+    else if (ST.view === "riv") openStart("civ");
     else if (ST.view === "civ") openStart(ST.mode === "online" ? "lobby" : "home");
     else if (ST.view === "lobby") openStart("home");
     else if (G) $("start").classList.remove("show");
   }
   if (k === "civ") {
     ST.civ = +x;
-    ST.cands = cands(ST.civ);
-    ST.ci = 0;
-    openStart("rul");
+    if (ST.modo === "leyendas") {
+      /* rivales: se conservan los elegidos (sin el pueblo propio) o se sortean */
+      ST.riv = (ST.riv || []).filter((f) => f !== ST.civ);
+      if (!ST.riv.length) ST.riv = mundoRivalesAzar(ST.civ, ST.nriv || 7);
+      openStart("riv");
+    } else {
+      ST.cands = cands(ST.civ);
+      ST.ci = 0;
+      openStart("rul");
+    }
   }
   if (k === "rc") {
     ST.ci = +x;
@@ -143,7 +229,7 @@ function startAct(v) {
       createOnline();
     } else {
       leaveNet();
-      newGame(ST.civ, ST.cands[ST.ci]);
+      newGame(ST.civ, ST.cands[ST.ci], mundoOpciones());
       drawBase();
       OC.emitirSync("partidaLista");
       $("start").classList.remove("show");
@@ -213,7 +299,7 @@ function openLobby() {
 }
 async function createOnline() {
   leaveNet();
-  newGame(ST.civ, ST.cands[ST.ci]);
+  newGame(ST.civ, ST.cands[ST.ci], mundoOpciones());
   drawBase();
   OC.emitirSync("partidaLista");
   const ref = net.db.collection("partidas").doc();
@@ -222,6 +308,9 @@ async function createOnline() {
       name: ST.gname,
       created: Date.now(),
       year: G.year,
+      /* MUNDO: el lobby muestra solo los pueblos que juegan */
+      modo: G.modo,
+      activas: G.activas,
       seats: { [ME]: net.uid },
       current: ME,
       ver: 1,
@@ -271,7 +360,7 @@ function enterGame(id, f) {
         try {
           const g = JSON.parse(d.state);
           if (!MAP || MAP.seed !== g.seed) {
-            MAP = gen(g.seed);
+            MAP = gen(g.seed, g.mapa);
             drawBase();
           }
           G = g;
