@@ -757,7 +757,6 @@ function narConquista({ p, de, a }) {
       narEncolar(de, "exilio", { p: p.id, g: a });
     }
   }
-  narVigilarFin();
 }
 function narBatalla(b) {
   if (!b) return;
@@ -806,14 +805,6 @@ function narRevisar(f) {
     }
   if (F.food <= 0 && inc(f).net < 0) narCrisis(f, "hambre");
   if (F.gold < 0) narCrisis(f, "bancarrota");
-}
-function narFinPrevisto() {
-  if (!G || G.over || !G.P.length) return false;
-  const need = Math.ceil(G.P.length * 0.6);
-  return G.human.some((f) => alive(f) && owned(f).length >= need) || !alive(ME);
-}
-function narVigilarFin() {
-  if (G && G.nar && narFinPrevisto() && narF(ME).epi == null) narEpilogo(ME);
 }
 function narIA(f) {
   if (!G || !alive(f) || human(f)) return;
@@ -866,7 +857,14 @@ OC.on("tecnologiaInvestigada", ({ f, id } = {}) => {
 OC.on("eraNueva", ({ f, era } = {}) => {
   if (f == null || f >= NF) return;
   narLeg(f, { sa: 2 });
-  narEncolar(f, "era", { e: era == null ? "" : String(era) });
+  /* tecnología ya abre su modal: aquí solo queda en los anales */
+  if (human(f))
+    narCron(
+      f,
+      `${narPueblo(f)} entra en una nueva era${narEraNombre(f, era == null ? "" : String(era))}.`,
+      "nar-fin",
+      true,
+    );
 });
 OC.on("edificioConstruido", ({ f, id } = {}) => {
   if (f != null && f < NF && id === "temple") narLeg(f, { pi: 1 });
@@ -879,7 +877,10 @@ OC.on("antesFinAnio", () => {
 OC.on("finAnio", () => {
   for (let f = 0; f < NF; f++)
     if (G.F[f] && narF(f).rey !== G.F[f].ruler) narSucesion(f, narF(f).rey, G.F[f].ruler);
-  narVigilarFin();
+});
+/* fin de la partida (turnos lo emite justo antes del modal de victoria/derrota): el epílogo va delante */
+OC.on("finPartida", () => {
+  if (G && G.F[ME] && narF(ME).epi == null) narEpilogo(ME);
 });
 
 /* ---------- eventos ----------
@@ -2949,38 +2950,6 @@ const EVENTS = [
     ],
   },
   {
-    id: "era",
-    t: "Una nueva era",
-    k: "Saber",
-    re: true,
-    prio: 6,
-    d: (c) =>
-      `Los cronistas escriben que ${narPueblo(c.f)} ha entrado en una nueva edad${narEraNombre(c.f, c.d.e)}. Lo viejo se resquebraja y lo nuevo aún no tiene nombre.`,
-    o: [
-      {
-        t: "Grandes fiestas",
-        coste: { oro: 40 },
-        tip: "+8 orden en el reino",
-        ef: (c) => narOrden(c.f, 8),
-        leg: { gl: 2 },
-      },
-      {
-        t: "Encargar una crónica del reino",
-        coste: { oro: 25 },
-        tip: "+6% investigación durante 6 años",
-        ef: (c) => narEf(c.f, "invest", 0.06, 6, "Crónica del reino"),
-        leg: { sa: 5 },
-        cr: (c) => `${narTit(c.r)} encarga una crónica de la nueva era. Estas mismas páginas, quizá.`,
-      },
-      {
-        t: "Dar gracias en los templos",
-        tip: "+4 orden",
-        ef: (c) => narOrden(c.f, 4),
-        leg: { pi: 4 },
-      },
-    ],
-  },
-  {
     id: "hambre",
     t: "El hambre",
     k: "Reino",
@@ -3261,26 +3230,6 @@ async function narAnio(f, previos = 0) {
   }
   narMenor(f);
 }
-/* cuenta los modales que abren otros sistemas (buzón de diplomacia, demandas...) para el ritmo */
-async function narContarModales(fn) {
-  const el = typeof document !== "undefined" && document.getElementById("modalc");
-  if (!el || typeof MutationObserver === "undefined") {
-    await fn();
-    return 0;
-  }
-  let n = 0;
-  const ob = new MutationObserver((ms) => {
-    if (ms.some((m) => m.addedNodes.length)) n++;
-  });
-  ob.observe(el, { childList: true });
-  try {
-    await fn();
-  } finally {
-    if (ob.takeRecords().some((m) => m.addedNodes.length)) n++;
-    ob.disconnect();
-  }
-  return n;
-}
 async function startTurn() {
   if (!G) return;
   if (G.over || !alive(ME)) {
@@ -3290,12 +3239,14 @@ async function startTurn() {
   if (G.evY[ME] === G.year) return;
   G.evY[ME] = G.year;
   if (!G.nar) narInit();
+  const m0 = OC.modales || 0;
   const box = G.inbox[ME] || [];
   G.inbox[ME] = [];
   for (const it of box) await inboxItem(it);
   narRevisar(ME);
-  const vistos = await narContarModales(() => OC.emitir("inicioTurno", ME));
-  if (!G.over && alive(ME)) await narAnio(ME, box.length + vistos);
+  await OC.emitir("inicioTurno", ME);
+  /* ritmo: modales ya abiertos este año (buzón, diplomacia, sociedad...) según OC.modales */
+  if (!G.over && alive(ME)) await narAnio(ME, Math.max(0, (OC.modales || 0) - m0));
   narFoto(ME);
   ui();
   save();

@@ -49,10 +49,10 @@ prólogo, hechos menores, epílogo), `css/narrativa.css`, `pruebas/narrativa.js`
   ambicioso (pide recompensa), derrota (destituir o perdonar: si vence luego, se redime), capital
   enemiga tomada (saqueo, clemencia o coronarse si era romana), capital perdida (corte en el exilio, y
   «El regreso» al recuperarla), revuelta, coronación (primer edicto o regencia), muerte del heredero
-  (investigar al sospechoso), consorte extranjera, guerra declarada contra ti, nuevo saber, nueva era,
-  hambre y bancarrota.
+  (investigar al sospechoso), consorte extranjera, guerra declarada contra ti, nuevo saber, hambre y bancarrota.
+  La nueva era (que ya anuncia tecnología con su modal) sólo queda anotada en los Anales.
 - **Ritmo**: como mucho 2 modales al año contando los del buzón de diplomacia y las demandas de
-  sociedad (se cuentan los modales abiertos durante `inicioTurno`); si ya hubo 2, sólo sale lo urgente
+  sociedad (`OC.modales`, contado desde el comienzo de `startTurn`); si ya hubo 2, sólo sale lo urgente
   (coronación, exilio). Orden: reacciones → consecuencias → capítulo → azar (40 %, o 15 % si ya hubo uno).
   Los hechos menores (23 frases variadas que leen el estado: guerra, tesoro, orden, edad del
   soberano, legado, rumores de otras cortes) van a la crónica.
@@ -107,7 +107,8 @@ API para otros sistemas: `narLegado(f)`, `narApodoActual(f)`, `narTiene(f, marca
   ids), `muertePersonaje`, `bodaCelebrada`, `guerraDeclarada`, `pazFirmada`, `alianzaSellada`,
   `tecnologiaInvestigada` (usa `TEC[id].n`), `eraNueva` (usa `tecEras`), `edificioConstruido`,
   `crisisEconomica` (`hambre`, `impagos`, `bancarrota` → evento; `peste`, `inflacion` → crónica),
-  `turnoIA`, `antesFinAnio` (foto del estado), `finAnio` (sucesiones y fin previsto).
+  `turnoIA`, `antesFinAnio` (foto del estado), `finAnio` (sucesiones), `finPartida` (el epílogo se abre
+  justo antes del modal de victoria/derrota).
   Respaldo al empezar el año por si un evento no llegara: sucesión, muertes, consorte nueva, guerras
   nuevas, hambre y deudas.
 - **Modifica**: `ordenObjetivo`, `rendimiento`, `bonoBatalla`, `puntosInvestigacion`,
@@ -126,16 +127,10 @@ y carga de una partida guardada sin `G.nar`. Capturas `pruebas/capturas/narrativ
 
 ## Peticiones al orquestador
 
-1. **Fin de partida**: un evento `finPartida {win}` emitido en `checkEnd` antes de `showEnd`. Ahora el
-   epílogo se adelanta replicando la regla del 60 % en `conquista` y `finAnio` (`narFinPrevisto`); si
-   la regla cambia, hay que tocarla en los dos sitios.
-2. **Interfaz**: un contador oficial de modales del año (o que `modal` emita algo) en lugar del
-   `MutationObserver` sobre `#modalc` que uso para el ritmo. La crónica (`G.log`, 60 entradas) se
-   queda corta en partidas de 150 años: los Anales guardan aparte 80 hechos memorables; `logPanel`
-   podría agrupar por año y conservar más entradas destacadas (`nar-*`).
-3. **Tecnología**: `eraNueva` ya abre su propio modal y la narrativa encola «Una nueva era» para el año
-   siguiente; si molesta, la narrativa puede limitarse a la crónica.
-4. **Diplomacia**: el panel de dinastía/diplomacia podría mostrar `narApodoActual(g)` junto al
+Atendidas: `finPartida`, `OC.modales` y `G.log` de 250 entradas (ya integradas en este sistema).
+
+1. **Diplomacia**: el panel de dinastía/diplomacia podría mostrar `narApodoActual(g)` junto al
    soberano extranjero, y la aceptación podría leer `narLegado(g)` del receptor.
-5. **Contrato**: anotar en la sección 5 que la narrativa modifica también `rendimiento` y
+2. **Contrato**: anotar en la sección 5 que la narrativa modifica también `rendimiento` y
    `aceptacionDiplomatica`, y el campo `lado:'defensor'` que uso en `bonoBatalla`.
+3. **Interfaz**: `logPanel` podría agrupar la crónica por año; las entradas `nar-*` ya llevan estilo.
