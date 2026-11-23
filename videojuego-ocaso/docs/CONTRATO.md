@@ -85,7 +85,7 @@ Secciones de provincia actuales: `reclutar` (20, combate), `edificios` (30, tecn
 | `bodaCelebrada` | `{a, b}` (personajes) | diplomacia | |
 | `muertePersonaje` | `{c, motivo}` | diplomacia (`kill`) | |
 | `sucesion` | `{f, anterior, nuevo}` | diplomacia | |
-| `crisisEconomica` | `{f, tipo}` (`hambre`, `bancarrota`...) | economía | |
+| `crisisEconomica` | `{f, tipo}` con tipo `hambre`, `impagos`, `bancarrota`, `peste`, `inflacion` | economía | |
 
 Quien emite un evento de esta tabla debe hacerlo en todos los caminos de código
 correspondientes. Los demás solo escuchan.
@@ -110,3 +110,9 @@ correspondientes. Los demás solo escuchan.
 - `node pruebas/humo.js [años] [civ]` debe acabar en `OK sin errores`.
 - Cada sistema puede añadir `pruebas/<sistema>.js` con sus propias comprobaciones.
 - Comprueba también que una partida guardada **antes** de tus cambios sigue cargando.
+
+## 7. Notas de integración
+
+- `inc(f).g` es el **saldo neto** de oro del año (puede ser negativo). Ingresos brutos en `inc(f).gi`, gastos en `inc(f).gg`.
+- `ecoResumen(f)` → `[{id, nombre, icono, saldo, anual}]` para pintar la barra de recursos.
+- `tecLineaEdificios(p)` → texto corto con los edificios construidos de una provincia.

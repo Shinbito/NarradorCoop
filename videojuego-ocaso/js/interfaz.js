@@ -4,7 +4,7 @@ function ui() {
   const F = G.F[ME],
     e = inc(ME);
   $("res").innerHTML =
-    `<span><b>${G.year}</b> d.C.</span><span>Oro <b>${F.gold}</b> <small>+${e.g}</small></span><span>Comida <b>${F.food}</b> <small class="${e.net < 0 ? "neg" : ""}">${e.net >= 0 ? "+" : ""}${e.net}</small></span><span style="color:${CIV[ME].c}">${CIV[ME].s} · ${owned(ME).length}/${G.P.length}</span>`;
+    `<span><b>${G.year}</b> d.C.</span><span>Oro <b>${F.gold}</b> <small class="${e.g < 0 ? "neg" : ""}">${e.g >= 0 ? "+" : ""}${e.g}</small></span><span>Comida <b>${F.food}</b> <small class="${e.net < 0 ? "neg" : ""}">${e.net >= 0 ? "+" : ""}${e.net}</small></span><span style="color:${CIV[ME].c}">${CIV[ME].s} · ${owned(ME).length}/${G.P.length}</span>`;
   const turnTxt = net.on
     ? net.cur === ME
       ? "Online · es tu turno"
