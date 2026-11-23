@@ -209,16 +209,52 @@ const UN = {
   k: { s: "Caballería pesada", cost: 32, food: 2, mv: 4.2, atk: 8, hp: 18, cat: "c", edif: "establo", nivel: 2, cl: "cab", me: 10, ca: 9, de: 7, ar: 8, es: 0.25, vi: 20, mo: 76, di: 7, fa: 1.4, ve: 2.6, al: 0, mu: 0, pr: 0, pw: 13 },
   m: { s: "Arqueros a caballo", cost: 26, food: 2, mv: 5.4, atk: 4.4, hp: 12, cat: "c", edif: "establo", nivel: 1, cl: "cab", me: 4, ca: 2, de: 4, ar: 2, es: 0.1, vi: 12, mo: 58, di: 5, fa: 0.9, ve: 3.5, al: 6, mu: 7, pr: 3.3, pw: 9.6 },
 };
-/* MULT[atacante][objetivo]: ventaja de doctrina en el cuerpo a cuerpo (la armadura y el escudo van aparte) */
+/* FASE 2 (combate): máquinas de asedio, bestias y tropas únicas de cada pueblo. rol = clase base para
+   la doctrina (MULT) y el comportamiento; asedio = no se recluta en ciudad (se construye durante un asedio);
+   sitio = efecto contra murallas (brecha: derriba; torre: anula parte de su bono); hab = habilidades
+   (habilidades.js); civs = ids de pueblo (CIV[f].id) que la tienen; caballo = montura que se espanta. */
+for (const t in UN) UN[t].rol = t;
+for (const t of ["x", "c", "k", "m"]) UN[t].caballo = true;
+const cmbU = (base, o) => ({ ...UN[base], rol: base, edif: UN[base].edif, nivel: UN[base].nivel, ...o });
+// prettier-ignore
+Object.assign(UN, {
+  ari: { s: "Arietes", cost: 30, food: 1, mv: 1, atk: 1, hp: 16, cat: "i", rol: "asd", asedio: true, sitio: { brecha: 0.4 }, cl: "asd", me: 1.5, ca: 0, de: 1, ar: 7, es: 0.85, vi: 16, mo: 50, di: 5, fa: 0.8, ve: 0.7, al: 0, mu: 0, pr: 0, pw: 3 },
+  tor: { s: "Torres de asedio", cost: 40, food: 1, mv: 1, atk: 1, hp: 18, cat: "i", rol: "asd", asedio: true, sitio: { torre: 0.25 }, cl: "asd", me: 1, ca: 0, de: 1, ar: 5, es: 0.9, vi: 18, mo: 55, di: 5, fa: 0.8, ve: 0.5, al: 5, mu: 12, pr: 2.4, pw: 3 },
+  cat: { s: "Catapultas", cost: 35, food: 1, mv: 1, atk: 1, hp: 9, cat: "a", rol: "asd", asedio: true, sitio: { brecha: 0.18 }, cl: "asd", me: 1, ca: 0, de: 1, ar: 1, es: 0, vi: 9, mo: 45, di: 4, fa: 0.8, ve: 0.5, al: 11, mu: 6, pr: 9, pw: 4 },
+  ele: { s: "Elefantes de guerra", cost: 45, food: 3, mv: 3.5, atk: 9, hp: 30, cat: "c", edif: "establo", nivel: 2, rol: "ele", civs: ["ind", "per"], hab: ["estampida", "espanto"], cl: "cab", me: 11, ca: 10, de: 6, ar: 6, es: 0.35, vi: 30, mo: 62, di: 3, fa: 1.3, ve: 2.4, al: 0, mu: 0, pr: 0, pw: 18 },
+  cam: { s: "Jinetes de camello", cost: 20, food: 2, mv: 4.6, atk: 5, hp: 15, cat: "c", edif: "establo", nivel: 1, rol: "cam", civs: ["ara", "egi"], hab: ["espanto"], calor: true, cl: "cab", me: 6, ca: 4, de: 5, ar: 2, es: 0.25, vi: 15, mo: 60, di: 5, fa: 0.7, ve: 3.3, al: 0, mu: 0, pr: 0, pw: 8.5 },
+  car: { s: "Carros de guerra", cost: 28, food: 2, mv: 5, atk: 7, hp: 18, cat: "c", edif: "establo", nivel: 1, rol: "c", caballo: true, civs: ["egi"], hab: ["carga"], cl: "cab", me: 7, ca: 9, de: 4, ar: 4, es: 0.2, vi: 18, mo: 60, di: 4, fa: 1.1, ve: 3.4, al: 3, mu: 4, pr: 2.6, pw: 11 },
+  com: cmbU("p", { s: "Comitatenses", cost: 17, civs: ["occ"], hab: ["testudo"], me: 7.5, de: 9, ar: 6, es: 0.55, vi: 12, mo: 76, pw: 8.2 }),
+  sif: cmbU("h", { s: "Sifonarios", cost: 18, edif: "cuartel", nivel: 2, civs: ["ori"], hab: ["fuegoGriego"], me: 3, de: 4, ar: 3, es: 0.2, vi: 9, mo: 58, di: 6, al: 3, mu: 3, pr: 6, pw: 6 }),
+  esg: cmbU("l", { s: "Escuderos godos", cost: 12, civs: ["vis"], hab: ["muroEscudos"], me: 5, de: 9, ar: 5, es: 0.6, mo: 70, di: 7, pw: 6.4 }),
+  hpa: cmbU("m", { s: "Jinetes de Atila", cost: 28, civs: ["hun"], hab: ["disparoParto"], me: 5, pr: 3.6, mo: 64, ve: 3.7, pw: 10.5 }),
+  cor: cmbU("i", { s: "Corsarios", cost: 12, edif: "cuartel", nivel: 1, civs: ["van"], hab: ["emboscada"], me: 6.5, de: 5, ar: 3, mo: 62, ve: 1.9, pw: 6 }),
+  fca: cmbU("i", { s: "Lanzadores de francisca", cost: 13, edif: "cuartel", nivel: 1, civs: ["fra"], hab: ["grito"], me: 7, de: 6, ar: 3, al: 2, mu: 1, pr: 5, pw: 6.6 }),
+  inm: cmbU("p", { s: "Inmortales", cost: 22, civs: ["per"], hab: ["juramento"], me: 7, de: 8, ar: 6, al: 6, mu: 4, pr: 3, mo: 80, di: 8, pw: 9.5 }),
+  ber: cmbU("i", { s: "Berserkers", cost: 16, edif: "cuartel", nivel: 1, civs: ["nor"], hab: ["berserker"], me: 8, ca: 3, de: 4, ar: 1, es: 0.2, vi: 12, mo: 75, di: 3, fa: 1.2, ve: 1.8, pw: 7.5 }),
+  jag: cmbU("i", { s: "Guerreros jaguar", cost: 15, edif: "cuartel", nivel: 1, civs: ["azt"], hab: ["grito", "sacrificio"], me: 7.5, ca: 3, de: 6, ar: 3, es: 0.35, vi: 11, mo: 72, di: 6, ve: 1.8, pw: 7.2 }),
+  agu: cmbU("h", { s: "Guerreros águila", cost: 14, civs: ["azt"], hab: ["emboscada"], me: 6, de: 5, ar: 2, al: 4, mu: 4, pr: 3.2, ve: 2.2, mo: 70, di: 6, pw: 6.4 }),
+  bal: cmbU("a", { s: "Ballesteros", cost: 16, edif: "arqueria", nivel: 1, civs: ["chi"], hab: ["lluviaFlechas"], pr: 5, al: 9, mu: 7, ar: 3, mo: 56, di: 6, pw: 6.8 }),
+  hop: cmbU("l", { s: "Hoplitas", cost: 15, civs: ["gri"], hab: ["muroEscudos"], me: 6, de: 10, ar: 6, es: 0.65, mo: 74, di: 8, pw: 7.4 }),
+  mac: cmbU("i", { s: "Guerreros de maza", cost: 11, edif: "cuartel", nivel: 1, civs: ["inc"], hab: ["tambores"], me: 7, ar: 3, mo: 66, pw: 6 }),
+  atl: cmbU("h", { s: "Lanzadores de átlatl", cost: 10, civs: ["may"], hab: ["veneno"], pr: 4, al: 5, mu: 6, pw: 5 }),
+  fia: cmbU("i", { s: "Fianna", cost: 13, edif: "cuartel", nivel: 1, civs: ["cel"], hab: ["grito", "emboscada"], me: 6.5, ve: 2, mo: 68, pw: 6.3 }),
+  bos: cmbU("l", { s: "Lanceros del bosque", cost: 10, civs: ["esl"], hab: ["emboscada"], me: 4.5, ve: 1.7, mo: 66, pw: 5.6 }),
+  kes: cmbU("m", { s: "Keshig", cost: 30, civs: ["mon"], hab: ["disparoParto", "tambores"], me: 6, de: 5, ar: 4, pr: 3.6, mo: 72, di: 7, pw: 11 }),
+});
+for (const t in UN) if (!TYP.includes(t)) TYP.push(t);
+/* MULT[atacante][objetivo]: ventaja de doctrina en el cuerpo a cuerpo (la armadura y el escudo van aparte),
+   calculada por rol: las tropas únicas heredan la doctrina de su clase base. */
 const MULT = (() => {
-  const m = {},
+  const R = ["l", "i", "p", "h", "a", "x", "c", "k", "m", "ele", "cam", "asd"],
+    b = {},
     cab = ["x", "c", "k", "m"],
     dis = ["h", "a"],
     inf = ["l", "i", "p"],
-    set = (a, bs, v) => bs.forEach((b) => (m[a][b] = v));
-  for (const a of TYP) {
-    m[a] = {};
-    for (const b of TYP) m[a][b] = 1;
+    set = (a, bs, v) => bs.forEach((c) => (b[a][c] = v));
+  for (const a of R) {
+    b[a] = {};
+    for (const c of R) b[a][c] = 1;
   }
   set("l", cab, 1.5);
   set("l", ["m"], 1.3);
@@ -236,10 +272,33 @@ const MULT = (() => {
   set("k", ["l"], 0.75);
   set("k", dis, 1.7);
   set("k", ["x", "c", "m"], 1.3);
-  set("m", TYP, 0.8);
+  set("m", R, 0.8);
   set("a", cab, 1.2);
   set("h", dis, 1.2);
   set("m", ["i", "l"], 0.9);
+  set("ele", inf, 1.4);
+  set("ele", ["l"], 0.9);
+  set("ele", dis, 1.6);
+  set("ele", cab, 1.5);
+  set("ele", ["cam"], 1.2);
+  set("cam", dis, 1.5);
+  set("cam", cab, 1.25);
+  set("cam", inf, 0.9);
+  set("cam", ["l"], 0.6);
+  set("l", ["ele"], 1.3);
+  set("l", ["cam"], 1.4);
+  set("a", ["ele", "cam"], 1.2);
+  set("h", ["ele"], 1.2);
+  set("x", ["ele"], 0.5);
+  set("c", ["ele"], 0.6);
+  set("k", ["ele"], 0.8);
+  for (const a of R) b[a].asd = 1.6;
+  set("asd", R, 0.5);
+  const m = {};
+  for (const a in UN) {
+    m[a] = {};
+    for (const c in UN) m[a][c] = b[UN[a].rol][UN[c].rol];
+  }
   return m;
 })();
 /* Edificios de provincia: [nombre, efecto por nivel, coste base en oro, nivel máximo].
@@ -410,9 +469,44 @@ const SP = {
     ".n.n.n.n.",
     ".k.k.k.k.",
   ],
+  ari: [".ppppppp.", "ppppppppp", ".p.....p.", "knnnnnnnn", ".p.....p.", "kk.kk.kk."],
+  tor: ["..fff..", ".ppppp.", ".pkpkp.", ".ppppp.", ".pkpkp.", ".ppppp.", ".ppppp.", "ppppppp", "k.k.k.k"],
+  cat: [
+    "......kk.",
+    ".....p...",
+    "....p....",
+    "...p.....",
+    "..p......",
+    "pppppppp.",
+    ".p....p..",
+    "kk....kk.",
+  ],
+  ele: [
+    "...ff....",
+    "..rrrr...",
+    "hhhhhhh..",
+    "hhhhhhhhh",
+    "hhhhhhh.h",
+    "hhhhhhhth",
+    ".hh..hh..",
+    ".hh..hh..",
+  ],
+  cam: [
+    "..hh.....",
+    "..ff...b.",
+    ".bbbb.bb.",
+    "bbbbbbbb.",
+    ".bbbbbb..",
+    ".b.b.b.b.",
+    ".b.b.b.b.",
+    ".k.k.k.k.",
+  ],
+  car: ["...ff....", "..ffff.n.", "..pppnnnn", "..ppnnnn.", "kk.n.n.n.", "kk.k.k.k."],
   tree: ["..g..", ".gGg.", "gGggg", ".ggg.", "..t.."],
   hill: ["...m...", "..mMm..", ".mmmmm.", "mmmmmmm"],
 };
+/* las tropas únicas sin dibujo propio usan el de su clase base */
+for (const t of TYP) if (!SP[t]) SP[t] = SP[UN[t].rol] || SP.i;
 const BP = {
   k: "#211c26",
   w: "#cfc6b6",
