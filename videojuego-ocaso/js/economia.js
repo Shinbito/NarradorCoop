@@ -51,6 +51,8 @@ const ECO_F0 = Object.freeze({
   lev: 0, // presión sobre las levas (0-0,8) calculada al cerrar el año: encarece reclutar
   gi: 0, // ingresos brutos del último año
   mon: -1, // año del último cambio de moneda
+  abund: false, // graneros por encima del 60 % al cerrar el año (+3 de ánimo)
+  desc: -99, // año del último aviso de descontento general
 });
 
 /* ---------- estado ---------- */
@@ -63,6 +65,9 @@ function ecoE() {
   if (!E.peste) E.peste = {};
   if (!E.inm) E.inm = {};
   if (!E.mer) E.mer = {};
+  if (!E.efe) E.efe = {}; // efectos temporales de las decisiones por provincia: [{k, t, o, h, imp, hi}]
+  if (!E.dec) E.dec = {}; // enfriamiento de decisiones: {k: año en que vuelve a estar disponible}
+  if (!E.saq) E.saq = {}; // año de la última batalla librada en la provincia
   if (typeof comMercadoIni === "function") comMercadoIni(E);
   return E;
 }
@@ -168,12 +173,13 @@ function ecoDesglose(p) {
     r = G.F[f] ? ruler(f) : null,
     gm = r ? 1 + (r.ge - 5) * 0.03 : 1,
     peste = !!E.peste[p.id],
-    k = (CIV[f] ? CIV[f].gold : 1) * gm * (p.order < 35 ? 0.5 : 1) * (peste ? 0.8 : 1),
+    an = ecoNivel(p),
+    k = (CIV[f] ? CIV[f].gold : 1) * gm * an.oro * (peste ? 0.8 : 1),
     pob = ecoPob(p),
     tr = ecoTerreno(p.id),
     ey = (ECO_ESP[E.esp[p.id]] || {}).y || {};
-  let imp = pob * ECO_IMP * (TAXM[p.tax] ?? 1) * k,
-    fo = 2.5 + pob * ECO_COS + (+p.farm || 0) * 5 + (p.cap ? 4 : 0) + (ey.fo || 0);
+  let imp = pob * ECO_IMP * (TAXM[p.tax] ?? 1) * k * ecoMultImp(p),
+    fo = (2.5 + pob * ECO_COS + (+p.farm || 0) * 5 + (p.cap ? 4 : 0) + (ey.fo || 0)) * an.fo;
   if (S.diezmo) imp *= 0.9;
   if (S.annona) {
     fo += imp * 0.3;
@@ -329,7 +335,7 @@ function ecoFiscal(f = ME) {
 }
 
 /* ---------- población y levas ---------- */
-const ecoLevas = (f) => Math.round(owned(f).reduce((s, p) => s + ecoPob(p), 0) * 0.9);
+const ecoLevas = (f) => Math.round(owned(f).reduce((s, p) => s + ecoPob(p) * ecoNivel(p).lev, 0));
 function ecoPresionLevas(f) {
   const lv = ecoLevas(f);
   if (!lv) return 0;
@@ -347,7 +353,7 @@ function ecoTasa(p) {
   let r = 0.05;
   if (p.tax === 2) r -= 0.012;
   if (p.tax === 0) r += 0.008;
-  if (p.order < 30) r -= 0.02;
+  r += ecoNivel(p).pob;
   if (p.recent) r -= 0.02;
   if (f < NF && hostile(p, f).some((q) => tot(q.u) >= 4)) r -= 0.01;
   let g = r > 0 ? r * (1 - pob / K) : r;
@@ -367,39 +373,339 @@ function ecoDiezmar(p, fr) {
   E.pob[p.id] = Math.max(1, Math.round(ecoPob(p) * (1 - fr) * 10) / 10);
 }
 
-/* ---------- orden público ---------- */
+/* ---------- orden público y ánimo del pueblo ----------
+   El orden (p.order, 0-100) tiende cada año hacia el orden objetivo (ordTarget), que es la suma de
+   causas visibles más los modificadores de otros sistemas. El ánimo es el nombre de ese orden. */
+const ECO_ANIMO = [
+  {
+    id: "furioso",
+    nombre: "Furioso",
+    icono: "✖",
+    color: "#e0503f",
+    min: 0,
+    oro: 0.4,
+    fo: 0.7,
+    pob: -0.03,
+    lev: 0.3,
+    des: 0.1,
+  },
+  {
+    id: "disgustado",
+    nombre: "Disgustado",
+    icono: "☹",
+    color: "#ef7a55",
+    min: 15,
+    oro: 0.6,
+    fo: 0.85,
+    pob: -0.015,
+    lev: 0.6,
+    des: 0.04,
+  },
+  {
+    id: "inquieto",
+    nombre: "Inquieto",
+    icono: "!",
+    color: "#e8b632",
+    min: 30,
+    oro: 0.85,
+    fo: 1,
+    pob: -0.005,
+    lev: 0.8,
+    des: 0,
+  },
+  {
+    id: "neutral",
+    nombre: "Neutral",
+    icono: "○",
+    color: "#a2abb0",
+    min: 45,
+    oro: 1,
+    fo: 1,
+    pob: 0,
+    lev: 0.9,
+    des: 0,
+  },
+  {
+    id: "contento",
+    nombre: "Contento",
+    icono: "☺",
+    color: "#9ccc65",
+    min: 60,
+    oro: 1.05,
+    fo: 1,
+    pob: 0.004,
+    lev: 0.95,
+    des: 0,
+  },
+  {
+    id: "feliz",
+    nombre: "Feliz",
+    icono: "✿",
+    color: "#6fcf6a",
+    min: 75,
+    oro: 1.1,
+    fo: 1.05,
+    pob: 0.008,
+    lev: 1,
+    des: 0,
+  },
+  {
+    id: "leal",
+    nombre: "Leal",
+    icono: "★",
+    color: "#f2c14e",
+    min: 90,
+    oro: 1.15,
+    fo: 1.05,
+    pob: 0.01,
+    lev: 1.1,
+    des: 0,
+  },
+];
+function ecoNivel(p) {
+  let n = ECO_ANIMO[0];
+  for (const x of ECO_ANIMO) if ((p.order ?? 50) >= x.min) n = x;
+  return n;
+}
+/* efectos temporales de decisiones activos este año */
+const ecoEfectos = (p) => ((G.eco && G.eco.efe && G.eco.efe[p.id]) || []).filter((x) => x.h >= G.year);
+const ecoMultImp = (p) =>
+  ((G.eco && G.eco.efe && G.eco.efe[p.id]) || []).reduce(
+    (m, x) => (x.imp !== undefined && x.hi >= G.year ? m * x.imp : m),
+    1,
+  );
+/* causas propias del orden objetivo: [{texto, valor}] (sin la base de 55) */
+function ecoCausasBase(p) {
+  const f = p.owner,
+    r = ruler(f),
+    S = ecoF(f),
+    E = ecoE(),
+    c = [],
+    add = (texto, valor) => valor && c.push({ texto, valor });
+  add(`Impuestos ${(TAX[p.tax] || "").toLowerCase()}`, TAXO[p.tax] ?? 0);
+  add("Templo", (+p.temple || 0) * 12);
+  add(`Costumbres de ${CIV[f].s}`, CIV[f].ord || 0);
+  add("Guarnición que impone respeto", tot(p.u) >= 6 ? 6 : 0);
+  if (r) {
+    add("Soberano piadoso", r.tr === "Piadoso" ? 5 : 0);
+    add("Soberano justo", r.tr === "Justo" ? 3 : 0);
+    add("Soberano cruel", r.tr === "Cruel" ? -3 : 0);
+    add("Regencia de un menor", r.age < 16 ? -10 : 0);
+  }
+  add("Conquista reciente", p.recent ? -25 : 0);
+  add("Diezmo a la Iglesia", S.diezmo ? 5 : 0);
+  add("Lujos en la corte", Math.min(6, (S.lujo || 0) * 2));
+  add("Graneros llenos", S.abund ? 3 : 0);
+  add("Hambre en el reino", S.hambre > 0 ? -10 : 0);
+  add("Moneda devaluada", -Math.round((S.infl - 1) * 40));
+  add("Deudas del tesoro", -ecoPenaDeuda(f));
+  add("Peste", E.peste[p.id] ? -8 : 0);
+  add(
+    "Enemigos en la frontera",
+    f < NF && hostile(p, f).some((q) => q.owner !== REB && tot(q.u) >= 4) ? -4 : 0,
+  );
+  add("Saqueos y batallas", E.saq[p.id] >= G.year - 1 ? -6 : 0);
+  add("Hacinamiento", ecoPob(p) > ecoCapacidad(p) ? -4 : 0);
+  for (const x of ecoEfectos(p)) add(x.t, x.o);
+  return c;
+}
 function ordTarget(p) {
   const f = p.owner;
   if (f === REB) return 50;
-  const r = ruler(f),
-    S = ecoF(f),
-    E = ecoE();
-  const eco =
-    (S.diezmo ? 5 : 0) +
-    Math.min(6, (S.lujo || 0) * 2) -
-    Math.round((S.infl - 1) * 40) -
-    ecoPenaDeuda(f) -
-    (S.hambre > 0 ? 10 : 0) -
-    (E.peste[p.id] ? 8 : 0);
+  const base = 55 + ecoCausasBase(p).reduce((s, x) => s + x.valor, 0);
   /* OC 'ordenObjetivo': orden hacia el que tiende la provincia. ctx {p, f} */
-  return clamp(
-    OC.calc(
-      "ordenObjetivo",
-      55 +
-        p.temple * 12 +
-        (TAXO[p.tax] ?? 0) +
-        CIV[f].ord +
-        (tot(p.u) >= 6 ? 6 : 0) +
-        (r.tr === "Piadoso" ? 5 : 0) -
-        (p.recent ? 25 : 0) -
-        (r.age < 16 ? 10 : 0) +
-        eco,
-      { p, f },
-    ),
-    0,
-    100,
-  );
+  return clamp(OC.calc("ordenObjetivo", base, { p, f }), 0, 100);
 }
+/* reparte lo que añaden los modificadores de 'ordenObjetivo' según el sistema que los registró */
+const ECO_ORIGEN = [
+  [/\bsoc[A-Z]/, "Corte y estamentos"],
+  [/\btec[A-Z]/, "Técnicas y edificios"],
+  [/\bnar[A-Z]/, "Sucesos"],
+  [/\bdip[A-Z]/, "Diplomacia"],
+  [/\bcmb[A-Z]/, "Ejército"],
+];
+function ecoModsOrden(v, ctx) {
+  const out = {};
+  for (const { fn } of OC._mod.ordenObjetivo || []) {
+    let n;
+    try {
+      n = fn(v, ctx);
+    } catch (e) {
+      continue;
+    }
+    if (typeof n !== "number" || !Number.isFinite(n)) continue;
+    const src = String(fn),
+      k = (ECO_ORIGEN.find(([re]) => re.test(src)) || [0, "Otros"])[1];
+    out[k] = (out[k] || 0) + (n - v);
+    v = n;
+  }
+  return { v, out };
+}
+/* Ánimo del pueblo de una provincia: {id, nombre, icono, color, orden, objetivo, tendencia, causas:[{texto, valor}]} */
+function ecoAnimo(p) {
+  const n = ecoNivel(p),
+    o = { id: n.id, nombre: n.nombre, icono: n.icono, color: n.color, orden: p.order };
+  if (!G || p.owner === REB || !G.F[p.owner])
+    return { ...o, objetivo: 50, tendencia: 50 - p.order, causas: [] };
+  const f = p.owner,
+    causas = ecoCausasBase(p),
+    m = ecoModsOrden(55 + causas.reduce((s, x) => s + x.valor, 0), { p, f });
+  /* la fe de la provincia la calcula sociedad dentro de su modificador: se muestra aparte */
+  if (
+    typeof socFe === "function" &&
+    typeof socF === "function" &&
+    m.out["Corte y estamentos"] !== undefined
+  ) {
+    const fe = socFe(p),
+      so = socF(f);
+    if (fe && fe !== CIV[f].rel && so) {
+      const v = { tol: -1, neu: -4, celo: -8 }[so.pol] || 0,
+        nf = typeof SOC_FEN !== "undefined" && SOC_FEN[fe] ? SOC_FEN[fe] : fe;
+      if (v) causas.push({ texto: `Fe ${nf}, distinta del soberano`, valor: v });
+      m.out["Corte y estamentos"] -= v;
+    }
+  }
+  for (const k in m.out) if (Math.round(m.out[k])) causas.push({ texto: k, valor: Math.round(m.out[k]) });
+  const objetivo = Math.round(clamp(m.v, 0, 100));
+  causas.sort((a, b) => b.valor - a.valor);
+  return { ...o, objetivo, tendencia: objetivo - p.order, causas };
+}
+/* Para asedios: −1 (la ciudad abriría las puertas al sitiador) .. +1 (resistiría hasta el final) */
+function ecoApoyoAsedio(p, sitiador = null) {
+  if (!G || !p) return 0;
+  const n = ecoNivel(p);
+  let v = (p.order - 50) / 50 + (n.id === "leal" ? 0.2 : n.id === "feliz" ? 0.1 : 0);
+  if (p.owner < NF && ecoF(p.owner).hambre > 0) v -= 0.2;
+  if (ecoE().peste[p.id]) v -= 0.1;
+  if (sitiador != null && sitiador !== p.owner && sitiador < NF) {
+    if (p.home === sitiador) v -= 0.3;
+    const fe = typeof socFe === "function" ? socFe(p) : null;
+    if (fe && CIV[sitiador] && fe === CIV[sitiador].rel && fe !== (CIV[p.owner] || {}).rel) v -= 0.2;
+  }
+  return clamp(Math.round(v * 100) / 100, -1, 1);
+}
+
+/* ---------- decisiones de gobierno de una ciudad ----------
+   coste(p) → bolsa; ok(p) → disponible según el ánimo; cd = años de espera; fx(p) aplica el efecto */
+const ECO_DEC = {
+  juegos: {
+    n: "Juegos y fiestas",
+    d: "+10 ánimo, 3 años",
+    cd: 4,
+    coste: (p) => ({ oro: Math.round(8 + ecoPob(p)) }),
+    ok: () => true,
+    fx: (p) => {
+      ecoEfecto(p, "juegos", "Juegos y fiestas", 10, 3);
+      p.order = clamp(p.order + 5, 0, 100);
+    },
+  },
+  grano: {
+    n: "Reparto de grano",
+    d: "+8 ánimo, 2 años",
+    cd: 3,
+    coste: (p) => ({ comida: Math.round(10 + ecoPob(p) * 0.8) }),
+    ok: () => true,
+    fx: (p) => {
+      ecoEfecto(p, "grano", "Reparto de grano", 8, 2);
+      p.order = clamp(p.order + 4, 0, 100);
+      ecoDiezmar(p, -0.02);
+    },
+  },
+  notables: {
+    n: "Escuchar a los notables",
+    d: "+6 ánimo, 3 años",
+    cd: 3,
+    coste: () => ({ oro: 15 }),
+    ok: (p) => p.order < 60,
+    fx: (p) => {
+      ecoEfecto(p, "notables", "Notables escuchados", 6, 3);
+      p.order = clamp(p.order + 3, 0, 100);
+    },
+  },
+  condona: {
+    n: "Condonar tributos",
+    d: "sin impuestos 1 año; +12 ánimo, 2 años",
+    cd: 5,
+    coste: () => ({}),
+    ok: (p) => p.order < 75,
+    fx: (p) => ecoEfecto(p, "condona", "Tributos condonados", 12, 2, 0, 1),
+  },
+  negociar: {
+    n: "Negociar con los descontentos",
+    d: "impuestos bajos; +15 ánimo, 3 años",
+    cd: 5,
+    coste: () => ({ oro: 10 }),
+    ok: (p) => p.order < 30,
+    fx: (p) => {
+      p.tax = 0;
+      ecoEfecto(p, "negociar", "Pacto con los descontentos", 15, 3);
+    },
+  },
+  castigo: {
+    n: "Castigar a los cabecillas",
+    d: "+12 orden ya; −5 ánimo, 3 años",
+    cd: 4,
+    coste: () => ({}),
+    ok: (p) => p.order < 30 && tot(p.u) >= 2,
+    fx: (p) => {
+      p.order = clamp(p.order + 12, 0, 100);
+      ecoEfecto(p, "castigo", "Cabecillas ajusticiados", -5, 3);
+      ecoDiezmar(p, 0.02);
+    },
+  },
+  marcial: {
+    n: "Ley marcial",
+    d: "+20 orden ya; −8 ánimo 4 años, −5% almas",
+    cd: 5,
+    coste: () => ({}),
+    ok: (p) => p.order < 45 && tot(p.u) >= 3,
+    fx: (p) => {
+      p.order = clamp(p.order + 20, 0, 100);
+      ecoEfecto(p, "marcial", "Recuerdo de la ley marcial", -8, 4);
+      ecoDiezmar(p, 0.05);
+    },
+  },
+  colonos: {
+    n: "Exención para colonos",
+    d: "+8% almas, +4 ánimo; ½ impuestos 3 años",
+    cd: 8,
+    coste: () => ({ oro: 20 }),
+    ok: (p) => p.order >= 30 && ecoPob(p) < ecoCapacidad(p) * 0.85,
+    fx: (p) => {
+      ecoDiezmar(p, -0.08);
+      ecoEfecto(p, "colonos", "Colonos exentos", 4, 3, 0.5, 3);
+    },
+  },
+};
+/* añade (o renueva) un efecto temporal: o = ánimo durante `anios`; imp = multiplicador de impuestos durante `ai` años */
+function ecoEfecto(p, k, t, o, anios, imp, ai) {
+  const E = ecoE(),
+    l = (E.efe[p.id] || []).filter((x) => x.k !== k),
+    x = { k, t, o, h: G.year + anios - 1 };
+  if (imp !== undefined) Object.assign(x, { imp, hi: G.year + ai - 1 });
+  l.push(x);
+  E.efe[p.id] = l;
+}
+const ecoEspera = (p, k) => Math.max(0, ((ecoE().dec[p.id] || {})[k] || 0) - G.year);
+function ecoPuedeDecidir(f, p, k) {
+  const D = ECO_DEC[k];
+  return !!D && p.owner === f && f < NF && D.ok(p) && !ecoEspera(p, k) && OC.puedePagar(f, D.coste(p));
+}
+function ecoDecision(f, p, k) {
+  const D = ECO_DEC[k];
+  if (!ecoPuedeDecidir(f, p, k) || !OC.pagar(f, D.coste(p))) return false;
+  D.fx(p);
+  const E = ecoE();
+  E.dec[p.id] = { ...(E.dec[p.id] || {}), [k]: G.year + D.cd };
+  if (isMe(f)) addLog(`${D.n} en ${p.name}.`);
+  return true;
+}
+OC.accion("eca", (v) => {
+  const [k, i] = v.split(":"),
+    p = G.P[+i];
+  if (p) ecoDecision(ME, p, k);
+});
+
 function ecoPenaDeuda(f) {
   const S = ecoF(f);
   if (!(S.deuda > 0)) return 0;
@@ -461,8 +767,32 @@ function economy(f) {
   /* la moneda recupera poco a poco su crédito */
   if (S.infl > 1) S.infl = Math.max(1, Math.round((S.infl - 0.01) * 100) / 100);
   if (S.cred > 0) S.cred--;
+  S.abund = F.food >= ecoGranero(f) * 0.6;
   /* población */
   for (const p of own) ecoCrecer(p);
+  /* ánimo: deserciones en ciudades hostiles, efectos que caducan, aviso de descontento general */
+  const E = ecoE();
+  let mal = 0,
+    huidos = 0;
+  for (const p of own) {
+    const an = ecoNivel(p);
+    if (an.des)
+      for (const t in p.u) {
+        const n = +p.u[t] || 0,
+          x = n * an.des,
+          l = Math.min(n, Math.floor(x) + (R() < x % 1 ? 1 : 0));
+        p.u[t] = n - l;
+        huidos += l;
+      }
+    if (an.min < 30) mal++;
+  }
+  if (me && huidos)
+    addLog(`En las ciudades descontentas desertan ${huidos} soldados de la guarnición.`, "bad");
+  if (mal >= 2 && mal >= own.length * 0.35 && S.desc < G.year - 2) {
+    S.desc = G.year;
+    if (me) addLog(`El descontento cunde: ${mal} ciudades están disgustadas o furiosas.`, "bad");
+    ecoCrisis(f, "descontento", { ciudades: mal });
+  }
   /* orden y revueltas */
   for (const p of owned(f)) {
     p.order = clamp(p.order + clamp(ordTarget(p) - p.order, -8, 8), 0, 100);
@@ -475,9 +805,17 @@ function economy(f) {
       p.gen = null;
       p.order = 50;
       p.tax = 1;
+      delete E.efe[p.id];
       if (typeof comRevisarRutas === "function") comRevisarRutas();
+      ecoPerderAlmacenes(f);
     }
   }
+  /* caducan los efectos de las decisiones que acababan este año */
+  for (const p of own)
+    if (E.efe[p.id]) {
+      E.efe[p.id] = E.efe[p.id].filter((x) => x.h > G.year || x.hi > G.year);
+      if (!E.efe[p.id].length) delete E.efe[p.id];
+    }
 }
 function ecoDeuda(f, b) {
   const F = G.F[f],
@@ -622,9 +960,33 @@ function ecoIA(f) {
   else if (S.infl >= 1.15 && !S.deuda && F.gold > ecoCosteReacunar(f) * 2) ecoDecidir(f, "reacunar");
   /* comercio y mercado */
   if (typeof comIA === "function") comIA(f);
+  /* ciudades descontentas: hasta dos decisiones al año, sin vaciar el tesoro ni el granero */
+  ecoIACiudades(f, b);
   /* déficit crónico: licenciar tropas de retaguardia */
   b = ecoBalance(f);
   if (b.g < 0 && F.gold + b.g * 2 < 0) ecoLicenciar(f, -b.g + Math.ceil(b.gi * 0.05));
+}
+function ecoIACiudades(f, b) {
+  const F = G.F[f];
+  let n = 0;
+  for (const p of owned(f).sort((a, c) => a.order - c.order)) {
+    if (n >= 2 || p.order >= 42) break;
+    const t = ordTarget(p);
+    if (t >= p.order + 10 && p.order >= 25) continue; /* ya va a mejor por sí sola */
+    const pref =
+      p.order < 22
+        ? ["negociar", "marcial", "castigo", "juegos", "condona", "grano"]
+        : ["juegos", "grano", "notables", "condona", "negociar"];
+    for (const k of pref) {
+      const c = ECO_DEC[k].coste(p);
+      if ((c.oro || 0) && F.gold - c.oro < 15) continue;
+      if ((c.comida || 0) && F.food - c.comida < Math.max(10, -b.net * 2)) continue;
+      if (ecoDecision(f, p, k)) {
+        n++;
+        break;
+      }
+    }
+  }
 }
 function ecoLicenciar(f, need) {
   const own = owned(f).sort((a, b) => foes(a, f).length - foes(b, f).length || tot(b.u) - tot(a.u)),
@@ -661,11 +1023,14 @@ function ecoIATasas(f) {
 
 /* ---------- reacciones a la guerra ---------- */
 OC.on("batallaResuelta", (r) => {
-  if (G && r && r.p) ecoDiezmar(r.p, 0.03);
+  if (!G || !r || !r.p) return;
+  ecoDiezmar(r.p, 0.03);
+  ecoE().saq[r.p.id] = G.year;
 });
 OC.on("conquista", (r) => {
   if (!G || !r || !r.p) return;
   ecoDiezmar(r.p, 0.05);
+  delete ecoE().efe[r.p.id];
   if (typeof comRevisarRutas === "function") comRevisarRutas();
   ecoPerderAlmacenes(r.de);
 });
@@ -777,6 +1142,99 @@ OC.accion("tax", (v) => {
   if (p && p.owner === ME && TAX[+v] !== undefined) p.tax = +v;
 });
 
+/* ---------- sección de provincia: ánimo del pueblo ---------- */
+let ecoVerCausas = false;
+document.addEventListener(
+  "toggle",
+  (e) => {
+    if (e.target && e.target.id === "eco-causas") ecoVerCausas = e.target.open;
+  },
+  true,
+);
+const ecoAnimoTxt = (a) => `<b style="color:${a.color}">${a.icono} ${a.nombre}</b>`;
+function ecoTendTxt(a) {
+  const t = a.tendencia;
+  return t >= 3
+    ? `<i class="eco-up" title="Mejora hacia ${a.objetivo}">▲</i>`
+    : t <= -3
+      ? `<i class="eco-dn" title="Empeora hacia ${a.objetivo}">▼</i>`
+      : `<i title="Estable">=</i>`;
+}
+OC.seccion("prov", {
+  id: "animo",
+  orden: 38,
+  visible: (c) => c.p.owner !== REB,
+  render: ({ p, mine }, dis) => {
+    const a = ecoAnimo(p);
+    if (!mine) {
+      const ap = ecoApoyoAsedio(p, ME);
+      return `<h3>Ánimo del pueblo</h3><p class="eco-pv">${ecoAnimoTxt(a)} ${ecoTendTxt(a)}${ap <= -0.3 ? ' · <span class="eco-up">os abrirían las puertas</span>' : ap >= 0.5 ? ' · <span class="eco-dn">resistiría un asedio</span>' : ""}</p>`;
+    }
+    let h = `<h3>Ánimo del pueblo</h3><p class="eco-pv">${ecoAnimoTxt(a)} ${ecoTendTxt(a)} <span class="stats">orden ${p.order} → ${a.objetivo}</span></p>`;
+    h += `<details id="eco-causas" class="eco-causas" ${ecoVerCausas ? "open" : ""}><summary>Causas del ánimo (base 55)</summary><ul>${a.causas
+      .map(
+        (c) =>
+          `<li><span>${esc(c.texto)}</span><b class="${c.valor < 0 ? "eco-dn" : "eco-up"}">${ecoSig(c.valor)}</b></li>`,
+      )
+      .join("")}</ul></details>`;
+    const ds = Object.keys(ECO_DEC).filter((k) => ECO_DEC[k].ok(p));
+    if (ds.length)
+      h += `<div class="g2 eco-dec">${ds
+        .map((k) => {
+          const D = ECO_DEC[k],
+            c = D.coste(p),
+            w = ecoEspera(p, k),
+            ok = ecoPuedeDecidir(ME, p, k);
+          return `<button data-act="eca-${k}:${p.id}" ${dis || !ok ? "disabled" : ""} title="${D.d}">${D.n}<small>${w ? "en " + w + (w > 1 ? " años" : " año") : (OC.textoCoste(c) || "gratis") + " · " + D.d}</small></button>`;
+        })
+        .join("")}</div>`;
+    return h;
+  },
+});
+/* el ánimo también en la línea de información del mapa (se añade tras el texto de la interfaz) */
+document.addEventListener("mousemove", (e) => {
+  if (!G || e.target !== cv || hover == null || !G.P[hover] || G.P[hover].owner === REB) return;
+  const hv = $("hv"),
+    a = ecoNivel(G.P[hover]);
+  if (hv && hv.textContent && !hv.textContent.includes(" · " + a.nombre))
+    hv.textContent += ` · ${a.icono} ${a.nombre}`;
+});
+OC.accion(
+  "ecoir",
+  (v) => {
+    if (!G.P[+v]) return;
+    sel = +v;
+    tab = "prov";
+    if (typeof centerOn === "function") centerOn(sel);
+  },
+  { libre: true },
+);
+/* resumen del ánimo de todas tus ciudades (pestaña Tesoro) */
+function ecoVistaAnimo() {
+  const own = owned(ME);
+  if (!own.length) return "";
+  const cuenta = ECO_ANIMO.map((n) => ({ n, c: own.filter((p) => ecoNivel(p) === n).length })).filter(
+      (x) => x.c,
+    ),
+    peores = own
+      .slice()
+      .sort((a, b) => a.order - b.order)
+      .slice(0, 3)
+      .filter((p) => p.order < 60);
+  let h = `<h3>Ánimo de las ciudades</h3><p class="eco-pv">${cuenta
+    .reverse()
+    .map((x) => `<span title="${x.n.nombre}" style="color:${x.n.color}">${x.n.icono}${x.c}</span>`)
+    .join(" ")}</p>`;
+  if (peores.length)
+    h += `<div class="btns eco-peores">${peores
+      .map((p) => {
+        const n = ecoNivel(p);
+        return `<button class="eco-mini" data-act="ecoir-${p.id}"><span style="color:${n.color}">${n.icono}</span> ${p.name}<small>${n.nombre} · ${p.order}</small></button>`;
+      })
+      .join("")}</div>`;
+  return h;
+}
+
 /* ---------- pestaña Tesoro ---------- */
 let ecoVista = "bal";
 OC.accion(
@@ -820,6 +1278,7 @@ function ecoVistaBalance(b, dis) {
   }).join("")}</div>`;
   const lv = ecoLevas(ME);
   h += `<p class="stats">${ecoN(b.pob)} mil almas · levas ${b.tropas}/${lv}${b.tropas > lv * 0.8 ? ' <b class="eco-dn">agotadas</b>' : ""} · lujos ${b.lujo}/3${S.hambre ? ' · <b class="eco-dn">hambre</b>' : ""}</p>`;
+  h += ecoVistaAnimo();
   const rec = ecoGananciaRecorte(ME),
     rea = ecoCosteReacunar(ME),
     monUsada = S.mon === G.year;

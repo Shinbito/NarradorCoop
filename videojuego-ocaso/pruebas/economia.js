@@ -15,6 +15,7 @@ const capt = path.join(__dirname, "capturas");
 fs.mkdirSync(capt, { recursive: true });
 
 const fallos = [];
+const S_REV_MAX = (n) => Math.max(6, Math.round(n * 0.75));
 const comprueba = (ok, msg) => {
   if (!ok) fallos.push(msg);
   console.log((ok ? "  ok   " : "  FALLO ") + msg);
@@ -215,6 +216,83 @@ const comprueba = (ok, msg) => {
   const panel = await page.$("#panel");
   await panel.screenshot({ path: path.join(capt, "economia-provincia.png") });
 
+  /* ---------- ánimo del pueblo ---------- */
+  console.log("Ánimo del pueblo");
+  const an = await page.evaluate(() => {
+    const o = {},
+      F = G.F[ME],
+      p = G.P[F.capId],
+      ord0 = p.order;
+    const a = ecoAnimo(p);
+    o.campos = ["id", "nombre", "icono", "color", "objetivo", "causas"].every((k) => a[k] !== undefined);
+    o.objetivo = a.objetivo === Math.round(ordTarget(p));
+    const suma = 55 + a.causas.reduce((s, c) => s + c.valor, 0);
+    o.sumaCausas = Math.abs(clamp(suma, 0, 100) - a.objetivo) <= 1 + a.causas.length * 0.5;
+    o.textos = a.causas.map((c) => `${c.texto} ${c.valor}`).join(", ");
+    p.order = 8;
+    o.furioso = ecoAnimo(p).id === "furioso";
+    const gF = yields(p).g,
+      apF = ecoApoyoAsedio(p, (ME + 1) % NF);
+    p.order = 95;
+    o.leal = ecoAnimo(p).id === "leal";
+    o.rindeMas = yields(p).g > gF;
+    o.asedio = ecoApoyoAsedio(p) > apF && apF >= -1 && ecoApoyoAsedio(p) <= 1;
+    /* decisiones según el estado */
+    p.order = 25;
+    p.u.i = Math.max(p.u.i, 4);
+    const disp = Object.keys(ECO_DEC).filter((k) => ECO_DEC[k].ok(p));
+    o.disgustado = disp.includes("negociar") && disp.includes("castigo") && disp.includes("marcial");
+    p.order = 80;
+    o.felizSinCastigo = !ECO_DEC.castigo.ok(p) && !ECO_DEC.negociar.ok(p);
+    p.order = 40;
+    F.gold = 200;
+    F.food = 100;
+    const t0 = ordTarget(p);
+    o.juegos = ecoDecision(ME, p, "juegos") && ordTarget(p) >= t0 + 9 && F.gold < 200;
+    o.causaJuegos = ecoAnimo(p).causas.some((c) => /Juegos/.test(c.texto));
+    o.enfriamiento = !ecoDecision(ME, p, "juegos") && ecoEspera(p, "juegos") === 4;
+    const g0 = yields(p).g;
+    o.condona = ecoDecision(ME, p, "condona") && yields(p).g < g0;
+    o.grano = ecoDecision(ME, p, "grano") && F.food < 100;
+    p.order = ord0;
+    F.gold = 80;
+    ui();
+    return o;
+  });
+  for (const [k, v] of Object.entries(an))
+    comprueba(v === true || typeof v === "string", `${k}: ${typeof v === "string" ? v : v}`);
+  /* el ánimo aparece en la línea de información al pasar el ratón por el mapa */
+  const pto = await page.evaluate(() => {
+    const r = cv.getBoundingClientRect();
+    for (const p of G.P.filter((q) => q.owner < NF)) {
+      const x = r.left + ((p.x * T + 4) * r.width) / cv.width,
+        y = r.top + ((p.y * T + 4) * r.height) / cv.height;
+      if (document.elementFromPoint(x, y) === cv) return { x, y, n: ecoNivel(p).nombre };
+    }
+    return { x: 0, y: 0, n: "?" };
+  });
+  await page.mouse.move(pto.x, pto.y);
+  await page.waitForTimeout(50);
+  const hv = await page.evaluate(() => $("hv").textContent);
+  comprueba(hv.includes(pto.n), `ánimo en el mapa: «${hv}»`);
+  await page.evaluate(() => {
+    ecoVerCausas = true;
+    sel = G.F[ME].capId;
+    tab = "prov";
+    ui();
+  });
+  await (await page.$("#panel")).screenshot({ path: path.join(capt, "economia-animo.png") });
+  await page.evaluate(() => {
+    tab = "eco";
+    ecoVista = "bal";
+    ui();
+  });
+  await (await page.$("#panel")).screenshot({ path: path.join(capt, "economia-tesoro-animo.png") });
+  await page.evaluate(() => {
+    tab = "prov";
+    ui();
+  });
+
   /* ---------- simulación larga del mundo: todas las potencias gestionadas por la IA ----------
      (el reino del jugador también, para que dure; si cae, la prueba sigue con otra potencia) */
   console.log(`Simulación de ${ANIOS} años del mundo (IA con su hacienda)`);
@@ -222,7 +300,17 @@ const comprueba = (ok, msg) => {
     window.__crisis = [];
     window.__serie = [];
     window.__saltos = 0;
+    window.__revueltas = 0;
+    window.__decIA = 0;
     OC.on("crisisEconomica", (e) => window.__crisis.push({ f: e.f, tipo: e.tipo, y: G.year }));
+    OC.on("revuelta", () => window.__revueltas++);
+    /* cuenta las decisiones de ciudad que toma la IA */
+    const dec0 = ecoDecision;
+    ecoDecision = (f, p, k) => {
+      const r = dec0(f, p, k);
+      if (r) window.__decIA++;
+      return r;
+    };
   });
   for (let y = 0; y < ANIOS; y++) {
     await page.evaluate(() => {
@@ -298,7 +386,22 @@ const comprueba = (ok, msg) => {
     serie: window.__serie,
     crisis: window.__crisis,
     saltos: window.__saltos,
+    revueltas: window.__revueltas,
+    decIA: window.__decIA,
+    animos: ECO_ANIMO.map(
+      (n) => `${n.nombre} ${G.P.filter((p) => p.owner < NF && ecoNivel(p) === n).length}`,
+    ).join(", "),
+    animoOk: G.P.every((p) => {
+      if (p.owner >= NF) return true;
+      const a = ecoAnimo(p);
+      return a.objetivo === Math.round(ordTarget(p)) && a.causas.every((c) => Number.isFinite(c.valor));
+    }),
   }));
+  console.log(`  ánimo final: ${sim.animos}`);
+  console.log(`  revueltas: ${sim.revueltas} · decisiones de ciudad de la IA: ${sim.decIA}`);
+  comprueba(sim.animoOk, "ecoAnimo coherente con ordTarget en todas las provincias");
+  comprueba(sim.decIA > 0, "la IA gobierna sus ciudades descontentas");
+  comprueba(sim.revueltas <= S_REV_MAX(ANIOS), `revueltas razonables (${sim.revueltas})`);
   if (sim.saltos) console.log(`  (el reino vigilado cayó ${sim.saltos} veces; se siguió con otra potencia)`);
   const S = sim.serie;
   const tabla = (fila) =>
@@ -381,7 +484,10 @@ const comprueba = (ok, msg) => {
     drawBase();
     OC.emitirSync("partidaLista");
     const crisis = [];
-    OC.on("crisisEconomica", (e) => e.f === ME && e.tipo !== "peste" && crisis.push(e.tipo));
+    OC.on(
+      "crisisEconomica",
+      (e) => e.f === ME && /hambre|impagos|bancarrota/.test(e.tipo) && crisis.push(e.tipo),
+    );
     const g0 = G.F[ME].gold,
       serie = [];
     for (let y = 0; y < anios; y++) {
@@ -442,6 +548,18 @@ const comprueba = (ok, msg) => {
   comprueba(vieja.ok, "una partida sin G.eco carga y se completa: " + JSON.stringify(vieja.res || vieja.e));
   await cerrarModales();
   if (vieja.ok) await finAnio();
+
+  /* descontento general: con muchas ciudades disgustadas se emite crisisEconomica 'descontento' */
+  const desc = await page.evaluate(() => {
+    if (!G || !alive(ME)) return "sin partida";
+    const vistos = [];
+    OC.on("crisisEconomica", (e) => e.f === ME && vistos.push(e.tipo));
+    ecoF(ME).desc = -99;
+    owned(ME).forEach((p) => (p.order = 18));
+    economy(ME);
+    return vistos.includes("descontento");
+  });
+  comprueba(desc === true, "crisisEconomica 'descontento' con muchas ciudades disgustadas: " + desc);
 
   console.log("\n" + (errores.length ? "ERRORES:\n" + errores.join("\n") : "Sin errores de JS"));
   const mal = errores.length || fallos.length;
