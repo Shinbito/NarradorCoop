@@ -57,6 +57,8 @@ function logPanel() {
 const stTag = (g) =>
   g === ME ? '<span class="tag tu">Tú</span>' : `<span class="tag ${G.st[ME][g]}">${G.st[ME][g]}</span>`;
 function provPanel(dis) {
+  /* CAM: con un ejército seleccionado, su panel (campana.js) */
+  if (camSel != null && camEj(camSel)) return camPanelEj(dis);
   if (sel === null)
     return '<h2>Mapa de campaña</h2><p class="dim">Haz clic en una provincia. Las tuyas llevan tu color; los castillos son capitales.</p>';
   const p = G.P[sel],
@@ -65,7 +67,8 @@ function provPanel(dis) {
     F = G.F[ME],
     gc = G.C[p.gen];
   let h = `<h2 style="color:${CIV[f].c}">${p.name}${p.cap ? " ♛" : ""}</h2><p class="dim">${CIV[f].n}${f < REB ? " " + stTag(f) : ""}${p.cap ? " · capital" : ""}<br>Rinde ${yields(p).g} oro y ${yields(p).fo} comida · orden ${Math.round(p.order)}</p><div class="bar"><i style="width:${p.order}%;background:${p.order < 30 ? "#e0503f" : p.order < 55 ? "#e8b632" : "#4caf50"}"></i></div>`;
-  h += `<div class="troops">${TYP.map((t) => `<div><img src="${icon(f, t)}" alt=""><b>${p.u[t]}</b>${CIV[f].un[t]}</div>`).join("")}</div>`;
+  /* CAM: las compañías mercenarias (y máquinas) solo se listan si las hay */
+  h += `<div class="troops">${TYP.filter((t) => p.u[t] > 0 || !(UN[t].merc || UN[t].asedio)).map((t) => `<div><img src="${icon(f, t)}" alt=""><b>${p.u[t]}</b>${CIV[f].un[t]}</div>`).join("")}</div>`;
   h += `<p class="dim" style="margin-top:8px">${typeof tecLineaEdificios === "function" ? tecLineaEdificios(p) : ""}</p>`;
   h += `<p>General: ${gc ? `<b>${gc.n}</b> (mando ${gc.ma}, ${gc.age} años)` : '<span class="dim">ninguno</span>'}</p>`;
   if (!mine) {
@@ -83,12 +86,8 @@ function provPanel(dis) {
       ? `<div class="g2"><select id="gsel" aria-label="Elegir general">${free.map((c) => `<option value="${c.id}">${c.n} · mando ${c.ma}</option>`).join("")}</select><button data-act="gen" ${dis ? "disabled" : ""}>Nombrar general</button></div>`
       : "";
   h += OC.renderSecciones("prov", { p, f, mine, F }, dis);
-  const can = !p.tired && tot(p.u) > 0 && !dis;
-  h += `<h3>Ejército</h3><div class="g2"><button data-act="aim-1" class="${aim === 1 ? "on" : ""}" ${can ? "" : "disabled"}>Marchar todo</button><button data-act="aim-0.5" class="${aim === 0.5 ? "on" : ""}" ${can && tot(p.u) > 1 ? "" : "disabled"}>Marchar mitad</button></div>`;
-  return (
-    h +
-    `<p class="note">${p.tired ? "Estas tropas ya marcharon este año." : aim ? "Haz clic en una provincia vecina iluminada." : "Fuerza " + Math.round(pw(p.u) * gb(p.gen)) + (gc && aim !== 0.5 ? " · el general marcha con todo el ejército" : "")}</p>`
-  );
+  /* CAM: Ejército — formar ejércitos que salen al mapa (campana.js) */
+  return h + camSeccionProv(p, dis);
 }
 function cline(c) {
   return `<span class="stats">Mando ${c.ma} · Intriga ${c.in} · Diplomacia ${c.di} · Gestión ${c.ge} · ${c.tr}</span>`;
@@ -169,6 +168,8 @@ function drawMap(now) {
       ctx.fillText(s, cx + 15, cy - 1);
     }
   }
+  /* CAM: ejércitos, alcance, rutas, campamentos, asedios y estación (campana.js) */
+  camDibujar(now);
   if (anim) {
     const k = Math.min(1, (now - anim.t0) / anim.dur),
       x = anim.x0 + (anim.x1 - anim.x0) * k,
@@ -431,6 +432,9 @@ cv.addEventListener("click", (e) => {
     return;
   }
   if (!G || busy || BT) return;
+  /* CAM: ejércitos del mapa (seleccionar, marchar, asediar, atacar) */
+  const cxy = camCasillaEv(e);
+  if (cxy && camClic(cxy[0], cxy[1])) return;
   const i = tileAt(e);
   if (i < 0) {
     sel = null;
@@ -485,10 +489,15 @@ cv.addEventListener("mousemove", (e) => {
   const i = tileAt(e);
   hover = i < 0 ? null : i;
   const p = G.P[i];
-  $("hv").textContent = i < 0 ? "Mar" : `${p.name} · ${CIV[p.owner].s} · ${tot(p.u)} soldados`;
+  /* CAM: casilla bajo el ratón (ruta) y ejércitos o campamentos que haya en ella */
+  const cxy = camCasillaEv(e),
+    ct = cxy ? camHoverTxt(cxy[0], cxy[1]) : "";
+  camHov = cxy ? camIdx(cxy[0], cxy[1]) : -1;
+  $("hv").textContent = ct || (i < 0 ? "Mar" : `${p.name} · ${CIV[p.owner].s} · ${tot(p.u)} soldados${camAsedio(i) ? " · sitiada" : ""}`);
 });
 cv.addEventListener("mouseleave", () => {
   hover = null;
+  camHov = -1;
 });
 document.addEventListener("keydown", (e) => {
   if (e.target.matches("input,select")) return;

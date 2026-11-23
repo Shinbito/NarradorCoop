@@ -1,1 +1,48 @@
 /* estilos del sistema: campaña (ejércitos en el mapa, mercenarios) */
+.cam-st {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 4px 8px;
+  align-items: center;
+  font-size: 14px;
+  margin: 6px 0;
+}
+.cam-merc {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  border-top: 2px solid #10151a;
+  padding: 8px 0;
+}
+.cam-merc img {
+  width: 34px;
+  height: 34px;
+  image-rendering: pixelated;
+  background: #141a1f;
+  border: 2px solid #000;
+}
+.cam-el {
+  display: grid;
+  gap: 6px;
+  font-size: 15px;
+}
+.cam-el label {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 80px auto;
+  gap: 6px;
+  align-items: center;
+}
+.cam-el img {
+  width: 24px;
+  height: 24px;
+  image-rendering: pixelated;
+}
+.cam-el input[type="number"] {
+  min-height: 34px;
+  padding: 2px 6px;
+}
+.cam-el input[type="checkbox"] {
+  width: auto;
+  min-height: 0;
+}

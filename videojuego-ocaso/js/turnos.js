@@ -1,5 +1,26 @@
-/* ---------- turnos ---------- */
+/* ---------- turnos ----------
+   CAMPAÑA (bucle de estaciones): el turno es una ESTACIÓN (G.estacion 0 primavera … 3 invierno).
+   finEstacion() mueve los ejércitos de la IA, avanza asedios, víveres y mercenarios y emite
+   'finEstacion' {anio, estacion}; tras el invierno se cierra el año con finDeAnio() (economía, IA anual,
+   envejecer, eventos anuales: antesFinAnio, economiaFaccion, turnoIA, finAnio, como siempre).
+   yearEnd() conserva su sentido de siempre: hace pasar un año entero (las estaciones que falten). */
+async function finEstacion() {
+  if (!G || G.over) return;
+  if (G.estacion == null) G.estacion = 0;
+  if (typeof camEstacion === "function") await camEstacion();
+  await OC.emitir("finEstacion", { anio: G.year, estacion: G.estacion });
+  if (G.over) return;
+  if (G.estacion >= 3) {
+    G.estacion = 0;
+    await finDeAnio();
+  } else G.estacion++;
+  if (typeof camNuevaEstacion === "function") await camNuevaEstacion();
+}
 async function yearEnd() {
+  const y = G.year;
+  for (let k = 0; k < 4 && G.year === y && !G.over; k++) await finEstacion();
+}
+async function finDeAnio() {
   await OC.emitir("antesFinAnio", G.year);
   for (let f = 0; f < NF; f++) {
     economy(f);
@@ -33,7 +54,12 @@ async function endTurn() {
   ui();
   try {
     if (net.on) await endOnline();
-    else await yearEnd();
+    else {
+      /* una estación; si el jugador no tiene campañas en marcha, pasan solas hasta la primavera */
+      const y = G.year;
+      do await finEstacion();
+      while (!G.over && G.year === y && typeof camSaltar === "function" && camSaltar(ME));
+    }
   } finally {
     busy = false;
   }

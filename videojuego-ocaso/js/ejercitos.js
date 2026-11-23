@@ -1,1 +1,1371 @@
-/* ---------- ejércitos en el mapa: marcha, campamento, asedio, encuentros ---------- Sistema CAMPAÑA */
+/* ---------- ejércitos en el mapa: marcha, campamento, asedio, encuentros ---------- Sistema CAMPAÑA
+   Un ejército es una entidad del mapa (G.cam.ej) que ocupa una CASILLA (x, y) de MAP.grid. Las guarniciones
+   siguen en p.u; un ejército se forma sacando tropas de una provincia y se disuelve dentro de una propia.
+   Turno = estación (G.estacion 0..3). Todo cambio se expresa como ORDEN serializable aplicada por
+   camAplicarOrden(G, orden) (ver docs/campana.md); camResolverSimultaneo(G, órdenes) resuelve las de
+   varios bandos a la vez, paso a paso, decidiendo quién llega antes a cada casilla. */
+
+const CAM_EST = ["Primavera", "Verano", "Otoño", "Invierno"];
+const CAM_EST_DE = ["la primavera", "el verano", "el otoño", "el invierno"];
+/* números del sistema (documentados en docs/campana.md) */
+const CAM_K = {
+  pts: 4, // puntos de marcha por estación = UN[t].mv (de la clase más lenta) × pts
+  gen: 0.3, // + mando del general × gen
+  invierno: 0.6, // en invierno se anda un 40 % menos
+  calzadas: 0.7, // coste en tierra propia o aliada con Calzadas (tecnología «vias»)
+  ajeno: 1.25, // coste en tierra ajena (sin caminos conocidos ni guías)
+  terr: [Infinity, 1, 2, 2.5], // mar, llanura, bosque, colinas
+  vado: 0.5, // + en llanuras de provincias con río
+  diag: 1.41,
+  sumMax: 3, // estaciones de víveres que carga un ejército
+  fortCampo: 0.6, // el campamento fortificado cuenta como murallas de nivel 0,6
+  fatPaso: 2.2, // cansancio por punto de marcha
+  desHambre: 0.08, // deserción por estación sin víveres
+  desInvierno: 0.04, // desgaste por invernar fuera de tierra propia (la mitad acampado)
+  maxEj: 3, // ejércitos de la IA a la vez (más con muchas provincias)
+};
+/* máquinas de asedio: se construyen in situ durante un asedio (estaciones, coste, efecto en el asalto) */
+const CAM_MAQ = {
+  ari: { n: "Ariete", pl: "arietes", est: 1, coste: { madera: 14, oro: 4 }, max: 2, fort: 1 },
+  tor: { n: "Torre de asedio", pl: "torres", est: 2, coste: { madera: 26, oro: 8 }, max: 2, fort: 0.75 },
+  cat: { n: "Catapulta", pl: "catapultas", est: 2, coste: { madera: 18, hierro: 3, oro: 10 }, max: 3, fort: 0.4, brecha: 0.25, bomb: 0.03 },
+};
+let camSel = null, // ejército seleccionado por el jugador (id)
+  camVer = 1, // cambia con cada movimiento (cachés de alcance)
+  camHov = -1; // casilla bajo el ratón
+
+/* ---------- estado ---------- */
+function camS() {
+  if (!G) return { ej: [], as: {}, saq: {}, sig: 1 };
+  const S = OC.estado("cam", () => ({ v: 1, sig: 1, ej: [], as: {}, saq: {}, rapido: true }));
+  S.ej = S.ej || [];
+  S.as = S.as || {};
+  S.saq = S.saq || {};
+  S.sig = S.sig || 1;
+  if (S.rapido === undefined) S.rapido = true;
+  if (G.estacion == null) G.estacion = 0;
+  return S;
+}
+const camEj = (id) => camS().ej.find((e) => e.id === id) || null;
+const camEjDe = (f) => camS().ej.filter((e) => e.f === f);
+const camIdx = (x, y) => y * W + x;
+const camXY = (i) => [i % W, Math.floor(i / W)];
+const camPid = (x, y) => (MAP && MAP.grid[y] ? MAP.grid[y][x] : -1);
+const camProv = (ej) => G.P[camPid(ej.x, ej.y)] || null;
+const camF = (f) => (G.F && G.F[f]) || null;
+const camGen = (ej) => (ej.gen != null && G.C[ej.gen] && G.C[ej.gen].alive ? G.C[ej.gen] : null);
+const camTot = (u) => Object.keys(u || {}).reduce((s, t) => s + (UN[t] ? +u[t] || 0 : 0), 0);
+const camCheb = (a, b, x, y) => Math.max(Math.abs(a - x), Math.abs(b - y));
+const camTocar = () => camVer++;
+const camEstTxt = (e) => `${CAM_EST[e != null ? e : G.estacion]} de ${G.year}`;
+function camCiudades() {
+  const m = new Map();
+  for (const p of G.P) m.set(camIdx(p.x, p.y), p);
+  return m;
+}
+const camCiudadEn = (x, y) => G.P.find((p) => p.x === x && p.y === y) || null;
+/* unidades que combaten en campo abierto (las máquinas de asedio no) */
+function camUCampo(u) {
+  const r = cmbVacio();
+  for (const t in u) if (UN[t] && !UN[t].asedio && u[t] > 0) r[t] = (r[t] || 0) + u[t];
+  return r;
+}
+/* máquinas: en ej.u si combate ya definió UN[clave]; si no, en ej.maq */
+function camMaq(ej) {
+  const r = {};
+  for (const k in CAM_MAQ) r[k] = ((ej.u && UN[k] && ej.u[k]) || 0) + ((ej.maq && ej.maq[k]) || 0);
+  return r;
+}
+const camMaqTot = (ej) => Object.values(camMaq(ej)).reduce((a, b) => a + b, 0);
+function camNombre(ej) {
+  const g = camGen(ej);
+  return ej.nom || (g ? `Hueste de ${g.n}` : `Ejército de ${CIV[ej.f].s}`);
+}
+
+/* ---------- relaciones: quién puede pisar qué ---------- */
+const camAliado = (f, o) => f === o || (f < NF && o < NF && G.st[f] && G.st[f][o] === "alianza");
+const camGuerra = (f, o) => f !== o && (f === REB || o === REB || (G.st[f] && G.st[f][o] === "guerra"));
+function camPaso(f, o) {
+  if (f === o || f === REB || o === REB) return true;
+  if (camGuerra(f, o) || camAliado(f, o)) return true;
+  return typeof dipTr === "function" && G.dip ? !!dipTr(f, o, "paso") : false;
+}
+/* la provincia es tierra «propia» a efectos de víveres y calzadas */
+const camPropia = (f, o) => f === o || camAliado(f, o) || (f < NF && o < NF && typeof dipTr === "function" && G.dip && !!dipTr(f, o, "paso"));
+function camCalzadas(f) {
+  return f < NF && typeof tecTiene === "function" && G.tec ? !!tecTiene(f, "vias") : false;
+}
+
+/* ---------- terreno de una casilla ---------- */
+function camRio(pid) {
+  return typeof cmbTerreno === "function" && G.P[pid] ? !!cmbTerreno(G.P[pid]).rio : false;
+}
+function camTerrCasilla(x, y) {
+  const t = MAP.terr[y][x],
+    pid = camPid(x, y);
+  let b = 0,
+    c = 0,
+    n = 0;
+  for (let dy = -1; dy <= 1; dy++)
+    for (let dx = -1; dx <= 1; dx++) {
+      const k = MAP.terr[y + dy]?.[x + dx];
+      if (!k) continue;
+      n++;
+      if (k === 2) b++;
+      if (k === 3) c++;
+    }
+  const rio = pid >= 0 && camRio(pid) && t === 1;
+  return {
+    tag: t === 3 ? "colinas" : t === 2 ? "bosque" : rio ? "vado" : "llanura",
+    bosque: n ? b / n : 0,
+    colina: n ? c / n : 0,
+    rio,
+  };
+}
+/* coste de entrar en la casilla i para la facción f (cc: caché por cálculo de caminos) */
+function camCoste(f, i, cc) {
+  const x = i % W,
+    y = (i - x) / W,
+    t = MAP.terr[y][x],
+    pid = MAP.grid[y][x];
+  if (!t || pid < 0) return Infinity;
+  let c = CAM_K.terr[t] + (t === 1 && camRio(pid) ? CAM_K.vado : 0);
+  const o = G.P[pid].owner;
+  let pr;
+  if (cc) {
+    if (!cc.pr.has(o)) cc.pr.set(o, camPropia(f, o));
+    pr = cc.pr.get(o);
+    if (cc.cz == null) cc.cz = camCalzadas(f);
+  } else pr = camPropia(f, o);
+  if (pr) {
+    if (cc ? cc.cz : camCalzadas(f)) c *= CAM_K.calzadas;
+  } else c *= CAM_K.ajeno;
+  return c;
+}
+/* alcance máximo por estación: clase más lenta, mando del general, invierno, cansancio */
+function camMovMax(ej, est = G.estacion) {
+  const ts = Object.keys(ej.u || {}).filter((t) => ej.u[t] > 0 && UN[t]);
+  let mv = ts.length ? Math.min(...ts.map((t) => (UN[t].asedio ? UN[t].mv || 1.6 : UN[t].mv || 2.6))) : 2.6;
+  if (ej.maq && Object.values(ej.maq).some((v) => v > 0)) mv = Math.min(mv, 1.6);
+  let m = mv * CAM_K.pts;
+  const g = camGen(ej);
+  if (g) m += g.ma * CAM_K.gen;
+  if (est === 3) m *= CAM_K.invierno;
+  if ((ej.fat || 0) > 70) m *= 0.8;
+  return Math.round(m * 10) / 10;
+}
+
+/* ---------- ocupación: ejércitos, zonas de control, ciudades ---------- */
+function camEjsEn(x, y, sin) {
+  return camS().ej.filter((e) => e.x === x && e.y === y && e.id !== sin && camTot(e.u) > 0);
+}
+/* enemigo (en guerra) adyacente: frena la marcha (zona de control) */
+function camZocEn(f, x, y) {
+  return camS().ej.some((e) => camGuerra(f, e.f) && camTot(e.u) > 0 && camCheb(e.x, e.y, x, y) <= 1 && !(e.x === x && e.y === y));
+}
+/* ciudad hostil con defensores o murallas: no se cruza, se asedia o se asalta */
+const camCiudadCerrada = (f, p) => p && p.owner !== f && camGuerra(f, p.owner) && (tot(p.u) > 0 || (p.walls || 0) > 0);
+
+/* ---------- caminos: Dijkstra determinista por casillas (8 vecinos, sin cortar costas) ---------- */
+function camHeap() {
+  const a = [];
+  return {
+    n: () => a.length,
+    push(d, i) {
+      a.push([d, i]);
+      let k = a.length - 1;
+      while (k > 0) {
+        const p = (k - 1) >> 1;
+        if (a[p][0] < a[k][0] || (a[p][0] === a[k][0] && a[p][1] <= a[k][1])) break;
+        [a[p], a[k]] = [a[k], a[p]];
+        k = p;
+      }
+    },
+    pop() {
+      const r = a[0],
+        l = a.pop();
+      if (a.length) {
+        a[0] = l;
+        let k = 0;
+        for (;;) {
+          const L = 2 * k + 1,
+            Rr = L + 1;
+          let m = k;
+          const lt = (x, y) => a[x][0] < a[y][0] || (a[x][0] === a[y][0] && a[x][1] < a[y][1]);
+          if (L < a.length && lt(L, m)) m = L;
+          if (Rr < a.length && lt(Rr, m)) m = Rr;
+          if (m === k) break;
+          [a[m], a[k]] = [a[k], a[m]];
+          k = m;
+        }
+      }
+      return r;
+    },
+  };
+}
+const CAM_V8 = [
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+  [1, 1],
+  [1, -1],
+  [-1, 1],
+  [-1, -1],
+];
+/* o = {presu: puntos, sinZoc: ignorar zonas de control (planes largos de la IA)} */
+function camDijkstra(ej, o = {}) {
+  const f = ej.f,
+    N = W * H,
+    dist = new Float64Array(N).fill(Infinity),
+    prev = new Int32Array(N).fill(-1),
+    alto = new Uint8Array(N), // casillas donde la marcha se detiene (no se expande)
+    presu = o.presu != null ? o.presu : Infinity,
+    ciu = camCiudades(),
+    S = camS();
+  /* ocupación y zonas de control */
+  const enem = new Uint8Array(N),
+    neut = new Uint8Array(N),
+    zoc = new Uint8Array(N);
+  for (const e of S.ej) {
+    if (e.id === ej.id || camTot(e.u) <= 0) continue;
+    const i = camIdx(e.x, e.y);
+    if (camGuerra(f, e.f)) {
+      enem[i] = 1;
+      if (!o.sinZoc)
+        for (const [dx, dy] of CAM_V8) {
+          const x = e.x + dx,
+            y = e.y + dy;
+          if (x >= 0 && y >= 0 && x < W && y < H) zoc[camIdx(x, y)] = 1;
+        }
+    } else if (e.f !== f) neut[i] = 1;
+  }
+  const s = camIdx(ej.x, ej.y),
+    q = camHeap(),
+    pasa = new Map(),
+    cc = { pr: new Map(), cz: null };
+  const puede = (pid) => {
+    if (!pasa.has(pid)) pasa.set(pid, camPaso(f, G.P[pid].owner));
+    return pasa.get(pid);
+  };
+  dist[s] = 0;
+  q.push(0, s);
+  while (q.n()) {
+    const [d, i] = q.pop();
+    if (d > dist[i]) continue;
+    if (i !== s && alto[i]) continue;
+    /* en zona de control enemiga la marcha se detiene: solo cabe atacar al ejército vecino */
+    const enZoc = i !== s && zoc[i];
+    const x = i % W,
+      y = (i - x) / W;
+    for (const [dx, dy] of CAM_V8) {
+      const nx = x + dx,
+        ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= W || ny >= H || !MAP.terr[ny][nx]) continue;
+      if (dx && dy && (!MAP.terr[y][nx] || !MAP.terr[ny][x])) continue;
+      const j = camIdx(nx, ny),
+        pid = MAP.grid[ny][nx];
+      if (pid < 0 || neut[j] || !puede(pid) || (enZoc && !enem[j])) continue;
+      const c = ciu.get(j);
+      let para = enem[j];
+      if (c && c.owner !== f && camGuerra(f, c.owner)) {
+        if (camCiudadCerrada(f, c)) continue;
+        para = 1; // ciudad vacía y sin murallas: se toma al entrar
+      }
+      const nd = d + camCoste(f, j, cc) * (dx && dy ? CAM_K.diag : 1);
+      if (nd > presu + 1e-9) continue;
+      if (nd < dist[j] - 1e-9) {
+        dist[j] = nd;
+        prev[j] = i;
+        if (para) alto[j] = 1;
+        q.push(nd, j);
+      }
+    }
+  }
+  return { dist, prev, s, enem, zoc };
+}
+function camCamino(D, j) {
+  if (!Number.isFinite(D.dist[j])) return null;
+  const r = [];
+  for (let k = j; k !== D.s && k >= 0; k = D.prev[k]) r.push(k);
+  return r.reverse();
+}
+/* alcance de la estación (cacheado para dibujar) */
+let camAlcC = null;
+function camAlcance(ej) {
+  const k = `${ej.id}|${ej.x}|${ej.y}|${ej.mov}|${camVer}|${G.estacion}`;
+  if (camAlcC && camAlcC.k === k) return camAlcC.D;
+  const D = camDijkstra(ej, { presu: ej.mov });
+  camAlcC = { k, D };
+  return D;
+}
+/* mejor casilla junto a una ciudad para asediarla (la más barata de alcanzar) */
+function camJuntoA(ej, p, D) {
+  let best = -1,
+    bd = Infinity;
+  for (const [dx, dy] of CAM_V8) {
+    const x = p.x + dx,
+      y = p.y + dy;
+    if (x < 0 || y < 0 || x >= W || y >= H || !MAP.terr[y]?.[x]) continue;
+    if (x === ej.x && y === ej.y) return camIdx(x, y);
+    const j = camIdx(x, y);
+    if (D.dist[j] < bd) {
+      bd = D.dist[j];
+      best = j;
+    }
+  }
+  return best;
+}
+
+/* ---------- formar, disolver, dividir ---------- */
+function camNuevoEj(f, x, y, u, o = {}) {
+  const S = camS(),
+    ej = {
+      id: S.sig++,
+      f,
+      x,
+      y,
+      u: { ...cmbVacio(), ...u },
+      vet: o.vet || {},
+      ori: o.ori || {},
+      gen: o.gen != null ? o.gen : null,
+      mov: 0,
+      est: "marcha",
+      sum: o.sum != null ? o.sum : CAM_K.sumMax,
+      fat: o.fat || 0,
+      mor: o.mor != null ? o.mor : 70,
+      her: {},
+      maq: {},
+      obra: [],
+      asd: null,
+      plan: null,
+      pas: [],
+      nom: o.nom || null,
+      obj: null,
+    };
+  ej.mov = o.mov != null ? o.mov : camMovMax(ej);
+  S.ej.push(ej);
+  camTocar();
+  return ej;
+}
+function camFormar(f, p, sel, conGen) {
+  if (!p || p.owner !== f) return { ok: false, motivo: "La provincia no es tuya" };
+  cmbNorm(p.u);
+  const s = cmbVacio();
+  for (const t of TYP) s[t] = clamp(Math.floor(+sel[t] || 0), 0, p.u[t] || 0);
+  if (!tot(s)) return { ok: false, motivo: "Sin tropas" };
+  if (camEjsEn(p.x, p.y).some((e) => e.f !== f)) return { ok: false, motivo: "Hay enemigos ante las puertas" };
+  const xp = { ...cmbVetDe(p) },
+    ori = { ...cmbOriDe(p) },
+    vet = {},
+    o2 = {};
+  for (const t of TYP) {
+    p.u[t] -= s[t];
+    if (s[t] > 0) {
+      if (xp[t] != null) vet[t] = xp[t];
+      if (ori[t] != null) o2[t] = ori[t];
+    }
+  }
+  cmbVetFijar(p, xp);
+  cmbOriFijar(p, ori);
+  let g = null;
+  if (conGen && p.gen != null && G.C[p.gen] && G.C[p.gen].alive) {
+    g = p.gen;
+    p.gen = null;
+  }
+  const ej = camNuevoEj(f, p.x, p.y, s, { vet, ori: o2, gen: g, nom: `Ejército de ${p.name}`, mov: p.tired ? 0 : undefined });
+  if (isMe(f)) addLog(`Se forma el ${ej.nom.toLowerCase()}: ${tot(s) * SPU} hombres.`);
+  return { ok: true, ej };
+}
+function camDisolver(ej) {
+  const p = camProv(ej);
+  if (!p || p.owner !== ej.f) return { ok: false, motivo: "Solo en una provincia propia" };
+  const u = camUCampo(ej.u);
+  cmbLlega(p, u, ej.vet, ej.ori);
+  for (const t in ej.her) if (UN[t] && TYP.includes(t)) p.u[t] = (p.u[t] || 0) + ej.her[t];
+  const g = camGen(ej);
+  if (g && p.gen == null) p.gen = g.id;
+  p.tired = true;
+  camQuitar(ej);
+  if (isMe(ej.f)) addLog(`El ${camNombre(ej).toLowerCase()} entra en ${p.name} y se acuartela.`);
+  return { ok: true };
+}
+function camQuitar(ej) {
+  const S = camS();
+  S.ej = S.ej.filter((e) => e !== ej);
+  if (camSel === ej.id) camSel = null;
+  camTocar();
+}
+function camDividir(ej, frac = 0.5) {
+  const s = cmbVacio();
+  let n = 0;
+  for (const t in ej.u) {
+    if (!UN[t]) continue;
+    const k = Math.floor((ej.u[t] || 0) * frac);
+    if (k > 0) {
+      s[t] = k;
+      n += k;
+    }
+  }
+  if (!n || n >= camTot(ej.u)) return { ok: false, motivo: "No se puede dividir" };
+  for (const t in s) ej.u[t] -= s[t];
+  const nv = camNuevoEj(ej.f, ej.x, ej.y, s, {
+    vet: { ...ej.vet },
+    ori: { ...ej.ori },
+    sum: ej.sum,
+    fat: ej.fat,
+    mor: ej.mor,
+    mov: Math.min(ej.mov, camMovMax({ ...ej, u: s })),
+    nom: `${camNombre(ej)} (destacamento)`,
+  });
+  return { ok: true, ej: nv };
+}
+function camUnir(a, b) {
+  if (!a || !b || a.f !== b.f || camCheb(a.x, a.y, b.x, b.y) > 0) return { ok: false, motivo: "Deben estar en la misma casilla" };
+  const na = camTot(a.u),
+    nb = camTot(b.u);
+  for (const t in b.u) {
+    if (!UN[t]) continue;
+    const x = a.u[t] || 0,
+      y = b.u[t] || 0;
+    if (x + y > 0) a.vet[t] = ((a.vet[t] || 0) * x + (b.vet[t] || 0) * y) / (x + y);
+    if (y > x && b.ori[t] != null) a.ori[t] = b.ori[t];
+    a.u[t] = x + y;
+  }
+  for (const k in b.maq || {}) a.maq[k] = (a.maq[k] || 0) + b.maq[k];
+  for (const k in b.her || {}) a.her[k] = (a.her[k] || 0) + b.her[k];
+  if (a.gen == null && b.gen != null) a.gen = b.gen;
+  a.sum = Math.min(a.sum, b.sum);
+  a.mov = Math.min(a.mov, b.mov);
+  a.fat = Math.round((a.fat * na + b.fat * nb) / Math.max(1, na + nb));
+  camQuitar(b);
+  return { ok: true };
+}
+
+/* ---------- batallas: la elección del jugador y las consecuencias ---------- */
+function camParaBatalla(ej) {
+  return {
+    f: ej.f,
+    u: camUCampo(ej.u),
+    gen: camGen(ej) ? ej.gen : null,
+    vet: ej.vet || {},
+    ori: ej.ori || {},
+    fat: clamp(Math.round(ej.fat || 0), 0, 100),
+    hambre: (ej.sum || 0) <= 0,
+  };
+}
+const camTxtEj = (e) =>
+  `${CIV[e.f].s}: ${tot(e.u) * SPU} hombres${e.gen != null && G.C[e.gen] ? " al mando de " + G.C[e.gen].n : ""}<br><span class="stats">${cmbComp(e.f, e.u)}</span>`;
+/* libra una batalla: modal táctica/automática si hay un jugador; emite batallaResuelta */
+async function camLibrar(ejA, ejD, bctx, o = {}) {
+  const yoA = isMe(ejA.f),
+    yoD = isMe(ejD.f);
+  let ch = "auto";
+  if ((yoA || yoD) && !o.auto && !net.on) {
+    const pr = Math.round(cmbEstimar(ejA, ejD, bctx, 12) * 100),
+      mio = yoA ? pr : 100 - pr;
+    ch = await modal(
+      o.titulo || `Batalla en ${bctx.nombreLugar}`,
+      `<p>${camTxtEj(ejA)}<br>contra ${camTxtEj(ejD)}${bctx.fort ? `<br>${o.campo ? "tras la empalizada del campamento" : "tras murallas de nivel " + Math.round(bctx.fort * 10) / 10}` : ""}.</p><p class="dim">Terreno: ${CMB_TERR[bctx.terreno.tag] || bctx.terreno.tag} · ${CAM_EST[G.estacion].toLowerCase()}. Tus capitanes ven la batalla ${mio >= 70 ? "favorable" : mio >= 45 ? "incierta" : "desfavorable"} (≈${mio}% de victoria).</p><p>¿Cómo quieres librarla?</p>`,
+      [
+        { t: "Por turnos · 3 acciones", v: "t3", cls: "gold" },
+        { t: "Por turnos · 1 acción", v: "t1", cls: "gold" },
+        { t: "Tiempo real", v: "rt", cls: "gold" },
+        { t: "Resolución automática", v: "auto" },
+      ],
+    );
+  }
+  if (yoD && !yoA) bctx.jugador = 1;
+  const res =
+    tot(ejD.u) <= 0
+      ? { gana: 0, A: { ...ejA.u }, D: cmbVacio(), heridos: { A: 0, D: 0 }, informe: null, gen: [null, null] }
+      : ch !== "auto"
+        ? await cmbTactica(ejA, ejD, bctx, ch)
+        : cmbResolverAuto(ejA, ejD, bctx);
+  res.A = cmbNorm(res.A || cmbVacio());
+  res.D = cmbNorm(res.D || cmbVacio());
+  const inf = res.informe,
+    n0 = tot(ejA.u),
+    d0 = tot(ejD.u),
+    win = res.gana === 0,
+    gm = res.gen || [null, null];
+  if (inf) cmbGuardarInf(inf);
+  if (d0 > 0 && typeof cmbFamaSumar === "function") {
+    if ((win ? ejA.f : ejD.f) < NF) cmbFamaSumar(win ? ejA.f : ejD.f, d0 >= 2 && n0 >= 2 ? 1 : 0.25);
+    if ((win ? ejD.f : ejA.f) < NF) cmbFamaSumar(win ? ejD.f : ejA.f, 0.25);
+  }
+  if (d0 > 0)
+    OC.emitirSync("batallaResuelta", {
+      p: bctx.p,
+      atacante: ejA.f,
+      defensor: ejD.f,
+      gana: win,
+      A: res.A,
+      D: res.D,
+      s0: ejA.u,
+      d0: ejD.u,
+      gA: ejA.gen,
+      gD: ejD.gen,
+      bajas: inf ? inf.bajas : null,
+      heridos: res.heridos,
+      factores: inf ? inf.factores.map((x) => x.k) : [],
+      rondas: inf ? inf.rondas.length : 0,
+      general: gm,
+      modo: ch,
+      informe: inf,
+      campana: o.tipo || "campo",
+    });
+  const lugar = bctx.nombreLugar;
+  if (gm[0] === "muerto" && ejA.gen != null && G.C[ejA.gen]) kill(G.C[ejA.gen], "cae en la batalla de " + lugar);
+  if (gm[1] === "muerto" && ejD.gen != null && G.C[ejD.gen]) kill(G.C[ejD.gen], "cae en la batalla de " + lugar);
+  if (bctx.p) flash = { x: bctx.x * T + 4, y: bctx.y * T + 4, t0: performance.now() };
+  if (inf && (yoA || yoD) && ch === "auto" && !o.sinInforme) {
+    const yo = yoA ? 0 : 1,
+      gano = inf.gana === yo;
+    if (yo === 0 || !gano || d0 + n0 >= 8)
+      await modal(`${gano ? "Victoria" : "Derrota"} en ${lugar}`, cmbInfHtml(inf, yo), [{ t: "Continuar", cls: "gold" }]);
+  }
+  res.modo = ch;
+  res.rondas = inf ? inf.rondas.length : 0;
+  return res;
+}
+/* vuelve a poner en el ejército lo que sobrevive (y guarda heridos graves) */
+function camTrasBatalla(ej, u0, uFin, gana, rondas) {
+  const vivos = cmbNorm({ ...uFin });
+  for (const t in u0) {
+    if (!UN[t] || UN[t].asedio) continue;
+    const perd = Math.max(0, (u0[t] || 0) - (vivos[t] || 0)),
+      her = Math.floor(perd * (gana ? 0.2 : 0.1));
+    if (her > 0) ej.her[t] = (ej.her[t] || 0) + her;
+    ej.u[t] = vivos[t] || 0;
+  }
+  ej.vet = cmbVetGanar(ej.vet, ej.u, gana, rondas || 4);
+  ej.fat = clamp((ej.fat || 0) + 18, 0, 100);
+  ej.mor = clamp((ej.mor || 70) + (gana ? 12 : -18), 5, 100);
+  if (!gana) for (const k in ej.maq || {}) ej.maq[k] = Math.floor(ej.maq[k] / 2);
+}
+/* el vencido retrocede hasta 2 casillas, lejos del vencedor; si no puede, se rinde */
+function camRetirar(ej, dx, dy) {
+  const f = ej.f;
+  let best = null,
+    bs = -Infinity;
+  for (let ry = -2; ry <= 2; ry++)
+    for (let rx = -2; rx <= 2; rx++) {
+      const x = ej.x + rx,
+        y = ej.y + ry;
+      if (x < 0 || y < 0 || x >= W || y >= H || !MAP.terr[y][x] || (rx === 0 && ry === 0)) continue;
+      const pid = MAP.grid[y][x];
+      if (pid < 0 || !camPaso(f, G.P[pid].owner) || camEjsEn(x, y, ej.id).some((e) => e.f !== f)) continue;
+      const c = camCiudadEn(x, y);
+      if (c && c.owner !== f) continue;
+      const sc = Math.hypot(x - dx, y - dy) * 2 + (G.P[pid].owner === f ? 3 : 0) - (camZocEn(f, x, y) ? 4 : 0);
+      if (sc > bs) {
+        bs = sc;
+        best = [x, y];
+      }
+    }
+  if (!best) return false;
+  ej.x = best[0];
+  ej.y = best[1];
+  ej.est = "marcha";
+  ej.asd = null;
+  ej.mov = 0;
+  camTocar();
+  return true;
+}
+/* el ejército se dispersa (aniquilado o rendido) */
+function camDispersar(ej, motivo) {
+  const g = camGen(ej);
+  if (g && R() < 0.35) kill(g, motivo || "cae con su ejército");
+  if (isMe(ej.f)) addLog(`El ${camNombre(ej).toLowerCase()} deja de existir: ${motivo || "aniquilado"}.`, "bad");
+  camQuitar(ej);
+}
+
+/* encuentro en campo abierto: A entra en la casilla de D */
+async function camChoque(A, D, o = {}) {
+  const x = D.x,
+    y = D.y,
+    p = G.P[camPid(x, y)] || null,
+    ejA = camParaBatalla(A),
+    ejD = camParaBatalla(D),
+    uA0 = { ...ejA.u },
+    uD0 = { ...ejD.u };
+  /* socorro: si D asedia una ciudad de A (o de su aliado), la guarnición hace una salida a la vez */
+  let sal = null,
+    ps = null;
+  if (D.est === "asedio" && D.asd != null) {
+    ps = G.P[D.asd];
+    if (ps && camAliado(A.f, ps.owner) && tot(ps.u) > 0) {
+      sal = cmbVacio();
+      for (const t of TYP) {
+        sal[t] = Math.floor((ps.u[t] || 0) / 2);
+        ps.u[t] -= sal[t];
+      }
+      cmbSuma(ejA.u, sal);
+    }
+  }
+  const bctx = {
+      terreno: camTerrCasilla(x, y),
+      fort: D.est === "campamento" ? CAM_K.fortCampo : 0,
+      p,
+      x,
+      y,
+      nombreLugar: p ? (camCiudadEn(x, y) ? p.name : `los campos de ${p.name}`) : "campo abierto",
+    },
+    res = await camLibrar(ejA, ejD, bctx, {
+      tipo: "encuentro",
+      campo: D.est === "campamento",
+      auto: o.auto,
+      titulo: `${sal ? "Socorro de " + ps.name : "Encuentro"} en ${bctx.nombreLugar}`,
+    });
+  let rA = res.A;
+  if (sal) {
+    /* los de la salida vuelven a la ciudad en proporción */
+    const tot0 = cmbVacio();
+    cmbSuma(tot0, ejA.u);
+    for (const t of TYP) {
+      if (!sal[t]) continue;
+      const v = Math.round(((rA[t] || 0) * sal[t]) / Math.max(1, tot0[t]));
+      ps.u[t] += v;
+      rA[t] = Math.max(0, (rA[t] || 0) - v);
+    }
+  }
+  const win = res.gana === 0;
+  camTrasBatalla(A, uA0, rA, win, res.rondas);
+  camTrasBatalla(D, uD0, res.D, !win, res.rondas);
+  A.mov = 0;
+  const vence = win ? A : D,
+    pierde = win ? D : A,
+    cls = isMe(A.f) === win || (isMe(D.f) && !win) ? "good" : isMe(A.f) || isMe(D.f) ? "bad" : "";
+  if (isMe(A.f) || isMe(D.f) || A.f === REB)
+    addLog(
+      `${CIV[vence.f].s} vence a ${CIV[pierde.f].s} en ${bctx.nombreLugar}${sal ? " con la salida de la guarnición de " + ps.name : ""}.`,
+      isMe(vence.f) ? "good" : isMe(pierde.f) ? "bad" : cls,
+    );
+  if (camTot(pierde.u) <= 0 || camTot(pierde.u) < camTot(pierde === A ? uA0 : uD0) * 0.12) camDispersar(pierde, `deshecho en ${bctx.nombreLugar}`);
+  else if (!camRetirar(pierde, vence.x, vence.y)) camDispersar(pierde, `cercado y rendido en ${bctx.nombreLugar}`);
+  if (camTot(vence.u) <= 0) camQuitar(vence);
+  camTocar();
+  return { ok: true, gana: win };
+}
+
+/* ---------- conquista de una ciudad (asalto, rendición o ciudad vacía) ---------- */
+function camConquistar(p, ej, modo, D, ron) {
+  const f = ej.f,
+    old = p.owner,
+    gD = p.gen,
+    xpD = { ...cmbVetDe(p) },
+    oriD = { ...cmbOriDe(p) };
+  /* supervivientes del defensor: si no había cerco, se repliegan; si había, caen prisioneros */
+  const cerco = camS().as[p.id];
+  let ref = null;
+  if (D && tot(D) && !(cerco && cerco.n > 0) && old < NF) {
+    ref = MAP.adj[p.id]
+      .map((i) => G.P[i])
+      .filter((x) => x.owner === old)
+      .sort((a, b) => tot(b.u) - tot(a.u))[0];
+    if (ref) {
+      cmbLlega(ref, D, cmbVetGanar(xpD, D, false, ron || 4), oriD);
+      if (gD != null && G.C[gD] && G.C[gD].alive && ref.gen == null) ref.gen = gD;
+    }
+  }
+  if (gD != null && G.C[gD] && G.C[gD].alive && !ref && R() < 0.3) kill(G.C[gD], "cae defendiendo " + p.name);
+  /* la guarnición nueva: una cuarta parte del ejército (infantería primero); si es pequeño, entero */
+  const gu = cmbVacio(),
+    n = camTot(ej.u);
+  let falta = n <= 3 ? n : Math.max(1, Math.ceil(n * 0.25));
+  for (const t of ["i", "l", "p", "h", "a", ...TYP]) {
+    if (falta <= 0) break;
+    if (!UN[t] || UN[t].asedio || UN[t].merc) continue;
+    const k = Math.min(falta, ej.u[t] || 0);
+    gu[t] += k;
+    ej.u[t] -= k;
+    falta -= k;
+  }
+  Object.assign(p, {
+    owner: f,
+    u: gu,
+    tired: true,
+    recent: 3,
+    order: Math.min(p.order, modo === "rendicion" ? 50 : 45),
+    tax: 1,
+    gen: null,
+  });
+  cmbVetFijar(p, ej.vet);
+  cmbOriFijar(p, ej.ori);
+  if (modo === "asalto" && p.walls) p.walls--;
+  delete camS().as[p.id];
+  for (const e of camS().ej) if (e.asd === p.id) {
+    e.asd = null;
+    if (e.est === "asedio") e.est = "marcha";
+  }
+  OC.emitirSync("conquista", { p, de: old, a: f });
+  if (f < NF && CIV[f].loot && camF(f)) camF(f).gold += CIV[f].loot;
+  const cls = isMe(f) ? "good" : isMe(old) ? "bad" : "";
+  addLog(
+    modo === "rendicion"
+      ? `${p.name} abre sus puertas a ${CIV[f].s}${old !== REB ? " y abandona a " + CIV[old].s : ""}.`
+      : modo === "vacia"
+        ? `${CIV[f].s} ocupa ${p.name}, que nadie defendía.`
+        : `${CIV[f].s} toma al asalto ${p.name}${old !== REB ? " a " + CIV[old].s : ""}${ref ? `; los supervivientes huyen a ${ref.name}` : ""}.`,
+    cls,
+  );
+  if (p.cap && old < REB && p.home === old) addLog(`¡Cae la capital de ${CIV[old].s}!`, cls);
+  if (old < REB && !alive(old)) addLog(`${CIV[old].n} desaparece de la historia.`, isMe(old) ? "bad" : "good");
+  /* el ejército entra en la ciudad (o se disuelve en ella si quedó vacío) */
+  if (camTot(ej.u) <= 0) camQuitar(ej);
+  else {
+    ej.x = p.x;
+    ej.y = p.y;
+    ej.est = "marcha";
+    ej.asd = null;
+    ej.obj = null;
+  }
+  camTocar();
+  checkEnd();
+}
+
+/* ---------- asedio ---------- */
+const camAsedio = (pid) => camS().as[pid] || null;
+const camSitiadores = (pid) =>
+  camS().ej.filter((e) => e.asd === pid && e.est === "asedio" && camTot(e.u) > 0);
+function camAsediar(ej, p) {
+  if (!p) return { ok: false, motivo: "Sin ciudad" };
+  if (camCheb(ej.x, ej.y, p.x, p.y) > 1) return { ok: false, motivo: "Hay que llegar junto a la ciudad" };
+  if (p.owner === ej.f || !camGuerra(ej.f, p.owner)) return { ok: false, motivo: "No estáis en guerra" };
+  if (!tot(p.u) && !(p.walls > 0)) {
+    camConquistar(p, ej, "vacia", null, 0);
+    return { ok: true, tomada: true };
+  }
+  const S = camS();
+  if (!S.as[p.id] || S.as[p.id].f !== ej.f) {
+    S.as[p.id] = {
+      p: p.id,
+      f: ej.f,
+      n: 0,
+      vi: 2 + (p.walls || 0) + (p.cap ? 1 : 0) + ((p.farm || 0) > 0 ? 1 : 0),
+      mo: 70 + (p.walls || 0) * 5,
+      brecha: 0,
+      ini: [G.year, G.estacion],
+    };
+    addLog(`${CIV[ej.f].s} pone cerco a ${p.name}${p.owner !== REB ? ", ciudad de " + CIV[p.owner].s : ""}.`, isMe(ej.f) ? "good" : isMe(p.owner) ? "bad" : "");
+  }
+  ej.est = "asedio";
+  ej.asd = p.id;
+  ej.mov = 0;
+  ej.plan = null;
+  camTocar();
+  return { ok: true };
+}
+/* murallas que quedan en pie para el asalto según las máquinas (ctx.fort ya es el efectivo) */
+function camFortEf(p, ej, as) {
+  const m = camMaq(ej);
+  let red = (as ? as.brecha || 0 : 0) + Math.min(2, m.ari) * CAM_MAQ.ari.fort + m.tor * CAM_MAQ.tor.fort + m.cat * CAM_MAQ.cat.fort;
+  return Math.max(0, Math.round(((p.walls || 0) - red) * 100) / 100);
+}
+function camCtxAsalto(ej, p) {
+  const as = camAsedio(p.id);
+  return {
+    fort: camFortEf(p, ej, as),
+    murallas: p.walls || 0,
+    asedio: as ? as.n : 0,
+    maquinas: camMaq(ej),
+    p,
+    x: p.x,
+    y: p.y,
+    nombreLugar: p.name,
+    terreno: cmbTerreno(p),
+  };
+}
+function camGuarnicion(p) {
+  const as = camAsedio(p.id);
+  return { f: p.owner, u: { ...p.u }, gen: p.gen, vet: cmbVetDe(p), ori: cmbOriDe(p), fat: 0, hambre: as ? as.vi < 0 : false };
+}
+async function camAsaltar(ej, o = {}) {
+  const p = G.P[ej.asd != null ? ej.asd : -1] || (o.p != null ? G.P[o.p] : null);
+  if (!p || camCheb(ej.x, ej.y, p.x, p.y) > 1 || !camGuerra(ej.f, p.owner)) return { ok: false, motivo: "No hay ciudad que asaltar" };
+  if (!tot(p.u)) {
+    camConquistar(p, ej, "vacia", null, 0);
+    return { ok: true, gana: true };
+  }
+  const bctx = camCtxAsalto(ej, p),
+    ejA = camParaBatalla(ej),
+    ejD = camGuarnicion(p),
+    u0 = { ...ejA.u },
+    m = camMaq(ej);
+  /* con UN[ari/tor/cat] ya definidos, las máquinas van como unidades en el asalto */
+  for (const k in CAM_MAQ) if (UN[k] && TYP.includes(k) && m[k]) ejA.u[k] = m[k];
+  const res = await camLibrar(ejA, ejD, bctx, {
+    tipo: "asalto",
+    auto: o.auto,
+    titulo: `Asalto a ${p.name}`,
+  });
+  const win = res.gana === 0;
+  camTrasBatalla(ej, u0, res.A, win, res.rondas);
+  for (const k in CAM_MAQ) if (UN[k] && TYP.includes(k) && ej.u[k] != null) ej.u[k] = res.A[k] || 0;
+  ej.mov = 0;
+  if (win) camConquistar(p, ej, "asalto", res.D, res.rondas);
+  else {
+    p.u = cmbNorm(res.D);
+    const as = camAsedio(p.id);
+    if (as) as.mo = clamp(as.mo + 10, 0, 100);
+    addLog(`${CIV[ej.f].s} fracasa en el asalto a ${p.name}.`, isMe(ej.f) ? "bad" : isMe(p.owner) ? "good" : "");
+    if (camTot(ej.u) <= 0) camDispersar(ej, `deshecho al pie de las murallas de ${p.name}`);
+    else if (camTot(ej.u) < tot(p.u) * 0.4 && !isMe(ej.f)) camLevantar(ej);
+  }
+  camTocar();
+  return { ok: true, gana: win };
+}
+function camLevantar(ej) {
+  const pid = ej.asd;
+  ej.est = "marcha";
+  ej.asd = null;
+  ej.obra = [];
+  if (pid != null && !camSitiadores(pid).length) {
+    delete camS().as[pid];
+    const p = G.P[pid];
+    if (p) addLog(`${CIV[ej.f].s} levanta el cerco de ${p.name}.`, isMe(p.owner) ? "good" : "");
+  }
+  camTocar();
+  return { ok: true };
+}
+/* salida de los sitiados contra el ejército sitiador más débil */
+async function camSalida(p, o = {}) {
+  const sit = camSitiadores(p.id).sort((a, b) => pw(a.u) - pw(b.u))[0];
+  if (!sit || !tot(p.u)) return { ok: false, motivo: "Nadie a quien atacar" };
+  const ejA = camGuarnicion(p),
+    ejD = camParaBatalla(sit),
+    uD0 = { ...ejD.u },
+    uA0 = { ...ejA.u },
+    bctx = {
+      terreno: camTerrCasilla(sit.x, sit.y),
+      fort: 0,
+      p,
+      x: sit.x,
+      y: sit.y,
+      nombreLugar: `las puertas de ${p.name}`,
+    };
+  const res = await camLibrar(ejA, ejD, bctx, { tipo: "salida", auto: o.auto, titulo: `Salida desde ${p.name}` });
+  const win = res.gana === 0;
+  /* los que salen vuelven tras las murallas */
+  p.u = cmbNorm({ ...res.A });
+  cmbVetFijar(p, cmbVetGanar(cmbVetDe(p), p.u, win, res.rondas));
+  camTrasBatalla(sit, uD0, res.D, !win, res.rondas);
+  const as = camAsedio(p.id);
+  if (as) as.mo = clamp(as.mo + (win ? 15 : -10), 0, 100);
+  addLog(
+    `La guarnición de ${p.name} hace una salida ${win ? "y rompe el cerco" : "y es rechazada"}.`,
+    isMe(p.owner) === win ? "good" : isMe(p.owner) || isMe(sit.f) ? "bad" : "",
+  );
+  if (win) {
+    if (camTot(sit.u) < camTot(uD0) * 0.12) camDispersar(sit, `roto ante ${p.name}`);
+    else if (!camRetirar(sit, p.x, p.y)) camDispersar(sit, `cercado ante ${p.name}`);
+    if (!camSitiadores(p.id).length) delete camS().as[p.id];
+  }
+  void uA0;
+  camTocar();
+  return { ok: true, gana: win };
+}
+/* máquinas de asedio: se pagan al empezar y se terminan al cabo de sus estaciones */
+function camCosteMaq(f, k) {
+  const c = { ...CAM_MAQ[k].coste };
+  if (OC.puedePagar(f, c)) return c;
+  /* sin madera suficiente: se compra a 3 de oro por unidad que falte */
+  const r = { oro: c.oro || 0 };
+  for (const id in c) {
+    if (id === "oro") continue;
+    const tiene = Math.max(0, Math.floor(OC.saldo(f, id)));
+    if (tiene >= c[id]) r[id] = c[id];
+    else {
+      if (tiene > 0) r[id] = tiene;
+      r.oro += (c[id] - tiene) * 3;
+    }
+  }
+  return r;
+}
+function camPuedeMaq(ej, k) {
+  const d = CAM_MAQ[k];
+  if (!d) return "Máquina desconocida";
+  if (ej.est !== "asedio") return "Solo durante un asedio";
+  const ya = camMaq(ej)[k] + (ej.obra || []).filter((o) => o.t === k).length;
+  if (ya >= d.max) return `Máximo ${d.max}`;
+  if (!camF(ej.f) || !OC.puedePagar(ej.f, camCosteMaq(ej.f, k))) return "Faltan recursos";
+  return "";
+}
+function camConstruir(ej, k) {
+  const m = camPuedeMaq(ej, k);
+  if (m) return { ok: false, motivo: m };
+  OC.pagar(ej.f, camCosteMaq(ej.f, k));
+  ej.obra = ej.obra || [];
+  ej.obra.push({ t: k, q: CAM_MAQ[k].est });
+  if (isMe(ej.f)) addLog(`Los carpinteros del ${camNombre(ej).toLowerCase()} empiezan ${k === "ari" ? "un ariete" : k === "tor" ? "una torre de asedio" : "una catapulta"} (${CAM_MAQ[k].est} ${CAM_MAQ[k].est > 1 ? "estaciones" : "estación"}).`);
+  return { ok: true };
+}
+
+/* ---------- un paso de marcha (lo usan la marcha y la resolución simultánea) ---------- */
+async function camDarPaso(ej, j, o = {}) {
+  const [x, y] = camXY(j),
+    f = ej.f;
+  if (camCheb(ej.x, ej.y, x, y) !== 1) return { ok: false, parar: true };
+  const diag = x !== ej.x && y !== ej.y,
+    c = camCoste(f, j) * (diag ? CAM_K.diag : 1);
+  if (!Number.isFinite(c) || ej.mov + 1e-9 < c) return { ok: false, parar: true, sinMov: true };
+  const pid = MAP.grid[y][x];
+  if (pid < 0 || !camPaso(f, G.P[pid].owner)) return { ok: false, parar: true };
+  const otros = camEjsEn(x, y, ej.id);
+  const ene = otros.filter((e) => camGuerra(f, e.f)).sort((a, b) => pw(b.u) - pw(a.u))[0];
+  if (ene) {
+    await camChoque(ej, ene, o);
+    return { ok: false, parar: true, batalla: true };
+  }
+  if (otros.some((e) => e.f !== f)) return { ok: false, parar: true };
+  const ciu = camCiudadEn(x, y);
+  if (ciu && ciu.owner !== f && camGuerra(f, ciu.owner)) {
+    if (camCiudadCerrada(f, ciu)) return { ok: false, parar: true, ciudad: ciu.id };
+    ej.mov -= c;
+    camConquistar(ciu, ej, "vacia", null, 0);
+    return { ok: true, c, parar: true };
+  }
+  ej.x = x;
+  ej.y = y;
+  ej.mov = Math.max(0, Math.round((ej.mov - c) * 100) / 100);
+  ej.fat = clamp((ej.fat || 0) + c * CAM_K.fatPaso, 0, 100);
+  if (ej.est === "campamento" || ej.est === "asedio") {
+    if (ej.est === "asedio") camLevantar(ej);
+    ej.est = "marcha";
+  }
+  ej.pas = (ej.pas || []).concat([j]).slice(-24);
+  camTocar();
+  if (o.anim && !reduce) await sleep(o.lento ? 90 : 55);
+  /* zona de control: se para, salvo que el paso siguiente sea atacar a ese enemigo */
+  const sig = o.sig != null ? camXY(o.sig) : null,
+    ataca = sig && camEjsEn(sig[0], sig[1], ej.id).some((e) => camGuerra(f, e.f));
+  return { ok: true, c, parar: camZocEn(f, x, y) && !ataca };
+}
+/* recorre una ruta hasta agotar el movimiento; guarda lo que falte en ej.plan */
+async function camMarchar(ej, ruta, plan, o = {}) {
+  let k = 0;
+  for (; k < ruta.length; k++) {
+    if (!camEj(ej.id)) return { ok: true, fin: true };
+    const r = await camDarPaso(ej, ruta[k], { ...o, sig: ruta[k + 1] });
+    if (!r.ok || r.parar) {
+      if (r.ok) k++;
+      break;
+    }
+  }
+  if (!camEj(ej.id)) return { ok: true };
+  const llego = k >= ruta.length;
+  ej.plan = llego || !plan ? null : plan;
+  if (llego && plan && plan.luego) await camLuego(ej, plan, o);
+  return { ok: true, llego };
+}
+async function camLuego(ej, plan, o) {
+  if (!camEj(ej.id)) return;
+  const p = plan.p != null ? G.P[plan.p] : null;
+  if (plan.luego === "asediar" && p) camAsediar(ej, p);
+  else if (plan.luego === "asaltar" && p) {
+    const r = camAsediar(ej, p);
+    if (r.ok && !r.tomada) await camAsaltar(ej, o);
+  } else if (plan.luego === "acampar") camAcampar(ej);
+  else if (plan.luego === "disolver") camDisolver(ej);
+  else if (plan.luego === "unir" && plan.con != null) camUnir(camEj(plan.con), ej);
+}
+function camAcampar(ej) {
+  if (ej.est === "asedio") return { ok: false, motivo: "Ya está asediando" };
+  ej.est = "campamento";
+  ej.mov = 0;
+  ej.plan = null;
+  camTocar();
+  return { ok: true };
+}
+/* ruta hacia un destino: dentro del alcance o, si no, plan de varias estaciones */
+function camPlanRuta(ej, x, y, o = {}) {
+  const pc = camCiudadEn(x, y),
+    asedio = pc && camCiudadCerrada(ej.f, pc);
+  const D = camDijkstra(ej, { sinZoc: !!o.sinZoc });
+  let j = camIdx(x, y),
+    luego = o.luego || null,
+    pid = o.p != null ? o.p : null;
+  if (asedio) {
+    j = camJuntoA(ej, pc, D);
+    if (j < 0) return null;
+    luego = luego || "asediar";
+    pid = pc.id;
+  } else if (pc && pc.owner === ej.f && !luego && !o.noEntrar) luego = "disolver";
+  if (j === D.s) return { ruta: [], plan: { x, y, luego, p: pid, con: o.con } };
+  const r = camCamino(D, j);
+  if (!r) return null;
+  return { ruta: r, plan: { x, y, luego, p: pid, con: o.con } };
+}
+
+/* ======================================================================
+   ÓRDENES: la API pública. Cada orden es un objeto plano (JSON) con f = bando que la da.
+   ====================================================================== */
+const CAM_ORDENES = ["formar", "mover", "acampar", "asediar", "asaltar", "construir", "levantar", "disolver", "dividir", "unir", "general", "salida", "contratar", "licenciar", "renovar"];
+async function camAplicarOrden(g, o, opc = {}) {
+  if (g && g !== G) return { ok: false, motivo: "Estado distinto del de la partida" };
+  if (!o || !CAM_ORDENES.includes(o.tipo)) return { ok: false, motivo: "Orden desconocida" };
+  camS();
+  const ej = o.ej != null ? camEj(o.ej) : null;
+  if (o.ej != null && (!ej || (o.f != null && ej.f !== o.f))) return { ok: false, motivo: "Ejército desconocido" };
+  let r;
+  switch (o.tipo) {
+    case "formar":
+      r = camFormar(o.f, G.P[o.p], o.u || {}, o.gen !== false);
+      if (r.ok) r = { ok: true, ej: r.ej.id };
+      break;
+    case "mover": {
+      const pr = camPlanRuta(ej, o.x, o.y, { luego: o.luego, p: o.p, con: o.con, noEntrar: o.noEntrar });
+      if (!pr) {
+        r = { ok: false, motivo: "No hay camino" };
+        break;
+      }
+      r = await camMarchar(ej, pr.ruta, pr.plan, opc);
+      break;
+    }
+    case "acampar":
+      r = camAcampar(ej);
+      break;
+    case "asediar":
+      r = camAsediar(ej, G.P[o.p != null ? o.p : -1]);
+      break;
+    case "asaltar":
+      r = await camAsaltar(ej, { ...opc, p: o.p });
+      break;
+    case "construir":
+      r = camConstruir(ej, o.maq);
+      break;
+    case "levantar":
+      r = camLevantar(ej);
+      break;
+    case "disolver":
+      r = camDisolver(ej);
+      break;
+    case "dividir":
+      r = camDividir(ej, o.frac || 0.5);
+      if (r.ok) r = { ok: true, ej: r.ej.id };
+      break;
+    case "unir":
+      r = camUnir(ej, camEj(o.con));
+      break;
+    case "general": {
+      const c = G.C[o.c];
+      if (o.c == null) {
+        ej.gen = null;
+        r = { ok: true };
+      } else if (!c || !c.alive || c.f !== ej.f || c.dipReh) r = { ok: false, motivo: "No puede mandar" };
+      else {
+        G.P.forEach((q) => {
+          if (q.gen === c.id) q.gen = null;
+        });
+        camS().ej.forEach((e) => {
+          if (e.gen === c.id) e.gen = null;
+        });
+        ej.gen = c.id;
+        r = { ok: true };
+      }
+      break;
+    }
+    case "salida": {
+      const p = G.P[o.p];
+      r = p && p.owner === o.f ? await camSalida(p, opc) : { ok: false, motivo: "No es tu ciudad" };
+      break;
+    }
+    default:
+      r = typeof camMercOrden === "function" ? camMercOrden(o, ej) : { ok: false, motivo: "Sin mercenarios" };
+  }
+  camTocar();
+  return r || { ok: false };
+}
+/* Órdenes de varios bandos a la vez (IA de cada estación y, en el futuro, jugadores online).
+   1) Las órdenes que no son de marcha se aplican primero, ordenadas por (f, ej, tipo).
+   2) Las marchas avanzan paso a paso: en cada vuelta mueve antes quien llega antes a su siguiente casilla
+      (tiempo = coste acumulado / alcance máximo; empate: más rápido, luego id menor). Si dos bandos en guerra
+      quieren la misma casilla, el que llega primero la ocupa y el segundo le ataca (batalla de encuentro). */
+const camOrdCmp = (a, b) => (a.f - b.f) || ((a.ej || 0) - (b.ej || 0)) || String(a.tipo).localeCompare(String(b.tipo));
+async function camResolverSimultaneo(g, ordenes, opc = {}) {
+  if (g && g !== G) return [];
+  const res = [],
+    mov = ordenes.filter((o) => o && o.tipo === "mover").slice().sort(camOrdCmp),
+    otras = ordenes.filter((o) => o && o.tipo !== "mover").slice().sort(camOrdCmp);
+  for (const o of otras) res.push({ o, r: await camAplicarOrden(g, o, opc) });
+  const vs = [];
+  for (const o of mov) {
+    const ej = camEj(o.ej);
+    if (!ej || (o.f != null && ej.f !== o.f)) continue;
+    const pr = camPlanRuta(ej, o.x, o.y, { luego: o.luego, p: o.p, con: o.con, noEntrar: o.noEntrar });
+    if (!pr) {
+      res.push({ o, r: { ok: false, motivo: "No hay camino" } });
+      continue;
+    }
+    vs.push({ o, ej, ruta: pr.ruta, plan: pr.plan, k: 0, acum: 0, fin: !pr.ruta.length, mx: Math.max(1, camMovMax(ej)) });
+  }
+  for (let vuelta = 0; vuelta < 400 && vs.some((v) => !v.fin); vuelta++) {
+    const act = vs
+      .filter((v) => !v.fin)
+      .map((v) => {
+        const j = v.ruta[v.k],
+          [x, y] = camXY(j),
+          c = camCoste(v.ej.f, j) * (x !== v.ej.x && y !== v.ej.y ? CAM_K.diag : 1);
+        return { v, t: (v.acum + c) / v.mx };
+      })
+      .sort((a, b) => a.t - b.t || b.v.mx - a.v.mx || a.v.ej.id - b.v.ej.id);
+    for (const { v } of act) {
+      if (!camEj(v.ej.id)) {
+        v.fin = true;
+        continue;
+      }
+      const r = await camDarPaso(v.ej, v.ruta[v.k], { ...opc, sig: v.ruta[v.k + 1] });
+      if (r.ok) {
+        v.k++;
+        v.acum += r.c;
+      }
+      if (!r.ok || r.parar || v.k >= v.ruta.length) v.fin = true;
+    }
+  }
+  for (const v of vs) {
+    if (!camEj(v.ej.id)) {
+      res.push({ o: v.o, r: { ok: true, fin: true } });
+      continue;
+    }
+    const llego = v.k >= v.ruta.length;
+    v.ej.plan = llego ? null : v.plan;
+    if (llego && v.plan.luego) await camLuego(v.ej, v.plan, opc);
+    res.push({ o: v.o, r: { ok: true, llego } });
+  }
+  return res;
+}
+
+/* ---------- la estación: lo que pasa al terminar (lo llama turnos.js) ---------- */
+async function camEstacion() {
+  if (!G || G.over) return;
+  const S = camS();
+  /* 1) la IA da sus órdenes; las marchas de todos se resuelven a la vez */
+  const ords = [];
+  for (let f = 0; f < NF; f++) {
+    if (G.over) return;
+    if (human(f) || !alive(f)) continue;
+    try {
+      if (typeof camIA === "function") ords.push(...(await camIA(f)));
+    } catch (e) {
+      console.error("[cam] IA", f, e);
+    }
+  }
+  if (typeof camIARebeldes === "function") ords.push(...camIARebeldes());
+  await camResolverSimultaneo(G, ords, { auto: false });
+  /* 2) asedios, obras, víveres, mercenarios */
+  await camAsedios();
+  camObras();
+  camSuministros();
+  if (typeof camMercEstacion === "function") await camMercEstacion();
+  for (const e of S.ej.slice()) if (camTot(e.u) <= 0) camQuitar(e);
+}
+/* al empezar la estación siguiente: movimiento nuevo y marchas pendientes del jugador */
+async function camNuevaEstacion() {
+  if (!G) return;
+  const S = camS();
+  for (const e of S.ej.slice()) {
+    if (e.f < NF && !alive(e.f)) {
+      camQuitar(e);
+      continue;
+    }
+    if (e.gen != null && (!camGen(e) || G.P.some((p) => p.gen === e.gen))) e.gen = null;
+    e.mov = camMovMax(e);
+    e.pas = [];
+  }
+  G.P.forEach((p) => (p.tired = false));
+  if (typeof camMercNuevaEstacion === "function") await camMercNuevaEstacion();
+  for (const e of S.ej.slice())
+    if (human(e.f) && e.plan && camEj(e.id) && !G.over) {
+      const pl = e.plan;
+      await camAplicarOrden(G, { tipo: "mover", f: e.f, ej: e.id, x: pl.x, y: pl.y, luego: pl.luego, p: pl.p, con: pl.con }, {});
+    }
+  camTocar();
+}
+async function camAsedios() {
+  const S = camS();
+  for (const k of Object.keys(S.as)) {
+    const as = S.as[k],
+      p = G.P[as.p];
+    if (G.over) return;
+    if (!p) {
+      delete S.as[k];
+      continue;
+    }
+    const sit = camSitiadores(p.id).filter((e) => camCheb(e.x, e.y, p.x, p.y) <= 1 && camGuerra(e.f, p.owner));
+    if (!sit.length || p.owner === as.f) {
+      delete S.as[k];
+      for (const e of camS().ej) if (e.asd === p.id) {
+        e.asd = null;
+        if (e.est === "asedio") e.est = "marcha";
+      }
+      continue;
+    }
+    as.n++;
+    as.vi--;
+    const cat = sit.reduce((s, e) => s + camMaq(e).cat, 0);
+    if (cat) {
+      as.brecha = Math.min(p.walls || 0, (as.brecha || 0) + cat * CAM_MAQ.cat.brecha);
+      for (const t of TYP) p.u[t] = Math.floor((p.u[t] || 0) * (1 - Math.min(0.3, cat * CAM_MAQ.cat.bomb)));
+    }
+    if (as.vi < 0) {
+      for (const t of TYP) p.u[t] = Math.floor((p.u[t] || 0) * 0.88);
+      as.mo -= 12;
+      if (as.vi === -1) addLog(`El hambre llega a ${p.name}: se comen los caballos.`, isMe(p.owner) ? "bad" : isMe(as.f) ? "good" : "");
+    }
+    as.mo = clamp(as.mo - 6, 0, 100);
+    if (typeof ecoDiezmar === "function") ecoDiezmar(p, as.vi < 0 ? 0.03 : 0.01);
+    p.order = clamp(p.order - (as.vi < 0 ? 5 : 2), 0, 100);
+    /* rendición o puertas abiertas: ánimo de la ciudad (economía), hambre, moral, fuerza del sitiador */
+    const ap = typeof ecoApoyoAsedio === "function" ? ecoApoyoAsedio(p, as.f) : (p.order - 50) / 50,
+      ps = sit.reduce((s, e) => s + pw(camUCampo(e.u)), 0),
+      ratio = ps / (pw(p.u) * (1 + 0.25 * (p.walls || 0)) + 1),
+      pr = clamp(0.03 * as.n + (as.vi < 0 ? 0.22 : 0) + (100 - as.mo) / 300 - ap * 0.2 + (ratio > 3 ? 0.08 : 0) - (p.cap ? 0.05 : 0), 0, 0.85),
+      traicion = ap < -0.4 && R() < -ap * 0.25;
+    if (!tot(p.u) || traicion || R() < pr) {
+      const e = sit.sort((a, b) => pw(b.u) - pw(a.u))[0];
+      if (traicion && tot(p.u)) addLog(`Traición en ${p.name}: los vecinos abren de noche una poterna.`, isMe(p.owner) ? "bad" : "good");
+      camConquistar(p, e, "rendicion", null, 0);
+      continue;
+    }
+    /* salida de los sitiados (la IA decide sola; el jugador tiene el botón) */
+    if (!human(p.owner) && tot(p.u) >= 3) {
+      const peor = sit.sort((a, b) => pw(a.u) - pw(b.u))[0],
+        est = cmbEstimar(camGuarnicion(p), camParaBatalla(peor), { fort: 0, p, terreno: camTerrCasilla(peor.x, peor.y), est: true }, 3);
+      if (est >= 0.67) await camSalida(p, { auto: !isMe(peor.f) ? true : undefined });
+    }
+  }
+}
+function camObras() {
+  for (const e of camS().ej) {
+    if (!e.obra || !e.obra.length) continue;
+    if (e.est !== "asedio") {
+      e.obra = [];
+      continue;
+    }
+    for (const o of e.obra) o.q--;
+    for (const o of e.obra.filter((o) => o.q <= 0)) {
+      if (UN[o.t]) e.u[o.t] = (e.u[o.t] || 0) + 1;
+      else e.maq[o.t] = (e.maq[o.t] || 0) + 1;
+      if (isMe(e.f)) addLog(`${CAM_MAQ[o.t].n} terminado ante ${G.P[e.asd]?.name || "la ciudad"}.`, "good");
+    }
+    e.obra = e.obra.filter((o) => o.q > 0);
+  }
+}
+/* víveres, soldada, desgaste, cansancio, heridos y saqueo de los campamentos */
+function camSuministros() {
+  const S = camS(),
+    inv = G.estacion === 3,
+    clave = `${G.year}.${G.estacion}`;
+  for (const e of S.ej.slice()) {
+    const p = camProv(e),
+      F = camF(e.f);
+    if (!p) continue;
+    const propia = camPropia(e.f, p.owner);
+    let comida = 0,
+      oro = 0;
+    for (const t in e.u) {
+      if (!UN[t] || !(e.u[t] > 0)) continue;
+      const m = typeof ecoMant === "function" ? ecoMant(e.f, t) : { comida: UN[t].food || 1, oro: (UN[t].cost || 10) * 0.025 };
+      comida += (e.u[t] * m.comida) / 4;
+      oro += (e.u[t] * m.oro) / 4;
+    }
+    if (F) F.gold -= Math.round(oro);
+    if (propia && F && F.food >= comida) {
+      F.food -= Math.round(comida);
+      e.sum = CAM_K.sumMax;
+    } else e.sum -= inv ? 2 : 1;
+    /* campamento en tierra ajena: forrajeo y saqueo de la comarca */
+    if (e.est === "campamento" && !propia) {
+      const ya = S.saq[p.id] === clave,
+        pob = typeof ecoPob === "function" ? ecoPob(p) : 8,
+        k = ya ? 0.4 : 1;
+      e.sum += ya ? 0 : 1;
+      const botin = Math.round((2 + pob * 0.45) * k);
+      if (F) F.gold += botin;
+      if (!ya) {
+        S.saq[p.id] = clave;
+        p.order = clamp(p.order - 6, 0, 100);
+        if (typeof ecoDiezmar === "function") ecoDiezmar(p, 0.02);
+        if (p.owner < NF && e.f < NF) relAdd(e.f, p.owner, -2);
+        if (isMe(e.f)) addLog(`Tu ${camNombre(e).toLowerCase()} saquea la comarca de ${p.name}: ${botin} de oro.`, "good");
+        else if (isMe(p.owner)) addLog(`${CIV[e.f].s} saquea los campos de ${p.name}.`, "bad");
+      }
+    }
+    e.sum = clamp(e.sum, -1, CAM_K.sumMax);
+    if (e.sum < 0) {
+      e.sum = 0;
+      for (const t in e.u) if (UN[t] && !UN[t].asedio) e.u[t] = Math.floor(e.u[t] * (1 - CAM_K.desHambre * 1.5));
+      e.mor = clamp((e.mor || 70) - 15, 5, 100);
+      if (isMe(e.f)) addLog(`El ${camNombre(e).toLowerCase()} pasa hambre: desertan muchos.`, "bad");
+    }
+    if (inv && !propia) {
+      const d = CAM_K.desInvierno * (e.est === "campamento" ? 0.5 : 1);
+      for (const t in e.u) if (UN[t] && !UN[t].asedio && e.u[t] > 2) e.u[t] -= Math.max(0, Math.round(e.u[t] * d));
+    }
+    /* descanso, moral, heridos que vuelven */
+    const camp = e.est === "campamento";
+    e.fat = clamp((e.fat || 0) - (camp ? 40 : propia ? 25 : 12), 0, 100);
+    e.mor = clamp((e.mor || 70) + (camp ? 8 : propia ? 5 : 0) - (e.sum <= 0 ? 8 : 0), 5, 100);
+    if (camp || propia)
+      for (const t in e.her) {
+        const v = Math.ceil(e.her[t] / 2);
+        e.u[t] = (e.u[t] || 0) + v;
+        e.her[t] -= v;
+        if (e.her[t] <= 0) delete e.her[t];
+      }
+    if (e.f < NF && (e.mor || 70) < 25)
+      for (const t in e.u) if (UN[t] && !UN[t].asedio && !UN[t].merc) e.u[t] = Math.floor(e.u[t] * 0.94);
+  }
+}
+/* ¿pasa sola la estación? Sí si el jugador no tiene ejércitos fuera ni cercos que le toquen */
+function camSaltar(f = ME) {
+  const S = camS();
+  if (!S.rapido) return false;
+  if (S.ej.some((e) => e.f === f)) return false;
+  if (Object.values(S.as).some((a) => a.f === f || (G.P[a.p] && G.P[a.p].owner === f))) return false;
+  return true;
+}
+function camTextoFin() {
+  if (camSaltar(ME) && G.estacion === 0) return "Fin del año ▶";
+  return camSaltar(ME) ? `Fin del año ▶ (${CAM_EST[G.estacion].toLowerCase()})` : `Fin de${G.estacion === 0 ? " la primavera" : G.estacion === 1 ? "l verano" : G.estacion === 2 ? "l otoño" : "l invierno"} ▶`;
+}
+
+/* ---------- partidas antiguas, paz, provincias perdidas ---------- */
+OC.on("partidaLista", () => {
+  camSel = null;
+  camAlcC = null;
+  const S = camS();
+  for (const e of S.ej) {
+    e.u = e.u || {};
+    for (const k of ["vet", "ori", "her", "maq"]) e[k] = e[k] || {};
+    e.obra = e.obra || [];
+    if (e.mov == null) e.mov = camMovMax(e);
+  }
+  camTocar();
+});
+OC.on("pazFirmada", ({ a, b }) => {
+  /* con la paz se levantan los cercos y los ejércitos vuelven a su tierra */
+  const S = camS();
+  for (const e of S.ej.slice()) {
+    const p = camProv(e);
+    if (!p) continue;
+    const otro = e.f === a ? b : e.f === b ? a : null;
+    if (otro == null || p.owner !== otro) continue;
+    if (e.est === "asedio") camLevantar(e);
+    const casa = owned(e.f).sort((x, y) => Math.hypot(x.x - e.x, x.y - e.y) - Math.hypot(y.x - e.x, y.y - e.y))[0];
+    if (casa) {
+      e.x = casa.x;
+      e.y = casa.y;
+      e.plan = null;
+      e.est = "marcha";
+    } else camQuitar(e);
+  }
+  camTocar();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && camSel != null) {
+    camSel = null;
+    if (G) ui();
+  }
+});

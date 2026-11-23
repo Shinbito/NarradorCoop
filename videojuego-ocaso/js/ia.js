@@ -1,7 +1,8 @@
 /* ---------- IA ----------
-   Sistema de COMBATE (parte militar). Recluta una mezcla de clases según la doctrina de su pueblo
-   y las tropas enemigas vecinas, y ataca solo cuando sus capitanes ven la batalla ganable
-   (simula el mismo modelo de factores: murallas, terreno, veteranía, general, clases). */
+   Sistema CAMPAÑA (antes combate). Una vez al año (ai, desde turnos.js) recluta una mezcla de clases
+   según la doctrina de su pueblo y los enemigos vecinos, nombra generales e instruye. Cada estación
+   (camIA, desde camEstacion) forma ejércitos, marcha, intercepta, asedia, construye máquinas, asalta
+   solo cuando sus capitanes ven la batalla ganable (cmbEstimar) y contrata mercenarios. */
 const CMB_DOC = [
   { l: 2, i: 4, p: 2, h: 1, a: 2, x: 1, c: 1.5, k: 1 },
   { l: 1.5, i: 2.5, p: 1, h: 1, a: 2.5, x: 1, c: 2, k: 1.5, m: 1.5 },
@@ -56,7 +57,7 @@ async function ai(f) {
   /* impuestos: economía (turnoIA); edificios: tecnología (economiaFaccion) */
   const bord = own.filter((p) => foes(p, f).length).sort((a, b) => th(b) - th(a));
   for (const c of family(f).filter(
-    (c) => c.age >= 18 && c.sex === "m" && !genOf(c) && c.id !== F.ruler && !c.dipReh,
+    (c) => c.age >= 18 && c.sex === "m" && !genOf(c) && c.id !== F.ruler && !c.dipReh && !camS().ej.some((e) => e.gen === c.id),
   )) {
     const p = bord.find((p) => p.gen == null);
     if (!p) break;
@@ -71,7 +72,11 @@ async function ai(f) {
       .sort((a, b) => b.n - a.n)[0];
   if (mejor && sitios.length && mejor.n > Math.max(...sitios.map((p) => cmbDisp(f, p).ok.length)))
     sitios.push(mejor.p);
-  for (let g = 0; F.gold >= 8 && sitios.length && g < 40; g++) {
+  /* CAMPAÑA: en guerra con un reino, compañías mercenarias en vez de levas si el oro lo permite;
+     y una reserva para la paga de los mercenarios y las máquinas de asedio */
+  if (typeof camMercIA === "function") for (const o of camMercIA(f, { anual: true })) await camIAOrd(o);
+  const resCam = camIAReserva(f);
+  for (let g = 0; F.gold >= 8 + resCam && sitios.length && g < 40; g++) {
     const ee = inc(f);
     if (ee.net < 0 && F.food + ee.net * 3 < 0) break;
     /* soldada: inc(f).g es el saldo neto del año; no endeudarse por reclutar */
@@ -80,54 +85,280 @@ async function ai(f) {
       t = cmbIAElegir(f, p, cmbDisp(f, p).ok, F, ee.net);
     if (!t) break;
     const sold = typeof ecoMant === "function" ? ecoMant(f, t).oro : 0;
-    if (F.gold - cmbCoste(f, t, p) < Math.max(0, -ee.g) * 2 + sold * 3 || !cmbReclutar(f, p, t)) break;
+    if (F.gold - cmbCoste(f, t, p) < Math.max(0, -ee.g) * 2 + sold * 3 + resCam || !cmbReclutar(f, p, t)) break;
   }
   /* oro ocioso (p. ej. sin comida para más levas): instrucción de las guarniciones de frontera */
   const gNeto = inc(f).g;
   for (const p of [...bord, ...own.filter((x) => !bord.includes(x))])
     if (gNeto > 0 && F.gold > 120 + 12 * own.length + cmbInstrCoste(p)) cmbInstruir(f, p);
+  /* redistribución: las guarniciones del interior se acercan a la frontera (la guerra la hacen los
+     ejércitos del mapa: camIA, cada estación) */
   for (const p of own) {
     if (G.over) return;
-    if (p.owner !== f || p.tired || pw(p.u) < 10) continue;
-    const hs = hostile(p, f);
-    if (!foes(p, f).length) {
-      const n = MAP.adj[p.id]
-        .map((i) => G.P[i])
-        .filter((q) => q.owner === f)
-        .sort((a, b) => foes(b, f).length - foes(a, f).length)[0];
-      if (n && foes(n, f).length) await march(p.id, n.id, 1, true);
+    if (p.owner !== f || p.tired || pw(p.u) < 10 || foes(p, f).length || camAsedio(p.id)) continue;
+    const n = MAP.adj[p.id]
+      .map((i) => G.P[i])
+      .filter((q) => q.owner === f)
+      .sort((a, b) => foes(b, f).length - foes(a, f).length)[0];
+    if (n && foes(n, f).length) await march(p.id, n.id, 1, true);
+  }
+}
+
+/* ======================================================================
+   IA de campaña: cada estación. Devuelve órdenes de marcha (se resuelven a la vez para todos los
+   bandos con camResolverSimultaneo); las demás órdenes las aplica en el acto.
+   ====================================================================== */
+const camIAOrd = (o) => camAplicarOrden(G, o, { auto: true });
+/* oro que la IA no gasta en levas: un año de paga de sus mercenarios, máquinas para sus cercos y,
+   en guerra con un reino, un fondo de campaña */
+function camIAReserva(f) {
+  const M = typeof mercS === "function" ? mercS() : { con: [] },
+    merc = M.con.filter((c) => c.f === f).reduce((s, c) => s + mercPago(c.t, mercCuenta(f, c.t)) * 4, 0),
+    guerra = [...Array(NF).keys()].some((g) => g !== f && alive(g) && G.st[f][g] === "guerra");
+  return merc + (camEjDe(f).length ? 15 : 0) + (guerra ? 20 + 2 * owned(f).length : 0);
+}
+/* tropas que puede sacar de una provincia sin dejarla indefensa */
+function camIATomar(f, p, fr) {
+  cmbNorm(p.u);
+  const amen = hostile(p, f).filter((q) => q.owner !== REB).length;
+  if (p.cap) fr = Math.min(fr, 0.6);
+  if (amen > 1) fr = Math.min(fr, 0.55);
+  const u = cmbVacio();
+  for (const t of TYP) if (!UN[t].asedio) u[t] = Math.floor((p.u[t] || 0) * fr);
+  while (tot(p.u) - tot(u) < 2 && tot(u) > 0) {
+    const t = TYP.filter((k) => u[k] > 0).sort((a, b) => u[b] - u[a])[0];
+    u[t]--;
+  }
+  return u;
+}
+const camIAEjDe = (f, p, u) => ({ f, u, gen: p.gen, vet: cmbVetDe(p), ori: cmbOriDe(p), fat: 5 });
+const camIACtxCiudad = (q) => ({
+  fort: Math.max(0, (q.walls || 0) - 1.25),
+  p: q,
+  terreno: cmbTerreno(q),
+  asedio: q.walls ? 2 : 0,
+});
+async function camIAFormar(f) {
+  const S = camS(),
+    mios = camEjDe(f),
+    own = owned(f),
+    max = Math.min(CAM_K.maxEj + 1, 1 + Math.floor(own.length / 4));
+  /* defensa: ejércitos enemigos dentro de su tierra */
+  const intr = S.ej.filter((e) => camGuerra(f, e.f) && camProv(e) && camProv(e).owner === f && camTot(e.u) > 0);
+  for (const e of intr.slice(0, 2)) {
+    if (mios.some((m) => m.obj && m.obj.ej === e.id)) continue;
+    const cand = own
+      .filter((p) => !camAsedio(p.id) && tot(p.u) >= 4 && Math.hypot(p.x - e.x, p.y - e.y) < 14)
+      .sort((a, b) => pw(b.u) - pw(a.u))[0];
+    if (!cand) continue;
+    const u = camIATomar(f, cand, 0.75);
+    if (tot(u) < 3) continue;
+    const est = cmbEstimar(
+      camIAEjDe(f, cand, u),
+      camParaBatalla(e),
+      { fort: e.est === "campamento" ? CAM_K.fortCampo : 0, terreno: camTerrCasilla(e.x, e.y), p: camProv(e) },
+      4,
+    );
+    if (est < 0.6) continue;
+    const r = await camIAOrd({ tipo: "formar", f, p: cand.id, u });
+    if (r.ok) {
+      camEj(r.ej).obj = { ej: e.id };
+      mios.push(camEj(r.ej));
+    }
+  }
+  if (G.estacion === 3 || mios.length >= max) return;
+  /* ofensiva: la mejor ciudad hostil vecina de una provincia propia con tropas */
+  const c = [];
+  for (const p of own) {
+    if (tot(p.u) < 5 || camAsedio(p.id) || camEjsEn(p.x, p.y).some((e) => e.f !== f)) continue;
+    const u = camIATomar(f, p, 0.8);
+    if (tot(u) < 4) continue;
+    const my = pw(u) * gb(p.gen);
+    for (const i of MAP.adj[p.id]) {
+      const q = G.P[i];
+      if (q.owner === f || !camGuerra(f, q.owner)) continue;
+      if (camAsedio(q.id) || mios.some((m) => m.obj && m.obj.p === q.id)) continue;
+      const s =
+        (my / (pw(q.u) * (1 + 0.15 * (q.walls || 0)) * gb(q.gen) + 3)) *
+        (q.owner === REB ? 1.15 : 1) *
+        (q.cap ? 1.2 : 1);
+      if (s > 0.9) c.push({ p, q, u, s });
+    }
+  }
+  c.sort((a, b) => b.s - a.s);
+  for (const x of c.slice(0, 3)) {
+    const e = tot(x.q.u) ? cmbEstimar(camIAEjDe(f, x.p, x.u), camGuarnicion(x.q), camIACtxCiudad(x.q), 4) : 1;
+    if (e < ((x.q.walls || 0) > 0 ? 0.5 : 0.62) / (x.q.owner === REB ? 1.1 : 1)) continue;
+    const r = await camIAOrd({ tipo: "formar", f, p: x.p.id, u: x.u });
+    if (r.ok) camEj(r.ej).obj = { p: x.q.id };
+    return;
+  }
+}
+const camIACasa = (ej) =>
+  owned(ej.f)
+    .filter((p) => !camAsedio(p.id))
+    .sort((a, b) => Math.hypot(a.x - ej.x, a.y - ej.y) - Math.hypot(b.x - ej.x, b.y - ej.y))[0] || null;
+async function camIAEj(f, ej) {
+  if (!camEj(ej.id) || camTot(ej.u) <= 0) return null;
+  const p = camProv(ej),
+    propia = p && camPropia(f, p.owner),
+    inv = G.estacion === 3,
+    S = camS();
+  /* 0) asedio en curso: asaltar, construir máquinas, esperar o levantar el cerco */
+  if (ej.est === "asedio" && ej.asd != null) {
+    const q = G.P[ej.asd];
+    if (!q || !camGuerra(f, q.owner)) camLevantar(ej);
+    else {
+      const e = tot(q.u) ? cmbEstimar(camParaBatalla(ej), camGuarnicion(q), camCtxAsalto(ej, q), 4) : 1;
+      if (e >= 0.62 || (!(q.walls > 0) && e >= 0.55)) {
+        await camIAOrd({ tipo: "asaltar", f, ej: ej.id });
+        return null;
+      }
+      const m = camMaq(ej),
+        en = (k) => m[k] + (ej.obra || []).filter((o) => o.t === k).length,
+        quiere =
+          (q.walls || 0) >= 1
+            ? [
+                ["ari", 1],
+                ["tor", (q.walls || 0) >= 2 ? 1 : 0],
+                ["cat", camF(f) && camF(f).gold > 160 ? 2 : 0],
+              ]
+            : [];
+      for (const [k, n] of quiere)
+        if (en(k) < n && !camPuedeMaq(ej, k)) {
+          await camIAOrd({ tipo: "construir", f, ej: ej.id, maq: k });
+          break;
+        }
+      const as = camAsedio(q.id);
+      if (!(as && as.n >= 8 && e < 0.3) && camTot(ej.u) >= 2) return null;
+      camLevantar(ej);
+      ej.obj = null;
+      ej.veto = q.id;
+    }
+  }
+  if (ej.mov <= 0.5) return null;
+  const D = camDijkstra(ej, { presu: ej.mov }),
+    ataca = (x, y) => ({ tipo: "mover", f, ej: ej.id, x, y });
+  /* 1) interceptar ejércitos enemigos al alcance (sobre todo los que pisan tierra propia) */
+  const yo = camParaBatalla(ej),
+    ene = S.ej
+      .filter((e) => camGuerra(f, e.f) && camTot(e.u) > 0 && Number.isFinite(D.dist[camIdx(e.x, e.y)]))
+      .map((e) => ({ e, dentro: camProv(e) && camProv(e).owner === f ? 1 : 0, r: pw(yo.u) / (pw(camUCampo(e.u)) + 1) }))
+      .filter((x) => x.r > 0.8)
+      .sort((a, b) => b.dentro - a.dentro || b.r - a.r);
+  for (const x of ene.slice(0, 2)) {
+    const est = cmbEstimar(
+      yo,
+      camParaBatalla(x.e),
+      { fort: x.e.est === "campamento" ? CAM_K.fortCampo : 0, terreno: camTerrCasilla(x.e.x, x.e.y), p: camProv(x.e) },
+      3,
+    );
+    if (est >= (x.dentro ? 0.55 : 0.64)) return ataca(x.e.x, x.e.y);
+  }
+  /* persecución de un intruso elegido al formar */
+  if (ej.obj && ej.obj.ej != null) {
+    const e = camEj(ej.obj.ej);
+    if (e && camGuerra(f, e.f) && camProv(e) && camProv(e).owner === f) return ataca(e.x, e.y);
+    ej.obj = null;
+  }
+  /* 2) sin víveres en tierra ajena: forrajear acampado o volver */
+  const clave = `${G.year}.${G.estacion}`;
+  if (!propia && ej.sum <= 1 && ej.est !== "asedio") {
+    if (p && S.saq[p.id] !== clave && !inv && ej.sum >= 0 && !ej.obj) {
+      await camIAOrd({ tipo: "acampar", f, ej: ej.id });
+      return null;
+    }
+    const c = camIACasa(ej);
+    if (c) return { tipo: "mover", f, ej: ej.id, x: c.x, y: c.y };
+  }
+  /* 3) invierno: no se emprenden campañas; se acampa en tierra ajena o se vuelve */
+  if (inv && ej.est !== "asedio") {
+    if (!propia && ej.sum >= 2) {
+      await camIAOrd({ tipo: "acampar", f, ej: ej.id });
+      return null;
+    }
+    const c = camIACasa(ej);
+    return c ? { tipo: "mover", f, ej: ej.id, x: c.x, y: c.y } : null;
+  }
+  if (ej.est === "asedio") return null;
+  /* 4) ciudad objetivo (la elegida al formar o la mejor hostil cercana) */
+  let q = ej.obj && ej.obj.p != null ? G.P[ej.obj.p] : null;
+  if (!q || q.owner === f || !camGuerra(f, q.owner)) {
+    q = null;
+    ej.obj = null;
+    const L = camDijkstra(ej, { sinZoc: true }),
+      mx = Math.max(1, camMovMax(ej)),
+      cs = G.P.filter(
+        (c) => c.owner !== f && camGuerra(f, c.owner) && c.id !== ej.veto && Math.hypot(c.x - ej.x, c.y - ej.y) < 22,
+      )
+        .map((c) => {
+          const j = camJuntoA(ej, c, L),
+            d = j >= 0 ? L.dist[j] : Infinity,
+            r = pw(yo.u) / (pw(c.u) * (1 + 0.15 * (c.walls || 0)) + 2);
+          return { c, d, s: (r * (c.cap ? 1.2 : 1) * (c.owner === REB ? 1.1 : 1)) / (1 + d / mx) };
+        })
+        .filter((x) => Number.isFinite(x.d) && x.d < mx * 3)
+        .sort((a, b) => b.s - a.s);
+    for (const x of cs.slice(0, 2)) {
+      const e = tot(x.c.u) ? cmbEstimar(yo, camGuarnicion(x.c), camIACtxCiudad(x.c), 3) : 1;
+      if (e >= ((x.c.walls || 0) > 0 ? 0.5 : 0.6)) {
+        q = x.c;
+        ej.obj = { p: q.id };
+        break;
+      }
+    }
+  }
+  if (q) {
+    const vacia = !tot(q.u) && !(q.walls > 0);
+    return {
+      tipo: "mover",
+      f,
+      ej: ej.id,
+      x: q.x,
+      y: q.y,
+      luego: vacia ? null : (q.walls || 0) > 0 ? "asediar" : "asaltar",
+      p: q.id,
+    };
+  }
+  /* 5) nada que hacer: a casa y a los cuarteles */
+  if (p && p.owner === f) {
+    await camIAOrd({ tipo: "disolver", f, ej: ej.id });
+    return null;
+  }
+  const c = camIACasa(ej);
+  return c ? { tipo: "mover", f, ej: ej.id, x: c.x, y: c.y } : null;
+}
+async function camIA(f) {
+  if (!alive(f) || G.over) return [];
+  const ords = [];
+  if (typeof camMercIA === "function") for (const o of camMercIA(f)) await camIAOrd(o);
+  await camIAFormar(f);
+  for (const ej of camEjDe(f)) {
+    if (G.over) break;
+    const o = await camIAEj(f, ej);
+    if (o) ords.push(o);
+  }
+  return ords;
+}
+/* bandas de desertores y bandidos (rebeldes): saquean, toman ciudades indefensas y acaban dispersándose */
+function camIARebeldes() {
+  const S = camS(),
+    ords = [],
+    clave = `${G.year}.${G.estacion}`;
+  for (const e of S.ej.filter((x) => x.f === REB)) {
+    e.vida = (e.vida == null ? 8 : e.vida) - 1;
+    const p = camProv(e);
+    if (e.vida <= 0) {
+      if (p && p.owner === REB) cmbLlega(p, camUCampo(e.u), e.vet, e.ori);
+      camQuitar(e);
       continue;
     }
-    if (!hs.length) continue;
-    const fr = foes(p, f).length > 1 ? 0.8 : 1,
-      u = cmbVacio();
-    for (const t of TYP) u[t] = fr >= 1 ? p.u[t] : Math.floor(p.u[t] * fr);
-    const my = pw(u) * gb(p.gen),
-      cand = hs
-        .map((q) => ({
-          q,
-          s:
-            (my / (pw(q.u) * (1 + 0.25 * q.walls) * gb(q.gen) + 3)) *
-            (q.owner === REB ? 1.15 : 1) *
-            (q.cap ? 1.2 : 1),
-        }))
-        .filter((c) => c.s > 0.9)
-        .sort((a, b) => b.s - a.s)
-        .slice(0, 2);
-    let mejor = null;
-    for (const c of cand) {
-      const q = c.q,
-        pr = tot(q.u)
-          ? cmbEstimar(
-              { f, u, gen: fr >= 1 ? p.gen : null, vet: cmbVetDe(p), ori: cmbOriDe(p), fat: 10 },
-              { f: q.owner, u: q.u, gen: q.gen, vet: cmbVetDe(q), ori: cmbOriDe(q) },
-              { fort: q.walls || 0, p: q, terreno: cmbTerreno(q) },
-              5,
-            )
-          : 1,
-        lim = 0.66 / ((q.owner === REB ? 1.1 : 1) * (q.cap ? 1.1 : 1));
-      if (pr >= lim && (!mejor || pr * c.s > mejor.v)) mejor = { q, v: pr * c.s };
-    }
-    if (mejor) await march(p.id, mejor.q.id, fr, true);
+    const presa = G.P.filter(
+      (q) => q.owner !== REB && Math.hypot(q.x - e.x, q.y - e.y) < 12 && pw(q.u) * (1 + 0.3 * (q.walls || 0)) < pw(e.u) * 0.8,
+    ).sort((a, b) => Math.hypot(a.x - e.x, a.y - e.y) - Math.hypot(b.x - e.x, b.y - e.y))[0];
+    if (presa && e.est !== "asedio")
+      ords.push({ tipo: "mover", f: REB, ej: e.id, x: presa.x, y: presa.y, luego: "asaltar", p: presa.id });
+    else if (p && p.owner !== REB && S.saq[p.id] !== clave) e.est = "campamento";
   }
+  return ords;
 }
