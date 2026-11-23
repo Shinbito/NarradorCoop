@@ -27,9 +27,18 @@ fs.mkdirSync(capt, { recursive: true });
   await page.evaluate(() => localStorage.clear());
   await page.waitForTimeout(300);
 
+  /* si un modal (sucesión, evento...) tapa el botón, se cierra y se reintenta */
   const clic = async (sel) => {
-    await page.click(sel, { timeout: 4000 });
-    await page.waitForTimeout(60);
+    for (let k = 0; k < 3; k++) {
+      try {
+        await page.click(sel, { timeout: 2500 });
+        await page.waitForTimeout(60);
+        return;
+      } catch (e) {
+        if (k === 2) throw e;
+        await cerrarModales();
+      }
+    }
   };
   // modal abierto: pulsa la primera opción (en batallas, la resolución automática)
   const cerrarModales = async () => {
