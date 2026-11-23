@@ -7,8 +7,10 @@
 
 const narHay = (f, ...ks) => ks.some((k) => narTiene(f, k));
 const narFrontera = (c) => c.own.filter((p) => foes(p, c.f).length)[0] || c.p;
+/* la fe del reino la guarda sociedad (G.dip.soc[f].fe → CIV[f].rel); sin ella, G.nar.f[f].fe */
 function narConvertir(f, fe) {
-  narF(f).fe = fe;
+  if (typeof socConvertir === "function") socConvertir(f, fe);
+  else narF(f).fe = fe;
 }
 
 const NAR_ARCOS = [
@@ -293,7 +295,7 @@ const NAR_ARCOS = [
           c.g = narEnemigos(0).filter((g) => g !== c.f)[0] ?? null;
         },
         d: (c) =>
-          `El magister militum de Occidente reclama a sus federados: ${c.g != null ? `los ${CIV[c.g].s} amenazan las fronteras del imperio` : "los bagaudas arrasan la Galia"} y Roma ya no tiene soldados propios. El tribuno de la capa raída ha vuelto, esta vez con menos cortesía.`,
+          `El magister militum de Occidente reclama a sus federados: ${c.g != null ? `${narPueblo(c.g)} amenaza las fronteras del imperio` : "los bagaudas arrasan la Galia"} y Roma ya no tiene soldados propios. El tribuno de la capa raída ha vuelto, esta vez con menos cortesía.`,
         o: [
           {
             t: "Enviar a tus guerreros",
@@ -2142,7 +2144,7 @@ const NAR_ARCOS = [
           c.g = pick(narVecinos(c.f).concat(narEnemigos(c.f))) ?? null;
         },
         d: (c) =>
-          `${narB(c.pj)}, el consejero más sabio de la corte, es acusado por tres nobles de cartearse en secreto con ${c.g != null ? CIV[c.g].n : "los enemigos del reino"}. Las cartas existen, pero podrían ser falsas. ${c.pj.n} jura que solo defendió al Senado.`,
+          `${narB(c.pj)}, el consejero más sabio de la corte, es acusado por tres nobles de cartearse en secreto con ${c.g != null ? narPueblo(c.g) : "los enemigos del reino"}. Las cartas existen, pero podrían ser falsas. ${c.pj.n} jura que solo defendió al Senado.`,
         o: [
           {
             t: "Encarcelarle mientras se investiga",
@@ -2548,7 +2550,7 @@ const NAR_MENORES = [
   (c) => {
     const g = narEnemigos(c.f)[0];
     return g != null
-      ? `Las madres de ${c.p.name} rezan por los hijos que marcharon contra los ${CIV[g].s}.`
+      ? `Las madres de ${c.p.name} rezan por los hijos que marcharon contra ${narPueblo(g)}.`
       : null;
   },
   (c) => {
@@ -2641,11 +2643,11 @@ function narTextoEpilogo(f) {
   const w =
     G.over && G.over.win != null ? G.over.win : G.human.find((x) => alive(x) && owned(x).length >= need);
   const ab = gano
-    ? `En el año ${G.year}, ${CIV[f].n} domina ${k} de ${G.P.length} provincias. Ningún otro pueblo puede ya disputarle la herencia de Roma.`
+    ? `En el año ${G.year}, ${narPueblo(f)} domina ${k} de ${G.P.length} provincias. Ningún otro pueblo puede ya disputarle la herencia de Roma.`
     : !vivo
-      ? `En el año ${G.year} cayó la última ciudad de ${CIV[f].n}. Sus estandartes ardieron, y su nombre quedó solo en las crónicas de los vencedores.`
+      ? `En el año ${G.year} cayó la última ciudad de ${narPueblo(f)}. Sus estandartes ardieron, y su nombre quedó solo en las crónicas de los vencedores.`
       : w != null && w >= 0 && w !== f
-        ? `En el año ${G.year}, ${CIV[w].n} se impuso sobre el mundo conocido. ${CIV[f].n} sobrevivió a la sombra de otro.`
+        ? `En el año ${G.year}, ${narPueblo(w)} se impuso sobre el mundo conocido. ${narPueblo(f)} sobrevivió a la sombra de otro.`
         : `En el año ${G.year} se cierran estos anales.`;
   let dom = null;
   for (const L of NAR_LEG) if (N.leg[L.k] >= 12 && (!dom || N.leg[L.k] > N.leg[dom.k])) dom = L;
@@ -2670,5 +2672,5 @@ function narTextoEpilogo(f) {
     "Aquí calla el cronista. Que otros escriban lo que vino después.",
     "Sic transit gloria mundi.",
   ]);
-  return `<p>${ab}</p><p>${ver}</p>${eps.length ? `<p>${eps.join(" ")}</p>` : ""}<p class="dim">Reinaron en tu linaje: ${reyes}.</p><p class="stats">${N.vic} conquistas · ${N.bat} batallas ganadas · ${N.dec.length} decisiones · hasta ${N.maxP} provincias</p><p class="nar-cierre">${cierre}</p>`;
+  return `<p>${narFrase(ab)}</p><p>${ver}</p>${eps.length ? `<p>${eps.join(" ")}</p>` : ""}<p class="dim">Reinaron en tu linaje: ${reyes}.</p><p class="stats">${N.vic} conquistas · ${N.bat} batallas ganadas · ${N.dec.length} decisiones · hasta ${N.maxP} provincias</p><p class="nar-cierre">${cierre}</p>`;
 }

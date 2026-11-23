@@ -62,7 +62,11 @@ fs.mkdirSync(capt, { recursive: true });
       }
       if (!(await abierto())) return;
       const esEv = await page.evaluate(() => !!document.querySelector("#modalc .nar-ev"));
-      if (esEv && !fotoEvento && !(await page.evaluate(() => /Prólogo/.test(document.getElementById("modalc").textContent)))) {
+      if (
+        esEv &&
+        !fotoEvento &&
+        !(await page.evaluate(() => /Prólogo/.test(document.getElementById("modalc").textContent)))
+      ) {
         fotoEvento = true;
         await page.screenshot({ path: path.join(capt, "narrativa-evento.png") });
       }
@@ -92,7 +96,10 @@ fs.mkdirSync(capt, { recursive: true });
   await page.click(`[data-act="s-civ-${CIVN}"]`);
   await page.click('[data-act="s-go"]');
   await page.waitForTimeout(300);
-  ok(await page.evaluate(() => /Prólogo/.test(document.getElementById("modalc").textContent)), "prólogo al empezar");
+  ok(
+    await page.evaluate(() => /Prólogo/.test(document.getElementById("modalc").textContent)),
+    "prólogo al empezar",
+  );
   await page.screenshot({ path: path.join(capt, "narrativa-prologo.png") });
   await cerrarModales();
   ok(await page.evaluate(() => !!(G.nar && G.nar.f[ME] && G.nar.f[ME].ini)), "estado G.nar creado");
@@ -100,11 +107,27 @@ fs.mkdirSync(capt, { recursive: true });
   for (let y = 0; y < ANIOS; y++) {
     await cerrarModales();
     if (await page.evaluate(() => !G || G.over || !alive(ME))) break;
+    // el jugador recluta para sobrevivir (como en humo.js)
+    await page.evaluate(() => {
+      for (const p of owned(ME)) {
+        sel = p.id;
+        ui();
+        const b = document.querySelector('[data-act^="rec-"]:not([disabled])');
+        b && b.click();
+      }
+      // refuerzo de prueba: el jugador pasivo dura lo bastante para que la historia avance
+      const cap = G.P[G.F[ME].capId];
+      if (cap.owner === ME) cap.u.i += 3;
+      G.F[ME].gold = Math.max(G.F[ME].gold, 60);
+      sel = G.F[ME].capId;
+      ui();
+    });
     const fin = await page.$("#endb:not([disabled])");
     if (fin) await fin.click();
     for (let k = 0; k < 300; k++) {
       await cerrarModales(5);
-      if (!(await page.evaluate(() => busy || document.getElementById("modal").classList.contains("show")))) break;
+      if (!(await page.evaluate(() => busy || document.getElementById("modal").classList.contains("show"))))
+        break;
       await page.waitForTimeout(60);
     }
     await page.waitForTimeout(60);
@@ -116,7 +139,9 @@ fs.mkdirSync(capt, { recursive: true });
     const N = G.nar.f[ME],
       porAnio = {};
     for (const m of window.__mods) if (m.nar) porAnio[m.y] = (porAnio[m.y] || 0) + 1;
-    const ia = [...Array(NF).keys()].filter((g) => g !== ME).reduce((s, g) => s + (G.nar.f[g]?.dec.length || 0), 0);
+    const ia = [...Array(NF).keys()]
+      .filter((g) => g !== ME)
+      .reduce((s, g) => s + (G.nar.f[g]?.dec.length || 0), 0);
     return {
       anio: G.year,
       max: Math.max(0, ...Object.values(porAnio)),
@@ -133,18 +158,42 @@ fs.mkdirSync(capt, { recursive: true });
   });
   console.log("  resumen:", JSON.stringify(r1));
   ok(r1.max <= 2, `como mucho 2 modales narrativos por año (máx ${r1.max})`);
-  ok(r1.nEv >= Math.min(8, ANIOS / 3), `hay eventos narrativos (${r1.nEv})`);
+  ok(r1.nEv >= Math.min(8, Math.floor((r1.anio - 410) / 3)), `hay eventos narrativos (${r1.nEv})`);
   ok(r1.dec > 3 && r1.cron > 3, `decisiones (${r1.dec}) y crónica (${r1.cron}) registradas`);
   ok(r1.arcos >= 1 && r1.cap >= 1, `arcos iniciados (${r1.arcos}) con capítulos (${r1.cap})`);
   ok(r1.leg > 0, "el legado cambia");
   ok(r1.ia > 0, `la IA usa los eventos (${r1.ia} decisiones)`);
   ok(r1.rumores > 0, "la crónica recibe prosa narrativa");
 
+  // si la campaña terminó (la IA puede conquistarnos), seguimos con una partida nueva
+  const asegurarPartida = async () => {
+    await cerrarModales();
+    if (
+      await page.evaluate(
+        () => !!G && !G.over && alive(ME) && !document.getElementById("start").classList.contains("show"),
+      )
+    )
+      return;
+    console.log(
+      "  (la campaña terminó en " + (await page.evaluate(() => G && G.year)) + "; partida nueva para seguir)",
+    );
+    await page.evaluate(() => openStart("home"));
+    await page.click('[data-act="s-new"]');
+    await page.click(`[data-act="s-civ-${CIVN}"]`);
+    await page.click('[data-act="s-go"]');
+    await page.waitForTimeout(300);
+    await cerrarModales();
+  };
+  await asegurarPartida();
+
   // pestaña Anales y crónica
   await page.click('[data-act="tab-nar"]');
   await page.waitForTimeout(100);
   await page.evaluate(() => document.querySelectorAll("#panel details").forEach((d) => (d.open = true)));
-  ok(await page.evaluate(() => /Legado/.test(document.getElementById("panel").textContent)), "pestaña Anales con legado");
+  ok(
+    await page.evaluate(() => /Legado/.test(document.getElementById("panel").textContent)),
+    "pestaña Anales con legado",
+  );
   await page.screenshot({ path: path.join(capt, "narrativa-anales.png") });
   await page.click('[data-act="tab-log"]');
   await page.screenshot({ path: path.join(capt, "narrativa-cronica.png") });
@@ -167,18 +216,29 @@ fs.mkdirSync(capt, { recursive: true });
       return n;
     });
     await cerrarModales();
-    const suc = await page.evaluate(() => ({ n: G.nar.f[ME].reyes.length, cola: G.nar.f[ME].cola.map((x) => x.e) }));
-    ok(suc.n === rey0 + 1 && suc.cola.includes("coronacion"), "la sucesión se registra y encola la coronación");
+    const suc = await page.evaluate(() => ({
+      n: G.nar.f[ME].reyes.length,
+      cola: G.nar.f[ME].cola.map((x) => x.e),
+    }));
+    ok(
+      suc.n === rey0 + 1 && suc.cola.includes("coronacion"),
+      "la sucesión se registra y encola la coronación",
+    );
     await page.evaluate(() => {
+      G.year++; // un año nuevo: el cupo de modales del año anterior ya se gastó
       G.evY[ME] = 0;
       window.__mods.length = 0;
     });
     await turno();
     const vistos = await page.evaluate(() => window.__mods.map((m) => m.t));
-    ok(vistos.includes("Una nueva corona") || vistos.includes("La corte en el exilio"), "las reacciones se muestran al empezar el año: " + vistos.join(" | "));
+    ok(
+      vistos.includes("Una nueva corona") || vistos.includes("La corte en el exilio"),
+      "las reacciones se muestran al empezar el año: " + vistos.join(" | "),
+    );
   }
 
   // salto de años: contenido de finales del siglo V y del VI
+  await asegurarPartida();
   const tard = await page.evaluate(() => {
     for (const p of G.P) if (p.owner === ME) p.u.i = Math.max(p.u.i, 6);
     return true;
@@ -194,10 +254,15 @@ fs.mkdirSync(capt, { recursive: true });
       window.__mods.length = 0;
     }, y);
     await turno();
-    (await page.evaluate(() => window.__mods.filter((m) => m.nar).map((m) => m.y + " " + m.t))).forEach((t) => vistosTarde.add(t));
+    (await page.evaluate(() => window.__mods.filter((m) => m.nar).map((m) => m.y + " " + m.t))).forEach((t) =>
+      vistosTarde.add(t),
+    );
   }
   console.log("  tardíos:", [...vistosTarde].join(" | "));
-  ok(tard && [...vistosTarde].some((t) => +t.slice(0, 3) >= 500), "hay contenido narrativo a partir del año 500");
+  ok(
+    tard && [...vistosTarde].some((t) => +t.slice(0, 3) >= 500),
+    "hay contenido narrativo a partir del año 500",
+  );
   const arcs = await page.evaluate(() => Object.keys(G.nar.f[ME].arc));
   ok(arcs.length >= 4, "arcos tocados tras el salto: " + arcs.join(", "));
 
@@ -212,7 +277,10 @@ fs.mkdirSync(capt, { recursive: true });
   });
   await page.waitForTimeout(150);
   const orden = await page.evaluate(() => window.__mods.map((m) => m.t));
-  ok(/^Epílogo/.test(orden[0] || "") && orden.some((t) => /Victoria/.test(t)), "epílogo antes del final: " + orden.join(" | "));
+  ok(
+    /^Epílogo/.test(orden[0] || "") && orden.some((t) => /Victoria/.test(t)),
+    "epílogo antes del final: " + orden.join(" | "),
+  );
   await page.screenshot({ path: path.join(capt, "narrativa-epilogo.png") });
   await cerrarModales();
 
@@ -230,10 +298,20 @@ fs.mkdirSync(capt, { recursive: true });
   await page.click('[data-act="s-cnt"]');
   await page.waitForTimeout(400);
   await cerrarModales();
-  const carga = await page.evaluate(() => ({ nar: !!G.nar, ini: G.nar && G.nar.f[ME].ini, prologo: window.__mods.some((m) => /Prólogo/.test(m.html)) }));
-  ok(carga.nar && carga.ini && !carga.prologo, "una partida antigua carga, crea G.nar y no repite el prólogo");
+  const carga = await page.evaluate(() => ({
+    nar: !!G.nar,
+    ini: G.nar && G.nar.f[ME].ini,
+    prologo: window.__mods.some((m) => /Prólogo/.test(m.html)),
+  }));
+  ok(
+    carga.nar && carga.ini && !carga.prologo,
+    "una partida antigua carga, crea G.nar y no repite el prólogo",
+  );
   await page.click('[data-act="tab-nar"]');
-  ok(await page.evaluate(() => /Anales/.test(document.getElementById("panel").textContent)), "Anales tras cargar");
+  ok(
+    await page.evaluate(() => /Anales/.test(document.getElementById("panel").textContent)),
+    "Anales tras cargar",
+  );
 
   console.log(errores.length ? "ERRORES:\n" + errores.join("\n") : "Sin errores de JS");
   console.log(fallos.length ? "FALLOS:\n" + fallos.join("\n") : "OK narrativa");

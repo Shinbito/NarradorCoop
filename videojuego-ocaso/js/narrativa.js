@@ -63,7 +63,11 @@ function narNacimiento(k, h, c) {
 
 /* ---------- utilidades de eventos ---------- */
 const capOf = (f) => (G.P[G.F[f].capId].owner === f ? G.P[G.F[f].capId] : owned(f)[0]);
-const narFe = (f) => (f < NF && G && G.nar && G.nar.f && G.nar.f[f] && G.nar.f[f].fe) || CIV[f].rel;
+const narFe = (f) =>
+  (typeof socConvertir !== "function" && f < NF && G && G.nar && G.nar.f && G.nar.f[f] && G.nar.f[f].fe) ||
+  CIV[f].rel;
+/* impulsos a los estamentos de sociedad (si existe): narSoc(f, {cle: 5, pue: -3}) */
+const narSoc = (f, o) => typeof socImp === "function" && socImp(f, o);
 const narCristiano = (f) => narFe(f) === "niceno" || narFe(f) === "arriano";
 function relig(f, a, b, v = 15) {
   for (let g = 0; g < NF; g++) {
@@ -91,6 +95,27 @@ const narPlano = (s) => String(s == null ? "" : s).replace(/<[^>]+>/g, "");
 const narEl = (c) => (c && c.sex === "f" ? "la" : "el");
 const narO = (c, o = "o", a = "a") => (c && c.sex === "f" ? a : o);
 const narTit = (c) => (c ? `${narEl(c)} ${ttl(c).toLowerCase()} ${c.n}` : "el soberano");
+/* «el pueblo visigodo», «el Imperio de Oriente»: siempre en singular */
+const NAR_PUEBLO = [
+  "el Imperio de Occidente",
+  "el Imperio de Oriente",
+  "el pueblo visigodo",
+  "el pueblo huno",
+  "el pueblo vándalo",
+  "el pueblo franco",
+  "la Persia sasánida",
+];
+const narPueblo = (f) => NAR_PUEBLO[f] || "los rebeldes";
+/* pulido de la prosa: mayúscula al empezar frase y contracciones «de el» → «del», «a el» → «al» */
+function narFrase(s) {
+  return String(s == null ? "" : s)
+    .replace(/\b([Dd])e el\b/g, "$1el")
+    .replace(/\b([Aa]) el\b/g, "$1l")
+    .replace(
+      /(^|(?<!\.)(?:\.»?|[?!])\s+)((?:<[^>]+>)?)([a-záéíóúñ])/g,
+      (m, a, t, l) => a + t + l.toUpperCase(),
+    );
+}
 const narB = (c) => (c ? `<b>${c.n}</b>` : "");
 const narStat = (ch, k, n) =>
   !ch ? "nadie puede hacerlo" : ch[k] >= n || `requiere ${NAR_ST[k]} ${n} (${ch.n} tiene ${ch[k]})`;
@@ -219,6 +244,8 @@ function narMk(f, k, v = G.year) {
 }
 const narTiene = (f, k) => narF(f).mk[k] != null;
 const narDesde = (f, k) => (narTiene(f, k) ? G.year - narF(f).mk[k] : 999);
+/* la marca existe y tiene al menos n años */
+const narHace = (f, k, n) => narTiene(f, k) && narDesde(f, k) >= n;
 function narQuita(f, k) {
   delete narF(f).mk[k];
 }
@@ -339,6 +366,7 @@ OC.mod(
 /* ---------- crónica ---------- */
 function narCron(f, m, cls = "nar-dec", sinLog = false) {
   const N = narF(f);
+  m = narFrase(m);
   N.cron.push({ y: G.year, m: narPlano(m), c: cls });
   if (N.cron.length > 80) N.cron.shift();
   if (isMe(f) && !sinLog) addLog(m, cls);
@@ -348,7 +376,7 @@ function narMenor(f) {
   const c = narCtx(f);
   for (let k = 0; k < 6; k++) {
     const t = pick(NAR_MENORES)(c);
-    if (t) return addLog(t, "nar-rumor");
+    if (t) return addLog(narFrase(t), "nar-rumor");
   }
 }
 
@@ -428,7 +456,7 @@ async function runEvent(ev, d = {}, meta = {}) {
   const xs = narOpciones(ev, c),
     tit = narVal(ev.t, c),
     kick = meta.kick || `Año ${G.year}${ev.k ? " · " + ev.k : ""}`;
-  const html = `<div class="nar-ev"><p class="nar-kick">${kick}</p>${c.pj ? narFicha(c.pj, c.f) : ""}<p>${narVal(ev.d, c)}</p></div>`;
+  const html = `<div class="nar-ev"><p class="nar-kick">${kick}</p>${c.pj ? narFicha(c.pj, c.f) : ""}<p>${narFrase(narVal(ev.d, c))}</p></div>`;
   let el = null,
     out = null;
   await modal(
@@ -456,7 +484,7 @@ async function runEvent(ev, d = {}, meta = {}) {
         : out.ok
           ? "La fortuna sonríe"
           : "La fortuna se tuerce";
-    await modal(tit, `<div class="nar-res"><p class="nar-kick">${kk}</p><p>${txt}</p></div>`, [
+    await modal(tit, `<div class="nar-res"><p class="nar-kick">${kk}</p><p>${narFrase(txt)}</p></div>`, [
       { t: "Así quedará escrito", cls: "gold" },
     ]);
   }
@@ -505,11 +533,11 @@ function narEncolar(f, e, d = {}, tras = 0) {
   N.cola.push({ e, d, y: G.year + tras, k });
   if (N.cola.length > 8) N.cola.shift();
 }
-async function narProcesarCola(f) {
+async function narProcesarCola(f, prioMin = 0) {
   const N = narF(f);
   N.cola = N.cola.filter((q) => G.year - q.y <= 3);
   const listos = N.cola
-    .filter((q) => q.y <= G.year)
+    .filter((q) => q.y <= G.year && (narEv(q.e)?.prio || 5) >= prioMin)
     .sort((a, b) => (narEv(b.e)?.prio || 5) - (narEv(a.e)?.prio || 5));
   for (const q of listos) {
     N.cola.splice(N.cola.indexOf(q), 1);
@@ -625,6 +653,17 @@ function narSucesion(f, antId, nuevoId) {
     );
   else if (ant && reg && reg.ap && alive(ME))
     addLog(`Los cronistas de ${CIV[f].s} llamarán a ${ant.n} «${reg.ap}».`, "nar-rumor");
+  if (narTiene(f, "particion")) {
+    /* la promesa de repartir el reino se cumple a medias: los hermanos se disputan la herencia */
+    narQuita(f, "particion");
+    narEf(f, "orden", -6, 6, "Herencia repartida");
+    if (human(f))
+      narCron(
+        f,
+        "Los hijos del difunto se reparten el reino como se prometió, y empiezan a odiarse.",
+        "nar-dec",
+      );
+  }
   for (const L of NAR_LEG) N.leg[L.k] = Math.round(N.leg[L.k] * 0.5);
   N.lr = { pi: 0, gl: 0, cr: 0, sa: 0 };
   N.rey = nuevoId;
@@ -681,10 +720,21 @@ function narGuerra(a, b) {
       );
   }
 }
-function narCrisis(f, tipo) {
+/* tipos de economía: hambre, impagos, bancarrota (→ evento); peste e inflación solo a la crónica */
+function narCrisis(f, tipo, extra = {}) {
   if (f == null || f >= NF) return;
-  const N = narF(f),
-    t = tipo === "hambre" ? "hambre" : "arcas";
+  const N = narF(f);
+  if (tipo === "peste" || tipo === "inflacion") {
+    if (isMe(f) && !narHecho(N, "cr" + tipo, 3))
+      addLog(
+        tipo === "peste"
+          ? `Las campanas doblan sin descanso${extra.p && extra.p.name ? " en " + extra.p.name : ""}. Los sepultureros no dan abasto.`
+          : "En los mercados, el pan cuesta el doble que hace un año. Los viejos maldicen la moneda nueva.",
+        "nar-rumor",
+      );
+    return;
+  }
+  const t = tipo === "hambre" ? "hambre" : "arcas";
   if (!narHecho(N, "crisis" + t, 4)) narEncolar(f, t, {});
 }
 function narConquista({ p, de, a }) {
@@ -821,7 +871,7 @@ OC.on("eraNueva", ({ f, era } = {}) => {
 OC.on("edificioConstruido", ({ f, id } = {}) => {
   if (f != null && f < NF && id === "temple") narLeg(f, { pi: 1 });
 });
-OC.on("crisisEconomica", ({ f, tipo } = {}) => narCrisis(f, tipo));
+OC.on("crisisEconomica", ({ f, tipo, ...extra } = {}) => narCrisis(f, tipo, extra));
 OC.on("turnoIA", narIA);
 OC.on("antesFinAnio", () => {
   for (const f of G.human) if (G.F[f]) narFoto(f);
@@ -844,27 +894,42 @@ const EVENTS = [
     k: "Fe",
     ok: (c) => narCristiano(c.f),
     d: (c) =>
-      `Arrianos y nicenos se acusan de herejía en la basílica de ${c.cap.name}. Los obispos esperan la palabra de ${narTit(c.r)}; los reinos vecinos escuchan.`,
+      `Arrianos y nicenos se acusan de herejía en la basílica de ${c.cap.name}. Los obispos esperan la palabra de ${narTit(c.r)}; los reinos vecinos escuchan.${typeof socTension === "function" && socTension(c.f) > 0.3 ? " Muchas de tus provincias no comparten tu credo." : ""}`,
     o: [
       {
         t: "Defender el credo niceno",
-        tip: "+relación con los nicenos, −con los arrianos",
-        ef: (c) => relig(c.f, "niceno", "arriano"),
+        tip: (c) =>
+          `+relación con los nicenos, −con los arrianos${narFe(c.f) === "niceno" && typeof socPolitica === "function" ? "; política de celo" : ""}`,
+        ef: (c) => {
+          relig(c.f, "niceno", "arriano");
+          narSoc(c.f, { cle: narFe(c.f) === "niceno" ? 6 : -6 });
+          if (narFe(c.f) === "niceno" && typeof socPolitica === "function") socPolitica(c.f, "celo");
+        },
         leg: { pi: 3 },
         cr: (c) => `Concilio en ${c.cap.name}: ${narTit(c.r)} defiende el credo de Nicea.`,
       },
       {
         t: "Proteger a los arrianos",
-        tip: "+relación con los arrianos, −con los nicenos",
-        ef: (c) => relig(c.f, "arriano", "niceno"),
+        tip: (c) =>
+          `+relación con los arrianos, −con los nicenos${narFe(c.f) === "arriano" && typeof socPolitica === "function" ? "; política de celo" : ""}`,
+        ef: (c) => {
+          relig(c.f, "arriano", "niceno");
+          narSoc(c.f, { cle: narFe(c.f) === "arriano" ? 6 : -6 });
+          if (narFe(c.f) === "arriano" && typeof socPolitica === "function") socPolitica(c.f, "celo");
+        },
         leg: { pi: 3 },
         cr: (c) => `Concilio en ${c.cap.name}: ${narTit(c.r)} toma partido por los arrianos.`,
       },
       {
         t: "Imponer silencio a ambos bandos",
         req: (c) => narStat(c.r, "di", 4),
-        tip: "+5 orden en todo el reino",
-        ef: (c) => narOrden(c.f, 5),
+        tip: (c) =>
+          `+5 orden en todo el reino${typeof socPolitica === "function" ? "; política de tolerancia" : ""}`,
+        ef: (c) => {
+          narOrden(c.f, 5);
+          narSoc(c.f, { cle: -4, pro: 4 });
+          if (typeof socPolitica === "function") socPolitica(c.f, "tol");
+        },
         leg: { sa: 4 },
         cr: (c) =>
           `${narTit(c.r)} manda callar a los obispos de ambos credos. La paz de la Iglesia se compra con silencio.`,
@@ -1100,7 +1165,7 @@ const EVENTS = [
     t: "El puñal en la sombra",
     k: "Corte",
     ch: true,
-    ok: (c) => narDesde(c.f, "conjura_viva") >= 2,
+    ok: (c) => narHace(c.f, "conjura_viva", 2),
     d: (c) =>
       `Los conjurados han vuelto. Un copero ha sido sorprendido con una ampolla en la manga y jura que no sabe quién se la dio. ${narTit(c.r)} ya no prueba el vino sin que otro beba antes.`,
     o: [
@@ -1262,7 +1327,7 @@ const EVENTS = [
     t: "Los alanos reclaman su paga",
     k: "Corte",
     ch: true,
-    ok: (c) => narDesde(c.f, "alanos") >= 2,
+    ok: (c) => narHace(c.f, "alanos", 2),
     d: (c) =>
       `Los jinetes alanos que contrataste rodean el palacio de ${c.cap.name}. Su capitán, con un collar de dientes, golpea la puerta con la lanza: la paga lleva meses de retraso.`,
     o: [
@@ -1606,7 +1671,7 @@ const EVENTS = [
     k: "Frontera",
     ok: (c) => narEnemigos(c.f).length > 0,
     d: (c) =>
-      `Una patrulla ha atrapado a una veintena de desertores en los bosques de ${c.p.name}. Dicen que llevaban meses sin paga ni pan, y que en la guerra contra los ${CIV[narEnemigos(c.f)[0]].s} solo se muere.`,
+      `Una patrulla ha atrapado a una veintena de desertores en los bosques de ${c.p.name}. Dicen que llevaban meses sin paga ni pan, y que en la guerra contra ${narPueblo(narEnemigos(c.f)[0])} solo se muere.`,
     o: [
       {
         t: "Diezmarlos ante la tropa",
@@ -1643,7 +1708,7 @@ const EVENTS = [
       return c.g != null;
     },
     d: (c) =>
-      `Llegan a ${c.cap.name} los embajadores de ${narTit(ruler(c.g))}, de ${CIV[c.g].n}, con halcones, perros de caza y un cofre de plata. Esperan regalos a la altura.`,
+      `Llegan a ${c.cap.name} los embajadores de ${narTit(ruler(c.g))}, de ${narPueblo(c.g)}, con halcones, perros de caza y un cofre de plata. Esperan regalos a la altura.`,
     o: [
       {
         t: "Devolver regalos más ricos",
@@ -2079,7 +2144,7 @@ const EVENTS = [
     t: "Los acreedores",
     k: "Reino",
     ch: true,
-    ok: (c) => narDesde(c.f, "deuda") >= 3,
+    ok: (c) => narHace(c.f, "deuda", 3),
     d: () =>
       "Los mercaderes sirios vuelven con sus tablillas de cera y su notario. El préstamo, con sus intereses, suma ya ciento veinte de oro. Sonríen mucho.",
     o: [
@@ -2127,7 +2192,7 @@ const EVENTS = [
     o: [
       {
         t: "Prometer el reparto a tu muerte",
-        tip: "+6 orden durante 8 años; la casa se divide",
+        tip: "+6 orden durante 8 años; al morir el soberano, −6 orden 6 años",
         ef: (c) => {
           narEf(c.f, "orden", 6, 8, "Promesa de partición");
           narMk(c.f, "particion");
@@ -2269,7 +2334,7 @@ const EVENTS = [
         ef: (c) => narEf(c.f, "oro", 6, 15, "Seda propia"),
         leg: { sa: 4 },
         ia: 2,
-        cr: (c) => `${CIV[c.f].n} aprende a criar el gusano de la seda.`,
+        cr: (c) => `${narPueblo(c.f)} aprende a criar el gusano de la seda.`,
       },
       {
         t: "Venderlos a Constantinopla",
@@ -2509,7 +2574,7 @@ const EVENTS = [
       if (!c.pv || c.pv.owner !== c.f) return false;
     },
     d: (c) =>
-      `Las puertas de <b>${c.pv.name}</b>, capital de ${CIV[c.g].n}, se han abierto. Tus soldados, cubiertos de hollín, esperan la orden: saquear, como es costumbre, o contenerse.`,
+      `Las puertas de <b>${c.pv.name}</b>, capital de ${narPueblo(c.g)}, se han abierto. Tus soldados, cubiertos de hollín, esperan la orden: saquear, como es costumbre, o contenerse.`,
     o: [
       {
         t: "Tres días de saqueo",
@@ -2774,7 +2839,7 @@ const EVENTS = [
       c.g = c.d.g;
     },
     d: (c) =>
-      `${narB(c.pj)} llega de ${CIV[c.g].n} con un séquito de damas, consejeros y sacerdotes que hablan entre ellos en su lengua. ${narFe(c.g) !== narFe(c.f) ? "Trae consigo su propia fe y su propio capellán." : "Comparte vuestra fe, pero no vuestras costumbres."}`,
+      `${narB(c.pj)} llega de ${narPueblo(c.g)} con un séquito de damas, consejeros y sacerdotes que hablan entre ellos en su lengua. ${narFe(c.g) !== narFe(c.f) ? "Trae consigo su propia fe y su propio capellán." : "Comparte vuestra fe, pero no vuestras costumbres."}`,
     o: [
       {
         t: "Acoger a todo su séquito",
@@ -2818,7 +2883,7 @@ const EVENTS = [
       if (c.g == null || !alive(c.g) || G.st[c.f][c.g] !== "guerra") return false;
     },
     d: (c) =>
-      `Los heraldos de ${narTit(ruler(c.g))} han arrojado una lanza ensangrentada sobre tu frontera: ${CIV[c.g].n} está en guerra contigo. ${narTit(c.r)} reúne al consejo antes del alba.`,
+      `Los heraldos de ${narTit(ruler(c.g))} han arrojado una lanza ensangrentada sobre tu frontera: ${narPueblo(c.g)} está en guerra contigo. ${narTit(c.r)} reúne al consejo antes del alba.`,
     o: [
       {
         t: "Leva de campesinos",
@@ -2863,7 +2928,7 @@ const EVENTS = [
     re: true,
     prio: 3,
     d: (c) =>
-      `Los maestros que han traído a tu reino ${c.d.t ? "el saber de «" + esc(String(c.d.t).replace(/[_-]/g, " ")) + "»" : "un saber nuevo"} piden casa, sueldo y discípulos. Otros reyes ya les han escrito.`,
+      `Los maestros que han traído a tu reino ${c.d.t ? "el saber de «" + esc(typeof TEC !== "undefined" && TEC[c.d.t] ? TEC[c.d.t].n : String(c.d.t).replace(/[_-]/g, " ")) + "»" : "un saber nuevo"} piden casa, sueldo y discípulos. Otros reyes ya les han escrito.`,
     o: [
       {
         t: "Fundar una escuela",
@@ -2890,7 +2955,7 @@ const EVENTS = [
     re: true,
     prio: 6,
     d: (c) =>
-      `Los cronistas escriben que ${CIV[c.f].n} ha entrado en una nueva edad${c.d.e && isNaN(+c.d.e) ? ": " + esc(c.d.e) : ""}. Lo viejo se resquebraja y lo nuevo aún no tiene nombre.`,
+      `Los cronistas escriben que ${narPueblo(c.f)} ha entrado en una nueva edad${narEraNombre(c.f, c.d.e)}. Lo viejo se resquebraja y lo nuevo aún no tiene nombre.`,
     o: [
       {
         t: "Grandes fiestas",
@@ -2986,6 +3051,11 @@ const EVENTS = [
     ],
   },
 ];
+
+function narEraNombre(f, e) {
+  const n = typeof tecEras === "function" && e !== "" && !isNaN(+e) ? tecEras(f)[+e] : isNaN(+e) ? e : "";
+  return n ? ": «" + esc(n) + "»" : "";
+}
 
 /* ---------- prólogo y epílogo (textos en js/historia.js) ---------- */
 async function narPrologo(f) {
@@ -3167,7 +3237,8 @@ async function narAnio(f, previos = 0) {
     N.my = G.year;
     N.mn = 0;
   }
-  const tope = Math.max(1, 2 - previos),
+  /* ritmo: como mucho 2 modales al año contando los de otros sistemas; si ya hubo 2, solo lo urgente */
+  const tope = Math.max(0, 2 - previos),
     hecho = async (pr) => {
       if (await pr) N.mn++;
     };
@@ -3179,6 +3250,7 @@ async function narAnio(f, previos = 0) {
     }
   }
   if (G.year > 410) {
+    if (!tope && !N.mn) await hecho(narProcesarCola(f, 9));
     if (N.mn < tope) await hecho(narProcesarCola(f));
     if (N.mn < tope) await hecho(narCadena(f));
     if (N.mn < tope) {
@@ -3188,6 +3260,26 @@ async function narAnio(f, previos = 0) {
     if (N.mn < tope && R() < (N.mn ? 0.15 : 0.4)) await hecho(narAzar(f));
   }
   narMenor(f);
+}
+/* cuenta los modales que abren otros sistemas (buzón de diplomacia, demandas...) para el ritmo */
+async function narContarModales(fn) {
+  const el = typeof document !== "undefined" && document.getElementById("modalc");
+  if (!el || typeof MutationObserver === "undefined") {
+    await fn();
+    return 0;
+  }
+  let n = 0;
+  const ob = new MutationObserver((ms) => {
+    if (ms.some((m) => m.addedNodes.length)) n++;
+  });
+  ob.observe(el, { childList: true });
+  try {
+    await fn();
+  } finally {
+    if (ob.takeRecords().some((m) => m.addedNodes.length)) n++;
+    ob.disconnect();
+  }
+  return n;
 }
 async function startTurn() {
   if (!G) return;
@@ -3202,8 +3294,8 @@ async function startTurn() {
   G.inbox[ME] = [];
   for (const it of box) await inboxItem(it);
   narRevisar(ME);
-  await OC.emitir("inicioTurno", ME);
-  if (!G.over && alive(ME)) await narAnio(ME, box.length);
+  const vistos = await narContarModales(() => OC.emitir("inicioTurno", ME));
+  if (!G.over && alive(ME)) await narAnio(ME, box.length + vistos);
   narFoto(ME);
   ui();
   save();
