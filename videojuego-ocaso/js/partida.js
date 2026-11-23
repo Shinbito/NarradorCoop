@@ -15,12 +15,19 @@ function cands(f) {
     });
   });
 }
-function newGame(me, cand) {
-  MAP = gen(Math.floor(R() * 1e9));
+/* opts (MUNDO): {modo: 'historico'|'leyendas', activas: [índices]} — sin opts, el modo histórico de siempre */
+function newGame(me, cand, opts = {}) {
+  const modo = opts.modo === "leyendas" ? "leyendas" : "historico",
+    act = modo === "leyendas" ? mundoNormActivas(me, opts.activas) : MUNDO_HIST.slice(),
+    dim = mundoDims(modo, act.length);
+  MAP = gen(Math.floor(R() * 1e9), dim);
   ME = me;
   const nm = PNAMES.slice().sort(() => R() - 0.5);
   G = {
     seed: MAP.seed,
+    modo,
+    activas: act,
+    mapa: dim,
     year: 410,
     P: [],
     C: [],
@@ -37,7 +44,7 @@ function newGame(me, cand) {
   G.dip = dipInit();
   G.P = MAP.pts.map((p, i) => ({
     id: i,
-    name: nm[i],
+    name: nm[i] || "Provincia " + (i + 1),
     x: p.cx,
     y: p.cy,
     owner: REB,
@@ -56,7 +63,7 @@ function newGame(me, cand) {
   }));
   const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y),
     caps = [G.P.reduce((b, p) => (p.x < b.x ? p : b))];
-  while (caps.length < 7) {
+  while (caps.length < act.length) {
     const md = (p) => Math.min(...caps.map((c) => dist(c, p)));
     caps.push(G.P.filter((p) => !caps.includes(p)).reduce((b, p) => (md(p) > md(b) ? p : b)));
   }
@@ -65,12 +72,15 @@ function newGame(me, cand) {
     G.rel.push(Array(NF).fill(0));
     G.st.push(Array(NF).fill("paz"));
   }
-  [5, 2, 0, 4, 3, 1, 6].forEach((f, i) => setup(f, caps[i], f === me ? cand : null));
-  for (let f = 0; f < NF; f++) {
+  if (modo === "historico") [5, 2, 0, 4, 3, 1, 6].forEach((f, i) => setup(f, caps[i], f === me ? cand : null));
+  else mundoRepartir(caps, act).forEach(({ f, p }) => setup(f, p, f === me ? cand : null));
+  /* los pueblos que no juegan: sin tierras ni corte (alive(f) falso) */
+  for (let f = 0; f < NF; f++) if (!G.F[f]) G.F[f] = mundoAusente(f);
+  for (const f of act) {
     const ex = MAP.adj[G.F[f].capId]
       .map((i) => G.P[i])
       .filter((q) => q.owner === REB)
-      .slice(0, f < 2 ? 3 : 2);
+      .slice(0, modo === "historico" && f < 2 ? 3 : 2);
     ex.forEach((q) => {
       q.owner = f;
       q.home = f;
@@ -79,8 +89,9 @@ function newGame(me, cand) {
     });
   }
   /* opinión inicial: trato general al azar + recuerdos permanentes de fe */
-  for (let a = 0; a < NF; a++)
-    for (let b = a + 1; b < NF; b++) {
+  for (const a of act)
+    for (const b of act) {
+      if (b <= a) continue;
       G.rel[a][b] = G.rel[b][a] = ri(-10, 10);
       const ra = CIV[a].rel,
         rb = CIV[b].rel;
@@ -88,26 +99,30 @@ function newGame(me, cand) {
       else if ((ra === "niceno" && rb === "arriano") || (ra === "arriano" && rb === "niceno"))
         dipMem(a, b, "credo", "Disputa de credo", -8, 0);
     }
-  const set = (a, b, s, v) => {
-    G.st[a][b] = G.st[b][a] = s;
-    G.rel[a][b] = G.rel[b][a] = v;
-  };
-  set(0, 1, "alianza", 50);
-  set(3, 1, "guerra", -40);
-  set(3, 0, "paz", -25);
-  set(2, 0, "paz", -20);
-  set(6, 1, "guerra", -35);
-  set(4, 0, "paz", -15);
-  dipMem(1, 6, "rival", "Rivales de siempre", -10, 0);
-  dipAdd("alianza", 0, 1, { sub: "defensiva" }, true);
-  /* los francos, federados de Roma en la Galia */
-  dipAdd("vasallaje", 0, 5, { trib: 6, imp: 0 }, true);
+  if (modo === "historico") {
+    const set = (a, b, s, v) => {
+      G.st[a][b] = G.st[b][a] = s;
+      G.rel[a][b] = G.rel[b][a] = v;
+    };
+    set(0, 1, "alianza", 50);
+    set(3, 1, "guerra", -40);
+    set(3, 0, "paz", -25);
+    set(2, 0, "paz", -20);
+    set(6, 1, "guerra", -35);
+    set(4, 0, "paz", -15);
+    dipMem(1, 6, "rival", "Rivales de siempre", -10, 0);
+    dipAdd("alianza", 0, 1, { sub: "defensiva" }, true);
+    /* los francos, federados de Roma en la Galia */
+    dipAdd("vasallaje", 0, 5, { trib: 6, imp: 0 }, true);
+  } else mundoNombrar();
   sel = G.F[me].capId;
   aim = 0;
   tab = "prov";
   centerOn(sel);
   addLog(
-    `Año 410 d.C. ${ttl(ruler(me))} ${ruler(me).n} gobierna ${CIV[me].n}. El imperio se resquebraja: es tu hora.`,
+    modo === "historico"
+      ? `Año 410 d.C. ${ttl(ruler(me))} ${ruler(me).n} gobierna ${CIV[me].n}. El imperio se resquebraja: es tu hora.`
+      : `Año 410 de las crónicas. ${ttl(ruler(me))} ${ruler(me).n} gobierna ${CIV[me].n} en un mundo de leyendas donde ${act.length} pueblos se disputan la tierra.`,
     "turn",
   );
 }
@@ -116,7 +131,8 @@ function setup(f, p, cand) {
     owner: f,
     cap: true,
     home: f,
-    u: f === 3 ? { i: 3, a: 4, c: 5 } : { i: 6, a: 4, c: 2 },
+    /* MUNDO: guarnición propia (CIV[f].u0: hunos y mongoles a caballo; América sin caballos) */
+    u: CIV[f].u0 ? { ...CIV[f].u0 } : { i: 6, a: 4, c: 2 },
     walls: 1,
     farm: 1,
     market: 1,
