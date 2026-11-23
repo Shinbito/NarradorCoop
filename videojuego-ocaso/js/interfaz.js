@@ -66,9 +66,7 @@ function provPanel(dis) {
     gc = G.C[p.gen];
   let h = `<h2 style="color:${CIV[f].c}">${p.name}${p.cap ? " ♛" : ""}</h2><p class="dim">${CIV[f].n}${f < REB ? " " + stTag(f) : ""}${p.cap ? " · capital" : ""}<br>Rinde ${yields(p).g} oro y ${yields(p).fo} comida · orden ${p.order}</p><div class="bar"><i style="width:${p.order}%;background:${p.order < 30 ? "#e0503f" : p.order < 55 ? "#e8b632" : "#4caf50"}"></i></div>`;
   h += `<div class="troops">${TYP.map((t) => `<div><img src="${icon(f, t)}" alt=""><b>${p.u[t]}</b>${CIV[f].un[t]}</div>`).join("")}</div>`;
-  h += `<p class="dim" style="margin-top:8px">${Object.keys(BLD)
-    .map((k) => `${BLD[k][0]} ${p[k]}/2`)
-    .join(" · ")}</p>`;
+  h += `<p class="dim" style="margin-top:8px">${typeof tecLineaEdificios === "function" ? tecLineaEdificios(p) : ""}</p>`;
   h += `<p>General: ${gc ? `<b>${gc.n}</b> (mando ${gc.ma}, ${gc.age} años)` : '<span class="dim">ninguno</span>'}</p>`;
   if (!mine) {
     const near = MAP.adj[p.id].map((i) => G.P[i]).filter((q) => q.owner === ME && !q.tired);
