@@ -80,6 +80,7 @@ Secciones de provincia actuales: `reclutar` (20, combate), `edificios` (30, tecn
 | `batallaResuelta` | `{p, atacante, defensor, gana, A, D, s0, gA, gD, ...}` | combate | después de cualquier batalla (auto o táctica) |
 | `revuelta` | `{p, de}` | economía (y sociedad en traiciones/guerra civil) | una provincia se subleva y pasa a `REB` (se emite antes del cambio de dueño) |
 | `tecnologiaInvestigada` | `{f, id}` | tecnología | |
+| `tecnologiaAdoptada` | `{f, p, id}` | tecnología | un descubrimiento se implanta en una ciudad |
 | `eraNueva` | `{f, era}` | tecnología | |
 | `edificioConstruido` | `{f, p, id, nivel}` | tecnología | |
 | `guerraDeclarada` / `pazFirmada` / `alianzaSellada` | `{a, b}` | diplomacia | |
@@ -125,3 +126,4 @@ correspondientes. Los demás solo escuchan.
 - `G.log` guarda las últimas 250 entradas.
 - Ánimo del pueblo: `ecoAnimo(p)` → `{id, nombre, icono, color, orden, objetivo, tendencia, causas}`; `ecoNivel(p)` (rápido, sin causas); `ecoApoyoAsedio(p, sitiador?)` → −1 (abre las puertas) … +1 (resiste). Sección de provincia `animo` (orden 38).
 - Decisiones de ciudad: `ecoPuedeDecidir(f, p, k)` / `ecoDecision(f, p, k)` sobre `ECO_DEC`.
+- Tecnología por ciudad: `tecPerfil(p)` → `{id, nombre, icono, sin, militar, economico, saber}`; `tecHuecos(p)`, `tecPuedeReclutar(f, p, t)`, `tecReclutables(f, p)`, `tecAdoptada(p, id)`, `tecPuntosCiudad(p)`. `statsUnidad`/`costeUnidad` deben recibir `p` (ciudad de origen o defendida); sin `p` se usa la media del reino. Las adopciones llaman a `costeConstruccion` con `id: "tec:<id>"`.
