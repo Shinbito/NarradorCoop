@@ -1,1 +1,156 @@
 /* estilos del sistema: tecnologia */
+.tec-era {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 4px 0 6px;
+}
+.tec-era-n {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font:
+    400 12px/1 "Press Start 2P",
+    monospace;
+  color: var(--gold);
+  background: #141a1f;
+  border: 3px solid;
+  box-shadow: 0 0 0 2px #000;
+}
+.tec-era .stats {
+  font-size: 13px;
+}
+.tec-ok {
+  color: #7fcf6a;
+}
+.tec-ramas {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 3px;
+  margin: 10px 0 6px;
+}
+.tec-ramas button {
+  min-height: 34px;
+  font-size: 7px;
+  padding: 4px 1px;
+}
+.tec-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tec-t {
+  display: block;
+  width: 100%;
+  min-height: 38px;
+  text-align: left;
+  padding: 5px 7px;
+  font-size: 9px;
+}
+.tec-t span {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+.tec-t span b {
+  font-weight: 400;
+  color: var(--gold);
+}
+.tec-t small {
+  font:
+    13px/1.2 "Pixelify Sans",
+    sans-serif;
+  color: var(--dim);
+  margin-top: 2px;
+}
+.tec-t.on small,
+.tec-t.on span b {
+  color: var(--ink);
+}
+.tec-t.hecha {
+  background: #18241c;
+  border: 3px solid #000;
+  color: #9ccf8a;
+  font:
+    400 9px/1.5 "Press Start 2P",
+    monospace;
+}
+.tec-t.hecha small {
+  display: block;
+}
+.tec-cmp {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) auto auto auto;
+  gap: 2px 10px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.tec-cmp span:nth-child(4n + 2),
+.tec-cmp span:nth-child(4n + 3),
+.tec-cmp span:nth-child(4n + 4) {
+  text-align: right;
+  color: var(--dim);
+  white-space: nowrap;
+}
+.tec-cola {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.tec-obra {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  background: #241f14;
+  border: 2px solid #000;
+  padding: 4px 6px;
+  font-size: 14px;
+  line-height: 1.2;
+}
+.tec-obra small {
+  color: var(--gold);
+}
+.tec-obra button {
+  min-height: 32px;
+  font-size: 8px;
+  padding: 4px 6px;
+}
+.tec-ed {
+  min-height: 52px;
+  padding: 5px 4px;
+  font-size: 9px;
+  line-height: 1.3;
+}
+.tec-ed:disabled {
+  opacity: 0.6;
+}
+.tec-ed small {
+  font-size: 7px;
+  line-height: 1.4;
+}
+.tec-niv {
+  display: block;
+  margin-top: 3px;
+  line-height: 0;
+}
+.tec-niv i {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin: 0 1px;
+  background: #0b0f12;
+  border: 1px solid #000;
+}
+.tec-niv i.on {
+  background: var(--gold);
+}
+.tec-niv i.obra {
+  background: #7d6a3a;
+}
+.tec-res {
+  margin: 6px 0 0;
+}
