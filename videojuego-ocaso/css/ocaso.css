@@ -1,0 +1,689 @@
+/* VOICE: gran estrategia del ocaso de Roma, sobria, con peso y algo de drama
+   IDEA: mesa de campaña de un general: mapa pixel art, estandartes, crónica de la corte
+   PICTURE: el mapa ficticio (costas, bosques, colinas, ciudades) y el campo de batalla táctico
+   COLOUR and TYPE: noche de piedra #12171c, oro imperial #f2c14e, colores propios de cada pueblo; Press Start 2P + Pixelify Sans
+   LAYOUT: barra de recursos, mapa grande, panel de mando con pestañas; pantallas superpuestas para inicio, eventos y batalla */
+:root {
+  color-scheme: dark;
+  --bg: #12171c;
+  --panel: #1e262d;
+  --edge: #3a4752;
+  --ink: #ece5d2;
+  --dim: #a2abb0;
+  --gold: #f2c14e;
+}
+* {
+  box-sizing: border-box;
+  min-width: 0;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font:
+    17px/1.45 "Pixelify Sans",
+    system-ui,
+    sans-serif;
+  overflow-x: clip;
+}
+header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px max(3vw, 12px);
+  background: #0b0f12;
+  border-bottom: 4px solid #000;
+}
+h1 {
+  margin: 0;
+  font:
+    400 clamp(26px, 4vw, 40px)/1 "Jacquard 12",
+    "Press Start 2P",
+    monospace;
+  color: var(--gold);
+  text-shadow: 3px 3px 0 #6a3d00;
+}
+#res {
+  display: flex;
+  gap: 8px 18px;
+  flex-wrap: wrap;
+  font:
+    12px/1.6 "Press Start 2P",
+    monospace;
+  align-items: center;
+}
+#res b {
+  color: var(--gold);
+  font-weight: 400;
+}
+#res small {
+  color: #8fd18a;
+  font-size: 12px;
+}
+#res small.neg {
+  color: #ff7b6b;
+}
+.wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 14px;
+  padding: 14px max(2.5vw, 10px);
+  max-width: 1500px;
+  margin: 0 auto;
+}
+.board {
+  background: #0a0d10;
+  padding: 8px;
+  border: 4px solid #000;
+  box-shadow:
+    inset 0 0 0 4px var(--edge),
+    0 6px 0 #000;
+  align-self: start;
+}
+canvas {
+  display: block;
+  width: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  touch-action: manipulation;
+}
+#mapwrap {
+  overflow: auto;
+  max-height: 72vh;
+  overscroll-behavior: contain;
+}
+#map {
+  aspect-ratio: 512/320;
+  cursor: pointer;
+  max-width: none;
+  touch-action: none;
+}
+.zl {
+  align-self: center;
+  font:
+    400 10px "Press Start 2P",
+    monospace;
+  color: var(--dim);
+  min-width: 44px;
+  text-align: center;
+}
+#bscroll {
+  overflow: auto;
+  max-height: 70vh;
+  overscroll-behavior: contain;
+}
+#bmap {
+  aspect-ratio: 800/480;
+  cursor: crosshair;
+  touch-action: none;
+  max-width: none;
+}
+.zb {
+  min-height: 36px;
+  min-width: 44px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+#hover {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 4px 2px;
+  color: var(--dim);
+  font-size: 15px;
+  min-height: 32px;
+}
+aside {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.card {
+  background: var(--panel);
+  border: 4px solid #000;
+  box-shadow: inset 0 0 0 3px var(--edge);
+  padding: 14px;
+}
+.card h2 {
+  margin: 0 0 6px;
+  font:
+    400 14px/1.5 "Press Start 2P",
+    monospace;
+  text-wrap: balance;
+}
+.card h3 {
+  margin: 14px 0 6px;
+  font:
+    400 12px/1.4 "Press Start 2P",
+    monospace;
+  color: var(--dim);
+}
+.dim {
+  color: var(--dim);
+  margin: 0 0 6px;
+}
+p {
+  margin: 0 0 8px;
+}
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+.tabs button {
+  font-size: 9px;
+  padding: 6px 2px;
+}
+.troops {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+.troops div {
+  background: #141a1f;
+  border: 2px solid #000;
+  padding: 6px 4px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.2;
+}
+.troops img {
+  display: block;
+  margin: 0 auto 4px;
+  width: 34px;
+  height: 34px;
+  image-rendering: pixelated;
+}
+.troops b {
+  display: block;
+  font:
+    400 13px/1.4 "Press Start 2P",
+    monospace;
+}
+.g3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.g2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+button {
+  font:
+    400 11px/1.5 "Press Start 2P",
+    monospace;
+  min-height: 44px;
+  padding: 8px 6px;
+  color: var(--ink);
+  background: #33414c;
+  border: 3px solid #000;
+  box-shadow:
+    inset -3px -3px 0 #1c252c,
+    inset 3px 3px 0 #52636f;
+  cursor: pointer;
+}
+button small {
+  display: block;
+  color: var(--gold);
+  font-size: 9px;
+  margin-top: 3px;
+}
+button:hover:not(:disabled):not(.on):not(.gold):not(.red) {
+  background: #3e505d;
+}
+button:active:not(:disabled) {
+  box-shadow: inset 3px 3px 0 #1c252c;
+}
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+button:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+button.on,
+button.gold {
+  background: #8a6514;
+  box-shadow:
+    inset -3px -3px 0 #5a3f06,
+    inset 3px 3px 0 #c4962e;
+}
+button.red,
+.end {
+  background: #8b3222;
+  box-shadow:
+    inset -3px -3px 0 #561a10,
+    inset 3px 3px 0 #b8503c;
+}
+.end {
+  width: 100%;
+  font-size: 13px;
+}
+select,
+input {
+  font:
+    16px "Pixelify Sans",
+    sans-serif;
+  background: #141a1f;
+  color: var(--ink);
+  border: 3px solid #000;
+  min-height: 44px;
+  padding: 6px 8px;
+  width: 100%;
+}
+.note {
+  margin: 8px 0 0;
+  font-size: 15px;
+  color: var(--gold);
+}
+.bar {
+  height: 10px;
+  background: #0b0f12;
+  border: 2px solid #000;
+}
+.bar i {
+  display: block;
+  height: 100%;
+}
+.fac {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr) 54px;
+  gap: 8px;
+  align-items: center;
+  font-size: 15px;
+  margin: 5px 0;
+}
+.fac span:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tag {
+  display: inline-block;
+  font:
+    400 9px/1.6 "Press Start 2P",
+    monospace;
+  padding: 1px 5px;
+  border: 2px solid #000;
+  background: #2a343c;
+  white-space: nowrap;
+}
+.tag.guerra {
+  background: #7a2318;
+}
+.tag.alianza {
+  background: #22603a;
+}
+.tag.tu {
+  background: #7a5a12;
+}
+.row {
+  border-top: 2px solid #10151a;
+  padding: 10px 0;
+}
+.row:first-of-type {
+  border-top: 0;
+}
+.row .hd {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+.btns button {
+  min-height: 38px;
+  font-size: 9px;
+  padding: 6px 7px;
+}
+.stats {
+  font-size: 14px;
+  color: var(--dim);
+}
+#log {
+  max-height: 420px;
+  overflow: auto;
+  font-size: 15px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#log li {
+  margin: 0 0 6px;
+  padding-left: 8px;
+  border-left: 3px solid var(--edge);
+}
+#log li.good {
+  border-color: #4caf50;
+}
+#log li.bad {
+  border-color: #e0503f;
+}
+#log li.turn {
+  border: 0;
+  padding: 0;
+  color: var(--gold);
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  margin-top: 10px;
+}
+.over {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 8, 10, 0.82);
+  display: none;
+  place-items: center;
+  padding: 14px;
+  z-index: 5;
+  overflow: auto;
+}
+.over.show {
+  display: grid;
+}
+#modal {
+  z-index: 9;
+}
+#modalc {
+  max-width: 560px;
+  width: 100%;
+}
+.mbtn {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.mbtn button {
+  flex: 1 1 140px;
+}
+#start {
+  background: #1b1430;
+  place-items: center;
+}
+#start .card:has(.hero) {
+  max-width: 560px;
+  background: rgba(36, 24, 18, 0.86);
+}
+#start .hero {
+  grid-template-columns: minmax(0, 1fr);
+}
+#scene {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  z-index: 0;
+}
+#start .card {
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
+  width: 100%;
+  background: rgba(36, 24, 18, 0.94);
+  border: 4px solid #000;
+  box-shadow:
+    inset 0 0 0 3px #b8862b,
+    inset 0 0 0 7px #3b2716,
+    0 8px 0 #000;
+}
+#start .card h2 {
+  font:
+    400 clamp(30px, 6vw, 64px)/1 "Jacquard 12",
+    "Press Start 2P",
+    monospace;
+  color: var(--gold);
+  text-shadow: 4px 4px 0 #5a2c00;
+  margin-bottom: 10px;
+}
+#start .civ b {
+  font:
+    400 22px/1.1 "Jacquard 12",
+    monospace;
+  color: var(--gold);
+}
+#start button {
+  background: #5a3a1c;
+  box-shadow:
+    inset -3px -3px 0 #2f1d0c,
+    inset 3px 3px 0 #8a6236;
+}
+#start button.gold,
+#start button.on {
+  background: #8a6514;
+  box-shadow:
+    inset -3px -3px 0 #5a3f06,
+    inset 3px 3px 0 #d8a83e;
+}
+.music {
+  min-height: 40px;
+  font-size: 10px;
+}
+.civs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+.civ {
+  text-align: left;
+  padding: 12px;
+  min-height: 150px;
+  font:
+    15px/1.35 "Pixelify Sans",
+    sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+.civ b {
+  font:
+    400 11px/1.5 "Press Start 2P",
+    monospace;
+}
+.civ i {
+  display: block;
+  width: 100%;
+  height: 8px;
+  border: 2px solid #000;
+}
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+}
+.hero h2 {
+  font-size: clamp(18px, 3vw, 30px);
+  line-height: 1.2;
+  color: var(--gold);
+}
+.hero canvas {
+  border: 4px solid #000;
+}
+.bwrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 12px;
+  width: min(1400px, 100%);
+  align-items: start;
+}
+.bmain {
+  background: #0a0d10;
+  padding: 6px;
+  border: 4px solid #000;
+  box-shadow: inset 0 0 0 4px var(--edge);
+}
+.bside {
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+}
+.slot {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+  margin: 6px 0;
+}
+.slot > span {
+  font:
+    400 9px/1.4 "Press Start 2P",
+    monospace;
+  color: var(--dim);
+}
+.slot .btns {
+  margin: 0;
+}
+.slot .btns button {
+  flex: 1 1 auto;
+}
+.ulist {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 5px;
+}
+.ulist button {
+  width: 100%;
+  text-align: left;
+  font:
+    15px/1.3 "Pixelify Sans",
+    sans-serif;
+  margin-bottom: 5px;
+  min-height: 40px;
+}
+.ulist button.on {
+  color: #fff;
+}
+#blog {
+  font-size: 14px;
+  max-height: 170px;
+  overflow: auto;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+#blog li {
+  margin-bottom: 4px;
+  border-left: 3px solid var(--edge);
+  padding-left: 6px;
+}
+@media (max-width: 1000px) {
+  .wrap,
+  .bwrap {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bside {
+    max-height: none;
+  }
+  .board,
+  .bmain {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+  }
+  #mapwrap {
+    max-height: 46vh;
+  }
+  .board {
+    padding: 4px;
+    border-width: 3px;
+  }
+  #hover {
+    padding: 4px 2px 0;
+    font-size: 13px;
+    min-height: 24px;
+  }
+  .end {
+    position: sticky;
+    bottom: 0;
+    z-index: 4;
+    box-shadow:
+      0 -6px 0 var(--bg),
+      inset -3px -3px 0 #561a10,
+      inset 3px 3px 0 #b8503c;
+  }
+  #battle {
+    padding: 0;
+    place-items: start stretch;
+  }
+  #bscroll {
+    max-height: 52vh;
+  }
+  #battle .bwrap {
+    gap: 0;
+  }
+  .bmain {
+    padding: 3px;
+    border-width: 3px;
+  }
+}
+@media (max-width: 640px) {
+  header {
+    padding: 8px 10px;
+    gap: 6px 12px;
+  }
+  h1 {
+    font-size: 14px;
+  }
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #res {
+    font-size: 9px;
+    gap: 4px 12px;
+  }
+  #res small {
+    font-size: 9px;
+  }
+  .wrap {
+    padding: 0 0 10px;
+    gap: 8px;
+  }
+  aside {
+    padding: 0 8px;
+  }
+  .card {
+    padding: 12px;
+  }
+  .civs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .civ {
+    min-height: 0;
+  }
+  .over {
+    padding: 8px;
+  }
+  #start {
+    place-items: start center;
+  }
+  .slot {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tabs button {
+    font-size: 8px;
+  }
+  .fac {
+    grid-template-columns: 88px minmax(0, 1fr) 50px;
+    font-size: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto;
+  }
+}
