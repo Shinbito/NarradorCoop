@@ -1,7 +1,8 @@
 /* ---------- clases de guerreros: catálogo, pueblos, veteranía y reclutamiento ----------
    Sistema de COMBATE. Las estadísticas base de cada clase están en UN (nucleo.js); aquí
-   se definen las variantes de cada pueblo, la fama militar que desbloquea las tropas de
-   élite, la veteranía persistente (G.cmb.vet) y las pantallas de reclutamiento y ejército. */
+   se definen las variantes de cada pueblo (por CIV[f].id), la fama militar que desbloquea las tropas
+   de élite, la veteranía persistente (G.cmb.vet), los mandos (generales y capitanes) y las pantallas
+   de reclutamiento y ejército. */
 
 /* Fuerzas y debilidades, para tooltips y códex (frases cortas: el panel mide ~360px) */
 const CMB_INFO = {
@@ -18,19 +19,55 @@ const CMB_INFO = {
     db: "Carísimos, lentos, se agotan",
   },
   m: { tag: "Tiro a caballo", fu: "Disparan y se retiran", db: "Débiles cuerpo a cuerpo" },
+  ari: { tag: "Asedio", fu: "Bate puertas y murallas", db: "Lento e indefenso en campo abierto" },
+  tor: { tag: "Asedio", fu: "Lleva tropas al adarve: anula murallas", db: "Enorme blanco; inútil en campo" },
+  cat: { tag: "Asedio", fu: "Derriba muros; tiro muy largo", db: "Pocos disparos; indefensa de cerca" },
+  ele: {
+    tag: "Bestias de guerra",
+    fu: "Carga brutal; espantan caballos",
+    db: "Si flaquean, pisotean a los suyos",
+  },
+  cam: {
+    tag: "Montura del desierto",
+    fu: "Espantan caballos; no sufren el calor",
+    db: "Flojos contra lanzas",
+  },
+  car: { tag: "Carros", fu: "Carga y tiro desde el carro", db: "Torpes en bosque y contra lanzas" },
+  com: { tag: "Testudo", fu: "Tortuga de escudos ante las flechas", db: "Lentos al cerrar filas" },
+  sif: { tag: "Fuego griego", fu: "Fuego que ni armadura ni escudo paran", db: "Muy pocas descargas" },
+  esg: { tag: "Muro de escudos", fu: "Cierran filas: casi infranqueables", db: "Inmóviles mientras forman" },
+  hpa: { tag: "Disparo parto", fu: "Tiran mientras se retiran", db: "Débiles cuerpo a cuerpo" },
+  cor: { tag: "Emboscada", fu: "Golpe por sorpresa desde el bosque", db: "Poca armadura" },
+  fca: { tag: "Francisca", fu: "Hacha arrojadiza antes del choque", db: "Un solo lanzamiento" },
+  inm: { tag: "Juramento", fu: "No se rompen fácilmente", db: "Carísimos" },
+  ber: {
+    tag: "Furia",
+    fu: "Enloquecen: ataque enorme un rato",
+    db: "Luego flaquean por debajo de lo normal",
+  },
+  jag: { tag: "Guerra florida", fu: "Grito y sacrificio que enardecen", db: "Armadura de algodón" },
+  agu: { tag: "Emboscada", fu: "Dardos y asalto por sorpresa", db: "Frágiles" },
+  bal: { tag: "Ballesta", fu: "Virotes que perforan armaduras", db: "Recarga lenta" },
+  hop: { tag: "Falange", fu: "Muro de escudos y lanzas", db: "Lentos; flancos débiles" },
+  mac: { tag: "Tambores", fu: "Sus tambores sostienen a los suyos", db: "Poca protección" },
+  atl: { tag: "Veneno", fu: "Dardos envenenados", db: "Frágiles" },
+  fia: { tag: "Grito y emboscada", fu: "Rápidos y feroces", db: "Poca armadura" },
+  bos: { tag: "Emboscada", fu: "Lanzas desde la espesura", db: "Débiles en llano" },
+  kes: { tag: "Guardia del kan", fu: "Disparo parto y tambores", db: "Carísimos" },
 };
-/* Variantes de cada pueblo: t -> [nombre, fama militar necesaria, bono {atk, hp}]. i/a/c existen siempre
-   (nombres y bonos en CIV); las demás solo si figuran aquí. La tecnología puede añadir o quitar
-   clases con OC.calc('unidadesDisponibles'). */
-const CMB_CIV = [
-  {
+const cmbInfo = (t) => CMB_INFO[t] || CMB_INFO[UN[t].rol] || { tag: "", fu: "", db: "" };
+/* Variantes de cada pueblo (por CIV[f].id): t -> [nombre, fama necesaria, bono {atk, hp}, habilidades extra].
+   i/a/c existen siempre (nombres y bonos en CIV); las demás clases solo si figuran aquí, y las únicas y
+   bestias si su UN[t].civs incluye el pueblo. La tecnología puede añadir o quitar clases por ciudad. */
+const CMB_CIV = {
+  occ: {
     l: ["Auxiliares", 0],
     p: ["Palatinos", 3, { atk: 1, hp: 1.1 }],
     h: ["Funditores", 0],
     x: ["Exploratores", 0],
     k: ["Catafractarios", 4],
   },
-  {
+  ori: {
     l: ["Lanceros tracios", 0],
     p: ["Escolas palatinas", 4],
     h: ["Isaurios", 0],
@@ -38,31 +75,31 @@ const CMB_CIV = [
     k: ["Clibanarios", 3, { atk: 1, hp: 1.1 }],
     m: ["Hipotoxotas", 2],
   },
-  {
+  vis: {
     l: ["Lanceros godos", 0, { atk: 1.1, hp: 1 }],
     p: ["Gardingos", 3, { atk: 1.15, hp: 1 }],
     h: ["Jabalineros", 0],
     k: ["Nobles a caballo", 4, { atk: 1.1, hp: 1 }],
   },
-  {
+  hun: {
     l: ["Lanceros ostrogodos", 2],
     a: ["Arqueros gépidos", 0],
     x: ["Exploradores esteparios", 0, { atk: 1.15, hp: 1 }],
     k: ["Nobles hunos", 3],
-    m: ["Arqueros montados", 0, { atk: 1.2, hp: 1.05 }],
+    m: ["Arqueros montados", 0, { atk: 1.2, hp: 1.05 }, ["disparoParto"]],
   },
-  {
+  van: {
     l: ["Lanceros", 0],
     p: ["Séquito real", 3],
     h: ["Jabalineros moros", 0],
     x: ["Jinetes moros", 0, { atk: 1.1, hp: 1 }],
   },
-  {
+  fra: {
     l: ["Lanceros francos", 0],
     p: ["Antrustiones", 3, { atk: 1.1, hp: 1.05 }],
     h: ["Lanzadores de angón", 0, { atk: 1.15, hp: 1 }],
   },
-  {
+  per: {
     l: ["Lanceros de leva", 0],
     p: ["Dailamitas", 2, { atk: 1.1, hp: 1 }],
     h: ["Honderos", 0],
@@ -70,23 +107,90 @@ const CMB_CIV = [
     k: ["Clibanarios persas", 3, { atk: 1.05, hp: 1.1 }],
     m: ["Arqueros a caballo", 2],
   },
-  { l: ["Campesinos armados", 0] },
-];
-/* nombres y bonos para todas las clases (la interfaz usa CIV[f].un[t] directamente) */
-CIV.forEach((c, f) => {
-  const r = CMB_CIV[f] || {};
-  for (const t of TYP) {
-    if (r[t]) c.un[t] = r[t][0];
-    else if (!c.un[t]) c.un[t] = UN[t].s;
-    if (!c.bon[t]) c.bon[t] = (r[t] && r[t][2]) || { atk: 1, hp: 1 };
-  }
-});
+  ara: {
+    l: ["Lanceros del desierto", 0],
+    h: ["Honderos", 0],
+    x: ["Jinetes beduinos", 0, { atk: 1.1, hp: 1 }],
+    m: ["Arqueros montados", 2],
+  },
+  nor: {
+    l: ["Muro de escudos", 0, null, ["muroEscudos"]],
+    p: ["Huscarles", 3, { atk: 1.15, hp: 1.05 }],
+    h: ["Lanzadores de jabalina", 0],
+  },
+  chi: {
+    l: ["Alabarderos", 0],
+    p: ["Guardia imperial", 3],
+    h: ["Honderos", 0],
+    x: ["Jinetes ligeros", 0],
+    k: ["Caballería acorazada", 4],
+    m: ["Arqueros a caballo", 2],
+  },
+  inc: { l: ["Lanceros", 0], h: ["Honderos", 0, { atk: 1.15, hp: 1 }], p: ["Guardia del Inca", 3] },
+  may: { l: ["Lanceros", 0], h: ["Honderos", 0], p: ["Guerreros nobles", 3] },
+  azt: { l: ["Lanceros", 0], h: ["Honderos", 0] },
+  gri: { h: ["Peltastas", 0], p: ["Epílectos", 3], x: ["Pródromos", 0], k: ["Catafractos", 4] },
+  egi: { l: ["Lanceros", 0], h: ["Honderos", 0], p: ["Guardia del faraón", 3] },
+  ind: { l: ["Lanceros", 0], h: ["Jabalineros", 0], x: ["Jinetes", 0], p: ["Kshatriyas", 3] },
+  cel: { l: ["Lanceros", 0], h: ["Honderos", 0], x: ["Jinetes celtas", 0], p: ["Campeones", 3] },
+  esl: { l: ["Lanceros", 0], h: ["Jabalineros", 0], x: ["Jinetes", 0], p: ["Druzhina", 3] },
+  mon: {
+    l: ["Lanceros", 2],
+    x: ["Exploradores", 0],
+    k: ["Lanceros pesados", 3],
+    m: ["Arqueros montados", 0, { atk: 1.15, hp: 1 }, ["disparoParto"]],
+  },
+  reb: { l: ["Campesinos armados", 0] },
+};
+const CMB_ORIG = ["occ", "ori", "vis", "hun", "van", "fra", "per"];
+/* id de un pueblo: CIV[f].id (fase 2) o el de las 7 originales por su índice */
+const cmbCivId = (f) => (CIV[f] && CIV[f].id) || (f === REB ? "reb" : CMB_ORIG[f]) || "f" + f;
+const cmbCivDe = (f) => CMB_CIV[cmbCivId(f)] || {};
 const CMB_BASE = ["i", "a", "c"];
-/* tecnología solo añade clases a los pueblos que las tienen en su repertorio */
+/* ids de los pueblos que tienen cada clase (únicas: UN[t].civs; normales: CMB_CIV) */
 for (const t of TYP)
-  if (!CMB_BASE.includes(t)) UN[t].civs = CMB_CIV.map((r, f) => (r[t] ? f : -1)).filter((f) => f >= 0);
-const cmbRoster = (f) => TYP.filter((t) => CMB_BASE.includes(t) || (CMB_CIV[f] || {})[t]);
-const cmbReq = (f, t) => ((CMB_CIV[f] || {})[t] || [])[1] || 0;
+  UN[t].civIds =
+    UN[t].civIds ||
+    (Array.isArray(UN[t].civs) ? UN[t].civs.filter((x) => typeof x === "string") : null) ||
+    (CMB_BASE.includes(t) || UN[t].asedio ? null : Object.keys(CMB_CIV).filter((id) => CMB_CIV[id][t]));
+/* nombres, bonos y lista de pueblos (ids + índices, para tecnología) de todas las clases; idempotente:
+   se repite en partidaLista por si Mundo añade civilizaciones */
+function cmbCivSync() {
+  CIV.forEach((c, f) => {
+    const r = cmbCivDe(f);
+    c.un = c.un || {};
+    c.bon = c.bon || {};
+    for (const t of TYP) {
+      if (r[t]) c.un[t] = r[t][0];
+      else if (!c.un[t]) c.un[t] = UN[t].s;
+      if (!c.bon[t]) c.bon[t] = (r[t] && r[t][2]) || { atk: 1, hp: 1 };
+    }
+  });
+  for (const t of TYP)
+    if (UN[t].civIds)
+      UN[t].civs = [
+        ...UN[t].civIds,
+        ...CIV.map((c, f) => f).filter((f) => UN[t].civIds.includes(cmbCivId(f))),
+      ];
+}
+cmbCivSync();
+const cmbSinTipos = (f) => (CIV[f] && CIV[f].sinTipos) || [];
+/* repertorio de un pueblo: i/a/c + sus variantes + únicas y bestias; nunca máquinas de asedio ni vetados */
+const cmbRoster = (f) => {
+  const id = cmbCivId(f),
+    r = cmbCivDe(f),
+    sin = cmbSinTipos(f);
+  return TYP.filter(
+    (t) =>
+      !UN[t].asedio &&
+      !sin.includes(t) &&
+      !(UN[t].caballo && sin.includes("caballos")) &&
+      (CMB_BASE.includes(t) || r[t] || (t.length > 1 && UN[t].civIds && UN[t].civIds.includes(id))),
+  );
+};
+const cmbReq = (f, t) => (cmbCivDe(f)[t] || [])[1] || 0;
+/* habilidades de una clase para un pueblo */
+const cmbHabsDe = (f, t) => [...new Set([...(UN[t].hab || []), ...((cmbCivDe(f)[t] || [])[3] || [])])];
 
 /* ---------- estado: G.cmb ---------- */
 function cmbS() {
@@ -123,7 +227,7 @@ const CMB_NIV = [
   [40, "Veteranos"],
   [75, "Élite"],
 ];
-const cmbNivel = (xp) => CMB_NIV.filter((n) => xp >= n[0]).pop()[1];
+const cmbNivelVet = (xp) => CMB_NIV.filter((n) => xp >= n[0]).pop()[1];
 function cmbVetDe(p) {
   const e = cmbS().vet[p.id];
   return e && e.f === p.owner ? e.v : {};
@@ -240,7 +344,15 @@ function cmbDisp(f, p) {
   let ok = OC.calc("unidadesDisponibles", base.slice(), ctx);
   if (!Array.isArray(ok)) ok = base;
   /* la fama militar manda también sobre lo que añada la tecnología */
-  ok = TYP.filter((t) => ok.includes(t) && (!ros.includes(t) || fama >= cmbReq(f, t)));
+  const sin = cmbSinTipos(f);
+  ok = TYP.filter(
+    (t) =>
+      ok.includes(t) &&
+      !UN[t].asedio &&
+      !sin.includes(t) &&
+      !(UN[t].caballo && sin.includes("caballos")) &&
+      (!ros.includes(t) || fama >= cmbReq(f, t)),
+  );
   const bloq = ros
     .filter((t) => !ok.includes(t))
     .map((t) => {
@@ -257,8 +369,13 @@ function cmbDisp(f, p) {
 }
 const cmbRes = (s) =>
   `Ataque ${Math.round(s.me * 10) / 10} · Defensa ${Math.round(s.de * 10) / 10} · Armadura ${s.ar}${s.al ? ` · Alcance ${s.al} (${s.mu} descargas)` : ""} · Moral ${Math.round(s.mo)}`;
+const cmbHabTexto = (f, t) =>
+  cmbHabsDe(f, t)
+    .filter((id) => CMB_HAB[id])
+    .map((id) => CMB_HAB[id].n)
+    .join(", ");
 const cmbTip = (f, t) =>
-  `${CIV[f].un[t]} (${UN[t].s}). Fuerte: ${CMB_INFO[t].fu}. Débil: ${CMB_INFO[t].db}. ${cmbRes(cmbStats(f, t, null, "atacante"))}`;
+  `${CIV[f].un[t]} (${UN[t].s}). Fuerte: ${cmbInfo(t).fu}. Débil: ${cmbInfo(t).db}. ${cmbRes(cmbStats(f, t, null, "atacante"))}${cmbHabTexto(f, t) ? ". Habilidades: " + cmbHabTexto(f, t) : ""}`;
 
 /* ---------- sección de provincia: reclutar ---------- */
 OC.seccion("prov", {
@@ -270,12 +387,12 @@ OC.seccion("prov", {
     const { ok, bloq } = cmbDisp(ME, p),
       xp = cmbVetDe(p),
       vt = TYP.filter((t) => p.u[t] > 0)
-        .map((t) => `${CIV[ME].un[t]}: ${cmbNivel(xp[t] || 0).toLowerCase()}`)
+        .map((t) => `${CIV[ME].un[t]}: ${cmbNivelVet(xp[t] || 0).toLowerCase()}`)
         .join(" · ");
     return `<h3>Reclutar <span class="stats">· leva de ${SPU} hombres</span></h3><div class="cmb-rec">${ok
       .map(
         (t) =>
-          `<button data-act="rec-${t}" title="${esc(cmbTip(ME, t))}" ${dis || F.gold < cmbCoste(ME, t, p) ? "disabled" : ""}><img src="${icon(ME, t)}" alt="">${CIV[ME].un[t]}<small>${cmbCoste(ME, t, p)} oro</small><i>${CMB_INFO[t].tag}</i></button>`,
+          `<button data-act="rec-${t}" title="${esc(cmbTip(ME, t))}" ${dis || F.gold < cmbCoste(ME, t, p) ? "disabled" : ""}><img src="${icon(ME, t)}" alt="">${CIV[ME].un[t]}<small>${cmbCoste(ME, t, p)} oro</small><i>${cmbInfo(t).tag}</i></button>`,
       )
       .join("")}${bloq
       .map(
@@ -387,6 +504,179 @@ OC.accion(
   { libre: true },
 );
 
+/* ---------- mandos: generales y capitanes ----------
+   Experiencia en G.C[id]: xp, nivel (1-10), fama. Los capitanes son personajes sin linaje
+   (linaje:false, rol:'capitan') que surgen de las filas tras varias victorias sin general. */
+const CMB_XPN = [0, 20, 50, 90, 140, 200, 270, 350, 440, 540];
+const cmbNivelXp = (xp) => CMB_XPN.filter((v) => (xp || 0) >= v).length;
+const CMB_TIT = [
+  "",
+  "Oficial",
+  "Oficial curtido",
+  "Tribuno",
+  "Tribuno veterano",
+  "Prefecto",
+  "Comes",
+  "Comes ilustre",
+  "Dux",
+  "Magister",
+  "Magister militum",
+];
+/* API para otros sistemas (social: gobernadores). c = personaje o id */
+function cmbNivel(c) {
+  if (typeof c === "number") c = G.C[c];
+  if (!c) return null;
+  const xp = c.xp || 0,
+    nivel = cmbNivelXp(xp);
+  return {
+    nivel,
+    xp,
+    fama: c.fama || 0,
+    sig: CMB_XPN[nivel] ?? null,
+    titulo: CMB_TIT[nivel],
+    rol: c.rol || (genOf(c) ? "general" : ""),
+  };
+}
+/* suma experiencia y fama; sube de nivel (cada dos niveles, +1 de mando) */
+function cmbGanarXp(c, xp, fama) {
+  if (!c || c.alive === false) return;
+  const n0 = cmbNivelXp(c.xp);
+  c.xp = Math.round((c.xp || 0) + xp);
+  c.fama = Math.max(0, Math.round(((c.fama || 0) + fama) * 10) / 10);
+  c.nivel = cmbNivelXp(c.xp);
+  for (let n = n0 + 1; n <= c.nivel; n++) if (n % 2 === 1) c.ma = Math.min(10, (c.ma || 1) + 1);
+  if (c.nivel > n0 && human(c.f))
+    addLog(
+      `${c.n} gana renombre en el campo: ${CMB_TIT[c.nivel].toLowerCase()} (nivel ${c.nivel}).`,
+      isMe(c.f) ? "good" : "",
+    );
+}
+const CMB_EPI = [
+  "el Tuerto",
+  "el Bravo",
+  "Mano de Hierro",
+  "el Joven",
+  "el Viejo",
+  "el Cuervo",
+  "el Rojo",
+  "el Callado",
+  "Rompescudos",
+  "el Lobo",
+  "el Cojo",
+  "Barba Gris",
+  "el Firme",
+  "el Hosco",
+];
+/* de entre las filas surge un capitán (personaje sin linaje) */
+function cmbCapitanSurge(f, lugar) {
+  if (f == null || f >= REB || typeof mkChar !== "function") return null;
+  const c = mkChar(f, "m", ri(24, 38));
+  c.n = `${c.n.replace(/ [IVXL]+$/, "")} ${pick(CMB_EPI)}`;
+  Object.assign(c, {
+    linaje: false,
+    rol: "capitan",
+    xp: CMB_XPN[1] + ri(0, 15),
+    fama: 2,
+    ma: Math.max(c.ma, ri(3, 6)),
+  });
+  c.nivel = cmbNivelXp(c.xp);
+  if (human(f))
+    addLog(
+      `De entre las filas${lugar ? " de " + lugar : ""} surge un capitán: ${c.n}. Sus hombres reconocen su liderazgo.`,
+      isMe(f) ? "good" : "",
+    );
+  return c;
+}
+/* tras cada batalla: experiencia del general, fama, y quizá un capitán donde no había mando */
+OC.on("batallaResuelta", (d) => {
+  if (!d || !G) return;
+  const S = cmbS(),
+    inf = d.informe,
+    n = inf ? inf.n0[0] + inf.n0[1] : (tot(d.s0 || {}) + tot(d.d0 || {})) * SPU,
+    k = clamp(n / 200, 0.5, 2);
+  if (!n) return;
+  for (const lado of [0, 1]) {
+    const gid = lado ? d.gD : d.gA,
+      f = lado ? d.defensor : d.atacante,
+      gana = lado ? !d.gana : !!d.gana,
+      c = gid != null ? G.C[gid] : null;
+    if (c && c.alive !== false) {
+      cmbGanarXp(c, (gana ? 22 : 8) * k, gana ? 3 * k : inf && inf.fin === "retirada" ? -3 : -2);
+      continue;
+    }
+    if (!gana || f == null || f >= REB || !d.p) continue;
+    const key = f + ":" + d.p.id;
+    S.cap = S.cap || {};
+    S.cap[key] = (S.cap[key] || 0) + 0.22 + (n > 150 ? 0.08 : 0);
+    if (R() < S.cap[key]) {
+      S.cap[key] = 0;
+      const c2 = cmbCapitanSurge(f, d.p.name);
+      if (!c2) continue;
+      /* queda al mando de las tropas victoriosas: ya (defensa) o al tomar la plaza (conquista) */
+      if (lado === 1 && d.p.owner === f && d.p.gen == null) d.p.gen = c2.id;
+      else S.capPend = { p: d.p.id, f, id: c2.id };
+    }
+  }
+});
+OC.on("conquista", ({ p, a }) => {
+  const S = cmbS(),
+    P = S.capPend;
+  if (P && P.p === p.id && P.f === a && p.gen == null && G.C[P.id] && G.C[P.id].alive !== false) p.gen = P.id;
+  S.capPend = null;
+});
+/* ascender un capitán a general de carrera */
+OC.accion("cmbasc", (v) => {
+  const c = G.C[+v];
+  if (!c || c.f !== ME || c.alive === false || c.rol !== "capitan") return;
+  c.rol = "general";
+  c.fama = (c.fama || 0) + 2;
+  addLog(`${c.n} es ascendido a general.`, "good");
+});
+/* renombrar a un mando (si sociedad no ofrece ya la acción) */
+if (!OC.acciones.renombrar)
+  OC.accion(
+    "renombrar",
+    async (v) => {
+      const c = G.C[+v];
+      if (!c || c.f !== ME || c.alive === false) return false;
+      let nuevo = null;
+      await modal(
+        "Renombrar",
+        `<p>Nuevo nombre para ${esc(c.n)} (2-30 letras):</p><input id="cmbnom" maxlength="30" value="${esc(c.n)}" aria-label="Nombre">`,
+        [{ t: "Aceptar", cls: "gold", fn: () => (nuevo = ($("cmbnom") || {}).value) }, { t: "Cancelar" }],
+      );
+      const limpio = String(nuevo || "")
+        .replace(/<[^>]*>/g, "")
+        .replace(/[<>&"'`\\]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (limpio.length >= 2 && limpio.length <= 30 && limpio !== c.n) {
+        addLog(`${c.n} será conocido en adelante como ${limpio}.`);
+        c.n = limpio;
+      }
+      ui();
+      return false;
+    },
+    { libre: true },
+  );
+/* lista de mandos del jugador para la pestaña Ejército */
+function cmbMandosHtml() {
+  const ls = G.C.filter(
+    (c) => c.alive !== false && c.f === ME && (c.rol === "capitan" || c.rol === "general" || genOf(c)),
+  );
+  if (!ls.length) return "";
+  return `<h3>Mandos</h3><div class="cmb-mandos">${ls
+    .sort((a, b) => (b.xp || 0) - (a.xp || 0))
+    .map((c) => {
+      const N = cmbNivel(c),
+        p = genOf(c),
+        ant = CMB_XPN[N.nivel - 1] || 0,
+        pr = N.sig == null ? 100 : ((N.xp - ant) / Math.max(1, N.sig - ant)) * 100;
+      return `<div class="cmb-man"><div><b>${esc(c.n)}</b> <span class="stats">${c.rol === "capitan" ? "capitán" : "general"} · ${N.titulo} (nivel ${N.nivel}) · mando ${c.ma} · fama ${Math.floor(N.fama)}${p ? " · en " + p.name : ""}</span><b class="cmb-mb"><i style="width:${clamp(pr, 0, 100)}%;background:#f2c14e"></i></b></div><div class="btns"><button data-act="renombrar-${c.id}">Renombrar</button>${c.rol === "capitan" ? `<button data-act="cmbasc-${c.id}">Ascender a general</button>` : ""}</div></div>`;
+    })
+    .join("")}</div>`;
+}
+
 /* ---------- pestaña Ejército ---------- */
 OC.panel({
   id: "cmb",
@@ -415,9 +705,10 @@ OC.panel({
           )
           .join(
             "",
-          )}</span><span class="stats">${cmbNivel(cmbVetMedia(p.u, xp))} · fuerza ${pw(p.u)}</span></button>`;
+          )}</span><span class="stats">${cmbNivelVet(cmbVetMedia(p.u, xp))} · fuerza ${pw(p.u)}</span></button>`;
       })
       .join("")}</div>`;
+    h += cmbMandosHtml();
     const inf = S.inf.filter((x) => x.f.includes(ME));
     if (inf.length)
       h += `<h3>Últimas batallas</h3><div class="cmb-hu">${S.inf
@@ -434,7 +725,7 @@ OC.panel({
       .map((t) => {
         const s = cmbStats(ME, t, null, "atacante"),
           lk = bloq.find((b) => b.t === t);
-        return `<div class="cmb-cl${lk ? " cmb-off" : ""}"><img src="${icon(ME, t)}" alt=""><div><b>${CIV[ME].un[t]}</b> <span class="stats">${UN[t].s.toLowerCase()} · ${cmbCoste(ME, t, cap)} oro${lk ? " · 🔒 " + lk.motivo : ""}</span><br><span class="good">+ ${CMB_INFO[t].fu}</span><br><span class="bad">− ${CMB_INFO[t].db}</span><br><span class="stats">At ${Math.round(s.me)} · Car ${s.ca} · Def ${Math.round(s.de)} · Arm ${s.ar} · Vel ${s.ve}${s.al ? " · Alc " + s.al : ""}</span></div></div>`;
+        return `<div class="cmb-cl${lk ? " cmb-off" : ""}"><img src="${icon(ME, t)}" alt=""><div><b>${CIV[ME].un[t]}</b> <span class="stats">${UN[t].s.toLowerCase()} · ${cmbCoste(ME, t, cap)} oro${lk ? " · 🔒 " + lk.motivo : ""}</span><br><span class="good">+ ${cmbInfo(t).fu}</span><br><span class="bad">− ${cmbInfo(t).db}</span><br><span class="stats">At ${Math.round(s.me)} · Car ${s.ca} · Def ${Math.round(s.de)} · Arm ${s.ar} · Vel ${s.ve}${s.al ? " · Alc " + s.al : ""}${cmbHabTexto(ME, t) ? "<br>Habilidades: " + cmbHabTexto(ME, t) : ""}</span></div></div>`;
       })
       .join(
         "",
@@ -446,6 +737,7 @@ OC.panel({
 /* ---------- mantener los datos sanos en todos los caminos ---------- */
 OC.on("partidaLista", () => {
   cmbS();
+  cmbCivSync();
   cmbNormTodo();
 });
 OC.on("economiaFaccion", cmbNormTodo);
