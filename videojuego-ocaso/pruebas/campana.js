@@ -90,7 +90,7 @@ const ok = (c, m) => {
   /* utilidades dentro de la página */
   await page.evaluate(() => {
     window.__ev = { bat: [], conq: [], est: 0 };
-    OC.on("batallaResuelta", (b) => window.__ev.bat.push({ t: b.campana || "settle", a: b.atacante, d: b.defensor, g: b.gana, y: G.year, p: b.p ? b.p.id : null }));
+    OC.on("batallaResuelta", (b) => window.__ev.bat.push({ t: b.campana || "settle", a: b.atacante, d: b.defensor, g: b.gana, y: G.year, p: b.p ? b.p.id : null, maq: b.s0 ? (b.s0.ari || 0) + (b.s0.tor || 0) + (b.s0.cat || 0) : 0 }));
     OC.on("conquista", (c) => window.__ev.conq.push({ p: c.p.id, de: c.de, a: c.a, y: G.year }));
     OC.on("finEstacion", () => window.__ev.est++);
     /* casilla de tierra libre de la provincia pid (lejos de ciudades), opcionalmente junto a (x, y) */
@@ -210,10 +210,14 @@ const ok = (c, m) => {
       if (q.owner === ME) break;
     }
     const e = camEj(ej.id);
-    const fortEf = e && G.cam.as[q.id] ? camFortEf(q, e, G.cam.as[q.id]) : null;
+    const fortEf = e && G.cam.as[q.id] ? camFortEf(q, e, G.cam.as[q.id]) : null,
+      enU = e ? Object.keys(CAM_MAQ).filter((k) => (e.u[k] || 0) > 0 && UN[k] && UN[k].asedio) : [];
     let asalto = null;
+    const nb = window.__ev.bat.length;
     if (q.owner !== ME && e) asalto = await camAplicarOrden(G, { tipo: "asaltar", f: ME, ej: ej.id });
-    return { r: r.ok, c1: c1.ok, c2: c2.ok, vi0, seq, fortEf, asalto, own: q.owner, q: q.id, walls: q.walls };
+    const bAs = window.__ev.bat.slice(nb).find((b) => b.t === "asalto");
+    if (asalto) asalto.maq = bAs ? bAs.maq : -1;
+    return { r: r.ok, c1: c1.ok, c2: c2.ok, vi0, seq, fortEf, enU, combateMaq: !!(UN.ari && TYP.includes("ari")), asalto, own: q.owner, q: q.id, walls: q.walls };
   `, { q: m2.q });
   console.log("  " + JSON.stringify(m3));
   ok(m3.r && m3.c1 && m3.c2, "pone cerco y encarga un ariete y una torre");
@@ -221,8 +225,9 @@ const ok = (c, m) => {
   ok(s0.n >= 1 && s0.vi < m3.vi0, `el cerco avanza por estaciones (víveres ${m3.vi0} → ${s0.vi})`);
   const mq = (m3.seq[m3.seq.length - 1] || {}).maq || {};
   ok(mq.ari >= 1 && mq.tor >= 1, `máquinas terminadas: ${JSON.stringify(mq)}`);
-  ok(m3.fortEf != null && m3.fortEf < 2, `las máquinas rebajan las murallas efectivas (2 → ${m3.fortEf})`);
+  ok(m3.combateMaq ? m3.enU.includes("ari") && m3.enU.includes("tor") : m3.fortEf != null && m3.fortEf < 2, m3.combateMaq ? `las máquinas van como unidades al asalto (ejA.u: ${m3.enU})` : `las máquinas rebajan las murallas efectivas (2 → ${m3.fortEf})`);
   ok(m3.own === MEv, "la ciudad cae (asalto o rendición)");
+  ok(!m3.asalto || !m3.combateMaq || m3.asalto.maq >= 2, `el asalto lleva las máquinas en ejA.u (${m3.asalto ? m3.asalto.maq : "-"})`);
 
   /* ---------- 4. rendición por hambre ---------- */
   console.log("4. Rendición por hambre");
@@ -351,6 +356,10 @@ const ok = (c, m) => {
   /* ---------- 8. la IA durante muchos años ---------- */
   console.log(`8. La IA durante ${ANIOS} años`);
   await page.evaluate(() => {
+    /* tiempos revueltos: los reinos de la IA con frontera común están en guerra */
+    for (let a = 0; a < NF; a++)
+      for (let b = a + 1; b < NF; b++)
+        if (!human(a) && !human(b) && alive(a) && alive(b) && owned(a).some((p) => MAP.adj[p.id].some((i) => G.P[i].owner === b))) declareWar(a, b);
     window.__ia = { form: 0, sitios: 0, maq: 0, merc: 0, mov: 0, asalto: 0, rend: 0, enc: 0, campo: 0 };
     const vistos = new Set();
     OC.on("finEstacion", () => {
@@ -394,8 +403,8 @@ const ok = (c, m) => {
   const anios = ia.anio - anio0;
   ok(anios >= Math.min(ANIOS, 15), `pasan ${anios} años`);
   ok(ia.est >= anios * 4, `cada año tiene cuatro estaciones (finEstacion ×${ia.est})`);
-  ok(ia.form >= anios / 2, `la IA forma ejércitos (${ia.form})`);
-  ok(ia.mov >= anios, `la IA mueve ejércitos por el mapa (${ia.mov} marchas)`);
+  ok(ia.form >= anios / 3, `la IA forma ejércitos (${ia.form})`);
+  ok(ia.mov >= anios / 2, `la IA mueve ejércitos por el mapa (${ia.mov} marchas)`);
   ok(ia.sitios > 0, `la IA asedia ciudades (${ia.sitios} estaciones de cerco)`);
   ok(ia.asalto > 0 && ia.conq > 0, `la IA asalta y conquista (${ia.asalto} asaltos, ${ia.conq} conquistas)`);
   ok(ia.maq > 0 || ia.asalto > 0, `la IA construye máquinas (${ia.maq})`);

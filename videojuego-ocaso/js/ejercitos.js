@@ -466,7 +466,7 @@ async function camLibrar(ejA, ejD, bctx, o = {}) {
       mio = yoA ? pr : 100 - pr;
     ch = await modal(
       o.titulo || `Batalla en ${bctx.nombreLugar}`,
-      `<p>${camTxtEj(ejA)}<br>contra ${camTxtEj(ejD)}${bctx.fort ? `<br>${o.campo ? "tras la empalizada del campamento" : "tras murallas de nivel " + Math.round(bctx.fort * 10) / 10}` : ""}.</p><p class="dim">Terreno: ${CMB_TERR[bctx.terreno.tag] || bctx.terreno.tag} · ${CAM_EST[G.estacion].toLowerCase()}. Tus capitanes ven la batalla ${mio >= 70 ? "favorable" : mio >= 45 ? "incierta" : "desfavorable"} (≈${mio}% de victoria).</p><p>¿Cómo quieres librarla?</p>`,
+      `<p>${camTxtEj(ejA)}<br>contra ${camTxtEj(ejD)}${bctx.fort ? `<br>${o.campo ? "tras la empalizada del campamento" : "tras murallas de nivel " + Math.round(bctx.fort * 10) / 10}` : ""}.</p><p class="dim">Terreno: ${CMBA_TERR[bctx.terreno.tag] || bctx.terreno.tag} · ${CAM_EST[G.estacion].toLowerCase()}. Tus capitanes ven la batalla ${mio >= 70 ? "favorable" : mio >= 45 ? "incierta" : "desfavorable"} (≈${mio}% de victoria).</p><p>¿Cómo quieres librarla?</p>`,
       [
         { t: "Por turnos · 3 acciones", v: "t3", cls: "gold" },
         { t: "Por turnos · 1 acción", v: "t1", cls: "gold" },
@@ -494,6 +494,7 @@ async function camLibrar(ejA, ejD, bctx, o = {}) {
     if ((win ? ejA.f : ejD.f) < NF) cmbFamaSumar(win ? ejA.f : ejD.f, d0 >= 2 && n0 >= 2 ? 1 : 0.25);
     if ((win ? ejD.f : ejA.f) < NF) cmbFamaSumar(win ? ejD.f : ejA.f, 0.25);
   }
+  const nC0 = G.C.length;
   if (d0 > 0)
     OC.emitirSync("batallaResuelta", {
       p: bctx.p,
@@ -515,6 +516,17 @@ async function camLibrar(ejA, ejD, bctx, o = {}) {
       informe: inf,
       campana: o.tipo || "campo",
     });
+  /* un capitán surgido de la victoria (combate, cmbCapitanSurge) manda el ejército que la ganó */
+  for (const c of G.C.slice(nC0)) {
+    const lado = c.f === ejA.f ? 0 : c.f === ejD.f ? 1 : -1,
+      arm = lado >= 0 && o.ejs ? o.ejs[lado] : null;
+    if (!arm || arm.gen != null || c.rol !== "capitan" || c.alive === false) continue;
+    G.P.forEach((q) => {
+      if (q.gen === c.id) q.gen = null;
+    });
+    if (G.cmb && G.cmb.capPend && G.cmb.capPend.id === c.id) G.cmb.capPend = null;
+    arm.gen = c.id;
+  }
   const lugar = bctx.nombreLugar;
   if (gm[0] === "muerto" && ejA.gen != null && G.C[ejA.gen]) kill(G.C[ejA.gen], "cae en la batalla de " + lugar);
   if (gm[1] === "muerto" && ejD.gen != null && G.C[ejD.gen]) kill(G.C[ejD.gen], "cae en la batalla de " + lugar);
@@ -614,6 +626,7 @@ async function camChoque(A, D, o = {}) {
     },
     res = await camLibrar(ejA, ejD, bctx, {
       tipo: "encuentro",
+      ejs: [A, D],
       campo: D.est === "campamento",
       auto: o.auto,
       titulo: `${sal ? "Socorro de " + ps.name : "Encuentro"} en ${bctx.nombreLugar}`,
@@ -713,6 +726,8 @@ function camConquistar(p, ej, modo, D, ron) {
   if (p.cap && old < REB && p.home === old) addLog(`¡Cae la capital de ${CIV[old].s}!`, cls);
   if (old < REB && !alive(old)) addLog(`${CIV[old].n} desaparece de la historia.`, isMe(old) ? "bad" : "good");
   /* el ejército entra en la ciudad (o se disuelve en ella si quedó vacío) */
+  camSinMaquinas(ej);
+  for (const e of camS().ej) if (e.f === f && e !== ej && camCheb(e.x, e.y, p.x, p.y) <= 1) camSinMaquinas(e);
   if (camTot(ej.u) <= 0) camQuitar(ej);
   else {
     ej.x = p.x;
@@ -759,8 +774,11 @@ function camAsediar(ej, p) {
 }
 /* murallas que quedan en pie para el asalto según las máquinas (ctx.fort ya es el efectivo) */
 function camFortEf(p, ej, as) {
-  const m = camMaq(ej);
-  let red = (as ? as.brecha || 0 : 0) + Math.min(2, m.ari) * CAM_MAQ.ari.fort + m.tor * CAM_MAQ.tor.fort + m.cat * CAM_MAQ.cat.fort;
+  /* si combate define las máquinas (UN[k] en TYP), van como unidades en ejA.u y él calcula su brecha
+     en el asalto; aquí solo cuenta la brecha abierta por el bombardeo de las estaciones de cerco */
+  const m = camMaq(ej),
+    sin = (k) => (UN[k] && TYP.includes(k) ? 0 : m[k]),
+    red = (as ? as.brecha || 0 : 0) + Math.min(2, sin("ari")) * CAM_MAQ.ari.fort + sin("tor") * CAM_MAQ.tor.fort + sin("cat") * CAM_MAQ.cat.fort;
   return Math.max(0, Math.round(((p.walls || 0) - red) * 100) / 100);
 }
 function camCtxAsalto(ej, p) {
@@ -797,6 +815,7 @@ async function camAsaltar(ej, o = {}) {
   for (const k in CAM_MAQ) if (UN[k] && TYP.includes(k) && m[k]) ejA.u[k] = m[k];
   const res = await camLibrar(ejA, ejD, bctx, {
     tipo: "asalto",
+    ejs: [ej, null],
     auto: o.auto,
     titulo: `Asalto a ${p.name}`,
   });
@@ -816,11 +835,17 @@ async function camAsaltar(ej, o = {}) {
   camTocar();
   return { ok: true, gana: win };
 }
+/* las máquinas no se llevan de campaña: se abandonan (o queman) al acabar el cerco */
+function camSinMaquinas(ej) {
+  for (const k in CAM_MAQ) if (ej.u && ej.u[k]) ej.u[k] = 0;
+  ej.maq = {};
+  ej.obra = [];
+}
 function camLevantar(ej) {
   const pid = ej.asd;
   ej.est = "marcha";
   ej.asd = null;
-  ej.obra = [];
+  camSinMaquinas(ej);
   if (pid != null && !camSitiadores(pid).length) {
     delete camS().as[pid];
     const p = G.P[pid];
@@ -845,7 +870,7 @@ async function camSalida(p, o = {}) {
       y: sit.y,
       nombreLugar: `las puertas de ${p.name}`,
     };
-  const res = await camLibrar(ejA, ejD, bctx, { tipo: "salida", auto: o.auto, titulo: `Salida desde ${p.name}` });
+  const res = await camLibrar(ejA, ejD, bctx, { tipo: "salida", ejs: [null, sit], auto: o.auto, titulo: `Salida desde ${p.name}` });
   const win = res.gana === 0;
   /* los que salen vuelven tras las murallas */
   p.u = cmbNorm({ ...res.A });

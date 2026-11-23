@@ -3,19 +3,45 @@
    según la doctrina de su pueblo y los enemigos vecinos, nombra generales e instruye. Cada estación
    (camIA, desde camEstacion) forma ejércitos, marcha, intercepta, asedia, construye máquinas, asalta
    solo cuando sus capitanes ven la batalla ganable (cmbEstimar) y contrata mercenarios. */
-const CMB_DOC = [
-  { l: 2, i: 4, p: 2, h: 1, a: 2, x: 1, c: 1.5, k: 1 },
-  { l: 1.5, i: 2.5, p: 1, h: 1, a: 2.5, x: 1, c: 2, k: 1.5, m: 1.5 },
-  { l: 3, i: 4, p: 1.5, h: 1.5, a: 1, c: 2, k: 1.5 },
-  { l: 1, i: 1.5, a: 1, x: 2, c: 3, k: 1, m: 4 },
-  { l: 2, i: 3, p: 1, h: 1.5, a: 1, x: 2, c: 2.5 },
-  { l: 3, i: 5, p: 2, h: 2, a: 1, c: 1 },
-  { l: 2, i: 1.5, p: 1, h: 1, a: 3.5, x: 1.5, c: 2.5, k: 2, m: 1.5 },
-  { l: 2, i: 4, a: 1, c: 1 },
-];
+/* doctrina de reclutamiento por pueblo (CIV[f].id); ele/cam/car y las tropas únicas (UN[t].civs)
+   entran con su peso o, si faltan, con el de su clase base (rol) × 1,5 */
+const CMB_DOC = {
+  occ: { l: 2, i: 4, p: 2, h: 1, a: 2, x: 1, c: 1.5, k: 1 },
+  ori: { l: 1.5, i: 2.5, p: 1, h: 1, a: 2.5, x: 1, c: 2, k: 1.5, m: 1.5 },
+  vis: { l: 3, i: 4, p: 1.5, h: 1.5, a: 1, c: 2, k: 1.5 },
+  hun: { l: 1, i: 1.5, a: 1, x: 2, c: 3, k: 1, m: 4 },
+  van: { l: 2, i: 3, p: 1, h: 1.5, a: 1, x: 2, c: 2.5 },
+  fra: { l: 3, i: 5, p: 2, h: 2, a: 1, c: 1 },
+  per: { l: 2, i: 1.5, p: 1, h: 1, a: 3.5, x: 1.5, c: 2.5, k: 2, m: 1.5, ele: 1.5 },
+  ara: { l: 1.5, i: 2, h: 1.5, a: 2, x: 2, c: 2, m: 1.5, cam: 3 },
+  nor: { l: 2, i: 5, p: 1.5, h: 1, a: 1.5, c: 0.5 },
+  chi: { l: 2.5, i: 2.5, p: 1, a: 3.5, x: 1.5, c: 1.5, k: 1, m: 1 },
+  inc: { l: 3, i: 4, h: 3, a: 1.5 },
+  may: { l: 2, i: 4, h: 3.5, a: 1.5 },
+  azt: { l: 2, i: 4, h: 2.5, a: 2 },
+  gri: { l: 3, i: 2.5, p: 2, h: 2, a: 1.5, x: 1, c: 1.5 },
+  egi: { l: 2, i: 2.5, h: 1.5, a: 3, x: 1, c: 1, cam: 2, car: 2 },
+  ind: { l: 2, i: 3, h: 1, a: 3, x: 1, c: 1.5, ele: 2.5 },
+  cel: { l: 2, i: 4, h: 3, a: 1, x: 1.5, c: 1.5 },
+  esl: { l: 3, i: 4, h: 2, a: 2, x: 1, c: 1 },
+  mon: { l: 0.5, i: 1, a: 1, x: 2, c: 2, k: 1.5, m: 5 },
+  reb: { l: 2, i: 4, a: 1, c: 1 },
+};
+function cmbDocDe(f) {
+  const id = typeof cmbCivId === "function" ? cmbCivId(f) : (CIV[f] && CIV[f].id) || "reb";
+  return CMB_DOC[id] || CMB_DOC.reb;
+}
+function cmbDocPeso(f, doc, t) {
+  if (doc[t] != null) return doc[t];
+  const u = UN[t] || {},
+    civs = u.civIds || u.civs || [],
+    id = typeof cmbCivId === "function" ? cmbCivId(f) : CIV[f] && CIV[f].id;
+  if (civs.includes(id) || civs.includes(f)) return (doc[u.rol] || 1.5) * 1.5;
+  return doc[u.rol] != null ? doc[u.rol] : 0.3;
+}
 /* elige qué clase reclutar en p: la que más se aleja de la proporción deseada */
 function cmbIAElegir(f, p, disp, F, net) {
-  const doc = CMB_DOC[f] || CMB_DOC[7],
+  const doc = cmbDocDe(f),
     ene = cmbVacio();
   hostile(p, f).forEach((q) => cmbSuma(ene, q.u));
   const ne = tot(ene) || 1,
@@ -25,10 +51,12 @@ function cmbIAElegir(f, p, disp, F, net) {
     eInf = sh(["l", "i", "p"]),
     w = {};
   for (const t of disp) {
-    let v = doc[t] || 0.3;
-    if (t === "l") v *= 1 + 2.5 * eCab;
-    if (t === "x" || t === "c") v *= 1 + 1.5 * eDis;
-    if (t === "a" || t === "k" || t === "p") v *= 1 + eInf;
+    if (UN[t].asedio || UN[t].merc) continue;
+    let v = cmbDocPeso(f, doc, t);
+    const rl = UN[t].rol || t;
+    if (rl === "l") v *= 1 + 2.5 * eCab;
+    if (rl === "x" || rl === "c" || rl === "cam") v *= 1 + 1.5 * eDis;
+    if (rl === "a" || rl === "k" || rl === "p" || rl === "ele") v *= 1 + eInf;
     if (UN[t].food > 1 && net < 2) v *= 0.15;
     const c = cmbCoste(f, t, p);
     if (c > F.gold) v = 0;

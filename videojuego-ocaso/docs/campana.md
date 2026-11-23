@@ -2,8 +2,9 @@
 
 Archivos: `js/ejercitos.js` (modelo, caminos, órdenes, asedios, estación), `js/mercenarios.js`
 (compañías, campamentos, contratos), `js/ia.js` (IA anual de reclutamiento y IA de campaña por
-estación), `js/campana.js` (al principio, el motor de batalla por rondas de combate —`cmbResolverAuto`,
-`cmbEstimar`, `settle`, sin cambios—; al final, la interfaz de campaña), `css/campana.css`,
+estación), `js/campana.js` (`march`/`settle`, traslados instantáneos entre provincias vecinas que la IA
+usa para llevar guarniciones al frente, y la interfaz de campaña; el motor automático se mudó a
+`batalla.js`, de combate), `css/campana.css`,
 `pruebas/campana.js`. En `js/interfaz.js`: `drawMap` (llama a `camDibujar`), clic/hover del mapa (llaman
 a `camClic`/`camHoverTxt`) y `provPanel` (panel del ejército seleccionado y sección «Ejército»), todo
 marcado con `CAM`. En `js/turnos.js`: el bucle de estaciones. Estado: `G.cam` y `G.estacion`.
@@ -108,16 +109,20 @@ aliado), media guarnición sale a la vez y vuelve después. Se emite `batallaRes
 - **Salidas**: la IA sitiada sale si `cmbEstimar` ≥ 0,67 contra el sitiador más débil; el jugador tiene
   el botón «Hacer una salida». Si gana, el sitiador se retira o se dispersa.
 - **Máquinas** (`CAM_MAQ`, se pagan con `OC.pagar` al encargarlas; sin madera, 3 de oro por unidad que
-  falte): ariete 1 estación (14 madera, 4 oro; −1 nivel de muralla, máx. 2 cuentan), torre 2 estaciones
-  (26 madera, 8 oro; −0,75), catapulta 2 estaciones (18 madera, 3 hierro, 10 oro; −0,4 y bombardeo).
-  Máximo 2/2/3. Si `UN[k]` existe se añaden a `ej.u[k]` (y van como unidades al asalto si `TYP` las
-  incluye); si no, a `ej.maq[k]`.
-- **Asalto** (`camAsaltar`): `cmbTactica`/`cmbResolverAuto` con `ctx = {fort: murallas efectivas
-  (camFortEf: murallas − máquinas − brecha), murallas: nivel bruto, asedio: estaciones, maquinas:
-  {ari, tor, cat}, p, terreno, nombreLugar}`; la guarnición lleva `hambre` si no le quedan víveres. Si
-  gana: conquista (murallas −1, `conquista`, botín vándalo, capital, fin de reinos), una cuarta parte del
-  ejército queda de guarnición y el resto sigue en campaña desde la ciudad. Si pierde: la mitad de las
-  máquinas se pierde y la IA levanta el cerco si quedó muy débil.
+  falte): ariete 1 estación (14 madera, 4 oro), torre 2 estaciones (26 madera, 8 oro), catapulta
+  2 estaciones (18 madera, 3 hierro, 10 oro; además bombardea cada estación de cerco). Máximo 2/2/3.
+  Como combate ya define `UN.ari/tor/cat` (`asedio: true`, en `TYP`), se añaden a `ej.u[k]` y van
+  **como unidades en `ejA.u`** al asalto: combate calcula su brecha y sus torres. (Sin combate v2 irían a
+  `ej.maq[k]` y campaña restaría −1/−0,75/−0,4 niveles de muralla.) No se llevan de campaña: se
+  abandonan al levantar el cerco o tomar la ciudad (y no luchan en campo abierto: `camUCampo`).
+- **Asalto** (`camAsaltar`): `cmbTactica`/`cmbResolverAuto` con `ejA.u` = ejército + máquinas,
+  `ejA.gen` = su general y `ctx = {fort: murallas − brecha del bombardeo (camFortEf), murallas: nivel
+  bruto, asedio: estaciones de cerco, maquinas: {ari, tor, cat}, p, terreno, nombreLugar}`; la guarnición
+  lleva `hambre` si no le quedan víveres. Si gana: conquista (murallas −1, `conquista`, botín vándalo,
+  capital, fin de reinos), una cuarta parte del ejército queda de guarnición y el resto sigue en campaña
+  desde la ciudad. Si pierde: la IA levanta el cerco si quedó muy débil.
+- **Capitanes**: si de una victoria de un ejército sin general surge un capitán (combate,
+  `cmbCapitanSurge`), campaña le da el mando de ese ejército (en vez de la provincia).
 
 ## Órdenes (API para el futuro online)
 
@@ -176,8 +181,10 @@ Cada compañía tiene nombre propio («Hérulos de Fara», «Jinetes alanos de G
 
 ## IA (`js/ia.js`)
 
-- Anual (`ai(f)`, sin cambios de fondo): generales (no a rehenes ni a quien ya manda un ejército),
-  reclutamiento por doctrina con una **reserva de campaña** (`camIAReserva`: un año de paga mercenaria,
+- Anual (`ai(f)`): generales (no a rehenes ni a quien ya manda un ejército), reclutamiento por
+  **doctrina de su pueblo** (`CMB_DOC[CIV[f].id]`, también para los 12 pueblos nuevos; elefantes,
+  camellos y carros con peso propio, tropas únicas `UN[t].civs` con el de su `rol` ×1,5; máquinas y
+  mercenarios nunca se reclutan) con una **reserva de campaña** (`camIAReserva`: un año de paga mercenaria,
   15 si tiene ejércitos fuera, 20 + 2/provincia en guerra), mercenarios con el oro recién cobrado,
   instrucción y redistribución de guarniciones hacia la frontera. Ya no ataca provincias de golpe.
 - Cada estación (`camIA(f)`): forma ejércitos para echar a los intrusos (si `cmbEstimar` ≥ 0,6) y, salvo
@@ -206,8 +213,10 @@ Calzadas), marcha pendiente, campamento y saqueo, asedio de varias estaciones co
 murallas efectivas y asalto, rendición por hambre sin asalto, encuentro en campo abierto, órdenes
 simultáneas (llega antes el más rápido), mercenarios de campamento y de ciudad que cobran cada estación
 y desertan sin paga, partida antigua, y 16 años de IA (forma, marcha, asedia, asalta, conquista,
-contrata). Capturas `pruebas/capturas/campana-*.png`. `pruebas/humo.js` (orquestador) se adaptó para que
-cada vuelta sea un año (pulsa hasta que cambie el año).
+contrata; para forzar campañas, la prueba pone en guerra a los reinos de la IA con frontera común).
+Capturas `pruebas/capturas/campana-*.png`. `pruebas/humo.js` **no** hizo falta cambiarlo: con
+«estaciones rápidas», un jugador sin ejércitos fuera pasa el año con una sola pulsación (las pruebas de
+los demás sistemas, que pulsan «Fin» o llaman a `yearEnd()`, siguen contando años).
 
 ## Peticiones al orquestador
 
@@ -222,11 +231,12 @@ cada vuelta sea un año (pulsa hasta que cambie el año).
 3. **Online** (`inicio.js` `endOnline`): hoy llama a `yearEnd()` (un año entero por ronda). Para turnos
    por estación, llamar a `finEstacion()` y sincronizar `G.estacion`; para turnos simultáneos, reunir
    las órdenes de cada jugador y aplicar `camResolverSimultaneo(G, órdenes)` en el anfitrión.
-4. **Combate**: `ctx.fort` que paso al asalto ya descuenta las máquinas (`ctx.murallas` = nivel
-   bruto, `ctx.maquinas` = recuento): no volver a descontarlas. `cmbTactica` dibuja murallas con
-   `fort` no entero (campamento 0,6). Los mercenarios llevan `UN[t].base`: la táctica podría usar el
-   sprite de la base si falta `MS[t]` (yo lo copio en `partidaLista`). Si `UN.ari/tor/cat` llevan `mv`,
-   se usa para el alcance. `genOf(c)` no ve a los generales de ejércitos (`camS().ej[].gen`).
+4. **Combate**: las máquinas van en `ejA.u` y `ctx.fort` = murallas − brecha del bombardeo de las
+   estaciones de cerco (catapultas, `G.cam.as[p].brecha`); `ctx.murallas` = nivel bruto, `ctx.asedio` =
+   estaciones de cerco (no meses). `cmbTactica` recibe `fort` no entero (campamento 0,6). Los
+   mercenarios copian la entrada de su clase base (`rol`, `base`, `merc: true`): MULT y sprites caen solos
+   por `rol`. `genOf(c)` no ve a los generales de ejércitos (`camS().ej[].gen`): conviene que lo mire
+   (o que `cmbNivel`/Mandos lo muestre).
 5. **Diplomacia/narrativa**: los mercenarios (`UN[t].merc`) no deben pasarse al rival por eventos o
    sobornos. `pazFirmada` ya devuelve los ejércitos a casa; la IA de paz podría pesar los asedios en
    curso (`G.cam.as`).
