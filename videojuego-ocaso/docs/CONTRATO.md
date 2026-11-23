@@ -38,7 +38,7 @@ Reglas:
   Claves reservadas: `G.nar`, `G.cmb`, `G.tec`, `G.eco`, `G.dip`.
 - Datos por provincia (`G.P[i]`) o por facción (`G.F[f]`) se pueden añadir como
   campos nuevos con prefijo si no son obvios; siempre con valor por defecto si faltan.
-- Facciones: `f` de `0` a `NF-1` (7 reinos); `REB = 7` son los rebeldes/bagaudas.
+- Facciones: `f` de `0` a `NF-1` (19 pueblos; solo juegan los de `G.activas`); `REB = CIV.length - 1` (hoy 19) son los rebeldes/bagaudas. No uses el literal 7.
   `ME` es el jugador local; `human(f)` indica si una facción la lleva una persona.
 - La IA debe usar tu sistema también (investigar, comerciar, pactar...). Engánchate a
   `turnoIA(f)` o `economiaFaccion(f)`.
@@ -78,6 +78,7 @@ Secciones de provincia actuales: `reclutar` (20, combate), `edificios` (30, tecn
 | `turnoIA` | `f` | turnos | tras mover la IA de la facción `f` |
 | `finAnio` | `anio` | turnos | tras envejecer la corte y pasar al año nuevo |
 | `finPartida` | `{win, vivo}` | turnos (`checkEnd`) | justo antes del modal de victoria/derrota |
+| `finEstacion` | `{anio, estacion}` | turnos (campaña) | al cerrar cada estación (0 primavera … 3 invierno) |
 | `conquista` | `{p, de, a}` | combate | una provincia cambia de dueño por las armas |
 | `batallaResuelta` | `{p, atacante, defensor, gana, A, D, s0, gA, gD, ...}` | combate | después de cualquier batalla (auto o táctica) |
 | `revuelta` | `{p, de}` | economía (y sociedad en traiciones/guerra civil) | una provincia se subleva y pasa a `REB` (se emite antes del cambio de dueño) |
@@ -156,3 +157,7 @@ implementa social). `p.gob` = id del gobernador de la provincia (lo implementa s
 
 **Estaciones** (campaña): `G.estacion` 0..3 (primavera..invierno). El movimiento, asedios y máquinas avanzan
 por estación; economía, investigación y eventos siguen siendo anuales (al cerrar el invierno).
+- Campaña: estado en `G.cam` (ejércitos `G.cam.ej`, mercenarios `G.cam.merc`), estación en `G.estacion`. `batallaResuelta` añade `campana: 'encuentro'|'asalto'|'salida'`. Órdenes serializables: `camAplicarOrden(G, orden)`, `camResolverSimultaneo(G, ordenes)` (ver docs/campana.md).
+- Los generales de ejércitos en campaña están en `G.cam.ej[].gen` (no los devuelve `genOf`).
+- No entregues tropas `UN[t].merc` a otro pueblo por eventos o sobornos; respeta `civPuede(f, t)` al dar tropas.
+- Mundo: `G.modo`, `G.activas`, `G.mapa`; pueblos ausentes con `G.F[f].ausente`. `CIV[f].pueblo` (frase), `CIV[f].base` (pueblo original pariente).
