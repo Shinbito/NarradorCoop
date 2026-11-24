@@ -497,9 +497,34 @@ const IFZ_HD = { info: null, infoK: "", ter: null, terK: "", ms: {} };
 const IFZ_TILE = ["mar", "llanura", "bosque", "colina", "montana"];
 /* análisis del mapa (solo depende de la semilla y el tamaño): distancias a la costa, montañas, ríos,
    aldeas, casillas y bordes de cada provincia */
+/* mapas antiguos (v1): montañas solo decorativas, en el corazón de las zonas de colinas */
+function ifzMontesDecor() {
+  const tr = MAP.terr,
+    m = new Uint8Array(W * H),
+    at = (x, y) => (x < 0 || y < 0 || x >= W || y >= H ? 0 : tr[y][x]);
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      if (tr[y][x] !== 3) continue;
+      let c = 0,
+        cerca = false;
+      for (let b = -1; b <= 1; b++) for (let a = -1; a <= 1; a++) (at(x + a, y + b) === 3 ? c++ : 0, at(x + a, y + b) === 0 && (cerca = true));
+      if (c >= 8 && !cerca) m[y * W + x] = 1;
+    }
+  return m;
+}
 function ifzMapaInfo() {
-  const k = MAP.seed + "|" + W + "x" + H;
+  const k = MAP.seed + "|" + W + "x" + H + "|v" + (MAP.v || 1);
   if (IFZ_HD.infoK === k && IFZ_HD.info) return IFZ_HD.info;
+  /* relieve del generador v2 (Mundo, docs/mundo.md §6): montañas, ríos, puentes, vados, caminos, pasos,
+     bosque denso y altura. Las partidas antiguas (v1) no tienen obstáculos: se usa el dibujo anterior
+     (montañas decorativas, ríos por provincia, caminos entre ciudades vecinas). */
+  const v2 = (MAP.v || 1) >= 2 && Array.isArray(MAP.mont),
+    capa = (n) => {
+      const a = new Uint8Array(W * H),
+        m = MAP[n];
+      if (m) for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) a[y * W + x] = m[y] && m[y][x] ? +m[y][x] || 1 : 0;
+      return a;
+    };
   const t0 = performance.now(),
     N = W * H,
     tr = MAP.terr,
@@ -545,15 +570,14 @@ function ifzMapaInfo() {
   };
   const dMar = bfs((x, y) => !tr[y][x] || x === 0 || y === 0 || x === W - 1 || y === H - 1),
     dTie = bfs((x, y) => !!tr[y][x]);
-  /* montañas: colinas rodeadas de colinas, lejos del mar */
-  const mont = new Uint8Array(N);
-  for (let y = 0; y < H; y++)
-    for (let x = 0; x < W; x++) {
-      if (tr[y][x] !== 3 || dMar[y * W + x] < 2) continue;
-      let c = 0;
-      for (let b = -1; b <= 1; b++) for (let a = -1; a <= 1; a++) if (at(x + a, y + b) === 3) c++;
-      if ((c >= 8 && dMar[y * W + x] >= 3) || (c >= 7 && H2(x, y) > 0.6)) mont[y * W + x] = 1;
-    }
+  /* montañas infranqueables (MAP.mont) y el resto de capas del relieve */
+  const mont = v2 ? capa("mont") : ifzMontesDecor(),
+    alt = capa("alt"),
+    paso = capa("paso"),
+    puente = capa("puente"),
+    vado = capa("vado"),
+    camino = capa("camino"),
+    denso = capa("bosque");
   /* provincias: casillas y bordes (segmentos de 2 px por dentro, con la provincia vecina; -1 = mar) */
   const nP = MAP.pts.length,
     provT = Array.from({ length: nP }, () => []),
@@ -576,10 +600,26 @@ function ifzMapaInfo() {
         bordes[i].push(X + sx, Y + sy, sw, sh, j === undefined ? -1 : j);
       }
     }
-  /* ríos: en las provincias con río (cmbTerreno), desde su casilla más alta hasta el mar */
-  const rio = new Uint8Array(N),
-    rios = [];
-  if (typeof cmbTerreno === "function")
+  /* ríos: los cauces del relieve (MAP.rios, de la fuente al mar); en mapas antiguos, decorativos en las
+     provincias con río (cmbTerreno), desde su casilla más alta hasta el mar */
+  const rio = v2 ? capa("rio") : new Uint8Array(N),
+    rios = v2 && Array.isArray(MAP.rios) ? MAP.rios.map((r0) => r0.map(([x, y]) => y * W + x)).filter((r0) => r0.length > 1) : [];
+  if (v2 && rios.length) {
+    /* la desembocadura: se prolonga hasta la casilla de mar vecina */
+    for (const r0 of rios) {
+      const u = r0[r0.length - 1],
+        x = u % W,
+        y = (u / W) | 0;
+      const m = [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+      ].find(([a, b]) => x + a >= 0 && y + b >= 0 && x + a < W && y + b < H && !tr[y + b][x + a]);
+      if (m) r0.push((y + m[1]) * W + x + m[0]);
+    }
+  }
+  if (!v2 && typeof cmbTerreno === "function")
     for (let pid = 0; pid < nP; pid++) {
       let ct = null;
       try {
@@ -616,12 +656,25 @@ function ifzMapaInfo() {
   for (let y = 0; y < H; y++)
     for (let x = 0; x < W; x++) {
       const i = y * W + x;
-      if (tr[y][x] !== 1 || rio[i] || r() > 0.05) continue;
+      if (tr[y][x] !== 1 || rio[i] || camino[i] || r() > 0.05) continue;
       let cerca = false;
       for (let b = -1; b <= 1 && !cerca; b++) for (let a = -1; a <= 1; a++) if (ciud.has((y + b) * W + x + a)) cerca = true;
       if (!cerca) aldea[i] = 1;
     }
-  IFZ_HD.info = { dMar, dTie, mont, rio, rios, aldea, provT, bordes, H1, H2 };
+  /* tramos de camino: casillas de camino vecinas (en diagonal solo si no hay ya un codo ortogonal) */
+  const tramos = [];
+  if (v2)
+    for (let y = 0; y < H; y++)
+      for (let x = 0; x < W; x++) {
+        const i = y * W + x;
+        if (!camino[i]) continue;
+        const C = (a, b) => a >= 0 && b >= 0 && a < W && b < H && camino[b * W + a];
+        if (C(x + 1, y)) tramos.push(i, i + 1);
+        if (C(x, y + 1)) tramos.push(i, i + W);
+        if (C(x + 1, y + 1) && !C(x + 1, y) && !C(x, y + 1)) tramos.push(i, i + W + 1);
+        if (C(x - 1, y + 1) && !C(x - 1, y) && !C(x, y + 1)) tramos.push(i, i + W - 1);
+      }
+  IFZ_HD.info = { dMar, dTie, mont, rio, rios, aldea, provT, bordes, H1, H2, v2, alt, paso, puente, vado, camino, denso, tramos };
   IFZ_HD.infoK = k;
   IFZ_HD.ms.info = performance.now() - t0;
   return IFZ_HD.info;
@@ -710,7 +763,7 @@ function ifzDetalle(c, tt, X, Y, r, rio) {
   }
 }
 /* decorado con volumen (se pinta por filas, de arriba abajo, para que se solapen bien) */
-function ifzDecor(c, tt, monte, X, Y, r, rio, aldea) {
+function ifzDecor(c, tt, monte, X, Y, r, rio, aldea, denso, paso) {
   const sombra = (x, y, w) => {
     c.fillStyle = "rgba(0,0,0,.22)";
     c.fillRect(x - 1, y - 1, w, 2);
@@ -724,19 +777,27 @@ function ifzDecor(c, tt, monte, X, Y, r, rio, aldea) {
       [2, 15],
       [10, 16],
     ];
-    const n = rio ? 2 : 5 + (r() < 0.5 ? 1 : 0);
+    /* bosque denso: suelo en sombra y más árboles, sobre todo coníferas */
+    if (denso) {
+      c.fillStyle = "rgba(8,24,10,.28)";
+      c.fillRect(X, Y, IFZ_S, IFZ_S);
+      sitios.push([6, 2], [13, 7], [3, 10], [8, 13]);
+    }
+    const n = rio ? 2 : denso ? sitios.length : 5 + (r() < 0.5 ? 1 : 0);
     for (let k = 0; k < n; k++) {
       const [sx, sy] = sitios[k],
         x = X + sx + Math.floor(r() * 3) - 1,
         y = Y + sy + Math.floor(r() * 3) - 1,
         e = r(),
-        sp = e < 0.45 ? "arbol.pino" : e < 0.85 ? "arbol.roble" : "arbol.abedul",
+        sp = denso ? (e < 0.7 ? "arbol.pino" : "arbol.roble") : e < 0.45 ? "arbol.pino" : e < 0.85 ? "arbol.roble" : "arbol.abedul",
         rows = IFZ_SP[sp];
       sombra(x + 1, y, rows[0].length);
       ifzDibT(c, sp, x - (rows[0].length >> 1), y - rows.length, null);
     }
   } else if (tt === 3 && monte) {
-    /* macizos variados: un pico grande o dos menores, a veces de espaldas */
+    /* macizos variados: un pico grande o dos menores, a veces de espaldas; roca oscura debajo */
+    c.fillStyle = "rgba(40,34,30,.25)";
+    c.fillRect(X, Y, IFZ_S, IFZ_S);
     if (r() < 0.55) {
       const rows = IFZ_SP["mapa.monte"];
       ifzDibT(c, "mapa.monte", X + Math.floor(r() * 5) - 1, Y + IFZ_S - rows.length + 1 + Math.floor(r() * 3), null, r() < 0.4);
@@ -745,6 +806,15 @@ function ifzDecor(c, tt, monte, X, Y, r, rio, aldea) {
       ifzDibT(c, "mapa.monte2", X - 1 + Math.floor(r() * 3), Y + 4 + Math.floor(r() * 3), null, r() < 0.5);
       ifzDibT(c, "mapa.monte2", X + 6 + Math.floor(r() * 3), Y + IFZ_S - rows.length + 1, null, r() < 0.5);
     }
+  } else if (tt === 3 && paso) {
+    /* paso de montaña: collado con hitos de piedra a los lados */
+    ifzDibT(c, "mapa.monte2", X - 4, Y + 2, null, false);
+    c.fillStyle = "#8c8478";
+    c.fillRect(X + 3, Y + 11, 2, 3);
+    c.fillRect(X + 12, Y + 4, 2, 3);
+    c.fillStyle = "#c9c3b4";
+    c.fillRect(X + 3, Y + 11, 2, 1);
+    c.fillRect(X + 12, Y + 4, 2, 1);
   } else if (tt === 3) {
     const rows = IFZ_SP["mapa.colina"];
     ifzDibT(c, "mapa.colina", X + Math.floor(r() * 5), Y + 4 + Math.floor(r() * 3), null);
@@ -808,6 +878,29 @@ function ifzTerrenoHD() {
         }
       ifzDetalle(c, tt, X, Y, r, inf.rio[y * W + x]);
     }
+  /* 1b. relieve (MAP.alt): luz del noroeste en las laderas que suben y sombra en las que bajan; las
+     tierras altas, algo más pardas */
+  if (inf.v2)
+    for (let y = 0; y < H; y++)
+      for (let x = 0; x < W; x++) {
+        const i = y * W + x;
+        if (!tr[y][x] || png[tipoDe(x, y)]) continue;
+        const a = inf.alt[i],
+          an = y ? inf.alt[i - W] : a,
+          ao = x ? inf.alt[i - 1] : a,
+          d = a - (an + ao) / 2;
+        if (d > 0.2) {
+          c.fillStyle = `rgba(255,248,215,${Math.min(0.2, 0.07 * d)})`;
+          c.fillRect(x * S, y * S, S, S);
+        } else if (d < -0.2) {
+          c.fillStyle = `rgba(10,15,20,${Math.min(0.24, 0.08 * -d)})`;
+          c.fillRect(x * S, y * S, S, S);
+        }
+        if (a >= 5 && !inf.mont[i]) {
+          c.fillStyle = `rgba(150,128,96,${0.05 * (a - 4)})`;
+          c.fillRect(x * S, y * S, S, S);
+        }
+      }
   /* 2. costa: arena en la orilla, espuma y rompientes en el agua */
   const at = (x, y) => (x < 0 || y < 0 || x >= W || y >= H ? 0 : tr[y][x]);
   for (let y = 0; y < H; y++)
@@ -855,7 +948,8 @@ function ifzTerrenoHD() {
       const x = j % W,
         y = (j / W) | 0,
         rr = mul(j * 31 + MAP.seed);
-      return [x * S + S / 2 + (n && n < path.length - 1 ? Math.round((rr() - 0.5) * 8) : 0), y * S + S / 2 + (n && n < path.length - 1 ? Math.round((rr() - 0.5) * 8) : 0)];
+      const jj = inf.v2 ? 6 : 8;
+      return [x * S + S / 2 + (n && n < path.length - 1 ? Math.round((rr() - 0.5) * jj) : 0), y * S + S / 2 + (n && n < path.length - 1 ? Math.round((rr() - 0.5) * jj) : 0)];
     });
     const muestras = [];
     for (let n = 0; n < pts.length - 1; n++) {
@@ -883,13 +977,50 @@ function ifzTerrenoHD() {
         c.fillRect(Math.round(x - ww / 2), Math.round(y - ww / 2), ww, ww);
       });
   }
+  /* 3b. vados (piedras de orilla a orilla) y puentes (tablero de madera sobre el cauce) */
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      const i = y * W + x;
+      if (!inf.rio[i] || (!inf.puente[i] && !inf.vado[i])) continue;
+      const X = x * S,
+        Y = y * S,
+        hor = (x > 0 && inf.rio[i - 1]) || (x < W - 1 && inf.rio[i + 1]),
+        ver = (y > 0 && inf.rio[i - W]) || (y < H - 1 && inf.rio[i + W]),
+        cruzaV = hor && !ver; /* el río corre de este a oeste: se cruza de norte a sur */
+      if (inf.puente[i]) {
+        const [bx, by, bw, bh] = cruzaV ? [X + 5, Y + 1, 6, 14] : [X + 1, Y + 5, 14, 6];
+        c.fillStyle = "rgba(0,0,0,.3)";
+        c.fillRect(bx + 1, by + 1, bw, bh);
+        c.fillStyle = "#8a6438";
+        c.fillRect(bx, by, bw, bh);
+        c.fillStyle = "#6b4a2a";
+        if (cruzaV) for (let q = 1; q < bh; q += 2) c.fillRect(bx, by + q, bw, 1);
+        else for (let q = 1; q < bw; q += 2) c.fillRect(bx + q, by, 1, bh);
+        c.fillStyle = "#3e2a16";
+        if (cruzaV) {
+          c.fillRect(bx, by, 1, bh);
+          c.fillRect(bx + bw - 1, by, 1, bh);
+        } else {
+          c.fillRect(bx, by, bw, 1);
+          c.fillRect(bx, by + bh - 1, bw, 1);
+        }
+      } else {
+        c.fillStyle = "rgba(170,210,230,.55)";
+        c.fillRect(X + 2, Y + 2, S - 4, S - 4);
+        c.fillStyle = "#cbb68a";
+        for (let q = 2; q < S - 2; q += 3) {
+          if (cruzaV) c.fillRect(X + 6 + (q % 2), Y + q, 2, 2);
+          else c.fillRect(X + q, Y + 6 + (q % 2), 2, 2);
+        }
+      }
+    }
   /* 4. bosques, colinas, montañas, árboles sueltos y aldeas (por filas) */
   for (let y = 0; y < H; y++)
     for (let x = 0; x < W; x++) {
       const tt = tr[y][x],
         i = y * W + x;
       if (!tt || png[tipoDe(x, y)]) continue;
-      ifzDecor(c, tt, !!inf.mont[i], x * S, y * S, r, !!inf.rio[i], !!inf.aldea[i]);
+      ifzDecor(c, tt, !!inf.mont[i], x * S, y * S, r, !!inf.rio[i], !!inf.aldea[i], !!inf.denso[i], !!inf.paso[i]);
     }
   IFZ_HD.terK = k;
   IFZ_HD.ms.terreno = performance.now() - t0;

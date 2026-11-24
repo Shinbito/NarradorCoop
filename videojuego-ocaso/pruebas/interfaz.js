@@ -464,6 +464,31 @@ function OC_N() {
   ok(hdm.cuadro < 16, `cada cuadro del mapa ${hdm.cuadro.toFixed(1)} ms`);
   console.log(`  · terreno ${hdm.terreno} ms · política ${hdm.pol} ms · cuadro ${hdm.cuadro.toFixed(2)} ms`);
   ok(hdm.vel === 0, "en un navegador automatizado ifzVel() = 0 (las pruebas no esperan animaciones)");
+  /* relieve de Mundo (MAP.v 2): montañas, ríos, puentes, caminos; nombre del terreno en el hover */
+  const rel = await pm.evaluate(() => {
+    const inf = ifzMapaInfo(),
+      busca = (k) => {
+        for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (MAP[k] && MAP[k][y][x]) return [x, y];
+        return null;
+      },
+      m = busca("mont"),
+      r = (() => {
+        for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (MAP.rio[y][x] && !MAP.puente[y][x] && !MAP.vado[y][x]) return [x, y];
+        return null;
+      })(),
+      pu = busca("puente");
+    return {
+      v: MAP.v,
+      mont: inf.mont.reduce((a, b) => a + b, 0),
+      rios: inf.rios.length,
+      tramos: inf.tramos.length / 2,
+      tm: m ? ifzTerrenoTxt(m[0], m[1]) : "sin montañas",
+      tr: r ? ifzTerrenoTxt(r[0], r[1]) : "sin ríos",
+      tp: pu ? ifzTerrenoTxt(pu[0], pu[1]) : "sin puentes",
+    };
+  });
+  ok(rel.v >= 2 && rel.mont > 0 && rel.rios > 0 && rel.tramos > 0, `el mapa pinta el relieve: ${rel.mont} casillas de montaña, ${rel.rios} ríos, ${rel.tramos} tramos de camino`);
+  ok(rel.tm === "Montaña infranqueable" && rel.tr === "Río" && rel.tp === "Puente", `el hover nombra el terreno: ${rel.tm} · ${rel.tr} · ${rel.tp}`);
   /* opciones: velocidad */
   await pm.click('[data-act="ifzopc"]');
   await pm.waitForTimeout(80);

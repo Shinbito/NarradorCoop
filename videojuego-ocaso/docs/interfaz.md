@@ -176,9 +176,19 @@ Formato de `manifest.json` (y de `OCASO_SPRITES` en `manifest.js`):
   `ifzPolitico(dueños)` (tinte de dueños, campos, caminos, fronteras y ciudades; se rehace solo si cambian
   dueños, murallas, granjas, población, capitales o Calzadas; recibe los dueños, así la repetición pinta
   `own0` sin rehacer el terreno) y, cada cuadro, resaltes, banderas, insignias, campaña y efectos.
-- `ifzMapaInfo()`: distancias a la costa, montañas (colinas rodeadas de colinas), ríos (de la casilla más
-  alta de cada provincia con río, `cmbTerreno(p).rio`, hasta el mar), aldeas y casillas/bordes de cada
-  provincia. Nada de esto cambia `gen()` ni la lógica.
+- `ifzMapaInfo()` lee el **relieve de Mundo** (`MAP.v` ≥ 2, docs/mundo.md §6): montañas infranqueables
+  (`MAP.mont`: roca oscura con picos nevados), pasos (`MAP.paso`: collado con hitos), ríos continuos
+  (`MAP.rios`, hasta el mar, más anchos en la desembocadura), puentes (`MAP.puente`: tablero de madera
+  orientado según el cauce), vados (`MAP.vado`: aguas claras y piedras), caminos (`MAP.camino`: tramos entre
+  casillas vecinas, empedrados si el dueño tiene Calzadas), bosque denso (`MAP.bosque`: sombra y más
+  coníferas) y altura (`MAP.alt`: luz del noroeste en las laderas que suben, sombra en las que bajan, tierras
+  altas más pardas). En partidas antiguas (v1, sin `G.mapa.v`) se mantiene el dibujo anterior como
+  respaldo: montañas solo decorativas en el corazón de las colinas, ríos decorativos en las provincias con
+  río de `cmbTerreno` y caminos entre ciudades vecinas. Además calcula distancias a la costa, aldeas y
+  casillas/bordes de cada provincia. Nada de esto cambia `gen()` ni la lógica.
+- Hover: el nombre del terreno de la casilla con `mapaInfo` («Montaña infranqueable», «Río», «Puente»,
+  «Vado», «Paso de montaña», «Bosque denso», «Llanura con camino»…) tras el nombre de la provincia
+  (`ifzTerrenoTxt(x, y)`).
 - `drawBase()` solo marca el terreno para rehacerlo en el cuadro siguiente.
 
 ## 7. Ritmo de las animaciones y repetición
