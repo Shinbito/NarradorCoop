@@ -25,7 +25,7 @@ jugadores hace de autoridad en cada estación, y no hay notificaciones push al m
   («sustituir») se eligen con un desplegable. Una privada solo admite a sus invitados.
 - En la partida, la pestaña **Online** (orden 85): estado y cuenta atrás, jugadores (conectado ●, listo,
   dando órdenes (n), IA por ausencia, abandonó; «+ amigo»), las **órdenes de campaña de la estación**
-  (con «quitar»), «Listo ▶» / «Cambiar mis órdenes», «Pasar a tiempo real» (solo con todos conectados),
+  (con «quitar»), «Listo ▶» / «Quitar «Listo» (seguir dando órdenes)», «Pasar a tiempo real» (solo con todos conectados),
   «Volver a correspondencia», «Avisos del navegador», «Abandonar» / «Retomar mi pueblo», lo que le pasó a
   tu pueblo la estación pasada y el tamaño del estado guardado.
 
@@ -43,10 +43,23 @@ vez, cada uno en su pantalla sobre una copia del estado publicado:
    campaña (`camMovMax`): lo que no llegue queda en `plan` y sigue la estación siguiente.
 3. **Listo** (`endOnline` → `onlListo`): se envía a `partidas/<id>/ordenes/<f>` solo la **diferencia**
    con el estado de partida (no el G entero), comprimida: `{ops, C (personajes nuevos), ejs (tus
-   ejércitos), log (entradas nuevas), ords (la cola)}`, y se marca `listos[f] = turno`. «Cambiar mis
-   órdenes» lo deshace mientras no se haya resuelto.
-4. **Cierre**: cuando todos los pueblos activos están listos o vence el plazo (`limite`), un cliente toma el
-   cerrojo `partidas/<id>/ctl/res` (`acquire`, 20 s renovado cada 7 s) y resuelve (`onlResolver`).
+   ejércitos), log (entradas nuevas), ords (la cola)}`, con versión `v`, y se marca `listos[f] = turno`,
+   `envV[f] = v`. **Quitar «Listo»** (`onlQuitarListo`, botón del panel): mientras la estación no se esté
+   resolviendo, `listos[f] = -1`, vuelve a ser tu turno con tu copia local intacta (las órdenes enviadas
+   siguen ahí), puedes cambiarlas y reenviar; el contador «listos n/m» (`onlTextoTurno`) cambia al
+   instante. Quien resuelve marca `meta.resolviendo = {turno, ts, por}` y desde entonces ya no se puede
+   quitar («La estación ya se está resolviendo»); usa siempre el último envío (versión = `envV[f]`) y, si
+   tras leer los envíos alguien quitó su «Listo» o reenvió, aplaza el cierre sin publicar nada.
+4. **Cierre**: cuando todos los pueblos activos están listos (tras 2,5 s de cortesía, por si alguien se
+   arrepiente) o vence el plazo (`limite`), un cliente toma el cerrojo `partidas/<id>/ctl/res` (`acquire`,
+   20 s renovado cada 7 s; además un cierre a la vez por pestaña) y resuelve (`onlResolver`).
+5. **Repetición**: al recibir la estación resuelta (también quien la resolvió) se llama a
+   `ifzRepetir(G.cam.rep)` (Interfaz; Campaña graba `G.cam.rep`, contrato §9) antes del resumen y de los
+   eventos del jugador. `G.cam.rep` viaja dentro del estado comprimido si pesa ≤ 30 KB de JSON; si pesa
+   más, va comprimida en `partidas/<id>/rep/t<turno>` (una repetición sintética de 3 000 pasos: 146 KB →
+   32 KB) y se borra al publicar la estación siguiente; nunca viaja en los envíos de los jugadores. Al
+   volver tras una estación se reproduce sola; tras varias, «Mientras no estabas» ofrece «Ver la repetición
+   de la última estación» (solo se conserva la última).
 
 **Por correspondencia** (`cfg.modoTurno = 'corr'`): plazo `cfg.plazoH` horas. **Simultáneo en tiempo
 real** (`'tr'`): mientras todos los jugadores activos tienen la partida abierta (presencia del room), la
@@ -186,9 +199,37 @@ Sin `ctx.onl` ni `ctx.dificultad` todo se comporta como antes.
 
 ### Envolturas sobre funciones globales de campaña (desde `online.js`, sin tocar sus archivos)
 
-`camLibrar` (batallas entre humanos), `camOrdenUI` (encolar las órdenes de movimiento en online),
-`camDibujar` (dibujar la cola) y, solo durante una resolución, `camResolverSimultaneo` (añadir las órdenes
-humanas). Fuera del modo online no cambian nada.
+`camLibrar` (batallas entre humanos), `camOrdenUI` (encolar las órdenes de movimiento en online) y, solo
+durante una resolución, `camResolverSimultaneo` (añadir las órdenes humanas). Fuera del modo online no
+cambian nada. Interfaz llama directamente a `onlDibujarCola(now)` (las órdenes encoladas sobre el mapa) y
+a `onlTextoTurno()` → `{info, boton}` (barra de turno: «Online · correspondencia · listos 1/3 · 5 h»).
+
+### La guerra es cosa de los implicados (partidas de 3 o más)
+
+Nada de una guerra o batalla ajena llega a quien no participa (salvo, si procede, una línea en la crónica
+general `G.log`):
+- **Declaración**: diplomacia/narrativa ya avisan por pueblo (`narEncolar(b, 'armas')` solo al defendido;
+  las llamadas a las armas de aliados humanos van a su buzón). Online solo anota en la crónica personal de
+  los dos (`G.onl.cron`, filtrada por pueblo) y deja aviso ✉ solo al destinatario de una propuesta o
+  llamada (`propuestaHumana`).
+- **Invitación**: el mensaje `onl.inv` lleva `para` y solo lo muestra ese jugador (capa propia); su plazo
+  se cuenta con su propio reloj (`dur`).
+- **Sala de la batalla**: una por batalla (`b-<hash>`), a la que solo entran los invitados que aceptan;
+  la autoridad solo admite `hola` de los dos participantes y el `ini` lleva la lista (`part`): un tercero
+  no abre el espejo ni recibe fotos.
+- **Quien resuelve y no participa** (p. ej. el anfitrión en tiempo real) **no abre la batalla**: la
+  delega (`onlDelegar` → `delegar`) en el participante que aceptó (el atacante si aceptó), que la dirige
+  como autoridad con el otro en espejo y devuelve el resultado (`fin` con `res`). Si nadie acepta o el
+  delegado se desconecta, se resuelve en automático con IA difícil por los ausentes.
+- **Avisos y estados**: el aviso `bat-<id>` y el modal «¡Te atacan!» solo al defensor; en «Mis partidas»
+  y en la barra, a un tercero solo «Estación detenida: se espera a un jugador» (ni lugar ni nombres). La
+  pausa no emite ping por el room.
+- **«Mientras no estabas»**: tu crónica personal y, de la general, solo las entradas que nombran a tu
+  pueblo.
+- **Modales en el cliente que resuelve**: los sistemas usan `isMe(f)` para modales (sucesión, era nueva,
+  guerra civil, informes) y colas por pueblo para el resto (narrativa `narEncolar`, buzón de diplomacia,
+  demandas sociales): a quien resuelve no le salen los de otro jugador. Los informes de batalla los ve
+  cada participante en su pantalla.
 
 ## 7. Publicar el juego para jugar online
 
@@ -230,7 +271,11 @@ entre dos páginas (autoridad + espejo girado, fotos, retirada, informe a los do
 desconocido desconectado sin esperas; batalla pendiente con un amigo desconectado que vuelve, ve
 «Mientras no estabas» y dirige su defensa; tamaño del estado de 50 años con 12 pueblos (20 en `rapida`),
 compresión reversible y trozos < 256 KiB; la IA difícil gana más (automática) y sus órdenes tácticas
-(retirar rotas, flanquear). Capturas `pruebas/capturas/online-*.png`.
+(retirar rotas, flanquear); **quitar «Listo»** (contador al instante, reenvío versionado, bloqueado si ya
+se resuelve); **tres jugadores**: A declara la guerra a B y libran una batalla en vivo mientras C, conectado,
+no ve capa, espejo, fotos (contadas en el doble), modales, avisos ni notificaciones, ni entra en su crónica;
+y cuando resuelve C (que no participa) la batalla se delega en A; repetición pequeña dentro del estado y
+grande en su documento, sin viajar en los envíos, y llamada a `ifzRepetir`. Capturas `pruebas/capturas/online-*.png`.
 
 ## 9. Peticiones al orquestador
 
@@ -243,15 +288,17 @@ compresión reversible y trozos < 256 KiB; la IA difícil gana más (automática
    resultado, y que `camOrdenUI` consulte un filtro (`OC.calc('ordenCampana', o)`); y que la IA de campaña
    no mueva ejércitos humanos (hoy `camNuevaEstacion` continúa sus `plan` al empezar la estación, fuera de
    la resolución simultánea).
-3. **Interfaz**: `ui()` escribe «Online · turno de X» / «Terminar mi turno»: con estaciones simultáneas
-   sería mejor «Online · listos 2/3» y «Listo ▶» (yo corrijo `#tinfo` en tiempo real desde mi reloj).
-   La pestaña Online podría tener icono o aviso en la barra. Mostrar en el mapa las órdenes encoladas
-   de forma más vistosa (hoy línea de puntos).
+3. **Interfaz**: el botón de fin está desactivado cuando no es tu turno; con «Listo» pulsado podría
+   ofrecer directamente «Quitar listo» (llamando a `onlQuitarListo()`), hoy está en la pestaña Online.
+   Implementar `ifzRepetir(rep)` (ya la llamo si existe).
 4. **Narrativa**: `startTurn` se ejecuta en cada cliente para su pueblo (`G.evY`) y sus cambios viajan en la
    diferencia: bien. Los eventos que salen durante la resolución (fin de año) se muestran a quien resuelve;
    para los demás jugadores convendría encolarlos en `G.inbox[f]` en lugar de decidir por ellos.
 5. **Diplomacia**: las propuestas entre humanos van por `G.inbox` y se fusionan como añadidos; la respuesta
    llega a la estación siguiente. Un aviso de la db para propuestas a jugadores desconectados sería útil
    (puedo escribirlo si se emite un evento `propuestaHumana {de, a, tipo}`).
-6. **Contrato**: añadir `G.onl` (clave reservada de Online) y los ganchos `/* ONL */` de combate
-   (`ctx.dificultad`, `ctx.onl`, `ctx.onlRes`) a la tabla de cálculos/ctx de combate.
+6. **Contrato**: añadir `G.onl` (clave reservada de Online).
+7. **Campaña (mercenarios)**: en online, al vencer el contrato de un jugador humano
+   (`mercenarios.js`, `if (!isMe(c.f) || net.on) continue;`) no se decide nada y el contrato queda vencido
+   para siempre; convendría encolar la decisión para su dueño (buzón) o renovarlo por defecto.
+8. **Campaña**: grabar `G.cam.rep` (contrato §9); Online ya lo transporta.

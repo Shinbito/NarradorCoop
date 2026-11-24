@@ -28,6 +28,7 @@ const ONL_PARTE = 190000; // caracteres por trozo de estado (< 256 KiB por docum
 const ONL_ROOM_MAX = 3600; // bytes por mensaje de room (límite 4 KiB)
 const ONL = {
   desfase: 0, // pruebas: desplaza el reloj
+  noCerrar: false, // pruebas: este cliente no cierra estaciones
   room: null,
   peers: [], // presencia del vestíbulo
   meta: null, // documento de la partida en curso
@@ -300,7 +301,7 @@ function onlDiff(a, b, ruta = [], ops = []) {
   }
   for (const k of Object.keys(b)) {
     if (!ruta.length && ONL_EXCL.has(k)) continue;
-    if (ruta.length === 1 && ruta[0] === "cam" && (k === "ej" || k === "sig")) continue;
+    if (ruta.length === 1 && ruta[0] === "cam" && (k === "ej" || k === "sig" || k === "rep")) continue;
     if (!ruta.length && k === "C") continue;
     if (b[k] === undefined) {
       if (k in a) ops.push([ruta.concat(k)]);
@@ -309,7 +310,7 @@ function onlDiff(a, b, ruta = [], ops = []) {
   }
   for (const k of Object.keys(a)) {
     if (!ruta.length && (ONL_EXCL.has(k) || k === "C")) continue;
-    if (ruta.length === 1 && ruta[0] === "cam" && (k === "ej" || k === "sig")) continue;
+    if (ruta.length === 1 && ruta[0] === "cam" && (k === "ej" || k === "sig" || k === "rep")) continue;
     if (!(k in b)) ops.push([ruta.concat(k)]);
   }
   return ops;
@@ -1070,6 +1071,11 @@ function onlEntrar(id, f) {
 }
 async function onlMeta(d) {
   ONL.meta = d;
+  const sigL = JSON.stringify(d.listos || {});
+  if (sigL !== ONL.sigListos) {
+    ONL.sigListos = sigL;
+    ONL.todosT = 0;
+  }
   net.seats = d.seats || {};
   names(Object.values(net.seats));
   if (!d.v && d.state) return onlMigrar(d);
@@ -1134,9 +1140,12 @@ async function onlFase() {
   if (!d || !G) return;
   const nuevo = ONL.turnoVisto !== d.turno;
   ONL.turnoVisto = d.turno;
+  if (nuevo) await onlRepCargar(d);
   if (ONL.entrada) {
     ONL.entrada = false;
     const v = (d.visto || {})[net.uid];
+    /* faltó una sola estación: se repite y luego el resumen; si faltaron más, el resumen la ofrece */
+    if (v != null && v === d.turno - 1) await onlRepetir();
     if (v != null && v < d.turno) await onlResumen(v, d);
     net.db
       .doc("partidas/" + net.id)
@@ -1147,8 +1156,16 @@ async function onlFase() {
         { t: "Retomar mi pueblo", cls: "gold", fn: () => onlRetomar() },
         { t: "Ahora no" },
       ]);
-  } else if (nuevo && ONL.enviado !== d.turno - 1 && ONL.enviado >= 0 && onlEstSeat(d, ME) === "activo")
-    modal("La estación se cerró sin tus órdenes", "<p>Venció el plazo antes de que pulsaras «Listo»: la IA gobernó tu pueblo esa estación.</p>", [{ t: "Vale" }]);
+  } else if (nuevo && d.turno > 0) {
+    /* la repetición acelerada de la estación, antes de los avisos y eventos del jugador */
+    await onlRepetir();
+    if (ONL.enviado !== d.turno - 1 && ONL.enviado >= 0 && onlEstSeat(d, ME) === "activo")
+      modal(
+        "La estación se cerró sin tus órdenes",
+        "<p>Venció el plazo antes de que pulsaras «Listo»: la IA gobernó tu pueblo esa estación.</p>",
+        [{ t: "Vale" }],
+      );
+  }
   if (nuevo && myTurn()) {
     onlNotificar("Ocaso del Imperio", `Te toca: ${onlEstTxt(G.year, G.estacion)} en «${d.name}».`);
     if (!busy) startTurn();
@@ -1168,6 +1185,49 @@ async function onlFase() {
     });
   }
 }
+/* ---- repetición de la estación (Interfaz: ifzRepetir(rep); Campaña graba G.cam.rep) ---- */
+const ONL_REP_MAX = 30000; // más de 30 KB de JSON: documento aparte
+function onlRepSacar(g, turno) {
+  const S = onlS();
+  if (S) S.rep = null;
+  const r = g.cam && g.cam.rep;
+  if (!r) return null;
+  let txt = JSON.stringify(r);
+  if (txt.length <= ONL_REP_MAX) return null;
+  let z = onlLZc(txt);
+  /* tope de un documento: se recortan los últimos pasos */
+  while (z.length > 200000 && r.pasos && r.pasos.length > 50) {
+    r.pasos = r.pasos.slice(0, Math.floor(r.pasos.length * 0.7));
+    txt = JSON.stringify(r);
+    z = onlLZc(txt);
+  }
+  g.cam.rep = null;
+  if (S) S.rep = { turno, ext: true, n: (r.pasos || []).length };
+  return { z, n: (r.pasos || []).length, tam: txt.length };
+}
+async function onlRepCargar(d) {
+  const S = onlS();
+  if (!G || !G.cam || G.cam.rep || !S || !S.rep || !S.rep.ext || S.rep.turno !== d.turno) return;
+  try {
+    const x = await net.db.doc(`partidas/${net.id}/rep/t${d.turno}`).get();
+    if (x.exists) G.cam.rep = JSON.parse(onlLZd(x.data().z));
+  } catch (e) {
+    onlTraza("rep falla", e && e.message);
+  }
+}
+const onlRepHay = () => !!(G && G.cam && G.cam.rep && (G.cam.rep.pasos || []).length);
+async function onlRepetir() {
+  if (!onlRepHay()) return false;
+  ONL.repVista = (ONL.repVista || 0) + 1;
+  onlTraza("repeticion", (G.cam.rep.pasos || []).length);
+  if (typeof ifzRepetir !== "function") return false;
+  try {
+    await ifzRepetir(G.cam.rep);
+  } catch (e) {
+    console.error("[onl] repetición", e);
+  }
+  return true;
+}
 /* «Mientras no estabas»: la crónica personal (G.onl.cron) y la del reino (G.log) desde tu última visita */
 async function onlResumen(v, d) {
   const O = onlS(),
@@ -1183,8 +1243,8 @@ async function onlResumen(v, d) {
     `<p class="dim">${n} ${n === 1 ? "estación" : "estaciones"} desde tu última visita · ahora ${esc(onlEstTxt(G.year, G.estacion))}.</p>
     ${mias.length ? `<h3>Tu pueblo</h3><ul class="onl-res">${mias.map((c) => `<li class="${c.c || ""}">${esc(onlEstTxt(c.a, c.e))}: ${esc(c.m)}</li>`).join("")}</ul>` : ""}
     ${log.length ? `<h3>Lo que se cuenta de ${esc(CIV[ME].s)}</h3><ul class="onl-res">${log.map((l) => `<li class="${l.c || ""}">${l.m}</li>`).join("")}</ul>` : ""}`,
-    [{ t: "Continuar", cls: "gold" }],
-  );
+    n > 1 && onlRepHay() ? [{ t: "Continuar", cls: "gold" }, { t: "Ver la repetición de la última estación", v: "rep" }] : [{ t: "Continuar", cls: "gold" }],
+  ).then((x) => (x === "rep" ? onlRepetir() : null));
 }
 /* partidas del formato antiguo (un jugador por turno, estado entero en el documento) */
 async function onlMigrar(d) {
@@ -1285,7 +1345,7 @@ function onlPanel(dis) {
       ? `<ul class="onl-cola">${ONL.cola.map((o, i) => `<li>${esc(onlOrdenTxt(o))} <button class="onl-mini" data-act="onl-q:${i}" ${dis ? "disabled" : ""}>quitar</button></li>`).join("")}</ul>`
       : `<p class="dim">Selecciona un ejército y su destino: las marchas, asedios, asaltos y salidas se resuelven a la vez para todos al cerrar la estación (cada ejército alcanza lo que da su movimiento).</p>`;
     h += onlListoYo()
-      ? `<div class="btns"><button data-act="onl-reabrir">Cambiar mis órdenes</button></div>`
+      ? `<div class="btns"><button data-act="onl-reabrir">Quitar «Listo» (seguir dando órdenes)</button></div>`
       : `<div class="btns"><button class="gold" data-act="end">Listo ▶</button></div>`;
   }
   const btn = [];
@@ -1311,7 +1371,7 @@ OC.accion(
     if (k === "q" && myTurn()) ONL.cola.splice(+a, 1);
     if (k === "ami") onlAmigoPedir(a).then(() => ui());
     if (k === "notif") onlPedirNotif();
-    if (k === "reabrir" && d.fase === "ordenes") ref.update({ listos: { [ME]: -1 } });
+    if (k === "reabrir" && d.fase === "ordenes") onlQuitarListo();
     if (k === "tr") ref.update({ cfg: { modoTurno: "tr" }, limite: Math.min(d.limite || Infinity, onlAhora() + (d.cfg.trSeg || 90) * 1000), trT: d.turno });
     if (k === "corr") ref.update({ cfg: { modoTurno: "corr" }, limite: onlAhora() + (d.cfg.plazoH || 24) * 3600000 });
     if (k === "aband")
@@ -1324,6 +1384,26 @@ OC.accion(
   },
   { libre: true },
 );
+/* «Quitar listo»: mientras la estación no se resuelva, se vuelve a dar órdenes (la copia local sigue ahí) */
+async function onlQuitarListo() {
+  const d = ONL.meta;
+  if (!d || !net.on || d.fase !== "ordenes" || !onlListoYo()) return false;
+  const ref = net.db.doc("partidas/" + net.id),
+    m = (await ref.get()).data() || {};
+  if (m.turno !== d.turno || (m.resolviendo && m.resolviendo.turno === d.turno && onlAhora() - m.resolviendo.ts < 120000) || ONL.resolviendo) {
+    modal("La estación ya se está resolviendo", "<p>Ya no puedes cambiar tus órdenes: la estación se está cerrando con las que enviaste.</p>", [{ t: "Vale" }]);
+    return false;
+  }
+  await ref.update({ listos: { [ME]: -1 }, updated: onlAhora() });
+  ONL.meta.listos = { ...(ONL.meta.listos || {}), [ME]: -1 };
+  ONL.autoListo = null;
+  ONL.todosT = 0;
+  onlCur();
+  onlPresencia();
+  onlTraza("quitar listo", ME, d.turno);
+  ui();
+  return true;
+}
 function onlRetomar() {
   if (!ONL.meta || onlMiSeat(ONL.meta) !== ME) return;
   net.db.doc("partidas/" + net.id).update({ est: { [ME]: "activo" }, faltas: { [ME]: 0 }, updated: onlAhora() });
@@ -1342,8 +1422,16 @@ async function onlListo() {
     return;
   }
   try {
-    await net.db.doc(`partidas/${net.id}/ordenes/${ME}`).set({ turno: d.turno, uid: net.uid, ts: env.ts, z, n: ONL.cola.length });
-    await net.db.doc("partidas/" + net.id).update({ listos: { [ME]: d.turno }, visto: { [net.uid]: d.turno }, faltas: { [ME]: 0 }, updated: onlAhora() });
+    const v = Date.now() * 100 + Math.floor(Math.random() * 100),
+      m0 = (await net.db.doc("partidas/" + net.id).get()).data() || {};
+    if (m0.turno !== d.turno || (m0.resolviendo && m0.resolviendo.turno === d.turno)) {
+      modal("La estación ya se está resolviendo", "<p>Llegas tarde: otro jugador ya está cerrando esta estación.</p>", [{ t: "Vale" }]);
+      return;
+    }
+    await net.db.doc(`partidas/${net.id}/ordenes/${ME}`).set({ turno: d.turno, uid: net.uid, ts: env.ts, z, n: ONL.cola.length, v });
+    await net.db
+      .doc("partidas/" + net.id)
+      .update({ listos: { [ME]: d.turno }, envV: { [ME]: v }, visto: { [net.uid]: d.turno }, faltas: { [ME]: 0 }, updated: onlAhora() });
     ONL.enviado = d.turno;
     ONL.meta.listos = { ...(ONL.meta.listos || {}), [ME]: d.turno };
     onlCur();
@@ -1363,8 +1451,14 @@ function onlPuedeCerrar(d) {
 }
 function onlCerrar() {
   const d = ONL.meta;
-  if (!net.on || !d || ONL.resolviendo || ONL.cargando || busy || BT || !onlPuedeCerrar(d)) return;
+  if (!net.on || !d || ONL.resolviendo || ONL.cargando || busy || BT || ONL.noCerrar || !onlPuedeCerrar(d)) return;
   /* en tiempo real resuelve el anfitrión (si está); los demás esperan unos segundos */
+  /* todos listos antes del plazo: unos segundos de cortesía por si alguien se arrepiente */
+  if (d.fase === "ordenes" && onlAhora() <= (d.limite || 0)) {
+    ONL.todosT = ONL.todosT || onlAhora();
+    if (onlAhora() - ONL.todosT < 2500) return;
+  }
+  ONL.todosT = 0;
   const esHost = d.host === net.uid || !onlConectado(d.host, net.id);
   if (!esHost && d.cfg && d.cfg.modoTurno === "tr") {
     ONL.esperaCierre = ONL.esperaCierre || onlAhora();
@@ -1399,7 +1493,7 @@ function onlTick() {
       endTurn();
     }
   }
-  if ((ONL.tick = (ONL.tick || 0) + 1) % 3 === 0) onlCerrar();
+  if ((ONL.tick = (ONL.tick || 0) + 1) % 3 === 0 || ONL.todosT) onlCerrar();
 }
 setInterval(onlTick, 1000);
 
@@ -1420,7 +1514,17 @@ function onlInyectar(ords) {
     camResolverSimultaneo = orig;
   };
 }
+/* un solo cierre a la vez en este cliente (el cerrojo de la db no distingue dos llamadas de la misma pestaña) */
 async function onlResolver(op = {}) {
+  if (ONL.cerrando) return;
+  ONL.cerrando = true;
+  try {
+    return await onlResolver0(op);
+  } finally {
+    ONL.cerrando = false;
+  }
+}
+async function onlResolver0(op = {}) {
   if (ONL.resolviendo || !net.on || !ONL.meta) return;
   const id = net.id,
     ref = net.db.doc("partidas/" + id),
@@ -1452,21 +1556,35 @@ async function onlResolver(op = {}) {
   ui();
   const renov = setInterval(() => lock.acquire({ holder: ONL.yo, ttlMs: 20000 }).catch(() => {}), 7000);
   let restaurar = null,
-    pub = false;
+    pub = false,
+    marcado = false,
+    intacto = false;
   try {
+    /* aviso a los demás: ya no se puede quitar el «Listo» */
+    await ref.update({ resolviendo: { turno: m.turno, ts: onlAhora(), por: net.uid } });
+    marcado = true;
     const baseTxt = ONL.baseTxt && m.ver === ONL.ver ? ONL.baseTxt : await onlCargarEstado(id, m);
     const act = onlActivos(m),
-      envs = [];
+      envs = [],
+      envV = m.envV || {};
     for (const f of act) {
       try {
         const s = await net.db.doc(`partidas/${id}/ordenes/${f}`).get();
-        if (s.exists && s.data().turno === m.turno && (m.listos || {})[f] === m.turno) {
+        /* siempre el último envío: su versión debe ser la que anuncia la meta */
+        if (s.exists && s.data().turno === m.turno && (m.listos || {})[f] === m.turno && (envV[f] == null || s.data().v === envV[f])) {
           const e = JSON.parse(onlLZd(s.data().z));
           if (e && e.f === f) envs.push(e);
         }
       } catch (e) {
         console.error("[onl] envío", f, e);
       }
+    }
+    /* ¿alguien quitó su «Listo» o reenvió mientras leía? entonces no se resuelve todavía */
+    const m2 = (await ref.get()).data() || {};
+    if (act.some((f) => ((m2.listos || {})[f] === m.turno) !== ((m.listos || {})[f] === m.turno) || (m2.envV || {})[f] !== envV[f])) {
+      onlTraza("cierre aplazado", m.turno);
+      intacto = true;
+      return;
     }
     try {
       const bs = await net.db.collection(`partidas/${id}/batallas`).where("turno", "==", m.turno).get();
@@ -1505,7 +1623,8 @@ async function onlResolver(op = {}) {
     const R0 = ONL.resolviendo;
     ONL.resolviendo = null;
     /* nada publicado: se vuelve al estado de partida (se recarga) */
-    if (!pub && R0) ONL.ver = 0;
+    if (!pub && R0 && !intacto) ONL.ver = 0;
+    if (!pub && marcado) ref.update({ resolviendo: null }).catch(() => {});
     if (G) ui();
     if (ONL.meta && net.on) onlMeta(ONL.meta);
   }
@@ -1520,6 +1639,9 @@ async function onlPublicar(m, act, presentes) {
   O.turno = t;
   if (O.cron.length > 300) O.cron.length = 300;
   G.human = act.slice();
+  /* repetición de la estación (campaña, G.cam.rep): si pesa, va en su propio documento */
+  const rp = onlRepSacar(G, t);
+  if (rp) await net.db.doc(`partidas/${id}/rep/t${t}`).set({ turno: t, z: rp.z, n: rp.n, tam: rp.tam });
   const pk = onlEmpaquetar(G);
   await onlGuardarEstado(id, ver, pk);
   const faltas = {},
@@ -1545,6 +1667,7 @@ async function onlPublicar(m, act, presentes) {
       trT: cfg.modoTurno === "tr" && todos ? t : -1,
       updated: onlAhora(),
       batalla: null,
+      resolviendo: null,
       faltas,
       est,
     };
@@ -1558,6 +1681,7 @@ async function onlPublicar(m, act, presentes) {
   ONL.meta = { ...m, ...upd, est: { ...(m.est || {}), ...est }, faltas: { ...(m.faltas || {}), ...faltas } };
   onlAdoptar(pk.txt, ONL.meta);
   if (m.ver > 1) onlBorrarEstado(id, m.ver - 1, m.partesPrev || m.partes);
+  net.db.doc(`partidas/${id}/rep/t${m.turno}`).delete().catch(() => {});
   net.db.doc("partidas/" + id).update({ partesPrev: pk.partes.length }).catch(() => {});
   for (const b in ONL.resolviendo.bats)
     try {
@@ -1584,6 +1708,7 @@ async function onlSuspender(m) {
     fase: "batalla",
     batalla: { bid: S.bid, a: S.a, d: S.d, fa: S.fa, fd: S.fd, lugar: S.lugar, limite: S.limite, turno: m.turno },
     susp: { [m.turno]: 1 },
+    resolviendo: null,
     updated: onlAhora(),
   });
   await onlAviso(S.d, "bat-" + id, {
@@ -1777,7 +1902,7 @@ async function onlInvitar(bid, uids, info) {
   const limite = onlAhora() + info.limiteMs;
   for (const u of uids) {
     delete ONL.resp[bid + u];
-    onlEmitir(ONL.room, "onl.inv", { para: u, bid, partida: net.id, nombre: ONL.meta.name, lugar: info.lugar, fa: info.fa, fd: info.fd, lado: info.lados.indexOf(u), de: net.uid, limite });
+    onlEmitir(ONL.room, "onl.inv", { para: u, bid, partida: net.id, nombre: ONL.meta.name, lugar: info.lugar, fa: info.fa, fd: info.fd, lado: info.lados.indexOf(u), de: net.uid, limite, dur: info.limiteMs });
     onlAviso(u, "bat-" + net.id, { tipo: "batalla", partida: net.id, nombre: ONL.meta.name, texto: `Batalla en ${info.lugar}: ¿la diriges en persona?` });
   }
   const ok = {};
@@ -1790,9 +1915,11 @@ async function onlInvitar(bid, uids, info) {
 }
 function onlRecibirInvitacion(m) {
   const d = onlRecomponer(m);
-  if (!d || d.para !== net.uid || m.isMe && m.sameTab) return;
-  if (onlAhora() > d.limite) return;
-  ONL.inv = { ...d, desde: m.peer };
+  if (!d || d.para !== net.uid || (m.isMe && m.sameTab)) return;
+  /* el plazo se cuenta con el reloj propio (los relojes de los jugadores no coinciden) */
+  const limite = d.dur ? onlAhora() + d.dur - 1500 : d.limite;
+  if (onlAhora() > limite) return;
+  ONL.inv = { ...d, limite, desde: m.peer };
   onlNotificar("¡Batalla!", `Te atacan en ${d.lugar}: ¿la diriges en persona?`);
   onlMostrarInvitacion();
 }

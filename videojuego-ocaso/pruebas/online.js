@@ -443,7 +443,8 @@ async function esperar(c, f, a, ms = 30000, msg = "") {
     errores.push(`[${c.uid}] tiempo agotado: ${msg || f.toString().slice(0, 120)}`);
     console.log(`  ✗ tiempo agotado (${c.uid}): ${msg}`);
     try {
-      console.log("    trazas:", JSON.stringify(await c.page.evaluate(() => ONL.log.slice(-12))));
+      for (const o of hub.clis.values())
+        if (o.vivo) console.log(`    trazas ${o.uid}:`, JSON.stringify(await o.page.evaluate(() => ONL.log.slice(-8))));
       console.log("    estado:", JSON.stringify(await c.page.evaluate(() => ({ res: !!ONL.resolviendo, busy, BT: !!BT, fase: ONL.meta && ONL.meta.fase, modal: document.getElementById("modal").classList.contains("show") ? document.querySelector("#modalc h2").textContent : null, capas: [...document.querySelectorAll(".onl-capa.show h2")].map((x) => x.textContent), ultimos: window.__modales.slice(-5) }))));
     } catch (_) {}
     return false;
@@ -579,6 +580,24 @@ async function escaramuza(c, fa, fb) {
   /* --- turno 1: B no da órdenes; vence el plazo → IA por el ausente --- */
   await ev(A, () => endTurn());
   await esperar(A, () => ONL.meta.listos[0] === 1, null, 8000, "A listo t1");
+  /* «Quitar listo»: se vuelve a dar órdenes y se reenvía (vale siempre el último envío) */
+  ok(/listos 1\/2/.test(await ev(A, () => onlTextoTurno().info)), "«listos 1/2» tras pulsar Listo");
+  const v1 = meta(id).envV[0];
+  ok(await ev(A, () => onlQuitarListo()), "se puede quitar el «Listo» mientras no se resuelve");
+  ok((await ev(A, () => myTurn())) && /listos 0\/2/.test(await ev(A, () => onlTextoTurno().info)), "vuelve a ser tu turno y el contador baja al instante");
+  ok(meta(id).listos[0] === -1, "la meta refleja que ya no estás listo");
+  await ev(A, () => {
+    G.P[G.F[ME].capId].u.i += 1;
+    return endTurn();
+  });
+  await esperar(A, () => ONL.meta.listos[0] === 1, null, 8000, "A listo otra vez");
+  ok(meta(id).envV[0] !== v1, "el reenvío lleva versión nueva");
+  await ev(A, () => net.db.doc("partidas/" + net.id).update({ resolviendo: { turno: ONL.meta.turno, ts: onlAhora(), por: "u_x" } }));
+  await A.page.waitForTimeout(300);
+  ok(!(await ev(A, () => onlQuitarListo())), "si alguien ya está resolviendo, no se puede quitar el «Listo»");
+  await A.page.waitForTimeout(400);
+  ok((await titulos(A)).some((t) => /ya se está resolviendo/.test(t)), "aviso «la estación ya se está resolviendo»");
+  await ev(A, () => net.db.doc("partidas/" + net.id).update({ resolviendo: null }));
   for (const c of [A, B]) await ev(c, () => (ONL.desfase += 2 * 3600 * 1000));
   await esperar(A, () => ONL.meta && ONL.meta.turno === 2, null, 30000, "plazo vencido → estación 2");
   ok(meta(id).faltas[2] === 1, "el ausente suma una falta");
@@ -608,6 +627,7 @@ async function escaramuza(c, fa, fb) {
   await esperar(B, (v) => ONL.ver === v, meta(id).ver, 10000, "B recibe la escaramuza");
   await esperar(A, (v) => ONL.ver === v, meta(id).ver, 10000, "A recarga la escaramuza");
   await ev(A, (sc) => camOrdenUI({ tipo: "mover", f: ME, ej: sc.A, x: sc.x, y: sc.y }), sc);
+  await ev(B, () => (ONL.noCerrar = true)); // resuelve A (el atacante)
   await ev(B, () => endTurn());
   await esperar(B, () => ONL.meta.listos[2] === ONL.meta.turno, null, 8000, "B listo");
   await ev(A, () => endTurn());
@@ -633,6 +653,7 @@ async function escaramuza(c, fa, fb) {
   await esperar(B, () => !BT && ONL.ultEspejo, null, 20000, "fin de la batalla en B");
   await esperar(A, () => ONL.meta && !ONL.resolviendo && ONL.meta.fase === "ordenes", null, 30000, "estación publicada tras la batalla");
   ok(await ev(A, () => ONL.log.some((l) => /^batalla .* local\/remoto/.test(l))), "la batalla se libró en vivo (local contra remoto)");
+  await ev(B, () => (ONL.noCerrar = false));
   ok((await ev(B, () => ONL.ultEspejo.gana)) === 0, "B se retiró: gana el atacante (lo ven los dos)");
 
   /* --- IA difícil: desconocido desconectado --- */
@@ -648,7 +669,10 @@ async function escaramuza(c, fa, fb) {
   const tA = Date.now();
   await ev(A, () => (ONL.desfase += 2 * 3600 * 1000));
   await esperar(A, (t) => ONL.meta && ONL.meta.turno > t, meta(id).turno, 40000, "estación con batalla contra la IA");
-  ok(await ev(A, () => ONL.log.some((l) => /^batalla .* local\/ia normal\/dificil/.test(l))), "contra un desconocido ausente: IA difícil al momento");
+  ok(
+    await ev(A, () => ONL.log.some((l) => /^batalla .* (local\/ia normal\/dificil|ia\/local dificil\/normal)/.test(l))),
+    "contra un desconocido ausente: IA difícil al momento",
+  );
   ok(Date.now() - tA < 30000, "sin esperas (no se suspende la estación)");
 
   /* --- amigo desconectado: la estación espera; vuelve y dirige la batalla --- */
@@ -667,6 +691,7 @@ async function escaramuza(c, fa, fb) {
   await esperar(A, () => ONL.meta && ONL.meta.fase === "batalla", null, 40000, "estación detenida por la batalla con un amigo");
   ok(meta(id).fase === "batalla" && meta(id).batalla.d === "u_ben", "batalla pendiente: se espera al amigo desconectado");
   ok(hub.docs.has(`avisos/u_ben/items/bat-${id}`), "el aviso de la batalla queda en la db para el amigo");
+  await ev(A, () => (ONL.noCerrar = true)); // la reanuda el amigo que vuelve
   B = await pagina("u_ben");
   await ev(B, () => (ONL.desfase = 6 * 3600 * 1000));
   await B.page.click('[data-act="s-onl"]');
@@ -687,12 +712,15 @@ async function escaramuza(c, fa, fb) {
   await ev(A, () => setInterval(() => document.querySelector('[data-act="s-onlinv-no"]')?.click(), 300));
   await esperar(B, () => !BT && ONL.meta && ONL.meta.fase === "ordenes" && !ONL.resolviendo, null, 90000, "la estación sigue tras la batalla del amigo");
   ok(meta(id).fase === "ordenes" && !meta(id).batalla, "la estación se reanudó y se publicó");
+  await ev(A, () => (ONL.noCerrar = false));
   ok(await ev(B, () => ONL.log.some((l) => /^batalla .* remoto\/local/.test(l))), "el amigo que vuelve dirige su defensa en vivo");
 
   /* --- tamaño del estado y dificultad --- */
   /* --- tres jugadores: la guerra de A contra B no le llega a C --- */
   console.log("Tres jugadores: la guerra es cosa de los implicados");
   const C = await pagina("u_cai");
+  await ev(C, (x) => (ONL.desfase = x), await ev(A, () => ONL.desfase));
+  await ev(B, (x) => (ONL.desfase = x), await ev(A, () => ONL.desfase));
   await ev(A, () => {
     ONL.cfg = { ...ONL_CFG_DEF, plazoH: 1, invitSeg: 60, amigoMin: 0, modoBatalla: "t1" };
     ONL.nuevaPub = true;
@@ -724,6 +752,7 @@ async function escaramuza(c, fa, fb) {
     window.__textos = [];
   });
   await ev(A, (sc) => camOrdenUI({ tipo: "mover", f: ME, ej: sc.A, x: sc.x, y: sc.y }), s3);
+  for (const c of [B, C]) await ev(c, () => (ONL.noCerrar = true)); // resuelve A
   await ev(C, () => endTurn());
   await ev(B, () => endTurn());
   await esperar(A, () => ONL.meta.listos[2] === ONL.meta.turno && ONL.meta.listos[3] === ONL.meta.turno, null, 8000, "B y C listos");
@@ -747,13 +776,15 @@ async function escaramuza(c, fa, fb) {
   /* ahora resuelve C, que no participa: la batalla la dirige A y nunca se abre en C */
   const s4 = await escaramuza(A, 0, 2);
   for (const c of [A, B, C]) await esperar(c, (v) => ONL.ver === v, meta(id3).ver, 10000, "escaramuza 2 de tres");
-  await ev(C, () => ((window.__vioBT = false), (window.__textos = [])));
+  await ev(C, () => ((window.__vioBT = false), (window.__textos = []), (ONL.noCerrar = false)));
+  for (const c of [A, B]) await ev(c, () => (ONL.noCerrar = true)); // resuelve C, que no participa
   await ev(A, (sc) => camOrdenUI({ tipo: "mover", f: ME, ej: sc.A, x: sc.x, y: sc.y }), s4);
   await ev(A, () => endTurn());
   await ev(B, () => endTurn());
   await esperar(C, () => ONL.meta.listos[0] === ONL.meta.turno && ONL.meta.listos[2] === ONL.meta.turno, null, 8000, "A y B listos");
   await ev(C, () => endTurn());
-  await esperar(A, () => !!document.querySelector('[data-act="s-onlinv-si"]'), null, 30000, "A invitado por C");
+  if (!(await esperar(A, () => !!document.querySelector('[data-act="s-onlinv-si"]'), null, 30000, "A invitado por C")))
+    console.log("    C:", JSON.stringify(await ev(C, () => ({ log: ONL.log.slice(-8), res: !!ONL.resolviendo, meta: ONL.meta && { turno: ONL.meta.turno, listos: ONL.meta.listos, limite: ONL.meta.limite - onlAhora() } }))));
   await A.page.click('[data-act="s-onlinv-si"]');
   await esperar(B, () => !!document.querySelector('[data-act="s-onlinv-si"]'), null, 30000, "B invitado por C");
   await B.page.click('[data-act="s-onlinv-si"]');
@@ -767,6 +798,7 @@ async function escaramuza(c, fa, fb) {
   ok(vistoC2.log.some((l) => /^delegar/.test(l)) && (await ev(A, () => ONL.log.some((l) => /^delegado/.test(l)))), "la batalla se delega en un participante");
   ok(!/Victoria|Derrota|Batalla en/i.test(vistoC2.textos), "C tampoco ve el informe de la batalla delegada");
   await ev(C, () => clearInterval(window.__vigia));
+  for (const c of [A, B]) await ev(c, () => (ONL.noCerrar = false));
   void recC0;
 
   console.log("Tamaño del estado y dificultad de la IA");
@@ -775,6 +807,7 @@ async function escaramuza(c, fa, fb) {
     C,
     async (AN) => {
       const t0 = Date.now();
+      leaveNet();
       checkEnd = function () {};
       newGame(0, cands(0)[0], { modo: "leyendas", activas: [0, 1, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16] });
       drawBase();
@@ -836,6 +869,26 @@ async function escaramuza(c, fa, fb) {
   await C.page.waitForTimeout(300);
   ok(tac.retira, "IA difícil táctica: retira la unidad rota tras la línea");
   ok(tac.flanco, "IA difícil táctica: la caballería busca el flanco del enemigo trabado");
+
+  /* repetición de la estación: viaja en el estado si es pequeña, en documento aparte si pesa */
+  const rp = await ev(C, () => {
+    const paso = (i) => ({ k: "mov", ej: i % 40, f: i % 7, de: [i % 60, i % 37], a: [(i + 1) % 60, (i + 2) % 37] });
+    G.cam.rep = { v: 1, anio: G.year, est: G.estacion, own0: G.P.map((p) => p.owner), ej0: [], pasos: [...Array(80).keys()].map(paso) };
+    const chica = onlRepSacar(G, 1) === null && !!G.cam.rep;
+    G.cam.rep = { v: 1, anio: G.year, est: G.estacion, own0: G.P.map((p) => p.owner), ej0: [], pasos: [...Array(3000).keys()].map(paso) };
+    const tam = JSON.stringify(G.cam.rep).length,
+      r = onlRepSacar(G, 2),
+      vuelta = r && JSON.parse(onlLZd(r.z));
+    let vista = 0;
+    window.ifzRepetir = async (x) => (vista = x.pasos.length);
+    G.cam.rep = vuelta;
+    return { chica, tam, z: r && r.z.length, fuera: !G.cam.rep || true, ext: onlS().rep && onlS().rep.ext, n: vuelta && vuelta.pasos.length, diff: onlDiff({ cam: { rep: null } }, { cam: { rep: vuelta } }).length, vista: (onlRepetir(), vista) };
+  });
+  console.log(`  repetición de 3000 pasos: ${Math.round(rp.tam / 1024)} KB → ${Math.round(rp.z / 1024)} KB en su propio documento`);
+  ok(rp.chica, "una repetición pequeña viaja dentro del estado");
+  ok(rp.ext && rp.n === 3000, "una repetición grande va en su documento y se recupera entera");
+  ok(rp.diff === 0, "la repetición no viaja en los envíos de los jugadores");
+  ok(rp.vista === 3000, "al recibir la estación se llama a ifzRepetir(rep)");
 
   await A.page.screenshot({ path: path.join(capt, "online-partida.png") });
   console.log(`Mensajes de room: ${hub.emits || 0} · documentos en la db: ${hub.docs.size} · ${Math.round((Date.now() - t0) / 1000)} s`);
