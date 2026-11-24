@@ -208,3 +208,7 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+.tec-yac .tec-pip {
+  color: var(--gold);
+  letter-spacing: -1px;
+}
