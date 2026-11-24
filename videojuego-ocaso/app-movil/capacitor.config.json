@@ -1,0 +1,7 @@
+{
+  "appId": "com.ocaso.imperio",
+  "appName": "Ocaso del Imperio",
+  "webDir": "www",
+  "android": { "backgroundColor": "#12171c" },
+  "ios": { "backgroundColor": "#12171c" }
+}

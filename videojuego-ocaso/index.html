@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ocaso del Imperio</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jacquard+12&family=Press+Start+2P&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#12171c">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Ocaso">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="iconos/icono-192.png">
+<link rel="apple-touch-icon" href="iconos/icono-180.png">
+<link rel="stylesheet" href="css/fuentes.css">
 <link rel="stylesheet" href="css/ocaso.css">
 <link rel="stylesheet" href="css/narrativa.css">
 <link rel="stylesheet" href="css/combate.css">
@@ -60,4 +65,9 @@
 <script src="js/musica.js"></script>
 <script src="js/tutorial.js"></script>
 <script src="js/arranque.js"></script>
+<script>
+/* app instalable (PWA): solo por http(s) y fuera de la app nativa */
+if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && !window.Capacitor)
+  addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+</script>
 </body></html>
