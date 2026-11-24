@@ -293,12 +293,82 @@ function dipCB(a, b) {
   if (sv != null) l.push("Protección de " + CIV[sv].s);
   const ra = ruler(a),
     fe = typeof socLealtad === "function" ? socLealtad(a, "cle") : 0;
-  if (CIV[a].rel && CIV[b].rel && CIV[a].rel !== CIV[b].rel && (ra.tr === "Piadoso" || fe >= 75))
+  const af = dipFeAfin(CIV[a].rel, CIV[b].rel);
+  if (
+    CIV[a].rel &&
+    CIV[b].rel &&
+    CIV[a].rel !== CIV[b].rel &&
+    (ra.tr === "Piadoso" || fe >= 75 || (dipLey() && af && af.v <= -5 && fe >= 55))
+  )
     l.push("Guerra por la fe");
   return [...new Set(l)];
 }
 function dipAgravio(a, b, t, anios) {
   dipS().agr.push({ a, b, t, h: G.year + anios });
+}
+
+/* ---------- afinidades y rechazos entre fes ----------
+   Histórico: misma fe +12 y nicenos contra arrianos −8 (como siempre). En el mundo de leyendas,
+   además, familias de creencias: los cristianos ven idólatras en los politeístas, los dioses de
+   Europa se reconocen entre sí, los ritos americanos extrañan a todos; Tengri tolera. */
+const DIP_FE_FAM = {
+  niceno: "cri",
+  arriano: "cri",
+  pagano: "eur",
+  nordico: "eur",
+  eslavo: "eur",
+  druidico: "eur",
+  olimpico: "med",
+  egipcio: "med",
+  andino: "ame",
+  mesoamericano: "ame",
+  hindu: "asi",
+  confuciano: "asi",
+  tengri: "est",
+  zoroastra: "zor",
+  arabe: "ara",
+};
+const dipLey = () => typeof mundoLeyendas === "function" && mundoLeyendas();
+const dipActivas = () => (typeof mundoActivas === "function" ? mundoActivas() : [...Array(NF).keys()]);
+/* → {k:'fe'|'credo', v, t} o null */
+function dipFeAfin(ra, rb) {
+  if (!ra || !rb) return null;
+  if (ra === rb) return { k: "fe", v: 12, t: "Misma fe" };
+  const par = (x, y) => (ra === x && rb === y) || (ra === y && rb === x);
+  if (par("niceno", "arriano")) return { k: "credo", v: -8, t: "Disputa de credo" };
+  if (!dipLey()) return null;
+  const fa = DIP_FE_FAM[ra],
+    fb = DIP_FE_FAM[rb],
+    otra = fa === "cri" ? fb : fa;
+  if (!fa || !fb || fa === "est" || fb === "est") return null;
+  if (fa === fb) return { k: "credo", v: 5, t: "Dioses hermanos" };
+  if (fa === "cri" || fb === "cri")
+    return otra === "zor"
+      ? { k: "credo", v: -6, t: "Rivales en la fe" }
+      : otra === "asi"
+        ? { k: "credo", v: -3, t: "Fe lejana y extraña" }
+        : { k: "credo", v: -6, t: "Idólatras a sus ojos" };
+  if (fa === "ame" || fb === "ame") return { k: "credo", v: -5, t: "Ritos de sangre extraños" };
+  if (par("zoroastra", "arabe")) return { k: "credo", v: -4, t: "El fuego contra los ídolos" };
+  if ((fa === "eur" && fb === "med") || (fa === "med" && fb === "eur"))
+    return { k: "credo", v: 2, t: "Dioses parecidos" };
+  return null;
+}
+/* fija los recuerdos permanentes de fe de f con los demás pueblos (tras empezar o convertirse) */
+function dipFeMem(f) {
+  for (const g of dipActivas()) {
+    if (g === f || g >= NF || f >= NF) continue;
+    const A = dipFeAfin(CIV[f].rel, CIV[g].rel),
+      l = dipS().mem[dipK(f, g)] || [];
+    for (const k of ["fe", "credo"]) {
+      const m = l.find((x) => x.k === k),
+        obj = A && A.k === k ? A : null,
+        cur = m ? m.v : 0,
+        want = obj ? obj.v : 0;
+      if (want !== cur) dipMem(f, g, k, obj ? obj.t : m.t, want - cur, 0);
+      else if (m && obj) m.t = obj.t;
+    }
+  }
 }
 
 /* ---------- guerra, paz y alianza ---------- */
@@ -557,6 +627,8 @@ function dipAceptacion(f, g, tipo, ext = {}) {
       if (ratio < 0.5) p += add("Te ven débil", -0.15);
       if (ext.sub === "ofensiva") p += add("Alianza ofensiva", -0.12 + (P.agr - 0.5) * 0.3);
       if (dipSenor(f) === g || dipSenor(g) === f) p += add("Vasallaje", 0.1);
+      const co = dipCoalicion(f, g);
+      if (co != null) p += add("Contra el poder de " + CIV[co].s, 0.15);
       break;
     }
     case "nag":
@@ -824,9 +896,37 @@ function dipBuzon(f, it) {
   if (b.some((x) => x.k === it.k && x.from === it.from)) return false;
   if (it.k === "prop" && b.filter((x) => x.k === "prop").length >= 3) return false;
   b.push({ ...it, y: G.year });
+  dipAvisarHumano(f, it);
   return true;
 }
-const pushInbox = (f, it) => (G.inbox[f] = G.inbox[f] || []).push(it);
+/* G.inbox (narrativa) solo para los tipos de siempre: peace, ally, marry */
+function pushInbox(f, it) {
+  (G.inbox[f] = G.inbox[f] || []).push(it);
+  dipAvisarHumano(f, it);
+}
+/* evento 'propuestaHumana' {de, a, tipo, ...}: una propuesta espera a un jugador humano
+   (online la usa para dejar aviso a quien no está conectado) */
+function dipAvisarHumano(f, it) {
+  if (!human(f)) return;
+  const tipo =
+    it.k === "prop"
+      ? it.tipo
+      : it.k === "marry"
+        ? "boda"
+        : it.k === "peace"
+          ? "paz"
+          : it.k === "ally"
+            ? "alianza"
+            : it.k;
+  OC.emitirSync("propuestaHumana", {
+    de: it.from,
+    a: f,
+    tipo,
+    ...(it.ext ? { ext: it.ext } : {}),
+    ...(it.contra != null ? { contra: it.contra } : {}),
+    ...(it.k === "marry" ? { pa: it.a, pb: it.b } : {}),
+  });
+}
 OC.on("inicioTurno", async (f) => {
   const S = dipS(),
     box = (S.buzon[f] || []).filter((x) => x.y >= G.year - 1);
@@ -927,6 +1027,7 @@ function drift() {
   S.agr = S.agr.filter((x) => x.h >= G.year);
   S.rec = S.rec.filter((x) => x.h >= G.year && G.P[x.p]);
   for (const k in S.emb) if (S.emb[k] < G.year) delete S.emb[k];
+  if (dipLey()) dipLeyAnual();
 }
 /* oro anual que da un acuerdo comercial a f (economía puede leer G.dip.tr y definir
    ecoComercioDiplomacia = true para encargarse ella del pago) */
@@ -954,6 +1055,75 @@ function dipAbrirRuta(f, g) {
         if (!best || v > best.v) best = { A, B, v };
       }
   if (best) comAbrir(f, best.A, best.B);
+}
+
+/* ---------- mundo de leyendas: fronteras vivas, tierras disputadas y coaliciones ----------
+   Solo con G.modo === 'leyendas' (el histórico no cambia): pueblos en expansión que se encuentran,
+   rivalidades de fe, disputas por las tierras libres que ambos codiciaban y recelo del más fuerte. */
+/* el más fuerte del mapa: muchas más provincias que la media y que el segundo */
+function dipHegemon() {
+  const n = dipActivas()
+    .filter(alive)
+    .map((f) => [f, owned(f).length])
+    .sort((a, b) => b[1] - a[1]);
+  if (n.length < 3) return null;
+  const media = n.reduce((s, x) => s + x[1], 0) / n.length;
+  return n[0][1] >= Math.max(8, media * 1.6) && n[0][1] >= n[1][1] * 1.2 ? n[0][0] : null;
+}
+/* empuje extra hacia la guerra contra un vecino g (solo leyendas) */
+function dipTensionLey(f, g) {
+  if (!dipLey()) return 0;
+  const P = dipPers(f),
+    A = dipFeAfin(CIV[f].rel, CIV[g].rel),
+    libre = owned(f).some((p) => MAP.adj[p.id].some((i) => G.P[i].owner === REB)),
+    h = dipHegemon();
+  let d = 0.08;
+  if (!libre) d += 0.08 + (P.agr > 0.6 ? 0.08 : 0);
+  if (A && A.v < 0) d += -A.v / 50;
+  if (h === g) d += 0.15 + (dipAliados(f).some((z) => G.st[z][g] === "guerra") ? 0.25 : 0);
+  /* sin ensañarse con un pueblo casi vencido; un imperio ya extenso pierde el apetito */
+  if (owned(g).length <= 2 && !G.P.some((p) => p.owner === g && p.home === f)) d -= 0.2;
+  const media =
+    dipActivas()
+      .filter(alive)
+      .reduce((s, x) => s + owned(x).length, 0) / Math.max(1, dipActivas().filter(alive).length);
+  if (owned(f).length >= media * 2) d -= 0.15;
+  return d;
+}
+function dipLeyAnual() {
+  const S = dipS(),
+    act = dipActivas().filter(alive);
+  S.cto = S.cto || {};
+  for (const a of act)
+    for (const b of act) {
+      if (b <= a || S.cto[dipK(a, b)] || !border(a, b)) continue;
+      S.cto[dipK(a, b)] = G.year;
+      const A = dipFeAfin(CIV[a].rel, CIV[b].rel),
+        v = (A ? Math.sign(A.v) * 6 : 0) + 3 - Math.round((dipPers(a).agr + dipPers(b).agr) * 6);
+      dipMem(a, b, "contacto", v >= 0 ? "Primer contacto cordial" : "Fronteras nuevas y recelosas", v, 1);
+      if (isMe(a) || isMe(b)) addLog(`${CIV[a].s} y ${CIV[b].s} se encuentran: sus fronteras ya se tocan.`);
+    }
+  const h = dipHegemon();
+  if (h != null)
+    for (const f of act)
+      if (f !== h && (border(f, h) || G.st[f][h] === "guerra"))
+        dipMem(f, h, "recelo", `Recelo del poder de ${CIV[h].s}`, -3, 1, 18);
+}
+/* quien conquista tierras libres que un vecino también tocaba le deja un agravio */
+OC.on("conquista", ({ p, de, a }) => {
+  if (de !== REB || a == null || a >= NF || !p || !dipLey()) return;
+  for (const f of dipActivas()) {
+    if (f === a || !alive(f) || !MAP.adj[p.id].some((i) => G.P[i].owner === f)) continue;
+    if (R() < 0.35 + dipPers(f).agr * 0.4) {
+      dipAgravio(f, a, "Tierras disputadas: " + p.name, 10);
+      dipMem(f, a, "disputa", "Disputa por tierras de frontera", -6, 1, 18);
+    }
+  }
+});
+/* ¿f y g se aliarían contra el más fuerte? */
+function dipCoalicion(f, g) {
+  const h = dipLey() ? dipHegemon() : null;
+  return h != null && h !== f && h !== g && G.rel[f][h] < 0 && G.rel[g][h] < 0 ? h : null;
 }
 /* marcador de guerra y abastecimiento por derecho de paso */
 OC.on("conquista", ({ de, a }) => {
@@ -1070,6 +1240,7 @@ function dipDeseoGuerra(f, g) {
       comercio: 0.1,
       paso: 0.05,
     }[x.t];
+  d += dipTensionLey(f, g);
   d -= dipGuerras(f).length * 0.35;
   if (human(g) && G.year < 414) d -= 0.4;
   if (typeof socEstabilidad === "function") d -= Math.max(0, 45 - socEstabilidad(f)) / 100;
@@ -1087,6 +1258,7 @@ function dipTerminosIA(f, g) {
   }
   if (m >= 2) return { exOro: 40 };
   if (m <= -3 || ratio < 0.5) {
+    if (owned(f).length <= 2 && dipSenor(f) == null && dipSenor(g) == null) return { ofVas: 1 };
     if (G.F[f].gold >= 40) return { ofOro: Math.min(80, Math.round(G.F[f].gold / 2)) };
     if (P.neg > 0.5 && dipSenor(f) == null) return { ofVas: 1 };
   }
@@ -1105,14 +1277,22 @@ function dipIAPropuesta(f) {
       c = (tipo, peso, ext = {}) => {
         if (ok(tipo)) l.push({ g, tipo, ext, s: dipAceptacion(f, g, tipo, ext).p * peso });
       };
-    if (rl > 30 || com)
-      c("alianza", 0.6 + com * 0.3, { sub: P.agr > 0.6 && R() < 0.5 ? "ofensiva" : "defensiva" });
+    const coal = dipCoalicion(f, g) != null;
+    if (rl > 30 || com || coal)
+      c("alianza", 0.6 + com * 0.3 + (coal ? 0.4 : 0), {
+        sub: P.agr > 0.6 && R() < 0.5 ? "ofensiva" : "defensiva",
+      });
     if (bo && rl > -15 && (P.agr < 0.6 || ratio < 1)) c("nag", 0.45);
     if (rl > -5) c("comercio", 0.25 + P.cod * 0.5);
     if (dipGuerras(f).some((e) => border(g, e))) c("paso", 0.35);
     if (dipTr(f, g, "tregua") || dipTr(f, g, "nag")) c("rehenes", 0.2);
     if (bo && ratio > 1.6 && P.cod > 0.45) c("tributo", P.cod);
-    if (ratio < 0.4 && dipGuerras(f).length && rl > 0) c("vasallaje", 0.6);
+    if (
+      dipLey()
+        ? ratio < 0.5 && (dipGuerras(f).length || owned(f).length <= 3) && rl > -20
+        : ratio < 0.4 && dipGuerras(f).length && rl > 0
+    )
+      c("vasallaje", 0.6);
     if (rl > -25 && rl < 60 && G.F[f].gold > 60) c("embajada", 0.25);
   }
   return l.sort((a, b) => b.s - a.s)[0];

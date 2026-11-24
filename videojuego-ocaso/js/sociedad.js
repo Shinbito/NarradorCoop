@@ -312,18 +312,29 @@ function socPolitica(f, pol) {
   if (pol === "tol") socImp(f, { cle: -5, pro: 4, pue: 2 });
   if (isMe(f)) addLog(`Política religiosa: ${SOC_POL[pol].toLowerCase()}.`);
 }
-function socFeMem(f) {
-  for (let g = 0; g < NF; g++) {
-    if (g === f) continue;
-    const a = CIV[f].rel,
-      b = CIV[g].rel,
-      l = dipS().mem[dipK(f, g)] || [],
-      cur = (k) => l.find((m) => m.k === k)?.v || 0,
-      fe = a === b ? 12 : 0,
-      cr = (a === "niceno" && b === "arriano") || (a === "arriano" && b === "niceno") ? -8 : 0;
-    dipMem(f, g, "fe", "Misma fe", fe - cur("fe"), 0);
-    dipMem(f, g, "credo", "Disputa de credo", cr - cur("credo"), 0);
+/* recuerdos de fe con los demás pueblos (afinidades y rechazos: dipFeAfin en diplomacia.js) */
+const socFeMem = (f) => dipFeMem(f);
+/* la fe ajena más extendida en las tierras de f → [fe, proporción] */
+function socFeMayor(f) {
+  const o = socOwn(f),
+    n = {};
+  for (const p of o) {
+    const x = socFe(p);
+    if (x !== CIV[f].rel) n[x] = (n[x] || 0) + 1;
   }
+  const fe = Object.keys(n).sort((a, b) => n[b] - n[a])[0];
+  return fe ? [fe, n[fe] / Math.max(1, o.length)] : [null, 0];
+}
+/* fes que f puede abrazar: niceno/arriano desde SOC_CONV; en leyendas, además la fe ajena
+   que ya profesa al menos el 40 % de sus tierras */
+function socConversiones(f) {
+  const r = CIV[f].rel,
+    l = SOC_CONV.includes(r) ? ["niceno", "arriano"].filter((x) => x !== r) : [];
+  if (dipLey()) {
+    const [fe, sh] = socFeMayor(f);
+    if (fe && sh >= 0.4 && SOC_FEN[fe] && !l.includes(fe)) l.push(fe);
+  }
+  return l;
 }
 function socConvertir(f, fe) {
   const s = socF(f);
@@ -343,6 +354,8 @@ function socConvertir(f, fe) {
 /* la fe del reino (si se convirtió) vive en G.dip.soc[f].fe y se reaplica al cargar */
 OC.on("partidaLista", () => {
   for (let f = 0; f < NF; f++) CIV[f].rel = G.dip?.soc?.[f]?.fe || SOC_FE0[f];
+  /* afinidades de fe (en leyendas, entre todas las religiones); idempotente */
+  if (G.dip) for (const f of dipActivas()) dipFeMem(f);
 });
 
 /* ---------- objetivo de lealtad de cada estamento (con motivos visibles) ---------- */
@@ -1048,6 +1061,10 @@ function socIA(f) {
   }
   const nic = socOwn(f).filter((p) => socFe(p) === "niceno").length / Math.max(1, socOwn(f).length);
   if (SOC_CONV.includes(CIV[f].rel) && !s.fe && nic > 0.55 && R() < 0.04) socConvertir(f, "niceno");
+  else if (dipLey() && (s.uso.conv || -99) < G.year - 15 && ruler(f).tr !== "Piadoso") {
+    const [fe, sh] = socFeMayor(f);
+    if (fe && sh >= 0.55 && R() < 0.05) socConvertir(f, fe);
+  }
 }
 OC.on("turnoIA", socIA);
 function socConceder(f, k) {
@@ -1205,7 +1222,7 @@ function socPanel(dis) {
         `<button data-act="socpol-${p}" class="${s.pol === p ? "on" : ""}" ${dis || (s.uso.pol || 0) >= G.year ? "disabled" : ""}>${SOC_POL[p]}</button>`,
     )
     .join("")}</div>`;
-  const conv = SOC_CONV.includes(CIV[f].rel) ? ["niceno", "arriano"].filter((x) => x !== CIV[f].rel) : [];
+  const conv = socConversiones(f);
   if (conv.length)
     h += `<div class="btns">${conv.map((x) => `<button data-act="socconv-${x}" ${dis || F.gold < 60 || (s.uso.conv || -99) > G.year - 15 ? "disabled" : ""}>Abrazar la fe ${SOC_FEN[x]} · 60 oro</button>`).join("")}</div>`;
   return (
@@ -1252,13 +1269,13 @@ OC.accion("socpol", (v) => {
   socPolitica(ME, v);
 });
 OC.accion("socconv", (v) => {
-  if (G.F[ME].gold < 60) return;
+  if (G.F[ME].gold < 60 || !socConversiones(ME).includes(v)) return;
   modal(
     `¿Abrazar la fe ${SOC_FEN[v]}?`,
     `<p>Tu clero será sustituido (lealtad 45) y la ${socNombre(ME, socClave(ME, "nob")).toLowerCase()} recelará (−8). Cambiará tu relación con los reinos de cada credo y qué provincias comparten tu fe.</p>`,
     [
       {
-        t: "Recibir el bautismo",
+        t: v === "niceno" || v === "arriano" ? "Recibir el bautismo" : "Abrazar la nueva fe",
         cls: "gold",
         fn: () => {
           G.F[ME].gold -= 60;

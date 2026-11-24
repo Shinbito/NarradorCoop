@@ -142,6 +142,14 @@ fs.mkdirSync(capt, { recursive: true });
     if (en != null) declareWar(en, al);
     r.llamada = en == null || G.dip.hist.llOk + G.dip.hist.llNo + (G.dip.buzon[f] || []).length > ll0;
     r.buzon = (G.dip.buzon[f] || []).some((x) => x.k === "llamada");
+    /* aviso 'propuestaHumana' cuando la IA propone algo al jugador */
+    const avisos = [];
+    OC.on("propuestaHumana", (d) => avisos.push(d));
+    const z = [...Array(NF).keys()].find(
+      (z) => z !== f && alive(z) && !human(z) && !dipPuede(z, f, "comercio"),
+    );
+    if (z != null) dipProponer(z, f, "comercio");
+    r.aviso = z == null || avisos.some((d) => d.de === z && d.a === f && d.tipo === "comercio");
     /* rehenes: si ambos tienen jóvenes, se intercambian y se marcan */
     const h = [...Array(NF).keys()].find(
       (z) => z !== f && alive(z) && !dipPuede(f, z, "rehenes") && dipRehenElegible(z),
@@ -157,6 +165,7 @@ fs.mkdirSync(capt, { recursive: true });
   ok(man.paz && man.oro, "paz con términos (oro) y tregua");
   ok(man.vas, "tributo/vasallaje");
   ok(man.llamada && man.buzon, "llamada a las armas al jugador en su buzón");
+  ok(man.aviso, "una propuesta a un humano emite 'propuestaHumana'");
   ok(man.reh, "intercambio de rehenes");
 
   console.log("Mandos y gobernadores");
@@ -370,6 +379,20 @@ fs.mkdirSync(capt, { recursive: true });
   ok(cambios >= 8, "las lealtades de los estamentos cambian (" + cambios + " estamentos)");
   ok(s1.car.reduce((a, n) => a + n, 0) >= 2.5 * s1.car.length, "la IA llena su consejo: " + s1.car.join(","));
   ok(s1.gobIA >= 2, "la IA nombra gobernadores (" + s1.gobIA + " ciudades)");
+  const pob = await page.evaluate(() => ({
+    exceso: [...Array(NF).keys()]
+      .filter(alive)
+      .filter((f) => dipFamiliaN(f) > dipTopeFamilia(f) + 8)
+      .map((f) => CIV[f].s),
+    esbozos: G.C.filter((c) => c.st).length,
+    malos: G.C.filter((c) => c.st && (c.alive || c.ma != null || c.n == null)).length,
+    viejosSin: G.C.filter((c) => !c.alive && c.dm != null && G.year - c.dm >= 6 && !c.st).length,
+  }));
+  ok(!pob.exceso.length, "las familias respetan su tope " + (pob.exceso.join(",") || ""));
+  ok(
+    pob.esbozos > 0 && !pob.malos && !pob.viejosSin,
+    `los muertos antiguos quedan en esbozo (${pob.esbozos})`,
+  );
   ok((H.demandas || 0) >= 3, "los estamentos hacen demandas (" + (H.demandas || 0) + ")");
   console.log(
     "  complots:",
@@ -459,14 +482,20 @@ fs.mkdirSync(capt, { recursive: true });
     for (const k in socF(inc).e) socFavor(inc, k);
     r.favorOk = TYP.every((t) => civPuede(inc, t) || !(socCap(inc).u[t] > 0));
     r.p0 = p0;
-    window.modal = () => Promise.resolve(0);
-    for (let y = 0; y < 8; y++) await yearEnd();
+    window.modal = () => Promise.resolve("auto");
+    /* afinidades de fe entre religiones nuevas */
+    const mot = (a, b) => dipMotivosRel(civIdx(a), civIdx(b)).map(([t]) => t);
+    r.feNorEsl = mot("nor", "esl").includes("Dioses hermanos");
+    r.feIncChi = mot("inc", "chi").includes("Ritos de sangre extraños");
+    r.feMonChi = !mot("mon", "chi").some((t) => /fe|Dioses|Ritos|Idólatras/.test(t));
+    for (let y = 0; y < 15; y++) await yearEnd();
     for (const t of ["dip", "corte", "dyn"]) {
       tab = t;
       ui();
       r[t] = !/Error al mostrar/.test(document.getElementById("panel").innerHTML);
     }
     r.hist = JSON.stringify(G.dip.hist);
+    r.guerras = G.dip.hist.guerras;
     r.gobs = G.P.filter((p) => p.owner < NF && socGob(p)).length;
     r.sinJinetes = act
       .filter((f) => CIV[f].sinTipos)
@@ -484,6 +513,8 @@ fs.mkdirSync(capt, { recursive: true });
   );
   ok(ley.dip && ley.corte && ley.dyn, "los paneles funcionan en el modo leyendas");
   ok(ley.gobs >= 2, "la IA nombra gobernadores en leyendas (" + ley.gobs + ")");
+  ok(ley.feNorEsl && ley.feIncChi && ley.feMonChi, "afinidades y rechazos de fe entre religiones nuevas");
+  ok(ley.guerras >= 2, "en leyendas hay guerras entre vecinos (" + ley.guerras + " en 15 años)");
   await page.evaluate(() => {
     tab = "corte";
     ui();

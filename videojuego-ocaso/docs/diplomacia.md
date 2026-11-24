@@ -57,6 +57,44 @@ opinión, casus belli, tratados vigentes, otras guerras, estabilidad interna); f
 pide la paz con términos según el marcador; una propuesta en paz al año (alianza, pacto, comercio, paso,
 rehenes, tributo, protección, embajada o regalos); bodas y asesinatos. Al jugador: buzón propio
 `G.dip.buzon[f]` (máx. 3 propuestas), atendido en `inicioTurno`. `G.inbox` solo para `marry`.
+Toda propuesta o llamada a las armas que llega a un jugador humano emite `propuestaHumana`
+`{de, a, tipo, ext?, contra?}` (tipo `boda` en las bodas), para que online pueda avisar a quien no está
+conectado.
+
+**Mundo de leyendas** (solo con `G.modo === 'leyendas'`, el histórico no cambia). En mapas grandes los
+pueblos se expanden sobre tierra libre y se encuentran sin motivos de guerra; para que el mapa se mueva:
+- **Fronteras vivas** (`dipTensionLey`, se suma al deseo de guerra con un vecino):
+  - +0,12 por ser pueblos en expansión;
+  - +0,10 si ya no queda tierra libre al lado (+0,08 si es belicoso);
+  - rechazo de fe `−afinidad/50`;
+  - +0,15 contra el más fuerte, +0,25 más si un aliado ya le combate.
+- **Primer contacto** (`dipLeyAnual`, `G.dip.cto`): al tocarse las fronteras, un recuerdo cordial o
+  receloso según la fe y la agresividad de ambos.
+- **Tierras disputadas**: quien conquista una provincia libre que un vecino también tocaba le deja un agravio
+  (casus belli «Tierras disputadas: X», 10 años) y −6 de opinión.
+- **Coaliciones** (`dipHegemon`): un pueblo con ≥ 1,6× la media de provincias (mín. 8) y ≥ 1,35× el
+  segundo despierta «Recelo de su poder» (−3/año, máx. −18) en sus vecinos. Los que recelan se alían
+  más (+15 % y propuestas de alianza de la IA) y le atacan antes.
+- **Guerra por la fe**: también con un rechazo de fe ≤ −5 y el clero leal (≥ 55).
+
+- **Frenos para que no todo acabe en un imperio**:
+  - −0,2 contra un pueblo con ≤ 2 provincias (salvo que tenga tierras tuyas);
+  - −0,15 si el que ataca ya dobla la media de provincias;
+  - los pueblos pequeños o en guerra y débiles piden protección (vasallaje) y, si van perdiendo,
+    ofrecen ser tributarios para tener paz.
+
+Mediciones (12 pueblos, todo IA salvo un jugador pasivo; si cae, otro reino toma su asiento):
+
+| Modo | Guerras / paces hacia 437-450 | Pueblos vivos hacia 440 |
+|---|---|---|
+| Leyendas, antes | 8–11 / 1–4 | 10/12 |
+| Leyendas, ahora | 20–33 / 8–24 | 8–11/12 (en una partida, 6 en 435) |
+| Histórico, antes | 7–8 / 5 en ~28 años | 5–6/7 |
+| Histórico, ahora | 5–7 / 4 en ~28 años | 6/7 |
+
+El mapa se mueve: en leyendas algunos pueblos pasan de 4–5 a 14–26 provincias. Uno de los vencidos es
+casi siempre el jugador pasivo. A 120 años quedan 4–5 pueblos, frente a 6 sin los cambios: el asiento
+pasivo que se va heredando infla las caídas.
 
 ## Sociedad (G.dip.soc[f])
 
@@ -120,6 +158,21 @@ las 15 religiones. Conversión del reino al credo niceno o arriano (60 oro, cada
 `SOC_CONV` (pagana, nórdica, eslava, druídica, Tengri, arriana); se guarda en `G.dip.soc[f].fe` y se
 reaplica a `CIV[f].rel` en `partidaLista`.
 
+**Afinidades entre fes** (`dipFeAfin`, recuerdos permanentes «fe»/«credo» que fija `dipFeMem` en
+`partidaLista` y tras cada conversión; idempotente):
+- En el histórico, como siempre: misma fe +12, nicenos contra arrianos −8.
+- En leyendas, además, por familias:
+  - europea (pagana, nórdica, eslava, druídica) y mediterránea (olímpica, egipcia): +5 «Dioses
+    hermanos» dentro de cada familia, +2 entre ambas;
+  - cristianos frente a politeístas: −6 «Idólatras a sus ojos»;
+  - cristianos frente a zoroastras: −6;
+  - cristianos frente a hindúes y confucianos: −3;
+  - fes americanas frente a las demás: −5 «Ritos de sangre extraños»;
+  - zoroastras frente a árabes: −4;
+  - Tengri, tolerante: 0 con todas.
+- En leyendas, un pueblo también puede abrazar la fe ajena que ya profesa el 40 % de sus tierras (la IA
+  lo hace con el 55 %, si su soberano no es piadoso).
+
 ## Mandos de carrera y gobernadores
 
 **Mandos** (`linaje: false`, `rol: 'capitan'|'general'`, creados por combate): no heredan ni se casan y no
@@ -164,6 +217,33 @@ lealtad ≥ 35) y destituye a los desleales.
 parientes, soberano y mandos. Usa un modal con un campo de 2-30 caracteres; quita etiquetas y `<>&"'`\`.
 Botones ✎ en Dinastía y en Mandos.
 
+## Población de la corte
+
+En `G.C` no se puede borrar a nadie: los ids son índices. Antes, cada pareja fértil tenía un 26 %
+anual de hijos (hasta 6) y la IA casaba a todos sus solteros con un cónyuge nuevo, así que las cortes
+crecían de forma exponencial. Ahora:
+- **Tope de parientes vivos** por pueblo: `dipTopeFamilia(f) = min(40, 8 + 2·provincias)`
+  (`dipFamiliaN` cuenta los vivos con linaje, con caché anual).
+- **Nacimientos** (`dipProbNacer`, desde `life()` con `/* OC */`):
+  - casa principal (soberano, heredero, hijos del soberano): 24 % al año, hasta 6 hijos; 12 % si la
+    familia ya está en el tope;
+  - casas menores: hasta 3 hijos, `14 % · (1 − ocupación)`, y nada en el tope.
+- **Bodas de la IA** (`dipProbBodaIA`): casa principal 20 % (5 % por encima del 120 % del tope); el
+  resto `8 % · (1 − ocupación)` y ninguna desde el 80 %.
+- **Compactación** (`dipCompactar`, en `finAnio`): `kill` anota el año de muerte (`c.dm`); cinco años
+  después el muerto queda en un esbozo `{id, n, f, sex, age, fa, mo, sp, tr, alive, dm, linaje,
+  mundoAusente, rol, st}`. Los demás sistemas solo leen `alive`, `n`, `f`, `id`, `sp` y `gen` de
+  `G.C[...]`; el linaje de narrativa guarda sus propios nombres (`N.reyes`).
+
+Mediciones (leyendas, 12 pueblos, todo IA salvo un jugador pasivo, `yearEnd` directo):
+
+| Año | Antes: personajes (vivos) · KB de `G.C` / de `G` | Ahora |
+|---|---|---|
+| 430 | 167 (125) · 28 / 144 | 148 (102) · 24 / 146 |
+| 469 | 652 (454) · 105 / 237 | 282 (123) · 42 / 181 |
+| 509 | 2.809 (1.978) · 446 / 599 | 373 (90) · 53 / 197 |
+| 529 | 6.182 (4.439) · 977 / 1.142 | 416 (83) · 58 / 205 |
+
 ## Ganchos
 
 - **Emite**:
@@ -172,7 +252,9 @@ Botones ✎ en Dinastía y en Mandos.
   - `bodaCelebrada` (en `marry`, salvo las del arranque);
   - `muertePersonaje` (en `kill`, antes de la sucesión);
   - `sucesion` `{f, anterior, nuevo}` (personajes);
-  - `revuelta` (línea `/* OC */`) en traiciones, alzamientos de gobernadores y guerras civiles.
+  - `revuelta` (línea `/* OC */`) en traiciones, alzamientos de gobernadores y guerras civiles;
+  - `propuestaHumana` `{de, a, tipo, ext?, contra?, pa?, pb?}`: una propuesta o llamada a las armas
+    espera a un jugador humano (en `dipBuzon` y `pushInbox`; `tipo` `boda` para las bodas).
 - **Llama**: `aceptacionDiplomatica` (ctx `{f, g, tipo, ...términos}`; tipos `paz, alianza, nag,
   comercio, paso, rehenes, vasallaje, tributo, embajada, boda, llamada`).
 - **Modifica**:
@@ -180,7 +262,7 @@ Botones ✎ en Dinastía y en Mandos.
   - `costeUnidad` (gobernador de la ciudad);
   - `puntosInvestigacion`.
 - **Escucha**:
-  - partida y turnos: `partidaLista`, `inicioTurno`, `economiaFaccion` (año social), `turnoIA` (IA de corte y gobernadores);
+  - partida y turnos: `partidaLista`, `inicioTurno`, `economiaFaccion` (año social), `turnoIA` (IA de corte y gobernadores), `finAnio` (compactar muertos);
   - guerra: `batallaResuelta`, `conquista` (también el gobernador de la plaza);
   - diplomacia y corte: `guerraDeclarada`, `pazFirmada`, `alianzaSellada`, `bodaCelebrada`, `sucesion`;
   - otros sistemas: `edificioConstruido`, `revuelta`, `crisisEconomica`, `tecnologiaInvestigada`, `eraNueva`.
@@ -210,15 +292,13 @@ llamadas, gobernadores, renombrar, 30 años de IA, la partida antigua y un mundo
 
 ## Peticiones al orquestador
 
-1. **Narrativa**: `life()` casa a cualquier soltero de `family(f)` de la IA, también a los mandos
-   `linaje:false`. Debería filtrar `c.linaje !== false`. El «Concilio de obispos» podría usar
-   `socPolitica`/`socImp`.
-2. **Combate**: `cmbMandosHtml` podría mostrar «gobierna X» (`socGob`) y el botón de gobernar (acción
+1. **Combate**: `cmbMandosHtml` podría mostrar «gobierna X» (`socGob`) y el botón de gobernar (acción
    `socgobc-<id>`). El derecho de paso solo da `bonoBatalla`; mover tropas por tierras del socio exigiría
    que campaña consulte `dipTr(f, dueño, "paso")`.
-3. **Tecnología**: `puntosInvestigacion` no recibe `p`. Si `tecPuntosCiudad` llamara a un cálculo con
+2. **Tecnología**: `puntosInvestigacion` no recibe `p`. Si `tecPuntosCiudad` llamara a un cálculo con
    `p`, el saber del gobernador iría a su ciudad y no al reino.
-4. **Interfaz**: el panel de provincia lista las 18 clases, incluso con 0 tropas; la sección del
+3. **Interfaz**: el panel de provincia lista las 18 clases, incluso con 0 tropas; la sección del
    gobernador queda muy abajo. Las pestañas ya son 8 o más.
-5. **Mundo**: en leyendas no hay disputas de credo entre las religiones nuevas, solo la memoria
-   «Misma fe». Podría añadirse en `newGame`, que ahora es de Mundo.
+4. **Contrato**: añadir `propuestaHumana` a la tabla de eventos (lo emite diplomacia).
+5. **Narrativa**: `life()` lleva dos líneas `/* OC */` (`dipProbNacer`, `dipProbBodaIA`). El
+   «Concilio de obispos» podría usar `socPolitica`/`socImp`.

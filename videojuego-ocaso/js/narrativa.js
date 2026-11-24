@@ -20,7 +20,7 @@ function life() {
     if (!c.alive || c.sex !== "f" || c.sp == null) continue;
     const h = G.C[c.sp];
     if (!h.alive || h.f !== c.f || c.age < 16 || c.age > 42) continue;
-    if (kidsOf(c).length < 6 && R() < 0.26) {
+    if (R() < dipProbNacer(c, h)) { /* OC */
       const k = mkChar(c.f, R() < 0.5 ? "m" : "f", 0, h.id, c.id);
       if (isMe(c.f)) addLog(narNacimiento(k, h, c), "good");
       autoHeir(c.f);
@@ -31,7 +31,7 @@ function life() {
     autoHeir(f);
     if (human(f)) continue;
     for (const c of family(f))
-      if (c.linaje !== false && c.sp == null && c.age >= 18 && c.age <= 40 && R() < 0.2)
+      if (c.linaje !== false && c.sp == null && c.age >= 18 && c.age <= 40 && R() < dipProbBodaIA(f, c)) /* OC */
         marry(c, mkChar(f, c.sex === "m" ? "f" : "m", clamp(c.age + ri(-4, 2), 16, 45)));
   }
 }
