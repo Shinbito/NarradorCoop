@@ -6,12 +6,12 @@
 
 /* recursos nuevos (oro y comida ya existen). base = precio de referencia en oro */
 const ECO_RES = [
-  { id: "madera", nombre: "Madera", icono: "♣", base: 3 },
+  { id: "madera", nombre: "Madera", icono: "♣︎", base: 3 },
   { id: "piedra", nombre: "Piedra", icono: "▲", base: 3 },
-  { id: "hierro", nombre: "Hierro", icono: "⚒", base: 5 },
+  { id: "hierro", nombre: "Hierro", icono: "⚒︎", base: 5 },
   { id: "caballos", nombre: "Caballos", icono: "♞", base: 8 },
   { id: "sal", nombre: "Sal", icono: "◇", base: 5, lujo: true },
-  { id: "vino", nombre: "Vino", icono: "⚱", base: 6, lujo: true },
+  { id: "vino", nombre: "Vino", icono: "⚱︎", base: 6, lujo: true },
   { id: "seda", nombre: "Seda", icono: "✦", base: 12, lujo: true },
   { id: "incienso", nombre: "Incienso", icono: "∴", base: 9, lujo: true },
   { id: "especias", nombre: "Especias", icono: "✺", base: 10, lujo: true },
@@ -346,9 +346,9 @@ const ecoEjercitos = (f) => (G && G.cam && typeof camEjDe === "function" ? camEj
    Los edificios que construya tecnología viven en p.mina, p.cantera, p.aserradero, p.salinas; el nivel
    efectivo es el mayor de los dos (ecoNivelExp). Todo determinista con G.seed y el terreno de MAP. */
 const ECO_YAC = {
-  madera: { n: "Bosques", icono: "♣", exp: "aserradero" },
+  madera: { n: "Bosques", icono: "♣︎", exp: "aserradero" },
   piedra: { n: "Piedra de cantera", icono: "▲", exp: "cantera" },
-  hierro: { n: "Vetas de hierro", icono: "⚒", exp: "mina" },
+  hierro: { n: "Vetas de hierro", icono: "⚒︎", exp: "mina" },
   oro: { n: "Vetas de oro", icono: "◉", exp: "mina" },
   estano: { n: "Estaño", icono: "⊙", exp: "mina" },
   sal: { n: "Salinas naturales", icono: "◇", exp: "salinas" },
@@ -801,7 +801,7 @@ const ECO_ANIMO = [
   {
     id: "furioso",
     nombre: "Furioso",
-    icono: "✖",
+    icono: "",
     color: "#e0503f",
     min: 0,
     oro: 0.4,
@@ -813,7 +813,7 @@ const ECO_ANIMO = [
   {
     id: "disgustado",
     nombre: "Disgustado",
-    icono: "☹",
+    icono: "",
     color: "#ef7a55",
     min: 15,
     oro: 0.6,
@@ -825,7 +825,7 @@ const ECO_ANIMO = [
   {
     id: "inquieto",
     nombre: "Inquieto",
-    icono: "!",
+    icono: "",
     color: "#e8b632",
     min: 30,
     oro: 0.85,
@@ -837,7 +837,7 @@ const ECO_ANIMO = [
   {
     id: "neutral",
     nombre: "Neutral",
-    icono: "○",
+    icono: "",
     color: "#a2abb0",
     min: 45,
     oro: 1,
@@ -849,7 +849,7 @@ const ECO_ANIMO = [
   {
     id: "contento",
     nombre: "Contento",
-    icono: "☺",
+    icono: "",
     color: "#9ccc65",
     min: 60,
     oro: 1.05,
@@ -861,7 +861,7 @@ const ECO_ANIMO = [
   {
     id: "feliz",
     nombre: "Feliz",
-    icono: "✿",
+    icono: "",
     color: "#6fcf6a",
     min: 75,
     oro: 1.1,
@@ -873,7 +873,7 @@ const ECO_ANIMO = [
   {
     id: "leal",
     nombre: "Leal",
-    icono: "★",
+    icono: "",
     color: "#f2c14e",
     min: 90,
     oro: 1.15,
@@ -1629,7 +1629,7 @@ document.addEventListener(
   },
   true,
 );
-const ecoAnimoTxt = (a) => `<b style="color:${a.color}">${a.icono} ${a.nombre}</b>`;
+const ecoAnimoTxt = (a) => `<b style="color:${a.color}">${a.icono ? a.icono + " " : ""}${a.nombre}</b>`;
 function ecoTendTxt(a) {
   const t = a.tendencia;
   return t >= 3

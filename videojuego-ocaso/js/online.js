@@ -615,7 +615,7 @@ async function onlQuitarAviso(id) {
     await net.db.doc(`avisos/${net.uid}/items/${id}`).delete();
   } catch (e) {}
 }
-/* bandeja flotante (✉): avisos de la db + partidas en las que te toca */
+/* bandeja flotante (✉︎): avisos de la db + partidas en las que te toca */
 function onlBandeja() {
   if (!net.uid || !net.db) return;
   let b = document.getElementById("onl-bandeja");
@@ -627,7 +627,7 @@ function onlBandeja() {
     document.body.appendChild(b);
   }
   const n = ONL.avisos.length + onlTeTocaN();
-  b.textContent = n ? `✉ ${n}` : "✉";
+  b.textContent = n ? `Avisos ${n}` : "Avisos";
   b.classList.toggle("on", n > 0);
   onlTitulo();
 }
@@ -658,7 +658,7 @@ async function onlPedirNotif() {
       "Avisos del navegador",
       ONL.notif
         ? "<p>Con la pestaña abierta en segundo plano te avisaremos de tu turno y de las batallas.</p>"
-        : "<p>No se concedió el permiso. Seguirás viendo los avisos dentro del juego (✉) y «(!)» en el título de la pestaña.</p>",
+        : "<p>No se concedió el permiso. Seguirás viendo los avisos dentro del juego (Avisos) y «(!)» en el título de la pestaña.</p>",
       [{ t: "Vale" }],
     );
   } catch (e) {}
@@ -836,7 +836,7 @@ function onlLobbyCuerpo() {
     <p><label for="onl-invseg">Espera a que un rival conectado acepte su batalla</label>${sel("onl-invseg", c.invitSeg, [60, 90, 120].map((s) => [s, s + " s"]))}</p>
     <p><label for="onl-amigo">Si el amigo atacado no está conectado, se le espera</label>${sel("onl-amigo", c.amigoMin, [[0, "No: IA difícil al momento"], [30, "30 min"], [120, "2 h"], [360, "6 h"], [720, "12 h"], [1440, "24 h"]])}</p>
     <p><label for="onl-mbat">Batallas en vivo</label>${sel("onl-mbat", c.modoBatalla, [["t3", "Por turnos · 3 acciones"], ["t1", "Por turnos · 1 acción"], ["rt", "Tiempo real (necesita buena conexión)"]])}</p>
-    <div class="btns"><button class="gold" data-act="s-onlcfg">Elegir pueblo ▶</button></div></div>`;
+    <div class="btns"><button class="gold" data-act="s-onlcfg">Elegir pueblo ▶︎</button></div></div>`;
   }
   return "";
 }
@@ -1362,7 +1362,7 @@ function onlPanel(dis) {
       : `<p class="dim">Selecciona un ejército y su destino: las marchas, asedios, asaltos y salidas se resuelven a la vez para todos al cerrar la estación (cada ejército alcanza lo que da su movimiento).</p>`;
     h += onlListoYo()
       ? `<div class="btns"><button data-act="onl-reabrir">Quitar «Listo» (seguir dando órdenes)</button></div>`
-      : `<div class="btns"><button class="gold" data-act="end">Listo ▶</button></div>`;
+      : `<div class="btns"><button class="gold" data-act="end">Listo ▶︎</button></div>`;
   }
   const btn = [];
   if (cfg.modoTurno === "corr") btn.push(`<button data-act="onl-tr" ${todos && onlActivos(d).length > 1 ? "" : "disabled"} title="Todos deben estar conectados">Pasar a tiempo real</button>`);
@@ -2711,7 +2711,7 @@ function onlTextoTurno() {
     tr = d.cfg && d.cfg.modoTurno === "tr";
   return {
     info: `Online · ${tr ? "tiempo real" : "correspondencia"} · listos ${n}/${act.length} · ${onlFmtResto((d.limite || 0) - onlAhora())}`,
-    boton: myTurn() ? "Listo ▶" : onlMiSeat(d) === ME && onlEstSeat(d, ME) === "activo" ? "Esperando a los demás…" : "Mirando la partida",
+    boton: myTurn() ? "Listo ▶︎" : onlMiSeat(d) === ME && onlEstSeat(d, ME) === "activo" ? "Esperando a los demás…" : "Mirando la partida",
   };
 }
 

@@ -77,7 +77,7 @@ function ui() {
 }
 /* Texto de turno en partida online. Punto limpio para el sistema Online: si existe la función global
    onlTextoTurno() → {info, boton} (o una cadena = info), ui() la usa para #tinfo y el botón de fin.
-   Si no, con estaciones simultáneas (ONL.meta.listos) se muestra «Online · listos 2/3» y «Listo ▶». */
+   Si no, con estaciones simultáneas (ONL.meta.listos) se muestra «Online · listos 2/3» y «Listo ▶︎». */
 function ifzTurnoOnline() {
   let r = null;
   try {
@@ -94,13 +94,13 @@ function ifzTurnoOnline() {
       const act = onlActivos(d),
         n = act.filter((g) => d.listos[g] === d.turno).length;
       info = `Online · listos ${n}/${act.length}`;
-      boton = myTurn() ? "Listo ▶" : "Esperando a los demás…";
+      boton = myTurn() ? "Listo ▶︎" : "Esperando a los demás…";
     } else {
       info =
         net.cur === ME
           ? "Online · es tu turno"
           : `Online · turno de ${CIV[net.cur]?.s || "—"}${net.names[net.seats[net.cur]] ? " (" + esc(net.names[net.seats[net.cur]]) + ")" : ""}`;
-      boton = myTurn() ? "Terminar mi turno ▶" : "Esperando al rival…";
+      boton = myTurn() ? "Terminar mi turno ▶︎" : "Esperando al rival…";
     }
     r = { info: r.info || info, boton: r.boton || boton };
   }
@@ -125,7 +125,7 @@ OC.accion(
   },
   { libre: true },
 );
-/* «Fin de la primavera ▶» / «Fin del año ▶»: el turno es una estación (campaña) */
+/* «Fin de la primavera ▶︎» / «Fin del año ▶︎»: el turno es una estación (campaña) */
 function ifzTextoFin() {
   try {
     if (typeof camTextoFin === "function") return camTextoFin();
@@ -133,7 +133,7 @@ function ifzTextoFin() {
     console.error("[ifz] camTextoFin", e);
   }
   const n = ["la primavera", "l verano", "l otoño", "l invierno"][G.estacion];
-  return n ? `Fin de${n} ▶` : "Fin del año ▶";
+  return n ? `Fin de${n} ▶︎` : "Fin del año ▶︎";
 }
 /* ---------- barra superior: fecha, oro, comida y recursos ---------- */
 function ifzRecursos() {
@@ -322,7 +322,7 @@ function ifzCabecera(p, f) {
       const g = socGob(p);
       if (g) ch.push(`<span class="ifz-chip" title="Gobernador">♜ ${esc(g.n)}</span>`);
     }
-    if (typeof camAsedio === "function" && camAsedio(p.id)) ch.push('<span class="ifz-chip ifz-mal" title="La ciudad está sitiada">⚔ Sitiada</span>');
+    if (typeof camAsedio === "function" && camAsedio(p.id)) ch.push('<span class="ifz-chip ifz-mal" title="La ciudad está sitiada">Sitiada</span>');
   } catch (e) {
     console.error("[ifz] cabecera", e);
   }
@@ -732,7 +732,8 @@ function ifzPolitico(own) {
       "|" +
       G.P.map((p) => `${p.walls || 0}.${p.farm || 0}.${Math.round(ifzPob(p) / 3)}.${p.cap ? 1 : 0}.${ifzTorre(p)}.${p.puerto || 0}.${Object.keys(ifzExpl(p)).join("")}`).join(",") +
       "|" +
-      dues.map((f) => (ifzVias(f) ? 1 : 0)).join("");
+      dues.map((f) => (ifzVias(f) ? 1 : 0)).join("") +
+      (IFZ.sinCiudades ? "|s" : "");
   if (IFZ_POL.cv && IFZ_POL.k === k) return IFZ_POL.cv;
   const t0 = performance.now(),
     S = IFZ_S,
@@ -925,8 +926,10 @@ function ifzPolitico(own) {
       else ifzCeldaEdif(c, X, Y, k2);
     }
   /* ciudades: casas según la población, murallas según su nivel, castillo o torre en el centro;
-     con atlas, MAPA.ciudad.<1-4> / MAPA.capital y MAPA.muralla.<nivel> / MAPA.muralla_capital.<nivel> */
+     con atlas, MAPA.ciudad.<1-4> / MAPA.capital y MAPA.muralla.<nivel> / MAPA.muralla_capital.<nivel>.
+     IFZ.sinCiudades (mapa 3D, js/mapa3d.js): no se pintan, porque allí son edificios en volumen */
   for (const p of G.P) {
+    if (IFZ.sinCiudades) break;
     const o = own[p.id],
       X = p.x * S + S / 2,
       Y = p.y * S + S / 2,
@@ -1308,7 +1311,7 @@ function drawMap(now) {
     const X = p.x * S + S / 2,
       Y = p.y * S + S / 2,
       o = own[p.id];
-    if (p.cap && wave && !ifzAtlImg("capital")) {
+    if (p.cap && wave && !ifzAtlImg("capital") && !IFZ.sinCiudades) {
       h.save();
       h.scale(2, 2);
       spr(h, SP.castle2, Math.round(X / 2) - 5, Math.round(Y / 2) - 8, PAL[o] || PAL[0]);
@@ -1326,7 +1329,7 @@ function drawMap(now) {
       h.drawImage(ins, X + (p.cap ? 11 : 7), Y - 6 - ins.height * z, ins.width * z, ins.height * z);
     }
   }
-  /* recurso principal de cada provincia visible (opción en ⚙) */
+  /* recurso principal de cada provincia visible (opción en ⚙︎) */
   if (!R && IFZ.pref.iconos !== false)
     for (const { p, r } of ifzRecProv(now)) {
       const ic = ifzInsRecurso(r.icono);
@@ -1410,7 +1413,7 @@ function ifzVeloNiebla(c, f, now) {
     exp = camExpArr(f),
     ter = ifzTerrenoHD(),
     z = ifzEscIns(),
-    k = `${V.k}|${f}|${((camS().exp || {})[f] || "").length}|${G.P.map((p) => p.owner).join(",")}|${IFZ_HD.terK}|${z}`;
+    k = `${V.k}|${f}|${((camS().exp || {})[f] || "").length}|${G.P.map((p) => p.owner).join(",")}|${IFZ_HD.terK}|${z}|${IFZ.sinCiudades ? 1 : 0}`;
   if (IFZ_NIEBLA.k !== k || !IFZ_NIEBLA.cv) {
     const cc = IFZ_NIEBLA.cv || (IFZ_NIEBLA.cv = document.createElement("canvas"));
     const RR = IFZ_HD.r || 1;
@@ -1439,8 +1442,8 @@ function ifzVeloNiebla(c, f, now) {
       x.fillRect(X, Y, S, S);
       x.globalAlpha = 1;
     }
-    /* ciudades que no se ven: solo de quién son */
-    for (const p of G.P) {
+    /* ciudades que no se ven: solo de quién son (en 3D son edificios en volumen) */
+    for (const p of IFZ.sinCiudades ? [] : G.P) {
       const i = camIdx(p.x, p.y);
       if (V.vis[i]) continue;
       const o = p.owner,
@@ -1837,7 +1840,7 @@ function ifzRepBarra(abrir) {
   if (abrir) {
     b.hidden = false;
     const est = typeof CAM_EST !== "undefined" ? CAM_EST[R.rep.est ?? G.estacion] : "";
-    b.innerHTML = `<div class="ifz-repbar" role="status" aria-live="polite"><b>Repetición · ${est ? est.toLowerCase() + " de " : ""}${R.rep.anio ?? G.year}</b><span class="ifz-repprog" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></span><button data-act="ifzrep-x2" id="ifzrepx2" aria-pressed="false">×2</button><button data-act="ifzrep-saltar" class="gold">Saltar ▶▶</button></div>`;
+    b.innerHTML = `<div class="ifz-repbar" role="status" aria-live="polite"><b>Repetición · ${est ? est.toLowerCase() + " de " : ""}${R.rep.anio ?? G.year}</b><span class="ifz-repprog" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></span><button data-act="ifzrep-x2" id="ifzrepx2" aria-pressed="false">×2</button><button data-act="ifzrep-saltar" class="gold">Saltar ▶︎▶︎</button></div>`;
     setTimeout(() => b.querySelector('[data-act="ifzrep-saltar"]')?.focus({ preventScroll: true }), 30);
   }
   const i = b.querySelector(".ifz-repprog i"),
@@ -2150,9 +2153,12 @@ document.addEventListener("click", (e) => {
   }
   if (!G) return;
   if (a === "tab") {
-    const deTabs = !!b.closest("#tabs");
+    const deTabs = !!b.closest("#tabs"),
+      panel = document.querySelector(".wrap > aside");
     tab = v;
     ui();
+    /* otra pestaña: el panel vuelve arriba (el mapa no se mueve) */
+    if (panel) panel.scrollTop = 0;
     if (deTabs) $("tabb-" + v)?.focus({ preventScroll: true });
     return;
   }
@@ -2479,7 +2485,7 @@ function ifzAyuda() {
 <h3>El panel de mando</h3>
 <ul><li><b>Provincia</b>: reclutar, formar ejércitos, edificios, gobierno, ánimo e impuestos (las secciones se pliegan y recuerdan cómo las dejaste).</li><li><b>Ejército</b> y <b>Campaña</b>: tus huestes, mandos, asedios y mercenarios.</li><li><b>Dinastía</b>, <b>Corte</b> y <b>Diplomacia</b>: herederos, bodas, consejo, tratados y guerras.</li><li><b>Tesoro</b> y <b>Progreso</b>: economía, comercio, investigación y eras.</li><li><b>Anales</b> y <b>Crónica</b>: la historia de tu linaje y lo que ocurre en el mundo.</li></ul>
 <h3>Teclado</h3>
-<p>En <b>⚙ Opciones</b>: la velocidad de las animaciones y la repetición de cada estación (a velocidad acelerada, con «Saltar» y «×2»).</p><p><kbd>E</kbd> terminar · <kbd>Esc</kbd> cancelar, cerrar o saltar la repetición · <kbd>?</kbd> esta ayuda · flechas para cambiar de pestaña.</p></div>`,
+<p>En <b>⚙︎ Opciones</b>: la velocidad de las animaciones y la repetición de cada estación (a velocidad acelerada, con «Saltar» y «×2»).</p><p><kbd>E</kbd> terminar · <kbd>Esc</kbd> cancelar, cerrar o saltar la repetición · <kbd>?</kbd> esta ayuda · flechas para cambiar de pestaña.</p></div>`,
     [
       ...(G ? [{ t: "Repetir el tutorial", fn: () => ((IFZ.pref.tut = 0), ifzGuardar()) }] : []),
       { t: "Cerrar", cls: "gold" },
@@ -2568,7 +2574,7 @@ const IFZ_TUT = [
   },
   {
     t: "Pasa la estación",
-    m: () => `Cuando termines, pulsa «${ifzTextoFin().replace(" ▶", "")}» (tecla E). Las demás potencias moverán y llegará la estación siguiente.`,
+    m: () => `Cuando termines, pulsa «${ifzTextoFin().replace(" ▶︎", "")}» (tecla E). Las demás potencias moverán y llegará la estación siguiente.`,
     ok: (s) => G.year !== s.anio0 || G.estacion !== s.est0,
   },
 ];

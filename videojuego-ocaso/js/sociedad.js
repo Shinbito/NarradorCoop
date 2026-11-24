@@ -1192,7 +1192,7 @@ function socPanel(dis) {
     bajos = Object.keys(s.e).filter((k) => s.e[k].l < 25);
   let h = `<h2>Corte y sociedad</h2><p class="dim">Estabilidad <b>${Math.round(socEstabilidad(f))}</b> · fe ${SOC_FEN[CIV[f].rel] || "—"}${ten ? ` · ${Math.round(ten * 100)}% de tus tierras con otra fe` : ""}</p>`;
   if (bajos.length)
-    h += `<p class="dip-cb">⚠ Riesgo de ${bajos.length >= 2 && bajos.reduce((a, k) => a + s.e[k].i, 0) >= 45 ? "guerra civil" : "conjura"}: ${bajos.map((k) => socNombre(f, k)).join(", ")}.</p>`;
+    h += `<p class="dip-cb">Riesgo de ${bajos.length >= 2 && bajos.reduce((a, k) => a + s.e[k].i, 0) >= 45 ? "guerra civil" : "conjura"}: ${bajos.map((k) => socNombre(f, k)).join(", ")}.</p>`;
   h += "<h3>Estamentos</h3>";
   for (const k in s.e) {
     const e = s.e[k],
@@ -1201,7 +1201,7 @@ function socPanel(dis) {
       us = (s.uso[k] || 0) >= G.year,
       col = e.l < 30 ? "#e0503f" : e.l < 55 ? "#e8b632" : "#4caf50";
     h += `<div class="soc-e"><div class="hd"><b>${socNombre(f, k)}</b><span class="stats">poder ${e.i}%</span></div><div class="bar"><i style="width:${e.l}%;background:${col}"></i></div>`;
-    h += `<details data-soce="${k}"${socAbiertos[k] ? " open" : ""}><summary>Lealtad ${e.l} ${ob.v > e.l ? "↗" : ob.v < e.l ? "↘" : "→"} ${ob.v} · ${socEfTxt(f, k)}</summary><ul class="dip-mot">${ob.mot.length ? ob.mot.map(([t, v]) => `<li><b class="${v < 0 ? "neg" : "pos"}">${dipSg(v)}</b> ${t}</li>`).join("") : "<li>Sin motivos especiales</li>"}</ul></details>`;
+    h += `<details data-soce="${k}"${socAbiertos[k] ? " open" : ""}><summary>Lealtad ${e.l} ${ob.v > e.l ? "sube a" : ob.v < e.l ? "baja a" : "se queda en"} ${ob.v} · ${socEfTxt(f, k)}</summary><ul class="dip-mot">${ob.mot.length ? ob.mot.map(([t, v]) => `<li><b class="${v < 0 ? "neg" : "pos"}">${dipSg(v)}</b> ${t}</li>`).join("") : "<li>Sin motivos especiales</li>"}</ul></details>`;
     h += `<div class="btns"><button data-act="socdon-${k}" ${dis || us || !OC.puedePagar(f, coste) ? "disabled" : ""}>${dn} · ${OC.textoCoste(coste)}</button><button data-act="socrec-${k}" ${dis || (s.uso.rec || 0) >= G.year || e.i <= 12 ? "disabled" : ""}>Recortar poder</button></div></div>`;
   }
   const dem = s.dem.filter((d) => d.ac);

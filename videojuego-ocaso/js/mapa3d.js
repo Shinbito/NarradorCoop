@@ -149,6 +149,96 @@ function m3dTextura() {
   M3D.tex.needsUpdate = true;
 }
 
+/* ---------- ciudades en volumen ----------
+   Con el 3D activo la interfaz no pinta las ciudades en la textura (IFZ.sinCiudades): aquí son edificios con
+   las mismas reglas que el dibujo 2D (casas según la población, tejados del color del dueño, la capital con
+   torre del homenaje y cuatro torres, y anillo de murallas con torres según su nivel). Se rehacen cuando
+   cambia algo (dueños, población, murallas, capitales). Tres InstancedMesh: muros (cajas), tejados (conos de
+   cuatro caras) y piedra (murallas, torres, torre del homenaje). */
+const M3D_PAREDES = ["#d8c8a8", "#c8b090", "#e0d4bc", "#b89f80"];
+function m3dCiudadesK() {
+  const own = G.P.map((p) => p.owner);
+  return MAP.seed + "|" + own.join(",") + "|" + G.P.map((p) => `${Math.round((typeof ifzPob === "function" ? ifzPob(p) : 8) / 2.2)}.${Math.min(3, p.walls || 0)}.${p.cap ? 1 : 0}`).join(",");
+}
+function m3dCiudades() {
+  const k = m3dCiudadesK();
+  if (M3D.ciudK === k && M3D.ciud) return;
+  M3D.ciudK = k;
+  if (M3D.ciud) {
+    for (const m of M3D.ciud) {
+      M3D.scene.remove(m);
+      m.geometry.dispose();
+    }
+  }
+  const casas = [],
+    tejas = [],
+    piedra = [];
+  let sem = (MAP.seed || 1) * 9301;
+  const rnd = () => ((sem = (sem * 16807) % 2147483647) / 2147483647);
+  for (const p of G.P) {
+    const o = p.owner,
+      civ = CIV[o] || { c: "#a84a2a" },
+      cx = p.x + 0.5 - W / 2,
+      cz = p.y + 0.5 - H / 2,
+      y0 = Math.max(0.05, m3dAlt(p.x, p.y)),
+      n = clamp(Math.round((typeof ifzPob === "function" ? ifzPob(p) : 8) / 2.2) + (p.cap ? 2 : 0), 2, typeof IFZ_CASAS !== "undefined" ? IFZ_CASAS.length : 12),
+      mu = Math.min(3, p.walls || 0),
+      rad = p.cap ? 1.45 : 0.9; /* como el dibujo 2D: 2 casillas un pueblo, 3 la capital */
+    /* casas en espiral alrededor del centro */
+    for (let i = 0; i < n; i++) {
+      const a = i * 2.4 + rnd() * 0.5,
+        r = (p.cap ? 0.62 : 0.12) + Math.sqrt(i / n) * (rad - (p.cap ? 0.85 : 0.35)),
+        w = 0.22 + rnd() * 0.1,
+        d = 0.22 + rnd() * 0.1,
+        h = 0.17 + rnd() * 0.12;
+      casas.push({ x: cx + Math.cos(a) * r, z: cz + Math.sin(a) * r, y: y0, w, d, h, col: M3D_PAREDES[Math.floor(rnd() * 4)] });
+      tejas.push({ x: cx + Math.cos(a) * r, z: cz + Math.sin(a) * r, y: y0 + h, w: w * 1.08, d: d * 1.08, h: 0.14, col: civ.c });
+    }
+    /* capital: torre del homenaje y cuatro torres */
+    if (p.cap) {
+      piedra.push({ x: cx, z: cz, y: y0, w: 0.5, d: 0.5, h: 0.75 });
+      for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+        piedra.push({ x: cx + a * 0.36, z: cz + b * 0.36, y: y0, w: 0.2, d: 0.2, h: 0.95 });
+        tejas.push({ x: cx + a * 0.36, z: cz + b * 0.36, y: y0 + 0.95, w: 0.24, d: 0.24, h: 0.2, col: civ.c });
+      }
+      tejas.push({ x: cx, z: cz, y: y0 + 0.75, w: 0.54, d: 0.54, h: 0.24, col: civ.c });
+    }
+    /* murallas: anillo de lienzos y torres */
+    if (mu) {
+      const R2 = rad + 0.1,
+        seg = p.cap ? 28 : 18,
+        alto = 0.12 + mu * 0.05;
+      for (let i = 0; i < seg; i++) {
+        const a = (i / seg) * Math.PI * 2,
+          L = ((Math.PI * 2 * R2) / seg) * 1.05;
+        piedra.push({ x: cx + Math.cos(a) * R2, z: cz + Math.sin(a) * R2, y: y0, w: L, d: 0.08, h: alto, rot: -a + Math.PI / 2 });
+        if (i % (p.cap ? 4 : 3) === 0) piedra.push({ x: cx + Math.cos(a) * R2, z: cz + Math.sin(a) * R2, y: y0, w: 0.14, d: 0.14, h: alto + 0.14 });
+      }
+    }
+  }
+  const M4 = new THREE.Matrix4(),
+    Q = new THREE.Quaternion(),
+    V = new THREE.Vector3(),
+    Sv = new THREE.Vector3(),
+    Y = new THREE.Vector3(0, 1, 0),
+    c = new THREE.Color(),
+    malla = (geo, lista, colFija) => {
+      const mat = new THREE.MeshLambertMaterial({ color: "#ffffff", flatShading: true }),
+        im = new THREE.InstancedMesh(geo, mat, Math.max(1, lista.length));
+      im.count = lista.length;
+      lista.forEach((b, i) => {
+        Q.setFromAxisAngle(Y, b.rot || 0);
+        M4.compose(V.set(b.x, b.y + b.h / 2, b.z), Q, Sv.set(b.w, b.h, b.d));
+        im.setMatrixAt(i, M4);
+        im.setColorAt(i, c.set(colFija || b.col));
+      });
+      M3D.scene.add(im);
+      return im;
+    },
+    gTejado = new THREE.ConeGeometry(0.72, 1, 4, 1);
+  gTejado.rotateY(Math.PI / 4);
+  M3D.ciud = [malla(new THREE.BoxGeometry(1, 1, 1), casas), malla(gTejado, tejas), malla(new THREE.BoxGeometry(1, 1, 1), piedra, "#bdb3a0")];
+}
 /* ---------- cámara ---------- */
 function m3dCamara() {
   const C = M3D.cam,
@@ -329,6 +419,7 @@ function m3dBotones() {
   z.prepend(mk("vista", "3D", "Cambiar entre el mapa en 3D y el plano"));
 }
 function m3dMostrar(on) {
+  if (!on && typeof IFZ !== "undefined") IFZ.sinCiudades = false;
   const w = $("mapwrap");
   if (!w) return;
   if (on && !M3D.gl.isConnected) w.parentNode.insertBefore(M3D.gl, w);
@@ -386,6 +477,8 @@ function m3dDibujar() {
   if (on !== M3D.visto) {
     M3D.visto = on;
     if (M3D.gl || !on) m3dMostrar(on);
+    /* en 3D las ciudades son edificios: la interfaz deja de pintarlas planas */
+    if (typeof IFZ !== "undefined") IFZ.sinCiudades = on;
   }
   if (!on) return;
   const w = $("mapwrap"),
@@ -399,6 +492,7 @@ function m3dDibujar() {
     M3D.gl.style.height = th + "px";
   }
   m3dGeo();
+  m3dCiudades();
   /* la textura, a ~20 fotogramas por segundo (subirla en cada uno pesa en el móvil) */
   if (++M3D.n % 3 === 0 || !M3D.texLista) {
     m3dTextura();

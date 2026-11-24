@@ -397,7 +397,7 @@ OC.seccion("prov", {
       .join("")}${bloq
       .map(
         (b) =>
-          `<button class="cmb-lock" disabled title="${esc(CIV[ME].un[b.t] + ": " + b.motivo)}"><img src="${icon(ME, b.t)}" alt="">${CIV[ME].un[b.t]}<small>🔒 ${b.motivo}</small></button>`,
+          `<button class="cmb-lock" disabled title="${esc(CIV[ME].un[b.t] + ": " + b.motivo)}"><img src="${icon(ME, b.t)}" alt="">${CIV[ME].un[b.t]}<small>Bloqueado: ${b.motivo}</small></button>`,
       )
       .join("")}</div>${vt ? `<p class="stats cmb-vt">${vt}</p>` : ""}${cmbInstrHtml(p, F, dis)}`;
   },
@@ -763,7 +763,7 @@ OC.panel({
       .map((t) => {
         const s = cmbStats(ME, t, null, "atacante"),
           lk = bloq.find((b) => b.t === t);
-        return `<div class="cmb-cl${lk ? " cmb-off" : ""}"><img src="${icon(ME, t)}" alt=""><div><b>${CIV[ME].un[t]}</b> <span class="stats">${UN[t].s.toLowerCase()} · ${cmbCoste(ME, t, cap)} oro${lk ? " · 🔒 " + lk.motivo : ""}</span><br><span class="good">+ ${cmbInfo(t).fu}</span><br><span class="bad">− ${cmbInfo(t).db}</span><br><span class="stats">At ${Math.round(s.me)} · Car ${s.ca} · Def ${Math.round(s.de)} · Arm ${s.ar} · Vel ${s.ve}${s.al ? " · Alc " + s.al : ""}${cmbHabTexto(ME, t) ? "<br>Habilidades: " + cmbHabTexto(ME, t) : ""}</span></div></div>`;
+        return `<div class="cmb-cl${lk ? " cmb-off" : ""}"><img src="${icon(ME, t)}" alt=""><div><b>${CIV[ME].un[t]}</b> <span class="stats">${UN[t].s.toLowerCase()} · ${cmbCoste(ME, t, cap)} oro${lk ? " · 🔒︎ " + lk.motivo : ""}</span><br><span class="good">+ ${cmbInfo(t).fu}</span><br><span class="bad">− ${cmbInfo(t).db}</span><br><span class="stats">At ${Math.round(s.me)} · Car ${s.ca} · Def ${Math.round(s.de)} · Arm ${s.ar} · Vel ${s.ve}${s.al ? " · Alc " + s.al : ""}${cmbHabTexto(ME, t) ? "<br>Habilidades: " + cmbHabTexto(ME, t) : ""}</span></div></div>`;
       })
       .join(
         "",

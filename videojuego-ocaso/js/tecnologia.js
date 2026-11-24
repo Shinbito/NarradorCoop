@@ -563,7 +563,7 @@ for (const k in TEC_EDI)
 
 /* Perfiles de ciudad: emergen de lo construido y adoptado; los especializados tienen sinergias. */
 const TEC_PERFIL = {
-  fuerte: { nombre: "Plaza fuerte", icono: "⚔", sin: "tropas de aquí −10% coste, +5% vida; +5% al defender" },
+  fuerte: { nombre: "Plaza fuerte", icono: "⚔︎", sin: "tropas de aquí −10% coste, +5% vida; +5% al defender" },
   mercantil: { nombre: "Ciudad mercantil", icono: "◉", sin: "+10% oro" },
   granero: { nombre: "Granero", icono: "❦", sin: "+10% comida" },
   saber: { nombre: "Ciudad de saber", icono: "✎", sin: "+25% investigación" },
@@ -1440,9 +1440,9 @@ function tecYacHtml(p, f) {
         max = tecMax(k, f, p);
       return `${tecB(k, f).n}${L ? " " + TEC_ROM[L] + (t.ahora ? ` (${t.ahora})` : "") : ""}${L < max && t.sig ? ` → ${TEC_ROM[L + 1]}: ${t.sig}` : ""}`;
     });
-  return `<p class="stats tec-yac">⛏ ${hay.map((id) => `${TEC_YAC_N[id]} <span class="tec-pip">${pips(Math.min(3, +Y[id]))}</span>`).join(" · ") || "sin yacimientos"}${fer}${ex.length ? "<br>" + ex.join(" · ") : ""}</p>`;
+  return `<p class="stats tec-yac">⛏︎ ${hay.map((id) => `${TEC_YAC_N[id]} <span class="tec-pip">${pips(Math.min(3, +Y[id]))}</span>`).join(" · ") || "sin yacimientos"}${fer}${ex.length ? "<br>" + ex.join(" · ") : ""}</p>`;
 }
-/* Línea corta con los edificios construidos y el perfil: «⚔ Plaza fuerte · Murallas II · Cuartel I» */
+/* Línea corta con los edificios construidos y el perfil: «⚔︎ Plaza fuerte · Murallas II · Cuartel I» */
 function tecLineaEdificios(p) {
   const l = tecEdificios()
     .filter((k) => p[k] > 0)
@@ -1470,12 +1470,12 @@ OC.seccion("prov", {
     const q = tecCola(p.id),
       per = tecPerfil(p),
       hu = tecHuecos(p);
-    let h = `<h3>La ciudad</h3><div class="tec-perfil"><span class="tec-pico">${per.icono}</span><div><b>${per.nombre}</b> <span class="stats">· huecos ${hu.usados}/${hu.total} · saber +${tecPuntosCiudad(p, f)}</span><br><span class="stats">⚔ ${per.militar} · ◉ ${per.economico} · ✎ ${per.saber}${per.sin ? " — " + per.sin : ""}</span></div></div>`;
+    let h = `<h3>La ciudad</h3><div class="tec-perfil"><span class="tec-pico">${per.icono}</span><div><b>${per.nombre}</b> <span class="stats">· huecos ${hu.usados}/${hu.total} · saber +${tecPuntosCiudad(p, f)}</span><br><span class="stats">⚔︎ ${per.militar} · ◉ ${per.economico} · ✎ ${per.saber}${per.sin ? " — " + per.sin : ""}</span></div></div>`;
     if (q.length)
       h += `<div class="tec-cola">${q
         .map(
           (o, i) =>
-            `<div class="tec-obra"><span>${o.ad ? "✎ <b>" + TEC[o.ad].n : "⚒ <b>" + tecB(o.k, f).n + " " + TEC_ROM[o.n]}</b><br><small>${i ? "en espera" : "faltan " + tecAnioTxt(o.a)}</small></span><button data-act="tecanu-${i}" ${dis ? "disabled" : ""} title="Se recupera la mitad de lo pagado">Cancelar</button></div>`,
+            `<div class="tec-obra"><span>${o.ad ? "✎ <b>" + TEC[o.ad].n : "⚒︎ <b>" + tecB(o.k, f).n + " " + TEC_ROM[o.n]}</b><br><small>${i ? "en espera" : "faltan " + tecAnioTxt(o.a)}</small></span><button data-act="tecanu-${i}" ${dis ? "disabled" : ""} title="Se recupera la mitad de lo pagado">Cancelar</button></div>`,
         )
         .join("")}</div>`;
     h += `<h3>Edificios</h3><div class="g2 tec-edis">${tecEdificios()

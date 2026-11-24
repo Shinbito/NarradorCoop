@@ -2136,8 +2136,8 @@ function camSaltar(f = ME) {
   return true;
 }
 function camTextoFin() {
-  if (camSaltar(ME) && G.estacion === 0) return "Fin del año ▶";
-  return camSaltar(ME) ? `Fin del año ▶ (${CAM_EST[G.estacion].toLowerCase()})` : `Fin de${G.estacion === 0 ? " la primavera" : G.estacion === 1 ? "l verano" : G.estacion === 2 ? "l otoño" : "l invierno"} ▶`;
+  if (camSaltar(ME) && G.estacion === 0) return "Fin del año ▶︎";
+  return camSaltar(ME) ? `Fin del año ▶︎ (${CAM_EST[G.estacion].toLowerCase()})` : `Fin de${G.estacion === 0 ? " la primavera" : G.estacion === 1 ? "l verano" : G.estacion === 2 ? "l otoño" : "l invierno"} ▶︎`;
 }
 
 /* ---------- partidas antiguas, paz, provincias perdidas ---------- */

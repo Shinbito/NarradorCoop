@@ -349,7 +349,7 @@ function dynPanel(dis) {
       par = c.fa != null && G.C[c.fa] ? `${c.sex === "m" ? "hijo" : "hija"} de ${G.C[c.fa].n}` : "",
       spc = G.C[c.sp],
       lea = Math.round(c.lea ?? 50);
-    h += `<div class="row"><div class="hd"><b>${c.n} <button class="dip-x" data-act="renombrar-${c.id}" title="Renombrar" aria-label="Renombrar">✎</button></b><span class="tag">${role}</span></div><span class="stats">${c.sex === "m" ? "♂" : "♀"} ${c.age} años ${par ? "· " + par : ""}${spc && spc.alive ? " · casado/a con " + spc.n : ""}</span><br>${cline(c)}`;
+    h += `<div class="row"><div class="hd"><b>${c.n} <button class="dip-x" data-act="renombrar-${c.id}" title="Renombrar" aria-label="Renombrar">✎</button></b><span class="tag">${role}</span></div><span class="stats">${c.sex === "m" ? "♂︎" : "♀︎"} ${c.age} años ${par ? "· " + par : ""}${spc && spc.alive ? " · casado/a con " + spc.n : ""}</span><br>${cline(c)}`;
     if (c.age >= 12)
       h += `<br><span class="stats">Lealtad <b class="${lea < 30 ? "neg" : lea > 70 ? "pos" : ""}">${lea}</b> · ambición ${c.amb ?? 5}</span>`;
     h += `<div class="btns">${c.id !== F.heir && c.id !== r.sp && !c.dipCort ? `<button data-act="heir-${c.id}" ${dis ? "disabled" : ""}>Designar heredero</button>` : ""}${c.sp == null && c.age >= 16 && c.dipReh == null ? `<button data-act="marry-${c.id}" ${dis ? "disabled" : ""}>Concertar boda</button>` : ""}</div></div>`;

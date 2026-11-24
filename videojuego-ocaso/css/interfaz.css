@@ -863,3 +863,42 @@ button.onl-mini {
     font-size: 12px;
   }
 }
+
+/* ---------- el mapa siempre a la vista ----------
+   En escritorio el mapa queda fijo y el panel de mando de la derecha baja con su propio desplazamiento,
+   del alto de la ventana (al cambiar de pestaña vuelve arriba). En pantallas estrechas el mapa ya va
+   pegado arriba (ocaso.css) y el panel baja por debajo. */
+@media (min-width: 1001px) {
+  .wrap {
+    align-items: start;
+  }
+  .board {
+    position: sticky;
+    top: 8px;
+    z-index: 3;
+  }
+  .wrap > aside {
+    position: sticky;
+    top: 8px;
+    max-height: calc(100vh - 16px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    padding-right: 4px;
+  }
+  #mapwrap {
+    max-height: calc(100vh - 110px);
+  }
+}
+/* pantallas estrechas: el mapa pegado arriba (la regla general .board { position: relative } de este archivo
+   anulaba la de ocaso.css) y el panel baja por debajo */
+@media (max-width: 1000px) {
+  .board {
+    position: sticky;
+    top: 0;
+    z-index: 4; /* sobre lo que pasa por debajo («Fin del año», sticky) y bajo las ventanas (.over, 5) */
+  }
+  .end {
+    z-index: 3;
+  }
+}

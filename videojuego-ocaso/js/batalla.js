@@ -3413,7 +3413,7 @@ function battleAct(v) {
     BT.sels = [+x];
     fixSlot();
   }
-  /* ⚔ = atacar cuerpo a cuerpo; arco = atacar a distancia (solo tropas con alcance) */
+  /* ⚔︎ = atacar cuerpo a cuerpo; arco = atacar a distancia (solo tropas con alcance) */
   if (a === "atk") {
     BT.atk = BT.atk === true ? false : true;
     if (BT.atk && !selU().length) BT.atk = false;
@@ -3546,14 +3546,14 @@ function bui() {
   } else {
     const SG = selU();
     if (SG.length > 1)
-      h += `<h3>${SG.length} unidades seleccionadas · ${SG.reduce((a, o) => a + o.n, 0)} soldados</h3><p class="stats">La postura se aplica a todas. Toca el terreno para moverlas en formación o ⚔ y un enemigo para atacar juntas.</p>`;
+      h += `<h3>${SG.length} unidades seleccionadas · ${SG.reduce((a, o) => a + o.n, 0)} soldados</h3><p class="stats">La postura se aplica a todas. Toca el terreno para moverlas en formación o ⚔︎ y un enemigo para atacar juntas.</p>`;
     if (u && mio(u) && act(u)) {
       const fm = Math.max(0.5, 1 - u.fat / 220);
       h += `<h3>${SG.length > 1 ? "Principal: " : ""}${CIV[u.f].un[u.t]} · ${u.n}/${u.n0}${u.gen ? " · ⚑ general" : ""}${u.rout ? " · ¡HUYENDO!" : ""}</h3>
   <div class="stats">${cmbInfo(u.t).tag} · ${cmbNivelVet(u.cs.xp).toLowerCase()} · ${cmbEstado(u)}<br>Ataque ${Math.round(u.cs.me * fm * 10) / 10}${u.cs.ca ? " · carga " + u.cs.ca : ""} · Defensa ${Math.round(u.cs.de * 10) / 10} · Armadura ${u.cs.ar}${u.cs.al ? ` · munición ${u.ammo}/${u.cs.mu}` : ""} · heridos ${u.her}</div>
   <div class="stats">Moral</div>${bar((u.mor / u.morMax) * 100, u.mor < u.morMax * 0.35 ? "#e0503f" : "#5b97f0")}<div class="stats">Cansancio</div>${bar(u.fat, "#e8b632")}`;
       if (cmbPuedeTirar(u) && !u.rout)
-        h += `<div class="btns"><button data-act="b-dis" class="${BT.atk === "dis" ? "on" : ""}" ${u.ammo > 0 ? "" : "disabled"} title="Elige una tropa enemiga para atacarla a distancia">${CMB_ICO_ARCO} A distancia</button><button data-act="b-atk" class="${BT.atk === true ? "on" : ""}" title="Cargar cuerpo a cuerpo">⚔ Cuerpo a cuerpo</button></div>`;
+        h += `<div class="btns"><button data-act="b-dis" class="${BT.atk === "dis" ? "on" : ""}" ${u.ammo > 0 ? "" : "disabled"} title="Elige una tropa enemiga para atacarla a distancia">${CMB_ICO_ARCO} A distancia</button><button data-act="b-atk" class="${BT.atk === true ? "on" : ""}" title="Cargar cuerpo a cuerpo">⚔︎ Cuerpo a cuerpo</button></div>`;
       const n = BT.mode === "t3" ? 3 : 1;
       for (let i = 0; i < n; i++) {
         const p = u.plan[i];
@@ -3570,7 +3570,7 @@ function bui() {
       h += cmbHabBotones(u);
       h += `<div class="btns"><button data-act="b-same">Misma postura para todos los ${CIV[u.f].un[u.t].toLowerCase()}</button></div>`;
     }
-    h += `<p class="note">Toca una unidad para elegirla; mantén pulsada otra para sumarla, o mantén pulsado el terreno y arrastra para rodear varias. Luego toca el destino (o arrastra) y ⚔ + enemigo para atacar.${BT.mode === "rt" ? "" : " Las tropas no pasan de su círculo de alcance."}${BT.mode === "t3" ? " Cada arrastre llena la siguiente acción." : ""}</p>`;
+    h += `<p class="note">Toca una unidad para elegirla; mantén pulsada otra para sumarla, o mantén pulsado el terreno y arrastra para rodear varias. Luego toca el destino (o arrastra) y ⚔︎ + enemigo para atacar.${BT.mode === "rt" ? "" : " Las tropas no pasan de su círculo de alcance."}${BT.mode === "t3" ? " Cada arrastre llena la siguiente acción." : ""}</p>`;
     h +=
       BT.mode === "rt"
         ? `<div class="g3"><button data-act="b-pause" class="gold">${BT.paused ? "Reanudar" : "Pausa"}</button><button data-act="b-spd">Velocidad ×${BT.speed}</button><button data-act="b-flee" class="red">Retirada</button></div>`

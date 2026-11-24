@@ -41,7 +41,7 @@ function onlSalaPintar() {
     const u = (d.seats || {})[f];
     if (!u)
       return `<tr><td>${onlCivTxt(f)}</td><td class="dim">libre · lo llevará la IA</td><td>${jug.includes(net.uid) ? `<button class="onl-mini" data-sala="civ-${f}">Elegir este pueblo</button>` : ""}</td></tr>`;
-    const estado = u === d.host ? "♛ anfitrión" : listos[u] ? "✔ listo" : "esperando…";
+    const estado = u === d.host ? "♛ anfitrión" : listos[u] ? "listo" : "esperando…";
     return `<tr><td>${onlCivTxt(f)}</td><td><b>${esc(onlNombre(u))}</b>${u === net.uid ? " (tú)" : ""} ${onlConectado(u) ? '<i class="onl-on" title="conectado">●</i>' : '<i class="dim" title="desconectado">○</i>'}</td><td class="${listos[u] || u === d.host ? "" : "dim"}">${estado}</td></tr>`;
   };
   const amigos = Object.keys(ONL.amigos || {}).filter((u) => ONL.amigos[u].estado === "aceptada" && !jug.includes(u)),
@@ -53,9 +53,9 @@ function onlSalaPintar() {
     : '<p class="dim">Añade amigos en el menú online («Invitar amigos» o la pestaña «Amigos») para traerlos aquí.</p>';
   const yo = jug.includes(net.uid) && !host,
     botones = host
-      ? `<button class="gold" data-sala="empezar">Empezar partida ▶</button>`
+      ? `<button class="gold" data-sala="empezar">Empezar partida ▶︎</button>`
       : yo
-        ? `<button class="${listos[net.uid] ? "" : "gold"}" data-sala="listo">${listos[net.uid] ? "Ya no estoy listo" : "Estoy listo ✔"}</button>`
+        ? `<button class="${listos[net.uid] ? "" : "gold"}" data-sala="listo">${listos[net.uid] ? "Ya no estoy listo" : "Estoy listo"}</button>`
         : "";
   const html = `<p class="dim">${esc(d.name || "Partida")} · ${d.publica ? "pública" : "privada"} · ${cfg.modoTurno === "tr" ? "tiempo real (" + cfg.trSeg + " s)" : "por correspondencia (" + cfg.plazoH + " h por estación)"}${d.modo === "leyendas" ? " · leyendas" : ""}</p>
     <table class="onl-sala-t"><tbody>${act.map(fila).join("")}</tbody></table>
