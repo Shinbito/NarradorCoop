@@ -550,6 +550,13 @@ async function escaramuza(c, fa, fb) {
   await esperar(B, () => net.on && G && ONL.ver >= 1 && ME === 2, null, 15000, "B dentro de la partida");
   ok(meta(id).seats[2] === "u_ben" && meta(id).jug.includes("u_ben"), "B ocupa a los visigodos");
   await esperar(A, () => ONL.meta && ONL.meta.seats[2] === "u_ben", null, 8000, "A ve a B");
+  /* sala de espera (js/online-sala.js): B listo y el anfitrión empieza */
+  ok(meta(id).fase === "sala" && !(await ev(A, () => onlPuedeCerrar(ONL.meta))), "la partida espera en la sala (sin plazo)");
+  await esperar(B, () => !!document.querySelector('#onl-sala.show [data-sala="listo"]'), null, 8000, "B ve la sala de espera");
+  await B.page.click('#onl-sala [data-sala="listo"]');
+  await esperar(A, () => ONL.meta.salaListos && Object.values(ONL.meta.salaListos).some(Boolean), null, 8000, "A ve a B listo");
+  await A.page.click('#onl-sala [data-sala="empezar"]');
+  await esperar(B, () => ONL.meta && ONL.meta.fase === "ordenes" && !document.querySelector("#onl-sala.show"), null, 8000, "empieza la partida");
 
   /* --- turno 0: los dos dan órdenes a la vez --- */
   const r0 = await ev(A, async () => {
@@ -766,6 +773,10 @@ async function escaramuza(c, fa, fb) {
   const id3 = await ev(A, () => net.id);
   await ev(B, (id) => onlUnirse(id, 2), id3);
   await ev(C, (id) => onlUnirse(id, 3), id3);
+  /* sala de espera: el anfitrión empieza sin esperar a que estén listos */
+  await esperar(A, () => ONL.meta.seats[2] && ONL.meta.seats[3], null, 8000, "B y C en la sala de tres");
+  await ev(A, () => net.db.doc("partidas/" + net.id).update({ fase: "ordenes", limite: onlLimite(ONL.meta.cfg, true), listos: {} }));
+  for (const c of [A, B, C]) await esperar(c, () => ONL.meta && ONL.meta.fase === "ordenes", null, 8000, "empieza la partida de tres");
   await esperar(B, (id) => net.on && net.id === id && G && ONL.ver >= 1, id3, 15000, "B en la partida de tres");
   await esperar(C, (id) => net.on && net.id === id && G && ONL.ver >= 1, id3, 15000, "C en la partida de tres");
   await esperar(A, () => Object.keys(ONL.meta.seats).length === 3, null, 8000, "tres asientos");

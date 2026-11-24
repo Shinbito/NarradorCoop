@@ -719,6 +719,7 @@ function onlEstadoPartida(d, id) {
     resto = onlFmtResto((d.limite || 0) - onlAhora());
   if (e === "abandono") return { k: "aband", t: "La abandonaste: tu pueblo lo lleva la IA" };
   if (e === "ia") return { k: "ia", t: "Por ausencia, tu pueblo lo lleva la IA: entra para retomarlo" };
+  if (d.fase === "sala") return { k: "toca", t: "En la sala de espera: aún no ha empezado" }; /* SALA */
   if (d.fase === "batalla" && d.batalla) {
     const B = d.batalla;
     if (B.d === net.uid) return { k: "toca", t: `¡Te atacan en ${B.lugar}! Acude antes de ${onlFmtHora(B.limite)}` };
@@ -964,7 +965,7 @@ async function onlCrear() {
       partes: pk.partes.length,
       tam: pk.tam,
       tamZ: pk.tamZ,
-      fase: "ordenes",
+      fase: "sala", /* SALA: sala de espera hasta que el anfitrión pulse «Empezar» (js/online-sala.js) */
       limite: onlLimite(cfg, false),
       cfg,
       listos: {},
@@ -1140,6 +1141,11 @@ function onlAdoptar(txt, d) {
 async function onlFase() {
   const d = ONL.meta;
   if (!d || !G) return;
+  /* SALA: antes de empezar, la sala de espera tapa el mapa */
+  if (typeof onlSalaMostrar === "function") {
+    onlSalaMostrar(d.fase === "sala" ? d : null);
+    if (d.fase === "sala") return;
+  }
   const nuevo = ONL.turnoVisto !== d.turno;
   ONL.turnoVisto = d.turno;
   if (nuevo) await onlRepCargar(d);
@@ -1455,7 +1461,7 @@ async function onlListo() {
 }
 /* ¿se puede cerrar la estación? todos listos o plazo vencido (o batalla pendiente vencida) */
 function onlPuedeCerrar(d) {
-  if (!d || d.terminada || d.fase === "fin") return false;
+  if (!d || d.terminada || d.fase === "fin" || d.fase === "sala") return false; /* SALA */
   if (d.fase === "batalla") return !!d.batalla && onlAhora() > d.batalla.limite;
   const act = onlActivos(d);
   return onlAhora() > (d.limite || 0) || (act.length > 0 && act.every((f) => (d.listos || {})[f] === d.turno));

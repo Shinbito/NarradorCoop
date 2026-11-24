@@ -86,4 +86,31 @@
       await onlGuardarBatalla(bid, m, { clave, lugar, comp, uids, ctrl: desc.ctrl, dif: desc.dif, res: onlClon(res) });
     };
   }
+
+  /* delegada contra la IA: quien la dirige no tiene rivales humanos, así que onlBatallaVivo no abre sala ni
+     emite el «fin»; aquí se manda el resultado a quien está resolviendo la estación (onlDelegar lo espera) */
+  if (typeof onlDelegado === "function") {
+    const origDel = onlDelegado;
+    onlDelegado = async function (E, d) {
+      if ((d.ctrl || []).includes("remoto")) return origDel.apply(this, arguments);
+      E.delegado = true;
+      if (E.un) E.un();
+      ONL.espejo = null;
+      const t0 = Date.now();
+      while ((!G || !ONL.ver) && Date.now() - t0 < 20000) await new Promise((r) => setTimeout(r, 200));
+      const ctx = { ...d.bctx, p: d.bctx.p != null && G ? G.P[d.bctx.p] : null };
+      onlTraza("delegado-ia", d.bid);
+      let res = null;
+      try {
+        res = await onlBatallaVivo(d.bid, { lista: d.lista, uids: d.uids, ctrl: d.ctrl, dif: d.dif, multi: !!d.multi, bandos: d.bandos || [0, 1] }, ctx, d.modo);
+      } catch (e) {
+        console.error("[onl] delegada contra la IA", e);
+      }
+      if (!res) return;
+      const sala = await onlUnirSala(d.bid);
+      if (!sala) return;
+      await onlEmitir(sala, "onl.b", { k: "fin", bid: d.bid, gana: res.gana, informe: res.informe, res, uid: net.uid });
+      setTimeout(() => sala.leave().catch(() => {}), 3000);
+    };
+  }
 })();

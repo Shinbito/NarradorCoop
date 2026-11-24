@@ -37,6 +37,7 @@
  "js/narrativa.js",
  "js/nucleo.js",
  "js/online-ia.js",
+ "js/online-sala.js",
  "js/online.js",
  "js/partida.js",
  "js/red.js",

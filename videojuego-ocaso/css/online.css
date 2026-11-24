@@ -132,3 +132,22 @@ button.onl-mini {
 #onl-inv .card {
   border-color: var(--gold);
 }
+
+/* sala de espera (js/online-sala.js) */
+.onl-sala-t {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+}
+.onl-sala-t td {
+  padding: 5px 6px;
+  border-bottom: 1px solid var(--edge);
+}
+.onl-sala-est {
+  margin: 8px 0;
+}
+.onl-sala-inv {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}

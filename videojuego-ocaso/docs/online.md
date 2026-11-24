@@ -287,6 +287,13 @@ general `G.log`):
 - Recargar la página a mitad de turno pierde lo hecho en esa estación (las órdenes ya enviadas no).
 - Partida de 100-150 años: posible, pero el tamaño de `G.C` (ver peticiones) la hará lenta.
 
+### Sala de espera (`js/online-sala.js`)
+Una partida nueva nace en fase `'sala'`: no corre ningún plazo (`onlPuedeCerrar` → false) y todos los que entran
+ven la sala en vez del mapa (`onlFase` → `onlSalaMostrar`). En ella cada jugador elige su pueblo entre los libres
+(«Elegir este pueblo»: reescribe `seats`/`est`/`faltas`, porque `update` no borra claves), marca «Estoy listo»
+(`salaListos[uid]`), se invita a amigos (`invitados` + aviso) y el anfitrión pulsa «Empezar partida» (fase
+`'ordenes'` y el plazo de la primera estación cuenta desde ese momento). Las partidas creadas antes siguen igual.
+
 ### Sin Claude: servidor propio del VPS (`js/red.js`)
 Fuera de un artefacto de Claude, `js/red.js` (el primer script de `index.html`) define `window.claude.use('db'|
 'user'|'room')` hablando por WebSocket con el servidor de Ocaso del VPS (`https://ocaso.srv1727399.hstgr.cloud`,
