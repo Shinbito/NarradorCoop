@@ -7,6 +7,7 @@ const fs = require("fs");
 
 const ANIOS = +(process.argv[2] || 16);
 const CIVN = +(process.argv[3] || 0);
+const SEMILLA = +(process.argv[4] || 20261124);
 const raiz = path.resolve(__dirname, "..");
 const capt = path.join(__dirname, "capturas");
 fs.mkdirSync(capt, { recursive: true });
@@ -25,6 +26,16 @@ const ok = (c, m) => {
     if (m.type() === "error" && !/fonts\.g|ERR_|net::/.test(m.text())) errores.push("console: " + m.text());
   });
   await page.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
+  /* semilla fija (Math.random determinista): node pruebas/campana.js [años] [civ] [semilla] */
+  await page.addInitScript((sem) => {
+    let a = sem | 0;
+    Math.random = () => {
+      a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }, SEMILLA);
   await page.goto("file://" + path.join(raiz, "index.html"));
   await page.evaluate(() => localStorage.clear());
   await page.waitForTimeout(300);
@@ -249,7 +260,7 @@ const ok = (c, m) => {
     if (!q) return { sin: true };
     if (q.owner < NF) G.st[ME][q.owner] = G.st[q.owner][ME] = "guerra";
     for (const e of G.cam.ej.slice()) if (e.f !== ME && camCheb(e.x, e.y, q.x, q.y) <= 2) camQuitar(e);
-    q.walls = 2; q.u = cmbNorm({ l: 6, i: 14, a: 6 }); q.order = 95; q.gen = null;
+    q.walls = 2; q.u = cmbNorm({ l: 10, i: 24, a: 8 }); q.order = 95; q.gen = null;
     const hace = (u) => { const e = camNuevoEj(ME, reu[0], reu[1], u, {}); e.mov = 30; return e; };
     const A = hace({ i: 10, a: 3, c: 2 }), B = hace({ i: 8, l: 3, a: 2 }), C = hace({ i: 6, c: 3, x: 2 });
     for (const e of [A, B, C]) await camAplicarOrden(G, { tipo: "mover", f: ME, ej: e.id, x: q.x, y: q.y, luego: "asediar", p: q.id });
@@ -451,7 +462,9 @@ const ok = (c, m) => {
       D = camNuevoEj(E, x, y, { i: 8, a: 2 }, { nom: "Enemigo" }),
       D2 = camNuevoEj(E, x + 1, y + 1, { i: 6, c: 1 }, { nom: "Refuerzo enemigo" });
     const ap = await camAplicarOrden(G, JSON.parse(JSON.stringify({ tipo: "apoyo", f: ME, ej: A2.id, modo: "siempre" })));
-    const ids = { A: Aej.id, A2: A2.id, L: Lej.id, D: D.id, D2: D2.id };
+    const A3 = camNuevoEj(ME, x - 2, y + 1, { i: 4 }, { nom: "Retaguardia" });
+    A3.mov = 20;
+    const ids = { A: Aej.id, A2: A2.id, L: Lej.id, D: D.id, D2: D2.id, A3: A3.id };
     const n0 = Object.fromEntries(Object.entries(ids).map(([k, id]) => [k, camTot(camUCampo(camEj(id).u))]));
     /* captura: flechas de la batalla que se prepara */
     camBatPrep = { x, y, lados: [[Aej.id, A2.id, Lej.id], [D.id, D2.id]], t0: performance.now() };
@@ -470,7 +483,7 @@ const ok = (c, m) => {
       const bats = window.__ev.bat.slice(nb).filter((b) => b.t === "encuentro");
       const n1 = Object.fromEntries(Object.entries(ids).map(([k, id]) => [k, camEj(id) ? camTot(camUCampo(camEj(id).u)) : 0]));
       if (typeof setZoom === "function") setZoom(1);
-      return { ok: r.ok, bats: bats.length, lados: bats[0] && bats[0].ejs ? bats[0].ejs.map((l) => l.map((e) => e.id)) : null, fs: bats[0] && bats[0].ejs ? bats[0].ejs.map((l) => [...new Set(l.map((e) => e.f))]) : null, dirs: bats[0] && bats[0].ejs ? bats[0].ejs.map((l) => l.map((e) => e.dir)) : null, n1, multi: typeof cmbResolverMulti === "function" };
+      return { ok: r.ok, bats: bats.length, lados: bats[0] && bats[0].ejs ? bats[0].ejs.map((l) => l.map((e) => e.id)) : null, fs: bats[0] && bats[0].ejs ? bats[0].ejs.map((l) => [...new Set(l.map((e) => e.f))]) : null, dirs: bats[0] && bats[0].ejs ? bats[0].ejs.map((l) => l.map((e) => e.dir)) : null, n1, multi: typeof cmbResolverMulti === "function", tarde: bats[0] && bats[0].ejs ? (bats[0].ejs[0].find((e) => e.id === ids.A3) || {}).tarde : null };
     `, m5c);
     console.log("  " + JSON.stringify(m5d));
     const L0 = (m5d.lados || [[], []])[0], L1 = (m5d.lados || [[], []])[1];
@@ -481,6 +494,7 @@ const ok = (c, m) => {
     const perd = (k) => m5c.n0[k] - m5d.n1[k];
     ok(["A", "A2", "L"].filter((k) => perd(k) > 0).length >= 2 || ["D", "D2"].every((k) => perd(k) > 0), "las bajas se reparten entre los ejércitos de cada bando");
     ok(m5c.ap, "«acudir a la batalla» (apoyo) es una orden serializable");
+    ok(!m5d.multi || (L0.includes(m5c.ids.A3) && (m5d.tarde || 0) > 0), `el ejército a 2 casillas llega como refuerzo con la batalla empezada (a los ${m5d.tarde} s)`);
   }
 
   /* ---------- 6. mercenarios: contratar, cobrar cada estación, desertar si no se paga ---------- */
@@ -565,7 +579,7 @@ const ok = (c, m) => {
     for (let y = 3; y < H - 3 && !F; y++)
       for (let x = 3; x < W - 3 && !F; x++) {
         if (!camEsBosque(x, y) || !libre(x, y) || !lejosDe(x, y, G.P, 4)) continue;
-        const m2 = CAM_V8.map(([dx, dy]) => [x + 2 * dx, y + 2 * dy]).find(([a, b]) => libre(a, b) && !camEsBosque(a, b));
+        const m2 = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => [x + 2 * dx, y + 2 * dy]).find(([a, b]) => libre(a, b) && !camEsBosque(a, b));
         if (m2) { F = [x, y]; M = m2; }
       }
     if (F) {
@@ -686,6 +700,41 @@ const ok = (c, m) => {
   ok(nb.monteInf !== false && nb.rutaRelieve !== false, `relieve: la montaña no se pisa (${nb.monteInf}) y la ruta larga solo pisa casillas transitables sin cortar esquinas (${nb.rutaRelieve})`);
   console.log(`  (comprobado: bosque ${nb.bosqueA2 != null}, torre ${nb.torre != null}, espía ${nb.espiaRevela != null}, IA ${nb.iaOculto != null})`);
 
+  /* repetición de la estación (CONTRATO §9): los pasos llevan de own0/ej0 al estado final */
+  const rep = await corre(`
+    let tot = { est: 0, pasos: 0, ajustes: 0, bien: 0, tipos: {} };
+    /* que haya movimiento: guerras entre vecinos de la IA y una banda de bandidos junto a una ciudad ajena */
+    for (let a = 0; a < NF; a++)
+      for (let b = a + 1; b < NF; b++)
+        if (!human(a) && !human(b) && alive(a) && alive(b) && owned(a).some((p) => MAP.adj[p.id].some((i) => G.P[i].owner === b))) declareWar(a, b);
+    const blanco = G.P.find((p) => p.owner !== ME && p.owner !== REB && !camAsedio(p.id));
+    if (blanco) {
+      const v = CAM_V8.map(([dx, dy]) => [blanco.x + 2 * dx, blanco.y + 2 * dy]).find(([x, y]) => camPasable(x, y) && MAP.grid[y][x] >= 0 && !camCiudadEn(x, y) && !camEjsEn(x, y).length);
+      if (v) camNuevoEj(REB, v[0], v[1], { i: 40, c: 6 }, { nom: "Bandidos" }).vida = 8;
+    }
+    for (let k = 0; k < 4; k++) {
+      await finEstacion();
+      const r = G.cam.rep;
+      if (!r || !r.fin) continue;
+      tot.est++;
+      tot.pasos += r.pasos.length;
+      tot.ajustes += r.ajustes || 0;
+      for (const s of r.pasos) tot.tipos[s.k] = (tot.tipos[s.k] || 0) + 1;
+      const st = camRepEstado(r),
+        vivos = G.cam.ej.filter((e) => camTot(e.u) > 0);
+      const ok =
+        JSON.stringify(r).length > 0 &&
+        G.P.every((p, i) => st.own[i] === p.owner) &&
+        vivos.length === st.ej.size &&
+        vivos.every((e) => st.ej.has(e.id) && st.ej.get(e.id).x === e.x && st.ej.get(e.id).y === e.y);
+      if (ok) tot.bien++;
+    }
+    return tot;
+  `);
+  console.log("  repetición: " + JSON.stringify(rep));
+  ok(rep.est >= 3 && rep.bien === rep.est, `la repetición reproduce dueños y posiciones finales (${rep.bien}/${rep.est} estaciones, ${rep.pasos} pasos)`);
+  ok(rep.pasos > 0 && rep.ajustes <= Math.max(2, rep.pasos * 0.05), `casi todo se graba en su momento (ajustes al cerrar: ${rep.ajustes})`);
+
   /* ---------- 8. la IA durante muchos años ---------- */
   console.log(`8. La IA durante ${ANIOS} años`);
   await page.evaluate(() => {
@@ -746,40 +795,6 @@ const ok = (c, m) => {
   console.log(`  (mercenarios de la IA a la vez: ${ia.merc}; encuentros: ${ia.enc}; campamentos: ${ia.campo})`);
   const sano = await page.evaluate(() => G.P.every((p) => TYP.every((t) => Number.isFinite(p.u[t]))) && G.cam.ej.every((e) => Number.isFinite(e.x) && camTot(e.u) >= 0));
   ok(sano, "sin ejércitos ni guarniciones corruptos");
-  /* repetición de la estación (CONTRATO §9): los pasos llevan de own0/ej0 al estado final */
-  const rep = await corre(`
-    let tot = { est: 0, pasos: 0, ajustes: 0, bien: 0, tipos: {} };
-    /* que haya movimiento: guerras entre vecinos de la IA y una banda de bandidos junto a una ciudad ajena */
-    for (let a = 0; a < NF; a++)
-      for (let b = a + 1; b < NF; b++)
-        if (!human(a) && !human(b) && alive(a) && alive(b) && owned(a).some((p) => MAP.adj[p.id].some((i) => G.P[i].owner === b))) declareWar(a, b);
-    const blanco = G.P.find((p) => p.owner !== ME && p.owner !== REB && !camAsedio(p.id));
-    if (blanco) {
-      const v = CAM_V8.map(([dx, dy]) => [blanco.x + 2 * dx, blanco.y + 2 * dy]).find(([x, y]) => camPasable(x, y) && MAP.grid[y][x] >= 0 && !camCiudadEn(x, y) && !camEjsEn(x, y).length);
-      if (v) camNuevoEj(REB, v[0], v[1], { i: 40, c: 6 }, { nom: "Bandidos" }).vida = 8;
-    }
-    for (let k = 0; k < 4; k++) {
-      await finEstacion();
-      const r = G.cam.rep;
-      if (!r || !r.fin) continue;
-      tot.est++;
-      tot.pasos += r.pasos.length;
-      tot.ajustes += r.ajustes || 0;
-      for (const s of r.pasos) tot.tipos[s.k] = (tot.tipos[s.k] || 0) + 1;
-      const st = camRepEstado(r),
-        vivos = G.cam.ej.filter((e) => camTot(e.u) > 0);
-      const ok =
-        JSON.stringify(r).length > 0 &&
-        G.P.every((p, i) => st.own[i] === p.owner) &&
-        vivos.length === st.ej.size &&
-        vivos.every((e) => st.ej.has(e.id) && st.ej.get(e.id).x === e.x && st.ej.get(e.id).y === e.y);
-      if (ok) tot.bien++;
-    }
-    return tot;
-  `);
-  console.log("  repetición: " + JSON.stringify(rep));
-  ok(rep.est >= 3 && rep.bien === rep.est, `la repetición reproduce dueños y posiciones finales (${rep.bien}/${rep.est} estaciones, ${rep.pasos} pasos)`);
-  ok(rep.pasos > 0 && rep.ajustes <= Math.max(2, rep.pasos * 0.05), `casi todo se graba en su momento (ajustes al cerrar: ${rep.ajustes})`);
   /* el turno del jugador: una estación con ejércitos en campaña */
   const turno = await corre(`
     const cap = G.P[G.F[ME].capId] && G.P[G.F[ME].capId].owner === ME ? G.P[G.F[ME].capId] : owned(ME)[0];

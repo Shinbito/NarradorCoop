@@ -113,10 +113,12 @@ aliado), media guarnición sale a la vez y vuelve después. Se emite `batallaRes
   serializable «unirse a la batalla»: `{tipo:'apoyo', f, ej, modo:'siempre'|'nunca'|id}`; en el panel, botón
   «Acude / No acude a batallas vecinas».
 - Cada participante lleva `ej.dir` (N/E/S/O respecto al punto; el defensor, `C`).
-- **Motor**: si combate expone `cmbResolverMulti` / `cmbTacticaMulti` (detectado con `typeof`), cada
+- **Motor**: con `cmbResolverMulti` / `cmbTacticaMulti` de combate v3 (detectado con `typeof`), cada
   ejército va por separado (`camMulti`): `[{id, f, bando: 0|1, dir, u, gen, vet, ori, fat, hambre}]`, y se
   espera `{gana: bando, ejs: [{id, u: supervivientes}], informe}` (si no llega esa forma, se usa la
-  alternativa). Alternativa actual: cada bando se funde (`camFuerzaConjunta`, sin máquinas en campo
+  alternativa). Los que acuden desde **2 casillas** no empiezan la batalla: van en `ctx.refuerzos =
+  [{ej, dir, llegada}]` con `llegada` = 10 s por casilla (20 s) y en `batallaResuelta.ejercitos` llevan
+  `tarde` (segundos). Alternativa actual: cada bando se funde (`camFuerzaConjunta`, sin máquinas en campo
   abierto) y se libra con `camLibrar`; el mejor general manda cada bando y los demás suman +3 % (máx. +9 %)
   a su lado. Supervivientes, heridos y veteranía se reparten por ejército según lo aportado (`camRepartir`),
   así cada aliado de otra facción conserva su color, sus tropas y su parte. Los vencidos se retiran o se
@@ -178,10 +180,10 @@ aliado), media guarnición sale a la vez y vuelve después. Se emite `batallaRes
   más aporta, al mando el mejor general (mando, luego experiencia) y +3 % de daño por cada general más
   (máx. +9 %, `OC.mod('bonoBatalla')` solo durante ese asalto). `F.por` guarda el desglose por ejército
   y facción para cuando combate tenga batallas de varios bandos (`cmbResolverMulti`).
-- **Ventaja por flancos** (k lados): `ctx.flancos = k`. Mientras combate no lo lea de forma nativa,
-  campaña lo traduce (`ctx.flancosAplicados = true`): murallas ×(1 − 0,15·(k−1)) (mín. ×0,4) y
-  `ctx.asedio` +1,25 por flanco extra (= −5 de moral de la guarnición por flanco; `ctx.estaciones`
-  guarda las de cerco reales). El informe lleva al frente el factor «Asalto por k flancos».
+- **Ventaja por flancos** (k lados): solo se pasa `ctx.flancos = k`; combate v3 lo aplica de forma nativa
+  (murallas ×(1 − 0,18·(k−1)), −4·(k−1) de moral a la guarnición y menos frente). En la prueba, la misma
+  fuerza toma la ciudad ≈88 % de las veces por 3 flancos frente a ≈20 % por 1. El informe lleva al frente el
+  factor «Asalto por k flancos».
 - **Reparto**: supervivientes de cada clase en proporción a lo aportado (restos mayores,
   `camRepartir`), heridos y veteranía por ejército; botín de la ciudad (`4 + 0,4·población` de oro)
   repartido por bandos según fuerza aportada. Si se gana entra en la ciudad el que más aportó y los
@@ -373,7 +375,7 @@ Cada compañía tiene nombre propio («Hérulos de Fara», «Jinetes alanos de G
 
 ## Pruebas
 
-`node pruebas/campana.js [años=16] [civ=0]`: marcha con alcance limitado (caballería, invierno,
+`node pruebas/campana.js [años=16] [civ=0] [semilla=20261124]` (Math.random con semilla fija: el resultado no depende del azar): marcha con alcance limitado (caballería, invierno,
 Calzadas), marcha pendiente, campamento y saqueo, asedio de varias estaciones con ariete y torre,
 murallas efectivas y asalto, rendición por hambre sin asalto, encuentro en campo abierto, órdenes
 simultáneas (llega antes el más rápido), mercenarios de campamento y de ciudad que cobran cada estación

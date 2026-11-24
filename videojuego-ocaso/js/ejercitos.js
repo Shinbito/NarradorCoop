@@ -837,9 +837,18 @@ async function camReunir(A, D, x, y, o = {}) {
 async function camBatallaLados(lados, bctx, o = {}) {
   const F = lados.map((l) => camFuerzaConjunta(l, true));
   if (lados[0].length > 1 || lados[1].length > 1) {
-    const lista = [];
-    lados.forEach((l, s) => l.forEach((e, i) => lista.push({ ...camParaBatalla(e), id: e.id, bando: s, dir: e.dir, u: F[s].aport[i] })));
-    const r = await camMulti(lista, bctx, o, [F[0].ej, F[1].ej]);
+    /* los que acuden desde 2 casillas llegan con la batalla empezada (ctx.refuerzos de combate, 10 s por casilla) */
+    const lista = [],
+      refuerzos = [];
+    lados.forEach((l, s) =>
+      l.forEach((e, i) => {
+        const it = { ...camParaBatalla(e), id: e.id, bando: s, dir: e.dir, u: F[s].aport[i] },
+          d = camCheb(e.x, e.y, bctx.x, bctx.y);
+        if (i > 0 && d >= 2) refuerzos.push({ ej: it, dir: e.dir, llegada: 10 * d });
+        else lista.push(it);
+      }),
+    );
+    const r = await camMulti(lista, { ...bctx, refuerzos }, o, [F[0].ej, F[1].ej]);
     if (r) return { gana: r.gana, sup: lados.map((l) => l.map((e) => cmbNorm({ ...(r.by.get(e.id) || {}) }))), rondas: r.rondas, informe: r.informe };
   }
   /* alternativa (sin batallas de varios bandos en combate): cada bando, una fuerza; los generales de más
@@ -894,7 +903,7 @@ async function camMulti(lista, bctx, o, fz) {
     informe: inf,
     rondas,
     campana: o.tipo || "encuentro",
-    ejercitos: [0, 1].map((s) => lista.filter((e) => e.bando === s).map((e) => ({ id: e.id, f: e.f, dir: e.dir }))),
+    ejercitos: [0, 1].map((s) => [...lista, ...(bctx.refuerzos || []).map((x) => ({ ...x.ej, tarde: x.llegada }))].filter((e) => e.bando === s).map((e) => ({ id: e.id, f: e.f, dir: e.dir, tarde: e.tarde || 0 }))),
     multi: true,
   });
   camRep({ k: "bat", x: bctx.x, y: bctx.y, fs: [...new Set(lista.map((e) => e.f))], gana: r.gana === 0 ? a0.f : d0.f, lugar: bctx.nombreLugar || "" });
@@ -1261,13 +1270,8 @@ OC.mod("bonoBatalla", (v, c) => {
   return m.length ? m.reduce((a, x) => a * x.v, v) : undefined;
 });
 const camBonoGen = (f, n, lado) => (n > 0 ? { f, lado, v: 1 + Math.min(0.09, 0.03 * n) } : null);
-const camFlancoMur = (ctx) => (ctx && ctx.flancos > 1 ? Math.max(0.4, 1 - 0.15 * (ctx.flancos - 1)) : 1);
-const camFlancoMoral = (ctx) => (ctx && ctx.flancos > 1 ? 5 * (ctx.flancos - 1) : 0);
-/* aplica k flancos a un contexto de asalto cualquiera (estimaciones de la IA) */
-const camCtxFlancos = (ctx, k) =>
-  k > 1
-    ? { ...ctx, fort: (ctx.fort || 0) * camFlancoMur({ flancos: k }), asedio: (ctx.asedio || 0) + camFlancoMoral({ flancos: k }) / 4, flancos: k, flancosAplicados: true }
-    : { ...ctx, flancos: 1 };
+/* k flancos en un contexto de asalto cualquiera (estimaciones de la IA); combate los aplica de forma nativa */
+const camCtxFlancos = (ctx, k) => ({ ...ctx, flancos: Math.max(1, k || 1) });
 function camFuerzaConjunta(ejs, campo) {
   const u = cmbVacio(),
     vet = {},
@@ -1347,18 +1351,15 @@ function camCtxAsalto(ej, p, ejs) {
     if (UN[k] && TYP.includes(k)) fz.u[k] = m[k];
     else fz.maq[k] = m[k];
   }
-  /* flancos: mientras combate no lea ctx.flancos, se traducen aquí a lo que el motor entiende:
-     murallas ×(1 − 0,15 por flanco extra) y +1,25 estaciones de cerco por flanco extra (−5 de moral
-     de la guarnición cada una). ctx.flancosAplicados avisa de que ya van incluidos. */
+  /* flancos: combate los aplica de forma nativa (murallas, moral y frente de la guarnición) */
   const k = Math.max(1, camLadosDe(l, p).length);
   return {
-    fort: Math.round(camFortEf(p, fz, as) * camFlancoMur({ flancos: k }) * 100) / 100,
+    fort: camFortEf(p, fz, as),
     murallas: p.walls || 0,
-    asedio: (as ? as.n : 0) + camFlancoMoral({ flancos: k }) / 4,
+    asedio: as ? as.n : 0,
     estaciones: as ? as.n : 0,
     maquinas: m,
     flancos: k,
-    flancosAplicados: true,
     p,
     x: p.x,
     y: p.y,
@@ -1681,6 +1682,26 @@ function camPlanRuta(ej, x, y, o = {}) {
     luego = luego || "asediar";
     pid = pc.id;
   } else if (pc && pc.owner === ej.f && !luego && !o.noEntrar) luego = "disolver";
+  else if (!pc && !camPasable(x, y)) {
+    /* destino en una montaña o en un río sin puente: se marcha a la casilla transitable más cercana */
+    let best = -1,
+      bk = Infinity;
+    for (let r = 1; r <= 2 && best < 0; r++)
+      for (let dy = -r; dy <= r; dy++)
+        for (let dx = -r; dx <= r; dx++) {
+          const a = x + dx,
+            b = y + dy;
+          if (camCheb(a, b, x, y) !== r || !camPasable(a, b)) continue;
+          const i = camIdx(a, b);
+          if (Number.isFinite(D.dist[i]) && D.dist[i] < bk) {
+            bk = D.dist[i];
+            best = i;
+          }
+        }
+    if (best < 0) return null;
+    j = best;
+    [x, y] = camXY(best);
+  }
   if (j === D.s) return { ruta: [], plan: { x, y, luego, p: pid, con: o.con } };
   const r = camCamino(D, j);
   if (!r) return null;
