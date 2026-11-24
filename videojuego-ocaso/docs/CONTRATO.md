@@ -36,7 +36,7 @@ Reglas:
   `localStorage` y en el modo online). **Solo datos planos** (sin funciones, Map, Set, clases).
 - Cada sistema guarda su estado en su propia clave: `OC.estado('tec', () => ({...}))`
   crea `G.tec` si no existe (así funcionan las partidas guardadas antiguas).
-  Claves reservadas: `G.nar`, `G.cmb`, `G.tec`, `G.eco`, `G.dip`.
+  Claves reservadas: `G.nar`, `G.cmb`, `G.tec`, `G.eco`, `G.dip`, `G.cam`, `G.onl`.
 - Datos por provincia (`G.P[i]`) o por facción (`G.F[f]`) se pueden añadir como
   campos nuevos con prefijo si no son obvios; siempre con valor por defecto si faltan.
 - Facciones: `f` de `0` a `NF-1` (19 pueblos; solo juegan los de `G.activas`); `REB = CIV.length - 1` (hoy 19) son los rebeldes/bagaudas. No uses el literal 7.
@@ -167,3 +167,4 @@ por estación; economía, investigación y eventos siguen siendo anuales (al cer
 - No entregues tropas `UN[t].merc` a otro pueblo por eventos o sobornos; respeta `civPuede(f, t)` al dar tropas.
 - Mundo: `G.modo`, `G.activas`, `G.mapa`; pueblos ausentes con `G.F[f].ausente`. `CIV[f].pueblo` (frase), `CIV[f].base` (pueblo original pariente).
 - Economía cobra en su balance anual solo lo que campaña no cobra por estación (`b.gAnual`, `b.netAnual`); las tropas `merc` no pagan soldada por `ecoMant` (las paga su contrato). `ecoSaqueo(p, fr, orden)` aplica un saqueo y devuelve el botín.
+- Combate acepta en `ctx`: `dificultad` (`"dificil"`: IA de batalla más hábil, la usa el online cuando falta un jugador), `onl` y `onlRes` (batallas en vivo entre jugadores; ver docs/online.md).
