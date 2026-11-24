@@ -172,11 +172,19 @@ function setup(f, p, cand) {
 function heirCands(f) {
   const r = ruler(f),
     ks = kidsOf(r)
-      .filter((c) => c.alive && c.f === f)
+      .filter((c) => c.alive && c.f === f && c.linaje !== false)
       .sort((a, b) => (a.sex === b.sex ? b.age - a.age : a.sex === "m" ? -1 : 1));
   return ks.concat(
     family(f)
-      .filter((c) => c.id !== r.id && !ks.includes(c) && c.age >= 16 && c.id !== r.sp && !c.dipCort)
+      .filter(
+        (c) =>
+          c.id !== r.id &&
+          !ks.includes(c) &&
+          c.age >= 16 &&
+          c.id !== r.sp &&
+          !c.dipCort &&
+          c.linaje !== false,
+      )
       .sort((a, b) => b.age - a.age),
   );
 }
@@ -209,14 +217,25 @@ function succession(f, dead) {
   let h = G.C[F.heir];
   if (!h || !h.alive || h.f !== f) h = heirCands(f)[0];
   if (!h) {
-    /* sin sangre real: el consejero más capaz, o un noble cualquiera */
-    h = family(f)
-      .filter((c) => c.dipCort && c.age >= 16)
-      .sort((a, b) => b.ma + b.in + b.di + b.ge - (a.ma + a.in + a.di + a.ge))[0];
-    if (h) delete h.dipCort;
-    else h = mkChar(f, "m", ri(25, 40));
+    /* sin sangre real: un general de renombre (nivel 4+) aclamado por las tropas, el consejero
+       más capaz o un noble cualquiera */
+    const val = (c) => c.ma + c.in + c.di + c.ge + (c.nivel || 0) * 2,
+      gen = family(f)
+        .filter((c) => c.linaje === false && c.age >= 16 && (c.nivel || 0) >= 4)
+        .sort((a, b) => val(b) - val(a))[0];
+    h =
+      gen ||
+      family(f)
+        .filter((c) => c.dipCort && c.age >= 16)
+        .sort((a, b) => val(b) - val(a))[0];
+    if (h) {
+      delete h.dipCort;
+      h.linaje = true;
+    } else h = mkChar(f, "m", ri(25, 40));
     addLog(
-      `Sin herederos en ${CIV[f].s}: el noble ${h.n} toma el poder y funda una nueva dinastía.`,
+      gen
+        ? `Sin herederos en ${CIV[f].s}: las tropas aclaman a su general ${h.n}, que funda una nueva dinastía.`
+        : `Sin herederos en ${CIV[f].s}: el noble ${h.n} toma el poder y funda una nueva dinastía.`,
       isMe(f) ? "bad" : "",
     );
     owned(f).forEach((p) => (p.order -= 15));
@@ -241,6 +260,8 @@ function dipRol(c, F, r) {
   if (c.id === F.heir) return "Heredero";
   if (c.dipReh != null) return "Rehén en " + CIV[c.dipReh].s;
   if (genOf(c)) return "General en " + genOf(c).name;
+  const gp = G.P.find((p) => p.gob === c.id && p.owner === c.f);
+  if (gp) return "Gobierna " + gp.name;
   if (car) return car;
   if (c.id === r.sp) return "Consorte";
   if (c.age < 16) return "Menor";
@@ -252,17 +273,18 @@ function dynPanel(dis) {
     hr = G.C[F.heir],
     sp = G.C[r.sp],
     lg = typeof socLegit === "function" ? socLegit(ME, hr) : null;
-  let h = `<h2 style="color:var(--gold)">${ttl(r)} ${r.n}</h2><p class="dim">${r.age} años${r.age < 16 ? " · regencia" : ""} · ${r.tr}: ${TRAITS[r.tr] || ""}<br>${cline(r)}</p>`;
+  let h = `<h2 style="color:var(--gold)">${ttl(r)} ${r.n} <button class="dip-x" data-act="renombrar-${r.id}" title="Renombrar" aria-label="Renombrar">✎</button></h2><p class="dim">${r.age} años${r.age < 16 ? " · regencia" : ""} · ${r.tr}: ${TRAITS[r.tr] || ""}<br>${cline(r)}</p>`;
   h += `<p>Consorte: ${sp && sp.alive ? `${sp.n} (${sp.age})` : '<span class="dim">ninguno</span>'}<br>Heredero: ${hr ? `<b>${hr.n}</b> (${hr.age})` : '<span class="dim">sin designar</span>'}${lg && lg.t.length ? `<br><span class="dip-cb">Sucesión discutida: ${lg.t.join("; ")}</span>` : ""}</p>`;
   h += `<h3>Familia y corte</h3>`;
+  /* los mandos de carrera (linaje:false) no son de la dinastía: se listan en la Corte */
   for (const c of family(ME)
-    .filter((c) => c.id !== r.id)
+    .filter((c) => c.id !== r.id && c.linaje !== false)
     .sort((a, b) => b.age - a.age)) {
     const role = dipRol(c, F, r),
       par = c.fa != null && G.C[c.fa] ? `${c.sex === "m" ? "hijo" : "hija"} de ${G.C[c.fa].n}` : "",
       spc = G.C[c.sp],
       lea = Math.round(c.lea ?? 50);
-    h += `<div class="row"><div class="hd"><b>${c.n}</b><span class="tag">${role}</span></div><span class="stats">${c.sex === "m" ? "♂" : "♀"} ${c.age} años ${par ? "· " + par : ""}${spc && spc.alive ? " · casado/a con " + spc.n : ""}</span><br>${cline(c)}`;
+    h += `<div class="row"><div class="hd"><b>${c.n} <button class="dip-x" data-act="renombrar-${c.id}" title="Renombrar" aria-label="Renombrar">✎</button></b><span class="tag">${role}</span></div><span class="stats">${c.sex === "m" ? "♂" : "♀"} ${c.age} años ${par ? "· " + par : ""}${spc && spc.alive ? " · casado/a con " + spc.n : ""}</span><br>${cline(c)}`;
     if (c.age >= 12)
       h += `<br><span class="stats">Lealtad <b class="${lea < 30 ? "neg" : lea > 70 ? "pos" : ""}">${lea}</b> · ambición ${c.amb ?? 5}</span>`;
     h += `<div class="btns">${c.id !== F.heir && c.id !== r.sp && !c.dipCort ? `<button data-act="heir-${c.id}" ${dis ? "disabled" : ""}>Designar heredero</button>` : ""}${c.sp == null && c.age >= 16 && c.dipReh == null ? `<button data-act="marry-${c.id}" ${dis ? "disabled" : ""}>Concertar boda</button>` : ""}</div></div>`;
@@ -270,6 +292,8 @@ function dynPanel(dis) {
   const reh = G.C.filter((c) => c.alive && c.dipReh === ME);
   if (reh.length)
     h += `<p class="stats">Rehenes en tu corte: ${reh.map((c) => `${c.n} (${CIV[c.f].s})`).join(", ")}</p>`;
+  const nm = family(ME).filter((c) => c.linaje === false).length;
+  if (nm) h += `<p class="stats">${nm} mandos de carrera sirven al reino: ver la pestaña Corte.</p>`;
   h += OC.renderSecciones("dyn", { F, r }, dis);
   return (
     h +
@@ -279,7 +303,7 @@ function dynPanel(dis) {
 OC.accion("heir", (v) => {
   const c = G.C[+v],
     F = G.F[ME];
-  if (!c || !c.alive || c.f !== ME || c.id === F.ruler) return;
+  if (!c || !c.alive || c.f !== ME || c.id === F.ruler || c.linaje === false) return;
   const lg = typeof socLegit === "function" ? socLegit(ME, c) : { t: [] },
     hazlo = () => {
       const prev = G.C[F.heir];
@@ -295,5 +319,7 @@ OC.accion("heir", (v) => {
   );
 });
 OC.accion("marry", (v) => {
-  marryModal(G.C[+v]);
+  const c = G.C[+v];
+  if (!c || !c.alive || c.f !== ME || c.linaje === false) return;
+  marryModal(c);
 });

@@ -1,15 +1,96 @@
 /* ---------- sociedad: estamentos, consejo, lealtades y religión ----------
    Estado en G.dip.soc[f] (ver docs/diplomacia.md). Los efectos se aplican con OC.mod a
    'rendimiento', 'ordenObjetivo', 'bonoBatalla' y 'puntosInvestigacion'. */
-const SOC_GRUPO = (f) => (f <= 1 ? "rom" : f === 3 ? "hun" : f === 6 ? "per" : "ger");
-const SOC_EST = {
-  rom: { nob: "Senado", cle: "", ej: "Ejército", pue: "Plebe y colonos" },
-  ger: { ari: "Aristocracia guerrera", cle: "", pro: "Provinciales romanos", pue: "Hombres libres" },
+/* estamentos de cada pueblo por CIV[f].id: clave -> nombre ("" en cle: según su fe).
+   Claves: nob élite de la tierra, ari aristocracia guerrera, ej ejército, cle clero,
+   pro mercaderes/letrados/provinciales, pue pueblo llano. */
+const SOC_ROM = { nob: "Senado", cle: "", ej: "Ejército", pue: "Plebe y colonos" },
+  SOC_GER = { ari: "Aristocracia guerrera", cle: "", pro: "Provinciales romanos", pue: "Hombres libres" };
+const SOC_PUEBLO = {
+  occ: SOC_ROM,
+  ori: SOC_ROM,
+  vis: SOC_GER,
+  van: SOC_GER,
+  fra: SOC_GER,
   hun: { ari: "Lógades", cle: "", ej: "Jinetes de los clanes", pue: "Pueblos sometidos" },
   per: { nob: "Grandes casas", cle: "", ej: "Savaran", pue: "Campesinos" },
+  ara: { nob: "Jeques de las tribus", cle: "", pro: "Mercaderes de caravana", pue: "Beduinos y oasis" },
+  nor: { ari: "Jarls", cle: "", ej: "Huscarles", pue: "Karls y thralls" },
+  chi: { nob: "Mandarines", cle: "", ej: "Ejército imperial", pue: "Campesinos" },
+  inc: { nob: "Curacas", cle: "", ej: "Orejones", pue: "Ayllus" },
+  may: { nob: "Linajes nobles", cle: "", pro: "Mercaderes", pue: "Campesinos de la milpa" },
+  azt: { nob: "Pipiltin", cle: "", ej: "Órdenes guerreras", pue: "Macehualtin" },
+  gri: { nob: "Eupátridas", cle: "", pro: "Comerciantes del ágora", pue: "Demos" },
+  egi: { nob: "Nomarcas", cle: "", pro: "Escribas", pue: "Campesinos del Nilo" },
+  ind: { ari: "Kshatriyas", cle: "", pro: "Vaishyas", pue: "Shudras" },
+  cel: { ari: "Nobles guerreros", cle: "", pro: "Artesanos y bardos", pue: "Clanes libres" },
+  esl: { ari: "Boyardos", cle: "", ej: "Druzhina", pue: "Comunidades del mir" },
+  mon: { ari: "Noyanes", cle: "", ej: "Tumenes", pue: "Arats" },
 };
-const SOC_CLE = { niceno: "Iglesia", arriano: "Clero arriano", pagano: "Sacerdotes", zoroastra: "Magos" };
-const SOC_FEN = { niceno: "nicena", arriano: "arriana", pagano: "pagana", zoroastra: "zoroástrica" };
+const socEstDe = (f) => SOC_PUEBLO[CIV[f] && CIV[f].id] || SOC_PUEBLO[CIV[civBase(f)].id] || SOC_GER;
+/* pueblos donde una mujer al frente de la hueste despierta recelo */
+const SOC_GUERRERO = ["vis", "van", "fra", "hun", "nor", "cel", "esl", "mon", "azt"];
+const SOC_CLE = {
+  niceno: "Iglesia",
+  arriano: "Clero arriano",
+  pagano: "Sacerdotes",
+  zoroastra: "Magos",
+  arabe: "Kahines",
+  nordico: "Godar",
+  confuciano: "Letrados del rito",
+  andino: "Sacerdotes del Sol",
+  mesoamericano: "Sacerdotes",
+  olimpico: "Sacerdotes y oráculos",
+  egipcio: "Sacerdotes de Amón",
+  hindu: "Brahmanes",
+  druidico: "Druidas",
+  eslavo: "Volkhvy",
+  tengri: "Chamanes",
+};
+const SOC_FEN = {
+  niceno: "nicena",
+  arriano: "arriana",
+  pagano: "pagana",
+  zoroastra: "zoroástrica",
+  arabe: "de los dioses de Arabia",
+  nordico: "nórdica",
+  confuciano: "confuciana",
+  andino: "andina",
+  mesoamericano: "mesoamericana",
+  olimpico: "olímpica",
+  egipcio: "egipcia",
+  hindu: "hindú",
+  druidico: "druídica",
+  eslavo: "eslava",
+  tengri: "de Tengri",
+};
+/* cabeza del clero en el consejo, según la fe */
+const SOC_OBI = {
+  pagano: "Gran sacerdote",
+  zoroastra: "Mobad",
+  arabe: "Kahin mayor",
+  nordico: "Godi mayor",
+  confuciano: "Ministro de Ritos",
+  andino: "Willaq Umu",
+  mesoamericano: "Sumo sacerdote",
+  olimpico: "Hierofante",
+  egipcio: "Sumo sacerdote",
+  hindu: "Purohita",
+  druidico: "Archidruida",
+  eslavo: "Volkhv mayor",
+  tengri: "Gran chamán",
+};
+const SOC_MAG = {
+  occ: "Magister militum",
+  ori: "Magister militum",
+  per: "Spahbed",
+  chi: "Gran mariscal",
+  azt: "Tlacateccatl",
+  gri: "Estratego",
+  inc: "Apusquipay",
+};
+/* fes que pueden abrazar el credo niceno o arriano */
+const SOC_CONV = ["pagano", "nordico", "eslavo", "druidico", "tengri", "arriano"];
 const SOC_INF = { nob: 30, ari: 34, cle: 20, ej: 26, pue: 24, pro: 22 };
 const SOC_DON = {
   nob: ["Honores", { oro: 40 }],
@@ -19,12 +100,14 @@ const SOC_DON = {
   pue: ["Grano", { comida: 25 }],
   pro: ["Privilegios", { oro: 30 }],
 };
-/* categoría genérica de un acto -> estamento que lo siente en cada cultura */
-const SOC_MAP = {
-  rom: { nob: "nob", ej: "ej", cle: "cle", pue: "pue", pro: "nob", ari: "ej" },
-  ger: { nob: "ari", ej: "ari", cle: "cle", pue: "pue", pro: "pro", ari: "ari" },
-  hun: { nob: "ari", ej: "ej", cle: "cle", pue: "pue", pro: "pue", ari: "ari" },
-  per: { nob: "nob", ej: "ej", cle: "cle", pue: "pue", pro: "nob", ari: "nob" },
+/* categoría de un acto -> estamento que lo siente si el pueblo no tiene esa clave */
+const SOC_RESP = {
+  nob: ["ari", "pro"],
+  ari: ["ej", "nob"],
+  ej: ["ari", "nob"],
+  pro: ["nob", "pue"],
+  pue: ["pro"],
+  cle: [],
 };
 const SOC_CARGOS = { can: "di", mag: "ma", tes: "ge", obi: "di", esp: "in" };
 const SOC_RASGO = {
@@ -74,7 +157,7 @@ const SOC_FE0 = CIV.map((c) => c.rel);
 /* ---------- estado ---------- */
 function socInit(f) {
   const e = {};
-  for (const k in SOC_EST[SOC_GRUPO(f)]) e[k] = { l: 55 + ri(-6, 8), i: SOC_INF[k] };
+  for (const k in socEstDe(f)) e[k] = { l: 55 + ri(-6, 8), i: SOC_INF[k] };
   socNorm(e);
   return { e, dem: [], car: {}, pol: "neu", uso: {}, paz: 0 };
 }
@@ -87,10 +170,10 @@ function socNorm(e) {
   const t = Object.values(e).reduce((s, x) => s + x.i, 0) || 1;
   for (const k in e) e[k].i = Math.max(8, Math.round((e[k].i * 100) / t));
 }
-const socNombre = (f, k) => (k === "cle" ? SOC_CLE[CIV[f].rel] || "Clero" : SOC_EST[SOC_GRUPO(f)][k] || k);
+const socNombre = (f, k) => (k === "cle" ? SOC_CLE[CIV[f].rel] || "Clero" : socEstDe(f)[k] || k);
 const socClave = (f, k) => {
   const s = socF(f);
-  return s && s.e[k] ? k : SOC_MAP[SOC_GRUPO(f)][k];
+  return s && s.e[k] ? k : s ? (SOC_RESP[k] || []).find((j) => s.e[j]) : k;
 };
 function socLealtad(f, k) {
   const s = socF(f),
@@ -139,13 +222,8 @@ const socCap = (f) => {
 
 /* ---------- consejo ---------- */
 function socNomCargo(f, k) {
-  if (k === "mag")
-    return SOC_GRUPO(f) === "rom"
-      ? "Magister militum"
-      : SOC_GRUPO(f) === "per"
-        ? "Spahbed"
-        : "Jefe de la hueste";
-  if (k === "obi") return { pagano: "Gran sacerdote", zoroastra: "Mobad" }[CIV[f].rel] || "Obispo";
+  if (k === "mag") return SOC_MAG[CIV[f].id] || "Jefe de la hueste";
+  if (k === "obi") return SOC_OBI[CIV[f].rel] || "Obispo";
   return { can: "Canciller", tes: "Tesorero", esp: "Maestro de espías" }[k];
 }
 function socCargo(f, k) {
@@ -208,7 +286,7 @@ function socFe(p) {
       let best = null,
         bd = 1e9;
       for (let f = 0; f < NF; f++) {
-        const c = G.F[f] && G.P[G.F[f].capId];
+        const c = G.F[f] && !G.F[f].ausente && G.P[G.F[f].capId];
         if (!c) continue;
         const d = Math.hypot(c.x - p.x, c.y - p.y);
         if (d < bd) {
@@ -362,7 +440,7 @@ function socLegit(f, c) {
   if (!hijo) put(nob, -10, "No es de la sangre del soberano");
   else if (esp && esp.id !== c.id && esp.sex === "m" && (esp.fa === r.id || esp.mo === r.id))
     put(nob, -5, `Posterga al primogénito ${esp.n}`);
-  if (c.sex === "f" && SOC_GRUPO(f) !== "rom") put(nob, -6, "Una mujer al frente de la hueste");
+  if (c.sex === "f" && SOC_GUERRERO.includes(CIV[f].id)) put(nob, -6, "Una mujer al frente de la hueste");
   if (c.age >= 12 && c.ma + c.in + c.di + c.ge < 14) put(socClave(f, "ej"), -4, "Heredero sin dotes");
   if (c.tr === "Cruel") put("pue", -4, "Heredero cruel");
   return o;
@@ -389,6 +467,8 @@ function socLeaObj(f, c) {
   if (c.id === r.sp) v += 15;
   if (socCargoNombre(c)) v += 10;
   if (genOf(c)) v += 5;
+  if (socGobDe(c)) v += socInfluencia(c) >= 60 ? 2 : 8;
+  if (c.linaje === false && c.rol === "general") v += 5;
   v += { Leal: 25, Ambicioso: -10, Codicioso: -5 }[c.tr] || 0;
   v += { Cruel: -8, Justo: 6, Elocuente: 4, Paranoico: -6 }[r.tr] || 0;
   return clamp(v + (c.dipAg || 0) - Math.max(0, (c.amb ?? 5) - 6) * 3, 0, 100);
@@ -399,7 +479,7 @@ function socSacar(c) {
   });
 }
 function socTraicion(f, c) {
-  const p = genOf(c),
+  const p = genOf(c) || socGobDe(c),
     r = ruler(f),
     esp = socCargo(f, "esp"),
     cls = isMe(f) ? "bad" : "";
@@ -444,6 +524,17 @@ function socPersonajes(f) {
     dipAmbLea(c);
     c.lea = clamp(Math.round(c.lea + clamp(socLeaObj(f, c) - c.lea, -5, 5)), 0, 100);
     if (c.dipAg) c.dipAg = Math.min(0, c.dipAg + 3);
+    const gp = socGobDe(c);
+    if (gp) {
+      /* gobernar curte: experiencia de mando y fama (influencia) */
+      c.xp = (c.xp || 0) + 3;
+      if (typeof cmbNivel === "function") c.nivel = cmbNivel(c).nivel;
+      c.fama = Math.round(((c.fama || 0) + 0.2) * 10) / 10;
+      if (!gp.cap && c.lea < 30 && (c.amb ?? 5) >= 6 && socInfluencia(c) >= 45 && R() < 0.08) {
+        socAlzamiento(f, c, gp);
+        break;
+      }
+    }
     if (c.age >= 16 && c.lea < 25 && c.amb >= 6 && c.dipReh == null && R() < 0.06) {
       socTraicion(f, c);
       break;
@@ -530,18 +621,25 @@ OC.on("inicioTurno", async (f) => {
 });
 
 /* ---------- crisis: conjuras, motines, guerras civiles y favores ---------- */
+/* primera clase de prefs que el pueblo puede tener (civPuede) y que no sea mercenaria */
+function socTropa(f, prefs) {
+  const ok = (t) =>
+    UN[t] && !UN[t].merc && !UN[t].asedio && (typeof civPuede !== "function" || civPuede(f, t));
+  return prefs.find(ok) || "i";
+}
 function socGuerraCivil(f, s, bajos) {
   const own = socOwn(f).filter((p) => !p.cap),
     n = Math.min(4, Math.ceil(socOwn(f).length / 3));
   if (own.length < 2) return;
   const ps = own.sort((a, b) => a.order - b.order).slice(0, n);
+  for (const p of ps) OC.emitirSync("revuelta", { p, de: f }); /* OC */
   for (const p of ps)
     Object.assign(p, {
       owner: REB,
       gen: null,
       order: 50,
       tax: 1,
-      u: { i: Math.max(p.u.i, 4), a: Math.max(p.u.a, 2), c: Math.max(p.u.c, 1) },
+      u: socLevantados(f, p.u),
     });
   for (const k of bajos) s.e[k].l = 45;
   for (const k in s.e) if (!bajos.includes(k)) s.e[k].l = clamp(s.e[k].l + 5, 0, 100);
@@ -552,6 +650,16 @@ function socGuerraCivil(f, s, bajos) {
     modal("Guerra civil", `<p>${m}</p><p class="dim">Recupera esas provincias por las armas.</p>`, [
       { t: "A las armas" },
     ]);
+}
+/* la guarnición que se alza: la que había, reforzada con levas que el pueblo pueda tener */
+function socLevantados(f, u0) {
+  const u = { ...u0 },
+    jin = socTropa(f, ["c", "x", "i"]);
+  for (const t in u) if (UN[t] && UN[t].merc) delete u[t];
+  u.i = Math.max(u.i || 0, 4);
+  u.a = Math.max(u.a || 0, 2);
+  u[jin] = Math.max(u[jin] || 0, jin === "i" ? 5 : 1);
+  return u;
 }
 function socComplot(f, s, k) {
   const cls = isMe(f) ? "bad" : "",
@@ -571,7 +679,7 @@ function socComplot(f, s, k) {
     }
   } else if (k === "ari" || k === "ej") {
     const c = socCap(f);
-    if (c) for (const t of TYP) c.u[t] = Math.floor(c.u[t] * 0.75);
+    if (c) for (const t in c.u) if (c.u[t] > 0) c.u[t] = Math.floor(c.u[t] * 0.75);
     own.forEach((p) => (p.order = clamp(p.order - 10, 0, 100)));
     addLog(`Motín de ${nm} en ${CIV[f].s}: desertan tropas de la capital.`, cls);
   } else if (k === "cle") {
@@ -591,8 +699,10 @@ function socFavor(f, k) {
     nm = socNombre(f, k);
   if (!c) return;
   if (k === "nob" || k === "pro") G.F[f].gold += k === "nob" ? 30 : 25;
-  else if (k === "ari") c.u.c += 2;
-  else if (k === "ej") c.u.i += 3;
+  else if (k === "ari") {
+    const t = socTropa(f, ["c", "x", "m", "p", "i"]);
+    c.u[t] = (c.u[t] || 0) + 2;
+  } else if (k === "ej") c.u.i = (c.u.i || 0) + 3;
   else if (k === "cle") socOwn(f).forEach((p) => (p.order = clamp(p.order + 5, 0, 100)));
   else G.F[f].food += 25;
   if (isMe(f))
@@ -612,6 +722,275 @@ function socCrisis(f, s) {
   }
   for (const k in s.e) if (s.e[k].l >= 80 && R() < 0.12) return socFavor(f, k);
 }
+
+/* ---------- mandos de carrera y gobernadores ----------
+   p.gob = id del gobernador. Pueden gobernar los parientes adultos y los mandos de carrera
+   (linaje:false) con nivel >= SOC_GOB_NIVEL (cmbNivel). No el soberano, ni un rehén, ni quien manda
+   un ejército en campaña (G.cam.ej[].gen), ni quien ya gobierna otra ciudad. */
+const SOC_GOB_NIVEL = 3;
+const socNivel = (c) => (typeof cmbNivel === "function" ? cmbNivel(c).nivel : c.nivel || 1);
+const socEnCampana = (c) => typeof camS === "function" && camS().ej.some((e) => e.gen === c.id);
+function socGob(p) {
+  if (!p || p.gob == null) return null;
+  const c = G.C[p.gob],
+    F = G.F[p.owner];
+  if (c && c.alive && F && c.f === p.owner && c.dipReh == null && c.id !== F.ruler && !socEnCampana(c))
+    return c;
+  delete p.gob;
+  return null;
+}
+const socGobDe = (c) => G.P.find((p) => p.gob === c.id && socGob(p) === c) || null;
+function socPuedeGobernar(f, c, p) {
+  if (!c || !c.alive || c.f !== f) return "No sirve a tu reino";
+  if (c.id === G.F[f].ruler) return "Es el soberano";
+  if (c.age < 16) return "Demasiado joven";
+  if (c.dipReh != null) return "Es rehén";
+  if (socEnCampana(c)) return "Manda un ejército en campaña";
+  if (c.linaje === false && socNivel(c) < SOC_GOB_NIVEL)
+    return `Necesita nivel ${SOC_GOB_NIVEL} (tiene ${socNivel(c)})`;
+  const otra = G.P.find((q) => q.gob === c.id && q !== p && socGob(q));
+  return otra ? "Ya gobierna " + otra.name : "";
+}
+/* influencia (0-100): nivel, fama, años de gobierno y sangre real */
+function socInfluencia(c) {
+  const gp = G.P.find((p) => p.gob === c.id);
+  return clamp(
+    Math.round(
+      socNivel(c) * 8 +
+        (c.fama || 0) * 2 +
+        (gp && c.dipGobY != null ? Math.min(20, (G.year - c.dipGobY) * 2) : 0) +
+        (c.linaje !== false ? 10 : 0),
+    ),
+    0,
+    100,
+  );
+}
+/* efecto de un gobernador sobre su ciudad */
+function socGobEf(c) {
+  const n = socNivel(c);
+  return {
+    g: clamp(0.03 * (c.ge - 4) + 0.01 * n, -0.1, 0.3),
+    fo: clamp(0.02 * (c.ge - 4), -0.08, 0.15),
+    ord: (c.di - 4) * 0.8 + n * 0.5 + ({ Justo: 3, Piadoso: 1, Cruel: -3 }[c.tr] || 0) - (c.lea < 30 ? 3 : 0),
+    coste: -clamp(0.015 * (c.ma - 4) + 0.005 * n, -0.05, 0.15),
+    def: clamp(0.01 * (n + c.ma - 4), 0, 0.15),
+  };
+}
+function socGobTxt(c) {
+  const e = socGobEf(c),
+    pc = (v) => dipSg(v * 100) + "%";
+  return `${pc(e.g)} oro · ${dipSg(e.ord)} orden · ${pc(e.coste)} levas · ${pc(e.def)} defensa`;
+}
+function socNombrarGob(p, c) {
+  for (const q of G.P) if (q.gob === c.id) delete q.gob;
+  const prev = socGob(p);
+  if (prev && prev !== c) prev.dipAg = (prev.dipAg || 0) - 10;
+  p.gob = c.id;
+  c.dipGobY = G.year;
+  c.lea = clamp((c.lea ?? 50) + 5, 0, 100);
+  if (isMe(p.owner)) addLog(`${c.n} gobernará ${p.name}.`);
+}
+function socAlzamiento(f, c, p) {
+  dipS().hist.traiciones = (dipS().hist.traiciones || 0) + 1;
+  OC.emitirSync("revuelta", { p, de: f }); /* OC */
+  delete p.gob;
+  c.f = REB;
+  Object.assign(p, { owner: REB, order: 50, tax: 1, gen: c.id, u: socLevantados(f, p.u) });
+  const m = `${c.n}, gobernador de ${p.name}, se alza contra ${ruler(f).n} y se proclama señor de la ciudad.`;
+  addLog(m, isMe(f) ? "bad" : "");
+  if (isMe(f)) modal("Un gobernador se alza", `<p>${m}</p>`, [{ t: "Habrá que recuperarla" }]);
+}
+const socMandos = (f) => family(f).filter((c) => c.linaje === false);
+const socRolTxt = (c) =>
+  c.linaje === false
+    ? c.rol === "capitan"
+      ? "capitán"
+      : "general"
+    : c.id === G.F[c.f].heir
+      ? "heredero"
+      : "pariente";
+/* la IA nombra gobernadores en sus mejores ciudades y destituye a los desleales */
+function socIAGob(f) {
+  for (const p of owned(f)) {
+    const g = socGob(p);
+    if (g && g.lea < 20 && R() < 0.5) delete p.gob;
+  }
+  const val = (c) => c.ge * 1.5 + c.di + socNivel(c) * 2 + (c.lea ?? 50) / 20,
+    peso = (p) => (p.cap ? 100 : 0) + (p.market || 0) * 5,
+    libres = owned(f)
+      .filter((p) => !socGob(p))
+      .sort((a, b) => peso(b) - peso(a));
+  let n = 0;
+  for (const p of libres) {
+    if (n >= 2) break;
+    const c = family(f)
+      .filter((c) => !socPuedeGobernar(f, c, p) && (c.lea ?? 50) >= 35)
+      .sort((a, b) => val(b) - val(a))[0];
+    if (!c) break;
+    socNombrarGob(p, c);
+    n++;
+  }
+}
+OC.on("conquista", ({ p, de }) => {
+  if (!p || p.gob == null) return;
+  const c = G.C[p.gob];
+  delete p.gob;
+  if (!c || !c.alive || c.f !== de) return;
+  if (R() < 0.35) kill(c, `cae al perder ${p.name}`);
+  else if (isMe(de)) addLog(`${c.n} huye de ${p.name} antes de que caiga.`, "bad");
+});
+OC.mod("rendimiento", (y, c) => {
+  const g = c.p && c.p.owner === c.f && socGob(c.p);
+  if (!g) return;
+  const e = socGobEf(g);
+  return { ...y, g: y.g * (1 + e.g), fo: y.fo * (1 + e.fo) };
+});
+OC.mod("ordenObjetivo", (v, c) => {
+  const g = c.p && socGob(c.p);
+  return g ? v + socGobEf(g).ord : undefined;
+});
+const socProvCtx = (p) => (p == null ? null : typeof p === "number" ? G.P[p] : p);
+OC.mod("costeUnidad", (v, c) => {
+  const p = socProvCtx(c.p),
+    g = p && p.owner === c.f && socGob(p);
+  return g ? v * (1 + socGobEf(g).coste) : undefined;
+});
+OC.mod("bonoBatalla", (v, c) => {
+  if (c.lado !== "defensor") return;
+  const p = socProvCtx(c.p),
+    g = p && p.owner === c.f && socGob(p);
+  return g ? v * (1 + socGobEf(g).def) : undefined;
+});
+/* sin ciudad en el contexto: los gobernadores letrados suman saber al reino (máx. +15%) */
+OC.mod("puntosInvestigacion", (v, c) => {
+  if (!socF(c.f)) return;
+  let k = 0;
+  for (const p of owned(c.f)) {
+    const g = socGob(p);
+    if (g) k += Math.max(0, g.in - 4) * 0.01;
+  }
+  return k ? v * (1 + Math.min(0.15, k)) : undefined;
+});
+/* sección de la provincia */
+OC.seccion("prov", {
+  id: "gobierno",
+  orden: 36,
+  visible: (x) => x.f < NF && (x.mine || (x.p.gob != null && !!socGob(x.p))),
+  render: ({ p, mine }, dis) => {
+    const g = socGob(p);
+    if (!mine) return g ? `<p class="stats">Gobernador: ${g.n} (nivel ${socNivel(g)})</p>` : "";
+    return `<h3>Gobernador</h3><div class="soc-c"><div>${
+      g
+        ? `<b>${g.n}</b> <span class="stats">${socRolTxt(g)} · nivel ${socNivel(g)} · gestión ${g.ge} · lealtad ${Math.round(g.lea ?? 50)}</span><br><span class="stats">${socGobTxt(g)}</span>`
+        : '<span class="stats">Sin gobernador: la ciudad se rige por sus curiales.</span>'
+    }</div><button data-act="socgob-${p.id}" ${dis ? "disabled" : ""}>${g ? "Cambiar" : "Nombrar"}</button></div>`;
+  },
+});
+/* sección de la Corte: mandos de carrera y gobernadores */
+function socMandosHtml(dis) {
+  const own = owned(ME),
+    gobs = own.filter((p) => socGob(p)).length,
+    ls = socMandos(ME).concat(family(ME).filter((c) => c.linaje !== false && socGobDe(c)));
+  let h = `<h3>Mandos y gobernadores</h3><p class="stats">Gobernadores en ${gobs} de ${own.length} ciudades. Un mando de carrera gobierna desde el nivel ${SOC_GOB_NIVEL}.</p>`;
+  if (!ls.length)
+    return h + '<p class="stats">Aún no hay mandos de carrera: surgen de las filas tras las victorias.</p>';
+  for (const c of ls.sort((a, b) => socNivel(b) - socNivel(a))) {
+    const gp = socGobDe(c),
+      inf = socInfluencia(c),
+      lea = Math.round(c.lea ?? 50),
+      peligro = inf >= 45 && lea < 30 && (c.amb ?? 5) >= 6;
+    h += `<div class="soc-c"><div><b>${c.n}</b> <span class="stats">${socRolTxt(c)} · nivel ${socNivel(c)} · mando ${c.ma} · gestión ${c.ge}</span><br><span class="stats">Influencia ${inf} · lealtad <b class="${lea < 30 ? "neg" : lea > 70 ? "pos" : ""}">${lea}</b>${gp ? " · gobierna " + gp.name : ""}${peligro ? ' · <b class="neg">puede alzarse</b>' : ""}</span></div><span class="btns soc-mb"><button data-act="socgobc-${c.id}" ${dis ? "disabled" : ""}>Gobernar</button><button data-act="renombrar-${c.id}" aria-label="Renombrar">✎</button></span></div>`;
+  }
+  return h;
+}
+OC.accion("socgob", (v) => {
+  const p = G.P[+v];
+  if (!p || p.owner !== ME) return;
+  const val = (c) => c.ge * 1.5 + c.di + socNivel(c) * 2,
+    cur = socGob(p),
+    cs = family(ME)
+      .filter((c) => c !== cur && c.id !== G.F[ME].ruler && c.age >= 16)
+      .sort(
+        (a, b) =>
+          (socPuedeGobernar(ME, a, p) ? 1 : 0) - (socPuedeGobernar(ME, b, p) ? 1 : 0) || val(b) - val(a),
+      )
+      .slice(0, 10);
+  const btns = cs.map((c) => ({
+    inl: 1,
+    fn: () => {
+      if (!socPuedeGobernar(ME, c, p)) socNombrarGob(p, c);
+    },
+  }));
+  if (cur)
+    btns.push({
+      t: "Destituir",
+      fn: () => {
+        delete p.gob;
+        cur.dipAg = (cur.dipAg || 0) - 10;
+        addLog(`${cur.n} deja el gobierno de ${p.name}.`);
+      },
+    });
+  btns.push({ t: "Cancelar" });
+  const filas = cs
+    .map((c, i) => {
+      const no = socPuedeGobernar(ME, c, p);
+      return `<div class="row dip-op-row"><span><b>${c.n}</b> <span class="stats">${socRolTxt(c)} · nivel ${socNivel(c)} · lealtad ${Math.round(c.lea ?? 50)}<br>${no || socGobTxt(c)}</span></span><button data-mi="${i}" class="gold" ${no ? "disabled" : ""}>Nombrar</button></div>`;
+    })
+    .join("");
+  modal(
+    `Gobierno de ${p.name}`,
+    `<p class="dim">Cuenta su gestión (oro), su diplomacia (orden), su mando (levas y defensa) y su nivel. Un gobernador ambicioso, influyente y desleal puede alzarse con la ciudad.</p><div style="max-height:46vh;overflow:auto">${filas || '<p class="dim">No hay nadie disponible.</p>'}</div>`,
+    btns,
+  );
+});
+OC.accion("socgobc", (v) => {
+  const c = G.C[+v];
+  if (!c || c.f !== ME || !c.alive) return;
+  const ps = owned(ME)
+      .filter((p) => !socPuedeGobernar(ME, c, p))
+      .sort((a, b) => (socGob(a) ? 1 : 0) - (socGob(b) ? 1 : 0) || (b.cap ? 1 : 0) - (a.cap ? 1 : 0))
+      .slice(0, 10),
+    no = owned(ME).length ? socPuedeGobernar(ME, c, owned(ME)[0]) : "no tienes ciudades";
+  const btns = ps.map((p) => ({ inl: 1, fn: () => socNombrarGob(p, c) }));
+  btns.push({ t: "Cancelar" });
+  modal(
+    `${c.n}: gobierno`,
+    ps.length
+      ? `<p class="dim">${socGobTxt(c)}</p>${ps.map((p, i) => `<div class="row dip-op-row"><span>${p.name}${p.cap ? " ♛" : ""} <span class="stats">${socGob(p) ? "gobierna " + socGob(p).n : "sin gobernador"}</span></span><button data-mi="${i}" class="gold">Gobernar</button></div>`).join("")}`
+      : `<p>No puede gobernar: ${no || "no hay ciudades libres"}.</p>`,
+    btns,
+  );
+});
+/* renombrar a un pariente o a un mando (combate solo registra la suya si esta no existe) */
+function socLimpiarNombre(s) {
+  const l = String(s || "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/[<>&"'`\\]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return l.length >= 2 && l.length <= 30 ? l : "";
+}
+OC.accion(
+  "renombrar",
+  async (v) => {
+    const c = G.C[+v];
+    if (!c || c.f !== ME || !c.alive) return false;
+    let nuevo = null;
+    await modal(
+      "Renombrar",
+      `<p>Nuevo nombre para ${esc(c.n)} (2-30 letras):</p><input id="cmbnom" maxlength="30" value="${esc(c.n)}" aria-label="Nombre">`,
+      [{ t: "Aceptar", cls: "gold", fn: () => (nuevo = ($("cmbnom") || {}).value) }, { t: "Cancelar" }],
+    );
+    const l = socLimpiarNombre(nuevo);
+    if (l && l !== c.n) {
+      addLog(`${esc(c.n)} será conocido en adelante como ${l}.`);
+      c.n = l;
+    }
+    if (G) ui();
+    return false;
+  },
+  { libre: true },
+);
 
 /* ---------- el año social de cada reino (tras su economía) ---------- */
 function socAnual(f) {
@@ -646,6 +1025,7 @@ function socIA(f) {
   if (!alive(f) || human(f)) return;
   const s = socF(f),
     F = G.F[f];
+  socIAGob(f);
   for (const k in SOC_CARGOS) {
     if (socCargo(f, k)) continue;
     const st = SOC_CARGOS[k],
@@ -667,8 +1047,7 @@ function socIA(f) {
     socPolitica(f, want);
   }
   const nic = socOwn(f).filter((p) => socFe(p) === "niceno").length / Math.max(1, socOwn(f).length);
-  if ((CIV[f].rel === "pagano" || CIV[f].rel === "arriano") && !s.fe && nic > 0.55 && R() < 0.04)
-    socConvertir(f, "niceno");
+  if (SOC_CONV.includes(CIV[f].rel) && !s.fe && nic > 0.55 && R() < 0.04) socConvertir(f, "niceno");
 }
 OC.on("turnoIA", socIA);
 function socConceder(f, k) {
@@ -817,6 +1196,7 @@ function socPanel(dis) {
       st = SOC_CARGOS[k];
     h += `<div class="soc-c"><div><b>${socNomCargo(f, k)}</b> <span class="stats">${c ? `${c.n} · ${{ ma: "mando", in: "intriga", di: "diplomacia", ge: "gestión" }[st]} ${c[st]}` : "vacante"}</span><br><span class="stats">${socEfCargo(f, k, c)}</span></div><button data-act="soccar-${k}" ${dis ? "disabled" : ""}>${c ? "Cambiar" : "Nombrar"}</button></div>`;
   }
+  h += socMandosHtml(dis);
   h += `<h3>Religión</h3><p class="stats">${SOC_POL[s.pol]}: ${{ tol: "poca conversión, el clero protesta", neu: "conversión lenta", celo: "conversión rápida, más desorden en tierras de otra fe" }[s.pol]}.</p><div class="g3">${Object.keys(
     SOC_POL,
   )
@@ -825,9 +1205,7 @@ function socPanel(dis) {
         `<button data-act="socpol-${p}" class="${s.pol === p ? "on" : ""}" ${dis || (s.uso.pol || 0) >= G.year ? "disabled" : ""}>${SOC_POL[p]}</button>`,
     )
     .join("")}</div>`;
-  const conv = ["niceno", "arriano"].filter(
-    (x) => x !== CIV[f].rel && CIV[f].rel !== "zoroastra" && !(CIV[f].rel === "niceno" && x === "arriano"),
-  );
+  const conv = SOC_CONV.includes(CIV[f].rel) ? ["niceno", "arriano"].filter((x) => x !== CIV[f].rel) : [];
   if (conv.length)
     h += `<div class="btns">${conv.map((x) => `<button data-act="socconv-${x}" ${dis || F.gold < 60 || (s.uso.conv || -99) > G.year - 15 ? "disabled" : ""}>Abrazar la fe ${SOC_FEN[x]} · 60 oro</button>`).join("")}</div>`;
   return (
