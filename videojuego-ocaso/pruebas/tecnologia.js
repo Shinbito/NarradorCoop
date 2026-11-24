@@ -7,6 +7,7 @@ const path = require("path");
 const fs = require("fs");
 
 const ANIOS = +(process.argv[2] || 30);
+const TEC_ORO_PRUEBA = 0.62; // parte en oro de las obras (tecnologia.js: TEC_ORO)
 const CIVN = +(process.argv[3] || 5);
 const raiz = path.resolve(__dirname, "..");
 const capt = path.join(__dirname, "capturas");
@@ -154,6 +155,45 @@ fs.mkdirSync(capt, { recursive: true });
       hu: tecHuecos(cap),
       lleno,
       motivoC: otra ? tecPuedeReclutar(ME, otra, "c").motivo : "requiere Establo",
+      yac: (() => {
+        /* yacimientos: la mina solo donde hay hierro u oro, y produce más hierro o más oro */
+        const conMina = G.P.find((p) => tecRiqueza(p, "mina") >= 1),
+          sinCantera = G.P.find((p) => !p.cantera && tecRiqueza(p, "cantera") === 0),
+          r = {};
+        if (conMina) {
+          const L0 = conMina.mina,
+            f = conMina.owner < NF ? conMina.owner : ME,
+            y0 = OC.calc("rendimiento", { g: 10, fo: 10, hierro: 1 }, { p: conMina, f });
+          conMina.mina = 1;
+          const y1 = OC.calc("rendimiento", { g: 10, fo: 10, hierro: 1 }, { p: conMina, f });
+          conMina.mina = L0;
+          r.sube = y1.hierro > y0.hierro || y1.g > y0.g;
+          r.max = tecMax("mina", f, { ...conMina, mina: 0 }) === tecRiqueza(conMina, "mina");
+        }
+        r.oculta = !sinCantera || !tecVisible("cantera", ME, sinCantera);
+        r.hay = !!conMina;
+        return r;
+      })(),
+      costeCuartel: tecCoste(ME, cap, "cuartel", 1),
+      torre: (() => {
+        /* la torre no ocupa hueco: se ofrece aunque la ciudad esté llena */
+        const llena = {
+            ...cap,
+            farm: 1,
+            market: 1,
+            temple: 1,
+            walls: 1,
+            cuartel: 1,
+            establo: 1,
+            arqueria: 1,
+            herreria: 1,
+            escuela: 1,
+            puerto: 1,
+            torre: 0,
+          },
+          m = tecMejora(ME, llena, "torre");
+        return { motivo: m.motivo, vision: tecVision({ torre: 2 }), libres: tecHuecos(llena).libres };
+      })(),
       ok: !!(s && s.f.length === NF && s.obras),
       campos: G.P.every((p) => tecEdificios().every((k) => typeof p[k] === "number")),
       cap: { cuartel: cap.cuartel, escuela: cap.escuela, walls: cap.walls },
@@ -199,6 +239,19 @@ fs.mkdirSync(capt, { recursive: true });
   );
   comprobar(ini.hu.total >= 3 && ini.hu.total <= 9, `huecos de la capital ${ini.hu.usados}/${ini.hu.total}`);
   comprobar(/hueco/.test(ini.lleno), "una ciudad llena no admite edificios nuevos: «" + ini.lleno + "»");
+  comprobar(
+    ini.costeCuartel.oro === Math.round(40 * TEC_ORO_PRUEBA) && ini.costeCuartel.madera === 4,
+    `oro rebajado y materiales intactos: Cuartel I = ${JSON.stringify(ini.costeCuartel)}`,
+  );
+  comprobar(
+    ini.yac.hay && ini.yac.sube && ini.yac.max,
+    "una mina sobre su yacimiento produce más y no pasa de su riqueza",
+  );
+  comprobar(ini.yac.oculta, "sin piedra no se ofrece cantera");
+  comprobar(
+    !/hueco/.test(ini.torre.motivo) && ini.torre.vision === 2,
+    `la torre de vigilancia no ocupa hueco («${ini.torre.motivo || "se puede"}», huecos libres ${ini.torre.libres}) y da visión ${ini.torre.vision}`,
+  );
 
   // pestaña Progreso: elegir investigación con un clic
   await clic('[data-act="tab-tec"]');
@@ -323,6 +376,7 @@ fs.mkdirSync(capt, { recursive: true });
         pts: tecPuntos(ME),
         local,
         perfiles,
+        torres: G.P.filter((p) => p.owner < NF && p.owner !== ME && p.torre > 0).length,
         disp: OC.calc("unidadesDisponibles", ["i", "a", "c"], { f: ME, p: cap }),
       };
     },
@@ -375,6 +429,7 @@ fs.mkdirSync(capt, { recursive: true });
   );
   const esp = ["fuerte", "mercantil", "granero", "saber"].reduce((s, k) => s + (fin.perfiles[k] || 0), 0);
   comprobar(esp >= 3, `la IA especializa ciudades (${esp} especializadas)`);
+  comprobar(fin.torres >= 2, `la IA levanta torres de vigilancia en sus fronteras (${fin.torres})`);
   comprobar(
     !!fin.local && fin.local.con !== fin.local.sin,
     "una técnica adoptada solo rinde en su ciudad: " +
