@@ -84,6 +84,7 @@ Secciones de provincia actuales: `reclutar` (20, combate), `edificios` (30, tecn
 | `generalAsciende` | `{c, f}` | combate | un capitán es ascendido a general |
 | `nivelSube` | `{c, antes, nivel}` | combate | un mando sube de nivel |
 | `mercDesercion` | `{f, contrato, saqueo}` | campaña | mercenarios impagados desertan |
+| `propuestaHumana` | `{de, a, tipo, ...}` | diplomacia | una propuesta o llamada a las armas queda esperando a un jugador humano |
 | `conquista` | `{p, de, a}` | combate | una provincia cambia de dueño por las armas |
 | `batallaResuelta` | `{p, atacante, defensor, gana, A, D, s0, gA, gD, ...}` | combate | después de cualquier batalla (auto o táctica) |
 | `revuelta` | `{p, de}` | economía (y sociedad en traiciones/guerra civil) | una provincia se subleva y pasa a `REB` (se emite antes del cambio de dueño) |
@@ -168,3 +169,4 @@ por estación; economía, investigación y eventos siguen siendo anuales (al cer
 - Mundo: `G.modo`, `G.activas`, `G.mapa`; pueblos ausentes con `G.F[f].ausente`. `CIV[f].pueblo` (frase), `CIV[f].base` (pueblo original pariente).
 - Economía cobra en su balance anual solo lo que campaña no cobra por estación (`b.gAnual`, `b.netAnual`); las tropas `merc` no pagan soldada por `ecoMant` (las paga su contrato). `ecoSaqueo(p, fr, orden)` aplica un saqueo y devuelve el botín.
 - Combate acepta en `ctx`: `dificultad` (`"dificil"`: IA de batalla más hábil, la usa el online cuando falta un jugador), `onl` y `onlRes` (batallas en vivo entre jugadores; ver docs/online.md).
+- Personajes muertos hace más de 5 años se compactan a un esbozo (`id, n, f, sex, age, fa, mo, sp, tr, alive, dm, linaje, rol`): no leas otros campos de muertos antiguos.
