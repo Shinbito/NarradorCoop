@@ -545,6 +545,54 @@
     return `<div class="card" style="margin:10px 0;padding:10px 12px;border:1px solid #b08d3c;border-radius:6px;background:rgba(176,141,60,.05)">
       <h3 style="margin:0 0 6px">Conectados ahora (${l.length})</h3>${l.length ? l.map(fila).join("") : '<p class="dim">Nadie más conectado.</p>'}</div>`;
   }
+  /* buscador de jugadores (en el menú online, siempre a mano): por nombre, con «Enviar solicitud» */
+  function cajaBuscar() {
+    return `<div class="card red-bus" style="margin:10px 0;padding:10px 12px;border:1px solid #b08d3c;border-radius:6px;background:rgba(176,141,60,.05)">
+      <h3 style="margin:0 0 6px"><label for="red-busca">Buscar jugadores</label></h3>
+      <input id="red-busca" placeholder="Escribe un nombre para enviarle una solicitud de amistad" autocomplete="off" style="width:100%;box-sizing:border-box;padding:6px;font-size:14px">
+      <div id="red-bus-res" aria-live="polite"></div></div>`;
+  }
+  let busT = null,
+    busQ = "";
+  async function buscarJugadores(q) {
+    busQ = q;
+    const el = document.getElementById("red-bus-res");
+    if (!el) return;
+    if (!q) return (el.innerHTML = "");
+    let l = [];
+    try {
+      l = await llama("search", { q });
+    } catch (_) {}
+    if (q !== busQ) return; // llegó tarde: ya se escribió otra cosa
+    const A = typeof ONL !== "undefined" ? ONL.amigos : {},
+      N = typeof net !== "undefined" ? net.names : {},
+      on = new Set(conectados().map((x) => x.u));
+    l = l.filter((p) => p.id !== ident.uid);
+    for (const p of l) {
+      colores[p.id] = p.color || colores[p.id];
+      if (N && N[p.id] !== p.name) N[p.id] = p.name;
+    }
+    el.innerHTML = l.length
+      ? l
+          .map((p) => {
+            const a = A[p.id],
+              est = a && a.estado === "aceptada" ? '<span class="dim">ya es tu amigo</span>' : a ? (a.de === ident.uid ? '<span class="dim">solicitud enviada</span>' : `<button class="gold onl-mini" data-act="s-onlamiok-${escH(p.id)}">Aceptar su solicitud</button>`) : `<button class="gold onl-mini" data-act="s-onlami-${escH(p.id)}">Enviar solicitud</button>`;
+            return `<div class="row" style="display:flex;align-items:center;gap:8px;padding:4px 0"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${escH(p.color || "#888")}"></span><b style="color:${escH(p.color || "inherit")}">${escH(p.name)}</b><span class="dim" style="font-size:12px">${on.has(p.id) ? "· conectado" : "· desconectado"}</span><span style="margin-left:auto">${est}</span></div>`;
+          })
+          .join("")
+      : '<p class="dim" style="margin:6px 0 0">Nadie con ese nombre. Si aún no juega, mándale tu enlace de «Invitar amigos».</p>';
+  }
+  document.addEventListener("input", (e) => {
+    if (!e.target || e.target.id !== "red-busca") return;
+    clearTimeout(busT);
+    const q = e.target.value.trim();
+    busT = setTimeout(() => buscarJugadores(q), 200);
+  });
+  /* tras enviar o aceptar una solicitud, el resultado se actualiza */
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest && e.target.closest("#red-bus-res [data-act]");
+    if (b) setTimeout(() => buscarJugadores(busQ), 600);
+  });
   function pintarConectados() {
     const el = document.querySelector(".red-con");
     if (el) el.innerHTML = cajaConectados();
@@ -583,7 +631,7 @@
         const h = vista.apply(this, arguments);
         /* en «Crear partida» manda el enlace de la propia partida (js/online-sala.js), que ya hace amigos */
         if (typeof ONL !== "undefined" && ONL.tab === "nueva") return h;
-        return h.replace('<div id="onl-lob">', cajaInvitar() + `<div class="red-con">${cajaConectados()}</div>` + '<div id="onl-lob">');
+        return h.replace('<div id="onl-lob">', cajaInvitar() + cajaBuscar() + `<div class="red-con">${cajaConectados()}</div>` + '<div id="onl-lob">');
       };
     }
     identLista.then(() => setTimeout(aceptarInvitacion, 300));

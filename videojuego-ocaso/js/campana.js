@@ -1351,6 +1351,6 @@ OC.seccion("prov", {
       c = camEspCoste(ME),
       ma = camMaestro(ME),
       aqui = camEspDe(ME).filter((s) => s.x === p.x && s.y === p.y);
-    return `<h3>Espías <span class="stats">· ${n}/${mx}</span></h3><div class="btns"><button data-act="cam-ecrear:${p.id}" ${dis || n >= mx || G.F[ME].gold < c ? "disabled" : ""} title="Su destreza depende de la intriga de ${ma ? "tu maestro de espías" : "tu soberano (nombra un maestro de espías en la Corte)"}">Reclutar espía<small>${c} oro</small></button>${aqui.map((s) => `<button data-act="cam-esel:${s.id}">${esc(s.nom)}</button>`).join("")}</div>${camTorre(p) > 0 ? `<p class="stats">Torre de vigilancia ${camTorre(p)}: ve ${CAM_VIS.ciudad + CAM_VIS.torre * camTorre(p)} casillas y dentro de los bosques cercanos.</p>` : ""}`;
+    return `<h3>Espías <span class="stats">· ${n}/${mx}</span></h3><div class="btns"><button data-act="cam-ecrear:${p.id}" ${dis || n >= mx || G.F[ME].gold < c ? "disabled" : ""} title="Su destreza depende de la astucia de ${ma ? "tu maestro de espías" : "tu soberano (nombra un maestro de espías en la Corte)"}">Reclutar espía<small>${c} oro</small></button>${aqui.map((s) => `<button data-act="cam-esel:${s.id}">${esc(s.nom)}</button>`).join("")}</div>${camTorre(p) > 0 ? `<p class="stats">Torre de vigilancia ${camTorre(p)}: ve ${CAM_VIS.ciudad + CAM_VIS.torre * camTorre(p)} casillas y dentro de los bosques cercanos.</p>` : ""}`;
   },
 });

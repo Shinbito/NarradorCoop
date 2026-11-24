@@ -62,7 +62,7 @@ prólogo, hechos menores, epílogo), `css/narrativa.css`, `pruebas/narrativa.js`
   reino desde 470; la regla de San Benito y los filósofos de Atenas en 529; el año sin sol en 536; el
   gusano de seda en 552; ávaros en 558; lombardos en 568; las cartas del papa Gregorio en 590.
 - **Opciones condicionadas**: coste (`OC.textoCoste`), requisitos de estadística, tropas, rasgo, fe o
-  alianza; las bloqueadas se ven desactivadas con el motivo («✕ requiere intriga 5 (Aecio tiene 3)»).
+  alianza; las bloqueadas se ven desactivadas con el motivo («✕ requiere astucia 5 (Aecio tiene 3)»).
   Las arriesgadas muestran la probabilidad y de qué depende («≈62% según la diplomacia de…»), y tras
   elegir un modal breve cuenta el desenlace.
 - **Memoria y consecuencias**: las decisiones dejan marcas (`mk`) que desbloquean capítulos y eventos

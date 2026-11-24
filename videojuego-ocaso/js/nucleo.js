@@ -645,7 +645,7 @@ const TAX = ["Bajos", "Normales", "Altos"],
   TAXO = [12, 0, -20];
 const TRAITS = {
   Valiente: "+2 mando",
-  Astuto: "+2 intriga",
+  Astuto: "+2 astucia",
   Elocuente: "+2 diplomacia",
   Prudente: "+2 gestión",
   Cruel: "+1 mando, −1 diplomacia",
@@ -657,7 +657,7 @@ const TRAITS = {
   Erudito: "+1 gestión, +1 diplomacia",
   Justo: "+1 gestión, grato al pueblo",
   Belicoso: "+1 mando, ansía la guerra",
-  Paranoico: "+1 intriga, −1 diplomacia",
+  Paranoico: "+1 astucia, −1 diplomacia",
 };
 const PNAMES = [
   "Dacia Nova",

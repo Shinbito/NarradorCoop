@@ -1478,7 +1478,7 @@ function dipPanel(dis) {
     r = ruler(ME),
     can = typeof socCargo === "function" ? socCargo(ME, "can") : null,
     sn = dipSenor(ME);
-  let h = `<h2>Diplomacia</h2><p class="dim">Reputación <b>${S.rep[ME]}</b> (${dipRepTxt(S.rep[ME])}) · diplomacia ${r.di} · intriga ${r.in}${can ? ` · canciller ${can.n} (${can.di})` : ""}${sn != null ? ` · tributario de ${CIV[sn].s}` : ""}</p>`;
+  let h = `<h2>Diplomacia</h2><p class="dim">Reputación <b>${S.rep[ME]}</b> (${dipRepTxt(S.rep[ME])}) · diplomacia ${r.di} · astucia ${r.in}${can ? ` · canciller ${can.n} (${can.di})` : ""}${sn != null ? ` · tributario de ${CIV[sn].s}` : ""}</p>`;
   for (let g = 0; g < NF; g++) if (g !== ME && alive(g)) h += dipFila(g, dis);
   h += OC.renderSecciones("dip", { F, r }, dis);
   return (

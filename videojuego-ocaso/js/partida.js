@@ -314,7 +314,7 @@ function succession(f, dead) {
   if (isMe(f))
     modal(
       "El trono pasa a otras manos",
-      `<p>${m}</p><p class="dim">Rasgo: ${h.tr}. Mando ${h.ma} · Intriga ${h.in} · Diplomacia ${h.di} · Gestión ${h.ge}</p>`,
+      `<p>${m}</p><p class="dim">Rasgo: ${h.tr}. Mando ${h.ma} · Astucia ${h.in} · Diplomacia ${h.di} · Gestión ${h.ge}</p>`,
       [{ t: "Larga vida al soberano" }],
     );
 }

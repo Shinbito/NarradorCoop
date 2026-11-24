@@ -403,7 +403,7 @@ function ifzResumenSec(id, { p }) {
   return "";
 }
 function cline(c) {
-  return `<span class="stats">Mando ${c.ma} · Intriga ${c.in} · Diplomacia ${c.di} · Gestión ${c.ge} · ${c.tr}</span>`;
+  return `<span class="stats">Mando ${c.ma} · Astucia ${c.in} · Diplomacia ${c.di} · Gestión ${c.ge} · ${c.tr}</span>`;
 }
 /* ---------- crónica: agrupada por año y con filtros ----------
    Los filtros usan las clases de cada entrada (good, bad, nar-rumor…; y guerra, corte, eco si algún

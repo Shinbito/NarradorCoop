@@ -274,7 +274,7 @@ function socEfCargo(f, k, c) {
     mag: s((c.ma - 4) * 1.5, "% en batalla"),
     tes: s((c.ge - 4) * 2, "% oro"),
     obi: s((c.di - 4) * 0.8, " orden") + " · " + s((c.in - 3) * 3, "% saber"),
-    esp: s((c.in - 4) * 3, "% intriga"),
+    esp: s((c.in - 4) * 3, "% astucia"),
   }[k];
 }
 
@@ -1211,7 +1211,7 @@ function socPanel(dis) {
   for (const k in SOC_CARGOS) {
     const c = socCargo(f, k),
       st = SOC_CARGOS[k];
-    h += `<div class="soc-c"><div><b>${socNomCargo(f, k)}</b> <span class="stats">${c ? `${c.n} · ${{ ma: "mando", in: "intriga", di: "diplomacia", ge: "gestión" }[st]} ${c[st]}` : "vacante"}</span><br><span class="stats">${socEfCargo(f, k, c)}</span></div><button data-act="soccar-${k}" ${dis ? "disabled" : ""}>${c ? "Cambiar" : "Nombrar"}</button></div>`;
+    h += `<div class="soc-c"><div><b>${socNomCargo(f, k)}</b> <span class="stats">${c ? `${c.n} · ${{ ma: "mando", in: "astucia", di: "diplomacia", ge: "gestión" }[st]} ${c[st]}` : "vacante"}</span><br><span class="stats">${socEfCargo(f, k, c)}</span></div><button data-act="soccar-${k}" ${dis ? "disabled" : ""}>${c ? "Cambiar" : "Nombrar"}</button></div>`;
   }
   h += socMandosHtml(dis);
   h += `<h3>Religión</h3><p class="stats">${SOC_POL[s.pol]}: ${{ tol: "poca conversión, el clero protesta", neu: "conversión lenta", celo: "conversión rápida, más desorden en tierras de otra fe" }[s.pol]}.</p><div class="g3">${Object.keys(
@@ -1289,7 +1289,7 @@ OC.accion("socconv", (v) => {
 OC.accion("soccar", (k) => {
   if (!SOC_CARGOS[k]) return;
   const st = SOC_CARGOS[k],
-    stn = { ma: "Mando", in: "Intriga", di: "Diplomacia", ge: "Gestión" }[st],
+    stn = { ma: "Mando", in: "Astucia", di: "Diplomacia", ge: "Gestión" }[st],
     cur = socCargo(ME, k),
     cs = socCandidatos(ME)
       .filter((c) => c !== cur)

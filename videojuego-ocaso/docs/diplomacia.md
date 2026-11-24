@@ -21,7 +21,7 @@ pactos viven en `G.dip.tr` = `[{id, t, a, b, y, h, ...}]` (`h` = año en que exp
 | `rehenes` | 10 | un joven (5–17) de cada corte (`c.dipReh`); quien rompe un pacto arriesga a su rehén | −10 |
 
 Embajada (25 oro, 8 años): +8 % de aceptación y el embajador revela sus planes contra ti.
-Reclamación (30 oro, una al año, intriga del soberano o del maestro de espías): casus belli 20 años.
+Reclamación (30 oro, una al año, astucia del soberano o del maestro de espías): casus belli 20 años.
 
 **Opinión con causas.** `G.rel` es la opinión total; cada recuerdo (`G.dip.mem["a-b"] = [{k,t,v,d}]`)
 se suma a `G.rel` y decae `d`/año: «Boda dinástica +20», «Traición de la alianza −45», «Guerra abierta»
@@ -141,7 +141,7 @@ se dan o se alzan pasan por `socTropa`: respetan `civPuede(f, t)` y nunca son `U
 **Consejo**: canciller (diplomacia: aceptación), magister militum / spahbed / gran mariscal / estratego /
 jefe de la hueste (mando: batalla, ejército), tesorero (gestión: oro; si es codicioso o desleal, desfalca),
 cabeza del clero según la fe (obispo, mobad, godi mayor, ministro de Ritos, Willaq Umu, hierofante,
-purohita, archidruida, gran chamán…: orden y saber), maestro de espías (intriga: asesinatos,
+purohita, archidruida, gran chamán…: orden y saber), maestro de espías (astucia: asesinatos,
 reclamaciones, defensa ante conjuras). Pueden ocuparlo parientes, mandos o nobles llamados (25 oro,
 `c.dipCort`). Nunca son herederos, pero heredan si se extingue la sangre real.
 
@@ -200,7 +200,7 @@ Efectos en su ciudad (`socGobEf`, nivel `n`):
 | Orden | `+0,8·(diplomacia−4) +0,5·n` (Justo +3, Cruel −3; −3 si desleal) | `ordenObjetivo` |
 | Levas | `−(1,5 %·(mando−4) +0,5 %·n)` | `costeUnidad` con `p` |
 | Defensa | `+1 %·(n + mando − 4)`, máx. 15 % | `bonoBatalla`, lado defensor |
-| Saber | `+1 % por intriga > 4` de cada gobernador, máx. +15 % | `puntosInvestigacion` (no trae `p`: va al reino) |
+| Saber | `+1 % por astucia > 4` de cada gobernador, máx. +15 % | `puntosInvestigacion` (no trae `p`: va al reino) |
 
 Gobernar da +3 de experiencia y +0,2 de fama al año.
 

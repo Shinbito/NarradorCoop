@@ -261,7 +261,7 @@ llegaron a verlos (la repetición de cada uno debería mostrar solo esos); tambi
 
 - Unidad de mapa propia (no es tropa): `{id, f, x, y, cal (destreza 1-10), mov, mis, nom, plan}`. Se
   recluta en una ciudad propia (30 oro; 20 con **maestro de espías**, `socCargo(f, "esp")`); destreza
-  `2 + intriga × 0,7 + azar` (intriga del maestro, o del soberano × 0,6). Máximo `1 + provincias/5 (+1 con
+  `2 + astucia × 0,7 + azar` (astucia del maestro, o del soberano × 0,6). Máximo `1 + provincias/5 (+1 con
   maestro)`. Marcha 14 casillas por estación en línea recta, sin bloquear ni ser bloqueado.
 - **Misiones** (junto al objetivo; se resuelven al acabar la estación): vigilar una ciudad (ve toda su
   provincia, también los bosques), sabotear (máquinas y obras de un ejército; o brecha si la ciudad está
@@ -269,7 +269,7 @@ llegaron a verlos (la repetición de cada uno debería mostrar solo esos); tambi
   abre las puertas, más fácil si `ecoApoyoAsedio` es bajo), robar una técnica (una que ellos tienen y tú
   puedes aprender: `tecAprender`), incitar revuelta (−15 de orden) y contraespionaje (en tierra propia).
 - **Probabilidades**: éxito `clamp(0,35 + 0,06 × (destreza − contraespionaje), 0,1, 0,85)` × dificultad
-  (sabotaje 1, revuelta 0,8, soborno 0,6, robo 0,5). Contraespionaje del dueño = intriga de su maestro (o
+  (sabotaje 1, revuelta 0,8, soborno 0,6, robo 0,5). Contraespionaje del dueño = astucia de su maestro (o
   soberano × 0,6) + 1,5 por nivel de torre a ≤ 4 casillas + 2 por espía suyo de guardia a ≤ 3. Descubierto
   cada estación en tierra ajena: `0,05 + 0,03 × (contra − destreza)` (+0,08 si actúa, +0,12 si falla); preso:
   −8 de relación (`dipMem`) y agravio de 3 años (casus belli, `dipAgravio`). Los de guardia pueden apresar

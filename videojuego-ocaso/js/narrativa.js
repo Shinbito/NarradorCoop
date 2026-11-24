@@ -83,7 +83,7 @@ const relFe = (f, fe, v) => {
   for (let g = 0; g < NF; g++) if (g !== f && alive(g) && narFe(g) === fe) relAdd(f, g, v);
 };
 const NAR_ROM = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
-const NAR_ST = { ma: "mando", in: "intriga", di: "diplomacia", ge: "gestión" };
+const NAR_ST = { ma: "mando", in: "astucia", di: "diplomacia", ge: "gestión" };
 const NAR_LEG = [
   { k: "pi", n: "Piedad", c: "#d9c27c", ap: ["el Piadoso", "la Piadosa"] },
   { k: "gl", n: "Gloria", c: "#e0503f", ap: ["el Grande", "la Grande"] },
@@ -173,7 +173,7 @@ function narRol(ch, f = ch.f) {
   return ch.age < 16 ? "menor de la casa" : narO(ch, "noble", "dama") + " de la corte";
 }
 function narFicha(ch, f) {
-  return `<div class="nar-pj"><div class="hd"><b>${ch.n}</b><span class="tag">${narRol(ch, f)}</span></div><span class="stats">${ch.age} años · Mando ${ch.ma} · Intriga ${ch.in} · Diplomacia ${ch.di} · Gestión ${ch.ge} · ${ch.tr}</span></div>`;
+  return `<div class="nar-pj"><div class="hd"><b>${ch.n}</b><span class="tag">${narRol(ch, f)}</span></div><span class="stats">${ch.age} años · Mando ${ch.ma} · Astucia ${ch.in} · Diplomacia ${ch.di} · Gestión ${ch.ge} · ${ch.tr}</span></div>`;
 }
 
 /* ---------- estado (G.nar) ---------- */
@@ -1277,7 +1277,7 @@ const EVENTS = [
       {
         t: "Desenmascararlos con astucia",
         prob: (c) => 0.25 + c.r.in * 0.07,
-        px: (c) => `según la intriga de ${c.r.n} (${c.r.in})`,
+        px: (c) => `según la astucia de ${c.r.n} (${c.r.in})`,
         si: (c) => {
           narOrden(c.f, 6);
           return "Una carta falsa basta: los conjurados se delatan unos a otros y piden perdón de rodillas. +6 orden.";
@@ -1574,10 +1574,10 @@ const EVENTS = [
       {
         t: "Encubrir el crimen",
         prob: (c) => 0.3 + c.r.in * 0.06,
-        px: (c) => `según la intriga de ${c.r.n}`,
+        px: (c) => `según la astucia de ${c.r.n}`,
         si: (c) => {
           c.h.in = Math.min(10, c.h.in + 1);
-          return `El noble acepta una explicación y un silencio. ${c.h.n} aprende que todo se arregla: +1 intriga.`;
+          return `El noble acepta una explicación y un silencio. ${c.h.n} aprende que todo se arregla: +1 astucia.`;
         },
         no: (c) => {
           narOrden(c.f, -12);
@@ -2710,7 +2710,7 @@ const EVENTS = [
         t: "Pagar al traidor de la poterna",
         coste: { oro: 40 },
         prob: (c) => 0.3 + c.r.in * 0.05,
-        px: (c) => `según la intriga de ${c.r.n}`,
+        px: (c) => `según la astucia de ${c.r.n}`,
         si: (c) => {
           c.pv.order = clamp(c.pv.order - 35, 0, 100);
           return `El traidor cumple: en ${c.pv.name} ya se habla de abrir las puertas (−35 orden en la ciudad).`;
@@ -3173,7 +3173,7 @@ const EVENTS = [
         t: "Investigar la muerte",
         vis: (c) => !!c.sos,
         prob: (c) => 0.3 + c.r.in * 0.06,
-        px: (c) => `según la intriga de ${c.r.n}`,
+        px: (c) => `según la astucia de ${c.r.n}`,
         si: (c) => {
           kill(c.sos, "es ejecutado por la muerte del heredero");
           return `Se halla veneno en una copa y una deuda pagada a un criado. ${c.sos.n} confiesa en el potro y muere.`;

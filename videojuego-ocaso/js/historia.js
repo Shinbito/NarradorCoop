@@ -596,7 +596,7 @@ const NAR_ARCOS = [
             t: "Enviar espías a su corte",
             req: (c) => narStat(c.r, "in", 4),
             prob: (c) => 0.35 + c.r.in * 0.06,
-            px: (c) => `según la intriga de ${c.r.n}`,
+            px: (c) => `según la astucia de ${c.r.n}`,
             si: (c) => {
               narEf(c.f, "batalla", 0.05, 8, "Espías en la estepa");
               return "Tus espías vuelven con mapas de sus caminos y los nombres de sus capitanes (+5% en batalla, 8 años).";
@@ -1848,7 +1848,7 @@ const NAR_ARCOS = [
             t: "Aliarse con el conde rebelde",
             req: (c) => narStat(c.r, "in", 4),
             prob: (c) => 0.35 + c.r.in * 0.05,
-            px: (c) => `según la intriga de ${c.r.n}`,
+            px: (c) => `según la astucia de ${c.r.n}`,
             si: (c) => {
               OC.ganar(c.f, { oro: 60 });
               narEf(c.f, "oro", 6, 12, "El trigo de África");
@@ -2162,7 +2162,7 @@ const NAR_ARCOS = [
           {
             t: "Defenderle ante la corte",
             prob: (c) => 0.3 + c.r.in * 0.06,
-            px: (c) => `según la intriga de ${c.r.n}`,
+            px: (c) => `según la astucia de ${c.r.n}`,
             si: (c) => {
               c.pj.ge = Math.min(10, c.pj.ge + 1);
               return `Las cartas resultan falsas. ${c.pj.n} vuelve al consejo y los acusadores al destierro.`;

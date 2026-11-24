@@ -817,7 +817,7 @@ function onlLobbyCuerpo() {
       conocidos = [...new Set([...ONL.mias, ...ONL.publicas].flatMap((g) => Object.values(g.d.seats || {})))].filter((u) => u !== net.uid && !A[u]);
     const li = (u, b) => `<div class="row onl-ami"><b>${esc(onlNombre(u))}</b> ${onlConectado(u) ? '<i class="onl-on">● conectado</i>' : '<i class="dim">desconectado</i>'}<div class="btns">${b}</div></div>`;
     return `<p class="dim">Los amigos son mutuos: tú lo pides y el otro acepta. Con un amigo desconectado, sus batallas contra ti esperan a que acuda (plazo de la partida); con desconocidos se resuelven contra una IA difícil.</p>
-    <p><label for="onl-busca">Buscar en tu organización</label><input id="onl-busca" placeholder="Nombre" autocomplete="off"></p><div id="onl-res"></div>
+    <p><label for="onl-busca">Buscar jugadores</label><input id="onl-busca" placeholder="Escribe un nombre" autocomplete="off"></p><div id="onl-res"></div>
     ${rec.length ? `<h3>Solicitudes recibidas</h3>${rec.map((u) => li(u, `<button class="gold" data-act="s-onlamiok-${esc(u)}">Aceptar</button><button data-act="s-onlamix-${esc(u)}">Rechazar</button>`)).join("")}` : ""}
     <h3>Amigos</h3>${ok.length ? ok.map((u) => li(u, `<button data-act="s-onlamix-${esc(u)}">Quitar</button>`)).join("") : '<p class="dim">Aún no tienes amigos en el juego.</p>'}
     ${env.length ? `<h3>Solicitudes enviadas</h3>${env.map((u) => li(u, `<button data-act="s-onlamix-${esc(u)}">Retirar</button>`)).join("")}` : ""}
