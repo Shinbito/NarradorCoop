@@ -2368,6 +2368,8 @@ function ifzHoverTxt(i, ct, xy) {
   const p = G.P[i];
   if (i < 0 || !p) return ct || "Mar";
   const tr = xy ? ifzTerrenoTxt(xy[0], xy[1]) : "";
+  /* CAM: niebla: de una provincia que no se ve solo se sabe quién manda (camHoverTxt ya lo dice) */
+  if (typeof camProvOculta === "function" && camProvOculta(p)) return ct || `${p.name}${tr ? " · " + tr : ""} · ${CIV[p.owner] ? CIV[p.owner].s : "sin dueño"}`;
   let s = `${p.name}${tr ? " · " + tr : ""} · ${CIV[p.owner].s} · ${tot(p.u) * ifzSPU()} hombres`;
   try {
     if (p.owner !== REB && typeof ecoNivel === "function") {
