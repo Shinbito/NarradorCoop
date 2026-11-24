@@ -896,9 +896,37 @@ function dipBuzon(f, it) {
   if (b.some((x) => x.k === it.k && x.from === it.from)) return false;
   if (it.k === "prop" && b.filter((x) => x.k === "prop").length >= 3) return false;
   b.push({ ...it, y: G.year });
+  dipAvisarHumano(f, it);
   return true;
 }
-const pushInbox = (f, it) => (G.inbox[f] = G.inbox[f] || []).push(it);
+/* G.inbox (narrativa) solo para los tipos de siempre: peace, ally, marry */
+function pushInbox(f, it) {
+  (G.inbox[f] = G.inbox[f] || []).push(it);
+  dipAvisarHumano(f, it);
+}
+/* evento 'propuestaHumana' {de, a, tipo, ...}: una propuesta espera a un jugador humano
+   (online la usa para dejar aviso a quien no está conectado) */
+function dipAvisarHumano(f, it) {
+  if (!human(f)) return;
+  const tipo =
+    it.k === "prop"
+      ? it.tipo
+      : it.k === "marry"
+        ? "boda"
+        : it.k === "peace"
+          ? "paz"
+          : it.k === "ally"
+            ? "alianza"
+            : it.k;
+  OC.emitirSync("propuestaHumana", {
+    de: it.from,
+    a: f,
+    tipo,
+    ...(it.ext ? { ext: it.ext } : {}),
+    ...(it.contra != null ? { contra: it.contra } : {}),
+    ...(it.k === "marry" ? { pa: it.a, pb: it.b } : {}),
+  });
+}
 OC.on("inicioTurno", async (f) => {
   const S = dipS(),
     box = (S.buzon[f] || []).filter((x) => x.y >= G.year - 1);
@@ -1040,7 +1068,7 @@ function dipHegemon() {
     .sort((a, b) => b[1] - a[1]);
   if (n.length < 3) return null;
   const media = n.reduce((s, x) => s + x[1], 0) / n.length;
-  return n[0][1] >= Math.max(8, media * 1.6) && n[0][1] >= n[1][1] * 1.35 ? n[0][0] : null;
+  return n[0][1] >= Math.max(8, media * 1.6) && n[0][1] >= n[1][1] * 1.2 ? n[0][0] : null;
 }
 /* empuje extra hacia la guerra contra un vecino g (solo leyendas) */
 function dipTensionLey(f, g) {
@@ -1049,10 +1077,17 @@ function dipTensionLey(f, g) {
     A = dipFeAfin(CIV[f].rel, CIV[g].rel),
     libre = owned(f).some((p) => MAP.adj[p.id].some((i) => G.P[i].owner === REB)),
     h = dipHegemon();
-  let d = 0.12;
-  if (!libre) d += 0.1 + (P.agr > 0.6 ? 0.08 : 0);
+  let d = 0.08;
+  if (!libre) d += 0.08 + (P.agr > 0.6 ? 0.08 : 0);
   if (A && A.v < 0) d += -A.v / 50;
   if (h === g) d += 0.15 + (dipAliados(f).some((z) => G.st[z][g] === "guerra") ? 0.25 : 0);
+  /* sin ensañarse con un pueblo casi vencido; un imperio ya extenso pierde el apetito */
+  if (owned(g).length <= 2 && !G.P.some((p) => p.owner === g && p.home === f)) d -= 0.2;
+  const media =
+    dipActivas()
+      .filter(alive)
+      .reduce((s, x) => s + owned(x).length, 0) / Math.max(1, dipActivas().filter(alive).length);
+  if (owned(f).length >= media * 2) d -= 0.15;
   return d;
 }
 function dipLeyAnual() {
@@ -1223,6 +1258,7 @@ function dipTerminosIA(f, g) {
   }
   if (m >= 2) return { exOro: 40 };
   if (m <= -3 || ratio < 0.5) {
+    if (owned(f).length <= 2 && dipSenor(f) == null && dipSenor(g) == null) return { ofVas: 1 };
     if (G.F[f].gold >= 40) return { ofOro: Math.min(80, Math.round(G.F[f].gold / 2)) };
     if (P.neg > 0.5 && dipSenor(f) == null) return { ofVas: 1 };
   }
@@ -1243,13 +1279,20 @@ function dipIAPropuesta(f) {
       };
     const coal = dipCoalicion(f, g) != null;
     if (rl > 30 || com || coal)
-      c("alianza", 0.6 + com * 0.3 + (coal ? 0.4 : 0), { sub: P.agr > 0.6 && R() < 0.5 ? "ofensiva" : "defensiva" });
+      c("alianza", 0.6 + com * 0.3 + (coal ? 0.4 : 0), {
+        sub: P.agr > 0.6 && R() < 0.5 ? "ofensiva" : "defensiva",
+      });
     if (bo && rl > -15 && (P.agr < 0.6 || ratio < 1)) c("nag", 0.45);
     if (rl > -5) c("comercio", 0.25 + P.cod * 0.5);
     if (dipGuerras(f).some((e) => border(g, e))) c("paso", 0.35);
     if (dipTr(f, g, "tregua") || dipTr(f, g, "nag")) c("rehenes", 0.2);
     if (bo && ratio > 1.6 && P.cod > 0.45) c("tributo", P.cod);
-    if (ratio < 0.4 && dipGuerras(f).length && rl > 0) c("vasallaje", 0.6);
+    if (
+      dipLey()
+        ? ratio < 0.5 && (dipGuerras(f).length || owned(f).length <= 3) && rl > -20
+        : ratio < 0.4 && dipGuerras(f).length && rl > 0
+    )
+      c("vasallaje", 0.6);
     if (rl > -25 && rl < 60 && G.F[f].gold > 60) c("embajada", 0.25);
   }
   return l.sort((a, b) => b.s - a.s)[0];

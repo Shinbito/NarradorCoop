@@ -169,6 +169,70 @@ function setup(f, p, cand) {
   };
   autoHeir(f);
 }
+/* ---------- población de la corte ----------
+   Las familias no pueden crecer sin freno (el estado se guarda entero en G): tope de parientes vivos
+   por pueblo según sus provincias; la casa principal (soberano, heredero e hijos del soberano) sigue
+   teniendo hijos, las casas menores menos y nada al llegar al tope; la IA casa con mesura.
+   narrativa.js (life) consulta dipProbNacer y dipProbBodaIA. */
+const dipTopeFamilia = (f) => Math.min(40, 8 + 2 * owned(f).length);
+let dipFamCache = null;
+function dipFamiliaN(f) {
+  if (!dipFamCache || dipFamCache.y !== G.year || dipFamCache.n !== G.C.length) {
+    const cnt = {};
+    for (const c of G.C) if (c.alive && c.linaje !== false) cnt[c.f] = (cnt[c.f] || 0) + 1;
+    dipFamCache = { y: G.year, n: G.C.length, cnt };
+  }
+  return dipFamCache.cnt[f] || 0;
+}
+function dipCasaMayor(c) {
+  const F = G.F[c.f];
+  return !!F && (c.id === F.ruler || c.id === F.heir || c.fa === F.ruler || c.mo === F.ruler);
+}
+/* probabilidad anual de que la pareja (madre m, padre h) tenga un hijo */
+function dipProbNacer(m, h) {
+  const f = m.f,
+    lleno = dipFamiliaN(f) / dipTopeFamilia(f),
+    hijos = kidsOf(m).length;
+  if (dipCasaMayor(m) || dipCasaMayor(h)) return hijos >= 6 ? 0 : lleno >= 1 ? 0.12 : 0.24;
+  return hijos >= 3 || lleno >= 1 ? 0 : 0.14 * (1 - lleno);
+}
+/* probabilidad anual de que la IA case a un soltero adulto de su corte */
+function dipProbBodaIA(f, c) {
+  const lleno = dipFamiliaN(f) / dipTopeFamilia(f);
+  if (dipCasaMayor(c)) return lleno >= 1.2 ? 0.05 : 0.2;
+  return lleno >= 0.8 ? 0 : 0.08 * (1 - lleno);
+}
+/* los muertos de hace años quedan en un esbozo (los ids son índices: no se pueden borrar) */
+const DIP_STUB = [
+  "id",
+  "n",
+  "f",
+  "sex",
+  "age",
+  "fa",
+  "mo",
+  "sp",
+  "tr",
+  "alive",
+  "dm",
+  "linaje",
+  "mundoAusente",
+  "rol",
+];
+function dipCompactar() {
+  if (!G || !G.C) return 0;
+  let k = 0;
+  for (const c of G.C) {
+    if (!c || c.alive || c.st) continue;
+    if (c.dm == null) c.dm = G.year;
+    if (G.year - c.dm < 5) continue;
+    for (const key of Object.keys(c)) if (!DIP_STUB.includes(key)) delete c[key];
+    c.st = 1;
+    k++;
+  }
+  return k;
+}
+OC.on("finAnio", dipCompactar);
 function heirCands(f) {
   const r = ruler(f),
     ks = kidsOf(r)
@@ -197,6 +261,7 @@ function autoHeir(f) {
 function kill(c, why) {
   if (!c || !c.alive) return;
   c.alive = false;
+  c.dm = G.year;
   G.P.forEach((p) => {
     if (p.gen === c.id) p.gen = null;
   });
