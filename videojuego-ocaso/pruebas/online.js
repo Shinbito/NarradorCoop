@@ -450,6 +450,16 @@ async function esperar(c, f, a, ms = 30000, msg = "") {
     return false;
   }
 }
+/* clic real; si no se puede (p. ej. algo tapa el botón), se anota y se pulsa por código */
+async function pulsar(c, sel) {
+  try {
+    await c.page.click(sel, { timeout: 8000 });
+  } catch (e) {
+    errores.push(`[${c.uid}] no se pudo pulsar ${sel}: ${String(e.message).split("\n")[0]}`);
+    console.log(`  ✗ no se pudo pulsar ${sel} (${c.uid}):`, JSON.stringify(await c.page.evaluate(() => ONL.log.slice(-6))));
+    await c.page.evaluate((s) => document.querySelector(s)?.click(), sel);
+  }
+}
 const titulos = (c) => ev(c, () => window.__modales.map((x) => x.split("|")[0]));
 const meta = (id) => hub.docs.get("partidas/" + id);
 /* deja preparada una escaramuza: guerra entre a y b y dos ejércitos en casillas vecinas; publica una versión nueva */
@@ -633,7 +643,7 @@ async function escaramuza(c, fa, fb) {
   await ev(A, () => endTurn());
   await esperar(B, () => !!document.querySelector('[data-act="s-onlinv-si"]'), null, 30000, "B recibe la invitación a la batalla");
   await B.page.screenshot({ path: path.join(capt, "online-invitacion.png") });
-  await B.page.click('[data-act="s-onlinv-si"]');
+  await pulsar(B, '[data-act="s-onlinv-si"]');
   await esperar(A, () => BT && BT.ctx && BT.ctx.onl, null, 30000, "A abre la batalla como autoridad");
   await esperar(B, () => BT && BT.espejo && BT.espejo.ok, null, 20000, "B abre el espejo");
   ok(await ev(B, () => BT.units.filter((u) => !u.side).every((u) => u.f === 2)), "en el espejo de B sus tropas son las suyas (campo girado)");
@@ -700,7 +710,7 @@ async function escaramuza(c, fa, fb) {
   await B.page.click(`[data-act="s-onlent-${id}"]`);
   await esperar(B, () => window.__modales.some((t) => /Mientras no estabas/.test(t)), null, 15000, "resumen al volver");
   await esperar(A, () => !!document.querySelector('[data-act="s-onlinv-si"]'), null, 60000, "A recibe la invitación del defensor");
-  await A.page.click('[data-act="s-onlinv-si"]');
+  await pulsar(A, '[data-act="s-onlinv-si"]');
   await esperar(B, () => BT && BT.ctx && BT.ctx.onl, null, 30000, "B dirige la batalla como autoridad");
   await esperar(A, () => BT && BT.espejo && BT.espejo.ok, null, 20000, "A ve el espejo");
   await ev(B, () => battleAct("go"));
@@ -709,10 +719,10 @@ async function escaramuza(c, fa, fb) {
   await esperar(B, () => BT && BT.turn >= 2 && !BT.run, null, 20000, "turno de la batalla del amigo");
   await ev(A, () => battleAct("flee"));
   /* si la marcha pendiente vuelve a chocar, A deja esa a sus capitanes */
-  await ev(A, () => setInterval(() => document.querySelector('[data-act="s-onlinv-no"]')?.click(), 300));
+  await ev(A, () => (window.__rechazo = setInterval(() => document.querySelector('[data-act="s-onlinv-no"]')?.click(), 300)));
   await esperar(B, () => !BT && ONL.meta && ONL.meta.fase === "ordenes" && !ONL.resolviendo, null, 90000, "la estación sigue tras la batalla del amigo");
   ok(meta(id).fase === "ordenes" && !meta(id).batalla, "la estación se reanudó y se publicó");
-  await ev(A, () => (ONL.noCerrar = false));
+  await ev(A, () => ((ONL.noCerrar = false), clearInterval(window.__rechazo)));
   ok(await ev(B, () => ONL.log.some((l) => /^batalla .* remoto\/local/.test(l))), "el amigo que vuelve dirige su defensa en vivo");
 
   /* --- tamaño del estado y dificultad --- */
@@ -758,7 +768,7 @@ async function escaramuza(c, fa, fb) {
   await esperar(A, () => ONL.meta.listos[2] === ONL.meta.turno && ONL.meta.listos[3] === ONL.meta.turno, null, 8000, "B y C listos");
   await ev(A, () => endTurn());
   await esperar(B, () => !!document.querySelector('[data-act="s-onlinv-si"]'), null, 30000, "B invitado (tres)");
-  await B.page.click('[data-act="s-onlinv-si"]');
+  await pulsar(B, '[data-act="s-onlinv-si"]');
   await esperar(B, () => BT && BT.espejo && BT.espejo.ok, null, 20000, "espejo de B (tres)");
   await ev(A, () => battleAct("go"));
   await ev(B, () => battleAct("flee"));
@@ -784,10 +794,10 @@ async function escaramuza(c, fa, fb) {
   await esperar(C, () => ONL.meta.listos[0] === ONL.meta.turno && ONL.meta.listos[2] === ONL.meta.turno, null, 8000, "A y B listos");
   await ev(C, () => endTurn());
   if (!(await esperar(A, () => !!document.querySelector('[data-act="s-onlinv-si"]'), null, 30000, "A invitado por C")))
-    console.log("    C:", JSON.stringify(await ev(C, () => ({ log: ONL.log.slice(-8), res: !!ONL.resolviendo, meta: ONL.meta && { turno: ONL.meta.turno, listos: ONL.meta.listos, limite: ONL.meta.limite - onlAhora() } }))));
-  await A.page.click('[data-act="s-onlinv-si"]');
+    console.log("    C:", JSON.stringify(await ev(C, () => ({ log: ONL.log.slice(-8), res: !!ONL.resolviendo, esp: ONL.esperaInv, rep: typeof IFZ_REP !== "undefined" && IFZ_REP.on, busy, bt: !!BT, peers: ONL.peers.map((p) => onlUidPeer(p)), meta: ONL.meta && { turno: ONL.meta.turno, listos: ONL.meta.listos, limite: ONL.meta.limite - onlAhora() } }))));
+  await pulsar(A, '[data-act="s-onlinv-si"]');
   await esperar(B, () => !!document.querySelector('[data-act="s-onlinv-si"]'), null, 30000, "B invitado por C");
-  await B.page.click('[data-act="s-onlinv-si"]');
+  await pulsar(B, '[data-act="s-onlinv-si"]');
   await esperar(A, () => BT && BT.ctx && BT.ctx.onl, null, 40000, "A dirige la batalla delegada");
   await esperar(B, () => BT && BT.espejo && BT.espejo.ok, null, 20000, "B ve el espejo (delegada)");
   await ev(A, () => battleAct("go"));

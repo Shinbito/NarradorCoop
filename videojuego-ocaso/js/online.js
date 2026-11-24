@@ -1499,6 +1499,23 @@ setInterval(onlTick, 1000);
 
 /* ---------- J. resolución de la estación (un solo cliente, con cerrojo) ---------- */
 const ONL_SUSP = { onlSusp: true };
+/* durante la resolución G.human = solo los que enviaron órdenes (a los demás los lleva la IA); pero el fin de
+   partida «todos los humanos han caído» debe mirar a todos los jugadores de la partida, no solo a esos */
+function onlFinPartidaCon(act) {
+  const orig = checkEnd;
+  checkEnd = function () {
+    const h = G.human;
+    G.human = act.slice();
+    try {
+      return orig.apply(this, arguments);
+    } finally {
+      if (G) G.human = h;
+    }
+  };
+  return () => {
+    checkEnd = orig;
+  };
+}
 function onlInyectar(ords) {
   const orig = camResolverSimultaneo;
   let usado = false;
@@ -1556,6 +1573,7 @@ async function onlResolver0(op = {}) {
   ui();
   const renov = setInterval(() => lock.acquire({ holder: ONL.yo, ttlMs: 20000 }).catch(() => {}), 7000);
   let restaurar = null,
+    restFin = null,
     pub = false,
     marcado = false,
     intacto = false;
@@ -1599,7 +1617,8 @@ async function onlResolver0(op = {}) {
       if (!presentes.includes(f)) onlCron([f], `Sin órdenes a tiempo: la IA gobernó ${CIV[f].s} esta estación.`, "bad");
     const ords = envs.flatMap((e) => (e.ords || []).map((o) => ({ ...o, f: e.f })));
     restaurar = onlInyectar(ords);
-    onlTraza("resolver", m.turno, "envios", presentes.join(","), "ordenes", ords.length);
+    restFin = onlFinPartidaCon(act);
+    onlTraza("resolver", m.turno, "envios", presentes.join(","), "ordenes", ords.length, "resto", Math.round(((m.limite || 0) - onlAhora()) / 1000), "listos", JSON.stringify(m.listos || {}));
     const y0 = G.year;
     await finEstacion();
     restaurar();
@@ -1618,6 +1637,7 @@ async function onlResolver0(op = {}) {
     }
   } finally {
     if (restaurar) restaurar();
+    if (restFin) restFin();
     clearInterval(renov);
     busy = false;
     const R0 = ONL.resolviendo;
@@ -1809,6 +1829,7 @@ async function onlPrepararBatalla(ejA, ejD, bctx, o) {
     uA = onlUidHumano(m, ejA.f),
     uD = onlUidHumano(m, ejD.f);
   if (!uA || !uD || uA === uD || tot(ejD.u) <= 0 || tot(ejA.u) <= 0) return;
+  onlTraza("prep", ejA.f, ejD.f, o.tipo || "campo");
   const A = o.ejs && o.ejs[0],
     D = o.ejs && o.ejs[1],
     clave = `${m.turno}-${o.tipo || "campo"}-${A ? A.id : "c"}-${D ? D.id : "p" + (bctx.p ? bctx.p.id : "")}`,
@@ -1900,6 +1921,7 @@ async function onlPrepararBatalla(ejA, ejD, bctx, o) {
 /* invitación en vivo por el vestíbulo; respuesta en cfg.invitSeg o se entiende que no */
 async function onlInvitar(bid, uids, info) {
   const limite = onlAhora() + info.limiteMs;
+  onlTraza("invita", uids.join(","), bid);
   for (const u of uids) {
     delete ONL.resp[bid + u];
     onlEmitir(ONL.room, "onl.inv", { para: u, bid, partida: net.id, nombre: ONL.meta.name, lugar: info.lugar, fa: info.fa, fd: info.fd, lado: info.lados.indexOf(u), de: net.uid, limite, dur: info.limiteMs });
@@ -1931,18 +1953,27 @@ function onlMostrarInvitacion() {
     ONL.inv = null;
     return onlCapa(null, "", "onl-inv");
   }
+  clearTimeout(ONL.invT);
+  ONL.invT = setTimeout(onlMostrarInvitacion, 1000);
+  /* ya pintada: solo se actualiza la cuenta atrás (no se rehacen los botones bajo el dedo) */
+  const t = document.getElementById("onl-inv-t");
+  if (t && ONL.invPintada === d.bid && document.querySelector("#onl-inv.show")) {
+    t.textContent = String(Math.ceil(resto / 1000));
+    return;
+  }
+  ONL.invPintada = d.bid;
+  onlTraza("inv pinta", d.bid, t ? "t" : "-", document.querySelector("#onl-inv.show") ? "show" : "-");
   onlCapa(
     "¡Batalla!",
     `<p>${esc(onlNombre(d.de))} resuelve la estación en «${esc(d.nombre || "")}»: ${esc(CIV[d.fa]?.s || "")} contra ${esc(CIV[d.fd]?.s || "")} en <b>${esc(d.lugar)}</b>.</p><p>¿Diriges a tus tropas en persona? Si no, tus capitanes lucharán (IA difícil).</p><p class="stats">Quedan <span id="onl-inv-t">${Math.ceil(resto / 1000)}</span> s</p><div class="btns"><button class="gold" data-act="s-onlinv-si">Luchar en persona</button><button data-act="s-onlinv-no">Que luchen mis capitanes</button></div>`,
     "onl-inv",
     true,
   );
-  clearTimeout(ONL.invT);
-  ONL.invT = setTimeout(onlMostrarInvitacion, 1000);
 }
 async function onlResponderInvitacion(si) {
   const d = ONL.inv;
   ONL.inv = null;
+  ONL.invPintada = null;
   clearTimeout(ONL.invT);
   onlCapa(null, "", "onl-inv");
   if (!d) return;
