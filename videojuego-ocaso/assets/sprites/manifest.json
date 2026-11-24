@@ -1,5 +1,97 @@
 {
   "version": 1,
   "comentario": "Sprites PNG que sustituyen a los de código. Formato en docs/interfaz.md. Vacío = se usan los sprites de código.",
-  "sprites": {}
+  "sprites": {
+    "MAPA.torre": {
+      "png": "gemini/MAPA.torre.png",
+      "w": 16,
+      "h": 16,
+      "tinte": false,
+      "escala": 2
+    },
+    "MAPA.mina": {
+      "png": "gemini/MAPA.mina.png",
+      "w": 16,
+      "h": 16,
+      "tinte": false,
+      "escala": 2
+    },
+    "MAPA.cantera": {
+      "png": "gemini/MAPA.cantera.png",
+      "w": 16,
+      "h": 16,
+      "tinte": false,
+      "escala": 2
+    },
+    "MAPA.aserradero": {
+      "png": "gemini/MAPA.aserradero.png",
+      "w": 16,
+      "h": 16,
+      "tinte": false,
+      "escala": 2
+    },
+    "MAPA.salinas": {
+      "png": "gemini/MAPA.salinas.png",
+      "w": 16,
+      "h": 16,
+      "tinte": false,
+      "escala": 2
+    },
+    "MAPA.puerto": {
+      "png": "gemini/MAPA.puerto.png",
+      "w": 16,
+      "h": 16,
+      "tinte": false,
+      "escala": 2
+    },
+    "MAPA.ciudad.1": {
+      "png": "gemini/MAPA.ciudad.1.png",
+      "w": 32,
+      "h": 32,
+      "tinte": true,
+      "escala": 2
+    },
+    "MAPA.ciudad.2": {
+      "png": "gemini/MAPA.ciudad.2.png",
+      "w": 32,
+      "h": 32,
+      "tinte": true,
+      "escala": 2
+    },
+    "MAPA.ciudad.3": {
+      "png": "gemini/MAPA.ciudad.3.png",
+      "w": 32,
+      "h": 32,
+      "tinte": true,
+      "escala": 2
+    },
+    "MAPA.ciudad.4": {
+      "png": "gemini/MAPA.ciudad.4.png",
+      "w": 32,
+      "h": 32,
+      "tinte": true,
+      "escala": 2
+    },
+    "MAPA.muralla.2": {
+      "png": "gemini/MAPA.muralla.2.png",
+      "w": 32,
+      "h": 32,
+      "tinte": false,
+      "escala": 2
+    },
+    "MAPA.muralla.3": {
+      "png": "gemini/MAPA.muralla.3.png",
+      "w": 32,
+      "h": 32,
+      "tinte": false,
+      "escala": 2
+    },
+    "MAPA.capital": {
+      "png": "gemini/MAPA.capital.png",
+      "w": 48,
+      "h": 48,
+      "tinte": true,
+      "escala": 2
+    }
+  }
 }
