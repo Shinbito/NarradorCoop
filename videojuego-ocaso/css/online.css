@@ -1,1 +1,134 @@
-/* estilos del sistema: online */
+/* estilos del sistema: online (vestíbulo, panel de la partida, avisos, invitaciones) */
+.onl-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0;
+}
+.onl-tabs button.on {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.onl-p .onl-est,
+.onl-fase {
+  margin-top: 4px;
+  font-size: 15px;
+}
+.onl-toca .onl-est,
+.onl-fase.onl-toca b {
+  color: var(--gold);
+}
+.onl-bat .onl-est,
+.onl-fase.onl-bat b {
+  color: #ff8a7a;
+}
+.onl-fase {
+  padding: 6px 8px;
+  border-left: 4px solid var(--edge);
+  background: rgba(0, 0, 0, 0.25);
+  margin: 8px 0;
+}
+.onl-fase.onl-toca {
+  border-color: var(--gold);
+}
+.onl-on {
+  color: #8fd18a;
+  font-style: normal;
+}
+.onl-jug,
+.onl-cola,
+.onl-res {
+  margin: 4px 0 8px;
+  padding-left: 18px;
+}
+.onl-res li.good {
+  color: #8fd18a;
+}
+.onl-res li.bad {
+  color: #ff8a7a;
+}
+button.onl-mini {
+  min-height: 0;
+  padding: 2px 6px;
+  font-size: 8px;
+  margin-left: 4px;
+}
+.onl-form label {
+  display: block;
+  margin-bottom: 2px;
+}
+.onl-form select,
+.onl-form input,
+#onl-busca {
+  width: 100%;
+}
+.onl-form fieldset {
+  border: 2px solid var(--edge);
+  margin: 8px 0;
+}
+.onl-chk {
+  display: inline-flex !important;
+  gap: 6px;
+  margin-right: 12px;
+  align-items: center;
+}
+.onl-arch {
+  margin-top: 12px;
+}
+.onl-arch summary {
+  cursor: pointer;
+  color: var(--dim);
+}
+.onl-esp {
+  color: var(--gold);
+  animation: onl-lat 1.2s ease-in-out infinite;
+}
+@keyframes onl-lat {
+  50% {
+    opacity: 0.55;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .onl-esp {
+    animation: none;
+  }
+}
+/* bandeja flotante de avisos */
+#onl-bandeja {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 60;
+  min-height: 40px;
+  padding: 6px 12px;
+  background: #0b0f12;
+  border: 3px solid #000;
+  box-shadow: 0 0 0 2px var(--edge);
+}
+#onl-bandeja.on {
+  color: #12171c;
+  background: var(--gold);
+}
+/* capas propias (avisos, invitación a batalla): por encima de modales y batalla */
+.onl-capa {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 12px;
+}
+.onl-capa.show {
+  display: flex;
+}
+.onl-capa .card {
+  max-width: 560px;
+  width: 100%;
+  max-height: 86vh;
+  overflow: auto;
+}
+#onl-inv .card {
+  border-color: var(--gold);
+}
