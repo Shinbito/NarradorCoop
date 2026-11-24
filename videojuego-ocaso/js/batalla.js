@@ -102,8 +102,14 @@ const CMBA_FX = {
   asedio: "Las máquinas de asedio",
   espanto: "El espanto de los caballos ante las bestias",
   desbocados: "Las bestias desbocadas del enemigo",
+  lados: "El ataque desde varias direcciones",
 };
-const cmbaFxTxt = (k) => (k.startsWith("hab:") ? (CMB_HAB[k.slice(4)] || {}).n : CMBA_FX[k]);
+const cmbaFxTxt = (k) =>
+  k.startsWith("hab:")
+    ? (CMB_HAB[k.slice(4)] || {}).n
+    : k.startsWith("flancos:")
+      ? `El asalto por ${k.slice(8)} flancos`
+      : CMBA_FX[k];
 const cmbaRnd = () => 0.85 + R() * 0.3;
 const cmbaNom = (b) => b.nm || CIV[b.f].un[b.t].toLowerCase();
 const cmbaVivos = (L) => L.bl.filter((b) => b.n > 0.5 && !b.rout);
@@ -116,15 +122,17 @@ const cmbaSuma = (l) => l.reduce((a, b) => a + b.n, 0);
 function cmbAlza(fx, s, k, v) {
   if (v > 0) fx[s][k] = (fx[s][k] || 0) + v;
 }
-function cmbLado(s, ej, ctx, env) {
+/* un ejército en la batalla automática. s = índice del ejército; def = pertenece al bando que defiende */
+function cmbLado(s, ej, ctx, env, def = s === 1) {
   const f = ej.f,
-    lado = s ? "defensor" : "atacante",
+    lado = def ? "defensor" : "atacante",
     gc = ej.gen != null && G.C[ej.gen] && G.C[ej.gen].alive !== false ? G.C[ej.gen] : null,
     lv = gc ? cmbNivelXp(gc.xp) : 0,
     /* OC 'bonoBatalla': multiplicador del daño. ctx {f, lado, p} */
     bono = OC.calc("bonoBatalla", 1, { f, lado, p: ctx.p || null }) || 1,
     hambre = ej.hambre != null ? ej.hambre : !!(G.F[f] && G.F[f].food <= 0),
-    as = s === 1 && ctx.asedio ? Math.min(20, ctx.asedio * 4) : 0,
+    as = def && ctx.asedio ? Math.min(20, ctx.asedio * 4) : 0,
+    fl = def && ctx.fort ? cmbFlancos(ctx) - 1 : 0,
     bl = [],
     maq = {};
   for (const t of TYP) {
@@ -140,9 +148,10 @@ function cmbLado(s, ej, ctx, env) {
       mx =
         st.mo +
         (gc ? gc.ma * 1.5 + (lv - 1) * 1.5 : 0) +
-        (s === 1 && ctx.fort ? 3 + ctx.fort * 3 : 0) -
+        (def && ctx.fort ? 3 + ctx.fort * 3 : 0) -
         (hambre ? 10 : 0) -
-        as;
+        as -
+        fl * 4;
     const an = mx * (0.88 + R() * 0.24),
       b = {
         s,
@@ -168,6 +177,8 @@ function cmbLado(s, ej, ctx, env) {
   return {
     s,
     f,
+    def,
+    bando: ej.bando ?? s,
     gen: gc ? gc.id : null,
     g: gc ? 1 + gc.ma * 0.04 + (lv - 1) * 0.015 : 1,
     ma: gc ? gc.ma : 0,
@@ -181,18 +192,48 @@ function cmbLado(s, ej, ctx, env) {
     n0: bl.reduce((a, b) => a + b.n, 0),
     /* sin las máquinas: su dotación no sostiene la moral de la línea */
     nl0: bl.filter((b) => b.cl !== "asd").reduce((a, b) => a + b.n, 0),
+    dir: cmbDirL(ej.dir),
     flank: 0,
     fdicho: false,
     cont: 0,
     roto: false,
+    fuera: false,
+    espera: false,
+    amenaza: {},
   };
 }
-/* ONL: dificultad de la IA (ctx.dificultad = ['normal'|'dificil', ...] por ejA/ejD). En la automática el
-   bando «difícil» emplea mejor sus fuerzas: +6 % de daño y de moral y algo más de fortuna. */
+/* dirección de procedencia de un ejército: 'N'|'E'|'S'|'O' (también 'W') o ángulo en grados (0 = norte,
+   90 = este); null si no se sabe */
+function cmbDirL(d) {
+  if (d == null || d === "") return null;
+  if (typeof d === "number") {
+    const a = ((d % 360) + 360) % 360;
+    return a < 45 || a >= 315 ? "N" : a < 135 ? "E" : a < 225 ? "S" : "O";
+  }
+  return { N: "N", S: "S", E: "E", O: "O", W: "O" }[String(d).toUpperCase()] || null;
+}
+const CMB_DIRN = { N: "el norte", S: "el sur", E: "el este", O: "el oeste" };
+/* ejército que defiende la plaza: ctx.def, o el que viene con dir 'C' (centro, como lo marca Campaña), o con
+   murallas el primero de otro bando que el primero */
+function cmbDefIdx(ejs, ctx) {
+  if (ctx.def != null) return ctx.def;
+  const c = ejs.findIndex((e) => String(e.dir || "").toUpperCase() === "C");
+  if (c >= 0) return c;
+  if (!ctx.fort) return null;
+  const b0 = ejs[0].bando ?? 0,
+    d = ejs.findIndex((e, i) => (e.bando ?? i) !== b0);
+  return d >= 0 ? d : null;
+}
+/* flancos por los que se asalta una plaza (lo pasa Campaña: 1-4) */
+/* si Campaña ya lo tradujo (ctx.flancosAplicados), no se aplica dos veces */
+const cmbFlancos = (ctx) =>
+  ctx && ctx.flancosAplicados ? 1 : clamp(Math.round((ctx && ctx.flancos) || 1), 1, 4);
+/* ONL: dificultad de la IA (ctx.dificultad = ['normal'|'dificil', ...] por ejército). En la automática el
+   bando «difícil» emplea mejor sus fuerzas: +4 % de daño, +5 % de moral y algo más de fortuna. */
 function cmbDificultadAuto(L, ctx) {
   const D = ctx && ctx.dificultad;
   if (!D) return L;
-  for (const s of [0, 1])
+  for (let s = 0; s < L.length; s++)
     if (D[s] === "dificil") {
       const X = L[s];
       X.bono *= 1.04;
@@ -204,8 +245,9 @@ function cmbDificultadAuto(L, ctx) {
     }
   return L;
 }
-/* reparte un objetivo según preferencias de doctrina */
-function cmbObjetivo(b, ene, frente, fort) {
+/* reparte un objetivo según preferencias de doctrina; fac(e) = preferencia por el ejército de e
+   (el que me amenaza, no el que aguarda); con un solo enemigo no cambia nada */
+function cmbObjetivo(b, ene, frente, fort, fac) {
   let tot0 = 0;
   const w = ene.map((e) => {
     let k = 1;
@@ -215,45 +257,94 @@ function cmbObjetivo(b, ene, frente, fort) {
       if (b.cl === "cab") k = 2.2;
       else k = frente > 0 ? (b.cl === "dis" ? 0.8 : 0.35) : 1.5;
     } else if (b.cl === "dis") k = e.cl === "inf" ? 1.2 : 1;
-    const v = e.n * k;
+    const v = e.n * k * (fac ? fac(e) : 1);
     tot0 += v;
     return v;
   });
   return ene.map((e, i) => [e, tot0 ? w[i] / tot0 : 0]);
 }
+/* Dos ejércitos (atacante y defensor): envoltorio de cmbResolverMulti con el resultado de siempre */
 function cmbResolverAuto(ejA, ejD, ctx = {}) {
   /* ONL */ if (ctx.onlRes && !ctx.est) {
     const r = ctx.onlRes;
     ctx.onlRes = null;
     return r;
   }
-  const env = cmbEntorno(ctx),
+  const r = cmbResolverMulti(
+    [
+      { ...ejA, bando: 0 },
+      { ...ejD, bando: 1 },
+    ],
+    { ...ctx, def: 1, sinEvento: true },
+  );
+  return {
+    gana: r.gana,
+    A: r.ejs[0].A,
+    D: r.ejs[1].A,
+    heridos: { A: r.ejs[0].heridos, D: r.ejs[1].heridos },
+    informe: r.informe,
+    gen: r.gen,
+    brecha: r.brecha,
+  };
+}
+/* N ejércitos agrupados en bandos (aliados no se atacan; todos contra todos = un bando por ejército).
+   ejs = [{f, u, gen, vet, ori, fat, bando}]; ctx como en cmbResolverAuto más:
+     def: índice del ejército que defiende la plaza (su bando entero se beneficia de murallas y terreno);
+     oportunista: bando que espera a que los demás se desgasten (false = nadie; por defecto la IA decide);
+     emitir: emitir 'batallaResuelta' con ejs y bandos (por defecto no: lo hace quien la llama, como Campaña).
+   Devuelve {gana: bando, ejs: [{id, u (supervivientes; = A), her (heridos; = heridos), f, bando, gana,
+   bajas, gen}], informe, gen, brecha}: el contrato de Campaña (id = el del ejército recibido). */
+function cmbResolverMulti(ejs0, ctx = {}) {
+  /* refuerzos: ejércitos que llegan con la batalla empezada (ctx.refuerzos = [{ej, dir, llegada (s)}]);
+     van detrás de los demás en ejs y en el resultado. 1 ronda = 10 s. */
+  const REF = ctx.refuerzos || [],
+    ejs = ejs0.concat(REF.map((q) => ({ ...q.ej, dir: q.dir ?? q.ej.dir }))),
+    llega = ejs0.map(() => 0).concat(REF.map((q) => 1 + Math.ceil((+q.llegada || 30) / 10))),
+    env = cmbEntorno(ctx),
     est = !!ctx.est,
     fort = ctx.fort || 0,
     terr = env.terr,
-    L = cmbDificultadAuto([cmbLado(0, ejA, ctx, env), cmbLado(1, ejD, ctx, env)], ctx) /* ONL */,
-    fx = [{}, {}],
+    N = ejs.length,
+    dIdx = cmbDefIdx(ejs, ctx),
+    bandoDef = dIdx != null && ejs[dIdx] ? (ejs[dIdx].bando ?? dIdx) : null,
+    L = cmbDificultadAuto(
+      ejs.map((ej, i) => cmbLado(i, ej, ctx, env, bandoDef != null && (ej.bando ?? i) === bandoDef)),
+      ctx,
+    ) /* ONL */,
+    fx = L.map(() => ({})),
     ron = [],
-    gen = [null, null],
+    gen = L.map(() => null),
     curva = {},
-    calorClima = env.clima === "calor" ? 1.3 : 1;
+    calorClima = env.clima === "calor" ? 1.3 : 1,
+    flancos = fort ? cmbFlancos(ctx) : 1,
+    hostil = (a, b) => L[a].bando !== L[b].bando,
+    enJuego = (X) => !X.fuera && !(llega[X.s] > r),
+    bandosEnJuego = () => [...new Set(L.filter(enJuego).map((X) => X.bando))],
+    /* bloques enemigos de un ejército (los que aguardan casi no son blanco) */
+    eneDe = (s) => L.filter((X, i) => enJuego(X) && hostil(s, i)).flatMap(cmbaVivos),
+    facDe = (s) => (e) => (L[e.s].espera ? 0.35 : 1) * (L[s].amenaza[e.s] ? 1.3 : 1),
+    split = (s, k, v) => {
+      const hs = L.filter((X, i) => hostil(s, i));
+      for (const X of hs) cmbAlza(fx, X.s, k, v / hs.length);
+    };
   let fortE = fort,
     brecha = false,
     ev = [],
     r = 0;
   const di = (p, t) => ev.push([p, t]);
-  for (const b of [...L[0].bl, ...L[1].bl]) {
+  for (const b of L.flatMap((X) => X.bl)) {
     const nm = CIV[b.f].un[b.t].toLowerCase();
-    b.nm =
-      CIV[ejA.f].un[b.t] === CIV[ejD.f].un[b.t] && L[1 - b.s].bl.some((o) => o.t === b.t)
-        ? `${nm} (${CIV[b.f].s})`
-        : nm;
+    b.nm = L.some(
+      (X) => X.s !== b.s && CIV[X.f].un[b.t] === CIV[b.f].un[b.t] && X.bl.some((o) => o.t === b.t),
+    )
+      ? `${nm} (${CIV[b.f].s})`
+      : nm;
   }
   /* adaptador de habilidades: en la automática "cerca" significa trabados en la melé */
   const B = {
     auto: true,
-    enemigos: (x, rad) => (rad >= 4 || r >= 2 ? cmbaVivos(L[1 - x.s]) : []),
-    aliados: (x) => cmbaVivos(L[x.s]),
+    enemigos: (x, rad) => (rad >= 4 || r >= 2 ? eneDe(x.s) : []),
+    aliados: (x) => L.filter((X) => enJuego(X) && X.bando === L[x.s].bando).flatMap(cmbaVivos),
     bosque: () => terr.bosque || 0,
     enBosque: () => terr.bosque > 0.3,
     moralAliada: (x) => {
@@ -263,42 +354,83 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
     },
     log: (t, p) => di(p, t),
   };
-  if (L[0].hambre) cmbAlza(fx, 1, "hambre", L[0].n0 * 0.04);
-  if (L[1].hambre) cmbAlza(fx, 0, "hambre", L[1].n0 * 0.04);
-  let fin = L[1].n0 <= 0 ? "vacio" : L[0].n0 <= 0 ? "vacio" : "",
-    gana = L[1].n0 <= 0 && L[0].n0 > 0 ? 0 : 1;
+  for (const X of L) if (X.hambre) split(X.s, "hambre", X.n0 * 0.04);
+  /* asalto por varios flancos: la guarnición se reparte por las murallas */
+  if (flancos > 1 && bandoDef != null) {
+    const at = L.find((X) => !X.def);
+    if (at)
+      cmbAlza(
+        fx,
+        at.s,
+        "flancos:" + flancos,
+        L.filter((X) => X.def).reduce((a, X) => a + X.n0, 0) * 0.05 * (flancos - 1),
+      );
+  }
+  /* tercero oportunista: con tres bandos o más, uno puede aguardar a que los otros se desgasten */
+  if (new Set(L.map((X) => X.bando)).size >= 3 && ctx.oportunista !== false) {
+    let opo = ctx.oportunista;
+    if (opo == null || opo === true) {
+      const fz = {};
+      for (const X of L) if (!X.def) fz[X.bando] = (fz[X.bando] || 0) + X.n0;
+      const cand = Object.keys(fz).sort((a, b) => fz[a] - fz[b])[0];
+      opo = cand != null && (ctx.oportunista === true || R() < 0.6) ? +cand : null;
+    }
+    if (opo != null)
+      for (const X of L)
+        if (X.bando === opo && !X.def) {
+          X.espera = true;
+          di(2, `Las tropas de ${CIV[X.f].s} aguardan a que los demás se desgasten.`);
+        }
+  }
+  let fin =
+      L.filter((X) => X.n0 > 0).length < 2 || new Set(L.filter((X) => X.n0 > 0).map((X) => X.bando)).size < 2
+        ? "vacio"
+        : "",
+    gana = fin ? (L.find((X) => X.n0 > 0) || L[L.length - 1]).bando : null;
   for (r = 1; !fin && r <= env.rmax; r++) {
     ev = [];
+    for (const X of L)
+      if (llega[X.s] === r)
+        di(4, `Llegan refuerzos: las tropas de ${CIV[X.f].s} entran por ${CMB_DIRN[X.dir] || "un costado"}.`);
     const dano = new Map(),
-      golpe = (tg, v) => dano.set(tg, (dano.get(tg) || 0) + v),
+      golpe = (tg, v, s) => {
+        dano.set(tg, (dano.get(tg) || 0) + v);
+        if (s != null && v > 0) L[tg.s].amenazaN[s] = (L[tg.s].amenazaN[s] || 0) + v;
+      },
       susto = new Map(),
       veneno = new Set();
-    for (const X of L)
+    for (const X of L) {
+      X.amenazaN = {};
       for (const b of X.bl) {
         b.perd = 0;
         b._morPrev = b.mor;
-        b.tiroso = cmbaVivos(L[1 - X.s]).some(cmbaTirador);
+        b.tiroso = eneDe(X.s).some(cmbaTirador);
       }
-    /* habilidades: cada bando las usa con criterio */
-    for (const X of L) for (const b of cmbaVivos(X)) cmbHabIA(b, B);
+    }
+    /* habilidades: cada bando las usa con criterio (no quien aguarda) */
+    for (const X of L) if (enJuego(X) && !X.espera) for (const b of cmbaVivos(X)) cmbHabIA(b, B);
     for (const X of L) for (const b of X.bl) b._morPrev = b.mor;
     const HM = new Map();
     for (const X of L) for (const b of X.bl) HM.set(b, cmbHabMod(b));
     /* asedio: catapultas y arietes abren brecha; las torres anulan parte del bono de las murallas */
     let torre = 0;
-    if (fort && !brecha) {
-      const maq = cmbaVivos(L[0]).filter((b) => UN[b.t].sitio);
+    if (fort && !brecha && bandoDef != null) {
+      const maq = L.filter((X) => enJuego(X) && !X.def)
+        .flatMap(cmbaVivos)
+        .filter((b) => UN[b.t].sitio);
       let baja = 0;
       for (const b of maq) {
         const S = UN[b.t].sitio;
-        if (S.brecha && (b.t !== "ari" || r >= 2) && (!b.st.mu || b.ammo > 0))
-          baja += S.brecha * (b.n / SPU) * cmbaRnd();
+        if (S.brecha && (b.t !== "ari" || r >= 2) && (!b.st.mu || b.ammo > 0)) {
+          const x = S.brecha * (b.n / SPU) * cmbaRnd();
+          baja += x;
+          cmbAlza(fx, b.s, "asedio", x * L[dIdx].n0 * 0.05);
+        }
         if (S.torre && r >= 2) torre += S.torre * (b.n / SPU);
       }
       torre = Math.min(0.75, torre);
       if (baja > 0) {
         fortE = Math.max(0, fortE - baja);
-        cmbAlza(fx, 0, "asedio", baja * L[1].n0 * 0.05);
         if (!L[0].dMaq) {
           L[0].dMaq = 1;
           di(
@@ -311,47 +443,67 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
       }
       if (torre > 0 && !L[0].dTor) {
         L[0].dTor = 1;
-        cmbAlza(fx, 0, "asedio", torre * L[1].n0 * 0.1);
+        const tb = maq.find((b) => b.t === "tor");
+        cmbAlza(fx, tb ? tb.s : 0, "asedio", torre * L[dIdx].n0 * 0.1);
         di(3, "Las torres de asedio alcanzan el adarve.");
       }
       if (fortE <= fort * 0.15) {
         brecha = true;
         fortE = 0;
-        for (const b of L[1].bl) b.mor -= 10;
+        for (const X of L) if (X.def) for (const b of X.bl) b.mor -= 10;
         di(5, "¡Brecha en la muralla! Los defensores retroceden.");
       }
     }
-    const fM = fortE * (1 - torre),
-      murMel = (tg) => (tg.s === 1 && fM > 0 ? 1 / (1 + 0.18 * fM) : 1),
-      murDis = (tg) => (tg.s === 1 && fM > 0 ? 1 / (1 + 0.25 * fM) : 1);
+    if (r === 1 && flancos > 1 && fort)
+      di(3, `Asalto por ${flancos} flancos: la guarnición se reparte por las murallas.`);
+    const fM = fortE * (1 - torre) * (1 - 0.18 * (flancos - 1)),
+      murMel = (tg) => (L[tg.s].def && fM > 0 ? 1 / (1 + 0.18 * fM) : 1),
+      murDis = (tg) => (L[tg.s].def && fM > 0 ? 1 / (1 + 0.25 * fM) : 1);
     /* espanto: camellos y elefantes encabritan a los caballos enemigos */
-    const espanto = [0, 1].map((s) => {
-      const v = cmbaVivos(L[s]),
+    const espanto = L.map((X) => {
+      const v = enJuego(X) && !X.espera ? cmbaVivos(X) : [],
         n = cmbaSuma(v);
       return n && cmbaSuma(v.filter((b) => cmbHabTiene(b, "espanto"))) >= n * 0.08;
     });
     /* flanqueo: caballería libre o superioridad numérica que desborda la línea */
     if (r >= 3)
-      for (const s of [0, 1]) {
-        const O = L[s],
-          E = L[1 - s],
-          cab = (X) =>
-            cmbaVivos(X)
+      for (const O of L) {
+        if (!enJuego(O)) continue;
+        const Es = L.filter((X, i) => enJuego(X) && !X.espera && hostil(O.s, i)),
+          vE = Es.flatMap(cmbaVivos),
+          cabS = (v) =>
+            v
               .filter((b) => b.cl === "cab" && UN[b.t].rol !== "m")
               .reduce((a, b) => a + b.n * (b.t === "k" ? 1.3 : b.t === "x" ? 0.9 : 1), 0),
-          fr = (X) => cmbaSuma(cmbaVivos(X).filter(cmbaCuerpo)),
-          cE = cab(E),
-          cO = cab(O),
-          fE = fr(E),
-          fO = Math.max(1, fr(O));
+          cE = cabS(vE),
+          cO = cabS(cmbaVivos(O)),
+          fE = cmbaSuma(vE.filter(cmbaCuerpo)),
+          fO = Math.max(1, cmbaSuma(cmbaVivos(O).filter(cmbaCuerpo)));
         let fc = 0,
           fn = 0;
+        if (!Es.length || O.espera) {
+          O.flank = O.fc = O.fn = 0;
+          continue;
+        }
         /* la caballería solo rodea si su propia infantería fija al enemigo de frente */
-        const fija = clamp(cmbaSuma(cmbaVivos(E).filter((b) => b.cl === "inf")) / fO, 0, 1);
-        if (cE > cO * 1.5 && cE > 0.12 * cmbaSuma(cmbaVivos(E)))
-          fc = clamp((cE - cO * 1.5) / (fO + cO), 0, 0.6) * fija;
+        const fija = clamp(cmbaSuma(vE.filter((b) => b.cl === "inf")) / fO, 0, 1);
+        if (cE > cO * 1.5 && cE > 0.12 * cmbaSuma(vE)) fc = clamp((cE - cO * 1.5) / (fO + cO), 0, 0.6) * fija;
         if (fE > fO * 1.4) fn = clamp((fE / fO - 1.4) * 0.25, 0, 0.4);
-        const m = (s === 1 && fM > 0 ? 0.3 : 1) * (terr.bosque > 0.3 ? 0.6 : 1);
+        /* atacado a la vez desde varias direcciones (ejércitos que llegan por distintos lados) */
+        const dirs = new Set(Es.map((X) => X.dir).filter(Boolean));
+        if (dirs.size >= 2) {
+          fn += 0.12 * (dirs.size - 1);
+          for (const X of Es)
+            if (X.dir) cmbAlza(fx, X.s, "lados", (O.n0 * 0.03 * (dirs.size - 1)) / Es.length);
+          if (!O.dLados) {
+            O.dLados = 1;
+            di(
+              3,
+              `Las tropas de ${CIV[O.f].s} se ven atacadas desde ${[...dirs].map((d) => CMB_DIRN[d]).join(" y ")}.`,
+            );
+          }
+        }
+        const m = (O.def && fM > 0 ? 0.3 : 1) * (terr.bosque > 0.3 ? 0.6 : 1);
         O.flank = Math.min(0.8, (fc + fn) * m);
         O.fc = fc * m;
         O.fn = fn * m;
@@ -360,26 +512,23 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
           const v = cmbaVivos(O)
               .filter(cmbaCuerpo)
               .sort((a, b) => b.n - a.n)[0],
-            c = cmbaVivos(E)
-              .filter((b) => b.cl === "cab")
-              .sort((a, b) => b.n - a.n)[0];
+            c = vE.filter((b) => b.cl === "cab").sort((a, b) => b.n - a.n)[0];
           if (v)
             di(
               3,
               fc >= fn && c
                 ? `Los ${cmbaNom(c)} flanquean a los ${cmbaNom(v)}; su moral se tambalea.`
-                : `Las tropas de ${CIV[E.f].s} desbordan por su número la línea de los ${cmbaNom(v)}.`,
+                : `Las tropas de ${CIV[Es.sort((a, b) => b.n0 - a.n0)[0].f].s} desbordan por su número la línea de los ${cmbaNom(v)}.`,
             );
         }
       }
     /* proyectiles: en la primera ronda dos descargas; luego por encima de la melé */
-    const proy = [0, 0];
-    for (const s of [0, 1]) {
-      const O = L[s],
-        E = L[1 - s],
-        ene = cmbaVivos(E);
-      if (!ene.length) continue;
-      const frente = cmbaSuma(ene.filter(cmbaCuerpo));
+    const proy = L.map(() => 0);
+    for (const O of L) {
+      const s = O.s,
+        ene = eneDe(s);
+      if (!enJuego(O) || O.espera || !ene.length) continue;
+      const frente = cmbaSuma(ene.filter((e) => cmbaCuerpo(e) && !L[e.s].espera));
       for (const b of cmbaVivos(O).filter(cmbaTirador)) {
         const hm = HM.get(b),
           k = r === 1 ? 2 : 1,
@@ -400,28 +549,28 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
           (r >= 2 && !hm.parto ? 0.6 : 1) *
           (env.clima === "lluvia" && b.t !== "h" ? 0.65 : 1) *
           (env.clima === "niebla" ? 0.7 : 1) *
-          (s === 1 ? 1 + terr.colina * 0.4 : 1) *
+          (O.def ? 1 + terr.colina * 0.4 : 1) *
           (terr.bosque > 0.3 ? 0.75 : 1) *
           (b.cl === "asd" && !fort ? 0.4 : 1);
         cmbAlza(fx, s, "mando", (v * (O.g - 1)) / O.g);
         cmbAlza(fx, s, "bono", (v * (O.bono - 1)) / O.bono);
-        if (s === 1 && terr.colina)
-          cmbAlza(fx, 1, "terreno", (v * terr.colina * 0.4) / (1 + terr.colina * 0.4));
-        for (const [tg, w] of cmbObjetivo(b, ene, frente, fort)) {
+        if (O.def && terr.colina)
+          cmbAlza(fx, s, "terreno", (v * terr.colina * 0.4) / (1 + terr.colina * 0.4));
+        for (const [tg, w] of cmbObjetivo(b, ene, frente, fort, facDe(s))) {
           if (!w) continue;
           const tm = HM.get(tg),
             esc =
               hm.fuego || b.t === "cat"
                 ? 0
-                : Math.min(0.95, (tg.st.es + tm.es) * (1 - E.flank * 0.5) * (b.t === "h" ? 0.5 : 1)),
+                : Math.min(0.95, (tg.st.es + tm.es) * (1 - L[tg.s].flank * 0.5) * (b.t === "h" ? 0.5 : 1)),
             arm = hm.fuego ? 1 : 10 / (10 + (tg.st.ar + tm.ar) * (b.t === "bal" ? 0.8 : 1.5)),
             mur = murDis(tg),
             x = v * w;
-          golpe(tg, x * (1 - esc) * arm * mur);
+          golpe(tg, x * (1 - esc) * arm * mur, s);
           if (hm.veneno) veneno.add(tg);
           const dn = (x * (1 - esc) * arm * mur) / tg.st.vi;
-          cmbAlza(fx, 1 - s, "armadura", (x * (1 - (1 - esc) * arm)) / tg.st.vi);
-          if (mur < 1) cmbAlza(fx, 1, "murallas", (x * (1 - esc) * arm * (1 - mur)) / tg.st.vi);
+          cmbAlza(fx, tg.s, "armadura", (x * (1 - (1 - esc) * arm)) / tg.st.vi);
+          if (mur < 1) cmbAlza(fx, tg.s, "murallas", (x * (1 - esc) * arm * (1 - mur)) / tg.st.vi);
           for (const h of b.hab)
             if (h.t > 0 && CMB_HAB[h.id].act.pr) cmbAlza(fx, s, "hab:" + h.id, dn * (1 - 1 / hm.pr));
           if (hm.fuego) cmbAlza(fx, s, "hab:fuegoGriego", dn * 0.5);
@@ -432,30 +581,34 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
     }
     /* cuerpo a cuerpo desde la segunda ronda: choque con cargas, luego melé */
     if (r >= 2)
-      for (const s of [0, 1]) {
-        const O = L[s],
-          E = L[1 - s],
-          ene = cmbaVivos(E);
-        if (!ene.length) continue;
-        const frente = cmbaSuma(ene.filter(cmbaCuerpo)),
+      for (const O of L) {
+        const s = O.s,
+          ene = eneDe(s);
+        if (!enJuego(O) || O.espera || !ene.length) continue;
+        const enFr = ene.filter((e) => !L[e.s].espera),
+          frente = cmbaSuma(enFr.filter(cmbaCuerpo)),
           at = cmbaVivos(O).filter(
             (b) => cmbaCuerpo(b) || (b.cl !== "asd" && b.ammo <= 0 && (frente < 1 || r > 4)),
           ),
-          ancho = clamp(
-            (Math.max(frente, cmbaSuma(ene.filter((e) => e.cl !== "asd"))) * 1.1) / Math.max(1, cmbaSuma(at)),
-            0.35,
-            1,
-          );
+          ancho =
+            clamp(
+              (Math.max(frente, cmbaSuma(enFr.filter((e) => e.cl !== "asd"))) * 1.1) /
+                Math.max(1, cmbaSuma(at)),
+              0.35,
+              1,
+            ) * (O.def && fort ? 1 - 0.08 * (flancos - 1) : 1),
+          entra = O.entra === r;
         for (const b of at) {
           const hm = HM.get(b),
             recarga = b.cl === "cab" && r > 2 && r % 3 === 2,
-            choque = r === 2 || recarga || hm.carga > 1,
-            vado = terr.rio && s === 0 && r === 2 ? 0.75 : 1,
+            choque = r === 2 || recarga || hm.carga > 1 || entra,
+            vado = terr.rio && bandoDef != null && !O.def && r === 2 ? 0.75 : 1,
             bosC = b.cl === "cab" ? 1 - 0.35 * terr.bosque : 1,
             atasco = b.cl === "cab" && !choque ? 0.85 : 1,
-            asusta = UN[b.t].caballo && espanto[1 - s] ? 0.8 : 1;
+            eEsp = L.find((X, i) => hostil(s, i) && espanto[i]),
+            asusta = UN[b.t].caballo && eEsp ? 0.8 : 1;
           if (asusta < 1) {
-            cmbAlza(fx, 1 - s, "espanto", b.n * 0.03);
+            cmbAlza(fx, eEsp.s, "espanto", b.n * 0.03);
             susto.set(b, (susto.get(b) || 0) + 3);
           }
           let base =
@@ -474,18 +627,19 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
             bosC *
             atasco *
             asusta *
-            (s === 0 ? 1 - 0.25 * terr.colina : 1 + 0.1 * terr.colina);
-          if (s === 0 && (vado < 1 || terr.colina))
-            cmbAlza(fx, 1, "terreno", (base * (1 - vado * (1 - 0.25 * terr.colina))) / 10);
+            (bandoDef == null ? 1 : !O.def ? 1 - 0.25 * terr.colina : 1 + 0.1 * terr.colina);
+          if (bandoDef != null && !O.def && (vado < 1 || terr.colina))
+            cmbAlza(fx, dIdx, "terreno", (base * (1 - vado * (1 - 0.25 * terr.colina))) / 10);
           cmbAlza(fx, s, "mando", (base * (O.g - 1)) / O.g / 10);
           cmbAlza(fx, s, "bono", (base * (O.bono - 1)) / O.bono / 10);
           cmbAlza(fx, s, "veterania", (base * (b.st.xp / 500)) / (1 + b.st.xp / 500) / 10);
           for (const h of b.hab)
             if (h.t > 0 && CMB_HAB[h.id].act.me > 1)
               cmbAlza(fx, s, "hab:" + h.id, (base * (1 - 1 / hm.me)) / 10);
-          for (const [tg, w] of cmbObjetivo(b, ene, frente, fort)) {
+          for (const [tg, w] of cmbObjetivo(b, ene, frente, fort, facDe(s))) {
             if (!w) continue;
-            const tm = HM.get(tg);
+            const tm = HM.get(tg),
+              E = L[tg.s];
             let cg =
               choque && b.st.ca
                 ? (1 + b.st.ca * 0.11 * (recarga && b.t !== "x" ? 0.5 : 1) * (terr.bosque > 0.3 ? 0.4 : 1)) *
@@ -495,7 +649,7 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
               const c2 = 1 + (cg - 1) * 0.2;
               cmbAlza(
                 fx,
-                1 - s,
+                tg.s,
                 tm.antiCarga ? "hab:muroEscudos" : "lanceros",
                 (base * w * (cg - c2)) / tg.st.vi,
               );
@@ -514,7 +668,7 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
               fl = 1 + 0.5 * E.flank,
               mur = murMel(tg),
               x = base * w * MULT[b.t][tg.t] * cg * def * arm * fl * mur;
-            golpe(tg, x);
+            golpe(tg, x, s);
             if (hm.veneno) veneno.add(tg);
             /* el choque de una carga sacude la moral aunque cause pocas bajas */
             if (cg > 1.2)
@@ -523,36 +677,37 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
             cmbAlza(fx, s, "carga", down * (1 - 1 / cg));
             cmbAlza(fx, s, "flanqueo", (down * (E.fc || 0) * 0.5) / fl);
             cmbAlza(fx, s, "numero", (down * (E.fn || 0) * 0.5) / fl);
-            cmbAlza(fx, 1 - s, "armadura", (down * (1 - arm)) / arm);
+            cmbAlza(fx, tg.s, "armadura", (down * (1 - arm)) / arm);
             cmbAlza(fx, s, "fatiga", down * (1 / fat - 1));
             if (tm.de > 1)
-              for (const h of tg.hab) if (h.t > 0) cmbAlza(fx, 1 - s, "hab:" + h.id, down * (tm.de - 1));
-            if (mur < 1) cmbAlza(fx, 1, "murallas", (down * (1 - mur)) / mur);
+              for (const h of tg.hab) if (h.t > 0) cmbAlza(fx, tg.s, "hab:" + h.id, down * (tm.de - 1));
+            if (mur < 1) cmbAlza(fx, tg.s, "murallas", (down * (1 - mur)) / mur);
           }
         }
       }
     /* los fugitivos que aún no han salido del campo son acosados */
-    for (const s of [0, 1]) {
-      const cabE = cmbaVivos(L[1 - s]).some((b) => b.cl === "cab");
-      for (const b of L[s].bl) if (b.rout && b.n > 0.5) golpe(b, b.n * b.st.vi * 0.05 * (cabE ? 1.5 : 0.5));
+    for (const O of L) {
+      if (!enJuego(O)) continue;
+      const cabE = eneDe(O.s).some((b) => b.cl === "cab" && !L[b.s].espera);
+      for (const b of O.bl) if (b.rout && b.n > 0.5) golpe(b, b.n * b.st.vi * 0.05 * (cabE ? 1.5 : 0.5));
     }
     /* bestias desbocadas: con la moral rota, los elefantes pisotean a los suyos */
-    for (const s of [0, 1])
-      for (const b of cmbaVivos(L[s]))
+    for (const O of L)
+      for (const b of enJuego(O) ? cmbaVivos(O) : [])
         if (UN[b.t].rol === "ele" && b.mor < b.mx * 0.3 && R() < 0.35) {
           b.rout = true;
-          const v = cmbaVivos(L[s]).filter((o) => o !== b),
+          const v = cmbaVivos(O).filter((o) => o !== b),
             o = v[Math.floor(R() * v.length)];
           if (o) {
             const x = b.n * b.st.me * 0.6 * cmbaRnd();
             golpe(o, x);
             o.mor -= 12;
-            cmbAlza(fx, 1 - s, "desbocados", x / o.st.vi + 5);
+            split(O.s, "desbocados", x / o.st.vi + 5);
           }
           di(4, `¡Los ${cmbaNom(b)} se desbocan y pisotean a los suyos!`);
         }
     /* aplicar caídos: muertos y heridos */
-    const caidos = [0, 0];
+    const caidos = L.map(() => 0);
     for (const [tg, v] of dano) {
       const d = Math.min(tg.n, v / tg.st.vi),
         mf = tg.rout ? 0.75 : veneno.has(tg) ? 0.6 : 0.3;
@@ -562,11 +717,12 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
       tg.perd += d;
       caidos[tg.s] += d;
     }
+    for (const X of L) X.amenaza = X.amenazaN;
     /* general en peligro */
-    for (const s of [0, 1]) {
-      const O = L[s],
+    for (const O of L) {
+      const s = O.s,
         n = cmbaSuma(O.bl);
-      if (!O.gOk || r < 2 || !n) continue;
+      if (!enJuego(O) || !O.gOk || r < 2 || !n || O.espera) continue;
       if (R() < 0.012 + (caidos[s] / n) * 0.45) {
         const muere = R() < 0.35,
           gc = G.C[O.gen];
@@ -574,7 +730,7 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
         O.g = 1;
         gen[s] = muere ? "muerto" : "herido";
         for (const b of O.bl) b.mor -= muere ? 18 : 12;
-        cmbAlza(fx, 1 - s, "general", O.n0 * 0.08);
+        split(s, "general", O.n0 * 0.08);
         di(
           5,
           muere
@@ -585,11 +741,11 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
     }
     /* moral, cansancio, desbandada y reagrupamiento */
     const roto0 = [];
-    for (const s of [0, 1]) {
-      const O = L[s],
-        E = L[1 - s],
+    for (const O of L) {
+      if (!enJuego(O)) continue;
+      const s = O.s,
         nAll = cmbaSuma(O.bl.filter((b) => b.cl !== "asd")),
-        cabE = cmbaVivos(E).some((b) => b.cl === "cab");
+        cabE = eneDe(s).some((b) => b.cl === "cab");
       for (const b of O.bl) {
         if (b.n <= 0.5) continue;
         const dis = 1 - b.st.di * 0.05,
@@ -609,7 +765,7 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
           continue;
         }
         let dm = (b.perd / b.n0) * CMBA_K.mor * dis + (susto.get(b) || 0) * dis;
-        if (r >= 2 && cmbaCuerpo(b)) dm += 2.5;
+        if (r >= 2 && cmbaCuerpo(b) && !O.espera) dm += 2.5;
         if (b.fat > 60) dm += (b.fat - 60) * 0.08;
         dm += 10 * O.flank * (b.cl === "dis" ? 1.3 : 1);
         if (nAll < O.nl0 * 0.7) dm += 3;
@@ -617,15 +773,15 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
         if (O.gOk) dm -= O.ma * 0.35 + O.lv * 0.2;
         b.mor = Math.min(b.mx, b.mor - dm * (0.8 + R() * 0.4));
         cmbHabMoral(b, hm);
-        const pel = r >= 2 && (cmbaCuerpo(b) || b.ammo <= 0),
+        const pel = r >= 2 && !O.espera && (cmbaCuerpo(b) || b.ammo <= 0),
           calor = UN[b.t].calor ? 1 : calorClima;
         b.fat = Math.min(
           100,
           Math.max(
             0,
             b.fat +
-              (pel ? 9 : cmbaTirador(b) ? 3 : -3) * b.st.fa * hm.fat * calor +
-              (r === 2 && b.cl === "cab" ? 4 : 0),
+              (pel ? 9 : cmbaTirador(b) && !O.espera ? 3 : -3) * b.st.fa * hm.fat * calor +
+              (r === 2 && b.cl === "cab" && !O.espera ? 4 : 0),
           ),
         );
         if (b.mor <= 0) {
@@ -642,8 +798,31 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
           di(1, `Los ${cmbaNom(b)} están exhaustos.`);
         }
       }
-      O.cont = (roto0.filter((b) => b.s === s).reduce((a, b) => a + b.n, 0) / Math.max(1, nAll)) * 30;
     }
+    /* contagio: las fugas propias pesan del todo; las de un aliado, a medias */
+    for (const O of L) {
+      const nAll = Math.max(1, cmbaSuma(O.bl.filter((b) => b.cl !== "asd"))),
+        propios = roto0.filter((b) => b.s === O.s).reduce((a, b) => a + b.n, 0),
+        aliados = roto0.filter((b) => b.s !== O.s && L[b.s].bando === O.bando).reduce((a, b) => a + b.n, 0);
+      O.cont = ((propios + aliados * 0.5) / nAll) * 30;
+    }
+    /* el oportunista entra cuando los demás flaquean, si le atacan o con el paso de las horas */
+    for (const O of L)
+      if (O.espera && enJuego(O)) {
+        const otros = L.filter((X) => enJuego(X) && X.bando !== O.bando && !X.espera),
+          mor = otros.length
+            ? otros.reduce((a, X) => a + cmbaVivos(X).reduce((c, b) => c + b.n * (b.mor / b.mx), 0), 0) /
+              Math.max(
+                1,
+                otros.reduce((a, X) => a + cmbaSuma(cmbaVivos(X)), 0),
+              )
+            : 0;
+        if (r >= 3 || mor < 0.8 || caidos[O.s] > O.n0 * 0.02 || otros.length < 1) {
+          O.espera = false;
+          O.entra = r + 1;
+          di(4, `Las tropas de ${CIV[O.f].s} caen sobre los combatientes ya desgastados.`);
+        }
+      }
     /* habilidades: pasa el tiempo (10 s por ronda); curva de cada bloque para el informe y las pruebas */
     for (const X of L)
       for (const b of X.bl) {
@@ -651,62 +830,82 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
         if (b.hab.length && !est)
           (curva[b.t + X.s] = curva[b.t + X.s] || []).push(Math.round(b.st.me * cmbHabMod(b).me * 10) / 10);
       }
-    /* ¿se desmorona algún bando? (las máquinas no sostienen la línea) */
-    for (const s of [0, 1]) {
-      const O = L[s],
-        v = cmbaVivos(O).filter((b) => b.cl !== "asd"),
+    /* ¿se desmorona algún ejército? (las máquinas no sostienen la línea) */
+    for (const O of L) {
+      if (!enJuego(O)) continue;
+      const v = cmbaVivos(O).filter((b) => b.cl !== "asd"),
         nv = cmbaSuma(v),
         nt = cmbaSuma(O.bl.filter((b) => b.cl !== "asd"));
       if (nt < 1 || nv < nt * 0.3 || nv < O.nl0 * 0.12 || (!v.some(cmbaCuerpo) && nv < nt * 0.6))
         O.roto = true;
     }
     let fase = r === 1 ? (fort ? "Asalto" : "Escaramuza") : r === 2 ? "Choque" : "Melé";
-    if (L[0].roto || L[1].roto) {
-      gana =
-        L[1].roto && !L[0].roto
-          ? 0
-          : L[0].roto && !L[1].roto
-            ? 1
-            : cmbaSuma(cmbaVivos(L[0])) / L[0].n0 > cmbaSuma(cmbaVivos(L[1])) / L[1].n0
-              ? 0
-              : 1;
-      const W = L[gana],
-        Lo = L[1 - gana];
-      Lo.roto = true;
-      W.roto = false;
-      /* persecución */
-      const P = cmbaVivos(W).reduce((a, b) => a + b.n * cmbPers(b.t) * (1 - b.fat / 200), 0),
-        N = cmbaSuma(Lo.bl);
-      let k =
-        Math.max(N * 0.08, Math.min(N * 0.7, P * CMBA_K.pers * cmbaRnd())) *
-        (terr.bosque > 0.3 ? 0.6 : 1) *
-        (r >= env.rmax ? 0.6 : 1);
-      k = Math.min(k, N);
-      const pesos = Lo.bl.map((b) => b.n * (b.cl === "cab" ? 0.45 : b.cl === "asd" ? 1.5 : 1)),
-        sp = pesos.reduce((a, b) => a + b, 0) || 1;
-      Lo.bl.forEach((b, i) => {
-        const d = Math.min(b.n, (k * pesos[i]) / sp);
-        b.n -= d;
-        b.dead += d * 0.75;
-        b.her += d * 0.25;
-        b.rout = true;
-        caidos[b.s] += d;
-      });
-      cmbAlza(fx, gana, "persecucion", k);
-      const pc = cmbaVivos(W)
-        .filter((b) => b.cl === "cab")
-        .sort((a, b) => b.n * cmbPers(b.t) - a.n * cmbPers(a.t))[0];
-      di(
-        6,
-        `Desbandada en las filas de ${CIV[Lo.f].s}: ${pc ? "los " + cmbaNom(pc) : "el enemigo"} persigue${pc ? "n" : ""} a los fugitivos; caen ${cmbH(k)}.`,
-      );
+    let nuevos = L.filter((X) => enJuego(X) && X.roto);
+    if (nuevos.length) {
+      /* si caen todos a la vez, aguanta el que conserve más hombres en pie */
+      if (!L.some((X) => enJuego(X) && !X.roto)) {
+        const W = nuevos.sort(
+          (a, b) =>
+            cmbaSuma(cmbaVivos(b)) / b.n0 - cmbaSuma(cmbaVivos(a)) / a.n0 ||
+            (b.def ? 1 : 0) - (a.def ? 1 : 0),
+        )[0];
+        for (const X of L) if (X.bando === W.bando) X.roto = false;
+        nuevos = L.filter((X) => enJuego(X) && X.roto);
+      }
+      /* persecución: la hacen los enemigos que siguen en pie */
+      for (const Lo of nuevos) {
+        const Ws = L.filter((X, i) => enJuego(X) && !X.roto && hostil(Lo.s, i)),
+          P = Ws.flatMap(cmbaVivos).reduce((a, b) => a + b.n * cmbPers(b.t) * (1 - b.fat / 200), 0),
+          N = cmbaSuma(Lo.bl);
+        let k =
+          Math.max(N * 0.08, Math.min(N * 0.7, P * CMBA_K.pers * cmbaRnd())) *
+          (terr.bosque > 0.3 ? 0.6 : 1) *
+          (r >= env.rmax ? 0.6 : 1);
+        k = Math.min(k, N);
+        const pesos = Lo.bl.map((b) => b.n * (b.cl === "cab" ? 0.45 : b.cl === "asd" ? 1.5 : 1)),
+          sp = pesos.reduce((a, b) => a + b, 0) || 1;
+        Lo.bl.forEach((b, i) => {
+          const d = Math.min(b.n, (k * pesos[i]) / sp);
+          b.n -= d;
+          b.dead += d * 0.75;
+          b.her += d * 0.25;
+          b.rout = true;
+          caidos[b.s] += d;
+        });
+        const Pt = Ws.map((X) => cmbaVivos(X).reduce((a, b) => a + b.n * cmbPers(b.t), 0)),
+          Pp = Pt.reduce((a, b) => a + b, 0) || 1;
+        Ws.forEach((X, i) => cmbAlza(fx, X.s, "persecucion", (k * Pt[i]) / Pp));
+        const pc = Ws.flatMap(cmbaVivos)
+          .filter((b) => b.cl === "cab")
+          .sort((a, b) => b.n * cmbPers(b.t) - a.n * cmbPers(a.t))[0];
+        di(
+          6,
+          `Desbandada en las filas de ${CIV[Lo.f].s}: ${pc ? "los " + cmbaNom(pc) : "el enemigo"} persigue${pc ? "n" : ""} a los fugitivos; caen ${cmbH(k)}.`,
+        );
+        Lo.fuera = true;
+        Lo.rompe = true;
+      }
       fase = "Desbandada";
-      fin = "rotura";
+      const bs = bandosEnJuego();
+      if (bs.length <= 1) {
+        gana = bs.length ? bs[0] : nuevos[0].bando;
+        fin = "rotura";
+      }
     } else if (r >= env.rmax) {
-      gana = 1;
+      const bs = bandosEnJuego(),
+        ratio = (bd) => {
+          const X = L.filter((x) => enJuego(x) && x.bando === bd),
+            n0 = X.reduce((a, x) => a + x.n0, 0);
+          return n0 ? X.reduce((a, x) => a + cmbaSuma(cmbaVivos(x)), 0) / n0 : 0;
+        };
+      gana = bandoDef != null && bs.includes(bandoDef) ? bandoDef : bs.sort((a, b) => ratio(b) - ratio(a))[0];
       fin = "noche";
       fase = "Anochecer";
-      di(6, `Cae la noche: las tropas de ${CIV[L[0].f].s} no logran romper al enemigo y se retiran.`);
+      const at = L.filter((X) => enJuego(X) && X.bando !== gana);
+      di(
+        6,
+        `Cae la noche: las tropas de ${at.map((X) => CIV[X.f].s).join(" y ")} no logran romper al enemigo y se retiran.`,
+      );
     }
     if (!est) {
       ev.sort((a, b) => b[0] - a[0]);
@@ -715,10 +914,11 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
             n = cmbaSuma(v);
           return n ? (v.reduce((a, b) => a + b.n * (b.mor / b.mx), 0) / n) * 100 : 0;
         },
+        pr = proy.reduce((a, b) => a + b, 0),
         gen0 =
           r === 1
-            ? proy[0] + proy[1] > 1
-              ? `${fort ? "Asalto a la muralla" : "Escaramuzas"}: ${cmbH(proy[0] + proy[1])} caen bajo flechas y piedras.`
+            ? pr > 1
+              ? `${fort ? "Asalto a la muralla" : "Escaramuzas"}: ${cmbH(pr)} caen bajo flechas y piedras.`
               : "Las vanguardias se tantean."
             : r === 2
               ? "Las líneas chocan."
@@ -732,21 +932,19 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
           ? ev[0][1] + (ev[1] && ev[1][0] >= 3 && ev[1][1].length < 80 ? " " + ev[1][1] : "")
           : gen0,
         b: caidos.map(Math.round),
-        m: [avg(L[0]), avg(L[1])],
+        m: L.map(avg),
       });
     }
   }
   /* heridos: una parte vuelve a filas tras la batalla */
-  const rec = [gana === 0 ? 0.6 : fin === "noche" ? 0.45 : 0.25, gana === 1 ? 0.6 : 0.25],
-    out = [cmbVacio(), cmbVacio()],
-    her = [0, 0],
-    bajas = [
-      { m: 0, h: 0, r: 0 },
-      { m: 0, h: 0, r: 0 },
-    ];
-  for (const s of [0, 1]) {
-    const sv = {};
-    for (const b of L[s].bl) {
+  const rec = L.map((X) => (X.bando === gana ? 0.6 : X.rompe ? 0.25 : fin === "noche" ? 0.45 : 0.25)),
+    out = L.map(() => cmbVacio()),
+    her = L.map(() => 0),
+    bajas = L.map(() => ({ m: 0, h: 0, r: 0 }));
+  for (const X of L) {
+    const s = X.s,
+      sv = {};
+    for (const b of X.bl) {
       const vu = b.her * rec[s];
       sv[b.t] = (sv[b.t] || 0) + b.n + vu;
       bajas[s].m += b.dead + b.her - vu;
@@ -758,50 +956,121 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
       out[s][t] = Math.floor(x) + (R() < x % 1 ? 1 : 0);
     }
     her[s] = Math.round(bajas[s].r);
-    for (const t in L[s].maq || {}) out[s][t] = (out[s][t] || 0) + (gana === s ? L[s].maq[t] : 0);
+    for (const t in X.maq || {}) out[s][t] = (out[s][t] || 0) + (X.bando === gana ? X.maq[t] : 0);
   }
   let informe = null;
   if (!est)
     informe = {
-      f: [ejA.f, ejD.f],
+      f: L.map((X) => X.f),
+      bandos: L.map((X) => X.bando),
       gana,
       fin,
       rondas: ron,
       factores: cmbFactores(fx, gana, L),
       bajas,
       gen,
-      gens: [L[0].gen, L[1].gen],
-      n0: [L[0].n0, L[1].n0],
+      gens: L.map((X) => X.gen),
+      n0: L.map((X) => X.n0),
       clima: env.clima,
       hora: env.hora,
       terreno: CMBA_TERR[env.terr.tag] || env.terr.tag,
       fort,
+      def: dIdx,
       brecha,
+      flancos,
       asedio: ctx.asedio || 0,
       lugar: ctx.nombreLugar || (ctx.p && ctx.p.name) || "",
       anio: G.year,
       modo: "auto",
       curva,
     };
-  return { gana, A: out[0], D: out[1], heridos: { A: her[0], D: her[1] }, informe, gen, brecha };
+  const res = {
+    gana,
+    ejs: L.map((X, i) => ({
+      id: ejs[i].id,
+      f: X.f,
+      bando: X.bando,
+      gana: X.bando === gana,
+      A: out[i],
+      u: out[i],
+      heridos: her[i],
+      her: her[i],
+      bajas: bajas[i],
+      gen: gen[i],
+      llego: !(llega[i] > r),
+    })),
+    informe,
+    gen,
+    brecha,
+  };
+  if (!est && ctx.emitir && !ctx.sinEvento) cmbEmitirMulti(ejs, res, ctx, "auto");
+  res.todos = ejs;
+  return res;
+}
+/* 'batallaResuelta' de una batalla de varios ejércitos: atacante/defensor = los principales (el primer
+   ejército y el primero de otro bando, o el que defiende); ejs y bandos con todos */
+function cmbEmitirMulti(ejs, res, ctx, modo) {
+  const N = ejs.length,
+    bnd = (i) => ejs[i].bando ?? i,
+    a = 0,
+    d = cmbDefIdx(ejs, ctx) ?? [...Array(N).keys()].find((i) => bnd(i) !== bnd(a)) ?? 1,
+    inf = res.informe;
+  if (inf) cmbGuardarInf(inf);
+  OC.emitirSync("batallaResuelta", {
+    p: ctx.p || null,
+    atacante: ejs[a].f,
+    defensor: ejs[d].f,
+    gana: res.gana === bnd(a),
+    A: res.ejs[a].A,
+    D: res.ejs[d].A,
+    s0: ejs[a].u,
+    d0: ejs[d].u,
+    gA: ejs[a].gen ?? null,
+    gD: ejs[d].gen ?? null,
+    bajas: inf ? [inf.bajas[a], inf.bajas[d]] : null,
+    heridos: { A: res.ejs[a].heridos, D: res.ejs[d].heridos },
+    factores: inf ? inf.factores.map((x) => x.k) : [],
+    rondas: inf ? inf.rondas.length : 0,
+    general: [res.gen[a], res.gen[d]],
+    modo,
+    informe: inf,
+    multi: true,
+    bandos: ejs.map((e, i) => bnd(i)),
+    ganaBando: res.gana,
+    ejs: ejs.map((e, i) => ({
+      f: e.f,
+      bando: bnd(i),
+      gen: e.gen ?? null,
+      u0: e.u,
+      A: res.ejs[i].A,
+      gana: res.ejs[i].gana,
+      heridos: res.ejs[i].heridos,
+      bajas: res.ejs[i].bajas,
+      general: res.gen[i],
+    })),
+  });
 }
 /* factores decisivos: los tres que más bajas causaron (o evitaron) al ganador y uno del perdedor.
    fx[s][clave] = soldados equivalentes; L[s] = {f, gen, n0} */
 function cmbFactores(fx, gana, L) {
   const tx = [],
-    lim = Math.max(2, (L[0].n0 + L[1].n0) * 0.012);
-  for (const s of [gana, 1 - gana]) {
-    const l = Object.entries(fx[s])
+    lim = Math.max(2, L.reduce((a, X) => a + X.n0, 0) * 0.012),
+    nom = (k, s) =>
+      k === "mando" && L[s].gen != null && G.C[L[s].gen]
+        ? "el mando de " + G.C[L[s].gen].n
+        : cmbaFxTxt(k).toLowerCase();
+  for (const ganador of [true, false]) {
+    const l = L.filter((X) => (X.bando === gana) === ganador)
+      .flatMap((X) => Object.entries(fx[X.s]).map(([k, v]) => [k, v, X.s]))
       .filter(([k, v]) => v > lim && cmbaFxTxt(k))
       .sort((a, b) => b[1] - a[1])
-      .slice(0, s === gana ? 3 : 1);
-    for (const [k] of l)
+      .slice(0, ganador ? 3 : 1);
+    for (const [k, , s] of l)
       tx.push({
         k,
         s,
-        txt: `${s === gana ? "" : "Pese a la derrota: "}${k === "mando" && L[s].gen != null && G.C[L[s].gen] ? "el mando de " + G.C[L[s].gen].n : cmbaFxTxt(k).toLowerCase()} (${CIV[L[s].f].s})`.replace(
-          /^./,
-          (c) => c.toUpperCase(),
+        txt: `${ganador ? "" : "Pese a la derrota: "}${nom(k, s)} (${CIV[L[s].f].s})`.replace(/^./, (c) =>
+          c.toUpperCase(),
         ),
       });
   }
@@ -878,6 +1147,41 @@ const MS = {
   k: cmbPatas(["...h....t", "..hhh..p.", "...h..p..", "..hhhp.h.", "..hhhhhhh", "rrrrrrrh."], "h"),
   m: cmbPatas(["...h..n..", "..hhh..n.", "...b...n.", "..fffbn..", "..fff.nnn", "nnnnnnnn."], "n"),
 };
+/* decorado del campo de batalla (catálogo de sprites: MS.bat_<nombre>.0; F = color del pueblo) */
+Object.assign(MS, {
+  bat_arbol: [
+    [
+      "...gGg...",
+      "..gGGGg..",
+      ".gGGgGGg.",
+      "gGGgggGGg",
+      "gGgggggGg",
+      ".ggggggg.",
+      "..ggggg..",
+      "....p....",
+      "....p....",
+      "...ppp...",
+    ],
+  ],
+  bat_pino: [
+    ["...G...", "..gGg..", "..gGg..", ".gGGGg.", ".ggGgg.", "gggGggg", "ggggggg", "...p...", "..ppp.."],
+  ],
+  bat_arbusto: [[".gGg.", "gGggg", ".ggg."]],
+  bat_roca: [[".hhh.", "hwhhh", "hhhss"]],
+  bat_estandarte: [["k.FFF", "kkFFF", "k.FF.", "k....", "k....", "kkk.."]],
+  bat_torre: [
+    [
+      "skskskskskss",
+      "wwwwwwwwwwws",
+      "wsswwwwwssws",
+      "wwwwwwwwwwws",
+      "wwwwwkkwwwws",
+      "wwwwkkkkwwws",
+      "wwwwkkkkwwws",
+      "sssssssssss.",
+    ],
+  ],
+});
 /* sprites de batalla de las clases nuevas: las únicas usan el de su clase base; bestias y máquinas, el suyo */
 for (const t of TYP)
   if (!MS[t]) MS[t] = UN[t].rol !== t && MS[UN[t].rol] && t !== "car" ? MS[UN[t].rol] : [SP[t], SP[t]];
@@ -893,40 +1197,167 @@ function sprF(c, rows, x, y, pal, fl) {
   });
 }
 /* terreno: 0 llano, 1 bosque, 2 colina, 3 río, 4 vado */
+/* pinta el campo (una vez por batalla): hierba con matices, bosques con árboles y sombra, colinas
+   sombreadas, río con orillas y vados, y murallas con almenas, puertas y torres */
 function paintField(c, terr, fort, def) {
-  const r = mul(ri(1, 1e6));
+  const r = mul(ri(1, 1e6)),
+    nz = noise(r, 14, 9),
+    t0 = (x, y) => (x < 0 || y < 0 || x >= BW || y >= BH ? -1 : terr[y][x]),
+    agua = (x, y) => t0(x, y) === 3 || t0(x, y) === 4,
+    Q = 4,
+    verdes = ["#4b8434", "#548f3a", "#5a983f", "#63a345", "#6aae49"],
+    olivas = ["#6c7746", "#76814b", "#7c8850", "#879356", "#949f60"],
+    bosq = ["#3a6b2c", "#3f7330", "#457c34", "#4b8434"];
   for (let y = 0; y < BH; y++)
     for (let x = 0; x < BW; x++) {
-      const t = terr[y][x],
+      const t = t0(x, y),
         X = x * TS,
         Y = y * TS;
-      c.fillStyle = t === 2 ? "#7c8850" : t === 3 ? "#2c5f8a" : t === 4 ? "#8fa37a" : "#5a983f";
-      c.fillRect(X, Y, TS, TS);
-      for (let k = 0; k < 9; k++) {
-        c.fillStyle = t === 3 ? (r() < 0.5 ? "#4a86b8" : "#1f4a6e") : r() < 0.5 ? "#6aae49" : "#4b8434";
-        c.fillRect(X + Math.floor(r() * TS), Y + Math.floor(r() * TS), t === 3 ? 3 : 1, 1);
+      for (let j = 0; j < TS; j += Q)
+        for (let i = 0; i < TS; i += Q) {
+          const px = (X + i) / (BW * TS),
+            py = (Y + j) / (BH * TS),
+            v = nz(px * 14, py * 9),
+            e = (r() - 0.5) * 0.18;
+          let col;
+          if (t === 3) col = v + e > 0.55 ? "#336a98" : v + e > 0.4 ? "#2c5f8a" : "#25537a";
+          else if (t === 4) col = v + e > 0.5 ? "#8fae86" : "#7f9f7a";
+          else if (t === 2) {
+            /* colina: luz del noroeste, sombra al sureste */
+            const lz = nz(px * 14 - 0.15, py * 9 - 0.15) - nz(px * 14 + 0.15, py * 9 + 0.15);
+            col = olivas[clamp(Math.round(2 + lz * 9 + e * 4), 0, 4)];
+          } else if (t === 1) col = bosq[clamp(Math.floor((v + e) * 4), 0, 3)];
+          else col = verdes[clamp(Math.floor((v + e) * 5), 0, 4)];
+          c.fillStyle = col;
+          c.fillRect(X + i, Y + j, Q, Q);
+        }
+      if (t === 0 || t === 2)
+        for (let k = 0; k < 6; k++) {
+          c.fillStyle = r() < 0.5 ? (t === 2 ? "#a3ab70" : "#7cbd55") : t === 2 ? "#5f6a3e" : "#3f7a2c";
+          c.fillRect(X + Math.floor(r() * TS), Y + Math.floor(r() * TS), 1, 2);
+        }
+      if (t === 0 && r() < 0.18) {
+        c.fillStyle = r() < 0.5 ? "#f2e27a" : "#efe9dc";
+        c.fillRect(X + Math.floor(r() * 18), Y + Math.floor(r() * 18), 1, 1);
       }
+      if (t === 0 && r() < 0.05)
+        sprF(c, MS.bat_arbusto[0], X + Math.floor(r() * 14), Y + Math.floor(r() * 16), BP);
+      if ((t === 0 || t === 2) && r() < 0.04)
+        sprF(c, MS.bat_roca[0], X + Math.floor(r() * 14), Y + Math.floor(r() * 16), BP);
+      /* orillas del río */
+      if (t === 3)
+        for (const [dx, dy] of [
+          [1, 0],
+          [-1, 0],
+          [0, 1],
+          [0, -1],
+        ])
+          if (!agua(x + dx, y + dy) && t0(x + dx, y + dy) >= 0) {
+            c.fillStyle = "#8a7a52";
+            c.fillRect(X + (dx > 0 ? TS - 3 : 0), Y + (dy > 0 ? TS - 3 : 0), dx ? 3 : TS, dy ? 3 : TS);
+            c.fillStyle = "#b9a874";
+            c.fillRect(
+              X + (dx > 0 ? TS - 4 : dx < 0 ? 3 : 0),
+              Y + (dy > 0 ? TS - 4 : dy < 0 ? 3 : 0),
+              dx ? 1 : TS,
+              dy ? 1 : TS,
+            );
+          }
+      if (t === 3)
+        for (let k = 0; k < 3; k++) {
+          c.fillStyle = "#5f9cd0";
+          c.fillRect(X + 3 + Math.floor(r() * 12), Y + 3 + Math.floor(r() * 14), 3, 1);
+        }
+      if (t === 4)
+        for (let k = 0; k < 4; k++) {
+          c.fillStyle = r() < 0.5 ? "#b8b2a2" : "#8d877a";
+          c.fillRect(X + 2 + Math.floor(r() * 15), Y + 2 + Math.floor(r() * 15), 2, 2);
+        }
+    }
+  /* árboles encima (con sombra), de arriba abajo para que se solapen bien */
+  for (let y = 0; y < BH; y++)
+    for (let x = 0; x < BW; x++) {
+      const t = t0(x, y),
+        X = x * TS,
+        Y = y * TS;
       if (t === 1)
-        for (let k = 0; k < 3; k++) spr(c, SP.tree, X + Math.floor(r() * 14), Y + Math.floor(r() * 14), BP);
-      if (t === 2) {
-        spr(c, SP.hill, X + 2, Y + 4, BP);
-        spr(c, SP.hill, X + 10, Y + 12, BP);
-      }
+        for (let k = 0; k < 3; k++) {
+          const ax = X + Math.floor(r() * 12),
+            ay = Y + Math.floor(r() * 10),
+            sp = r() < 0.35 ? MS.bat_pino[0] : MS.bat_arbol[0];
+          c.fillStyle = "rgba(0,0,0,.22)";
+          c.fillRect(ax + 2, ay + sp.length - 1, sp[0].length - 1, 2);
+          sprF(c, sp, ax, ay, BP);
+        }
+      if (t === 2 && r() < 0.35)
+        spr(c, SP.hill, X + 4 + Math.floor(r() * 8), Y + 6 + Math.floor(r() * 8), BP);
     }
   if (fort) {
-    const wx = (def ? 29.5 : 10.5) * TS;
+    /* muralla: lienzo con almenas, puertas cada seis casillas y torres a sus lados */
+    const wx = (def ? 29.5 : 10.5) * TS,
+      fuera = def ? -1 : 1;
     for (let y = 0; y < BH; y++) {
-      if (y % 6 === 2 || y % 6 === 3) continue;
-      const Y = y * TS;
-      c.fillStyle = "#000";
-      c.fillRect(wx - 5, Y, 10, TS);
+      const Y = y * TS,
+        puerta = y % 6 === 2 || y % 6 === 3;
+      if (puerta) {
+        c.fillStyle = "#6b5a3e";
+        c.fillRect(wx - 6, Y, 12, TS);
+        c.fillStyle = "#4f422d";
+        for (let k = 0; k < TS; k += 4) c.fillRect(wx - 6, Y + k, 12, 1);
+        continue;
+      }
+      c.fillStyle = "#1c1a17";
+      c.fillRect(wx - 6, Y, 12, TS);
       c.fillStyle = "#b7ad9a";
-      c.fillRect(wx - 4, Y, 8, TS);
+      c.fillRect(wx - 5, Y, 10, TS);
+      c.fillStyle = "#9a907e";
+      c.fillRect(wx + (fuera > 0 ? -5 : 2), Y, 3, TS);
       c.fillStyle = "#857c6b";
-      for (let k = 0; k < TS; k += 5) c.fillRect(wx - 4, Y + k, 8, 1);
+      for (let k = 0; k < TS; k += 5) c.fillRect(wx - 5, Y + k, 10, 1);
+      for (let k = 2; k < TS; k += 10) c.fillRect(wx - 5 + (y % 2) * 5, Y + k, 1, 5);
+      /* almenas hacia fuera */
       c.fillStyle = "#d8cfbd";
-      c.fillRect(wx - 4 + (y % 2) * 4, Y, 4, 3);
+      for (let k = 0; k < TS; k += 4) c.fillRect(wx + (fuera > 0 ? -7 : 4), Y + k, 3, 2);
+      if (y % 6 === 1 || y % 6 === 4)
+        sprF(c, MS.bat_torre[0], Math.round(wx - 6), Y + (y % 6 === 1 ? 8 : 4), BP);
     }
+    /* lienzos norte y sur del recinto, con puertas */
+    for (const yw of [3.5 * TS, (BH - 3.5) * TS]) {
+      const x0 = def ? wx : 0,
+        x1 = def ? BW * TS : wx,
+        haciaFuera = yw < (BH * TS) / 2 ? -1 : 1;
+      for (let X = x0; X < x1; X += TS) {
+        const xi = Math.floor(X / TS),
+          puerta = (xi - Math.floor(x0 / TS)) % 6 === 3;
+        if (puerta) {
+          c.fillStyle = "#6b5a3e";
+          c.fillRect(X, yw - 6, TS, 12);
+          continue;
+        }
+        c.fillStyle = "#1c1a17";
+        c.fillRect(X, yw - 6, TS, 12);
+        c.fillStyle = "#b7ad9a";
+        c.fillRect(X, yw - 5, TS, 10);
+        c.fillStyle = "#857c6b";
+        for (let k = 0; k < TS; k += 5) c.fillRect(X + k, yw - 5, 1, 10);
+        c.fillStyle = "#d8cfbd";
+        for (let k = 0; k < TS; k += 4) c.fillRect(X + k, yw + (haciaFuera < 0 ? -7 : 5), 2, 3);
+      }
+    }
+    /* la ciudad al fondo: tejados entre los lienzos */
+    const cx0 = def ? wx + 14 : 4,
+      cx1 = def ? BW * TS - 6 : wx - 14;
+    for (let Y = 4.6 * TS; Y < (BH - 4.8) * TS; Y += 26)
+      for (let X = cx0; X < cx1; X += 22) {
+        if (r() < 0.45) continue;
+        spr(
+          c,
+          r() < 0.15 ? SP.castle : SP.town,
+          Math.round(X + r() * 6),
+          Math.round(Y + r() * 6),
+          PAL[REB] || BP,
+        );
+      }
   }
 }
 function cmbCampo(env, fort, def) {
@@ -953,7 +1384,11 @@ function cmbCampo(env, fort, def) {
       if (r() < 0.4) terr[y][x + 1] = t;
     }
   }
-  if (fort) for (let y = 0; y < BH; y++) for (const x of def ? [28, 29, 30] : [9, 10, 11]) terr[y][x] = 0;
+  if (fort) {
+    for (let y = 0; y < BH; y++) for (const x of def ? [28, 29, 30] : [9, 10, 11]) terr[y][x] = 0;
+    for (const y of [2, 3, 4, BH - 5, BH - 4, BH - 3])
+      for (let x = def ? 29 : 0; x < (def ? BW : 11); x++) terr[y][x] = 0;
+  }
   return terr;
 }
 /* compatibilidad con la firma antigua */
@@ -965,28 +1400,92 @@ function tactical(fa, fd, A, D, fort, gA, gD, place, mode) {
     mode,
   ).then((r) => ({ win: r.gana === 0, A: r.A, D: r.D, inf: r.informe }));
 }
+/* Dos ejércitos: el lado 0 del campo es el del jugador (ctx.jugador = 1 si manda ejD). Mismo resultado
+   que siempre; no emite 'batallaResuelta' (lo hace quien la llama). */
 function cmbTactica(ejA, ejD, ctx = {}, mode = "rt") {
+  const map = ctx.jugador === 1 ? [1, 0] : [0, 1];
+  return cmbTacticaCore([ejA, ejD], ctx, mode, {
+    map,
+    bandos: map.slice(),
+    def: map.indexOf(1),
+    lados: ["O", "E"],
+    mios: [0],
+    emitir: false,
+  });
+}
+/* N ejércitos en bandos (ver cmbResolverMulti). ctx.humanos = facciones que se controlan desde este
+   cliente (por defecto [ME]); el resto lo lleva la IA (con ctx.dificultad por ejército); ctx.auto = la IA
+   manda también los ejércitos humanos. ctx.def = índice del ejército que defiende la plaza.
+   Despliegue: el bando del jugador al oeste, los demás al este, norte y sur (el que defiende, al este);
+   los aliados de un bando comparten su lado (cada uno en su mitad). Emite 'batallaResuelta' (con ejs y
+   bandos) solo con ctx.emitir. Online: ctx.onl.ctrl = ['local'|'remoto'|'ia', ...] por ejército. */
+function cmbTacticaMulti(ejs0, ctx = {}, mode = "rt") {
+  /* refuerzos: ctx.refuerzos = [{ej, dir, llegada (s de batalla)}]; van detrás de los demás */
+  const ejs = ejs0.concat(
+      (ctx.refuerzos || []).map((q) => ({ ...q.ej, dir: q.dir ?? q.ej.dir, _llegada: +q.llegada || 30 })),
+    ),
+    N = ejs.length,
+    bnd = ejs.map((e, i) => e.bando ?? i),
+    hum = ctx.humanos || (typeof ME !== "undefined" ? [ME] : []),
+    mios = [...Array(N).keys()].filter((i) => hum.includes(ejs[i].f)),
+    def = cmbDefIdx(ejs, ctx),
+    bYo = mios.length ? bnd[mios[0]] : bnd[0],
+    dirs = ejs.map((e) => cmbDirL(e.dir)),
+    orden = [...new Set([bYo, ...(def != null ? [bnd[def]] : []), ...bnd])],
+    LAD = ["O", "E", "N", "S"],
+    ladoB = {};
+  /* el que defiende la plaza va al este (las murallas solo se dibujan al este u oeste) */
+  orden.forEach((b, k) => (ladoB[b] = LAD[k] || "N"));
+  if (def != null && ladoB[bnd[def]] !== "E" && ladoB[bnd[def]] !== "O") {
+    const otro = Object.keys(ladoB).find((b) => ladoB[b] === "E");
+    ladoB[otro] = ladoB[bnd[def]];
+    ladoB[bnd[def]] = "E";
+  }
+  /* cada ejército entra por su dirección de procedencia (ej.dir) si la trae; si no, por la de su bando */
+  const lados = bnd.map((b, i) => dirs[i] || ladoB[b]);
+  if (def != null && fort0(ctx) && lados[def] !== "E" && lados[def] !== "O") lados[def] = "E";
+  return cmbTacticaCore(ejs, ctx, mode, {
+    map: ejs.map((e, i) => i),
+    bandos: bnd,
+    def,
+    lados,
+    mios: mios.length ? mios : [0],
+    emitir: !!ctx.emitir && !ctx.sinEvento,
+    lleg: ejs.map((e) => +e._llegada || 0),
+  });
+}
+const fort0 = (ctx) => !!(ctx && ctx.fort);
+function cmbTacticaCore(ejs0, ctx, mode, op) {
   return new Promise((done) => {
     const env = cmbEntorno(ctx),
       p = ctx.p || null,
       fort = ctx.fort || 0,
-      map = ctx.jugador === 1 ? [1, 0] : [0, 1],
-      ejs = [ejA, ejD],
-      def = map.indexOf(1),
-      terr = cmbCampo(env, fort, def),
+      map = op.map,
+      ejs = ejs0,
+      N = map.length,
+      def = op.def,
+      lados = op.lados,
+      defE = def != null && lados[def] === "E" ? 1 : 0,
+      kFl = fort ? cmbFlancos(ctx) : 1,
+      terr = cmbCampo(env, fort, defE),
       units = [],
       gens = [],
       bono = [],
-      gbs = [];
+      gbs = [],
+      part = lados.map((l, i) => {
+        const mis = lados.map((x, j) => j).filter((j) => lados[j] === l);
+        return [mis.indexOf(i), mis.length];
+      }),
+      esDef = (side) => def != null && op.bandos[side] === op.bandos[def];
     let id = 0;
-    for (const side of [0, 1]) {
+    for (let side = 0; side < N; side++) {
       const ej = ejs[map[side]],
         f = ej.f,
         u = ej.u,
-        lado = side === def ? "defensor" : "atacante",
+        lado = esDef(side) ? "defensor" : "atacante",
         gc = ej.gen != null && G.C[ej.gen] && G.C[ej.gen].alive !== false ? G.C[ej.gen] : null,
         hambre = ej.hambre != null ? ej.hambre : !!(G.F[f] && G.F[f].food <= 0),
-        as = side === def && ctx.asedio ? Math.min(20, ctx.asedio * 4) : 0,
+        as = esDef(side) && ctx.asedio ? Math.min(20, ctx.asedio * 4) : 0,
         ts = TYP.reduce((s, t) => s + (u[t] || 0) * SPU, 0),
         size = Math.max(20, Math.min(40, Math.ceil(ts / 14)));
       const lv = gc ? cmbNivelXp(gc.xp) : 0;
@@ -999,7 +1498,7 @@ function cmbTactica(ejA, ejD, ctx = {}, mode = "rt") {
           m =
             cs.mo +
             (gc ? gc.ma * 1.5 + (lv - 1) * 1.5 : 0) +
-            (side === def && fort ? 6 + fort * 4 : 0) -
+            (esDef(side) && fort ? 6 + fort * 4 - 4 * (kFl - 1) : 0) -
             (hambre ? 10 : 0) -
             as;
         while (n > 0) {
@@ -1031,12 +1530,14 @@ function cmbTactica(ejA, ejD, ctx = {}, mode = "rt") {
             eng: 0,
             engT: 0,
             flk: 0,
-            face: side ? -1 : 1,
+            lleg: (op.lleg && op.lleg[side]) || 0,
+            face: lados[side] === "E" || lados[side] === "S" ? -1 : 1,
+            ax: lados[side] === "N" || lados[side] === "S" ? "y" : "x",
             plan: [0, 1, 2].map(() => ({
               o: null,
               st:
                 cs.cl === "asd"
-                  ? fort && side !== def
+                  ? fort && !esDef(side)
                     ? "agr"
                     : "def"
                   : cs.al
@@ -1085,14 +1586,14 @@ function cmbTactica(ejA, ejD, ctx = {}, mode = "rt") {
       u.nm =
         u.gen && g && u.n === SPU
           ? `${UN[u.t].caballo ? "jinetes" : "hombres"} de la guardia de ${g.n}`
-          : CIV[ejA.f].un[u.t] === CIV[ejD.f].un[u.t] && units.some((o) => o.side !== u.side && o.t === u.t)
+          : units.some((o) => o.side !== u.side && o.t === u.t && CIV[o.f].un[o.t] === CIV[u.f].un[u.t])
             ? `${nm} (${CIV[u.f].s})`
             : nm;
     }
     const bg = document.createElement("canvas");
     bg.width = BW * TS;
     bg.height = BH * TS;
-    paintField(bg.getContext("2d"), terr, fort, def);
+    paintField(bg.getContext("2d"), terr, fort, defE);
     const lim = { t3: env.rmax, t1: Math.round(env.rmax * 2.5), rt: env.rmax * 25 }[mode];
     BT = {
       bg,
@@ -1103,6 +1604,15 @@ function cmbTactica(ejA, ejD, ctx = {}, mode = "rt") {
       def,
       map,
       ejs,
+      N,
+      bandos: op.bandos,
+      lados,
+      part,
+      mios: op.mios,
+      bandoYo: op.bandos[op.mios[0] ?? 0],
+      emitir: !!op.emitir,
+      flancos: kFl,
+      espera: {},
       env,
       lim,
       place: ctx.nombreLugar || (p && p.name) || "campo abierto",
@@ -1116,7 +1626,7 @@ function cmbTactica(ejA, ejD, ctx = {}, mode = "rt") {
       slot: 0,
       log: [],
       fx: [],
-      tal: [{}, {}],
+      tal: units.length ? [...Array(N)].map(() => ({})) : [{}, {}],
       hitos: [],
       ult: [0, 0],
       dichos: {},
@@ -1127,17 +1637,20 @@ function cmbTactica(ejA, ejD, ctx = {}, mode = "rt") {
       speed: ctx.velocidad || 1,
       gb: gbs,
       gens,
-      muro: fort ? { hp: fort * 100, hp0: fort * 100, x: def ? 29.5 : 10.5 } : null,
+      muro:
+        fort && def != null
+          ? { hp: fort * 100, hp0: fort * 100, x: defE ? 29.5 : 10.5, y0: 3.5, y1: BH - 3.5, e: defE }
+          : null,
       habT: 0,
       bono,
       auto0: !!ctx.auto,
-      init: [
-        units.filter((u) => !u.side).reduce((s, u) => s + u.n, 0),
-        units.filter((u) => u.side).reduce((s, u) => s + u.n, 0),
-      ],
+      init: [...Array(N)].map((_, s) => units.filter((u) => u.side === s).reduce((a, u) => a + u.n, 0)),
       done,
       aiT: 0,
     };
+    /* figuras: dos por hombre en infantería y tiradores si el campo no se llena demasiado (rendimiento) */
+    const figs = units.reduce((a, u) => a + cmbFig(u, u.n0) * (u.cs.cl === "asd" || cmbCab(u.t) ? 1 : 2), 0);
+    BT.dens = figs <= 2400 ? 2 : 1;
     /* ONL: la IA difícil entra con un poco más de moral */
     if (ctx.dificultad)
       for (const u of units)
@@ -1145,14 +1658,36 @@ function cmbTactica(ejA, ejD, ctx = {}, mode = "rt") {
           u.mor *= 1.06;
           u.morMax *= 1.06;
         }
-    deploy(1);
-    units.filter((u) => !u.side).forEach((u) => (u.x = -1));
-    BT.sel = units.find((u) => !u.side)?.id ?? null;
+    BT.lleg = op.lleg || [];
+    for (let s = 0; s < N; s++) if (!op.mios.includes(s) && !(BT.lleg[s] > 0)) deploy(s);
+    units.filter(mio).forEach((u) => (u.x = -1));
+    /* tercero oportunista (IA): con tres bandos o más, el más débil aguarda */
+    if (new Set(op.bandos).size >= 3 && ctx.oportunista !== false) {
+      const fz = {};
+      for (let s = 0; s < N; s++) if (!esDef(s)) fz[op.bandos[s]] = (fz[op.bandos[s]] || 0) + BT.init[s];
+      const b =
+        ctx.oportunista != null && ctx.oportunista !== true
+          ? ctx.oportunista
+          : +Object.keys(fz).sort((a, c) => fz[a] - fz[c])[0];
+      for (let s = 0; s < N; s++) if (op.bandos[s] === b && !op.mios.includes(s)) BT.espera[s] = true;
+    }
+    BT.sel = units.find(mio)?.id ?? null;
     BT.sels = BT.sel == null ? [] : [BT.sel];
     BT.atk = false;
     bLog(
-      `${env.hora[0].toUpperCase() + env.hora.slice(1)}, ${env.clima} · ${CMBA_TERR[env.terr.tag] || env.terr.tag}${fort ? " · murallas " + fort : ""}.`,
+      `${env.hora[0].toUpperCase() + env.hora.slice(1)}, ${env.clima} · ${CMBA_TERR[env.terr.tag] || env.terr.tag}${fort ? " · murallas " + fort : ""}${kFl > 1 ? " · asalto por " + kFl + " flancos" : ""}.`,
     );
+    if (N > 2)
+      bLog(
+        `Batalla de ${N} ejércitos: ${[...new Set(op.bandos)]
+          .map((b) =>
+            ejs
+              .filter((e, i) => op.bandos[map.indexOf(i)] === b)
+              .map((e) => CIV[e.f].s)
+              .join(" y "),
+          )
+          .join(" contra ")}.`,
+      );
     $("battle").classList.add("show");
     music("battle");
     if (ctx.auto) battleAct("go");
@@ -1170,40 +1705,82 @@ const cmbGrp = (t) =>
         : UN[t].cl === "dis"
           ? "arq"
           : "lin";
+/* de coordenadas locales (fondo d desde el borde propio, a lo largo a) a las del campo, según el lado */
+function cmbLocal(side, d, a) {
+  const l = cmbLadoDe(side),
+    P = BT.part ? BT.part[side] : [0, 1],
+    an = l === "N" || l === "S" ? 6 + (a / BH) * (BW - 12) : a,
+    lo = l === "N" || l === "S" ? 6 : 0,
+    hi = l === "N" || l === "S" ? BW - 6 : BH,
+    a2 = P[1] > 1 ? lo + ((hi - lo) / P[1]) * (P[0] + (an - lo) / (hi - lo)) : an;
+  if (l === "E") return { x: BW - d, y: a2 };
+  if (l === "N") return { x: a2, y: d * 0.55 };
+  if (l === "S") return { x: a2, y: BH - d * 0.55 };
+  return { x: d, y: a2 };
+}
+/* zona de despliegue del jugador */
+function cmbEnZona(side, x, y) {
+  const l = cmbLadoDe(side);
+  return l === "E" ? x > BW - 10 : l === "N" ? y < 5.5 : l === "S" ? y > BH - 5.5 : x < 10;
+}
+function cmbAZona(side, x, y) {
+  const l = cmbLadoDe(side);
+  if (l === "E") return { x: clamp(x, BW - 10, BW - 0.5), y: clamp(y, 0.5, BH - 0.5) };
+  if (l === "N") return { x: clamp(x, 0.5, BW - 0.5), y: clamp(y, 0.5, 5.5) };
+  if (l === "S") return { x: clamp(x, 0.5, BW - 0.5), y: clamp(y, BH - 5.5, BH - 0.5) };
+  return { x: clamp(x, 0.5, 10), y: clamp(y, 0.5, BH - 0.5) };
+}
 function deploy(side, only) {
   const us = BT.units.filter((u) => u.side === side && (!only || u.x < 0)),
     rows = [12, 10.3, 13.7, 8.6, 15.4, 6.9, 17.1, 5.2, 18.8, 3.5, 20.5, 1.8, 22.2],
-    col = {
-      lin: side ? 32.5 : 7.5,
-      esc: side ? 30.9 : 9.1,
-      arq: side ? 36.5 : 3.5,
-      cab: side ? 34.5 : 5.5,
-      maq: side ? 38.2 : 1.8,
-      gen: side ? 35.2 : 4.8,
-    };
+    col = { lin: 7.5, esc: 9.1, arq: 3.5, cab: 5.5, maq: 1.8, gen: 4.8 };
   const cnt = { lin: 0, esc: 0, arq: 0, cab: 0, maq: 0, gen: 0 };
   us.sort((a, b) => TYP.indexOf(a.t) - TYP.indexOf(b.t));
   for (const u of us) {
     const g = u.gen && u.n <= SPU ? "gen" : cmbGrp(u.t),
       k = cnt[g]++;
-    let y = rows[k % rows.length],
-      x = col[g] + (k >= rows.length ? (side ? 1.6 : -1.6) : 0);
-    if (g === "cab") y = k % 2 ? BH - 2 - Math.floor(k / 2) * 1.8 : 2 + Math.floor(k / 2) * 1.8;
+    let a = rows[k % rows.length],
+      d = col[g] + (k >= rows.length ? -1.6 : 0);
+    if (g === "cab") a = k % 2 ? BH - 2 - Math.floor(k / 2) * 1.8 : 2 + Math.floor(k / 2) * 1.8;
+    let q = cmbLocal(side, d, a);
     for (
       let n = 0;
-      n < 30 && BT.units.some((o) => o !== u && o.x >= 0 && Math.hypot(o.x - x, o.y - y) < crd(o, u) + 0.1);
+      n < 30 &&
+      BT.units.some((o) => o !== u && o.x >= 0 && Math.hypot(o.x - q.x, o.y - q.y) < crd(o, u) + 0.1);
       n++
-    )
-      y = ((y + 1.7) % (BH - 1)) + 0.5;
-    u.x = x;
-    u.y = y;
+    ) {
+      a = ((a + 1.7) % (BH - 1)) + 0.5;
+      q = cmbLocal(side, d, a);
+    }
+    if (BT.muro && BT.muro.y0 != null && BT.def != null && cmbBnd(side) === cmbBnd(BT.def)) {
+      q.y = clamp(q.y, BT.muro.y0 + 0.9, BT.muro.y1 - 0.9);
+      if (!cmbDentro(BT.muro, q))
+        q.x = BT.muro.e ? Math.max(q.x, BT.muro.x + 1) : Math.min(q.x, BT.muro.x - 1);
+    }
+    u.x = q.x;
+    u.y = q.y;
   }
 }
 const bU = (id) => BT.units.find((u) => u.id === id),
   dd = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
-const act = (u) => u.n > 0 && !u.gone,
+/* bandos: unidades de ejércitos del mismo bando no se atacan. Sin BT.bandos (p. ej. el espejo online),
+   cada lado es su bando y el lado 0 es el del jugador */
+const cmbBnd = (s) => (BT.bandos ? BT.bandos[s] : s),
+  cmbLadoDe = (s) => (BT.lados ? BT.lados[s] : s ? "E" : "O"),
+  mio = (u) => (BT.mios ? BT.mios.includes(u.side) : u.side === 0),
+  aliado = (u) => cmbBnd(u.side) === (BT.bandoYo ?? 0),
+  hostil = (a, b) => cmbBnd(a.side) !== cmbBnd(b.side),
+  cmbFwd = (s) => ({ O: [1, 0], E: [-1, 0], N: [0, 1], S: [0, -1] })[cmbLadoDe(s)];
+/* orienta la unidad al moverse: los de oeste-este miran a lo ancho; los de norte-sur, a lo alto */
+function cmbCara(u, dx, dy) {
+  if (u.ax === "y") {
+    if (Math.abs(dy) > 0.05) u.face = Math.sign(dy);
+    if (Math.abs(dx) > 0.05) u.flx = dx < 0;
+  } else if (Math.abs(dx) > 0.05) u.face = Math.sign(dx);
+}
+const act = (u) => u.n > 0 && !u.gone && !(u.lleg > 0),
   fighting = (u) => act(u) && !u.rout,
-  enem = (u) => BT.units.filter((o) => o.side !== u.side && fighting(o));
+  enem = (u) => BT.units.filter((o) => hostil(o, u) && fighting(o));
 const nearest = (u) => enem(u).sort((a, b) => dd(u, a) - dd(u, b))[0];
 const tile = (u) => BT.terr[clamp(Math.floor(u.y), 0, BH - 1)]?.[clamp(Math.floor(u.x), 0, BW - 1)],
   inForest = (u) => tile(u) === 1,
@@ -1214,24 +1791,34 @@ const tirador = (u) => u.cs.al > 0 && u.ammo > 0,
   murOk = (u) => cmbMurF(u) > 0;
 /* nivel efectivo de muralla que protege a u: baja con los daños (arietes, catapultas) y casi se anula
    junto a una torre de asedio enemiga */
+/* el recinto: la ciudad al fondo (este u oeste) cerrada por tres lienzos: frente (x = M.x), norte
+   (y = M.y0) y sur (y = M.y1); sin y0/y1 (partidas o espejos antiguos) solo el frente */
+function cmbDentro(M, p) {
+  const fondo = (M.e ?? (cmbLadoDe(BT.def) === "E" ? 1 : 0)) ? p.x > M.x : p.x < M.x;
+  return fondo && (M.y0 == null || (p.y > M.y0 && p.y < M.y1));
+}
+/* distancia de p al lienzo más cercano */
+function cmbDistMuro(M, p) {
+  const e = M.e ?? (cmbLadoDe(BT.def) === "E" ? 1 : 0),
+    enX = e ? p.x > M.x : p.x < M.x,
+    dF = M.y0 == null || (p.y > M.y0 && p.y < M.y1) ? Math.abs(p.x - M.x) : 99,
+    dN = M.y0 != null && enX ? Math.abs(p.y - M.y0) : 99,
+    dS = M.y0 != null && enX ? Math.abs(p.y - M.y1) : 99;
+  return Math.min(dF, dN, dS);
+}
 function cmbMurF(u) {
   const M = BT.muro;
-  if (!M || M.hp <= 0 || u.side !== BT.def || !(BT.def ? u.x > M.x : u.x < M.x)) return 0;
+  if (!M || M.hp <= 0 || cmbBnd(u.side) !== cmbBnd(BT.def) || !cmbDentro(M, u)) return 0;
   const torre = BT.units.some(
-    (o) =>
-      o.side !== u.side &&
-      o.t === "tor" &&
-      fighting(o) &&
-      Math.abs(o.x - M.x) < 1.6 &&
-      Math.abs(o.y - u.y) < 3,
+    (o) => hostil(o, u) && o.t === "tor" && fighting(o) && cmbDistMuro(M, o) < 1.6 && dd(o, u) < 4,
   );
-  return BT.fort * (M.hp / M.hp0) * (torre ? 0.3 : 1);
+  return BT.fort * (M.hp / M.hp0) * (torre ? 0.3 : 1) * (1 - 0.18 * ((BT.flancos || 1) - 1));
 }
 /* adaptador de habilidades para la táctica */
 const BTB = {
   auto: false,
   enemigos: (x, r) => enem(x).filter((o) => dd(x, o) <= r + rad(o)),
-  aliados: (x, r) => BT.units.filter((o) => o.side === x.side && fighting(o) && dd(x, o) <= r),
+  aliados: (x, r) => BT.units.filter((o) => !hostil(o, x) && fighting(o) && dd(x, o) <= r),
   bosque: () => 0,
   enBosque: (x) => inForest(x),
   moralAliada: (x) => {
@@ -1243,8 +1830,8 @@ const BTB = {
     bHito(
       "",
       p,
-      x && !x.side ? t.replace(/(^|¡Emboscada! )Los /, "$1Tus ") : t,
-      x ? (x.side ? "bad" : "good") : "",
+      x && mio(x) ? t.replace(/(^|¡Emboscada! )Los /, "$1Tus ") : t,
+      x ? (aliado(x) ? "good" : "bad") : "",
     );
     if (x && !BT.quiet)
       BT.fx.push({
@@ -1270,11 +1857,16 @@ function bHito(k, pr, m, c) {
   bLog(m, c);
   if (!BT.hitoP || pr >= BT.hitoP[0]) BT.hitoP = [pr, m];
 }
-const uname = (u) => (u.side === 0 ? "Tus " : "Los ") + u.nm;
-const cBien = (u) => (u.side ? "good" : "bad");
+const uname = (u) => (mio(u) ? "Tus " : "Los ") + u.nm;
+const cBien = (u) => (aliado(u) ? "bad" : "good");
 const cmbTal = (s, k, v) => {
-  if (v > 0) BT.tal[s][k] = (BT.tal[s][k] || 0) + v;
+  if (v > 0 && BT.tal[s]) BT.tal[s][k] = (BT.tal[s][k] || 0) + v;
 };
+/* reparte un mérito entre los ejércitos enemigos del lado s */
+function cmbTalEnem(s, k, v) {
+  const hs = [...Array(BT.N || 2).keys()].filter((o) => cmbBnd(o) !== cmbBnd(s));
+  for (const o of hs) cmbTal(o, k, v / hs.length);
+}
 function cmbGeneralCae(s, u) {
   const g = BT.gens[s];
   if (!g.ok) return;
@@ -1284,14 +1876,14 @@ function cmbGeneralCae(s, u) {
     gc = G.C[g.id];
   g.res = muere ? "muerto" : "herido";
   for (const o of BT.units) if (o.side === s && act(o)) o.mor -= muere ? 18 : 12;
-  cmbTal(1 - s, "general", BT.init[s] * 0.08);
+  cmbTalEnem(s, "general", BT.init[s] * 0.08);
   bHito(
     "gen" + s,
     5,
     muere
-      ? `${gc ? gc.n : "El general"} cae muerto junto a los ${u.nm}; ${s ? "el enemigo titubea" : "tus hombres titubean"}.`
+      ? `${gc ? gc.n : "El general"} cae muerto junto a los ${u.nm}; ${mio(u) ? "tus hombres titubean" : "sus hombres titubean"}.`
       : `${gc ? gc.n : "El general"} cae herido y es retirado del frente.`,
-    s ? "good" : "bad",
+    aliado(u) ? "bad" : "good",
   );
 }
 function hurt(b, v, mf) {
@@ -1317,7 +1909,7 @@ function hurt(b, v, mf) {
 /* posición del atacante respecto al frente del defensor */
 function cmbAngulo(a, b) {
   const d = dd(a, b) || 1,
-    c = ((a.x - b.x) * b.face) / d;
+    c = ((b.ax === "y" ? a.y - b.y : a.x - b.x) * b.face) / d;
   return c > 0.35 ? 0 : c < -0.5 ? 2 : 1;
 }
 function fight(a, b, dt) {
@@ -1367,6 +1959,7 @@ function fight(a, b, dt) {
     BT.bono[a.side] *
     cg *
     stuck *
+    (a.escala > 0 ? 0.8 : 1) *
     rioA *
     bos *
     hill *
@@ -1377,6 +1970,8 @@ function fight(a, b, dt) {
     dt *
     CMB_KT;
   if (b.rout) v *= 1.6;
+  a.objId = b.id;
+  a.golpeT = BT.t;
   const l = hurt(b, v, ha.veneno ? 0.6 : 0) || v / b.hpS;
   for (const h of a.hab || [])
     if (h.t > 0 && CMB_HAB[h.id].act.me > 1) cmbTal(a.side, "hab:" + h.id, l * (1 - 1 / ha.me));
@@ -1392,6 +1987,8 @@ function fight(a, b, dt) {
   if (hill < 1 || rioB < 1) cmbTal(b.side, "terreno", l * 0.25);
   if (b.rout) cmbTal(a.side, "persecucion", l);
 }
+/* distancia de o por delante de t (según el frente de su lado) */
+const cmbDelante = (t, o) => (o.x - t.x) * cmbFwd(t.side)[0] + (o.y - t.y) * cmbFwd(t.side)[1];
 function volley(u, t) {
   const d = dd(u, t) || 1,
     fr = ((u.x - t.x) * t.face) / d > 0.35,
@@ -1431,12 +2028,14 @@ function volley(u, t) {
         o.side === t.side &&
         o.cs.cl !== "dis" &&
         fighting(o) &&
-        (o.x - t.x) * (t.side ? -1 : 1) > 0.3 &&
-        (o.x - t.x) * (t.side ? -1 : 1) < 2.6 &&
-        Math.abs(o.y - t.y) < 1.3,
+        cmbDelante(t, o) > 0.3 &&
+        cmbDelante(t, o) < 2.6 &&
+        Math.abs((o.x - t.x) * cmbFwd(t.side)[1] - (o.y - t.y) * cmbFwd(t.side)[0]) < 1.3,
     );
   if (cover) v *= 0.5;
   u.ammo--;
+  u.dispT = BT.t;
+  u.objId = t.id;
   if (u.ammo <= 0) bHito("mu" + u.id, 1, `${uname(u)} agotan sus proyectiles.`);
   const now = performance.now();
   if (!BT.quiet)
@@ -1456,7 +2055,7 @@ function volley(u, t) {
   cmbTal(t.side, "armadura", (v / t.hpS) * ((1 - (1 - esc) * arm) / ((1 - esc) * arm)) * 0.5);
   if (mur < 1) cmbTal(t.side, "murallas", ((v / t.hpS) * (1 - mur)) / mur);
   if (l && !BT.quiet)
-    BT.fx.push({ x: t.x, y: t.y, txt: "-" + l, t0: now + 300, c: t.side ? "#ffd36b" : "#ff8a7a" });
+    BT.fx.push({ x: t.x, y: t.y, txt: "-" + l, t0: now + 300, c: aliado(t) ? "#ff8a7a" : "#ffd36b" });
 }
 function simStep(dt, slot) {
   const live = BT.units.filter(act),
@@ -1464,6 +2063,20 @@ function simStep(dt, slot) {
     calorC = BT.env.clima === "calor" ? 1.3 : 1,
     M = BT.muro;
   BT.t += dt;
+  /* refuerzos: entran por su borde cuando les llega la hora */
+  for (let s = 0; s < (BT.N || 2); s++)
+    if (BT.lleg && BT.lleg[s] > 0 && BT.t >= BT.lleg[s]) {
+      BT.lleg[s] = 0;
+      for (const u of BT.units) if (u.side === s) u.lleg = 0;
+      deploy(s);
+      const fS = BT.ejs[BT.map[s]].f;
+      bHito(
+        "",
+        4,
+        `Llegan refuerzos: las tropas de ${CIV[fS].s} entran por ${CMB_DIRN[cmbLadoDe(s)]}.`,
+        cmbBnd(s) === (BT.bandoYo ?? 0) ? "good" : "bad",
+      );
+    }
   for (const u of live) {
     u._morPrev = u.mor;
     u.hm = cmbHabMod(u);
@@ -1479,13 +2092,16 @@ function simStep(dt, slot) {
     const P = u.plan[slot] || u.plan[0];
     u.st = P.st;
     let g = null;
-    if (u.rout) g = { x: u.side ? BW + 2 : -2, y: u.y };
-    else if (P.o && P.o.tg != null) {
+    if (u.rout) {
+      const fw = cmbFwd(u.side);
+      g = fw[0] ? { x: fw[0] > 0 ? -2 : BW + 2, y: u.y } : { x: u.x, y: fw[1] > 0 ? -2 : BH + 2 };
+    } else if (P.o && P.o.tg != null) {
       const t = bU(P.o.tg);
       if (t && fighting(t))
-        g = tirador(u) && !P.o.cc
-          ? { x: t.x, y: t.y, stop: alc(u) - 0.6 }
-          : { x: t.x, y: t.y, stop: crd(u, t) - 0.05, p: 1 };
+        g =
+          tirador(u) && !P.o.cc
+            ? { x: t.x, y: t.y, stop: alc(u) - 0.6 }
+            : { x: t.x, y: t.y, stop: crd(u, t) - 0.05, p: 1 };
       else P.o = null;
     } else if (P.o) {
       if (Math.hypot(P.o.x - u.x, P.o.y - u.y) < 0.12) P.o = null;
@@ -1500,13 +2116,29 @@ function simStep(dt, slot) {
       }
     }
     /* máquinas de asedio: arietes y torres van a la muralla; las catapultas, a tiro de ella */
-    if (!g && !u.rout && u.cs.cl === "asd" && M && M.hp > 0 && u.side !== BT.def && u.st === "agr") {
-      const gy = clamp(Math.round((u.y - 3) / 6) * 6 + 3, 3, BH - 3),
-        lado = BT.def ? -1 : 1;
-      g =
-        u.t === "cat"
-          ? { x: M.x, y: u.y, stop: alc(u) - 1 }
-          : { x: M.x + lado * 0.9, y: u.t === "ari" ? gy : u.y };
+    if (
+      !g &&
+      !u.rout &&
+      u.cs.cl === "asd" &&
+      M &&
+      M.hp > 0 &&
+      cmbBnd(u.side) !== cmbBnd(BT.def) &&
+      u.st === "agr"
+    ) {
+      const lado = (M.e ?? (cmbLadoDe(BT.def) === "E" ? 1 : 0)) ? -1 : 1,
+        porX = lado < 0 ? u.x > M.x : u.x < M.x,
+        norte = M.y0 != null && porX && u.y < M.y0,
+        sur = M.y0 != null && porX && u.y > M.y1;
+      if (norte || sur) {
+        const yy = norte ? M.y0 - 0.9 : M.y1 + 0.9;
+        g = u.t === "cat" ? { x: u.x, y: yy, stop: alc(u) - 1 } : { x: u.x, y: yy };
+      } else {
+        const gy = clamp(Math.round((u.y - 3) / 6) * 6 + 3, 3, BH - 3);
+        g =
+          u.t === "cat"
+            ? { x: M.x, y: u.y, stop: alc(u) - 1 }
+            : { x: M.x + lado * 0.9, y: u.t === "ari" ? gy : u.y };
+      }
     }
     /* elefantes desbocados: arremeten contra los suyos */
     if (u.desb > 0) {
@@ -1552,6 +2184,7 @@ function simStep(dt, slot) {
     let sp =
       u.cs.ve *
       u.hm.ve *
+      (u.escala > 0 ? 0.5 : 1) *
       (1 - u.fat / 250) *
       (inForest(u) ? (cmbCab(u.t) ? 0.5 : 0.7) : 1) *
       (inRiver(u) ? 0.45 : 1) *
@@ -1567,7 +2200,7 @@ function simStep(dt, slot) {
         u.y += (dy / L) * m;
         u.moved += m;
         u.mvT = now;
-        if (Math.abs(dx) > 0.05 && !(tirador(u) && UN[u.t].rol !== "m")) u.face = Math.sign(dx);
+        if (!(tirador(u) && UN[u.t].rol !== "m")) cmbCara(u, dx, dy);
         u.fat = Math.min(100, u.fat + dt * 0.5 * u.cs.fa * u.hm.fat * calor * (u.st === "agr" ? 1.3 : 1));
       } else u.moved = 0;
     } else if (!u.eng) {
@@ -1578,17 +2211,17 @@ function simStep(dt, slot) {
       u.fat = Math.min(100, u.fat + dt * 1.1 * u.cs.fa * u.hm.fat * calor * (u.st === "agr" ? 1.3 : 1));
       u.fT = now;
       const e = cont.sort((a, b) => b.n - a.n)[0];
-      if (e && !u.rout) u.face = Math.sign(e.x - u.x) || u.face;
+      if (e && !u.rout) cmbCara(u, e.x - u.x, e.y - u.y);
     } else if (!u.rout && !u.goal) {
       const e = nearest(u);
-      if (e && dd(u, e) < 9) u.face = Math.sign(e.x - u.x) || u.face;
+      if (e && dd(u, e) < 9) cmbCara(u, e.x - u.x, e.y - u.y);
     }
   }
   for (const u of live)
     for (const o of live) {
       if (u.id >= o.id || u.n <= 0 || o.n <= 0) continue;
       const d = dd(u, o),
-        mn = u.side === o.side ? crd(u, o) + 0.05 : crd(u, o);
+        mn = !hostil(u, o) ? crd(u, o) + 0.05 : crd(u, o);
       if (d < mn && d > 0) {
         const p = (mn - d) / 2,
           nx = (u.x - o.x) / d,
@@ -1600,22 +2233,30 @@ function simStep(dt, slot) {
       }
     }
   for (const u of live) {
-    u.y = clamp(u.y, 0.5, BH - 0.5);
     if (u.rout) {
-      if (u.x < -0.6 || u.x > BW + 0.6) {
+      if (u.ax === "y") u.x = clamp(u.x, 0.5, BW - 0.5);
+      else u.y = clamp(u.y, 0.5, BH - 0.5);
+      if (u.x < -0.6 || u.x > BW + 0.6 || u.y < -0.6 || u.y > BH + 0.6) {
         u.gone = true;
         bLog(`${uname(u)} abandonan el campo (${u.n}).`, cBien(u));
       }
-    } else u.x = clamp(u.x, 0.5, BW - 0.5);
+    } else {
+      u.x = clamp(u.x, 0.5, BW - 0.5);
+      u.y = clamp(u.y, 0.5, BH - 0.5);
+    }
   }
   for (const u of live) u.flk = 0;
   for (const u of live)
-    if (u.side === 0)
-      for (const o of live)
-        if (o.side === 1 && u.n > 0 && o.n > 0 && dd(u, o) < crd(u, o) + 0.08) {
+    for (const o of live)
+      if (u.id < o.id && hostil(u, o) && u.n > 0 && o.n > 0 && dd(u, o) < crd(u, o) + 0.08) {
+        if (u.side < o.side) {
           fight(u, o, dt);
           fight(o, u, dt);
+        } else {
+          fight(o, u, dt);
+          fight(u, o, dt);
         }
+      }
   /* bestias desbocadas: pisotean a los suyos */
   for (const u of live)
     if (u.desb > 0 && u.n > 0) {
@@ -1623,45 +2264,50 @@ function simStep(dt, slot) {
         if (o.side === u.side && o !== u && o.n > 0 && dd(u, o) < crd(u, o) + 0.15) {
           hurt(o, Math.min(u.n, 8) * u.cs.me * dt * CMB_KT * 0.8);
           o.mor -= dt * 3;
-          cmbTal(1 - u.side, "desbocados", dt * 0.6);
+          cmbTalEnem(u.side, "desbocados", dt * 0.6);
         }
       if ((u.desb -= dt) <= 0) u.rout = true;
     }
   /* asedio: los arietes baten la puerta; las torres alcanzan el adarve */
   if (M && M.hp > 0)
     for (const u of live)
-      if (u.side !== BT.def && fighting(u) && Math.abs(u.x - M.x) < 1.4) {
+      if (cmbBnd(u.side) !== cmbBnd(BT.def) && fighting(u) && cmbDistMuro(M, u) < 1.4) {
         if (u.t === "ari") {
           M.hp -= dt * (u.n / SPU) * 2.2 * u.hm.me;
-          bHito("ari", 3, `${uname(u)} baten la puerta de la muralla.`, u.side ? "bad" : "good");
+          bHito("ari", 3, `${uname(u)} baten la puerta de la muralla.`, aliado(u) ? "good" : "bad");
           cmbTal(u.side, "asedio", dt * 0.4);
         }
         if (u.t === "tor") {
           bHito(
             "tor" + u.id,
             3,
-            `${u.side ? "La torre enemiga" : "Tu torre de asedio"} alcanza el adarve.`,
-            u.side ? "bad" : "good",
+            `${mio(u) ? "Tu torre de asedio" : aliado(u) ? "La torre aliada" : "La torre enemiga"} alcanza el adarve.`,
+            aliado(u) ? "good" : "bad",
           );
           cmbTal(u.side, "asedio", dt * 0.3);
         }
       }
   if (M && M.hp <= 0 && !M.rota) {
     M.rota = true;
-    for (const o of BT.units) if (o.side === BT.def && act(o)) o.mor -= 10;
-    cmbTal(1 - BT.def, "asedio", BT.init[BT.def] * 0.1);
-    bHito("", 5, "¡Brecha en la muralla! Los defensores retroceden.", BT.def ? "good" : "bad");
+    for (const o of BT.units) if (cmbBnd(o.side) === cmbBnd(BT.def) && act(o)) o.mor -= 10;
+    cmbTalEnem(BT.def, "asedio", BT.init[BT.def] * 0.1);
+    bHito(
+      "",
+      5,
+      "¡Brecha en la muralla! Los defensores retroceden.",
+      cmbBnd(BT.def) === (BT.bandoYo ?? 0) ? "bad" : "good",
+    );
   }
   for (const u of live) {
     if (!tirador(u) || u.rout || u.eng || u.n <= 0) continue;
     u.rel -= dt;
     if (u.rel > 0) continue;
     /* las catapultas atacantes tiran primero contra la muralla */
-    if (u.t === "cat" && M && M.hp > 0 && u.side !== BT.def && Math.abs(u.x - M.x) <= alc(u)) {
+    if (u.t === "cat" && M && M.hp > 0 && cmbBnd(u.side) !== cmbBnd(BT.def) && cmbDistMuro(M, u) <= alc(u)) {
       M.hp -= (u.n / SPU) * 7;
       u.ammo--;
       u.rel = 4;
-      bHito("cat" + u.side, 3, `${uname(u)} golpean la muralla.`, u.side ? "bad" : "good");
+      bHito("cat" + u.side, 3, `${uname(u)} golpean la muralla.`, aliado(u) ? "good" : "bad");
       cmbTal(u.side, "asedio", 1.5);
       if (!BT.quiet)
         BT.fx.push({ arrow: 1, x0: u.x, y0: u.y, x: M.x, y: u.y + (R() - 0.5) * 2, t0: performance.now() });
@@ -1720,6 +2366,7 @@ function simStep(dt, slot) {
       u.rout = true;
       u.mor = 0;
       bHito("", 4, `¡${uname(u)} rompen filas y huyen!`, cBien(u));
+      BT.dead.push({ std: 1, x: Math.round(u.x * TS) - 2, y: Math.round(u.y * TS), f: u.f });
       if (u.gen && R() < 0.4) cmbGeneralCae(u.side, u);
       BT.units
         .filter((o) => o.side === u.side && o !== u && fighting(o) && dd(o, u) < 3)
@@ -1732,16 +2379,20 @@ function simStep(dt, slot) {
       !enem(u).some((o) => dd(u, o) < 3)
     ) {
       u.rout = false;
-      bHito("", 3, `${uname(u)} se reagrupan.`, u.side ? "bad" : "good");
+      bHito("", 3, `${uname(u)} se reagrupan.`, aliado(u) ? "good" : "bad");
     }
   }
-  for (const u of live) cmbHabTick(u, dt, BTB);
+  for (const u of live) {
+    cmbHabTick(u, dt, BTB);
+    if (u.escala > 0) u.escala -= dt;
+  }
   if (BT.t - BT.tH >= (BT.mode === "rt" ? 20 : 1e9)) cmbHitoCorte();
 }
 /* corte del desarrollo de la batalla para el informe (cada turno o cada 20 s) */
 function cmbHitoCorte() {
-  const lost = [0, 1].map((s) => BT.units.filter((u) => u.side === s).reduce((a, u) => a + u.n0 - u.n, 0)),
-    mor = [0, 1].map((s) => {
+  const lados = [...Array(BT.N || 2).keys()],
+    lost = lados.map((s) => BT.units.filter((u) => u.side === s).reduce((a, u) => a + u.n0 - u.n, 0)),
+    mor = lados.map((s) => {
       const v = BT.units.filter((u) => u.side === s && fighting(u)),
         n = v.reduce((a, u) => a + u.n, 0);
       return n ? (v.reduce((a, u) => a + u.n * clamp(u.mor / u.morMax, 0, 1), 0) / n) * 100 : 0;
@@ -1758,7 +2409,7 @@ function cmbHitoCorte() {
         : BT.units.some((u) => act(u) && tirador(u))
           ? "Escaramuzas y descargas."
           : "Los ejércitos maniobran.",
-    b: [lost[0] - (BT.lc ? BT.lc[0] : 0), lost[1] - (BT.lc ? BT.lc[1] : 0)],
+    b: lost.map((v, s) => v - (BT.lc ? BT.lc[s] : 0)),
     m: mor,
   });
   BT.lc = lost;
@@ -1771,31 +2422,64 @@ function aiOrders(side = 1) {
   /* ONL */ if (BT.ctx.dificultad && BT.ctx.dificultad[BT.map[side]] === "dificil") cmbIADificil(side);
 }
 function aiOrdersBase(side = 1) {
-  const back = side ? 1 : -1;
+  const fw = cmbFwd(side),
+    bx = -fw[0],
+    by = -fw[1];
+  /* el oportunista aguarda (postura defensiva, sin órdenes) hasta que los demás se desgastan */
+  if (BT.espera && BT.espera[side]) {
+    const mios = BT.units.filter((u) => u.side === side && fighting(u)),
+      otros = BT.units.filter((u) => cmbBnd(u.side) !== cmbBnd(side) && fighting(u)),
+      mor =
+        otros.reduce((a, u) => a + u.n * (u.mor / u.morMax), 0) /
+        Math.max(
+          1,
+          otros.reduce((a, u) => a + u.n, 0),
+        ),
+      cerca = mios.some((u) => otros.some((o) => dd(u, o) < 5));
+    if (BT.t > 70 || BT.turn > 5 || mor < 0.55 || cerca) {
+      BT.espera[side] = false;
+      bHito(
+        "",
+        4,
+        `Las tropas de ${CIV[BT.ejs[BT.map[side]].f].s} caen sobre los combatientes ya desgastados.`,
+        cmbBnd(side) === (BT.bandoYo ?? 0) ? "good" : "bad",
+      );
+    } else {
+      for (const u of mios) u.plan.forEach((p) => ((p.o = null), (p.st = "def")));
+      return;
+    }
+  }
   for (const u of BT.units) {
     if (u.side !== side || !fighting(u)) continue;
     const e = nearest(u);
     if (!e) continue;
     const weak = u.n < u.n0 * 0.35 || u.mor < u.morMax * 0.25,
-      defMur = BT.fort && side === BT.def && (BT.mode === "rt" ? BT.t < 40 : BT.turn < 3);
+      defMur =
+        BT.fort &&
+        BT.def != null &&
+        cmbBnd(side) === cmbBnd(BT.def) &&
+        (BT.mode === "rt" ? BT.t < 40 : BT.turn < 3);
     let o = null,
       st = "agr";
-    if (u.cs.cl === "asd") st = BT.muro && BT.muro.hp > 0 && side !== BT.def ? "agr" : "def";
+    if (u.cs.cl === "asd") st = BT.muro && BT.muro.hp > 0 && cmbBnd(side) !== cmbBnd(BT.def) ? "agr" : "def";
     else if (u.gen && u.n <= SPU) {
       /* la guardia del general se queda tras la línea, cerca de los suyos */
       const v = BT.units.filter((x) => x.side === side && x !== u && fighting(x) && x.cs.cl !== "asd"),
         cx = v.length ? v.reduce((a, x) => a + x.x, 0) / v.length : u.x,
         cy = v.length ? v.reduce((a, x) => a + x.y, 0) / v.length : u.y;
-      o = { x: clamp(cx + 2.5 * back, 0.5, BW - 0.5), y: clamp(cy, 0.5, BH - 0.5) };
+      o = { x: clamp(cx + 2.5 * bx, 0.5, BW - 0.5), y: clamp(cy + 2.5 * by, 0.5, BH - 0.5) };
       st = "def";
     } else if (tirador(u)) {
       const mel = enem(u).filter((x) => !tirador(x) && dd(u, x) < 3.5);
       if (mel.length) {
-        o = { x: clamp(u.x + 3 * back, 0.5, BW - 0.5), y: clamp(u.y + (R() - 0.5) * 2, 0.5, BH - 0.5) };
+        o = {
+          x: clamp(u.x + 3 * bx + (by ? (R() - 0.5) * 2 : 0), 0.5, BW - 0.5),
+          y: clamp(u.y + 3 * by + (bx ? (R() - 0.5) * 2 : 0), 0.5, BH - 0.5),
+        };
         st = "def";
       } else st = defMur && UN[u.t].rol !== "m" ? "def" : "agr";
     } else if (weak) {
-      o = { x: clamp(u.x + 3 * back, 0.5, BW - 0.5), y: u.y };
+      o = { x: clamp(u.x + 3 * bx, 0.5, BW - 0.5), y: clamp(u.y + 3 * by, 0.5, BH - 0.5) };
       st = "def";
     } else if (u.cs.cl !== "cab") {
       const cab = enem(u).filter((x) => cmbCab(x.t) && dd(u, x) < 6)[0];
@@ -1809,7 +2493,7 @@ function aiOrdersBase(side = 1) {
         st = R() < 0.75 ? "agr" : "def";
       }
     } else if (u.fat > 70) {
-      o = { x: clamp(u.x + 4 * back, 0.5, BW - 0.5), y: u.y };
+      o = { x: clamp(u.x + 4 * bx, 0.5, BW - 0.5), y: clamp(u.y + 4 * by, 0.5, BH - 0.5) };
       st = "def";
     } else {
       const ene = enem(u).filter((x) => UN[x.t].rol !== "l" || x.eng),
@@ -1821,7 +2505,7 @@ function aiOrdersBase(side = 1) {
           .filter((x) => x.eng && x.cs.cl !== "cab")
           .sort((a, b) => b.eng - a.eng || dd(u, a) - dd(u, b))[0],
         huy = BT.units
-          .filter((x) => x.side !== side && act(x) && x.rout)
+          .filter((x) => cmbBnd(x.side) !== cmbBnd(side) && act(x) && x.rout)
           .sort((a, b) => dd(u, a) - dd(u, b))[0],
         t =
           (UN[u.t].rol === "x" && huy && dd(u, huy) < 10 ? huy : null) ||
@@ -1855,9 +2539,12 @@ function aiOrdersBase(side = 1) {
    - la infantería no persigue escaramuzadores sueltos: sostiene la línea y ataca lo que esté trabado.
    Las habilidades las sigue usando cmbHabIA con criterio; entra con +6 % de moral (cmbTactica). */
 function cmbIADificil(side) {
-  const back = side ? 1 : -1,
+  if (BT.espera && BT.espera[side]) return;
+  const fw = cmbFwd(side),
+    back = -fw[0] || 0,
+    backY = -fw[1] || 0,
     mios = BT.units.filter((u) => u.side === side && fighting(u)),
-    ene = BT.units.filter((u) => u.side !== side && fighting(u));
+    ene = BT.units.filter((u) => cmbBnd(u.side) !== cmbBnd(side) && fighting(u));
   if (!ene.length) return;
   const n = BT.mode === "t3" ? 3 : 1,
     cx = mios.length ? mios.reduce((a, u) => a + u.x, 0) / mios.length : BW / 2,
@@ -1871,7 +2558,7 @@ function cmbIADificil(side) {
     if (u.cs.cl === "asd" || (u.gen && u.n <= SPU)) continue;
     const roto = u.n < u.n0 * 0.35 || u.mor < u.morMax * 0.3;
     if (roto) {
-      pon(u, [{ x: cx + 5 * back, y: u.y }], "def");
+      pon(u, [{ x: cx + 5 * back, y: u.y + 5 * backY }], "def");
       continue;
     }
     if (tirador(u)) {
@@ -1887,19 +2574,24 @@ function cmbIADificil(side) {
       continue;
     }
     if (cmbCab(u.t) && u.fat < 70) {
-      const trab = ene.filter((e) => e.eng && !cmbCab(e.t) && UN[e.t].rol !== "l").sort((a, b) => dd(u, a) - dd(u, b))[0];
+      const trab = ene
+        .filter((e) => e.eng && !cmbCab(e.t) && UN[e.t].rol !== "l")
+        .sort((a, b) => dd(u, a) - dd(u, b))[0];
       if (trab) {
         /* punto detrás del enemigo (respecto a nuestra línea) */
-        const fx = trab.x - 2.2 * back,
-          fy = trab.y + (u.y < trab.y ? -1.6 : 1.6);
-        if (Math.hypot(fx - u.x, fy - u.y) > 2 && n > 1) pon(u, [{ x: fx, y: fy }, { tg: trab.id }, { tg: trab.id }], "agr");
+        const fx = trab.x - 2.2 * back + (backY ? (u.x < trab.x ? -1.6 : 1.6) : 0),
+          fy = trab.y - 2.2 * backY + (backY ? 0 : u.y < trab.y ? -1.6 : 1.6);
+        if (Math.hypot(fx - u.x, fy - u.y) > 2 && n > 1)
+          pon(u, [{ x: fx, y: fy }, { tg: trab.id }, { tg: trab.id }], "agr");
         else if (Math.hypot(fx - u.x, fy - u.y) > 2) pon(u, [{ x: fx, y: fy }], "agr");
         else pon(u, [{ tg: trab.id }], "agr");
       }
       continue;
     }
     if (UN[u.t].rol !== "l") {
-      const cerca = ene.filter((e) => dd(u, e) < 6 && (e.eng || !tirador(e) || UN[e.t].rol !== "h")).sort((a, b) => dd(u, a) - dd(u, b))[0];
+      const cerca = ene
+        .filter((e) => dd(u, e) < 6 && (e.eng || !tirador(e) || UN[e.t].rol !== "h"))
+        .sort((a, b) => dd(u, a) - dd(u, b))[0];
       if (cerca) pon(u, [{ tg: cerca.id }], "agr");
     }
   }
@@ -1907,23 +2599,50 @@ function cmbIADificil(side) {
 function sideAlive(s) {
   return BT.units.filter((u) => u.side === s && fighting(u)).reduce((a, u) => a + u.n, 0) > BT.init[s] * 0.15;
 }
-/* devuelve el bando (del campo) que gana, o -1 si sigue */
+/* ¿sigue en pie un bando? (en conjunto, más del 15 % de sus hombres combatiendo) */
+function bandoVivo(b) {
+  const todos = [...Array(BT.N || 2).keys()].filter((s) => cmbBnd(s) === b),
+    lim = BT.mode === "rt" ? BT.lim : BT.lim * (BT.mode === "t3" ? 9 : 3);
+  if (todos.some((s) => BT.lleg && BT.lleg[s] > 0 && BT.lleg[s] < lim)) return true;
+  const ss = todos.filter((s) => !(BT.lleg && BT.lleg[s] > 0)),
+    n0 = ss.reduce((a, s) => a + BT.init[s], 0);
+  return BT.units.filter((u) => cmbBnd(u.side) === b && fighting(u)).reduce((a, u) => a + u.n, 0) > n0 * 0.15;
+}
+const cmbBandosDe = () => [...new Set([...Array(BT.N || 2).keys()].map(cmbBnd))];
+/* proporción de hombres en pie de un bando */
+function cmbRatioB(b) {
+  const ss = [...Array(BT.N || 2).keys()].filter((s) => cmbBnd(s) === b),
+    n0 = ss.reduce((a, s) => a + BT.init[s], 0);
+  return n0
+    ? BT.units.filter((u) => cmbBnd(u.side) === b && fighting(u)).reduce((a, u) => a + u.n, 0) / n0
+    : 0;
+}
+/* devuelve el BANDO que gana, o -1 si sigue (con dos ejércitos, bando = ejército) */
 function battleOver() {
-  if (!sideAlive(1)) return 0;
-  if (!sideAlive(0)) return 1;
+  const vivos = cmbBandosDe().filter(bandoVivo);
+  if (vivos.length <= 1) {
+    if (vivos.length) return vivos[0];
+    return BT.def != null ? cmbBnd(BT.def) : cmbBandosDe().sort((a, b) => cmbRatioB(b) - cmbRatioB(a))[0];
+  }
   if ((BT.mode === "rt" ? BT.t : BT.turn - 1) >= BT.lim) {
     BT.noche = true;
-    return BT.def;
+    return BT.def != null && vivos.includes(cmbBnd(BT.def))
+      ? cmbBnd(BT.def)
+      : vivos.sort((a, b) => cmbRatioB(b) - cmbRatioB(a))[0];
   }
   return -1;
 }
+/* ritmo de reproducción de la táctica: ifzVel() de la interfaz o «lenta» (0,6); las pruebas que fijan
+   ctx.velocidad y la resolución automática no se ralentizan. El resultado no cambia: solo el tiempo real. */
+const cmbRitmo = () =>
+  BT && BT.ctx && BT.ctx.velocidad ? 1 : clamp(typeof ifzVel === "function" ? +ifzVel() || 0.6 : 0.6, 0.2, 3);
 async function runPhase(slot) {
   const dt = 1 / 30;
   for (let k = 0; k < PH / dt; k++) {
     simStep(dt, slot);
     if (battleOver() >= 0) break;
     if (k % 3 === 2) {
-      await sleep(16);
+      await sleep(16 / cmbRitmo());
       if (!BT) return;
       /* ONL */ if (BT.ctx.onl) BT.ctx.onl.estado();
     }
@@ -1939,8 +2658,7 @@ async function executeTurn() {
     BT.run = false;
     return;
   }
-  if (!O || O.ctrl[1] === "ia") aiOrders(1);
-  if (BT.auto0 || (O && O.ctrl[0] === "ia")) aiOrders(0);
+  cmbIATodos(O);
   bLog(`— Turno ${BT.turn} —`);
   bui();
   const n = BT.mode === "t3" ? 3 : 1;
@@ -1960,12 +2678,19 @@ async function executeTurn() {
   BT.slot = 0;
   const r = battleOver();
   if (r >= 0) {
-    finishBattle(r === 0);
+    finishBattle(r);
     return;
   }
   /* ONL */ if (O) O.estado(true);
   bui();
-  if (BT.auto0 || (O && O.ctrl[0] !== "local")) setTimeout(executeTurn, 200);
+  if (BT.auto0 || (O && !(BT.mios || [0]).some((s) => O.ctrl[s] === "local"))) setTimeout(executeTurn, 200);
+}
+/* la IA da órdenes a los ejércitos que no manda nadie en este cliente (ni un jugador remoto) */
+function cmbIATodos(O) {
+  for (let s = 0; s < (BT.N || 2); s++) {
+    const mioS = (BT.mios || [0]).includes(s);
+    if (O ? O.ctrl[s] === "ia" || (mioS && BT.auto0) : !mioS || BT.auto0) aiOrders(s);
+  }
 }
 async function realtime() {
   if (!BT || BT.run) return;
@@ -1980,15 +2705,13 @@ async function realtime() {
       el = Math.min(0.1, (now - last) / 1000);
     last = now;
     if (BT.paused) continue;
-    acc += el * BT.speed;
+    acc += el * BT.speed * cmbRitmo();
     while (acc >= 1 / 30) {
       acc -= 1 / 30;
       simStep(1 / 30, 0);
       BT.aiT -= 1 / 30;
       if (BT.aiT <= 0) {
-        const O = BT.ctx.onl; /* ONL: solo los lados de la IA */
-        if (!O || O.ctrl[1] === "ia") aiOrders(1);
-        if (BT.auto0 || (O && O.ctrl[0] === "ia")) aiOrders(0);
+        cmbIATodos(BT.ctx.onl); /* ONL: solo los lados de la IA */
         BT.aiT = 1.2;
       }
     }
@@ -1999,64 +2722,83 @@ async function realtime() {
       const r = battleOver();
       if (r >= 0) {
         BT.run = false;
-        finishBattle(r === 0);
+        finishBattle(r);
         return;
       }
     }
   }
 }
-/* fin: persecución, heridos que vuelven, informe y regreso a la campaña */
+/* fin: persecución, heridos que vuelven, informe y regreso a la campaña.
+   win: bando ganador (número) o, por compatibilidad, booleano «gana el lado 0»; retreat: el jugador se retira */
 function finishBattle(win, retreat) {
   if (!BT) return;
-  const w = win ? 0 : 1,
-    lo = 1 - w,
+  const N = BT.N || 2,
+    lados = [...Array(N).keys()],
+    b0 = cmbBnd(0),
+    w =
+      typeof win === "number"
+        ? win
+        : win
+          ? b0
+          : cmbBandosDe()
+              .filter((b) => b !== b0)
+              .sort((a, b) => cmbRatioB(b) - cmbRatioB(a))[0],
     noche = BT.noche && !retreat,
-    ganaU = BT.units.filter((u) => u.side === w && fighting(u)),
-    pierdeU = BT.units.filter((u) => u.side === lo && u.n > 0);
+    ganaU = BT.units.filter((u) => cmbBnd(u.side) === w && fighting(u)),
+    huye = (s) => retreat && cmbBnd(s) !== w;
   cmbHitoCorte();
+  const mPrev = BT.hitos[BT.hitos.length - 1]?.m || lados.map(() => 50);
   if (!noche) {
     const P = ganaU.reduce((a, u) => a + u.n * cmbPers(u.t) * (1 - u.fat / 200), 0),
-      N = pierdeU.reduce((a, u) => a + u.n * (u.gone ? 0.5 : 1), 0),
-      k = Math.min(
-        N,
-        Math.max(N * 0.08, Math.min(N * 0.5, P * CMBA_K.pers * (0.85 + R() * 0.3))) * (retreat ? 0.4 : 1),
-      ),
-      pesos = pierdeU.map((u) => u.n * (cmbCab(u.t) ? 0.45 : 1) * (u.gone ? 0.5 : 1)),
-      sp = pesos.reduce((a, b) => a + b, 0) || 1;
-    let caen = 0;
-    pierdeU.forEach((u, i) => {
-      const d = Math.min(u.n, Math.round((k * pesos[i]) / sp));
-      u.n -= d;
-      u.muertos += Math.round(d * 0.75);
-      u.her += d - Math.round(d * 0.75);
-      caen += d;
-    });
-    cmbTal(w, "persecucion", caen);
+      perd = lados.filter((s) => cmbBnd(s) !== w),
+      caidos = lados.map(() => 0);
+    for (const s of perd) {
+      const pierdeU = BT.units.filter((u) => u.side === s && u.n > 0),
+        N2 = pierdeU.reduce((a, u) => a + u.n * (u.gone ? 0.5 : 1), 0),
+        Pp = P / perd.length,
+        k = Math.min(
+          N2,
+          Math.max(N2 * 0.08, Math.min(N2 * 0.5, Pp * CMBA_K.pers * (0.85 + R() * 0.3))) *
+            (huye(s) ? 0.4 : 1),
+        ),
+        pesos = pierdeU.map((u) => u.n * (cmbCab(u.t) ? 0.45 : 1) * (u.gone ? 0.5 : 1)),
+        sp = pesos.reduce((a, b) => a + b, 0) || 1;
+      pierdeU.forEach((u, i) => {
+        const d = Math.min(u.n, Math.round((k * pesos[i]) / sp));
+        u.n -= d;
+        u.muertos += Math.round(d * 0.75);
+        u.her += d - Math.round(d * 0.75);
+        caidos[s] += d;
+      });
+    }
+    const caen = caidos.reduce((a, b) => a + b, 0),
+      ganS = lados.filter((s) => cmbBnd(s) === w);
+    for (const s of ganS) cmbTal(s, "persecucion", caen / ganS.length);
     if (caen)
       BT.hitos.push({
         r: BT.hitos.length + 1,
         f: retreat ? "Retirada" : "Persecución",
         t: retreat
           ? `Ordenas la retirada; el enemigo hostiga a la columna y caen ${caen}.`
-          : `Desbandada en las filas de ${CIV[[BT.fa, BT.fd][lo]].s}: caen ${caen} en la persecución.`,
-        b: w ? [caen, 0] : [0, caen],
-        m: [0, 1].map((s) => (s === w ? BT.hitos[BT.hitos.length - 1]?.m[s] || 50 : 0)),
+          : `Desbandada en las filas de ${perd.map((s) => CIV[BT.ejs[BT.map[s]].f].s).join(" y ")}: caen ${caen} en la persecución.`,
+        b: caidos,
+        m: lados.map((s) => (cmbBnd(s) === w ? mPrev[s] || 50 : 0)),
       });
   } else
     BT.hitos.push({
       r: BT.hitos.length + 1,
       f: "Anochecer",
-      t: `Cae la noche: las tropas de ${CIV[[BT.fa, BT.fd][1 - BT.def]].s} no logran romper al enemigo y se retiran.`,
-      b: [0, 0],
-      m: BT.hitos[BT.hitos.length - 1]?.m || [50, 50],
+      t: `Cae la noche: las tropas de ${lados
+        .filter((s) => cmbBnd(s) !== w)
+        .map((s) => CIV[BT.ejs[BT.map[s]].f].s)
+        .join(" y ")} no logran romper al enemigo y se retiran.`,
+      b: lados.map(() => 0),
+      m: mPrev,
     });
-  const rec = [0, 1].map((s) => (s === w ? 0.6 : noche ? 0.45 : retreat ? 0.35 : 0.25)),
-    out = [cmbVacio(), cmbVacio()],
-    bajas = [
-      { m: 0, h: 0, r: 0 },
-      { m: 0, h: 0, r: 0 },
-    ];
-  for (const s of [0, 1]) {
+  const rec = lados.map((s) => (cmbBnd(s) === w ? 0.6 : noche ? 0.45 : huye(s) ? 0.35 : 0.25)),
+    out = lados.map(() => cmbVacio()),
+    bajas = lados.map(() => ({ m: 0, h: 0, r: 0 }));
+  for (const s of lados) {
     const sv = {};
     for (const u of BT.units.filter((u) => u.side === s)) {
       const vu = u.her * rec[s];
@@ -2070,13 +2812,20 @@ function finishBattle(win, retreat) {
       out[s][t] = Math.floor(x) + (R() < x % 1 ? 1 : 0);
     }
   }
-  /* de bandos del campo a ejA/ejD */
+  /* de lados del campo al orden de los ejércitos recibidos */
   const m = BT.map,
-    ej = (arr) => [arr[m.indexOf(0)], arr[m.indexOf(1)]],
-    gana = m[w],
-    L = ej([0, 1]).map((s) => ({ f: [BT.fa, BT.fd][s], gen: BT.gens[s].id, n0: BT.init[s] })),
+    ej = (arr) => m.map((_, i) => arr[m.indexOf(i)]),
+    gana = w,
+    bandosEj = ej(lados.map(cmbBnd)),
+    L = ej(lados).map((s, i) => ({
+      s: i,
+      bando: bandosEj[i],
+      f: BT.ejs[i].f,
+      gen: BT.gens[s].id,
+      n0: BT.init[s],
+    })),
     informe = {
-      f: [BT.ejs[0].f, BT.ejs[1].f],
+      f: BT.ejs.map((e) => e.f),
       gana,
       fin: noche ? "noche" : retreat ? "retirada" : "rotura",
       rondas: BT.hitos.map((h) => ({ ...h, b: ej(h.b), m: ej(h.m) })),
@@ -2089,35 +2838,110 @@ function finishBattle(win, retreat) {
       hora: BT.env.hora,
       terreno: CMBA_TERR[BT.env.terr.tag] || BT.env.terr.tag,
       fort: BT.fort,
+      def: BT.def != null ? m[BT.def] : null,
+      flancos: BT.flancos || 1,
       asedio: BT.ctx.asedio || 0,
       lugar: BT.place,
       anio: G ? G.year : 0,
       modo: BT.mode,
       dur: Math.round(BT.t),
-    },
+    };
+  if (N > 2 || bandosEj.some((b, i) => b !== i)) informe.bandos = bandosEj;
+  const outE = ej(out),
+    bajE = ej(bajas),
     res = {
       gana,
-      A: ej(out)[0],
-      D: ej(out)[1],
-      heridos: { A: Math.round(ej(bajas)[0].r), D: Math.round(ej(bajas)[1].r) },
+      A: outE[0],
+      D: outE[1],
+      heridos: { A: Math.round(bajE[0].r), D: Math.round(bajE[1].r) },
       informe,
       gen: informe.gen,
+      ejs: BT.ejs.map((e, i) => ({
+        id: e.id,
+        f: e.f,
+        bando: bandosEj[i],
+        gana: bandosEj[i] === gana,
+        A: outE[i],
+        u: outE[i],
+        heridos: Math.round(bajE[i].r),
+        her: Math.round(bajE[i].r),
+        bajas: bajE[i],
+        gen: informe.gen[i],
+      })),
     },
     done = BT.done,
     pl = BT.place,
-    yo = m[0],
-    auto = BT.ctx.auto && BT.ctx.sinModal;
+    yo = m[(BT.mios || [0])[0] ?? 0],
+    gano = (BT.bandoYo ?? 0) === gana,
+    auto = BT.ctx.auto && BT.ctx.sinModal,
+    emitir = BT.emitir,
+    ejs = BT.ejs,
+    ctx = BT.ctx;
   /* ONL */ if (BT.ctx.onl) BT.ctx.onl.fin(res);
   BT = null;
   $("battle").classList.remove("show");
   music("camp");
+  if (emitir) cmbEmitirMulti(ejs, res, ctx, informe.modo);
   if (auto) {
     done(res);
     return;
   }
-  modal(gana === yo ? `Victoria en ${pl}` : `Derrota en ${pl}`, cmbInfHtml(informe, yo), [
+  modal(gano ? `Victoria en ${pl}` : `Derrota en ${pl}`, cmbInfHtml(informe, yo), [
     { t: "Continuar", cls: "gold" },
   ]).then(() => done(res));
+}
+/* asalto por varios flancos (ctx.flancos): parte de los atacantes escala la muralla por los costados,
+   ya del lado de la plaza, y avanza despacio al principio */
+function cmbAsaltoFlancos() {
+  const k = BT.flancos || 1,
+    M = BT.muro;
+  if (k < 2 || !M || BT.def == null || M.y0 == null) return;
+  /* si ya hay ejércitos atacantes llegados por el norte o el sur, ellos son los flancos */
+  const ladosAt = new Set(
+      [...Array(BT.N || 2).keys()].filter((s) => cmbBnd(s) !== cmbBnd(BT.def)).map(cmbLadoDe),
+    ),
+    caras = ["N", "S"].filter((c) => !ladosAt.has(c)).slice(0, k - 1),
+    xc = (BT.muro.e ? (M.x + BW) / 2 : M.x / 2) | 0,
+    at = BT.units
+      .filter(
+        (u) =>
+          cmbBnd(u.side) !== cmbBnd(BT.def) &&
+          fighting(u) &&
+          u.cs.cl !== "asd" &&
+          !(u.gen && u.n <= SPU) &&
+          !tirador(u),
+      )
+      .sort((a, b) => b.n - a.n);
+  let n = 0;
+  for (const c of caras)
+    for (let r = 0; r < 2 && n < at.length; r++, n++) {
+      const u = at[n];
+      u.x = clamp(xc + (r ? 2.2 : -2.2), 0.5, BW - 0.5);
+      u.y = c === "N" ? M.y0 - 1.8 : M.y1 + 1.8;
+      u.escala = 8;
+      u.plan.forEach((p) => (p.o = null));
+    }
+  /* la guarnición se reparte: una o dos unidades a cada lienzo amenazado */
+  const amen = ["N", "S"].filter((c) => caras.includes(c) || ladosAt.has(c)),
+    dfs = BT.units
+      .filter(
+        (u) => cmbBnd(u.side) === cmbBnd(BT.def) && fighting(u) && !tirador(u) && !(u.gen && u.n <= SPU),
+      )
+      .sort((a, b) => a.n - b.n);
+  let j = 0;
+  for (const c of amen)
+    for (let r = 0; r < 1 + (dfs.length > 4 ? 1 : 0) && j < dfs.length - 1; r++, j++) {
+      const u = dfs[j];
+      u.x = clamp(xc + (r ? 2.2 : -2.2), 0.5, BW - 0.5);
+      u.y = c === "N" ? M.y0 + 1.2 : M.y1 - 1.2;
+    }
+  if (n || j)
+    bHito(
+      "",
+      3,
+      `Asalto por ${k} flancos: ${n ? n + " unidades atacan los lienzos norte y sur" : "los atacantes cercan la plaza"}; la guarnición se reparte.`,
+      cmbBnd(BT.def) === (BT.bandoYo ?? 0) ? "bad" : "good",
+    );
 }
 function slotStart(u, sl) {
   let x = u.x,
@@ -2146,13 +2970,18 @@ function battleAct(v) {
     x = ix < 0 ? "" : v.slice(ix + 1),
     u = bU(BT.sel);
   /* ONL */ if (BT.espejo && typeof onlEspejoAccion === "function" && onlEspejoAccion(a, x)) return;
+  const pend = (s) => BT.lleg && BT.lleg[s] > 0;
   if (a === "auto")
-    deploy(
-      0,
-      BT.units.some((o) => !o.side && o.x < 0),
-    );
+    for (const s of BT.mios || [0])
+      if (!pend(s))
+        deploy(
+          s,
+          BT.units.some((o) => o.side === s && o.x < 0),
+        );
   if (a === "go" && BT.phase === "deploy") {
-    if (BT.units.some((o) => !o.side && o.x < 0)) deploy(0, true);
+    for (const s of BT.mios || [0])
+      if (!pend(s) && BT.units.some((o) => o.side === s && o.x < 0)) deploy(s, true);
+    cmbAsaltoFlancos();
     BT.phase = "plan";
     bLog(
       BT.mode === "rt"
@@ -2160,8 +2989,7 @@ function battleAct(v) {
         : "Tus tropas forman. Mueve cada unidad con el dedo y elige su postura.",
     );
     if (BT.mode === "rt") {
-      aiOrders(1);
-      if (BT.auto0) aiOrders(0);
+      cmbIATodos(BT.ctx.onl);
       realtime();
     } else if (BT.auto0) setTimeout(executeTurn, 100);
   }
@@ -2194,7 +3022,7 @@ function battleAct(v) {
     if (BT.atk) bLog("Elige el blanco: toca una unidad enemiga para atacarla a distancia.");
   }
   if (a === "selall") {
-    BT.sels = BT.units.filter((o) => !o.side && fighting(o)).map((o) => o.id);
+    BT.sels = BT.units.filter((o) => mio(o) && fighting(o)).map((o) => o.id);
     BT.sel = BT.sels[0] ?? null;
     fixSlot();
   }
@@ -2212,7 +3040,7 @@ function battleAct(v) {
   }
   if (a === "same" && u)
     BT.units
-      .filter((o) => !o.side && o.t === u.t)
+      .filter((o) => mio(o) && o.t === u.t)
       .forEach((o) => o.plan.forEach((p, i) => (p.st = u.plan[i].st)));
   if (a === "zoom") {
     batZoom(bzoom * (x === "in" ? 1.4 : 1 / 1.4));
@@ -2292,20 +3120,32 @@ function bui() {
     db.disabled = !tir || !selU().some((x) => cmbPuedeTirar(x) && x.ammo > 0);
     db.title = db.disabled && tir ? "Sin munición" : "Atacar a distancia: elige la tropa enemiga";
   }
-  const me = BT.units.filter((u) => !u.side && act(u)),
+  const me = BT.units.filter((u) => mio(u) && act(u)),
     u = bU(BT.sel),
     c = $("bside"),
-    s0 = BT.units.filter((u) => !u.side).reduce((s, u) => s + u.n, 0),
-    s1 = BT.units.filter((u) => u.side).reduce((s, u) => s + u.n, 0),
-    E = BT.env;
-  let h = `<h2>Batalla de ${BT.place}</h2><p class="dim"><span style="color:${CIV[BT.fa].c}">${CIV[BT.fa].s} ${s0}</span> contra <span style="color:${CIV[BT.fd].c}">${CIV[BT.fd].s} ${s1}</span>${BT.fort ? " · murallas " + BT.fort : ""}<br>${MODES[BT.mode]}${BT.mode === "rt" ? ` · ${Math.floor(BT.t)} / ${BT.lim} s` : ` · turno ${BT.turn} / ${BT.lim}`} · ${E.clima}</p>`;
+    E = BT.env,
+    nS = (s) => BT.units.filter((u) => u.side === s).reduce((a, u) => a + u.n, 0),
+    fS = (s) => (BT.ejs && BT.map ? BT.ejs[BT.map[s]].f : s ? BT.fd : BT.fa),
+    ejTxt = cmbBandosDe()
+      .map((b) =>
+        [...Array(BT.N || 2).keys()]
+          .filter((s) => cmbBnd(s) === b)
+          .map(
+            (s) =>
+              `<span style="color:${CIV[fS(s)].c}">${CIV[fS(s)].s} ${nS(s)}${BT.espera && BT.espera[s] ? " (aguarda)" : ""}</span>`,
+          )
+          .join(" y "),
+      )
+      .join(" contra ");
+  let h = `<h2>Batalla de ${BT.place}</h2><p class="dim">${ejTxt}${BT.fort ? " · murallas " + BT.fort : ""}${BT.flancos > 1 ? " · " + BT.flancos + " flancos" : ""}<br>`;
+  h += `${MODES[BT.mode]}${BT.mode === "rt" ? ` · ${Math.floor(BT.t)} / ${BT.lim} s` : ` · turno ${BT.turn} / ${BT.lim}`} · ${E.clima}</p>`;
   if (BT.phase === "deploy") {
     h += `<p>Arrastra tus unidades dentro de la franja clara. Lanceros al frente frenan la caballería; arqueros detrás; caballería en las alas. Bosque: cubre y frena jinetes. Colina: mejor tiro y defensa. Río: frena y debilita; usa los vados.</p><div class="g2"><button data-act="b-auto">Despliegue automático</button><button data-act="b-go" class="gold">¡A la batalla!</button></div>`;
   } else {
     const SG = selU();
     if (SG.length > 1)
       h += `<h3>${SG.length} unidades seleccionadas · ${SG.reduce((a, o) => a + o.n, 0)} soldados</h3><p class="stats">La postura se aplica a todas. Toca el terreno para moverlas en formación o ⚔ y un enemigo para atacar juntas.</p>`;
-    if (u && !u.side && act(u)) {
+    if (u && mio(u) && act(u)) {
       const fm = Math.max(0.5, 1 - u.fat / 220);
       h += `<h3>${SG.length > 1 ? "Principal: " : ""}${CIV[u.f].un[u.t]} · ${u.n}/${u.n0}${u.gen ? " · ⚑ general" : ""}${u.rout ? " · ¡HUYENDO!" : ""}</h3>
   <div class="stats">${cmbInfo(u.t).tag} · ${cmbNivelVet(u.cs.xp).toLowerCase()} · ${cmbEstado(u)}<br>Ataque ${Math.round(u.cs.me * fm * 10) / 10}${u.cs.ca ? " · carga " + u.cs.ca : ""} · Defensa ${Math.round(u.cs.de * 10) / 10} · Armadura ${u.cs.ar}${u.cs.al ? ` · munición ${u.ammo}/${u.cs.mu}` : ""} · heridos ${u.her}</div>
@@ -2357,14 +3197,17 @@ const hitAt = (x, y) =>
     .filter((u) => act(u) && u.x >= 0 && Math.hypot(u.x - x, u.y - y) < rad(u) + 0.25)
     .sort((a, b) => Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y))[0];
 const canOrder = () =>
-  BT.phase === "plan" && (BT.mode === "rt" || !BT.run) && !(BT.ctx.onl && BT.ctx.onl.ctrl[0] !== "local") /* ONL */;
+  BT.phase === "plan" &&
+  (BT.mode === "rt" || !BT.run) &&
+  !(BT.ctx.onl && !(BT.mios || [0]).some((s) => BT.ctx.onl.ctrl[s] === "local")); /* ONL */
 /* ONL: ¿usa la IA las habilidades de ese lado? (en vivo, el lado de un jugador remoto las elige él) */
 function cmbHabIALado(s) {
   const O = BT.ctx && BT.ctx.onl;
-  if (!O) return s === 1 || BT.auto0;
-  return O.ctrl[s] === "ia" || (s === 0 && BT.auto0);
+  const mioS = (BT.mios || [0]).includes(s);
+  if (!O) return !mioS || BT.auto0;
+  return O.ctrl[s] === "ia" || (mioS && BT.auto0);
 }
-const selU = () => (BT.sels || []).map(bU).filter((u) => u && act(u) && !u.side);
+const selU = () => (BT.sels || []).map(bU).filter((u) => u && act(u) && mio(u));
 const buzz = () => {
   try {
     navigator.vibrate && navigator.vibrate(15);
@@ -2477,13 +3320,14 @@ function tapAt(x, y, shift) {
   const hit = hitAt(x, y),
     s = bU(BT.sel);
   if (BT.phase === "deploy") {
-    if (hit && !hit.side) {
+    if (hit && mio(hit)) {
       BT.sel = hit.id;
       BT.sels = [hit.id];
-    } else if (s && x < 10 && !hit) {
-      s.x = clamp(x, 0.5, 10);
-      s.y = clamp(y, 0.5, BH - 0.5);
-      const nx = BT.units.find((o) => !o.side && o.x < 0);
+    } else if (s && mio(s) && cmbEnZona(s.side, x, y) && !hit) {
+      const q = cmbAZona(s.side, x, y);
+      s.x = q.x;
+      s.y = q.y;
+      const nx = BT.units.find((o) => mio(o) && o.x < 0);
       if (nx) {
         BT.sel = nx.id;
         BT.sels = [nx.id];
@@ -2492,7 +3336,7 @@ function tapAt(x, y, shift) {
     bui();
     return;
   }
-  if (hit && !hit.side) {
+  if (hit && mio(hit)) {
     if (shift) toggleSel(hit.id);
     else {
       BT.sels = [hit.id];
@@ -2504,10 +3348,11 @@ function tapAt(x, y, shift) {
     return;
   }
   if (!selU().length || !canOrder()) return;
-  if (hit && hit.side) {
+  if (hit && !aliado(hit)) {
     orderGroup({ tg: hit.id, cc: BT.atk === true ? 1 : 0, dis: BT.atk === "dis" ? 1 : 0 });
     return;
   }
+  /* tocar un aliado que no es tuyo: como tocar el terreno junto a él */
   if (BT.atk) {
     BT.atk = false;
     bLog("Ataque cancelado: toca una unidad enemiga.");
@@ -2557,7 +3402,7 @@ bc.addEventListener("pointerdown", (e) => {
     x: p.x,
     y: p.y,
     h: h ? h.id : null,
-    mine: !!(h && !h.side),
+    mine: !!(h && mio(h)),
     sl: sc.scrollLeft,
     st: sc.scrollTop,
     mode: null,
@@ -2629,7 +3474,7 @@ bc.addEventListener("pointerup", (e) => {
     const ids = BT.units
       .filter(
         (u) =>
-          !u.side &&
+          mio(u) &&
           act(u) &&
           !u.rout &&
           u.x + rad(u) >= x0 &&
@@ -2650,15 +3495,16 @@ bc.addEventListener("pointerup", (e) => {
   if (d.mode === "unit") {
     if (BT.phase === "deploy") {
       const u = bU(d.h);
-      if (u && p.x < 10) {
-        u.x = clamp(p.x, 0.5, 10);
-        u.y = clamp(p.y, 0.5, BH - 0.5);
+      if (u && cmbEnZona(u.side, p.x, p.y)) {
+        const q = cmbAZona(u.side, p.x, p.y);
+        u.x = q.x;
+        u.y = q.y;
       }
       bui();
       return;
     }
     const h = hitAt(p.x, p.y);
-    if (h && h.side) orderGroup({ tg: h.id });
+    if (h && !aliado(h)) orderGroup({ tg: h.id });
     else orderGroup({ x: p.x, y: p.y });
     return;
   }
@@ -2704,6 +3550,136 @@ function arrow(c, x0, y0, x1, y1, col) {
   c.lineWidth = 1;
 }
 
+/* caché de sprites ya pintados (se vacía si la interfaz cambia sprF por PNG) */
+const CMB_SC = { fn: null, m: new Map() };
+function cmbSprC(rows, f, fl) {
+  if (CMB_SC.fn !== sprF) {
+    CMB_SC.fn = sprF;
+    CMB_SC.m.clear();
+  }
+  let q = CMB_SC.m.get(rows);
+  if (!q) CMB_SC.m.set(rows, (q = {}));
+  const k = f * 2 + (fl ? 1 : 0);
+  if (!q[k]) {
+    const cv = document.createElement("canvas");
+    cv.width = rows[0].length;
+    cv.height = rows.length;
+    sprF(cv.getContext("2d"), rows, 0, 0, PAL[f], fl);
+    q[k] = cv;
+  }
+  return q[k];
+}
+/* figuras por soldado (solo visual): la infantería y los tiradores en dos filas por hombre, para dar la
+   masa de un ejército grande; con muchas tropas en el campo vuelve a una por hombre */
+const cmbDens = (u) => (u.cs.cl === "asd" || UN[u.t].rol === "ele" || cmbCab(u.t) ? 1 : BT.dens || 1);
+/* huecos fijos en filas y columnas; las bajas dejan claros en la formación (orden de caída por unidad) */
+function cmbSlots(u) {
+  const d = cmbDens(u);
+  if (u._sl && u._sl.d === d) return u._sl;
+  const nf0 = cmbFig(u, u.n0) * d,
+    sq = Math.sqrt(d),
+    cols = Math.max(1, Math.round(fcols(u) * sq)),
+    [dx0, dy0] = cmbPaso(u),
+    dx = Math.max(2, dx0 / sq),
+    dy = Math.max(2, dy0 / sq),
+    rows = Math.ceil(nf0 / cols),
+    sl = [],
+    rn = mul(u.id * 977 + 13);
+  for (let k = 0; k < nf0; k++) {
+    const rr = Math.floor(k / cols),
+      cn = Math.min(cols, nf0 - rr * cols);
+    sl.push({
+      x: ((k % cols) - (cn - 1) / 2) * dx + (rr % 2 ? dx * 0.4 : 0),
+      y: (rr - (rows - 1) / 2) * dy,
+      k,
+      rr,
+    });
+  }
+  /* caen antes las primeras filas (con azar) */
+  const orden = sl
+    .map((o) => [o.k, Math.abs(o.rr - (rows - 1) / 2) * -0.2 + rn()])
+    .sort((a, b) => a[1] - b[1])
+    .map((o) => o[0]);
+  return (u._sl = { d, sl, orden, nf0, rows, cols, dy });
+}
+/* DATOS PARA EL RENDER (p. ej. Batalla 3D): foto plana del campo en coordenadas de mundo (casillas).
+   Ver docs/combate.md, «Datos para el render». */
+function cmbRender() {
+  if (!BT) return null;
+  const M = BT.muro;
+  return {
+    t: BT.t,
+    fase: BT.phase,
+    modo: BT.mode,
+    campo: {
+      w: BW,
+      h: BH,
+      terr: BT.terr,
+      muro: M ? { ...M, rota: !!M.rota } : null,
+      lados: BT.lados || ["O", "E"],
+    },
+    ejercitos: [...Array(BT.N || 2).keys()].map((s) => ({
+      lado: s,
+      f: BT.ejs && BT.map ? BT.ejs[BT.map[s]].f : s ? BT.fd : BT.fa,
+      bando: cmbBnd(s),
+      dir: cmbLadoDe(s),
+      mio: (BT.mios || [0]).includes(s),
+      aguarda: !!(BT.espera && BT.espera[s]),
+      llega: (BT.lleg && BT.lleg[s]) || 0,
+      general: BT.gens && BT.gens[s] ? { id: BT.gens[s].id, ok: BT.gens[s].ok } : null,
+    })),
+    unidades: BT.units
+      .filter((u) => u.n > 0 && !u.gone && !(u.lleg > 0) && u.x >= 0)
+      .map((u) => {
+        const SL = cmbSlots(u),
+          vivas = Math.ceil(cmbFig(u) * SL.d),
+          estado = u.rout
+            ? "huida"
+            : u.eng
+              ? "combate"
+              : u.dispT != null && BT.t - u.dispT < 1.5
+                ? "disparo"
+                : performance.now() - (u.mvT || 0) < 200
+                  ? "marcha"
+                  : "quieto";
+        return {
+          id: u.id,
+          lado: u.side,
+          bando: cmbBnd(u.side),
+          f: u.f,
+          t: u.t,
+          clase: UN[u.t].cl,
+          x: u.x,
+          y: u.y,
+          vx: u.vx ?? u.x,
+          vy: u.vy ?? u.y,
+          eje: u.ax || "x",
+          cara: u.face,
+          volteo: !!(u.flv ?? (u.ax === "y" ? u.flx : u.face < 0)),
+          filas: SL.rows,
+          columnas: SL.cols,
+          figuras: vivas,
+          figuras0: SL.nf0,
+          caidas: SL.orden.slice(0, Math.max(0, SL.nf0 - vivas)),
+          huecos: SL.sl.map((o) => [o.x / TS, o.y / TS]),
+          estado,
+          obj: u.objId ?? null,
+          carga: u.charge > 0,
+          gen: !!u.gen,
+          n: u.n,
+          n0: u.n0,
+          moral: clamp(u.mor / u.morMax, 0, 1),
+          cansancio: u.fat / 100,
+          postura: u.st,
+          habilidad: ((u.hab || []).find((h) => h.t > 0) || {}).id || null,
+          desbocados: u.desb > 0,
+          mio: mio(u),
+        };
+      }),
+    fx: BT.fx,
+    muertos: BT.dead,
+  };
+}
 function formation(u) {
   const cols = fcols(u),
     [dx, dy] = cmbPaso(u),
@@ -2717,6 +3693,8 @@ function formation(u) {
   }
   return out;
 }
+/* barra de tamaño de las unidades que no son aliadas: un color por bando */
+const CMB_COL_B = ["#ff8a7a", "#ffb35c", "#e48cff", "#ff8a7a", "#ffb35c", "#e48cff", "#ff6f6f", "#ff8a7a"];
 function drawBattle(now) {
   const c = bcx;
   c.drawImage(BT.bg, 0, 0);
@@ -2737,12 +3715,30 @@ function drawBattle(now) {
   }
   c.lineWidth = 1;
   if (BT.phase === "deploy") {
-    c.fillStyle = "rgba(255,255,255,.13)";
-    c.fillRect(0, 0, 10 * TS, BH * TS);
-    c.fillStyle = "rgba(255,80,60,.1)";
-    c.fillRect(30 * TS, 0, 10 * TS, BH * TS);
+    /* zonas de despliegue: la tuya clara; las de los demás, teñidas */
+    const zona = {
+      O: [0, 0, 10, BH],
+      E: [BW - 10, 0, 10, BH],
+      N: [0, 0, BW, 5.5],
+      S: [0, BH - 5.5, BW, 5.5],
+    };
+    for (const l of [...new Set(BT.lados || ["O", "E"])]) {
+      const ss = [...Array(BT.N || 2).keys()].filter((s) => cmbLadoDe(s) === l),
+        m = ss.some((s) => (BT.mios || [0]).includes(s)),
+        z = zona[l];
+      c.fillStyle = m
+        ? "rgba(255,255,255,.13)"
+        : ss.some((s) => cmbBnd(s) === (BT.bandoYo ?? 0))
+          ? "rgba(120,220,200,.1)"
+          : "rgba(255,80,60,.1)";
+      c.fillRect(z[0] * TS, z[1] * TS, z[2] * TS, z[3] * TS);
+    }
   }
   for (const d of BT.dead) {
+    if (d.std) {
+      c.drawImage(cmbSprC(MS.bat_estandarte[0], d.f, false), d.x, d.y);
+      continue;
+    }
     c.fillStyle = CIV[d.f].d;
     c.fillRect(d.x, d.y, 5, 2);
     c.fillStyle = BP.h;
@@ -2765,7 +3761,7 @@ function drawBattle(now) {
       c.stroke();
       c.setLineDash([]);
     }
-  if (s && act(s) && !s.side && BT.phase === "plan" && BT.mode !== "rt" && !BT.run) {
+  if (s && act(s) && mio(s) && BT.phase === "plan" && BT.mode !== "rt" && !BT.run) {
     c.setLineDash([3, 3]);
     if (tirador(s)) {
       c.strokeStyle = "rgba(255,210,90,.6)";
@@ -2777,7 +3773,7 @@ function drawBattle(now) {
   }
   if (BT.phase === "plan")
     for (const u of BT.units) {
-      if (u.side || !act(u) || u.rout) continue;
+      if (!mio(u) || !act(u) || u.rout) continue;
       let px = u.x,
         py = u.y;
       const n = BT.mode === "t3" ? 3 : 1;
@@ -2816,7 +3812,7 @@ function drawBattle(now) {
     const cx = SG.reduce((a, u) => a + u.x, 0) / SG.length,
       cy = SG.reduce((a, u) => a + u.y, 0) / SG.length,
       h = hitAt(drag.x, drag.y);
-    if (h && h.side) {
+    if (h && !aliado(h)) {
       arrow(c, cx, cy, h.x, h.y, "#ff5a4a");
     } else {
       arrow(c, cx, cy, drag.x, drag.y, "#8fd18a");
@@ -2854,10 +3850,43 @@ function drawBattle(now) {
     c.fillStyle = "rgba(255,60,40,.08)";
     c.fillRect(0, 0, BW * TS, BH * TS);
   }
+  /* polvo de la caballería */
+  BT.polvo = (BT.polvo || []).filter((q) => now - q.t0 < 900);
+  for (const q of BT.polvo) {
+    const k = (now - q.t0) / 900;
+    c.fillStyle = `rgba(190,170,120,${0.35 * (1 - k)})`;
+    c.fillRect(
+      Math.round(q.x - 2 - k * 3),
+      Math.round(q.y - 1 - k * 4),
+      Math.round(4 + k * 6),
+      Math.round(2 + k * 3),
+    );
+  }
+  const dtv = Math.min(0.1, (now - (BT.tv || now)) / 1000);
+  BT.tv = now;
   for (const u of BT.units.filter((u) => act(u) && u.x >= 0).sort((a, b) => a.y - b.y)) {
-    const X = Math.round(u.x * TS),
-      Y = Math.round(u.y * TS),
-      fl = u.face < 0,
+    /* posición dibujada: sigue a la simulada con inercia (las formaciones arrancan y frenan despacio) */
+    if (u.vx == null || Math.hypot(u.vx - u.x, u.vy - u.y) > 1.6 || BT.phase === "deploy") {
+      u.vx = u.x;
+      u.vy = u.y;
+    } else {
+      const kk = 1 - Math.exp(-dtv * 7);
+      u.vx += (u.x - u.vx) * kk;
+      u.vy += (u.y - u.vy) * kk;
+    }
+    /* giros lentos: el sprite solo se voltea si la orientación se sostiene un momento */
+    const fl0 = u.ax === "y" ? !!u.flx : u.face < 0;
+    if (u.flv == null) u.flv = fl0;
+    if (fl0 !== u.flv) {
+      u.flT = (u.flT || 0) + dtv;
+      if (u.flT > 0.35) {
+        u.flv = fl0;
+        u.flT = 0;
+      }
+    } else u.flT = 0;
+    const X = Math.round(u.vx * TS),
+      Y = Math.round(u.vy * TS),
+      fl = u.flv,
       mov = now - (u.mvT || 0) < 150,
       fi = now - (u.fT || 0) < 300;
     c.fillStyle = "rgba(0,0,0,.22)";
@@ -2871,26 +3900,32 @@ function drawBattle(now) {
       c.ellipse(X, Y + 5, rr + 3, rr * 0.55 + 5, 0, 0, 7);
       c.stroke();
     }
-    for (const so of formation(u)) {
-      const fr = mov || u.rout ? Math.floor(now / 110 + so.k) % 2 : 0,
-        jit = fi ? Math.round(Math.sin(now / 55 + so.k * 1.7) * 1.4) * (fl ? -1 : 1) : 0,
+    const SL = cmbSlots(u),
+      vivas = Math.ceil(cmbFig(u) * SL.d),
+      caidas = new Set(SL.orden.slice(0, Math.max(0, SL.nf0 - vivas))),
+      fd = (u.rout ? 160 : 220) / cmbRitmo();
+    for (const so of SL.sl) {
+      if (caidas.has(so.k)) continue;
+      const fr = mov || u.rout ? Math.floor(now / fd + so.k) % 2 : 0,
+        jit = fi ? Math.round(Math.sin(now / 70 + so.k * 1.7) * 1.2) * (fl ? -1 : 1) : 0,
         rows = MS[u.t][fr],
-        w = rows[0].length;
-      sprF(
-        c,
-        rows,
-        Math.round(X + so.x - w / 2 + jit),
+        w = rows[0].length,
+        sx = fl ? -so.x : so.x;
+      c.drawImage(
+        cmbSprC(rows, u.f, fl),
+        Math.round(X + sx - w / 2 + jit),
         Math.round(Y + so.y - 5 + (mov && fr ? -1 : 0)),
-        PAL[u.f],
-        fl,
       );
     }
+    if (mov && cmbCab(u.t) && !BT.quiet && R() < 0.5)
+      BT.polvo.push({ x: X + (fl ? 1 : -1) * (rad(u) * TS), y: Y + SL.rows * SL.dy * 0.5, t0: now });
+    if (BT.polvo.length > 260) BT.polvo.splice(0, BT.polvo.length - 260);
     if (u.st === "def" && !u.rout) {
       c.fillStyle = "#e9e4da";
       const sx = X + (fl ? -rr - 3 : rr + 1);
       for (let k = -6; k <= 6; k += 3) c.fillRect(sx, Y + k, 2, 2);
     }
-    const hh = (Math.ceil(cmbFig(u) / fcols(u)) * cmbPaso(u)[1]) / 2,
+    const hh = (SL.rows * SL.dy) / 2,
       top = Math.round(Y - hh - 8);
     c.fillStyle = BP.k;
     c.fillRect(X - 1, top - 6, 1, 8);
@@ -2924,7 +3959,11 @@ function drawBattle(now) {
     const by = Math.round(Y + hh + 6);
     c.fillStyle = "#000";
     c.fillRect(X - 9, by, 18, 6);
-    c.fillStyle = u.side ? "#ff8a7a" : "#8fd18a";
+    c.fillStyle = aliado(u)
+      ? mio(u)
+        ? "#8fd18a"
+        : "#7fd4c8"
+      : CMB_COL_B[(cmbBnd(u.side) + 7) % CMB_COL_B.length];
     c.fillRect(X - 9, by, Math.round((18 * u.n) / u.n0), 2);
     c.fillStyle = u.mor < u.morMax * 0.35 ? "#e0503f" : "#5b97f0";
     c.fillRect(X - 9, by + 2, Math.round(18 * clamp(u.mor / u.morMax, 0, 1)), 2);
