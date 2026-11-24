@@ -101,6 +101,36 @@ tierra propia, evitando zonas de control); si no puede o le queda < 12 % de sus 
 aliado), media guarnición sale a la vez y vuelve después. Se emite `batallaResuelta` con
 `campana: 'encuentro' | 'asalto' | 'salida'` además de los campos de siempre.
 
+### Batalla en conjunto (encuentros de varios ejércitos)
+
+- Cuando un ejército A choca con D (entra en su casilla), acuden de cada bando los ejércitos **propios y
+  aliados en guerra con el otro bando** (`camBandoDe`; si alguno sirve a ambos, no acude) que estén a 1
+  casilla del punto de la batalla, o a 2 si les queda marcha y no están asediando (`camCandidatos`).
+- **Quién se suma** (`camReunir`): el jugador elige en un modal «¿Quién acude a la batalla?» (casillas
+  marcadas por defecto según `ej.apoyo`; «Solo el que choca» para ir solo). La IA se suma salvo que su bando
+  ya vea la batalla ganada (≥ 85 % con `cmbEstimar`). Un ejército humano sin modal (online, `opc.auto`)
+  sigue `ej.apoyo`: `'siempre'` (por defecto), `'nunca'` o el id del ejército al que apoya. Orden
+  serializable «unirse a la batalla»: `{tipo:'apoyo', f, ej, modo:'siempre'|'nunca'|id}`; en el panel, botón
+  «Acude / No acude a batallas vecinas».
+- Cada participante lleva `ej.dir` (N/E/S/O respecto al punto; el defensor, `C`).
+- **Motor**: si combate expone `cmbResolverMulti` / `cmbTacticaMulti` (detectado con `typeof`), cada
+  ejército va por separado (`camMulti`): `[{id, f, bando: 0|1, dir, u, gen, vet, ori, fat, hambre}]`, y se
+  espera `{gana: bando, ejs: [{id, u: supervivientes}], informe}` (si no llega esa forma, se usa la
+  alternativa). Alternativa actual: cada bando se funde (`camFuerzaConjunta`, sin máquinas en campo
+  abierto) y se libra con `camLibrar`; el mejor general manda cada bando y los demás suman +3 % (máx. +9 %)
+  a su lado. Supervivientes, heridos y veteranía se reparten por ejército según lo aportado (`camRepartir`),
+  así cada aliado de otra facción conserva su color, sus tropas y su parte. Los vencidos se retiran o se
+  dispersan uno a uno.
+- `batallaResuelta` lleva `ejercitos: [[{id, f, dir}], [{id, f, dir}]]` (también en los asaltos: la
+  guarnición va como `{id:'guarnicion'}`) y `multi: true` si la resolvió el motor de varios bandos. La
+  repetición graba `{k:'bat+', x, y, lados}` antes de la batalla (además del `bat` de siempre).
+- **Mapa**: mientras se prepara (`camBatPrep`), flechas del color de cada pueblo desde cada participante
+  hasta el punto de choque, los candidatos que se están preguntando parpadean, y espadas cruzadas en el
+  centro.
+- El asalto conjunto usa el mismo camino de varios bandos (cada ejército con su flanco como `dir`, su
+  facción y su general; la guarnición como bando 1) en cuanto exista `cmbResolverMulti`; hasta entonces,
+  la fusión de siempre.
+
 ## Asedio
 
 `G.cam.as[pid] = {p, f, n (estaciones), vi (víveres de la guarnición), mo (moral), brecha, ini}`.
@@ -210,6 +240,7 @@ Todo se expresa con objetos planos (JSON) con `f` = bando que da la orden:
 | `salida` | `p` | la guarnición sitiada ataca |
 | `contratar` | `ej` + `camp` + `cia`, o `p` + `cia`; `anos` 1-3 | compañía mercenaria |
 | `renovar` / `licenciar` | `t` (tipo mercenario) | contrato |
+| `apoyo` | `ej`, `modo` (`siempre`/`nunca`/id) | «unirse a la batalla»: si acude a las batallas vecinas |
 
 - `await camAplicarOrden(G, orden, opc)` → `{ok, motivo?, ...}`. Determinista salvo las batallas (usan
   `R()`): en online, el anfitrión resolverá y difundirá `G` (como hoy). `opc.anim` anima la marcha;

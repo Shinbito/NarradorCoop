@@ -15,7 +15,7 @@
 
 /* ======================= 1. estado y preferencias ======================= */
 const IFZ = {
-  pref: { sec: { reclutar: true, edificios: true }, pot: true, potTodas: false, log: "todo", tut: 0 },
+  pref: { sec: { reclutar: true, edificios: true }, pot: true, potTodas: false, log: "todo", tut: 0, vel: "lenta", rep: true },
   html: {}, // último HTML escrito en cada contenedor (para no reconstruir lo que no cambia)
   res: false, // desplegable de recursos abierto
   anios: {}, // años plegados/abiertos en la crónica
@@ -445,6 +445,32 @@ const IFZ_PAL = {
   o: "#ff7a2a",
   y: "#ffd04a",
   e: "#4caf50",
+  /* figuras, naturaleza y ciudades del mapa */
+  h: "#b9bcc6",
+  p: "#e3b48a",
+  t: "#ececec",
+  l: "#6b4a2a",
+  C: "#4f321c",
+  P: "#c8a070",
+  m: "#7a7066",
+  M: "#a39a8e",
+  z: "#4f4842",
+  N: "#f2f4f6",
+  Z: "#c9d4dc",
+  q: "#7c8850",
+  Q: "#a0a86a",
+  j: "#5a6638",
+  d: "#24502a",
+  v: "#367a33",
+  V: "#5aa548",
+  a: "#7a9a55",
+  A: "#a2bb72",
+  u: "#4a3220",
+  i: "#a8472f",
+  I: "#6e2c1e",
+  T: "#b89a5a",
+  E: "#ece0bc",
+  x: "#c9c3b4",
 };
 const IFZ_SP = {
   "tab.prov": ["....g....", "....gg...", "k.k.k.k.k", "kwkwkwkwk", "kwwwwwwwk", "kwkwwwkwk", "kwwwwwwwk", "kwwwkwwwk", "kkkkkkkkk"],
@@ -467,6 +493,43 @@ const IFZ_SP = {
   "mapa.fuego": [".o..", ".oy.", "oyyo", ".oo."],
   "mapa.marcha": ["g..", "gg.", "ggg", "gg.", "g.."],
   "mapa.general": ["g.g", "ggg"],
+  /* estandarte del pueblo (dos fotogramas: ondea) y pendón dorado del general */
+  "mapa.estandarte.0": ["kFFFFF.", "kFFFFFF", "kFFrFFF", "kFFFFFF", "kFFFFr.", "krrrr..", "k......", "k......", "k......", "k......", "k......", "k......", "k......"],
+  "mapa.estandarte.1": ["k.FFFFF", "kFFFFFF", "kFFrFFF", "kFFFFFF", "k.rFFFF", "k..rrrr", "k......", "k......", "k......", "k......", "k......", "k......", "k......"],
+  "mapa.pendon.0": ["kgggg.", "kgFFgg", "kgFFgg", "kggggG", "kGGGG.", "k.....", "k.....", "k.....", "k.....", "k....."],
+  "mapa.pendon.1": ["k.gggg", "kgFFgg", "kgFFgg", "kggggG", "k.GGGG", "k.....", "k.....", "k.....", "k.....", "k....."],
+  /* figuras de los ejércitos (1 figura ≈ 1 leva de 10 hombres); .0 y .1 = paso */
+  "fig.inf.0": ["...t", ".h.l", ".p.l", "FFFl", "FrFl", ".F..", "k.k."],
+  "fig.inf.1": ["...t", ".h.l", ".p.l", "FFFl", "FrFl", ".F..", ".k.k"],
+  "fig.arq.0": [".h..", ".pl.", "FFFl", "FrFl", ".Fl.", ".F..", "k.k."],
+  "fig.arq.1": [".h..", ".pl.", "FFFl", "FrFl", ".Fl.", ".F..", ".k.k"],
+  "fig.cab.0": ["...h....", "...p..t.", "..FFFl..", ".nnFnnnn", "nnnnnnC.", ".n...n..", ".k...k.."],
+  "fig.cab.1": ["...h....", "...p..t.", "..FFFl..", ".nnFnnnn", "nnnnnnC.", "..n.n...", "..k.k..."],
+  "fig.cam.0": ["...h....", "...p.PP.", "..FFFPP.", ".PPFPP..", "PPPPPP..", ".P...P..", ".k...k.."],
+  "fig.cam.1": ["...h....", "...p.PP.", "..FFFPP.", ".PPFPP..", "PPPPPP..", "..P.P...", "..k.k..."],
+  "fig.ele.0": ["...FF....", "..FFFF...", ".mmmmmmm.", "mmmmmmmmm", "mmmmmmmtm", "mmmmmmm.m", ".mm..mm..", ".zz..zz.."],
+  "fig.ele.1": ["...FF....", "..FFFF...", ".mmmmmmm.", "mmmmmmmmm", "mmmmmmmtm", "mmmmmmm.m", "..mm..mm.", "..zz..zz."],
+  "fig.maq.0": ["......l", ".....l.", "....l..", "lllllll", ".l...l.", "kk...kk"],
+  "fig.maq.1": ["......l", ".....l.", "....l..", "lllllll", ".l...l.", "kk...kk"],
+  "fig.carro.0": [".EEEE...", "EEEEEE..", "nnnnnnnl", ".k...k.."],
+  "fig.carro.1": [".EEEE...", "EEEEEE..", "nnnnnnnl", ".k...k.."],
+  /* campamento */
+  "mapa.tiendaF": ["...k...", "..FFF..", ".FFkFF.", "FFkkkFF", "rrkkkrr"],
+  "mapa.hoguera.0": [".....", "..y..", ".yoy.", ".ooo.", "l.l.l"],
+  "mapa.hoguera.1": ["..y..", ".yo..", ".oyo.", ".ooo.", "l.l.l"],
+  /* naturaleza */
+  "arbol.pino": ["..d..", ".dVd.", ".dvd.", "dVvdd", ".dvd.", "dVvvd", "dvvdd", "..u..", "..u.."],
+  "arbol.roble": ["..vvv..", ".vVVvv.", "vVVvvvd", "vVvvvdd", ".vvvdd.", "..dud..", "...u..."],
+  "arbol.olivo": [".aAa.", "aAaaa", ".aaa.", "..u..", "..u.."],
+  "arbol.abedul": [".VV.", "VVvV", "VvVv", ".vv.", ".x..", ".x.."],
+  "mapa.colina": ["....QQqq....", "..QQQqqqjj..", ".QQqqqqqqjj.", "QQqqqqqqqqjj"],
+  "mapa.monte": ["......NN......", ".....NNZz.....", "....NNNZzz....", "...MNNZmzzz...", "...MMmmmzzz...", "..MMmmmmmzzz..", "..MMmmmmmzzz..", ".MMmmmmmmmzzz.", ".MMmmmmmmmzzz.", "MMmmmmmmmmmzzz", "MMmmmmmmmmmzzz"],
+  /* ciudades y aldeas */
+  "mapa.monte2": ["...NN....", "..NNZz...", ".MNmmzz..", ".MMmmmzz.", "MMmmmmzzz", "MMmmmmmzz", "Mmmmmmmzz"],
+  "mapa.casa": ["..i..", ".iiI.", "iiiII", ".wWw.", ".wkw."],
+  "mapa.casa2": ["..iii.", ".iiiII", "iiiiII", ".wwkW.", ".wwwW."],
+  "mapa.torre": ["W.W", "WWW", "WkW", "WWW"],
+  "mapa.aldea": [".TT...TT..", "TTTT.TTTT.", ".wk...wkw.", "..........", "...TT.....", "..TTTT....", "...wk....."],
 };
 const IFZ_ICO = {};
 /* data-URL de un icono de la interfaz (se puede sustituir por PNG: nombre «IFZ.tab.prov»…) */
@@ -497,7 +560,8 @@ function ifzIcono(n) {
   return IFZ_ICO[n];
 }
 const IFZ_PALF = {};
-const ifzPal = (f) => IFZ_PALF[f] || (IFZ_PALF[f] = Object.assign({}, IFZ_PAL, PAL[f] || PAL[0]));
+/* paleta de interfaz con los colores del pueblo f (F/f = su color, r = su tono oscuro) */
+const ifzPal = (f) => IFZ_PALF[f] || (IFZ_PALF[f] = Object.assign({}, IFZ_PAL, { F: CIV[f].c, f: CIV[f].c, r: CIV[f].d }));
 /* cifras pixel 3×5 para el mapa (no dependen de que cargue la fuente) */
 const IFZ_DIG = {
   0: ["###", "#.#", "#.#", "#.#", "###"],
@@ -540,92 +604,576 @@ function ifzInsignia(n, borde, tinta) {
   return c;
 }
 
-/* ======================= 5. dibujo del mapa ======================= */
-/* capa estática (terreno + color de los dueños + fronteras): solo se rehace si cambia algo */
-const IFZ_CAPA = { cv: null, k: "" };
-function ifzCapa() {
-  const { grid } = MAP,
-    k = `${W}x${H}|${MAP.seed}|${IFZ.baseVer}|${sel}|${hover}|${G.P.map((p) => p.owner).join(",")}`;
-  if (IFZ_CAPA.cv && IFZ_CAPA.k === k) return IFZ_CAPA.cv;
-  let c = IFZ_CAPA.cv;
-  if (!c) c = IFZ_CAPA.cv = document.createElement("canvas");
-  if (c.width !== W * T || c.height !== H * T) {
-    c.width = W * T;
-    c.height = H * T;
+/* ======================= 5. dibujo del mapa =======================
+   El mapa se pinta en #maphd a IFZ_S px por casilla (mapa.js: terreno). Encima, transparente, sigue #map
+   (cv, W·T × H·T) para clics, hover y lo que otros sistemas dibujen con ctx (cola de órdenes online).
+   Capas: terreno (mapa.js) → política (dueños, campos, caminos, fronteras, ciudades; se rehace solo si
+   cambia algo) → cada cuadro: resaltes, banderas, guarniciones, campaña (ejércitos como columnas de
+   figuras con movimiento interpolado), efectos y repetición. */
+const hd = $("maphd"),
+  hctx = hd.getContext("2d");
+/* ---------- ritmo de las animaciones ---------- */
+const IFZ_VELS = { lenta: 2.5, normal: 1, rapida: 0.45 };
+/* multiplicador de tiempo de las animaciones: 2.5 lenta (por defecto), 1 normal, 0.45 rápida.
+   0 = sin animación (prefers-reduced-motion o navegador automatizado: las pruebas no esperan). */
+function ifzVel() {
+  if (reduce) return 0;
+  if (IFZ.velForzada != null) return IFZ.velForzada;
+  if (typeof navigator !== "undefined" && navigator.webdriver) return 0;
+  return IFZ_VELS[IFZ.pref.vel] ?? IFZ_VELS.lenta;
+}
+const IFZ_VBASE = 4; /* casillas por segundo a velocidad normal */
+/* milisegundos que tarda la interfaz en mostrar un paso de una casilla (250 ms × ifzVel(): 625 en lenta).
+   Campaña puede esperar esto en cada paso de marcha para que la lógica y el dibujo vayan a la par. */
+const ifzPasoMs = () => Math.round((1000 / IFZ_VBASE) * ifzVel());
+/* ---------- sprites de interfaz cacheados (y su PNG si lo hay) ---------- */
+const IFZ_DC = new Map();
+function ifzDibCanvas(n, f, fl) {
+  const k = n + "|" + (f == null ? "" : f) + (fl ? "|v" : "");
+  let cc = IFZ_DC.get(k);
+  if (cc !== undefined) return cc;
+  const rows = IFZ_SP[n];
+  if (!rows) {
+    IFZ_DC.set(k, null);
+    return null;
   }
-  const x = c.getContext("2d");
-  x.globalAlpha = 1;
-  x.drawImage(base, 0, 0);
-  for (let y = 0; y < H; y++)
-    for (let xx = 0; xx < W; xx++) {
-      const i = grid[y][xx];
-      if (i < 0) continue;
-      x.globalAlpha = i === sel ? 0.42 : i === hover ? 0.36 : 0.26;
-      x.fillStyle = CIV[G.P[i].owner].c;
-      x.fillRect(xx * T, y * T, T, T);
-    }
-  x.globalAlpha = 1;
-  for (let y = 0; y < H; y++)
-    for (let xx = 0; xx < W; xx++) {
-      const i = grid[y][xx];
-      if (i < 0) continue;
-      const o = G.P[i].owner,
-        X = xx * T,
-        Y = y * T;
-      for (const [ox, oy, ex, ey, ew, eh] of [
-        [1, 0, T - 1, 0, 1, T],
-        [-1, 0, 0, 0, 1, T],
-        [0, 1, 0, T - 1, T, 1],
-        [0, -1, 0, 0, T, 1],
-      ]) {
-        const j = grid[y + oy]?.[xx + ox];
-        if (j === undefined || j < 0 || j === i) continue;
-        if (i === sel) x.fillStyle = "#fff";
-        else if (j === sel) continue;
-        else if (G.P[j].owner !== o) x.fillStyle = CIV[o].d;
-        else {
-          if (ox < 0 || oy < 0) continue;
-          x.fillStyle = "rgba(0,0,0,.3)";
+  const pal = f == null ? IFZ_PAL : ifzPal(f),
+    im = ifzSprImg(rows, f == null ? null : pal),
+    e = im ? IFZ_SPR.m.sprites[IFZ_SPR.nom.get(rows)] || {} : {},
+    w = e.w || Math.max(...rows.map((r) => r.length)),
+    h = e.h || rows.length;
+  cc = document.createElement("canvas");
+  cc.width = w;
+  cc.height = h;
+  const x = cc.getContext("2d");
+  x.imageSmoothingEnabled = false;
+  if (fl) {
+    x.translate(w, 0);
+    x.scale(-1, 1);
+  }
+  if (im) x.drawImage(im, 0, 0, w, h);
+  else
+    rows.forEach((row, j) => {
+      for (let i = 0; i < row.length; i++)
+        if (row[i] !== ".") {
+          x.fillStyle = pal[row[i]] || "#f0f";
+          x.fillRect(i, j, 1, 1);
         }
-        x.fillRect(X + ex, Y + ey, ew, eh);
+    });
+  IFZ_DC.set(k, cc);
+  return cc;
+}
+/* dibuja el sprite de interfaz n (f = pueblo para teñir, fl = mirando a la izquierda) */
+function ifzDib(c, n, x, y, f, fl) {
+  const cc = ifzDibCanvas(n, f, fl);
+  if (cc) c.drawImage(cc, Math.round(x), Math.round(y));
+  return cc;
+}
+/* ---------- capa política: dueños, campos, caminos, fronteras y ciudades ---------- */
+const IFZ_POL = { cv: null, k: "", ms: 0 };
+const ifzPob = (p) => {
+  try {
+    return typeof ecoPob === "function" && G.eco ? ecoPob(p) : 8;
+  } catch (_) {
+    return 8;
+  }
+};
+const ifzVias = (f) => {
+  try {
+    return f < NF && typeof camCalzadas === "function" ? camCalzadas(f) : false;
+  } catch (_) {
+    return false;
+  }
+};
+/* posiciones de las casas alrededor del centro de la ciudad (espiral) */
+const IFZ_CASAS = [
+  [-8, -1],
+  [8, 0],
+  [-5, 5],
+  [6, 6],
+  [-1, 8],
+  [-10, 5],
+  [11, 5],
+  [3, -9],
+  [-7, -8],
+  [9, -7],
+  [-12, -3],
+  [13, -2],
+];
+function ifzPolitico(own) {
+  const inf = ifzMapaInfo(),
+    ter = ifzTerrenoHD(),
+    dues = [...new Set(own)],
+    k =
+      IFZ_HD.terK +
+      "|" +
+      own.join(",") +
+      "|" +
+      G.P.map((p) => `${p.walls || 0}.${p.farm || 0}.${Math.round(ifzPob(p) / 3)}.${p.cap ? 1 : 0}`).join(",") +
+      "|" +
+      dues.map((f) => (ifzVias(f) ? 1 : 0)).join("");
+  if (IFZ_POL.cv && IFZ_POL.k === k) return IFZ_POL.cv;
+  const t0 = performance.now(),
+    S = IFZ_S,
+    cc = IFZ_POL.cv || (IFZ_POL.cv = document.createElement("canvas"));
+  if (cc.width !== ter.width || cc.height !== ter.height) {
+    cc.width = ter.width;
+    cc.height = ter.height;
+  }
+  const c = cc.getContext("2d");
+  c.imageSmoothingEnabled = false;
+  c.globalAlpha = 1;
+  c.drawImage(ter, 0, 0);
+  /* color del dueño, suave para que se vea el terreno */
+  c.globalAlpha = 0.17;
+  inf.provT.forEach((ts, pid) => {
+    const o = own[pid];
+    if (o == null || !CIV[o]) return;
+    c.fillStyle = CIV[o].c;
+    for (const i of ts) c.fillRect((i % W) * S, ((i / W) | 0) * S, S, S);
+  });
+  c.globalAlpha = 1;
+  /* campos de cultivo alrededor de las ciudades (más con granja y población) */
+  for (const p of G.P) {
+    const rr = mul(MAP.seed * 7 + p.id * 131),
+      cand = (inf.provT[p.id] || []).filter((i) => {
+        const x = i % W,
+          y = (i / W) | 0;
+        return MAP.terr[y][x] === 1 && !inf.rio[i] && Math.max(Math.abs(x - p.x), Math.abs(y - p.y)) <= 2 && !(x === p.x && y === p.y);
+      });
+    if (!cand.length) continue;
+    const n = clamp(2 + 2 * (p.farm || 0) + Math.floor(ifzPob(p) / 4), 2, 12);
+    for (let k2 = 0; k2 < n; k2++) {
+      const i = cand[Math.floor(rr() * cand.length)],
+        X = (i % W) * S + Math.floor(rr() * 8),
+        Y = ((i / W) | 0) * S + Math.floor(rr() * 10),
+        w = 6 + Math.floor(rr() * 4),
+        h = 4 + Math.floor(rr() * 2),
+        tipo = rr(),
+        cols = tipo < 0.45 ? ["#c9b458", "#ad9a40"] : tipo < 0.8 ? ["#86b452", "#6b9a3e"] : ["#8b6a44", "#73573a"];
+      for (let j = 0; j < h; j++) {
+        c.fillStyle = cols[j % 2];
+        c.fillRect(X, Y + j, w, 1);
+      }
+      c.fillStyle = "rgba(60,40,20,.35)";
+      c.fillRect(X, Y + h, w, 1);
+    }
+  }
+  /* caminos entre ciudades vecinas (calzadas empedradas si el dueño tiene Calzadas) */
+  const vias = {};
+  for (const f of dues) vias[f] = ifzVias(f);
+  const tramos = [];
+  MAP.adj.forEach((ls, a) =>
+    ls.forEach((b) => {
+      if (b <= a) return;
+      const pa = G.P[a],
+        pb = G.P[b];
+      if (!pa || !pb) return;
+      const ax = pa.x * S + S / 2,
+        ay = pa.y * S + S / 2,
+        bx = pb.x * S + S / 2,
+        by = pb.y * S + S / 2,
+        L = Math.max(1, Math.round(Math.hypot(bx - ax, by - ay))),
+        rr = mul(a * 977 + b * 31 + MAP.seed),
+        cx = (ax + bx) / 2 + (rr() - 0.5) * 14,
+        cy = (ay + by) / 2 + (rr() - 0.5) * 14,
+        pts = [];
+      for (let q = 0; q <= L; q++) {
+        const t = q / L,
+          u = 1 - t,
+          x = u * u * ax + 2 * u * t * cx + t * t * bx,
+          y = u * u * ay + 2 * u * t * cy + t * t * by;
+        if (!MAP.terr[Math.floor(y / S)]?.[Math.floor(x / S)]) return;
+        pts.push([Math.round(x), Math.round(y)]);
+      }
+      tramos.push({ pts, emp: vias[own[a]] || vias[own[b]] });
+    }),
+  );
+  for (const [pas, sel2] of [
+    [0, (t) => t.emp],
+    [1, (t) => t.emp],
+    [2, (t) => !t.emp],
+  ])
+    for (const t of tramos)
+      if (sel2(t))
+        for (let q = 0; q < t.pts.length; q++) {
+          const [x, y] = t.pts[q];
+          if (pas === 0) {
+            c.fillStyle = "#6a6152";
+            c.fillRect(x - 1, y - 1, 3, 3);
+          } else if (pas === 1) {
+            c.fillStyle = q % 3 ? "#b9af98" : "#9c927c";
+            c.fillRect(x, y, 1, 1);
+            c.fillRect(x - (q % 2), y, 1, 1);
+          } else if (q % 5 < 3) {
+            c.fillStyle = "rgba(150,118,74,.75)";
+            c.fillRect(x, y, 1, 1);
+          }
+        }
+  /* fronteras: entre reinos, filete oscuro + color del dueño; entre provincias propias, línea fina */
+  inf.bordes.forEach((sg, pid) => {
+    const o = own[pid];
+    if (o == null || !CIV[o]) return;
+    for (let q = 0; q < sg.length; q += 5) {
+      const x = sg[q],
+        y = sg[q + 1],
+        w = sg[q + 2],
+        h = sg[q + 3],
+        j = sg[q + 4];
+      if (j < 0) continue;
+      const fuera = w === 2 ? (x % S === 0 ? x : x + 1) : x,
+        fueraY = h === 2 ? (y % S === 0 ? y : y + 1) : y,
+        dentro = w === 2 ? (x % S === 0 ? x + 1 : x) : x,
+        dentroY = h === 2 ? (y % S === 0 ? y + 1 : y) : y,
+        ww = w === 2 ? 1 : w,
+        hh = h === 2 ? 1 : h;
+      if (own[j] !== o) {
+        c.fillStyle = CIV[o].d;
+        c.fillRect(fuera, fueraY, ww, hh);
+        c.fillStyle = CIV[o].c;
+        c.fillRect(dentro, dentroY, ww, hh);
+      } else if (j > pid) {
+        c.fillStyle = "rgba(20,15,10,.3)";
+        for (let z = 0; z < Math.max(ww, hh); z += 2) c.fillRect(fuera + (ww > 1 ? z : 0), fueraY + (hh > 1 ? z : 0), 1, 1);
       }
     }
-  IFZ_CAPA.k = k;
-  return c;
+  });
+  /* ciudades: casas según la población, murallas según su nivel, castillo o torre en el centro */
+  for (const p of G.P) {
+    const o = own[p.id],
+      X = p.x * S + S / 2,
+      Y = p.y * S + S / 2,
+      pob = ifzPob(p),
+      n = clamp(Math.round(pob / 2.2) + (p.cap ? 2 : 0), 2, IFZ_CASAS.length),
+      mu = p.walls || 0,
+      rr = mul(p.id * 7919 + MAP.seed),
+      R = (9 + Math.min(5, n * 0.5)) * (p.cap ? 1.4 : 1);
+    /* sombra del conjunto */
+    c.fillStyle = "rgba(0,0,0,.18)";
+    c.fillRect(X - R + 2, Y - 3, 2 * R - 2, R / 1.5 + 4);
+    if (mu >= 1) ifzMuralla(c, X, Y + 1, R, mu, rr);
+    const orden = IFZ_CASAS.slice(0, n).sort((a, b) => a[1] - b[1]),
+      ex = p.cap ? 1.55 : 1;
+    for (const [dx, dy] of orden) ifzDib(c, rr() < 0.4 ? "mapa.casa2" : "mapa.casa", X + Math.round(dx * ex) - 3, Y + Math.round(dy * ex) - 4, null);
+    /* el castillo de la capital, a doble tamaño: es el hito del mapa */
+    if (p.cap) {
+      c.save();
+      c.scale(2, 2);
+      spr(c, SP.castle, Math.round(X / 2) - 5, Math.round(Y / 2) - 8, PAL[o] || PAL[0]);
+      c.restore();
+    } else spr(c, SP.town, X - 4, Y - 6, PAL[o] || PAL[0]);
+    if (mu >= 2) for (const [a, b] of [[-R, 2], [R - 2, 2]]) ifzDib(c, "mapa.torre", X + a, Y + b - 1, null);
+  }
+  IFZ_POL.k = k;
+  IFZ_POL.ms = performance.now() - t0;
+  return cc;
+}
+/* muralla: empalizada (nivel 1), piedra con torres (2) y torres también a los lados (3+) */
+function ifzMuralla(c, X, Y, R, mu, rr) {
+  const ry = R * 0.7,
+    n = Math.round(R * 4);
+  for (let q = 0; q < n; q++) {
+    const a = (q / n) * Math.PI * 2,
+      x = Math.round(X + Math.cos(a) * R),
+      y = Math.round(Y + Math.sin(a) * ry);
+    if (mu === 1) {
+      if (q % 2) continue;
+      c.fillStyle = "#5b3f22";
+      c.fillRect(x, y - 2, 1, 3);
+      c.fillStyle = "#8a6438";
+      c.fillRect(x, y - 2, 1, 1);
+    } else {
+      c.fillStyle = "#3a3530";
+      c.fillRect(x - 1, y - 1, 3, 3);
+      c.fillStyle = "#b7ae9c";
+      c.fillRect(x - 1, y - 2, 2, 2);
+    }
+  }
+  if (mu >= 2) {
+    const ts = mu >= 3 ? 8 : 4;
+    for (let q = 0; q < ts; q++) {
+      const a = (q / ts) * Math.PI * 2 + Math.PI / ts,
+        x = Math.round(X + Math.cos(a) * R),
+        y = Math.round(Y + Math.sin(a) * ry);
+      ifzDib(c, "mapa.torre", x - 1, y - 4, null);
+    }
+  }
+}
+/* ---------- ejércitos: columnas de figuras ---------- */
+const IFZ_FIG_MAX = 40;
+function ifzClase(t) {
+  const U = UN[t];
+  if (!U) return "inf";
+  if (U.asedio) return "maq";
+  if (t === "ele" || U.rol === "ele") return "ele";
+  if (t === "cam" || U.rol === "cam") return "cam";
+  if (U.cl === "cab") return "cab";
+  if (U.cl === "dis") return "arq";
+  return "inf";
+}
+/* lista de figuras (1 por leva, entre 3 y IFZ_FIG_MAX), en orden de marcha: jinetes, bestias,
+   infantería, arqueros, máquinas y carros de bagaje */
+function ifzFiguras(u, n) {
+  const c = { cab: 0, ele: 0, cam: 0, inf: 0, arq: 0, maq: 0 };
+  let N = 0;
+  if (u)
+    for (const t in u)
+      if (UN[t] && u[t] > 0) {
+        c[ifzClase(t)] += u[t];
+        N += u[t];
+      }
+  if (!N && n) {
+    N = n;
+    c.inf = Math.ceil(n * 0.65);
+    c.arq = Math.round(n * 0.2);
+    c.cab = Math.max(0, n - c.inf - c.arq);
+  }
+  if (!N) return [];
+  const F = clamp(N, 3, IFZ_FIG_MAX),
+    esc = F / N,
+    out = [];
+  for (const k of ["cab", "ele", "cam", "inf", "arq", "maq"]) {
+    const m = c[k] ? Math.max(1, Math.round(c[k] * esc)) : 0;
+    for (let q = 0; q < m; q++) out.push(k);
+  }
+  for (let q = 0; q < Math.floor(out.length / 14); q++) out.push("carro");
+  return out.slice(0, IFZ_FIG_MAX + 3);
+}
+/* formación: filas de 3-6 figuras; la columna se alarga hacia atrás según el sentido de marcha */
+function ifzFormacion(kinds, dir) {
+  const fil = clamp(Math.ceil(Math.sqrt(kinds.length) * 0.9), 3, 6),
+    pos = [];
+  let x = 0,
+    j = 0,
+    paso = 5;
+  kinds.forEach((k, q) => {
+    const ancha = k === "cab" || k === "cam" || k === "ele" || k === "maq" || k === "carro";
+    if (j >= fil || (q && ancha !== pos[q - 1].ancha && j)) {
+      x -= paso;
+      j = 0;
+    }
+    paso = ancha ? 8 : 5;
+    pos.push({ k, x: x + (j % 2), y: (j - (fil - 1) / 2) * 3, ancha });
+    j++;
+  });
+  const x0 = Math.max(...pos.map((p) => p.x)),
+    x1 = Math.min(...pos.map((p) => p.x)),
+    mid = (x0 + x1) / 2;
+  for (const p of pos) p.x = (p.x - mid) * dir;
+  pos.sort((a, b) => a.y - b.y);
+  return { pos, largo: x0 - x1 + 8, alto: fil * 3 + 7 };
+}
+/* posición mostrada de cada ejército: se desliza hacia la real a ritmo de ifzVel() */
+const IFZ_POS = new Map();
+function ifzPosEj(id, tx, ty, now) {
+  let p = IFZ_POS.get(id);
+  const v = ifzVel();
+  if (!p || v <= 0) {
+    p = { x: tx, y: ty, dir: p ? p.dir : 1, t: now, mov: false };
+    IFZ_POS.set(id, p);
+    p.vis = now;
+    return p;
+  }
+  const dt = Math.min(0.1, Math.max(0, (now - p.t) / 1000)),
+    dx = tx - p.x,
+    dy = ty - p.y,
+    d = Math.hypot(dx, dy),
+    sp = (IFZ_VBASE * IFZ_S) / v;
+  p.t = now;
+  p.vis = now;
+  if (d > IFZ_S * 14 || d < 0.4 || d <= sp * dt) {
+    p.x = tx;
+    p.y = ty;
+    p.mov = false;
+  } else {
+    p.x += (dx / d) * sp * dt;
+    p.y += (dy / d) * sp * dt;
+    p.mov = true;
+    if (Math.abs(dx) > 0.5) p.dir = dx > 0 ? 1 : -1;
+  }
+  return p;
+}
+/* un ejército: o = {id, f, u|n, est, gen, sel, quieto}; (X, Y) = ancla en px HD */
+function ifzEjercito(c, o, X, Y, now, mov, dir, alfa = 1) {
+  const kinds = ifzFiguras(o.u, o.n);
+  if (!kinds.length) return;
+  const anim = !reduce,
+    fr = mov && anim ? Math.floor(now / 160 + o.id) % 2 : 0;
+  c.globalAlpha = alfa;
+  if (o.est === "campamento") {
+    /* campamento: empalizada, tiendas, hoguera y la tropa descansando */
+    const nT = clamp(Math.ceil(kinds.length / 7), 2, 6);
+    c.fillStyle = "#5b3f22";
+    for (let q = -14; q <= 14; q += 2) {
+      c.fillRect(X + q, Y - 12, 1, 2);
+      c.fillRect(X + q, Y + 7, 1, 2);
+    }
+    for (let q = -11; q <= 7; q += 2) {
+      c.fillRect(X - 15, Y + q, 1, 2);
+      c.fillRect(X + 15, Y + q, 1, 2);
+    }
+    for (let q = 0; q < nT; q++) ifzDib(c, q % 2 ? "mapa.tiendaF" : "mapa.tienda", X - 12 + (q % 3) * 9, Y - 10 + Math.floor(q / 3) * 9, q % 2 ? o.f : null);
+    ifzDib(c, "mapa.hoguera." + (anim ? Math.floor(now / 220) % 2 : 0), X + 4, Y - 1, null);
+    if (anim)
+      for (let q = 0; q < 3; q++) {
+        const t = (now / 1400 + q / 3) % 1;
+        c.fillStyle = `rgba(200,200,200,${0.45 * (1 - t)})`;
+        c.fillRect(X + 6 + Math.round(Math.sin(t * 6 + q) * 2), Y - 2 - Math.round(t * 12), 2, 2);
+      }
+    const dsc = kinds.slice(0, Math.ceil(kinds.length / 2)).filter((k) => k !== "carro");
+    dsc.forEach((k, q) => ifzDib(c, `fig.${k}.0`, X - 12 + (q % 7) * 4, Y + 1 + Math.floor(q / 7) * 3 - 7, o.f, q % 2 === 0));
+  } else {
+    const F = ifzFormacion(kinds, dir);
+    /* polvo detrás de la columna al marchar */
+    if (mov && anim)
+      for (let q = 0; q < 5; q++) {
+        const t = (now / 700 + q / 5) % 1,
+          x = X - dir * (F.largo / 2 + 2 + t * 10),
+          y = Y + 2 + (q % 3) - t * 3;
+        c.fillStyle = `rgba(206,184,132,${0.5 * (1 - t)})`;
+        const s = 2 + Math.round(t * 3);
+        c.fillRect(Math.round(x), Math.round(y), s, s);
+      }
+    for (const p of F.pos) {
+      const cc = ifzDibCanvas(`fig.${p.k}.${p.k === "maq" || p.k === "carro" ? 0 : (fr + (p.x & 1)) % 2}`, o.f, dir < 0);
+      if (cc) c.drawImage(cc, Math.round(X + p.x - cc.width / 2), Math.round(Y + p.y - cc.height + 3));
+    }
+    /* estandarte del pueblo al frente; pendón del general detrás */
+    const ond = anim ? Math.floor(now / 380 + o.id) % 2 : 0,
+      bx = X + dir * (F.largo / 2 - 2),
+      by = Y - F.alto / 2 - 10;
+    ifzDib(c, "mapa.estandarte." + ond, bx - 1, by, o.f);
+    if (o.gen) ifzDib(c, "mapa.pendon." + (1 - ond), bx - dir * 8 - 1, by + 2, o.f);
+    c.globalAlpha = alfa;
+    if (o.est === "asedio") ifzDib(c, "mapa.escala", X - dir * (F.largo / 2 + 4), Y - 6, null);
+  }
+  c.globalAlpha = 1;
+  /* insignia con las levas (gris si ya no puede marchar) */
+  const ins = ifzInsignia(o.lev, CIV[o.f].c, o.quieto ? "#9aa0a6" : "#ffffff");
+  const z = ifzEscIns();
+  c.drawImage(ins, Math.round(X + (o.est === "campamento" ? 12 : 6)), Math.round(Y - 14 - ins.height * z), ins.width * z, ins.height * z);
+  if (o.sel && (reduce || Math.floor(now / 350) % 2)) {
+    c.strokeStyle = "#f2c14e";
+    c.lineWidth = 1;
+    c.setLineDash([3, 2]);
+    c.beginPath();
+    c.ellipse(X, Y - 2, 22, 14, 0, 0, Math.PI * 2);
+    c.stroke();
+    c.setLineDash([]);
+  }
+}
+/* anillo de cerco alrededor de una ciudad sitiada (con el color del sitiador) */
+function ifzCerco(c, p, f, now, alfa = 1) {
+  const X = p.x * IFZ_S + IFZ_S / 2,
+    Y = p.y * IFZ_S + IFZ_S / 2 + 1,
+    R = 24,
+    ry = 17,
+    n = 44;
+  c.globalAlpha = alfa;
+  for (let q = 0; q < n; q++) {
+    if (q % 11 === 10) continue;
+    const a = (q / n) * Math.PI * 2,
+      x = Math.round(X + Math.cos(a) * R),
+      y = Math.round(Y + Math.sin(a) * ry);
+    c.fillStyle = "#4a3220";
+    c.fillRect(x, y - 2, 1, 3);
+    c.fillStyle = CIV[f] ? CIV[f].d : "#7a2318";
+    c.fillRect(x, y - 3, 1, 1);
+  }
+  for (let q = 0; q < 4; q++) {
+    const a = (q / 4) * Math.PI * 2 + 0.4;
+    ifzDib(c, "mapa.torre", X + Math.cos(a) * R - 1, Y + Math.sin(a) * ry - 4, null);
+  }
+  /* fuego y humo sobre la ciudad */
+  const fl = reduce ? 0 : Math.floor(now / 200) % 2;
+  ifzDib(c, "mapa.hoguera." + fl, X + 3, Y - 12, null);
+  if (!reduce)
+    for (let q = 0; q < 4; q++) {
+      const t = (now / 1600 + q / 4) % 1;
+      c.fillStyle = `rgba(70,70,70,${0.55 * (1 - t)})`;
+      c.fillRect(X + 5 + Math.round(Math.sin(t * 5 + q) * 3), Y - 13 - Math.round(t * 18), 3, 3);
+    }
+  c.globalAlpha = 1;
+}
+/* escala de las insignias numéricas: ×2 con el mapa entero a la vista, ×1 al acercarse */
+const ifzEscIns = () => (zoom >= 1.8 ? 1 : 2);
+/* ---------- dibujo de cada cuadro ---------- */
+function ifzAjustarHD() {
+  if (hd.width !== W * IFZ_S || hd.height !== H * IFZ_S) {
+    hd.width = W * IFZ_S;
+    hd.height = H * IFZ_S;
+  }
 }
 function drawMap(now) {
-  const { grid, adj } = MAP;
-  ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(ifzCapa(), 0, 0);
-  if (aim && sel !== null) {
-    ctx.globalAlpha = reduce ? 0.3 : 0.22 + 0.16 * Math.sin(now / 140);
-    ctx.fillStyle = "#fff";
-    const a = adj[sel];
-    for (let y = 0; y < H; y++)
-      for (let x = 0; x < W; x++) if (a.includes(grid[y][x])) ctx.fillRect(x * T, y * T, T, T);
-    ctx.globalAlpha = 1;
+  ifzAjustarHD();
+  const R = IFZ_REP.on ? IFZ_REP : null,
+    own = R ? R.own : G.P.map((p) => p.owner),
+    h = hctx,
+    S = IFZ_S,
+    inf = ifzMapaInfo();
+  h.imageSmoothingEnabled = false;
+  h.globalAlpha = 1;
+  h.drawImage(ifzPolitico(own), 0, 0);
+  if (!R) {
+    /* provincia bajo el ratón y seleccionada */
+    for (const [pid, al] of [
+      [hover, 0.12],
+      [sel, 0.16],
+    ]) {
+      if (pid == null || !inf.provT[pid]) continue;
+      h.globalAlpha = al;
+      h.fillStyle = "#fff";
+      for (const i of inf.provT[pid]) h.fillRect((i % W) * S, ((i / W) | 0) * S, S, S);
+    }
+    h.globalAlpha = 1;
+    if (sel != null && inf.bordes[sel]) {
+      const sg = inf.bordes[sel];
+      h.fillStyle = "#fff";
+      for (let q = 0; q < sg.length; q += 5) h.fillRect(sg[q], sg[q + 1], sg[q + 2], sg[q + 3]);
+    }
+    if (aim && sel !== null) {
+      h.globalAlpha = reduce ? 0.3 : 0.22 + 0.16 * Math.sin(now / 140);
+      h.fillStyle = "#fff";
+      for (const j of MAP.adj[sel]) for (const i of inf.provT[j] || []) h.fillRect((i % W) * S, ((i / W) | 0) * S, S, S);
+      h.globalAlpha = 1;
+    }
   }
+  /* banderas de las capitales (ondean), generales y guarniciones */
   const wave = reduce ? 0 : Math.floor(now / 450) % 2;
-  ctx.font = '8px "Press Start 2P",monospace';
-  ctx.textBaseline = "top";
-  /* ciudades, generales y guarniciones */
   for (const p of G.P) {
-    const cx = p.x * T + 4,
-      cy = p.y * T + 4;
-    if (p.cap) spr(ctx, wave ? SP.castle2 : SP.castle, cx - 5, cy - 7, PAL[p.owner]);
-    else spr(ctx, SP.town, cx - 4, cy - 4, PAL[p.owner]);
-    if (p.gen != null) spr(ctx, IFZ_SP["mapa.general"], cx - 6, cy - 9, IFZ_PAL);
+    const X = p.x * S + S / 2,
+      Y = p.y * S + S / 2,
+      o = own[p.id];
+    if (p.cap && wave) {
+      h.save();
+      h.scale(2, 2);
+      spr(h, SP.castle2, Math.round(X / 2) - 5, Math.round(Y / 2) - 8, PAL[o] || PAL[0]);
+      h.restore();
+    }
+    if (R) continue;
+    if (p.gen != null) {
+      const g = ifzDibCanvas("mapa.general", null);
+      h.drawImage(g, X - 14, Y - 16, g.width * 2, g.height * 2);
+    }
     const n = tot(p.u);
-    if (n) ctx.drawImage(ifzInsignia(n, CIV[p.owner].c, p.tired ? "#9aa0a6" : "#ffffff"), cx + 6, cy - 4);
+    if (n) {
+      const ins = ifzInsignia(n, CIV[o].c, p.tired ? "#9aa0a6" : "#ffffff"),
+        z = ifzEscIns();
+      h.drawImage(ins, X + (p.cap ? 11 : 7), Y - 6 - ins.height * z, ins.width * z, ins.height * z);
+    }
   }
-  /* CAM: ejércitos, alcance, rutas, campamentos, asedios y estación */
-  ifzCamDibujar(now);
+  /* CAM: campaña (o la repetición de la estación) */
+  if (R) ifzRepDibujar(h, now);
+  else ifzCamDibujar(now);
   if (anim) {
     const k = Math.min(1, (now - anim.t0) / anim.dur),
       x = anim.x0 + (anim.x1 - anim.x0) * k,
       y = anim.y0 + (anim.y1 - anim.y0) * k - Math.abs(Math.sin(k * Math.PI * 4)) * 2;
-    spr(ctx, SP.i, Math.round(x - 3), Math.round(y - 5), PAL[anim.f]);
-    spr(ctx, SP.c, Math.round(x + 1), Math.round(y - 3), PAL[anim.f]);
+    h.save();
+    h.scale(IFZ_K, IFZ_K);
+    spr(h, SP.i, Math.round(x - 3), Math.round(y - 5), PAL[anim.f]);
+    spr(h, SP.c, Math.round(x + 1), Math.round(y - 3), PAL[anim.f]);
+    h.restore();
     if (k >= 1) {
       const r = anim.res;
       anim = null;
@@ -636,168 +1184,401 @@ function drawMap(now) {
     const k = (now - flash.t0) / 600;
     if (k > 1) flash = null;
     else {
-      const r = Math.round(3 + k * 10);
-      ctx.fillStyle = Math.floor(k * 8) % 2 ? "#fff3b0" : "#ff7a2a";
+      const r = Math.round((3 + k * 10) * IFZ_K);
+      h.fillStyle = Math.floor(k * 8) % 2 ? "#fff3b0" : "#ff7a2a";
       for (let a = 0; a < 8; a++) {
         const an = (a * Math.PI) / 4;
-        ctx.fillRect(Math.round(flash.x + Math.cos(an) * r) - 1, Math.round(flash.y + Math.sin(an) * r) - 1, 2, 2);
+        h.fillRect(Math.round(flash.x * IFZ_K + Math.cos(an) * r) - 2, Math.round(flash.y * IFZ_K + Math.sin(an) * r) - 2, 4, 4);
       }
     }
   }
+  /* estación en curso */
+  if (typeof CAM_EST !== "undefined") {
+    const tx = R ? `Repetición · ${CAM_EST[R.rep.est ?? G.estacion] || ""} ${R.rep.anio ?? G.year}` : `${CAM_EST[G.estacion]} ${G.year}`;
+    h.font = '12px "Press Start 2P",monospace';
+    h.textBaseline = "top";
+    const w = Math.ceil(h.measureText(tx).width);
+    h.fillStyle = "rgba(0,0,0,.6)";
+    h.fillRect(4, 4, w + 12, 20);
+    h.fillStyle = R ? "#ffe08a" : G.estacion === 3 ? "#cfe3ff" : "#f2d27a";
+    h.fillText(tx, 10, 8);
+  }
+  /* lienzo lógico (transparente, encima): lo que otros dibujen con ctx (cola de órdenes online) */
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  if (!R && net.on && typeof onlDibujarCola === "function" && typeof ONL !== "undefined" && ONL.cola && ONL.cola.length) onlDibujarCola(now);
 }
-/* CAM: capa de campaña. Usa la lógica de ejercitos.js/campana.js (alcance, rutas, asedios) y solo
-   cambia el dibujo: estandartes, insignias con el número de levas, iconos de estado, contorno del
-   alcance y ruta con destino marcado. Si falta alguna función de campaña, usa camDibujar(). */
+/* CAM: capa de campaña con la lógica de ejercitos.js/campana.js (alcance, rutas, asedios). */
 const IFZ_ALC = { cv: null, k: "" };
 function ifzCamDibujar(now) {
-  if (typeof camS !== "function" || typeof camAlcance !== "function" || typeof camRutaHover !== "function") {
-    if (typeof camDibujar === "function") camDibujar(now);
-    return;
-  }
-  const S = camS(),
-    c = ctx,
+  if (typeof camS !== "function" || typeof camAlcance !== "function" || typeof camRutaHover !== "function") return;
+  const S0 = camS(),
+    c = hctx,
+    S = IFZ_S,
     se = camSel != null ? camEj(camSel) : null,
     mio = se && isMe(se.f) && myTurn() && !G.over,
     corner = (X, Y, col) => {
       c.fillStyle = col;
       for (const [a, b, w, h] of [
-        [-1, -1, 3, 1],
-        [-1, -1, 1, 3],
-        [T - 2, -1, 3, 1],
-        [T, -1, 1, 3],
-        [-1, T, 3, 1],
-        [-1, T - 2, 1, 3],
-        [T - 2, T, 3, 1],
-        [T, T - 2, 1, 3],
+        [-1, -1, 5, 2],
+        [-1, -1, 2, 5],
+        [S - 4, -1, 5, 2],
+        [S - 1, -1, 2, 5],
+        [-1, S - 1, 5, 2],
+        [-1, S - 4, 2, 5],
+        [S - 4, S - 1, 5, 2],
+        [S - 1, S - 4, 2, 5],
       ])
         c.fillRect(X + a, Y + b, w, h);
     };
-  /* alcance (capa cacheada: relleno suave y borde) */
+  /* alcance (cacheado): relleno suave y contorno dorado */
   if (mio) {
     const D = camAlcance(se),
       k = `${se.id}|${camVer}|${se.mov}|${se.x},${se.y}|${G.estacion}|${W}x${H}`;
     if (IFZ_ALC.k !== k || !IFZ_ALC.cv) {
       const cc = IFZ_ALC.cv || (IFZ_ALC.cv = document.createElement("canvas"));
-      cc.width = W * T;
-      cc.height = H * T;
+      cc.width = W * S;
+      cc.height = H * S;
       const x = cc.getContext("2d"),
         ok = (i) => i >= 0 && i < W * H && D.dist[i] <= se.mov + 1e-9;
-      x.fillStyle = "rgba(255,236,150,.24)";
-      for (let i = 0; i < W * H; i++) if (ok(i) && i !== D.s) x.fillRect((i % W) * T, Math.floor(i / W) * T, T, T);
+      x.fillStyle = "rgba(255,236,150,.22)";
+      for (let i = 0; i < W * H; i++) if (ok(i) && i !== D.s) x.fillRect((i % W) * S, Math.floor(i / W) * S, S, S);
       x.fillStyle = "#ffd75a";
       for (let i = 0; i < W * H; i++) {
         if (!ok(i)) continue;
-        const X = (i % W) * T,
-          Y = Math.floor(i / W) * T,
+        const X = (i % W) * S,
+          Y = Math.floor(i / W) * S,
           cx = i % W;
-        if (cx === 0 || !ok(i - 1)) x.fillRect(X, Y, 1, T);
-        if (cx === W - 1 || !ok(i + 1)) x.fillRect(X + T - 1, Y, 1, T);
-        if (!ok(i - W)) x.fillRect(X, Y, T, 1);
-        if (!ok(i + W)) x.fillRect(X, Y + T - 1, T, 1);
+        if (cx === 0 || !ok(i - 1)) x.fillRect(X, Y, 2, S);
+        if (cx === W - 1 || !ok(i + 1)) x.fillRect(X + S - 2, Y, 2, S);
+        if (!ok(i - W)) x.fillRect(X, Y, S, 2);
+        if (!ok(i + W)) x.fillRect(X, Y + S - 2, S, 2);
       }
       IFZ_ALC.k = k;
     }
     c.globalAlpha = reduce ? 0.85 : 0.7 + 0.25 * Math.sin(now / 260);
     c.drawImage(IFZ_ALC.cv, 0, 0);
     c.globalAlpha = 1;
-    /* objetivos: ciudades que puede asediar y enemigos que puede atacar */
     const tgt = (X, Y) => {
-      c.globalAlpha = 0.35;
+      c.globalAlpha = 0.3;
       c.fillStyle = "#ff5a3a";
-      c.fillRect(X, Y, T, T);
+      c.fillRect(X, Y, S, S);
       c.globalAlpha = 1;
       corner(X, Y, "#ff5a3a");
     };
     for (const p of G.P)
       if (camCiudadCerrada(se.f, p) && CAM_V8.some(([dx, dy]) => D.dist[camIdx(p.x + dx, p.y + dy)] <= se.mov + 1e-9 || (se.x === p.x + dx && se.y === p.y + dy)))
-        tgt(p.x * T, p.y * T);
-    for (const e of S.ej) if (camGuerra(se.f, e.f) && D.dist[camIdx(e.x, e.y)] <= se.mov + 1e-9) tgt(e.x * T, e.y * T);
-    /* ruta hasta la casilla bajo el ratón */
+        tgt(p.x * S, p.y * S);
+    for (const e of S0.ej) if (camGuerra(se.f, e.f) && D.dist[camIdx(e.x, e.y)] <= se.mov + 1e-9) tgt(e.x * S, e.y * S);
+    /* ruta hasta la casilla bajo el ratón: huellas con borde; destino marcado */
     const r = camRutaHover(se);
     if (r) {
-      c.fillStyle = "#000";
-      for (const j of r.dentro.concat(r.fuera)) c.fillRect((j % W) * T + 2, Math.floor(j / W) * T + 2, 4, 4);
-      c.fillStyle = "#fff3b0";
-      for (const j of r.dentro) c.fillRect((j % W) * T + 3, Math.floor(j / W) * T + 3, 2, 2);
-      c.fillStyle = "rgba(255,243,176,.5)";
-      for (const j of r.fuera) c.fillRect((j % W) * T + 3, Math.floor(j / W) * T + 3, 2, 2);
-      const fin = r.fuera.length ? r.fuera[r.fuera.length - 1] : r.dentro[r.dentro.length - 1];
-      if (fin != null) corner((fin % W) * T, Math.floor(fin / W) * T, r.fuera.length ? "#e8b632" : "#fff3b0");
+      const todo = r.dentro.concat(r.fuera);
+      todo.forEach((j, q) => {
+        const X = (j % W) * S + S / 2,
+          Y = Math.floor(j / W) * S + S / 2,
+          fuera = q >= r.dentro.length;
+        c.fillStyle = "rgba(0,0,0,.55)";
+        c.fillRect(X - 3, Y - 3, 6, 6);
+        c.fillStyle = fuera ? "rgba(255,243,176,.5)" : "#fff3b0";
+        c.fillRect(X - 2, Y - 2, 4, 4);
+      });
+      const fin = todo[todo.length - 1];
+      if (fin != null) corner((fin % W) * S, Math.floor(fin / W) * S, r.fuera.length ? "#e8b632" : "#fff3b0");
     }
   }
   /* huella de la última marcha */
-  for (const e of S.ej) {
+  for (const e of S0.ej) {
     if (!e.pas || !e.pas.length) continue;
     c.fillStyle = CIV[e.f].d;
-    c.globalAlpha = 0.6;
-    for (const j of e.pas) c.fillRect((j % W) * T + 3, Math.floor(j / W) * T + 4, 2, 1);
+    c.globalAlpha = 0.55;
+    for (const j of e.pas) {
+      c.fillRect((j % W) * S + 6, Math.floor(j / W) * S + 9, 2, 1);
+      c.fillRect((j % W) * S + 9, Math.floor(j / W) * S + 7, 2, 1);
+    }
     c.globalAlpha = 1;
   }
-  /* campamentos mercenarios: tienda dorada con banderola */
+  /* campamentos mercenarios: tiendas doradas y banderola */
   if (typeof mercS === "function")
-    for (const m of mercS().camp) if (m.cias.length) spr(c, IFZ_SP["mapa.mercenarios"], m.x * T, m.y * T + 1, IFZ_PAL);
-  /* asedios: escala, fuego y esquinas rojas; punto rojo si la ciudad pasa hambre */
-  for (const a of Object.values(S.as)) {
+    for (const m of mercS().camp)
+      if (m.cias.length) {
+        ifzDib(c, "mapa.mercenarios", m.x * S + 1, m.y * S + 4, null);
+        ifzDib(c, "mapa.mercenarios", m.x * S + 8, m.y * S + 8, null);
+      }
+  /* asedios: anillo de cerco, torres, fuego y humo; punto rojo si la ciudad pasa hambre */
+  for (const a of Object.values(S0.as)) {
     const p = G.P[a.p];
     if (!p) continue;
-    const X = p.x * T,
-      Y = p.y * T,
-      fl = reduce ? 0 : Math.floor(now / 200) % 2;
-    corner(X, Y, "#e0503f");
-    spr(c, IFZ_SP["mapa.escala"], X - 2, Y - 3, IFZ_PAL);
-    spr(c, IFZ_SP["mapa.fuego"], X + 5, Y - 6 + fl, fl ? { ...IFZ_PAL, o: "#ffd04a", y: "#ff7a2a" } : IFZ_PAL);
+    ifzCerco(c, p, a.f, now);
     if (a.vi < 0) {
       c.fillStyle = "#000";
-      c.fillRect(X + 2, Y - 8, 4, 4);
+      c.fillRect(p.x * S + 5, p.y * S - 10, 6, 6);
       c.fillStyle = "#e0503f";
-      c.fillRect(X + 3, Y - 7, 2, 2);
+      c.fillRect(p.x * S + 6, p.y * S - 9, 4, 4);
     }
   }
-  /* CAM: flancos del cerco, flechas, compañeros de asalto conjunto y su animación (campana.js) */
-  if (typeof camDibujarCerco === "function") camDibujarCerco(c, now);
-  /* ejércitos */
-  const ciu = camCiudades();
-  for (const e of S.ej) {
+  /* CAM: flancos del cerco, flechas, compañeros de asalto conjunto y su animación (campana.js).
+     Dibuja en coordenadas lógicas (T px por casilla): se escala al lienzo HD. */
+  if (typeof camDibujarCerco === "function") {
+    c.save();
+    c.scale(IFZ_K, IFZ_K);
+    camDibujarCerco(c, now);
+    c.restore();
+  }
+  /* ejércitos (posición interpolada) */
+  const ciu = camCiudades(),
+    vis = [];
+  for (const e of S0.ej) {
     const n = camTot(e.u);
     if (n <= 0) continue;
-    let X = e.x * T + 1,
-      Y = e.y * T + 2;
-    const enC = ciu.has(camIdx(e.x, e.y));
-    if (enC) X -= 8;
-    const cab = Object.keys(e.u).reduce((s, t) => s + (UN[t] && UN[t].cl === "cab" ? e.u[t] || 0 : 0), 0),
-      bob = e.est === "marcha" && !reduce ? Math.floor(now / 300 + e.id) % 2 : 0,
-      pal = ifzPal(e.f),
-      quieto = isMe(e.f) && e.mov <= 0.5;
-    spr(c, IFZ_SP["mapa.estandarte"], X - 3, Y - 7, pal);
-    if (e.gen != null) {
-      c.fillStyle = "#f2c14e";
-      c.fillRect(X - 3, Y - 8, 1, 1);
-    }
-    spr(c, cab * 2 > n ? SP.c : SP.i, X, Y - 3 - bob, PAL[e.f] || PAL[0]);
-    /* insignia a la derecha; si el ejército está en una ciudad, a la izquierda (no tapa el castillo) */
-    const ins = ifzInsignia(n, CIV[e.f].c, quieto ? "#9aa0a6" : "#ffffff"),
-      bx0 = enC ? X - 4 - ins.width : X + 8;
-    c.drawImage(ins, bx0, Y - 2);
-    if (e.est === "campamento") spr(c, IFZ_SP["mapa.tienda"], bx0, Y + 6, IFZ_PAL);
-    else if (e.est === "asedio") spr(c, IFZ_SP["mapa.escala"], bx0 + 1, Y + 6, IFZ_PAL);
-    else if (e.plan) spr(c, IFZ_SP["mapa.marcha"], enC ? bx0 - 4 : bx0 + ins.width + 1, Y, IFZ_PAL);
-    if (e.id === camSel && (reduce || Math.floor(now / 350) % 2)) {
-      c.strokeStyle = "#fff";
-      c.lineWidth = 1;
-      c.strokeRect(e.x * T + 0.5, e.y * T + 0.5, T - 1, T - 1);
+    const enC = ciu.has(camIdx(e.x, e.y)),
+      tx = e.x * S + S / 2 - (enC ? 14 : 0),
+      ty = e.y * S + S / 2 + 4,
+      P = ifzPosEj(e.id, tx, ty, now);
+    vis.push({ e, P, n });
+  }
+  vis.sort((a, b) => a.P.y - b.P.y);
+  for (const { e, P, n } of vis)
+    ifzEjercito(c, { id: e.id, f: e.f, u: e.u, est: e.est, gen: e.gen != null, sel: e.id === camSel, lev: n, quieto: isMe(e.f) && e.mov <= 0.5 }, P.x, P.y, now, P.mov, P.dir);
+  /* limpieza de posiciones de ejércitos que ya no existen */
+  if (IFZ_POS.size > S0.ej.length + 8) for (const [id, p] of IFZ_POS) if (now - (p.vis || 0) > 3000) IFZ_POS.delete(id);
+}
+/* ======================= repetición de la estación ======================= */
+const IFZ_REP = { on: false };
+/* ifzRepetir(rep) → Promise: reproduce a velocidad acelerada lo ocurrido en la estación (G.cam.rep,
+   ver CONTRATO §9). Pinta los dueños de rep.own0 y los ejércitos de rep.ej0 y aplica rep.pasos en
+   orden; agrupa las marchas de ejércitos distintos para que se muevan a la vez. Barra con progreso,
+   «×2» y «Saltar» (o Escape). Bloquea la interacción mientras dura y luego vuelve al estado real. */
+const IFZ_REPD = { mov: 260, "ej+": 200, "ej-": 200, bat: 950, ase: 450, con: 850 };
+function ifzRepGrupos(pasos) {
+  const gs = [];
+  let g = null;
+  for (const p of pasos) {
+    if (!p || !p.k) continue;
+    if (p.k === "mov") {
+      if (!g || g.k !== "mov" || g.ids.has(p.ej)) {
+        g = { k: "mov", pasos: [], ids: new Set() };
+        gs.push(g);
+      }
+      g.pasos.push(p);
+      g.ids.add(p.ej);
+    } else {
+      g = null;
+      gs.push({ k: p.k, pasos: [p] });
     }
   }
-  /* ONL: órdenes encoladas de la estación (online.js; antes envolvía camDibujar) */
-  if (net.on && typeof onlDibujarCola === "function" && typeof ONL !== "undefined" && ONL.cola && ONL.cola.length) onlDibujarCola(now);
-  /* estación en curso (también en la barra superior) */
-  if (typeof CAM_EST !== "undefined") {
-    const tx = `${CAM_EST[G.estacion]} ${G.year}`;
-    c.fillStyle = "rgba(0,0,0,.6)";
-    c.fillRect(2, 2, tx.length * 8 + 6, 12);
-    c.fillStyle = G.estacion === 3 ? "#cfe3ff" : "#f2d27a";
-    c.fillText(tx, 5, 4);
+  return gs;
+}
+function ifzRepetir(rep) {
+  if (IFZ_REP.on || !rep || !Array.isArray(rep.pasos) || !rep.pasos.length || !G || !MAP) return Promise.resolve(false);
+  if (ifzVel() <= 0 && !IFZ.repForzar) return Promise.resolve(false);
+  const gs = ifzRepGrupos(rep.pasos);
+  if (!gs.length) return Promise.resolve(false);
+  const raw = gs.reduce((s, g) => s + (IFZ_REPD[g.k] || 200), 0),
+    fac = raw > 40000 ? 40000 / raw : raw < 15000 ? Math.min(1.6, 15000 / raw) : 1;
+  Object.assign(IFZ_REP, {
+    on: true,
+    rep,
+    own: Array.isArray(rep.own0) && rep.own0.length === G.P.length ? rep.own0.slice() : G.P.map((p) => p.owner),
+    ej: new Map(),
+    as: new Map(),
+    fx: [],
+    gs,
+    i: 0,
+    fac,
+    vel: 1,
+    saltar: false,
+    total: gs.reduce((s, g) => s + (IFZ_REPD[g.k] || 200) * fac, 0),
+    hecho: 0,
+  });
+  for (const e of rep.ej0 || []) IFZ_REP.ej.set(e.id, { id: e.id, f: e.f, n: e.n, x: e.x, y: e.y, u: e.u || null, est: e.est || "marcha", tw: null });
+  ifzRepBarra(true);
+  return (async () => {
+    try {
+      for (const g of gs) {
+        if (IFZ_REP.saltar) break;
+        const dur = (IFZ_REPD[g.k] || 200) * IFZ_REP.fac;
+        ifzRepAplicar(g, performance.now(), dur / IFZ_REP.vel);
+        await ifzRepEsperar(dur / IFZ_REP.vel);
+        IFZ_REP.hecho += dur;
+        IFZ_REP.i++;
+        ifzRepBarra();
+      }
+    } catch (e) {
+      console.error("[ifz] repetición", e);
+    } finally {
+      IFZ_REP.on = false;
+      IFZ_REP.ej = new Map();
+      IFZ_POS.clear();
+      ifzRepBarra(false);
+      if (G) ui();
+    }
+    return true;
+  })();
+}
+function ifzRepEsperar(ms) {
+  return new Promise((res) => {
+    const t0 = performance.now(),
+      tic = () => (IFZ_REP.saltar || performance.now() - t0 >= ms ? res() : setTimeout(tic, 30));
+    tic();
+  });
+}
+function ifzRepAplicar(g, now, dur) {
+  const R = IFZ_REP;
+  /* los ejércitos que desaparecían en el paso anterior se quitan */
+  for (const [id, e] of R.ej) if (e.muere) R.ej.delete(id);
+  R.fx = R.fx.filter((x) => now - x.t0 < x.dur);
+  for (const p of g.pasos) {
+    if (p.k === "mov") {
+      let e = R.ej.get(p.ej);
+      if (!e) {
+        e = { id: p.ej, f: p.f, n: 4, x: p.de[0], y: p.de[1], est: "marcha" };
+        R.ej.set(p.ej, e);
+      }
+      e.tw = { fx: e.x, fy: e.y, t0: now, dur: dur * 0.95 };
+      e.x = p.a[0];
+      e.y = p.a[1];
+      e.est = "marcha";
+    } else if (p.k === "ej+") R.ej.set(p.ej, { id: p.ej, f: p.f, n: p.n || 4, u: p.u || null, x: p.x, y: p.y, est: "marcha", nace: now, ndur: dur });
+    else if (p.k === "ej-") {
+      const e = R.ej.get(p.ej);
+      if (e) Object.assign(e, { muere: now, mdur: dur });
+    } else if (p.k === "bat") {
+      const gana = p.gana != null && CIV[p.gana] ? `vence ${CIV[p.gana].s}` : "";
+      R.fx.push({ k: "bat", x: p.x, y: p.y, t0: now, dur: dur * 1.2, txt: [p.lugar || "Batalla", gana].filter(Boolean).join(" · ") });
+    } else if (p.k === "ase") {
+      if (p.fase === "fin") R.as.delete(p.p);
+      else R.as.set(p.p, { f: p.f, t0: now });
+    } else if (p.k === "con") {
+      if (G.P[p.p] && p.a != null) R.own[p.p] = p.a;
+      R.as.delete(p.p);
+      R.fx.push({ k: "con", p: p.p, a: p.a, t0: now, dur: dur * 1.1 });
+    }
   }
 }
+/* dibujo de la repetición: cercos, ejércitos deslizándose, batallas y conquistas */
+function ifzRepDibujar(c, now) {
+  const R = IFZ_REP,
+    S = IFZ_S;
+  for (const [pid, a] of R.as) if (G.P[pid]) ifzCerco(c, G.P[pid], a.f, now, Math.min(1, (now - a.t0) / 300));
+  const vis = [];
+  for (const e of R.ej.values()) {
+    let x = e.x,
+      y = e.y,
+      mov = false,
+      dir = e.dir || 1;
+    if (e.tw) {
+      const k = Math.min(1, (now - e.tw.t0) / e.tw.dur);
+      if (k < 1) {
+        x = e.tw.fx + (e.x - e.tw.fx) * k;
+        y = e.tw.fy + (e.y - e.tw.fy) * k;
+        mov = true;
+        if (e.x !== e.tw.fx) dir = e.dir = e.x > e.tw.fx ? 1 : -1;
+      }
+    }
+    let al = 1;
+    if (e.nace) al = Math.min(1, (now - e.nace) / (e.ndur || 200));
+    if (e.muere) al = Math.max(0, 1 - (now - e.muere) / (e.mdur || 200));
+    vis.push({ e, X: x * S + S / 2, Y: y * S + S / 2 + 4, mov, dir, al });
+  }
+  vis.sort((a, b) => a.Y - b.Y);
+  for (const v of vis) ifzEjercito(c, { id: v.e.id, f: v.e.f, u: v.e.u, n: v.e.n, est: v.e.est, lev: v.e.n || camTot(v.e.u || {}) }, v.X, v.Y, now, v.mov, v.dir, v.al);
+  /* efectos */
+  for (const x of R.fx) {
+    const k = (now - x.t0) / x.dur;
+    if (k < 0 || k > 1) continue;
+    if (x.k === "bat") {
+      const X = x.x * S + S / 2,
+        Y = x.y * S + S / 2;
+      /* chispazos */
+      c.fillStyle = Math.floor(now / 70) % 2 ? "#fff3b0" : "#ff7a2a";
+      for (let a = 0; a < 10; a++) {
+        const an = a * 0.63 + k * 3,
+          r = 4 + ((a * 7) % 9) * k * 1.4;
+        c.fillRect(Math.round(X + Math.cos(an) * r), Math.round(Y + Math.sin(an) * r), 2, 2);
+      }
+      /* humo */
+      for (let q = 0; q < 5; q++) {
+        c.fillStyle = `rgba(90,90,90,${0.5 * (1 - k)})`;
+        c.fillRect(Math.round(X - 6 + q * 3), Math.round(Y - 6 - k * 14 - (q % 2) * 3), 4, 4);
+      }
+      /* rótulo */
+      c.font = '10px "Press Start 2P",monospace';
+      c.textBaseline = "top";
+      const w = Math.ceil(c.measureText(x.txt).width) + 10,
+        bx = Math.round(clamp(X - w / 2, 2, hd.width - w - 2)),
+        by = Math.round(Math.max(2, Y - 34));
+      c.globalAlpha = Math.min(1, (1 - k) * 4);
+      c.fillStyle = "rgba(10,12,16,.85)";
+      c.fillRect(bx, by, w, 16);
+      c.fillStyle = "#f2c14e";
+      c.fillRect(bx, by + 15, w, 1);
+      c.fillStyle = "#fff";
+      c.fillText(x.txt, bx + 5, by + 4);
+      c.globalAlpha = 1;
+    } else if (x.k === "con" && G.P[x.p]) {
+      const p = G.P[x.p],
+        X = p.x * S + S / 2,
+        Y = p.y * S + S / 2,
+        r = 6 + k * 26;
+      c.strokeStyle = CIV[x.a] ? CIV[x.a].c : "#fff";
+      c.globalAlpha = 1 - k;
+      c.lineWidth = 3;
+      c.beginPath();
+      c.ellipse(X, Y, r, r * 0.75, 0, 0, Math.PI * 2);
+      c.stroke();
+      c.fillStyle = "#fff";
+      c.globalAlpha = Math.max(0, 0.5 - k);
+      for (const i of ifzMapaInfo().provT[x.p] || []) c.fillRect((i % W) * S, ((i / W) | 0) * S, S, S);
+      c.globalAlpha = 1;
+      c.lineWidth = 1;
+    }
+  }
+}
+/* barra de la repetición (y bloqueo de la interacción) */
+function ifzRepBarra(abrir) {
+  const b = $("ifzrep");
+  if (!b) return;
+  if (abrir === false) {
+    b.hidden = true;
+    b.innerHTML = "";
+    return;
+  }
+  const R = IFZ_REP,
+    pc = R.total ? Math.round((R.hecho / R.total) * 100) : 0;
+  if (abrir) {
+    b.hidden = false;
+    const est = typeof CAM_EST !== "undefined" ? CAM_EST[R.rep.est ?? G.estacion] : "";
+    b.innerHTML = `<div class="ifz-repbar" role="status" aria-live="polite"><b>Repetición · ${est ? est.toLowerCase() + " de " : ""}${R.rep.anio ?? G.year}</b><span class="ifz-repprog" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></span><button data-act="ifzrep-x2" id="ifzrepx2" aria-pressed="false">×2</button><button data-act="ifzrep-saltar" class="gold">Saltar ▶▶</button></div>`;
+    setTimeout(() => b.querySelector('[data-act="ifzrep-saltar"]')?.focus({ preventScroll: true }), 30);
+  }
+  const i = b.querySelector(".ifz-repprog i"),
+    pr = b.querySelector(".ifz-repprog");
+  if (i) i.style.width = pc + "%";
+  if (pr) pr.setAttribute("aria-valuenow", pc);
+}
+OC.accion(
+  "ifzrep",
+  (v) => {
+    if (!IFZ_REP.on) return false;
+    if (v === "saltar") IFZ_REP.saltar = true;
+    if (v === "x2") {
+      IFZ_REP.vel = IFZ_REP.vel >= 4 ? 1 : IFZ_REP.vel * 2;
+      const b = $("ifzrepx2");
+      if (b) {
+        b.textContent = IFZ_REP.vel >= 4 ? "×1" : "×" + IFZ_REP.vel * 2;
+        b.setAttribute("aria-pressed", IFZ_REP.vel > 1 ? "true" : "false");
+      }
+    }
+    return false;
+  },
+  { libre: true },
+);
+/* en un jugador, tras cada estación con movimientos (Campaña graba G.cam.rep; CONTRATO §9) */
+OC.on("finEstacion", async () => {
+  if (!G || net.on || IFZ.pref.rep === false) return;
+  const rep = G.cam && G.cam.rep;
+  if (rep && Array.isArray(rep.pasos) && rep.pasos.length) await ifzRepetir(rep);
+});
 /* minimapa: aparece cuando el mapa no cabe (zoom o móvil); tocarlo lleva la vista allí */
 let ifzMiniT = 0;
 function ifzMini() {
@@ -813,7 +1594,7 @@ function ifzMini() {
   }
   const x = m.getContext("2d");
   x.imageSmoothingEnabled = true;
-  x.drawImage(cv, 0, 0, m.width, m.height);
+  x.drawImage(hd, 0, 0, m.width, m.height);
   const fx = m.width / w.scrollWidth,
     fy = m.height / w.scrollHeight;
   x.strokeStyle = "#f2c14e";
@@ -846,7 +1627,10 @@ function frame(now) {
   try {
     if ($("start").classList.contains("show")) drawScene(now);
     if (G && MAP) {
+      const t0 = performance.now();
       drawMap(now);
+      const ms = performance.now() - t0;
+      IFZ.medMapa = IFZ.medMapa ? IFZ.medMapa * 0.95 + ms * 0.05 : ms;
       if (++ifzMiniT % 8 === 0) ifzMini();
     }
     if (BT) drawBattle(now);
@@ -884,7 +1668,7 @@ function mapZoom(z, cx, cy) {
     cx = r.left + r.width / 2;
     cy = r.top + r.height / 2;
   }
-  zoomAt(w, cv, zoom, cx, cy);
+  zoomAt(w, $("mapcapas"), zoom, cx, cy);
   $("mzl").textContent = Math.round(zoom * 100) + "%";
 }
 cv.addEventListener("pointerdown", (e) => {
@@ -946,7 +1730,7 @@ function setZoom(z) {
     cx = (w.scrollLeft + w.clientWidth / 2) / w.scrollWidth,
     cy = (w.scrollTop + w.clientHeight / 2) / w.scrollHeight;
   zoom = clamp(z, 1, 4);
-  cv.style.width = zoom * 100 + "%";
+  $("mapcapas").style.width = zoom * 100 + "%";
   const zl = $("mzl");
   if (zl) zl.textContent = Math.round(zoom * 100) + "%";
   w.scrollLeft = cx * w.scrollWidth - w.clientWidth / 2;
@@ -1042,6 +1826,10 @@ document.addEventListener("click", (e) => {
   }
   if (a === "ifzayuda") {
     ifzAyuda();
+    return;
+  }
+  if (a === "ifzopc") {
+    ifzOpciones();
     return;
   }
   if (a === "zoom") {
@@ -1218,7 +2006,7 @@ cv.addEventListener("click", (e) => {
     mp.moved = false;
     return;
   }
-  if (!G || busy || BT) return;
+  if (!G || busy || BT || IFZ_REP.on) return;
   /* CAM: ejércitos del mapa (seleccionar, marchar, asediar, atacar) */
   const cxy = camCasillaEv(e);
   if (cxy && camClic(cxy[0], cxy[1])) return;
@@ -1345,6 +2133,10 @@ document.addEventListener("keydown", (e) => {
     $("tabb-" + tab)?.focus();
     return;
   }
+  if (e.key === "Escape" && IFZ_REP.on) {
+    IFZ_REP.saltar = true;
+    return;
+  }
   if (e.key === "Escape") {
     aim = 0;
     if (IFZ.res) IFZ.res = false;
@@ -1368,17 +2160,63 @@ function ifzAyuda() {
 <p><b>Objetivo.</b> Domina 6 de cada 10 provincias del mapa o sé la última dinastía en pie. Si tu soberano muere sin heredero, tu linaje cae.</p>
 <p><b>El turno es una estación.</b> Ordena lo que quieras y pulsa <b>Fin de la estación</b> (tecla <kbd>E</kbd>). Al acabar el invierno se cobran impuestos, se paga a las tropas, se investiga y envejece la corte.</p>
 <h3>El mapa</h3>
-<ul><li>Haz clic en una provincia para verla. La cifra junto a cada ciudad son sus <b>levas</b> (cada leva, ${ifzSPU()} hombres).</li><li>Los <b>estandartes</b> son ejércitos en campaña. Clic en uno tuyo: se ilumina hasta dónde llega esta estación; clic en una casilla para marchar, en una ciudad enemiga (roja) para asediarla.</li><li>Rueda o pellizco para acercar; arrastra para moverte. El minimapa lleva la vista a otro lugar.</li></ul>
+<ul><li>Haz clic en una provincia para verla. La cifra junto a cada ciudad son sus <b>levas</b> (cada leva, ${ifzSPU()} hombres).</li><li>Las <b>columnas de soldados con estandarte</b> son ejércitos en campaña (cada figurita, unos 10 hombres; el pendón dorado, su general). Clic en uno tuyo: se ilumina hasta dónde llega esta estación; clic en una casilla para marchar, en una ciudad enemiga (roja) para asediarla.</li><li>Rueda o pellizco para acercar; arrastra para moverte. El minimapa lleva la vista a otro lugar.</li></ul>
 <h3>El panel de mando</h3>
 <ul><li><b>Provincia</b>: reclutar, formar ejércitos, edificios, gobierno, ánimo e impuestos (las secciones se pliegan y recuerdan cómo las dejaste).</li><li><b>Ejército</b> y <b>Campaña</b>: tus huestes, mandos, asedios y mercenarios.</li><li><b>Dinastía</b>, <b>Corte</b> y <b>Diplomacia</b>: herederos, bodas, consejo, tratados y guerras.</li><li><b>Tesoro</b> y <b>Progreso</b>: economía, comercio, investigación y eras.</li><li><b>Anales</b> y <b>Crónica</b>: la historia de tu linaje y lo que ocurre en el mundo.</li></ul>
 <h3>Teclado</h3>
-<p><kbd>E</kbd> terminar · <kbd>Esc</kbd> cancelar o cerrar · <kbd>?</kbd> esta ayuda · flechas para cambiar de pestaña.</p></div>`,
+<p>En <b>⚙ Opciones</b>: la velocidad de las animaciones y la repetición de cada estación (a velocidad acelerada, con «Saltar» y «×2»).</p><p><kbd>E</kbd> terminar · <kbd>Esc</kbd> cancelar, cerrar o saltar la repetición · <kbd>?</kbd> esta ayuda · flechas para cambiar de pestaña.</p></div>`,
     [
       ...(G ? [{ t: "Repetir el tutorial", fn: () => ((IFZ.pref.tut = 0), ifzGuardar()) }] : []),
       { t: "Cerrar", cls: "gold" },
     ],
   ).finally(() => (IFZ.ayuda = false));
 }
+/* opciones: velocidad de las animaciones, repetición de la estación, música y tutorial */
+function ifzOpciones() {
+  if ($("modal").classList.contains("show")) return;
+  const v = IFZ.pref.vel || "lenta",
+    bt = (act, on, t, d) => `<button data-act="${act}" class="${on ? "on" : ""}" aria-pressed="${on}">${t}${d ? `<small>${d}</small>` : ""}</button>`;
+  modal(
+    "Opciones",
+    `<div class="ifz-opc">
+<h3>Velocidad de animación</h3><p class="dim">Lo que tardan en desplazarse los ejércitos por el mapa. Lenta da la sensación de mover huestes enormes por distancias largas.</p>
+<div class="g3" role="group" aria-label="Velocidad de animación">${bt("ifzvel-lenta", v === "lenta", "Lenta", "épica")}${bt("ifzvel-normal", v === "normal", "Normal")}${bt("ifzvel-rapida", v === "rapida", "Rápida")}</div>
+<h3>Repetición de la estación</h3><p class="dim">Al terminar cada estación, ver a velocidad acelerada las marchas, batallas, asedios y conquistas de todas las potencias.</p>
+<div class="g2" role="group" aria-label="Repetición de la estación">${bt("ifzrepo-1", IFZ.pref.rep !== false, "Sí")}${bt("ifzrepo-0", IFZ.pref.rep === false, "No")}</div>
+<h3>Música y ayuda</h3><div class="btns"><button class="music" data-act="music">♪ Música</button><button data-act="ifztut-otra">Repetir el tutorial</button></div></div>`,
+    [{ t: "Cerrar", cls: "gold" }],
+  );
+}
+/* marca el botón pulsado dentro de un grupo del modal de opciones */
+function ifzMarcar(b) {
+  const g = b && b.closest("[role=group]");
+  if (!g) return;
+  for (const x of g.querySelectorAll("button")) {
+    x.classList.toggle("on", x === b);
+    x.setAttribute("aria-pressed", x === b ? "true" : "false");
+  }
+}
+OC.accion(
+  "ifzvel",
+  (v, b) => {
+    if (!IFZ_VELS[v]) return false;
+    IFZ.pref.vel = v;
+    ifzGuardar();
+    ifzMarcar(b);
+    return false;
+  },
+  { libre: true },
+);
+OC.accion(
+  "ifzrepo",
+  (v, b) => {
+    IFZ.pref.rep = v === "1";
+    ifzGuardar();
+    ifzMarcar(b);
+    return false;
+  },
+  { libre: true },
+);
 /* tutorial ligero: una tarjeta no modal sobre el panel, con pasos que avanzan solos */
 const IFZ_TUT = [
   {
@@ -1469,18 +2307,21 @@ function ifzSprCatalogo() {
     cat = (n) => {
       if (n.startsWith("MS.")) return "batalla";
       if (n.startsWith("IFZ.tab")) return "interfaz";
+      if (/^IFZ\.(fig\.|mapa\.(estandarte\.|pendon|tiendaF|hoguera))/.test(n)) return "ejercito";
+      if (/^IFZ\.(arbol\.|mapa\.(colina|monte))/.test(n)) return "naturaleza";
+      if (/^IFZ\.mapa\.(casa|torre|aldea)/.test(n)) return "ciudad";
       if (n.startsWith("IFZ.")) return "mapa";
       const k = n.slice(3);
       return TYP.includes(k) ? "tropas" : "mapa";
     },
     add = (n, rows) => {
-      const tinte = rows.some((r) => /[Ffr]/.test(r));
+      const tinte = n.startsWith("IFZ.") ? rows.some((r) => /[Ff]/.test(r)) : rows.some((r) => /[Ffr]/.test(r));
       out.push({ nombre: n, cat: cat(n), w: Math.max(...rows.map((r) => r.length)), h: rows.length, tinte, alias: IFZ_SPR.alias[n] || null });
     };
   for (const k in SP) add("SP." + k, SP[k]);
   if (typeof MS !== "undefined") for (const k in MS) (MS[k] || []).forEach((fr, i) => add(`MS.${k}.${i}`, fr));
   for (const k in IFZ_SP) add("IFZ." + k, IFZ_SP[k]);
-  for (const t of ["mar", "llanura", "bosque", "colina"]) out.push({ nombre: "TILE." + t, cat: "terreno", w: T, h: T, tinte: false, alias: null });
+  for (const t of IFZ_TILE) out.push({ nombre: "TILE." + t, cat: "terreno", w: IFZ_S, h: IFZ_S, tinte: false, alias: null });
   out.push({ nombre: "ESCENA.fondo", cat: "escena", w: 200, h: 112, tinte: false, alias: null });
   return out;
 }
@@ -1499,10 +2340,10 @@ function ifzSprRender(n, k = 1, modo = "plantilla", f = 0) {
     x = c.getContext("2d");
   x.imageSmoothingEnabled = false;
   if (n.startsWith("TILE.")) {
-    c.width = c.height = T * k;
+    c.width = c.height = IFZ_S * k;
     const tc = document.createElement("canvas");
-    tc.width = tc.height = T;
-    ifzTileProc(tc.getContext("2d"), { mar: 0, llanura: 1, bosque: 2, colina: 3 }[n.slice(5)], 0, 0, mul(7), true);
+    tc.width = tc.height = IFZ_S;
+    ifzTeselaSuelta(tc.getContext("2d"), n.slice(5));
     x.drawImage(tc, 0, 0, c.width, c.height);
     return c;
   }
@@ -1521,8 +2362,10 @@ function ifzSprRender(n, k = 1, modo = "plantilla", f = 0) {
   const w = Math.max(...rows.map((r) => r.length));
   c.width = w * k;
   c.height = rows.length * k;
-  const pal = Object.assign({}, IFZ_PAL, BP, modo === "plantilla" ? { F: "#ff00ff", f: "#ff00ff", r: "#800080" } : PAL[f]);
-  if (n.startsWith("IFZ.tab")) Object.assign(pal, IFZ_PAL);
+  const civ = modo === "plantilla" ? { F: "#ff00ff", f: "#ff00ff", r: "#800080" } : { F: CIV[f].c, f: CIV[f].c, r: CIV[f].d },
+    esIfz = n.startsWith("IFZ."),
+    tinte = esIfz && rows.some((r) => /[Ff]/.test(r)),
+    pal = esIfz ? Object.assign({}, IFZ_PAL, tinte ? civ : {}) : Object.assign({}, BP, modo === "plantilla" ? civ : PAL[f]);
   rows.forEach((row, j) => {
     for (let i = 0; i < row.length; i++) {
       const ch = row[i];
@@ -1657,6 +2500,7 @@ function ifzSprRefrescar() {
   ifzSprTm = setTimeout(() => {
     for (const k in ICON) delete ICON[k];
     for (const k in IFZ_ICO) delete IFZ_ICO[k];
+    IFZ_DC.clear();
     IFZ_SPR.ico = {};
     IFZ_SPR.tin.clear();
     IFZ.html = {};

@@ -46,13 +46,34 @@ que ya tenía.
 | Templo | 3 | +12 orden (economía) | saber |
 | Escuela | 3 | +1,5 investigación | saber |
 | Acueducto | 2 | +4 orden, +1 comida | neutro |
+| Torre de vigilancia (`p.torre`) | 3 | visión sobre la comarca para la niebla de guerra (`tecVision(p)` = nivel 0-3; Campaña lo convierte en radio). **No ocupa hueco.** II desde 430; III desde 455 con Poliorcética | neutro |
+| Mina (`p.mina`) | 3 | hierro u oro (y plata, estaño, cobre si economía los define) según el yacimiento | económica |
+| Cantera (`p.cantera`) | 3 | piedra según el yacimiento | económica |
+| Aserradero (`p.aserradero`) | 3 | madera según el bosque | económica |
+| Salinas (`p.salinas`) | 2 | sal según el yacimiento | económica |
 
 - **Huecos**: `2 + 1 por cada 5.000 almas (+2 la capital)`, entre 3 y 9. Un edificio nuevo ocupa un
   hueco; subir de nivel no. Obliga a elegir: una ciudad pequeña no puede tenerlo todo.
-- Coste del nivel n: `base × (1 + 0,6·(n−1))` oro + 4·n del material (madera, piedra, hierro) si existe;
+- Coste del nivel n: `base × (1 + 0,6·(n−1)) × 0,62` oro (`TEC_ORO`: el oro bajó un 38% porque el
+  progreso era muy lento) + 4·n del material (madera, piedra, hierro, **sin cambios**) si existe;
   el material que falte se suple con 3 de oro por unidad. Pasa por `costeConstruccion`.
 - Tardan 1–3 años (Ingeniería resta uno). Cola de 3 por ciudad (obras y adopciones; una avanza).
   Cancelar devuelve la mitad. Conquista o revuelta: se pierde la cola, no los edificios.
+
+### Yacimientos — minas, canteras, aserraderos y salinas
+- `tecYac(p)` → `{hierro, oro, piedra, madera, sal, ...}` con riqueza 0-3. Usa `ecoYac(p)` de economía si existe
+  (acepta `bosque` como sinónimo de `madera`); si no, lo estima: especialidad de la provincia (minas de hierro
+  → hierro 3, canteras → piedra 3, bosques madereros → madera 3, salinas → sal 3, minas de oro → oro 2) y
+  terreno (colinas → hierro y piedra; bosque → madera; costa → sal 1). `ecoFertil(p)` se muestra si existe.
+- Cada explotación **solo se ofrece donde hay yacimiento** y su nivel máximo es la riqueza (`tecRiqueza(p, k)`).
+- Producción (vía `rendimiento`): por nivel, `+riqueza` del recurso y `×(1 + 0,25·nivel)` lo que ya daba la
+  tierra; el oro de las minas va al tesoro (`2 × nivel × riqueza`; plata 1,5). Coste base 45 / 35 / 30 / 35
+  oro (× 0,62) + madera (hierro el aserradero); niveles II desde 425 (salinas 440) y III desde 450.
+- **Las explotaciones que existan al empezar las pone economía**: basta con fijar `p.mina`, `p.cantera`,
+  `p.aserradero` o `p.salinas` (números, claves de `BLD`) antes o después de `partidaLista`; tecnología no
+  los pisa (solo pone 0 donde falta el campo). Un nivel por encima de la riqueza se respeta pero no sube más.
+- La sección de la ciudad muestra «⛏ hierro ●●○ · piedra ●○○ …» y qué da cada explotación y su siguiente nivel.
+- La IA las levanta donde la riqueza es alta, sobre todo si le falta ese recurso (`tecIAYac`).
 
 ### Perfil emergente — `tecPerfil(p)`
 `{id, nombre, icono, sin, militar, economico, saber}`. Cada vocación suma los niveles de sus edificios
@@ -116,7 +137,7 @@ ciudad + técnicas adoptadas allí + sinergia de plaza fuerte. Sin `p` (o si `p`
 ## Descubrimientos del reino
 
 Puntos al año = suma de las ciudades, por `OC.calc('puntosInvestigacion')`:
-`0,4 + 0,07·miles de almas + escuela (1,5/nivel) + técnicas adoptadas (letras, monasterios, santuarios)
+`0,6 + 0,075·miles de almas + escuela (1,5/nivel) + técnicas adoptadas (letras, monasterios, santuarios)
 + edificios propios`; la capital suma `1,5 + era + (gestión del soberano − 5)·0,3` (−1 en regencia);
 ×1,25 en una ciudad de saber. La pestaña Progreso muestra qué aporta cada ciudad.
 Los avanzados piden **una ciudad con Escuela II** (`saber: 2`) o **III** (`saber: 3`).
@@ -130,7 +151,7 @@ Costes 12 → 80; además cada técnica espera a su año.
 | ciudad (en: edificio que pide) | Disciplina (cuartel), Remonta (establo), Arco compuesto (campo de tiro o cuartel), Lorigas y Hierro templado (herrería), Comitatenses (cuartel II), Arado, Rotación de cultivos (granja), Molinos (granja II), Collegia y Sericultura (mercado II), Escuelas de retórica (escuela), Termas y sanidad (acueducto), Liturgia (templo), Monasterios y Grandes santuarios (templo II); propias: Legión palatina, Francisca (cuartel), Arco huno (establo o campo de tiro), Clibanarios (establo), Flota (puerto) |
 | reino | Poliorcética, Limitanei, Strategikon, Reforma del sólido, Calzadas, Annona, Censo, Ingeniería, Derecho, Cancillería, Corpus Iuris, Jerarquía sacerdotal, Concilios y las propias de leyes y política |
 
-**Adoptar** = obra en la cola de la ciudad: `15 + coste en puntos` de oro + 4 hierro (milicia), 3 madera
+**Adoptar** = obra en la cola de la ciudad: `(15 + coste en puntos) × 0,62` de oro + 4 hierro (milicia), 3 madera
 (economía) o 3 piedra (resto); 1 año (2 si cuesta más de 20 puntos; Ingeniería lo deja en 1).
 Los niveles III de granja/mercado/templo/escuela piden su técnica **adoptada en esa ciudad** si es de
 ámbito ciudad (Arado, Escuelas de retórica) o conocida si es del reino (Reforma del sólido, Jerarquía).
@@ -235,11 +256,27 @@ Guarda `6 + provincias` de oro.
 - **Llama**: `costeConstruccion` (edificios y adopciones, `id: "tec:<técnica>"`), `puntosInvestigacion`.
 - **Modifica**: `rendimiento` y `ordenObjetivo` (por ciudad), `statsUnidad` (multiplica `atk` y `hp`),
   `bonoBatalla`, `costeUnidad`, `mantenimientoTropa` (mín. 50%), `unidadesDisponibles`, `aceptacionDiplomatica`.
-- Funciones para otros: `tecPerfil(p)`, `tecHuecos(p)`, `tecPuedeReclutar(f, p, t)`, `tecReclutables(f, p)`,
+- Funciones para otros: `tecVision(p)`, `tecYac(p)`, `tecRiqueza(p, k)`, `tecPerfil(p)`, `tecHuecos(p)`, `tecPuedeReclutar(f, p, t)`, `tecReclutables(f, p)`,
   `tecAdoptada(p, id)`, `tecPuntosCiudad(p)`, `tecDesde(anio)`, `tecTiene(f, id)`, `tecPuntos(f)`,
   `tecResumen(p)`, `tecLineaEdificios(p)` (ahora empieza por el perfil), `tecAnioUnidad(t)`, `tecEras(f)`.
 
+## Equilibrio (simulación de 40 años, `pruebas/tecnologia.js` y un jugador «medio» automático)
+
+| | Antes | Ahora |
+|---|---|---|
+| Obras terminadas por el jugador (francos / Occidente) | 18 / 12 | 30 / 23 |
+| Obras terminadas por cada IA (media) | 33,5 / 27,8 | 47,7 / 41,8 |
+| Niveles de edificio por ciudad de la IA | 8,0 / 6,5 | 8,3 / 8,2 (los frenan huecos y riqueza) |
+| Investigación del jugador al empezar | 5,3 | 7,5 por año |
+
+Con el empujón, todos llegan a lo que permiten las puertas por año (20 técnicas en 450): la investigación
+ya no frena; lo que marca el ritmo a partir de entonces es el calendario.
+
 ## Peticiones al orquestador
+
+- **Contrato**: anotar los campos de provincia `p.mina`, `p.cantera`, `p.aserradero`, `p.salinas` (economía
+  pone las explotaciones iniciales) y `p.torre` (Campaña lee `tecVision(p)`), y las funciones `ecoYac(p)` /
+  `ecoFertil(p)` que tecnología consume si existen.
 
 - **Campaña**: no hay cálculo para las máquinas de asedio. Propongo que `ejercitos.js` pase el coste y las
   estaciones de `CAM_MAQ` por `OC.calc('costeMaquina', {madera, hierro, oro}, {f, maq, p})` y
