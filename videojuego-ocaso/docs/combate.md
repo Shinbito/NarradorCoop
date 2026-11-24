@@ -185,6 +185,16 @@ cmbTacticaMulti(lista, ctx, modo)     // Promise del mismo resultado; modo 't3' 
   torre de asedio propia (`cmbToca`). En desbandada bajan. Las **torres de la muralla** disparan solas cada
   2,4 s al atacante más cercano a 7 casillas, como 4 arqueros (menos con la muralla dañada; las de la brecha
   caída, no): factor «Las torres de la muralla». Online: bit 16 del estado de cada unidad.
+- **La muralla es un obstáculo** (`cmbPuedePasar`, `cmbRutaPlaza`): nadie la cruza andando ni lucha cuerpo a
+  cuerpo de un lado al otro, salvo por las **puertas** (la guarnición siempre; el atacante cuando la muralla
+  ha caído, `hp ≤ 0`), la **brecha** (`rota`), con **escalas** (`u.escala`: la infantería atacante que pasa
+  `CMB_ESCALAR` = 6 s pegada al lienzo las levanta) o junto a una **torre de asedio** propia apoyada en el
+  lienzo. La IA va a la abertura practicable más cercana; sin ninguna, al pie del muro. Quien ya está dentro
+  de la plaza sube al adarve por las escaleras de dentro; los tiradores sin munición bajan. Un **campamento**
+  (`camp`) es una empalizada: protege y da moral, pero no es obstáculo, no tiene adarve ni torres que disparen.
+- **Equilibrio** (IA contra IA, frente a la resolución automática): asedio igualado 1:1 con murallas 2: 0 %
+  para el atacante (automática 7 %); 1,5:1, 2:1 y 3:1 con o sin máquinas y por tres flancos: 100 % (100 %);
+  campamento 1:1: 50 % (automática ~95 %).
 - `batallaResuelta` de las *Multi con `ctx.emitir`: `{p, atacante, defensor, gana, A, D, s0, d0, gA, gD, ...}` de los dos
   **principales** (el primero y el primero de otro bando, o `ctx.def`) para compatibilidad, más `multi: true`,
   `bandos`, `ganaBando` y `ejs: [{f, bando, gen, u0, A, gana, heridos, bajas, general}]`. Experiencia, fama y

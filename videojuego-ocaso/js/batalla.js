@@ -1725,7 +1725,8 @@ const CMB_SOBRE = 0.55, // a menos de esto de la línea del lienzo: sobre la mur
   CMB_TORRE_AL = 7;
 const cmbPuedeSubir = (u) => {
   const M = BT.muro;
-  return !!(M && M.x0 != null && BT.def != null && cmbBnd(u.side) === cmbBnd(BT.def) && u.cs.cl === "dis" && u.cs.al > 0 && !cmbCab(u.t));
+  /* un campamento es una empalizada: sin adarve */
+  return !!(M && M.x0 != null && !M.camp && BT.def != null && cmbBnd(u.side) === cmbBnd(BT.def) && u.cs.cl === "dis" && u.cs.al > 0 && !cmbCab(u.t));
 };
 const cmbSobreMuro = (M, p) => cmbDistMuro(M, p) < CMB_SOBRE;
 const cmbTorreCerca = (M, p) => M.torres.reduce((a, t) => (Math.hypot(t.x - p.x, t.y - p.y) < Math.hypot(a.x - p.x, a.y - p.y) ? t : a));
@@ -1790,6 +1791,20 @@ function cmbRutaAdarve(u, P, g) {
       cmbBajar(u, cmbTorreCerca(M, u));
       return g;
     }
+    /* sin munición no pintan nada arriba: bajan por la torre más cercana a pelear */
+    if (!tirador(u)) {
+      const t = cmbTorreCerca(M, u);
+      if (Math.hypot(u.x - t.x, u.y - t.y) < 0.35) {
+        cmbBajar(u, t);
+        bHito("baj" + u.id, 2, `${uname(u)}, sin proyectiles, bajan del adarve.`, aliado(u) ? "" : "good");
+        return g;
+      }
+      return cmbPasoMuro(M, u, t);
+    }
+    if (false) {
+      cmbBajar(u, cmbTorreCerca(M, u));
+      return g;
+    }
     if (mov && !cmbSobreMuro(M, mov)) {
       const t = cmbTorreCerca(M, mov);
       if (Math.hypot(u.x - t.x, u.y - t.y) < 0.35) {
@@ -1806,7 +1821,7 @@ function cmbRutaAdarve(u, P, g) {
     }
     return null; /* arriba no persiguen por el campo */
   }
-  if (!u.rout && mov && cmbPuedeSubir(u) && cmbSobreMuro(M, mov)) {
+  if (!u.rout && mov && cmbPuedeSubir(u) && tirador(u) && cmbSobreMuro(M, mov)) {
     const t = cmbTorreCerca(M, mov),
       pie = cmbTorrePie(M, t);
     if (Math.hypot(u.x - pie.x, u.y - pie.y) < 0.5) {
@@ -1820,13 +1835,67 @@ function cmbRutaAdarve(u, P, g) {
 }
 /* ¿pueden a y b llegar al cuerpo a cuerpo? (uno en el adarve y otro abajo: solo con escalas o torre) */
 function cmbToca(a, b) {
-  if (!a.adarve === !b.adarve) return true;
+  if (!a.adarve === !b.adarve) {
+    const M = BT.muro;
+    if (a.adarve || !M || M.x0 == null) return true;
+    const da = cmbDentro(M, a);
+    if (da === cmbDentro(M, b)) return true;
+    const fuera = da ? b : a,
+      dentro = da ? a : b,
+      pt = cmbPuntoMuro(M, fuera);
+    return cmbPuedePasar(fuera, pt) || cmbPuedePasar(dentro, pt);
+  }
   const s = a.adarve ? b : a,
     M = BT.muro;
   return (
     s.escala > 0 ||
+    /* quien ya está dentro de la plaza sube por las escaleras de dentro */
+    (!!M && M.x0 != null && cmbDentro(M, s)) ||
     (!!M && BT.units.some((t) => t.t === "tor" && !hostil(t, s) && fighting(t) && cmbDistMuro(M, t) < 1.6 && dd(t, s) < 2.6))
   );
+}
+/* ---------- la muralla es un obstáculo ----------
+   Nadie la atraviesa andando. Se pasa por: las puertas (la guarnición siempre; el atacante cuando la
+   muralla ha caído, hp ≤ 0: arietes y catapultas destrozan las puertas), la brecha (con la muralla rota),
+   escalas (u.escala > 0: la infantería atacante que pasa CMB_ESCALAR s pegada al lienzo las levanta; trepa
+   lenta y débil y bajo las flechas) o junto a una torre de asedio propia apoyada en el lienzo. Tampoco hay
+   cuerpo a cuerpo de un lado al otro del lienzo salvo por esos pasos. La IA busca la abertura más cercana. */
+const CMB_ESCALAR = 6;
+function cmbAberturas(M, u) {
+  const L = [];
+  if (cmbBnd(u.side) === cmbBnd(BT.def) || M.hp <= 0) for (const q of M.puertas) L.push({ x: q.x, y: q.y, l: q.l, r: 1 });
+  if (M.rota && M.brecha) {
+    const B = M.brecha,
+      c = (B.a + B.b) / 2,
+      fija = B.l === "O" ? M.x0 : B.l === "E" ? M.x1 : B.l === "N" ? M.y0 : M.y1;
+    L.push(B.l === "N" || B.l === "S" ? { x: c, y: fija, l: B.l, r: (B.b - B.a) / 2 } : { x: fija, y: c, l: B.l, r: (B.b - B.a) / 2 });
+  }
+  return L;
+}
+const cmbTorreAsedioJunto = (u) => {
+  const M = BT.muro;
+  return !!M && BT.units.some((t) => t.t === "tor" && !hostil(t, u) && fighting(t) && cmbDistMuro(M, t) < 1.6 && dd(t, u) < 2.6);
+};
+/* ¿puede u cruzar el lienzo por el punto p? */
+function cmbPuedePasar(u, p) {
+  const M = BT.muro;
+  /* la empalizada de un campamento protege, pero no es un obstáculo (como antes del recinto central) */
+  if (!M || M.x0 == null || M.camp || u.escala > 0 || u.adarve || cmbTorreAsedioJunto(u)) return true;
+  return cmbAberturas(M, u).some((o) => Math.hypot(o.x - p.x, o.y - p.y) <= o.r + 0.35);
+}
+/* destino del paso cuando el objetivo está al otro lado del lienzo: la abertura practicable más cercana */
+function cmbRutaPlaza(u, g) {
+  const M = BT.muro,
+    du = cmbDentro(M, u);
+  if (du === cmbDentro(M, g)) return g;
+  if (cmbPuedePasar(u, cmbPuntoMuro(M, u))) return g;
+  const ab = cmbAberturas(M, u);
+  if (!ab.length) return g; /* sin paso: al pie del muro (la infantería atacante escalará) */
+  const o = ab.reduce((a, q) => (Math.hypot(q.x - u.x, q.y - u.y) + Math.hypot(q.x - g.x, q.y - g.y) < Math.hypot(a.x - u.x, a.y - u.y) + Math.hypot(a.x - g.x, a.y - g.y) ? q : a)),
+    n = CMB_NOR[o.l],
+    s = du ? -1 : 1; /* hacia el lado de u */
+  if (Math.hypot(o.x - u.x, o.y - u.y) < 0.9) return g;
+  return { x: o.x + n[0] * 0.6 * s, y: o.y + n[1] * 0.6 * s };
 }
 /* colocar una unidad en el despliegue (a mano): en la muralla si es un tirador de la plaza y se suelta sobre
    un lienzo; si no, dentro de su zona. Devuelve si se colocó. */
@@ -2437,7 +2506,12 @@ function simStep(dt, slot) {
       }
     }
     if (M && (u.adarve || cmbPuedeSubir(u))) g = cmbRutaAdarve(u, P, g);
+    if (M && M.x0 != null && g && !u.adarve) g = cmbRutaPlaza(u, g);
     u.goal = g;
+  }
+  for (const u of live) {
+    u._px = u.x;
+    u._py = u.y;
   }
   for (const u of live) {
     const was = u.eng,
@@ -2523,6 +2597,21 @@ function simStep(dt, slot) {
         const q = cmbPuntoMuro(M, u);
         u.x = q.x;
         u.y = q.y;
+      } else if (M && M.x0 != null && u._px != null && cmbDentro(M, u) !== cmbDentro(M, { x: u._px, y: u._py })) {
+        /* la muralla es un obstáculo: sin paso, se queda a su lado (y la infantería atacante levanta escalas) */
+        const pt = cmbPuntoMuro(M, u);
+        if (!cmbPuedePasar(u, pt)) {
+          u.x = u._px;
+          u.y = u._py;
+          if (cmbBnd(u.side) !== cmbBnd(BT.def) && !cmbCab(u.t) && u.cs.cl !== "asd" && !u.rout) {
+            u.escT = (u.escT || 0) + dt;
+            if (u.escT >= (M.camp ? 2 : CMB_ESCALAR)) {
+              u.escT = 0;
+              u.escala = 8;
+              bHito("esc" + u.id, 2, M.camp ? `${uname(u)} saltan la empalizada.` : `${uname(u)} levantan escalas contra la muralla.`, aliado(u) ? "good" : "bad");
+            }
+          }
+        }
       }
     }
   }
@@ -2614,7 +2703,7 @@ function simStep(dt, slot) {
     } else u.rel = 0.3;
   }
   /* las torres de la muralla disparan por su cuenta (pocas flechas: CMB_TORRE_N hombres cada una) */
-  if (M && M.x0 != null && M.hp > 0 && BT.def != null && (BT.torT = (BT.torT ?? 1.5) - dt) <= 0) {
+  if (M && M.x0 != null && !M.camp && M.hp > 0 && BT.def != null && (BT.torT = (BT.torT ?? 1.5) - dt) <= 0) {
     BT.torT = 2.4;
     const k = clamp(M.hp / M.hp0, 0, 1),
       cl = BT.env.clima;
