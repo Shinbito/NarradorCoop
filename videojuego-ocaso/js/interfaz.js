@@ -251,6 +251,9 @@ const stTag = (g) =>
 function provPanel(dis) {
   /* CAM: con un ejército seleccionado, su panel (campana.js) */
   if (typeof camSel !== "undefined" && camSel != null && camEj(camSel)) return camPanelEj(dis);
+  /* CAM: espía seleccionado y provincias que la niebla oculta (campana.js) */
+  if (typeof camEspSel !== "undefined" && camEspSel != null && typeof camPanelEsp === "function" && camEspPorId(camEspSel)) return camPanelEsp(dis);
+  if (sel !== null && G.P[sel] && typeof camProvOculta === "function" && camProvOculta(G.P[sel])) return camPanelNiebla(G.P[sel], dis);
   if (sel === null || !G.P[sel])
     return '<h2>Mapa de campaña</h2><p class="dim">Haz clic (o toca) una provincia del mapa. Las tuyas llevan tu color; los castillos son capitales y la cifra junto a cada ciudad son sus levas.</p>';
   const p = G.P[sel],
@@ -763,6 +766,30 @@ function ifzPolitico(own) {
   const vias = {};
   for (const f of dues) vias[f] = ifzVias(f);
   const tramos = [];
+  /* relieve v2: los caminos de verdad (MAP.camino), casilla a casilla, con un leve serpenteo */
+  if (inf.v2)
+    for (let q = 0; q < inf.tramos.length; q += 2) {
+      const i = inf.tramos[q],
+        j = inf.tramos[q + 1],
+        rr = mul(i * 131 + j * 7 + MAP.seed),
+        ax = (i % W) * S + S / 2,
+        ay = ((i / W) | 0) * S + S / 2,
+        bx = (j % W) * S + S / 2,
+        by = ((j / W) | 0) * S + S / 2,
+        cx = (ax + bx) / 2 + (rr() - 0.5) * 4,
+        cy = (ay + by) / 2 + (rr() - 0.5) * 4,
+        L = Math.max(1, Math.round(Math.hypot(bx - ax, by - ay))),
+        pts = [];
+      for (let k2 = 0; k2 <= L; k2++) {
+        const t = k2 / L,
+          u = 1 - t;
+        pts.push([Math.round(u * u * ax + 2 * u * t * cx + t * t * bx), Math.round(u * u * ay + 2 * u * t * cy + t * t * by)]);
+      }
+      const pa = MAP.grid[(i / W) | 0][i % W],
+        pb = MAP.grid[(j / W) | 0][j % W];
+      tramos.push({ pts, emp: (pa >= 0 && vias[own[pa]]) || (pb >= 0 && vias[own[pb]]) });
+    }
+  else
   MAP.adj.forEach((ls, a) =>
     ls.forEach((b) => {
       if (b <= a) return;
@@ -805,8 +832,10 @@ function ifzPolitico(own) {
             c.fillStyle = q % 3 ? "#b9af98" : "#9c927c";
             c.fillRect(x, y, 1, 1);
             c.fillRect(x - (q % 2), y, 1, 1);
-          } else if (q % 5 < 3) {
-            c.fillStyle = "rgba(150,118,74,.75)";
+          } else if (q % 7 < 6) {
+            c.fillStyle = "rgba(160,124,80,.85)";
+            c.fillRect(x, y, 2, 2);
+            c.fillStyle = "rgba(196,165,118,.8)";
             c.fillRect(x, y, 1, 1);
           }
         }
@@ -1230,6 +1259,13 @@ function ifzCamDibujar(now) {
       ])
         c.fillRect(X + a, Y + b, w, h);
     };
+  /* CAM: niebla de guerra (campana.js): oscuro lo no explorado, velo y última noticia en lo no visible */
+  if (typeof camDibujarNiebla === "function") {
+    c.save();
+    c.scale(IFZ_K, IFZ_K);
+    camDibujarNiebla(c, now);
+    c.restore();
+  }
   /* alcance (cacheado): relleno suave y contorno dorado */
   if (mio) {
     const D = camAlcance(se),
@@ -1268,7 +1304,7 @@ function ifzCamDibujar(now) {
     for (const p of G.P)
       if (camCiudadCerrada(se.f, p) && CAM_V8.some(([dx, dy]) => D.dist[camIdx(p.x + dx, p.y + dy)] <= se.mov + 1e-9 || (se.x === p.x + dx && se.y === p.y + dy)))
         tgt(p.x * S, p.y * S);
-    for (const e of S0.ej) if (camGuerra(se.f, e.f) && D.dist[camIdx(e.x, e.y)] <= se.mov + 1e-9) tgt(e.x * S, e.y * S);
+    for (const e of S0.ej) if (camGuerra(se.f, e.f) && D.dist[camIdx(e.x, e.y)] <= se.mov + 1e-9 && (typeof camVeEj !== "function" || camVeEj(ME, e))) tgt(e.x * S, e.y * S); /* CAM: niebla */
     /* ruta hasta la casilla bajo el ratón: huellas con borde; destino marcado */
     const r = camRutaHover(se);
     if (r) {
@@ -1288,7 +1324,7 @@ function ifzCamDibujar(now) {
   }
   /* huella de la última marcha */
   for (const e of S0.ej) {
-    if (!e.pas || !e.pas.length) continue;
+    if (!e.pas || !e.pas.length || (typeof camVeEj === "function" && !camVeEj(ME, e))) continue; /* CAM: niebla */
     c.fillStyle = CIV[e.f].d;
     c.globalAlpha = 0.55;
     for (const j of e.pas) {
@@ -1300,14 +1336,14 @@ function ifzCamDibujar(now) {
   /* campamentos mercenarios: tiendas doradas y banderola */
   if (typeof mercS === "function")
     for (const m of mercS().camp)
-      if (m.cias.length) {
+      if (m.cias.length && (typeof camExplorado !== "function" || camExplorado(ME, m.x, m.y))) { /* CAM: niebla */
         ifzDib(c, "mapa.mercenarios", m.x * S + 1, m.y * S + 4, null);
         ifzDib(c, "mapa.mercenarios", m.x * S + 8, m.y * S + 8, null);
       }
   /* asedios: anillo de cerco, torres, fuego y humo; punto rojo si la ciudad pasa hambre */
   for (const a of Object.values(S0.as)) {
     const p = G.P[a.p];
-    if (!p) continue;
+    if (!p || (typeof camVeProv === "function" && !camVeProv(ME, p.id))) continue; /* CAM: niebla */
     ifzCerco(c, p, a.f, now);
     if (a.vi < 0) {
       c.fillStyle = "#000";
@@ -1329,7 +1365,7 @@ function ifzCamDibujar(now) {
     vis = [];
   for (const e of S0.ej) {
     const n = camTot(e.u);
-    if (n <= 0) continue;
+    if (n <= 0 || (typeof camVeEj === "function" && !camVeEj(ME, e))) continue; /* CAM: niebla */
     const enC = ciu.has(camIdx(e.x, e.y)),
       tx = e.x * S + S / 2 - (enC ? 14 : 0),
       ty = e.y * S + S / 2 + 4,
@@ -2064,10 +2100,28 @@ cv.addEventListener("click", (e) => {
 /* línea de información bajo el mapa: provincia, dueño, hombres, ánimo (ecoNivel) y asedio; y los
    ejércitos o campamentos de la casilla. (El parche de economía en document/mousemove que añadía
    el ánimo ya no hace falta: ve el nombre del ánimo y no repite nada. Puede retirarse.) */
-function ifzHoverTxt(i, ct) {
+/* nombre del terreno de una casilla (relieve de Mundo: mapaInfo) */
+function ifzTerrenoTxt(x, y) {
+  if (typeof mapaInfo !== "function" || x == null) return "";
+  try {
+    const m = mapaInfo(x, y);
+    if (m.montana) return "Montaña infranqueable";
+    if (m.puente) return "Puente";
+    if (m.vado) return "Vado";
+    if (m.rio) return "Río";
+    if (m.paso) return "Paso de montaña";
+    if (m.bosque) return "Bosque denso";
+    const n = { llanura: "Llanura", bosque: "Bosque", colina: "Colinas" }[m.tipo] || "";
+    return n && m.camino ? n + " con camino" : n;
+  } catch (_) {
+    return "";
+  }
+}
+function ifzHoverTxt(i, ct, xy) {
   const p = G.P[i];
   if (i < 0 || !p) return ct || "Mar";
-  let s = `${p.name} · ${CIV[p.owner].s} · ${tot(p.u) * ifzSPU()} hombres`;
+  const tr = xy ? ifzTerrenoTxt(xy[0], xy[1]) : "";
+  let s = `${p.name}${tr ? " · " + tr : ""} · ${CIV[p.owner].s} · ${tot(p.u) * ifzSPU()} hombres`;
   try {
     if (p.owner !== REB && typeof ecoNivel === "function") {
       const a = ecoNivel(p);
@@ -2085,7 +2139,7 @@ cv.addEventListener("mousemove", (e) => {
   const cxy = camCasillaEv(e),
     ct = cxy ? camHoverTxt(cxy[0], cxy[1]) : "";
   camHov = cxy ? camIdx(cxy[0], cxy[1]) : -1;
-  const tx = ifzHoverTxt(i, ct);
+  const tx = ifzHoverTxt(i, ct, cxy);
   if ($("hv").textContent !== tx) $("hv").textContent = tx;
 });
 cv.addEventListener("mouseleave", () => {

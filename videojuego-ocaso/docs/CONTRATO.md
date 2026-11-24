@@ -117,6 +117,9 @@ correspondientes. Los demás solo escuchan.
 | `costeConstruccion` | objeto coste | `{f, p, id, nivel}` | tecnología | economía |
 | `puntosInvestigacion` | número por año | `{f}` | tecnología | economía, social, narrativa |
 | `aceptacionDiplomatica` | probabilidad 0-1 | `{f, g, tipo, ...términos}`; tipo: paz, alianza, nag, comercio, paso, rehenes, vasallaje, tributo, embajada, boda, llamada | diplomacia | social, narrativa |
+| `alcanceEjercito` | puntos de marcha por estación | `{f, ej, est}` | campaña (`camMovMax`) | tecnología (Yam, logística) |
+| `costeMaquina` | objeto coste `{madera, oro, hierro…}` | `{f, k}` (k = `ari`/`tor`/`cat`) | campaña (`camCosteMaq`) | tecnología (Poliorcética, Ingeniería) |
+| `estacionesMaquina` | estaciones de obra | `{f, k, ej}` | campaña (`camConstruir`) | tecnología (Poliorcética, Ingeniería) |
 
 ## 6. Pruebas
 
@@ -185,3 +188,5 @@ Al cerrar una estación (un jugador o online) el jugador ve, a velocidad acelera
   Tope razonable de pasos (p.ej. 2000; si se supera, se resumen los movimientos de la IA lejana).
 - **Interfaz** reproduce con `ifzRepetir(rep)`: dibuja el mapa con `own0` y los ejércitos de `ej0` y aplica los pasos animados (rápido: unos 15-40 s por estación según la cantidad, con botones Saltar y ×2), luego vuelve al estado real.
 - **Online** llama a `ifzRepetir(G.cam.rep)` al recibir una estación resuelta (y el que resuelve también la ve); en un jugador se llama tras la estación si hubo movimientos (opción para desactivarla).
+- **Campaña** emite `repeticionLista` (rep) al CERRAR `G.cam.rep` (tras lo anual y las marchas pendientes, al final de `camNuevaEstacion`): es el momento de lanzar `ifzRepetir`.
+- Edificios de explotación por provincia: `p.mina`, `p.cantera`, `p.aserradero`, `p.salinas` (nivel ≤ riqueza del yacimiento) y `p.torre` (torre de vigilancia 0-3, no ocupa hueco). `tecVision(p)` → nivel de torre para el radio de visión. Tecnología lee `ecoYac(p)` / `ecoFertil(p)` de economía si existen (`tecYac(p)` como respaldo).

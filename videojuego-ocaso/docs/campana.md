@@ -222,7 +222,71 @@ casa tras la paz), `ej+` (`camNuevoEj`: formar, dividir, desertores), `ej-` (`ca
 `revuelta`). Tope 2000 pasos: pasado, los pasos de marcha de un ejército se funden en su último tramo. Al
 cerrar, si algo cambió sin pasar por los ganchos (sucesos, sociedad…) se añade al final y se cuenta en
 `ajustes` (0 en la prueba). `camRepEstado(rep, n)` → `{own, ej}` tras aplicar los n primeros pasos (útil
-para `ifzRepetir`).
+para `ifzRepetir`). Al cerrarla se emite **`repeticionLista` (rep)** (async; la interfaz lanza ahí la
+repetición). Con niebla, los pasos `mov`, `ej+`, `bat`, `esp`, `esp-` llevan `vh`: los jugadores humanos que
+llegaron a verlos (la repetición de cada uno debería mostrar solo esos). Pasos nuevos de espías: `esp`
+(`{esp, f, de, a}`) y `esp-` (apresado).
+
+## Niebla de guerra (en `campana.js`)
+
+- **Visibilidad por facción** (`camVisMapa(f)`, cacheada por movimiento/estación): todas las casillas de
+  las provincias propias y aliadas; 3 casillas alrededor de cada ciudad (+2 por nivel de **torre de
+  vigilancia**, `tecVision(p)`, que además ve dentro de los bosques a 1 + nivel casillas); ejércitos propios
+  y aliados 2 casillas (3 si son mayoría jinetes); espías 3 (y ven dentro de los bosques); las colinas dan +1.
+  Disco `dx² + dy² ≤ r² + r`. Los rebeldes ven todo.
+- **Bosque**: un ejército en bosque denso (`MAP.bosque`; en mapas antiguos cualquier bosque) solo se ve
+  desde 1 casilla, con una torre cerca o con un espía (`camVeEj`). **Emboscada**: quien sale de un bosque
+  contra quien no lo veía recibe +20 % de daño (`CAM_K.emboscada`, por `bonoBatalla`) y `ctx.emboscada =
+  true` para combate; factor «Emboscada desde el bosque» en el informe.
+- **Explorado y memoria**: lo visto queda explorado (`G.cam.exp[f]`, bits en base64, ~430 caracteres) y cada
+  ciudad vista deja su última noticia (`G.cam.mem[f][pid] = [dueño, levas, murallas, año, estación]`).
+- **API**: `camVisible(f, x, y)`, `camExplorado(f, x, y)`, `camVeProv(f, pid)`, `camVeEj(f, ej)`,
+  `camMemProv(f, pid)` → `{o, n, w, y, e, vista}`, `camInfoVisible(p, f)` (para `ecoInfoVisible` de
+  economía), `camInfoCiudad(f, q)` (lo que f sabe de una guarnición). Opción «Niebla de guerra» en la
+  pestaña Campaña (`G.cam.niebla`, activa por defecto, también en partidas antiguas).
+- **Efectos**: sin visión no se ven ejércitos ajenos (mapa, ratón, clics, paneles, objetivos), ni cercos ni
+  campamentos mercenarios no explorados; una provincia ajena no vista muestra solo su última noticia (panel
+  propio `camPanelNiebla`, texto del ratón) y en el mapa su último dueño y levas bajo un velo; lo no
+  explorado es tierra ignota (oscuro). Las rutas se trazan con lo que se ve: el ejército oculto aparece al
+  toparse con él (batalla o zona de control). Online: cada cliente dibuja según su facción (`ME`).
+- **IA justa**: solo intercepta y persigue ejércitos que ve; elige ciudades y estima asaltos con lo que ve
+  o recuerda (`camIAGuarn`, `camIACtxCiudad(q, f)`; sin noticias supone 5 levas).
+- **Interfaz** (ganchos CAM en `interfaz.js`): `camDibujarNiebla` al principio de `ifzCamDibujar`
+  (escalado a HD), filtros de visibilidad en huellas, campamentos, cercos, objetivos y ejércitos; en
+  `provPanel`, panel del espía y de la provincia oculta.
+
+## Espías (en `campana.js`, estado `G.cam.esp`)
+
+- Unidad de mapa propia (no es tropa): `{id, f, x, y, cal (destreza 1-10), mov, mis, nom, plan}`. Se
+  recluta en una ciudad propia (30 oro; 20 con **maestro de espías**, `socCargo(f, "esp")`); destreza
+  `2 + intriga × 0,7 + azar` (intriga del maestro, o del soberano × 0,6). Máximo `1 + provincias/5 (+1 con
+  maestro)`. Marcha 14 casillas por estación en línea recta, sin bloquear ni ser bloqueado.
+- **Misiones** (junto al objetivo; se resuelven al acabar la estación): vigilar una ciudad (ve toda su
+  provincia, también los bosques), sabotear (máquinas y obras de un ejército; o brecha si la ciudad está
+  cercada; o graneros), sobornar la guarnición de una ciudad que cercas tú o tus socios (20 + 2/leva de oro;
+  abre las puertas, más fácil si `ecoApoyoAsedio` es bajo), robar una técnica (una que ellos tienen y tú
+  puedes aprender: `tecAprender`), incitar revuelta (−15 de orden) y contraespionaje (en tierra propia).
+- **Probabilidades**: éxito `clamp(0,35 + 0,06 × (destreza − contraespionaje), 0,1, 0,85)` × dificultad
+  (sabotaje 1, revuelta 0,8, soborno 0,6, robo 0,5). Contraespionaje del dueño = intriga de su maestro (o
+  soberano × 0,6) + 1,5 por nivel de torre a ≤ 4 casillas + 2 por espía suyo de guardia a ≤ 3. Descubierto
+  cada estación en tierra ajena: `0,05 + 0,03 × (contra − destreza)` (+0,08 si actúa, +0,12 si falla); preso:
+  −8 de relación (`dipMem`) y agravio de 3 años (casus belli, `dipAgravio`). Los de guardia pueden apresar
+  espías ajenos a 3 casillas.
+- **IA**: recluta si está en guerra y le sobra oro; soborna cercos suyos de 2+ estaciones, si no vigila,
+  roba técnicas o incita revueltas en ciudades enemigas.
+- **Órdenes** (serializables): `{tipo:'espia', f, p}`, `{tipo:'espiaMover', f, esp, x, y}`,
+  `{tipo:'mision', f, esp, mis, p?, obj?}` (`obj` = ejército a sabotear), `{tipo:'espiaRetirar', f, esp}`.
+- **Interfaz**: sección «Espías» de la ciudad, figura encapuchada en el mapa (punto violeta si vigila,
+  naranja si actúa), panel del espía con las misiones posibles y sus probabilidades; clic en el mapa lo
+  mueve.
+
+## Relieve (mundo.md §6)
+
+Coste infinito en montaña y en río sin puente ni vado (`camPasable` → `mapaTransitable`); vado +2 (+2 más
+en invierno); camino ×0,6 (×0,45 con Calzadas); paso de montaña +1,5; sin diagonales que corten esquinas
+de costa, sierra o río (Dijkstra y `camDarPaso`). Retiradas, campamentos mercenarios, desertores y espías
+solo en casillas transitables. `camTerrCasilla` toma el río de `MAP.rio`. En mapas v1 (partidas antiguas,
+capas vacías) todo sigue como antes (`camRelieve()` lo detecta).
 
 ## Órdenes (API para el futuro online)
 
@@ -343,3 +407,13 @@ los demás sistemas, que pulsan «Fin» o llaman a `yearEnd()`, siguen contando 
    curso (`G.cam.as`).
 6. **Contrato**: añadir el evento `finEstacion {anio, estacion}`, `G.cam`, `G.estacion` y el campo
    `campana` de `batallaResuelta`; `ia.js` y `campana.js` pasan a Campaña (ya anotado).
+7. **Economía**: conectar `ecoInfoVisible(p, f)` a `camInfoVisible(p, f)` (o `camVeProv(f, p.id)`) para que
+   sus paneles de provincias ajenas no muestren lo que la niebla oculta.
+8. **Interfaz**: en `ifzRepetir`, mostrar a cada jugador solo los pasos cuyo `vh` lo incluya (o de su
+   bando) y dibujar los pasos `esp`/`esp-`. El velo de lo explorado usa el `base` de baja resolución
+   escalado; si hay un fondo HD, `camDibujarNiebla` podría usarlo.
+9. **Combate**: leer `ctx.emboscada` (hoy campaña da +20 % de daño por `bonoBatalla`; si combate lo aplica,
+   avisad para quitarlo).
+10. **Tecnología**: ya existen los cálculos `alcanceEjercito`, `costeMaquina` y `estacionesMaquina`
+   (CONTRATO §5). Las Calzadas siguen abaratando la marcha en tierra propia y por caminos
+   (`tecTiene(f, "vias")`); el Yam u otras pueden sumar alcance con `alcanceEjercito`.
