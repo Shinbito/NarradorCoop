@@ -17,6 +17,8 @@ comunica con los demás a través del objeto global `OC` (`js/ganchos.js`).
 | **Mundo (civilizaciones)** | `js/mundo.js`, `docs/mundo.md`, `pruebas/mundo.js`; además `js/mapa.js` (generación), `js/inicio.js` (pantallas de inicio) y en `js/partida.js` solo `newGame`/`setup` | `CIV`, `NF`, `REB`, `PAL`, `PNAMES` |
 | **Campaña (ejércitos en el mapa)** | `js/campana.js`, `js/ia.js`, `js/ejercitos.js`, `js/mercenarios.js`, `css/campana.css`, `docs/campana.md`, `pruebas/campana.js`; en `js/interfaz.js` solo `drawMap`, clics/hover del mapa y `provPanel` sección Ejército; en `js/turnos.js` el bucle de estaciones | — |
 | **Online** | `js/online.js`, `css/online.css`, `docs/online.md`, `pruebas/online.js`; en `js/inicio.js` la parte online (lobby, `createOnline`, `joinGame`, `enterGame`, `endOnline`, `leaveNet`); en `js/batalla.js` solo lo necesario para batallas en vivo entre jugadores (marcado `/* ONL */`) | — |
+| **Tutorial** | `js/tutorial.js` (carga justo antes de `arranque.js`), `css/tutorial.css`, `docs/tutorial.md`, `pruebas/tutorial.js` | — |
+| **Batalla 3D** | `js/batalla3d.js`, `vendor/three.min.js` (y otros en `vendor/`), `css/batalla3d.css`, `docs/batalla3d.md`, `pruebas/batalla3d.js`; en `js/batalla.js` solo ganchos mínimos marcados `/* 3D */` | — |
 | **Orquestador** | `js/ganchos.js`, `js/turnos.js`, `js/arranque.js`, `docs/CONTRATO.md`, `pruebas/humo.js` | resto de `nucleo.js` |
 
 Reglas:
