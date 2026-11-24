@@ -429,7 +429,11 @@ function ecoIniYac(E) {
       if (Y[k] >= 2 && !ex[ECO_YAC[k].exp] && r() < (p.cap ? 0.5 : 0.12)) ex[ECO_YAC[k].exp] = 1;
     for (const k in Y) if (!Y[k]) delete Y[k];
     E.yac[p.id] = Y;
-    if (E.exp[p.id] === undefined) E.exp[p.id] = ex;
+    if (E.exp[p.id] === undefined) {
+      E.exp[p.id] = ex;
+      /* se levantan como edificios (claves de BLD de tecnología: p.mina, p.cantera...) */
+      for (const k in ex) p[k] = Math.max(+p[k] || 0, ex[k]);
+    }
     /* fertilidad: llanuras y ríos riegan; colinas y climas secos o de estepa empobrecen */
     let v =
       0.3 +
@@ -517,7 +521,10 @@ function ecoDesglose(p) {
     ey = (ECO_ESP[E.esp[p.id]] || {}).y || {};
   const v = ecoFertil(p).v,
     Y = ecoYac(p),
-    L = (q) => Math.min(ecoNivelExp(p, q.k), Y[q.r] || 0);
+    /* lo que sacan las explotaciones lo suma tecnología (modificador de 'rendimiento', tecRenYac);
+       solo si tecnología no está, lo calcula la economía */
+    sinTec = typeof tecRenYac !== "function",
+    L = (q) => (sinTec ? Math.min(ecoNivelExp(p, q.k), Y[q.r] || 0) : 0);
   let imp = pob * ECO_IMP * (TAXM[p.tax] ?? 1) * k * ecoMultImp(p),
     fo =
       (2.5 +
@@ -532,8 +539,7 @@ function ecoDesglose(p) {
     imp *= 0.75;
   }
   if (peste) fo *= 0.85;
-  /* recursos: lo que da la tierra sin más (yacimientos ricos, bosque), lo que sacan las explotaciones
-     (mina, cantera, aserradero, salinas: hasta su nivel, sin pasar de la riqueza) y la especialidad */
+  /* recursos: lo que da la tierra sin más (yacimientos ricos, bosque) y la especialidad */
   const s = tr.s,
     res = {};
   for (const r of ECO_RES) res[r.id] = ey[r.id] || 0;
@@ -543,7 +549,7 @@ function ecoDesglose(p) {
   res.sal += ((Y.sal || 0) >= 2 ? 1 : 0) + L(ECO_EXP.salinas);
   res.caballos += s[1] >= 0.85 && tr.n >= 40 ? 1 : 0;
   /* el oro y el estaño de las minas se venden: oro para el tesoro */
-  const mina = ecoNivelExp(p, "mina"),
+  const mina = sinTec ? ecoNivelExp(p, "mina") : 0,
     minas = Math.min(mina, Y.oro || 0) * 2 + Math.min(mina, Y.estano || 0);
   return {
     imp,

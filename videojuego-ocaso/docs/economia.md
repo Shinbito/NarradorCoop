@@ -42,10 +42,12 @@ calculan al cargar).
   capacidad de población + (v − 0,5)·6.
 - *Explotaciones*: Mina (hierro, oro, estaño), Cantera (piedra), Aserradero (madera), Salinas (sal). Las
   provincias con especialidad de mina/cantera/bosque/salinas, y algunas otras con yacimiento rico (12 %, 50 %
-  en capitales), empiezan con la suya a nivel 1. Producción: lo que da la tierra sola (madera y piedra
-  riqueza − 1; hierro 1 con riqueza 3; sal 1 con riqueza ≥ 2) + `min(nivel, riqueza)` por explotación; la
-  mina da además 2 oro por nivel en vetas de oro y 1 en estaño. Nivel efectivo = el mayor entre el
-  edificio de tecnología `p.mina`/`p.cantera`/`p.aserradero`/`p.salinas` y el inicial de `G.eco.exp`.
+  en capitales), empiezan con la suya a nivel 1: economía fija `p.mina`/`p.cantera`/`p.aserradero`/
+  `p.salinas` (edificios de tecnología, en `BLD`) y lo anota en `G.eco.exp`. Producción: economía pone lo
+  que da la tierra sola (madera y piedra riqueza − 1; hierro 1 con riqueza 3; sal 1 con riqueza ≥ 2) y
+  **tecnología** lo que sacan los edificios (`tecRenYac` en `rendimiento`: +riqueza por nivel, ×1,25 por
+  nivel lo de la tierra, oro de las vetas al tesoro). Si tecnología no está, economía usa su respaldo
+  (`min(nivel, riqueza)` y 2 oro por nivel en vetas de oro). `ecoNivelExp(p, k)` = max(`p[k]`, inicial).
 - Sección de provincia **«Tierras»** (orden 39, también en provincias ajenas y rebeldes): fertilidad,
   producción anual con iconos, yacimientos con su riqueza (●●○) y su explotación o «sin explotar». Detrás
   de `ecoInfoVisible(p, f)` (hoy siempre cierto) para la futura niebla de guerra y espías. En el mapa, al
@@ -274,13 +276,10 @@ iniciales en `F.res` si faltan. Probado con `pruebas/economia.js`.
 10. **Mundo**: `pruebas/mundo.js` falla a veces (también sin mis cambios, 1 de cada 3 en la base):
     «se juegan 20 años (año 427-428)» porque un cerco a una ciudad del jugador hace que «Fin» avance
     una sola estación; y «Incas en Cuzco: c2» (jinetes de los incas en 412-413) viene de otro sistema.
-11. **Tecnología**: crear los edificios **Mina** (`p.mina`), **Cantera** (`p.cantera`), **Aserradero**
-    (`p.aserradero`) y **Salinas** (`p.salinas`) en `BLD` con esas claves (si se prefieren otras, decídmelo
-    y cambio `ECO_EXP`). Economía ya los lee (`ecoNivelExp`): cada nivel saca una unidad más del yacimiento,
-    sin pasar de su riqueza, así que conviene permitirlos solo donde `ecoYac(p)[recurso] > 0` (mina: hierro,
-    oro o estaño) y con máximo 3. En `partidaLista`, poner `p[k] = Math.max(p[k] || 0, ecoNivelExp(p, k))`
-    para que las explotaciones iniciales aparezcan como edificios; su mantenimiento (0,4 oro/nivel) entra solo
-    al estar en `BLD`.
+11. **Tecnología** (hecho, coordinado): sus edificios Mina/Cantera/Aserradero/Salinas usan las mismas claves
+    y leen `ecoYac`; economía fija los niveles iniciales y no duplica su producción. Pendiente: el estaño de
+    `ecoYac` (`estano`) no es un recurso: `tecRenYac` podría darlo como oro (1 por nivel y riqueza), como hacía
+    el respaldo de economía.
 12. **Interfaz**: dibujar `ecoIconoProv(p)` como icono pequeño sobre cada provincia del mapa (si
     `ecoInfoVisible(p, ME)`), y en `ifzResumenSec` para la sección `tierras` mostrar `ecoFertil(p).txt` y el
     icono. El oyente `document.mousemove` de economía ya no añade el ánimo (lo pone la interfaz): solo el
