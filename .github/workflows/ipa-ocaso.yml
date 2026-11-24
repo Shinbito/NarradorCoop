@@ -1,0 +1,62 @@
+name: IPA Ocaso (iPhone, sin firmar)
+
+# Compila la app de iPhone de "Ocaso del Imperio" en macOS SIN FIRMAR (.ipa) para instalarla con
+# Sideloadly o AltStore usando tu Apple ID (la reinstalación caduca a los 7 días con un Apple ID gratuito).
+# Los minutos de macOS cuentan ×10: se compila solo al cambiar la app móvil o este flujo, o a mano
+# (Actions → IPA Ocaso → Run workflow, disponible cuando el flujo esté en la rama principal).
+on:
+  push:
+    paths:
+      - "videojuego-ocaso/app-movil/**"
+      - ".github/workflows/ipa-ocaso.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ipa:
+    runs-on: macos-14
+    defaults:
+      run:
+        working-directory: videojuego-ocaso/app-movil
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Dependencias de Capacitor
+        run: npm install
+
+      - name: Proyecto iOS (copia el juego, plataforma e icono)
+        run: npm run ios
+
+      - name: Compilar sin firmar
+        working-directory: videojuego-ocaso/app-movil/ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/App.app Payload/
+          zip -qry "$GITHUB_WORKSPACE/ocaso.ipa" Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ocaso-ipa
+          path: ocaso.ipa
+
+      - name: Publicar en Releases («Ocaso del Imperio (iPhone, sin firmar)»)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ocaso-iphone
+          name: Ocaso del Imperio (iPhone, sin firmar)
+          prerelease: true
+          make_latest: false
+          body: |
+            IPA sin firmar de Ocaso del Imperio, compilado desde `${{ github.ref_name }}` (${{ github.sha }}).
+            Instálalo con Sideloadly o AltStore desde un ordenador y tu Apple ID (gratuito: caduca a los 7 días y
+            hay que reinstalarlo; con cuenta de desarrollador de Apple dura un año).
+          files: ocaso.ipa

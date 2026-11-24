@@ -6,7 +6,8 @@
   "scripts": {
     "copiar-web": "node copiar-web.js",
     "android": "npm run copiar-web && npx cap add android && node iconos-android.js && npx cap sync android",
-    "sync": "npm run copiar-web && npx cap sync"
+    "sync": "npm run copiar-web && npx cap sync",
+    "ios": "npm run copiar-web && npx cap add ios && node iconos-ios.js && npx cap sync ios"
   },
   "dependencies": {
     "@capacitor/android": "6.2.1",

@@ -66,7 +66,7 @@ fs.mkdirSync(dir, { recursive: true });
       } else x.drawImage(base, 0, 0, S, S);
       return k.toDataURL("image/png").split(",")[1];
     };
-    for (const S of [48, 72, 96, 144, 180, 192, 512]) out["icono-" + S] = hacer(S, false);
+    for (const S of [48, 72, 96, 144, 180, 192, 512, 1024]) out["icono-" + S] = hacer(S, false);
     out["icono-512-mask"] = hacer(512, true);
     return out;
   });
