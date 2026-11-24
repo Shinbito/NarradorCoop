@@ -69,14 +69,13 @@ pantalla y elige las unidades cuya proyección cae dentro.
 - **Cielo y luz** (`BT.env`): degradado del cielo, sol y su altura según la hora (alba, media mañana,
   tarde) y el clima (lluvia: luz apagada y gotas; niebla: niebla densa y sin sombras; calor: bruma
   dorada). Niebla ligera en la distancia.
-- **Murallas** (`campo.muro`: `x, y0, y1, e, hp, hp0, rota`): el recinto de tres lienzos como en 2D —
-  frente en `x` entre `y0` e `y1` (puertas donde `y % 6 = 2, 3`, torres en `1, 4` y en las esquinas) y
-  lienzos norte y sur hasta el borde del lado de la ciudad (`e = 1`: al este), con puertas cada seis
-  casillas, almenas, dinteles y hojas de madera abiertas y banderas del defensor en las torres. Dentro,
-  **la ciudad**: casas voxel con tejado a cuatro aguas y alguna torre. El daño (`hp / hp0`) derriba almenas
-  y la parte alta y siembra escombros al pie del frente; con `rota` se abre la brecha (casillas 8-15 del
-  frente: lienzo y torres por los suelos y un montón de cascotes). Barra de integridad flotante. Sin
-  `y0`/`y1` (espejos online antiguos) solo se levanta el frente a lo largo del campo.
+- **Murallas** (`campo.muro`, ver `cmbRecinto` en `docs/combate.md`): la plaza en el **centro del campo**,
+  cuatro lienzos de `x0..x1`, `y0..y1` con almenas hacia fuera, una puerta (dintel y hojas de madera abiertas)
+  en el centro de cada lienzo, torres en las esquinas y cada seis casillas con banderas del defensor. Dentro,
+  **la ciudad**: casas voxel con tejado a cuatro aguas (a la altura del adarve) y alguna torre. El daño
+  (`hp / hp0`) derriba almenas y la parte alta y siembra escombros al pie del lienzo del `frente`; con `rota`
+  se abre la brecha (`brecha.a..b` del lienzo del frente: lienzo y torres por los suelos y cascotes). Barra de
+  integridad flotante sobre el lienzo norte. Muros sin `x0` (espejos online antiguos): no se dibujan.
 - **Tropas**: cada unidad es su formación de `cmbRender()`: una figura voxel por **hueco vivo** de `huecos`
   (sin las `caidas`, de modo que las bajas dejan claros como en 2D; dos figuras por hombre cuando Combate
   usa `BT.dens = 2`, algo más pequeñas), columnas a lo ancho y filas en fondo, con el frente perpendicular
@@ -98,8 +97,8 @@ pantalla y elige las unidades cuya proyección cae dentro.
 
 Varios bandos: el color de las figuras sale del pueblo de cada unidad (`CIV[f]`); las barras usan los
 colores de la vista 2D: lo tuyo verde (`mio`), aliados verdiazul (`aliado`) y cada bando enemigo el suyo
-(`CMB_COL_B`). Zonas de despliegue por lado (O, E, N, S): la tuya clara, las aliadas verdosas, las
-enemigas rojizas. La vista inicial (y «Reiniciar vista») gira la cámara para que **tu lado quede abajo a
+(`CMB_COL_B`). Zonas de despliegue (`cmbZonaRects`: franjas junto a cada borde o, en un asedio, la plaza para la guarnición
+y el anillo de alrededor para los atacantes): la tuya clara, las aliadas verdosas, las enemigas rojizas. La vista inicial (y «Reiniciar vista») gira la cámara para que **tu lado quede abajo a
 la izquierda** (`b3dAz0()` según `cmbLadoDe` de tu ejército) y la brújula señala tu lado. Solo se eligen y
 mandan tus unidades (`mio`); tocar un enemigo es atacarlo y tocar un aliado es como tocar el terreno.
 

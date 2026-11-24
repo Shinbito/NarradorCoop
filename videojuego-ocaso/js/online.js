@@ -2447,7 +2447,8 @@ function onlEspejoIni(E, d) {
     bg = document.createElement("canvas");
   bg.width = BW * TS;
   bg.height = BH * TS;
-  paintField(bg.getContext("2d"), terr, d.fort, d.defE);
+  /* la muralla viene entera en d.muro (recinto central: x0..x1, y0..y1, puertas, torres, brecha) */
+  paintField(bg.getContext("2d"), terr, d.fort, d.muro && d.muro.x0 != null ? d.muro : null);
   const units = d.units.map((u) => ({ ...u, plan: (u.plan || []).map((p) => ({ st: p.st, o: p.o ? (p.o.tg != null ? onlOrdTg(p.o) : { x: p.o.x, y: p.o.y }) : null })) })),
     N = d.N || 2,
     bandos = d.bandos || [...Array(N).keys()];

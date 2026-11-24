@@ -1100,8 +1100,10 @@ function cmbEstimar(ejA, ejD, ctx, n = 8) {
 /* ==================== fin del motor automático ==================== */
 
 /* ==================== BATALLA TÁCTICA ==================== */
-const BW = 40,
-  BH = 24,
+/* campo de batalla: 80×50 casillas (antes 40×24): marchas largas hasta el choque y sitio para rodear una
+   plaza amurallada en el centro */
+const BW = 80,
+  BH = 50,
   TS = 20,
   bc = $("bmap"),
   bcx = bc.getContext("2d");
@@ -1205,7 +1207,7 @@ function sprF(c, rows, x, y, pal, fl) {
 /* terreno: 0 llano, 1 bosque, 2 colina, 3 río, 4 vado */
 /* pinta el campo (una vez por batalla): hierba con matices, bosques con árboles y sombra, colinas
    sombreadas, río con orillas y vados, y murallas con almenas, puertas y torres */
-function paintField(c, terr, fort, def) {
+function paintField(c, terr, fort, rec) {
   const r = mul(ri(1, 1e6)),
     nz = noise(r, 14, 9),
     t0 = (x, y) => (x < 0 || y < 0 || x >= BW || y >= BH ? -1 : terr[y][x]),
@@ -1298,75 +1300,54 @@ function paintField(c, terr, fort, def) {
       if (t === 2 && r() < 0.35)
         spr(c, SP.hill, X + 4 + Math.floor(r() * 8), Y + 6 + Math.floor(r() * 8), BP);
     }
-  if (fort) {
-    /* muralla: lienzo con almenas, puertas cada seis casillas y torres a sus lados */
-    const wx = (def ? 29.5 : 10.5) * TS,
-      fuera = def ? -1 : 1;
-    for (let y = 0; y < BH; y++) {
-      const Y = y * TS,
-        puerta = y % 6 === 2 || y % 6 === 3;
-      if (puerta) {
-        c.fillStyle = "#6b5a3e";
-        c.fillRect(wx - 6, Y, 12, TS);
-        c.fillStyle = "#4f422d";
-        for (let k = 0; k < TS; k += 4) c.fillRect(wx - 6, Y + k, 12, 1);
-        continue;
-      }
-      c.fillStyle = "#1c1a17";
-      c.fillRect(wx - 6, Y, 12, TS);
-      c.fillStyle = "#b7ad9a";
-      c.fillRect(wx - 5, Y, 10, TS);
-      c.fillStyle = "#9a907e";
-      c.fillRect(wx + (fuera > 0 ? -5 : 2), Y, 3, TS);
-      c.fillStyle = "#857c6b";
-      for (let k = 0; k < TS; k += 5) c.fillRect(wx - 5, Y + k, 10, 1);
-      for (let k = 2; k < TS; k += 10) c.fillRect(wx - 5 + (y % 2) * 5, Y + k, 1, 5);
-      /* almenas hacia fuera */
-      c.fillStyle = "#d8cfbd";
-      for (let k = 0; k < TS; k += 4) c.fillRect(wx + (fuera > 0 ? -7 : 4), Y + k, 3, 2);
-      if (y % 6 === 1 || y % 6 === 4)
-        sprF(c, MS.bat_torre[0], Math.round(wx - 6), Y + (y % 6 === 1 ? 8 : 4), BP);
-    }
-    /* lienzos norte y sur del recinto, con puertas */
-    for (const yw of [3.5 * TS, (BH - 3.5) * TS]) {
-      const x0 = def ? wx : 0,
-        x1 = def ? BW * TS : wx,
-        haciaFuera = yw < (BH * TS) / 2 ? -1 : 1;
-      for (let X = x0; X < x1; X += TS) {
-        const xi = Math.floor(X / TS),
-          puerta = (xi - Math.floor(x0 / TS)) % 6 === 3;
-        if (puerta) {
-          c.fillStyle = "#6b5a3e";
-          c.fillRect(X, yw - 6, TS, 12);
-          continue;
+  /* la plaza en el centro: cuatro lienzos con almenas hacia fuera, una puerta en cada uno, torres y la
+     ciudad dentro (rec = cmbRecinto; sin rec, p. ej. espejos de versiones antiguas, no hay muralla) */
+  if (fort && rec && rec.x0 != null) {
+    const M = rec,
+      tramo = (l, X, Y, enX) => {
+        /* un tramo de una casilla del lienzo l; enX: lienzo vertical (este u oeste) */
+        const out = CMB_NOR[l],
+          puerta = M.puertas.some((q) => q.l === l && (enX ? Math.abs(q.y * TS - (Y + TS / 2)) <= TS / 2 + 0.5 : Math.abs(q.x * TS - (X + TS / 2)) <= TS / 2 + 0.5));
+        if (enX) {
+          c.fillStyle = puerta ? "#6b5a3e" : "#1c1a17";
+          c.fillRect(X - 6, Y, 12, TS);
+          if (puerta) return;
+          c.fillStyle = "#b7ad9a";
+          c.fillRect(X - 5, Y, 10, TS);
+          c.fillStyle = "#857c6b";
+          for (let k = 0; k < TS; k += 5) c.fillRect(X - 5, Y + k, 10, 1);
+          c.fillStyle = "#d8cfbd";
+          for (let k = 0; k < TS; k += 4) c.fillRect(X + (out[0] < 0 ? -7 : 4), Y + k, 3, 2);
+        } else {
+          c.fillStyle = puerta ? "#6b5a3e" : "#1c1a17";
+          c.fillRect(X, Y - 6, TS, 12);
+          if (puerta) return;
+          c.fillStyle = "#b7ad9a";
+          c.fillRect(X, Y - 5, TS, 10);
+          c.fillStyle = "#857c6b";
+          for (let k = 0; k < TS; k += 5) c.fillRect(X + k, Y - 5, 1, 10);
+          c.fillStyle = "#d8cfbd";
+          for (let k = 0; k < TS; k += 4) c.fillRect(X + k, Y + (out[1] < 0 ? -7 : 5), 2, 3);
         }
-        c.fillStyle = "#1c1a17";
-        c.fillRect(X, yw - 6, TS, 12);
-        c.fillStyle = "#b7ad9a";
-        c.fillRect(X, yw - 5, TS, 10);
-        c.fillStyle = "#857c6b";
-        for (let k = 0; k < TS; k += 5) c.fillRect(X + k, yw - 5, 1, 10);
-        c.fillStyle = "#d8cfbd";
-        for (let k = 0; k < TS; k += 4) c.fillRect(X + k, yw + (haciaFuera < 0 ? -7 : 5), 2, 3);
-      }
-    }
-    /* la ciudad al fondo: tejados entre los lienzos */
-    const cx0 = def ? wx + 14 : 4,
-      cx1 = def ? BW * TS - 6 : wx - 14;
-    for (let Y = 4.6 * TS; Y < (BH - 4.8) * TS; Y += 26)
-      for (let X = cx0; X < cx1; X += 22) {
+      };
+    /* la ciudad dentro: tejados */
+    for (let Y = (M.y0 + 1.2) * TS; Y < (M.y1 - 1.6) * TS; Y += 26)
+      for (let X = (M.x0 + 1.2) * TS; X < (M.x1 - 1.4) * TS; X += 22) {
         if (r() < 0.45) continue;
-        spr(
-          c,
-          r() < 0.15 ? SP.castle : SP.town,
-          Math.round(X + r() * 6),
-          Math.round(Y + r() * 6),
-          PAL[REB] || BP,
-        );
+        spr(c, r() < 0.12 ? SP.castle : SP.town, Math.round(X + r() * 6), Math.round(Y + r() * 6), PAL[REB] || BP);
       }
+    for (let X = M.x0 * TS; X < M.x1 * TS - 1; X += TS) {
+      tramo("N", X, M.y0 * TS, false);
+      tramo("S", X, M.y1 * TS, false);
+    }
+    for (let Y = M.y0 * TS; Y < M.y1 * TS - 1; Y += TS) {
+      tramo("O", M.x0 * TS, Y, true);
+      tramo("E", M.x1 * TS, Y, true);
+    }
+    for (const t of M.torres) sprF(c, MS.bat_torre[0], Math.round(t.x * TS - 6), Math.round(t.y * TS - 8), BP);
   }
 }
-function cmbCampo(env, fort, def) {
+function cmbCampo(env, fort, rec) {
   const r = mul(ri(1, 1e9)),
     nz = noise(r, 9, 6),
     terr = [],
@@ -1376,25 +1357,29 @@ function cmbCampo(env, fort, def) {
   for (let y = 0; y < BH; y++) {
     terr.push([]);
     for (let x = 0; x < BW; x++) {
-      const v = nz((x / BW) * 9, (y / BH) * 6);
+      const v = nz((x / BW) * 14, (y / BH) * 9);
       terr[y].push(x < 6 || x > BW - 7 ? 0 : v > fb ? 1 : v < fh ? 2 : 0);
     }
   }
   if (tr.rio) {
-    const x0 = 17 + Math.floor(r() * 6),
-      vados = [ri(2, 6), ri(9, 14), ri(17, 21)];
+    /* río de norte a sur entre los ejércitos; con plaza, por fuera del recinto */
+    const x0 = rec
+        ? r() < 0.5
+          ? Math.floor(rec.x0 - 6 - r() * 4)
+          : Math.ceil(rec.x1 + 5 + r() * 4)
+        : Math.round(BW * 0.42) + Math.floor(r() * BW * 0.15),
+      vados = [0.12, 0.38, 0.62, 0.86].map((f) => Math.round(BH * f + (r() - 0.5) * 4));
     for (let y = 0; y < BH; y++) {
-      const x = Math.round(x0 + Math.sin(y / 3.5 + x0) * 1.5);
+      const x = clamp(Math.round(x0 + Math.sin(y / 3.5 + x0) * 1.5), 1, BW - 2);
       const t = vados.some((v) => Math.abs(v - y) <= 1) ? 4 : 3;
       terr[y][x] = t;
       if (r() < 0.4) terr[y][x + 1] = t;
     }
   }
-  if (fort) {
-    for (let y = 0; y < BH; y++) for (const x of def ? [28, 29, 30] : [9, 10, 11]) terr[y][x] = 0;
-    for (const y of [2, 3, 4, BH - 5, BH - 4, BH - 3])
-      for (let x = def ? 29 : 0; x < (def ? BW : 11); x++) terr[y][x] = 0;
-  }
+  /* la plaza: llano dentro del recinto y una casilla alrededor de la muralla */
+  if (rec)
+    for (let y = Math.max(0, Math.floor(rec.y0) - 1); y <= Math.min(BH - 1, Math.ceil(rec.y1) + 1); y++)
+      for (let x = Math.max(0, Math.floor(rec.x0) - 1); x <= Math.min(BW - 1, Math.ceil(rec.x1) + 1); x++) terr[y][x] = 0;
   return terr;
 }
 /* compatibilidad con la firma antigua */
@@ -1409,12 +1394,16 @@ function tactical(fa, fd, A, D, fort, gA, gD, place, mode) {
 /* Dos ejércitos: el lado 0 del campo es el del jugador (ctx.jugador = 1 si manda ejD). Mismo resultado
    que siempre; no emite 'batallaResuelta' (lo hace quien la llama). */
 function cmbTactica(ejA, ejD, ctx = {}, mode = "rt") {
-  const map = ctx.jugador === 1 ? [1, 0] : [0, 1];
+  const map = ctx.jugador === 1 ? [1, 0] : [0, 1],
+    def = map.indexOf(1),
+    lados = ["O", "E"];
+  /* asedio: la plaza está en el centro del campo y el atacante llega por su lado */
+  if (ctx.fort) lados[def] = "C";
   return cmbTacticaCore([ejA, ejD], ctx, mode, {
     map,
     bandos: map.slice(),
-    def: map.indexOf(1),
-    lados: ["O", "E"],
+    def,
+    lados,
     mios: [0],
     emitir: false,
   });
@@ -1440,16 +1429,11 @@ function cmbTacticaMulti(ejs0, ctx = {}, mode = "rt") {
     orden = [...new Set([bYo, ...(def != null ? [bnd[def]] : []), ...bnd])],
     LAD = ["O", "E", "N", "S"],
     ladoB = {};
-  /* el que defiende la plaza va al este (las murallas solo se dibujan al este u oeste) */
   orden.forEach((b, k) => (ladoB[b] = LAD[k] || "N"));
-  if (def != null && ladoB[bnd[def]] !== "E" && ladoB[bnd[def]] !== "O") {
-    const otro = Object.keys(ladoB).find((b) => ladoB[b] === "E");
-    ladoB[otro] = ladoB[bnd[def]];
-    ladoB[bnd[def]] = "E";
-  }
-  /* cada ejército entra por su dirección de procedencia (ej.dir) si la trae; si no, por la de su bando */
+  /* cada ejército entra por su dirección de procedencia (ej.dir) si la trae; si no, por la de su bando.
+     Con murallas, la guarnición está en la plaza, en el centro del campo («C»), y los atacantes la rodean */
   const lados = bnd.map((b, i) => dirs[i] || ladoB[b]);
-  if (def != null && fort0(ctx) && lados[def] !== "E" && lados[def] !== "O") lados[def] = "E";
+  if (def != null && fort0(ctx)) lados[def] = "C";
   return cmbTacticaCore(ejs, ctx, mode, {
     map: ejs.map((e, i) => i),
     bandos: bnd,
@@ -1471,9 +1455,11 @@ function cmbTacticaCore(ejs0, ctx, mode, op) {
       N = map.length,
       def = op.def,
       lados = op.lados,
-      defE = def != null && lados[def] === "E" ? 1 : 0,
       kFl = fort ? cmbFlancos(ctx) : 1,
-      terr = cmbCampo(env, fort, defE),
+      /* el recinto mira al primer atacante que llega por un lado */
+      frente = lados.find((l, i) => (def == null || op.bandos[i] !== op.bandos[def]) && CMB_NOR[l]) || "O",
+      rec = fort && def != null ? cmbRecinto(fort, frente) : null,
+      terr = cmbCampo(env, fort, rec),
       units = [],
       gens = [],
       bono = [],
@@ -1599,8 +1585,10 @@ function cmbTacticaCore(ejs0, ctx, mode, op) {
     const bg = document.createElement("canvas");
     bg.width = BW * TS;
     bg.height = BH * TS;
-    paintField(bg.getContext("2d"), terr, fort, defE);
-    const lim = { t3: env.rmax, t1: Math.round(env.rmax * 2.5), rt: env.rmax * 25 }[mode];
+    paintField(bg.getContext("2d"), terr, fort, rec);
+    /* el campo es el doble de ancho: unos turnos más para llegar al choque */
+    const rl = env.rmax + 4,
+      lim = { t3: rl, t1: Math.round(rl * 2.5), rt: rl * 25 }[mode];
     BT = {
       bg,
       dead: [],
@@ -1643,10 +1631,8 @@ function cmbTacticaCore(ejs0, ctx, mode, op) {
       speed: ctx.velocidad || 1,
       gb: gbs,
       gens,
-      muro:
-        fort && def != null
-          ? { hp: fort * 100, hp0: fort * 100, x: defE ? 29.5 : 10.5, y0: 3.5, y1: BH - 3.5, e: defE }
-          : null,
+      muro: rec ? { hp: fort * 100, hp0: fort * 100, ...rec } : null,
+      fwdC: rec ? CMB_NOR[rec.frente] : null,
       habT: 0,
       bono,
       auto0: !!ctx.auto,
@@ -1724,21 +1710,38 @@ function cmbLocal(side, d, a) {
   if (l === "S") return { x: a2, y: BH - d * 0.55 };
   return { x: d, y: a2 };
 }
-/* zona de despliegue del jugador */
+/* zona de despliegue (ver cmbZona) */
 function cmbEnZona(side, x, y) {
-  const l = cmbLadoDe(side);
-  return l === "E" ? x > BW - 10 : l === "N" ? y < 5.5 : l === "S" ? y > BH - 5.5 : x < 10;
+  const z = cmbZona(side);
+  if (z.dentro) {
+    const [a, b, c, d] = z.dentro;
+    return x >= a && x <= c && y >= b && y <= d;
+  }
+  const [a, b, c, d] = z.fuera;
+  return x > 0 && y > 0 && x < BW && y < BH && !(x > a && x < c && y > b && y < d);
 }
 function cmbAZona(side, x, y) {
-  const l = cmbLadoDe(side);
-  if (l === "E") return { x: clamp(x, BW - 10, BW - 0.5), y: clamp(y, 0.5, BH - 0.5) };
-  if (l === "N") return { x: clamp(x, 0.5, BW - 0.5), y: clamp(y, 0.5, 5.5) };
-  if (l === "S") return { x: clamp(x, 0.5, BW - 0.5), y: clamp(y, BH - 5.5, BH - 0.5) };
-  return { x: clamp(x, 0.5, 10), y: clamp(y, 0.5, BH - 0.5) };
+  const z = cmbZona(side);
+  if (z.dentro) {
+    const [a, b, c, d] = z.dentro;
+    return { x: clamp(x, a, c), y: clamp(y, b, d) };
+  }
+  const [a, b, c, d] = z.fuera;
+  x = clamp(x, 0.5, BW - 0.5);
+  y = clamp(y, 0.5, BH - 0.5);
+  if (x > a && x < c && y > b && y < d) {
+    /* dentro del anillo prohibido: al borde más cercano */
+    const m = Math.min(x - a, c - x, y - b, d - y);
+    if (m === x - a) x = a;
+    else if (m === c - x) x = c;
+    else if (m === y - b) y = b;
+    else y = d;
+  }
+  return { x, y };
 }
 function deploy(side, only) {
   const us = BT.units.filter((u) => u.side === side && (!only || u.x < 0)),
-    rows = [12, 10.3, 13.7, 8.6, 15.4, 6.9, 17.1, 5.2, 18.8, 3.5, 20.5, 1.8, 22.2],
+    rows = [0, -1.7, 1.7, -3.4, 3.4, -5.1, 5.1, -6.8, 6.8, -8.5, 8.5, -10.2, 10.2].map((o) => BH / 2 + o),
     col = { lin: 7.5, esc: 9.1, arq: 3.5, cab: 5.5, maq: 1.8, gen: 4.8 };
   const cnt = { lin: 0, esc: 0, arq: 0, cab: 0, maq: 0, gen: 0 };
   us.sort((a, b) => TYP.indexOf(a.t) - TYP.indexOf(b.t));
@@ -1747,7 +1750,7 @@ function deploy(side, only) {
       k = cnt[g]++;
     let a = rows[k % rows.length],
       d = col[g] + (k >= rows.length ? -1.6 : 0);
-    if (g === "cab") a = k % 2 ? BH - 2 - Math.floor(k / 2) * 1.8 : 2 + Math.floor(k / 2) * 1.8;
+    if (g === "cab") a = k % 2 ? BH / 2 + 10 - Math.floor(k / 2) * 1.8 : BH / 2 - 10 + Math.floor(k / 2) * 1.8;
     let q = cmbLocal(side, d, a);
     for (
       let n = 0;
@@ -1758,10 +1761,22 @@ function deploy(side, only) {
       a = ((a + 1.7) % (BH - 1)) + 0.5;
       q = cmbLocal(side, d, a);
     }
-    if (BT.muro && BT.muro.y0 != null && BT.def != null && cmbBnd(side) === cmbBnd(BT.def)) {
-      q.y = clamp(q.y, BT.muro.y0 + 0.9, BT.muro.y1 - 0.9);
-      if (!cmbDentro(BT.muro, q))
-        q.x = BT.muro.e ? Math.max(q.x, BT.muro.x + 1) : Math.min(q.x, BT.muro.x - 1);
+    if (BT.muro && BT.muro.x0 != null && BT.def != null && cmbBnd(side) === cmbBnd(BT.def)) {
+      /* la guarnición, dentro del recinto: tiradores junto al lienzo del frente, la línea detrás, la
+         caballería y las máquinas al fondo */
+      const M = BT.muro,
+        fr = M.frente,
+        dIn = { arq: 1.5, lin: 3.2, esc: 2.4, cab: 7, maq: 9, gen: 5.2 }[g] + (k >= rows.length ? 1.6 : 0),
+        largo = fr === "N" || fr === "S",
+        L = largo ? M.x1 - M.x0 : M.y1 - M.y0,
+        off = clamp(a - BH / 2, -L / 2 + 0.9, L / 2 - 0.9);
+      q = fr === "O" ? { x: M.x0 + dIn, y: M.cy + off } : fr === "E" ? { x: M.x1 - dIn, y: M.cy + off } : fr === "N" ? { x: M.cx + off, y: M.y0 + dIn } : { x: M.cx + off, y: M.y1 - dIn };
+      for (let n = 0; n < 40 && BT.units.some((o) => o !== u && o.x >= 0 && Math.hypot(o.x - q.x, o.y - q.y) < crd(o, u) + 0.1); n++) {
+        const o2 = clamp(off + (n % 2 ? 1 : -1) * Math.ceil((n + 1) / 2) * 1.6, -L / 2 + 0.9, L / 2 - 0.9),
+          d2 = dIn + Math.floor(n / 12) * 1.4;
+        q = fr === "O" ? { x: M.x0 + d2, y: M.cy + o2 } : fr === "E" ? { x: M.x1 - d2, y: M.cy + o2 } : fr === "N" ? { x: M.cx + o2, y: M.y0 + d2 } : { x: M.cx + o2, y: M.y1 - d2 };
+      }
+      q = { x: clamp(q.x, M.x0 + 0.6, M.x1 - 0.6), y: clamp(q.y, M.y0 + 0.6, M.y1 - 0.6) };
     }
     u.x = q.x;
     u.y = q.y;
@@ -1776,7 +1791,11 @@ const cmbBnd = (s) => (BT.bandos ? BT.bandos[s] : s),
   mio = (u) => (BT.mios ? BT.mios.includes(u.side) : u.side === 0),
   aliado = (u) => cmbBnd(u.side) === (BT.bandoYo ?? 0),
   hostil = (a, b) => cmbBnd(a.side) !== cmbBnd(b.side),
-  cmbFwd = (s) => ({ O: [1, 0], E: [-1, 0], N: [0, 1], S: [0, -1] })[cmbLadoDe(s)];
+  cmbFwd = (s) => {
+    const l = cmbLadoDe(s);
+    if (l === "C") return BT.fwdC || (BT.muro && CMB_NOR[BT.muro.frente]) || [1, 0];
+    return { O: [1, 0], E: [-1, 0], N: [0, 1], S: [0, -1] }[l] || [1, 0];
+  };
 /* orienta la unidad al moverse: los de oeste-este miran a lo ancho; los de norte-sur, a lo alto */
 function cmbCara(u, dx, dy) {
   if (u.ax === "y") {
@@ -1797,20 +1816,128 @@ const tirador = (u) => u.cs.al > 0 && u.ammo > 0,
   murOk = (u) => cmbMurF(u) > 0;
 /* nivel efectivo de muralla que protege a u: baja con los daños (arietes, catapultas) y casi se anula
    junto a una torre de asedio enemiga */
-/* el recinto: la ciudad al fondo (este u oeste) cerrada por tres lienzos: frente (x = M.x), norte
-   (y = M.y0) y sur (y = M.y1); sin y0/y1 (partidas o espejos antiguos) solo el frente */
+/* ---------- el recinto de la plaza ----------
+   Un rectángulo en el CENTRO del campo con muralla en los cuatro lados (x0..x1, y0..y1, en líneas de media
+   casilla), una puerta en el centro de cada lienzo, torres en las esquinas y cada seis casillas, y el tramo de
+   la brecha (8 casillas) en el lienzo que mira al atacante principal (frente). Es la única descripción de la
+   muralla: la usan la simulación (protección, máquinas, brecha, asalto por flancos), el despliegue, el dibujo
+   2D, la batalla 3D (cmbRender().campo.muro) y el espejo online (va entera en el mensaje «ini»).
+   Un campamento (fort < 1) es un recinto más pequeño. */
+const CMB_NOR = { N: [0, -1], S: [0, 1], O: [-1, 0], E: [1, 0] }; // hacia fuera de cada lienzo
+function cmbRecinto(fort, frente) {
+  const camp = fort < 1,
+    w = camp ? 16 : 26,
+    h = camp ? 12 : 18,
+    x0 = Math.floor(BW / 2 - w / 2) + 0.5,
+    y0 = Math.floor(BH / 2 - h / 2) + 0.5,
+    x1 = x0 + w,
+    y1 = y0 + h,
+    cx = (x0 + x1) / 2,
+    cy = (y0 + y1) / 2,
+    puertas = [
+      { l: "N", x: cx, y: y0 },
+      { l: "S", x: cx, y: y1 },
+      { l: "O", x: x0, y: cy },
+      { l: "E", x: x1, y: cy },
+    ],
+    torres = [
+      { x: x0, y: y0, l: "N" },
+      { x: x1, y: y0, l: "N" },
+      { x: x0, y: y1, l: "S" },
+      { x: x1, y: y1, l: "S" },
+    ];
+  for (let x = x0 + 6; x < x1 - 2; x += 6)
+    if (Math.abs(x - cx) > 1.5) torres.push({ x, y: y0, l: "N" }, { x, y: y1, l: "S" });
+  for (let y = y0 + 6; y < y1 - 2; y += 6)
+    if (Math.abs(y - cy) > 1.5) torres.push({ x: x0, y, l: "O" }, { x: x1, y, l: "E" });
+  const fr = CMB_NOR[frente] ? frente : "O",
+    largo = fr === "N" || fr === "S";
+  return {
+    x0,
+    y0,
+    x1,
+    y1,
+    cx,
+    cy,
+    puertas,
+    torres,
+    frente: fr,
+    brecha: { l: fr, a: (largo ? cx : cy) - 4, b: (largo ? cx : cy) + 4 },
+    camp,
+  };
+}
+/* ¿está p dentro del recinto? (sin x0: muros de versiones antiguas, frente en M.x) */
 function cmbDentro(M, p) {
+  if (M.x0 != null) return p.x > M.x0 && p.x < M.x1 && p.y > M.y0 && p.y < M.y1;
   const fondo = (M.e ?? (cmbLadoDe(BT.def) === "E" ? 1 : 0)) ? p.x > M.x : p.x < M.x;
   return fondo && (M.y0 == null || (p.y > M.y0 && p.y < M.y1));
 }
+/* punto del lienzo más cercano a p y lado de ese lienzo (N/S/O/E) */
+function cmbPuntoMuro(M, p) {
+  if (cmbDentro(M, p)) {
+    const d = [
+      ["O", p.x - M.x0],
+      ["E", M.x1 - p.x],
+      ["N", p.y - M.y0],
+      ["S", M.y1 - p.y],
+    ].sort((a, b) => a[1] - b[1])[0][0];
+    return { l: d, x: d === "O" ? M.x0 : d === "E" ? M.x1 : p.x, y: d === "N" ? M.y0 : d === "S" ? M.y1 : p.y };
+  }
+  const x = clamp(p.x, M.x0, M.x1),
+    y = clamp(p.y, M.y0, M.y1),
+    ex = Math.max(M.x0 - p.x, p.x - M.x1, 0),
+    ey = Math.max(M.y0 - p.y, p.y - M.y1, 0),
+    l = ex >= ey ? (p.x < M.x0 ? "O" : "E") : p.y < M.y0 ? "N" : "S";
+  return { l, x, y };
+}
 /* distancia de p al lienzo más cercano */
 function cmbDistMuro(M, p) {
+  if (M.x0 != null) {
+    const q = cmbPuntoMuro(M, p);
+    return Math.hypot(p.x - q.x, p.y - q.y);
+  }
   const e = M.e ?? (cmbLadoDe(BT.def) === "E" ? 1 : 0),
     enX = e ? p.x > M.x : p.x < M.x,
     dF = M.y0 == null || (p.y > M.y0 && p.y < M.y1) ? Math.abs(p.x - M.x) : 99,
     dN = M.y0 != null && enX ? Math.abs(p.y - M.y0) : 99,
     dS = M.y0 != null && enX ? Math.abs(p.y - M.y1) : 99;
   return Math.min(dF, dN, dS);
+}
+const cmbPuertaCerca = (M, p) => M.puertas.reduce((a, q) => (Math.hypot(q.x - p.x, q.y - p.y) < Math.hypot(a.x - p.x, a.y - p.y) ? q : a));
+/* ¿está (x, y) en el tramo de la brecha? (para el dibujo) */
+const cmbEnBrecha = (M, l, v) => !!(M.brecha && M.brecha.l === l && v >= M.brecha.a && v < M.brecha.b);
+/* zonas de despliegue. Campo abierto: una franja junto al borde de cada lado (12 casillas al este u oeste,
+   8 al norte o sur). Asedio: el bando que defiende, dentro del recinto; los atacantes, en cualquier punto
+   alrededor de la plaza a más de CMB_ANILLO casillas de la muralla («despliegue por todo alrededor»). */
+const CMB_ZEO = 12,
+  CMB_ZNS = 8,
+  CMB_ANILLO = 7;
+function cmbZona(side) {
+  const M = BT.muro;
+  if (M && M.x0 != null && BT.def != null) {
+    if (cmbBnd(side) === cmbBnd(BT.def)) return { dentro: [M.x0 + 0.6, M.y0 + 0.6, M.x1 - 0.6, M.y1 - 0.6] };
+    return { fuera: [M.x0 - CMB_ANILLO, M.y0 - CMB_ANILLO, M.x1 + CMB_ANILLO, M.y1 + CMB_ANILLO] };
+  }
+  const l = cmbLadoDe(side);
+  if (l === "E") return { dentro: [BW - CMB_ZEO, 0.5, BW - 0.5, BH - 0.5] };
+  if (l === "N") return { dentro: [0.5, 0.5, BW - 0.5, CMB_ZNS] };
+  if (l === "S") return { dentro: [0.5, BH - CMB_ZNS, BW - 0.5, BH - 0.5] };
+  return { dentro: [0.5, 0.5, CMB_ZEO, BH - 0.5] };
+}
+/* la zona como rectángulos [x, y, ancho, alto] para pintarla */
+function cmbZonaRects(side) {
+  const z = cmbZona(side);
+  if (z.dentro) {
+    const [a, b, c, d] = z.dentro;
+    return [[a - 0.5, b - 0.5, c - a + 1, d - b + 1]];
+  }
+  const [a, b, c, d] = z.fuera;
+  return [
+    [0, 0, BW, Math.max(0, b)],
+    [0, d, BW, Math.max(0, BH - d)],
+    [0, b, Math.max(0, a), d - b],
+    [c, b, Math.max(0, BW - c), d - b],
+  ];
 }
 function cmbMurF(u) {
   const M = BT.muro;
@@ -2131,19 +2258,13 @@ function simStep(dt, slot) {
       cmbBnd(u.side) !== cmbBnd(BT.def) &&
       u.st === "agr"
     ) {
-      const lado = (M.e ?? (cmbLadoDe(BT.def) === "E" ? 1 : 0)) ? -1 : 1,
-        porX = lado < 0 ? u.x > M.x : u.x < M.x,
-        norte = M.y0 != null && porX && u.y < M.y0,
-        sur = M.y0 != null && porX && u.y > M.y1;
-      if (norte || sur) {
-        const yy = norte ? M.y0 - 0.9 : M.y1 + 0.9;
-        g = u.t === "cat" ? { x: u.x, y: yy, stop: alc(u) - 1 } : { x: u.x, y: yy };
-      } else {
-        const gy = clamp(Math.round((u.y - 3) / 6) * 6 + 3, 3, BH - 3);
-        g =
-          u.t === "cat"
-            ? { x: M.x, y: u.y, stop: alc(u) - 1 }
-            : { x: M.x + lado * 0.9, y: u.t === "ari" ? gy : u.y };
+      /* catapultas: a tiro del lienzo más cercano; arietes: a la puerta más cercana; torres: al lienzo */
+      const pm = cmbPuntoMuro(M, u);
+      if (u.t === "cat") g = { x: pm.x, y: pm.y, stop: alc(u) - 1 };
+      else {
+        const q = u.t === "ari" ? cmbPuertaCerca(M, u) : pm,
+          n = CMB_NOR[q.l];
+        g = { x: q.x + n[0] * 0.9, y: q.y + n[1] * 0.9 };
       }
     }
     /* elefantes desbocados: arremeten contra los suyos */
@@ -2316,7 +2437,10 @@ function simStep(dt, slot) {
       bHito("cat" + u.side, 3, `${uname(u)} golpean la muralla.`, aliado(u) ? "good" : "bad");
       cmbTal(u.side, "asedio", 1.5);
       if (!BT.quiet)
-        BT.fx.push({ arrow: 1, x0: u.x, y0: u.y, x: M.x, y: u.y + (R() - 0.5) * 2, t0: performance.now() });
+        {
+          const pm = cmbPuntoMuro(M, u);
+          BT.fx.push({ arrow: 1, x0: u.x, y0: u.y, x: pm.x + (R() - 0.5) * 2, y: pm.y + (R() - 0.5) * 2, t0: performance.now() });
+        }
       continue;
     }
     const P = u.plan[slot] || u.plan[0],
@@ -2910,51 +3034,48 @@ function finishBattle(win, retreat) {
 function cmbAsaltoFlancos() {
   const k = BT.flancos || 1,
     M = BT.muro;
-  if (k < 2 || !M || BT.def == null || M.y0 == null) return;
-  /* si ya hay ejércitos atacantes llegados por el norte o el sur, ellos son los flancos */
+  if (k < 2 || !M || BT.def == null || M.x0 == null) return;
+  /* los lienzos por los que ya llegan ejércitos atacantes son flancos; se escala por otros k-1 lienzos */
   const ladosAt = new Set(
-      [...Array(BT.N || 2).keys()].filter((s) => cmbBnd(s) !== cmbBnd(BT.def)).map(cmbLadoDe),
+      [...Array(BT.N || 2).keys()].filter((s) => cmbBnd(s) !== cmbBnd(BT.def)).map(cmbLadoDe).filter((l) => CMB_NOR[l]),
     ),
-    caras = ["N", "S"].filter((c) => !ladosAt.has(c)).slice(0, k - 1),
-    xc = (BT.muro.e ? (M.x + BW) / 2 : M.x / 2) | 0,
+    caras = ["N", "S", "E", "O"].filter((c) => !ladosAt.has(c)).slice(0, k - 1),
+    /* punto medio de un lienzo, desplazado a lo largo (a) y hacia fuera (o) */
+    pto = (l, a, o) => {
+      const n = CMB_NOR[l];
+      return l === "N" || l === "S" ? { x: M.cx + a, y: (l === "N" ? M.y0 : M.y1) + n[1] * o } : { x: (l === "O" ? M.x0 : M.x1) + n[0] * o, y: M.cy + a };
+    },
     at = BT.units
-      .filter(
-        (u) =>
-          cmbBnd(u.side) !== cmbBnd(BT.def) &&
-          fighting(u) &&
-          u.cs.cl !== "asd" &&
-          !(u.gen && u.n <= SPU) &&
-          !tirador(u),
-      )
+      .filter((u) => cmbBnd(u.side) !== cmbBnd(BT.def) && fighting(u) && u.cs.cl !== "asd" && !(u.gen && u.n <= SPU) && !tirador(u))
       .sort((a, b) => b.n - a.n);
   let n = 0;
   for (const c of caras)
     for (let r = 0; r < 2 && n < at.length; r++, n++) {
-      const u = at[n];
-      u.x = clamp(xc + (r ? 2.2 : -2.2), 0.5, BW - 0.5);
-      u.y = c === "N" ? M.y0 - 1.8 : M.y1 + 1.8;
+      const u = at[n],
+        q = pto(c, r ? 3 : -3, 1.8);
+      u.x = clamp(q.x, 0.5, BW - 0.5);
+      u.y = clamp(q.y, 0.5, BH - 0.5);
       u.escala = 8;
       u.plan.forEach((p) => (p.o = null));
     }
   /* la guarnición se reparte: una o dos unidades a cada lienzo amenazado */
-  const amen = ["N", "S"].filter((c) => caras.includes(c) || ladosAt.has(c)),
+  const amen = ["N", "S", "E", "O"].filter((c) => caras.includes(c) || ladosAt.has(c)),
     dfs = BT.units
-      .filter(
-        (u) => cmbBnd(u.side) === cmbBnd(BT.def) && fighting(u) && !tirador(u) && !(u.gen && u.n <= SPU),
-      )
+      .filter((u) => cmbBnd(u.side) === cmbBnd(BT.def) && fighting(u) && !tirador(u) && !(u.gen && u.n <= SPU))
       .sort((a, b) => a.n - b.n);
   let j = 0;
   for (const c of amen)
     for (let r = 0; r < 1 + (dfs.length > 4 ? 1 : 0) && j < dfs.length - 1; r++, j++) {
-      const u = dfs[j];
-      u.x = clamp(xc + (r ? 2.2 : -2.2), 0.5, BW - 0.5);
-      u.y = c === "N" ? M.y0 + 1.2 : M.y1 - 1.2;
+      const u = dfs[j],
+        q = pto(c, r ? 3 : -3, -1.2);
+      u.x = q.x;
+      u.y = q.y;
     }
   if (n || j)
     bHito(
       "",
       3,
-      `Asalto por ${k} flancos: ${n ? n + " unidades atacan los lienzos norte y sur" : "los atacantes cercan la plaza"}; la guarnición se reparte.`,
+      `Asalto por ${k} flancos: ${n ? n + " unidades escalan otros lienzos" : "los atacantes cercan la plaza"}; la guarnición se reparte.`,
       cmbBnd(BT.def) === (BT.bandoYo ?? 0) ? "bad" : "good",
     );
 }
@@ -3155,7 +3276,7 @@ function bui() {
   let h = `<h2>Batalla de ${BT.place}</h2><p class="dim">${ejTxt}${BT.fort ? " · murallas " + BT.fort : ""}${BT.flancos > 1 ? " · " + BT.flancos + " flancos" : ""}<br>`;
   h += `${MODES[BT.mode]}${BT.mode === "rt" ? ` · ${Math.floor(BT.t)} / ${BT.lim} s` : ` · turno ${BT.turn} / ${BT.lim}`} · ${E.clima}</p>`;
   if (BT.phase === "deploy") {
-    h += `<p>Arrastra tus unidades dentro de la franja clara. Lanceros al frente frenan la caballería; arqueros detrás; caballería en las alas. Bosque: cubre y frena jinetes. Colina: mejor tiro y defensa. Río: frena y debilita; usa los vados.</p><div class="g2"><button data-act="b-auto">Despliegue automático</button><button data-act="b-go" class="gold">¡A la batalla!</button></div>`;
+    h += `<p>${BT.muro && BT.muro.x0 != null ? (cmbBnd((BT.mios || [0])[0]) === cmbBnd(BT.def) ? "Defiendes la plaza: coloca tus unidades dentro de la muralla (la zona clara). Arqueros junto al lienzo, la línea detrás y la caballería al fondo, lista para salir por una puerta." : "Asedio: despliega en cualquier punto alrededor de la plaza (la zona clara). Arietes a las puertas, torres y escalas contra los lienzos, catapultas a tiro de la muralla; rodearla reparte a la guarnición.") : "Arrastra tus unidades dentro de la franja clara. Lanceros al frente frenan la caballería; arqueros detrás; caballería en las alas. Bosque: cubre y frena jinetes. Colina: mejor tiro y defensa. Río: frena y debilita; usa los vados."}</p><div class="g2"><button data-act="b-auto">Despliegue automático</button><button data-act="b-go" class="gold">¡A la batalla!</button></div>`;
   } else {
     const SG = selU();
     if (SG.length > 1)
@@ -3715,38 +3836,42 @@ function drawBattle(now) {
   c.drawImage(BT.bg, 0, 0);
   /* muralla: integridad arriba y brecha cuando cae */
   const MU = BT.muro;
-  if (MU) {
-    const wx = MU.x * TS,
+  if (MU && MU.x0 != null) {
+    const wx = MU.cx * TS,
+      wy = MU.y0 * TS - 16,
       k = clamp(MU.hp / MU.hp0, 0, 1);
     c.fillStyle = "#000";
-    c.fillRect(wx - 16, 2, 32, 5);
+    c.fillRect(wx - 16, wy, 32, 5);
     c.fillStyle = k > 0.5 ? "#cfc6b6" : k > 0 ? "#e8b632" : "#e0503f";
-    c.fillRect(wx - 15, 3, Math.round(30 * k), 3);
-    if (MU.rota)
-      for (let y = 8 * TS; y < 16 * TS; y += 4) {
-        c.fillStyle = (y / 4) % 2 ? "#6d6250" : "#857c6b";
-        c.fillRect(wx - 7 + ((y * 7) % 5), y, 14, 3);
+    c.fillRect(wx - 15, wy + 1, Math.round(30 * k), 3);
+    /* brecha: escombros en el tramo del lienzo del frente */
+    if (MU.rota && MU.brecha) {
+      const B = MU.brecha,
+        vert = B.l === "O" || B.l === "E",
+        L = (B.l === "O" ? MU.x0 : B.l === "E" ? MU.x1 : B.l === "N" ? MU.y0 : MU.y1) * TS;
+      for (let v = B.a * TS; v < B.b * TS; v += 4) {
+        c.fillStyle = (v / 4) % 2 ? "#6d6250" : "#857c6b";
+        if (vert) c.fillRect(L - 7 + ((v * 7) % 5), v, 14, 3);
+        else c.fillRect(v, L - 7 + ((v * 7) % 5), 3, 14);
       }
+    }
   }
   c.lineWidth = 1;
   if (BT.phase === "deploy") {
-    /* zonas de despliegue: la tuya clara; las de los demás, teñidas */
-    const zona = {
-      O: [0, 0, 10, BH],
-      E: [BW - 10, 0, 10, BH],
-      N: [0, 0, BW, 5.5],
-      S: [0, BH - 5.5, BW, 5.5],
-    };
-    for (const l of [...new Set(BT.lados || ["O", "E"])]) {
-      const ss = [...Array(BT.N || 2).keys()].filter((s) => cmbLadoDe(s) === l),
-        m = ss.some((s) => (BT.mios || [0]).includes(s)),
-        z = zona[l];
-      c.fillStyle = m
+    /* zonas de despliegue: la tuya clara; las de los demás, teñidas (ver cmbZona: en un asedio la
+       guarnición dentro del recinto y los atacantes, en el anillo de alrededor) */
+    const vistas = new Set();
+    for (let sd = 0; sd < (BT.N || 2); sd++) {
+      const rs = cmbZonaRects(sd),
+        key = JSON.stringify(rs) + (BT.mios || [0]).includes(sd);
+      if (vistas.has(key)) continue;
+      vistas.add(key);
+      c.fillStyle = (BT.mios || [0]).includes(sd)
         ? "rgba(255,255,255,.13)"
-        : ss.some((s) => cmbBnd(s) === (BT.bandoYo ?? 0))
+        : cmbBnd(sd) === (BT.bandoYo ?? 0)
           ? "rgba(120,220,200,.1)"
           : "rgba(255,80,60,.1)";
-      c.fillRect(z[0] * TS, z[1] * TS, z[2] * TS, z[3] * TS);
+      for (const z of rs) c.fillRect(z[0] * TS, z[1] * TS, z[2] * TS, z[3] * TS);
     }
   }
   for (const d of BT.dead) {
@@ -3836,7 +3961,10 @@ function drawBattle(now) {
   }
   if (drag && drag.mode === "unit" && BT.phase === "deploy") {
     const u = bU(drag.h);
-    if (u) ghost(c, u, clamp(drag.x, 0.5, 10), drag.y, "#8fd18a");
+    if (u) {
+      const q = cmbAZona(u.side, drag.x, drag.y);
+      ghost(c, u, q.x, q.y, "#8fd18a");
+    }
   }
   if (drag && drag.mode === "box") {
     c.strokeStyle = "#fff";

@@ -134,7 +134,7 @@ canvas {
   overscroll-behavior: contain;
 }
 #bmap {
-  aspect-ratio: 800/480;
+  aspect-ratio: 1600/1000;
   cursor: crosshair;
   touch-action: none;
   max-width: none;

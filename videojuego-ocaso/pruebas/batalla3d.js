@@ -492,7 +492,9 @@ const esperaCam = (page) => page.waitForFunction(() => Math.abs(B3D.cam.az - B3D
   await page.screenshot({ path: path.join(capt, "batalla3d-tres-pueblos.png") });
   /* calidad baja: sin sombras, menos figuras */
   await page.click('[data-b3d="cal"]');
-  await page.waitForTimeout(800);
+  /* el cambio de calidad se aplica en el siguiente fotograma (lento con la GPU por software y el campo de 80×50) */
+  await page.waitForFunction((f0) => B3D.pref.cal === "baja" && B3D.stats.fig < f0, rend.fig, { timeout: 15000 }).catch(() => {});
+  await page.waitForTimeout(300);
   const baja = await page.evaluate(() => ({ cal: B3D.pref.cal, som: B3D.ren.shadowMap.enabled, fig: B3D.stats.fig, blob: B3D.blob.visible }));
   ok(baja.cal === "baja" && !baja.som && baja.blob && baja.fig < rend.fig, `calidad baja: sin sombras, sombras simples y ${baja.fig} figuras`);
   await page.screenshot({ path: path.join(capt, "batalla3d-calidad-baja.png") });

@@ -915,7 +915,7 @@ fs.mkdirSync(capt, { recursive: true });
   ok(tc.llego, "los refuerzos entran por su borde a media batalla");
   ok(tc.datos, "cmbRender da los datos de cada unidad para el render");
 
-  /* asalto por tres flancos: la ciudad al fondo con tres lienzos */
+  /* asalto por tres flancos: la plaza en el centro; el atacante llega por el oeste y escala los lienzos norte y sur */
   await page.evaluate(() => {
     window.__tac = null;
     window.__log = [];
@@ -941,7 +941,7 @@ fs.mkdirSync(capt, { recursive: true });
     await page.waitForTimeout(200);
     if (!shotA && k === 3) {
       flancoN = await page.evaluate(
-        () => BT && BT.units.some((u) => u.side === 0 && u.y < BT.muro.y0 && u.x > BT.muro.x),
+        () => BT && BT.units.some((u) => u.side === 0 && u.y < BT.muro.y0 && u.x > BT.muro.x0 && u.x < BT.muro.x1),
       );
       await page.screenshot({ path: path.join(capt, "combate-v3-asalto-flancos.png") });
       shotA = true;

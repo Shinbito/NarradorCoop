@@ -695,6 +695,13 @@ function b3dBoton(k) {
   else if (k === "seguir") {
     C.seguir = !C.seguir;
     if (C.seguir && C.zoomT < 1.8) C.zoomT = 2.2;
+    /* en un campo grande, ir directamente a la unidad (luego la cámara la sigue suave) */
+    const u = C.seguir && BT ? bU(BT.sel) : null;
+    if (u && act(u) && u.x >= 0) {
+      C.tx = u.x - BW / 2;
+      C.tz = u.y - BH / 2;
+      b3dCamara();
+    }
   } else if (k === "barras") {
     B3D.pref.barras = !B3D.pref.barras;
     b3dGuardar();
@@ -1062,12 +1069,14 @@ function b3dConstruir() {
     sol.castShadow = true;
     sol.shadow.mapSize.set(cal.sombras, cal.sombras);
     const sc = sol.shadow.camera;
-    sc.left = -26;
-    sc.right = 26;
-    sc.top = 26;
-    sc.bottom = -26;
+    /* la sombra cubre todo el campo (80×50) */
+    const rs = Math.hypot(BW, BH) / 2 + 4;
+    sc.left = -rs;
+    sc.right = rs;
+    sc.top = rs;
+    sc.bottom = -rs;
     sc.near = 1;
-    sc.far = 140;
+    sc.far = 260;
     sol.shadow.bias = -0.0008;
     sol.shadow.normalBias = 0.02;
     sol.shadow.radius = 2;
@@ -1194,29 +1203,35 @@ function b3dConstruir() {
   /* zonas de despliegue por lado (O, E, N, S), pegadas al relieve: la tuya clara, aliadas verdosas, enemigas rojizas */
   {
     B3D.zonas = [];
-    const ZR = { O: [0, 0, 10, BH], E: [BW - 10, 0, 10, BH], N: [0, 0, BW, 5.5], S: [0, BH - 5.5, BW, 5.5] },
-      N = BT.N || 2,
-      lados = [...new Set(BT.lados || ["O", "E"])];
-    for (const l of lados) {
-      const ss = [...Array(N).keys()].filter((q) => cmbLadoDe(q) === l),
-        mia = ss.some((q) => (BT.mios || [0]).includes(q)),
-        ali = ss.some((q) => cmbBnd(q) === (BT.bandoYo ?? 0)),
-        [x0, z0, w, h] = ZR[l] || ZR.O,
-        [hex, op] = mia ? ["#ffffff", 0.18] : ali ? ["#78dcc8", 0.14] : ["#ff503c", 0.14],
-        g = new THREE.PlaneGeometry(w, h, Math.ceil(w * 2), Math.ceil(h * 2));
-      g.rotateX(-Math.PI / 2);
-      const p = g.attributes.position;
-      for (let i = 0; i < p.count; i++) {
-        const x = p.getX(i) + x0 + w / 2,
-          z = p.getZ(i) + z0 + h / 2;
-        p.setXYZ(i, x - BW / 2, b3dAlt(x, z) + 0.03, z - BH / 2);
+    /* las zonas salen de cmbZonaRects (batalla.js): franjas junto al borde o, en un asedio, la plaza para la
+       guarnición y el anillo de alrededor para los atacantes */
+    const N = BT.N || 2,
+      vistas = new Set();
+    for (let q = 0; q < N; q++) {
+      const rs = cmbZonaRects(q),
+        mia = (BT.mios || [0]).includes(q),
+        key = JSON.stringify(rs) + mia;
+      if (vistas.has(key)) continue;
+      vistas.add(key);
+      const ali = cmbBnd(q) === (BT.bandoYo ?? 0),
+        [hex, op] = mia ? ["#ffffff", 0.18] : ali ? ["#78dcc8", 0.14] : ["#ff503c", 0.14];
+      for (const [x0, z0, w, h] of rs) {
+        if (w <= 0 || h <= 0) continue;
+        const g = new THREE.PlaneGeometry(w, h, Math.ceil(w * 2), Math.ceil(h * 2));
+        g.rotateX(-Math.PI / 2);
+        const p = g.attributes.position;
+        for (let i = 0; i < p.count; i++) {
+          const x = p.getX(i) + x0 + w / 2,
+            z = p.getZ(i) + z0 + h / 2;
+          p.setXYZ(i, x - BW / 2, b3dAlt(x, z) + 0.03, z - BH / 2);
+        }
+        const m = new THREE.MeshBasicMaterial({ color: hex, transparent: true, opacity: op, depthWrite: false, fog: false }),
+          z = new THREE.Mesh(g, m);
+        z.renderOrder = 4;
+        S.add(z);
+        B3D.zonas.push(z);
+        dis.push(g, m);
       }
-      const m = new THREE.MeshBasicMaterial({ color: hex, transparent: true, opacity: op, depthWrite: false, fog: false }),
-        z = new THREE.Mesh(g, m);
-      z.renderOrder = 4;
-      S.add(z);
-      B3D.zonas.push(z);
-      dis.push(g, m);
     }
   }
   /* figuras: un InstancedMesh por modelo presente; un solo material */
@@ -1326,18 +1341,13 @@ function b3dConstruir() {
   B3D.tam = null;
   B3D.t0 = performance.now();
 }
-/* murallas: el recinto de la ciudad (frente en x = M.x entre y0 e y1, y lienzos norte y sur hasta el borde
-   del lado de la ciudad), con almenas, torres, puertas abiertas, la ciudad al fondo, daños, brecha y escombros.
-   Sin y0/y1 (espejos antiguos), solo el frente a lo largo de todo el campo. */
+/* murallas: la plaza en el CENTRO del campo (cmbRecinto en batalla.js: x0..x1, y0..y1, puertas, torres y el
+   tramo de la brecha en el lienzo del frente), cuatro lienzos con almenas, torres, puertas abiertas, la ciudad
+   dentro, daños, brecha y escombros. Muros sin x0 (espejos de versiones antiguas): no se dibujan. */
 function b3dMuralla(S, dis, rnd) {
-  const M = BT.muro,
-    e = M.e ?? (cmbLadoDe(BT.def) === "E" ? 1 : 0),
-    X = M.x - BW / 2,
-    fuera = e ? -1 : 1, // hacia el atacante
-    cerrado = M.y0 != null,
-    y0 = cerrado ? M.y0 : 0,
-    y1 = cerrado ? M.y1 : BH,
-    bl = [],
+  const M = BT.muro;
+  if (!M || M.x0 == null) return null;
+  const bl = [],
     torres = [],
     puertas = [],
     add = (x, y, z, sx, sy, sz, tipo, br, col) => bl.push({ x, y, z, sx, sy, sz, tipo, th: rnd(), br, col: col || 1 }),
@@ -1346,48 +1356,42 @@ function b3dMuralla(S, dis, rnd) {
         for (const o of [-0.25, 0.25])
           if (enX) add(x + s * 0.25, 1.16, z + o, 0.1, 0.24, 0.24, "alm", br);
           else add(x + o, 1.16, z + s * 0.25, 0.24, 0.24, 0.1, "alm", br);
-    };
-  /* frente */
-  const n = Math.round(y1 - y0);
-  for (let k = 0; k < n; k++) {
-    const yc = y0 + k + 0.5,
-      ty = Math.floor(yc),
-      z = yc - BH / 2,
-      br = ty >= 8 && ty < 16;
-    if (ty % 6 === 2 || ty % 6 === 3) {
-      add(X, 1.0, z, 0.62, 0.3, 1, "dintel", br);
-      puertas.push([X - fuera * 0.5, z + (ty % 6 === 2 ? -0.38 : 0.38), 0, ty % 6 === 2 ? 1 : -1]);
-      continue;
-    }
-    add(X, 0.3, z, 0.6, 0.6, 1, "base", br);
-    add(X, 0.82, z, 0.6, 0.44, 1, "alto", br);
-    almenas(X, z, true, br);
-    if (ty % 6 === 1 || ty % 6 === 4) torres.push([X, z, br]);
-  }
-  /* lienzos norte y sur */
-  if (cerrado) {
-    torres.push([X, y0 - BH / 2, false], [X, y1 - BH / 2, false]);
-    for (const yw of [y0, y1]) {
-      const z = yw - BH / 2,
-        xs = e ? M.x + 0.5 : M.x - 0.5,
-        paso = e ? 1 : -1,
-        dentro = yw === y0 ? 1 : -1;
-      for (let k = 0; k < BW; k++) {
-        const xc = xs + k * paso;
-        if (xc > BW || xc < 0) break;
-        const wx = xc - BW / 2;
-        if (k % 6 === 3) {
-          add(wx, 1.0, z, 1, 0.3, 0.62, "dintel", false);
-          puertas.push([wx - 0.38, z + dentro * 0.5, 1, 1], [wx + 0.38, z + dentro * 0.5, 1, -1]);
-          continue;
+    },
+    enPuerta = (l, v) => M.puertas.some((q) => q.l === l && Math.abs((l === "N" || l === "S" ? q.x : q.y) - v) <= 0.55);
+  /* los cuatro lienzos, una pieza por casilla */
+  for (const l of ["N", "S", "O", "E"]) {
+    const horiz = l === "N" || l === "S",
+      a0 = horiz ? M.x0 : M.y0,
+      n = Math.round(horiz ? M.x1 - M.x0 : M.y1 - M.y0),
+      fija = l === "N" ? M.y0 : l === "S" ? M.y1 : l === "O" ? M.x0 : M.x1,
+      out = CMB_NOR[l];
+    for (let k = 0; k < n; k++) {
+      const v = a0 + k + 0.5,
+        wx = (horiz ? v : fija) - BW / 2,
+        wz = (horiz ? fija : v) - BH / 2,
+        br = typeof cmbEnBrecha === "function" ? cmbEnBrecha(M, l, v) : false;
+      if (enPuerta(l, v)) {
+        if (horiz) {
+          add(wx, 1.0, wz, 1, 0.3, 0.62, "dintel", br);
+          puertas.push([wx, wz - out[1] * 0.5, 1, v < (M.cx ?? v) ? 1 : -1]);
+        } else {
+          add(wx, 1.0, wz, 0.62, 0.3, 1, "dintel", br);
+          puertas.push([wx - out[0] * 0.5, wz, 0, v < (M.cy ?? v) ? 1 : -1]);
         }
-        add(wx, 0.3, z, 1, 0.6, 0.6, "base", false);
-        add(wx, 0.82, z, 1, 0.44, 0.6, "alto", false);
-        almenas(wx, z, false, false);
-        if (k % 6 === 0 && k > 0) torres.push([wx, z, false]);
+        continue;
+      }
+      if (horiz) {
+        add(wx, 0.3, wz, 1, 0.6, 0.6, "base", br);
+        add(wx, 0.82, wz, 1, 0.44, 0.6, "alto", br);
+        almenas(wx, wz, false, br);
+      } else {
+        add(wx, 0.3, wz, 0.6, 0.6, 1, "base", br);
+        add(wx, 0.82, wz, 0.6, 0.44, 1, "alto", br);
+        almenas(wx, wz, true, br);
       }
     }
   }
+  for (const t of M.torres) torres.push([t.x - BW / 2, t.y - BH / 2, typeof cmbEnBrecha === "function" ? cmbEnBrecha(M, t.l, t.l === "N" || t.l === "S" ? t.x : t.y) : false]);
   for (const [tx, tz, br] of torres) {
     add(tx, 0.8, tz, 1.0, 1.6, 1.0, "torre", br, 0.92);
     for (const s of [-1, 1])
@@ -1396,12 +1400,24 @@ function b3dMuralla(S, dis, rnd) {
         add(tx + o, 1.72, tz + s * 0.42, 0.26, 0.26, 0.16, "almT", br);
       }
   }
-  /* escombros: al pie del frente (con el daño) y montón de la brecha */
-  const esc = [];
-  for (let k = 0; k < 140; k++)
-    esc.push({ x: X + fuera * (0.4 + rnd() * 1.1), z: y0 + rnd() * (y1 - y0) - BH / 2, s: 0.08 + rnd() * 0.16, th: rnd(), br: false, a: rnd() * 6.28 });
-  for (let k = 0; k < 90; k++)
-    esc.push({ x: X + (rnd() - 0.5) * 1.6, z: 8 + rnd() * 8 - BH / 2, s: 0.1 + rnd() * 0.2, th: 0, br: true, a: rnd() * 6.28 });
+  /* escombros: al pie del lienzo del frente (con el daño) y el montón de la brecha */
+  const esc = [],
+    fr = M.frente || "O",
+    on = CMB_NOR[fr] || [-1, 0],
+    hz = fr === "N" || fr === "S",
+    fija = fr === "N" ? M.y0 : fr === "S" ? M.y1 : fr === "O" ? M.x0 : M.x1,
+    A0 = hz ? M.x0 : M.y0,
+    A1 = hz ? M.x1 : M.y1,
+    pz = (v, o) => (hz ? [v - BW / 2, fija + on[1] * o - BH / 2] : [fija + on[0] * o - BW / 2, v - BH / 2]);
+  for (let k = 0; k < 140; k++) {
+    const [x, z] = pz(A0 + rnd() * (A1 - A0), 0.4 + rnd() * 1.1);
+    esc.push({ x, z, s: 0.08 + rnd() * 0.16, th: rnd(), br: false, a: rnd() * 6.28 });
+  }
+  if (M.brecha)
+    for (let k = 0; k < 90; k++) {
+      const [x, z] = pz(M.brecha.a + rnd() * (M.brecha.b - M.brecha.a), (rnd() - 0.5) * 1.6);
+      esc.push({ x, z, s: 0.1 + rnd() * 0.2, th: 0, br: true, a: rnd() * 6.28 });
+    }
   const g = new THREE.BoxGeometry(1, 1, 1),
     m = new THREE.MeshLambertMaterial({ color: B3D_TERR_PAL.piedra, flatShading: true }),
     im = new THREE.InstancedMesh(g, m, bl.length + esc.length),
@@ -1432,19 +1448,17 @@ function b3dMuralla(S, dis, rnd) {
     hojas.push(d);
   }
   dis.push(g, m, gp, mp);
-  /* la ciudad al fondo: casas con tejado a cuatro aguas y alguna torre */
-  if (cerrado) {
-    const casas = [],
-      xa = e ? M.x + 1.3 : 0.8,
-      xb = e ? BW - 0.8 : M.x - 1.3;
-    /* a escala: casas y torres mucho más grandes que los soldados (más separadas, menos) */
-    for (let zz = y0 + 1.3; zz < y1 - 1.1; zz += 1.9)
-      for (let xx = xa + 0.2; xx < xb - 0.2; xx += 1.7) {
+  /* la ciudad dentro del recinto: casas con tejado a cuatro aguas y alguna torre (a escala: mucho más
+     grandes que los soldados; las casas, a la altura del adarve) */
+  {
+    const casas = [];
+    for (let zz = M.y0 + 1.6; zz < M.y1 - 1.2; zz += 1.9)
+      for (let xx = M.x0 + 1.5; xx < M.x1 - 1.2; xx += 1.7) {
         if (rnd() < 0.42) continue;
-        const torre = rnd() < 0.1,
+        const torre = rnd() < 0.08,
           w = torre ? 0.7 : 0.77 + rnd() * 0.56,
           d = torre ? 0.7 : 0.77 + rnd() * 0.56,
-          h = torre ? 2 + rnd() * 0.6 : 0.55 + rnd() * 0.4, /* las casas, a la altura del adarve; las torres asoman */
+          h = torre ? 2 + rnd() * 0.6 : 0.55 + rnd() * 0.4,
           x = xx + (rnd() - 0.5) * 0.3,
           z = zz + (rnd() - 0.5) * 0.3;
         casas.push({ x: x - BW / 2, z: z - BH / 2, y: b3dAlt(x, z), w, d, h, torre, k: rnd() });
@@ -1477,7 +1491,7 @@ function b3dMuralla(S, dis, rnd) {
       dis.push(gc, mc, gt, mt);
     }
   }
-  return { im, bl, esc, k: -1, rota: null, hojas, X, fuera, torres: torres.map(([x, z]) => [x, z]) };
+  return { im, bl, esc, k: -1, rota: null, hojas, fuera: on[0] || 1, torres: torres.map(([x, z]) => [x, z]) };
 }
 function b3dMurallaPaso(M) {
   const W = B3D.muro;
@@ -2052,7 +2066,7 @@ function b3dHud(now) {
   if (BT.muro) {
     const M = BT.muro,
       k = clamp(M.hp / M.hp0, 0, 1),
-      p = b3dPantalla(M.x, M.y0 != null ? M.y0 : 0.4, 2.1);
+      p = M.x0 != null ? b3dPantalla(M.cx, M.y0, 2.1) : b3dPantalla(BW / 2, 0.4, 2.1);
     c.fillStyle = "#000";
     c.fillRect(p.x - 17, p.y - 1, 34, 6);
     c.fillStyle = k > 0.5 ? "#cfc6b6" : k > 0 ? "#e8b632" : "#e0503f";

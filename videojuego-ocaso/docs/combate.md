@@ -168,9 +168,13 @@ cmbTacticaMulti(lista, ctx, modo)     // Promise del mismo resultado; modo 't3' 
 - Táctica: cada ejército despliega por su `dir` (o, si no la trae, el bando del jugador al oeste y los demás al
   este, norte y sur) como grupo propio con su estandarte, su general (guardia) y su color; los aliados que
   comparten lado se reparten la mitad cada uno. El jugador manda solo los suyos; los aliados IA cooperan (mismos
-  blancos, no se estorban). Con murallas, la ciudad queda **al fondo (este u oeste) en un recinto de tres
-  lienzos** (frente, norte y sur) con puertas y torres; los arietes van a la puerta del lienzo más cercano. Con
-  `flancos ≥ 2` parte de los atacantes forma ante los lienzos norte y sur (si no llegan ya ejércitos por ahí) y la
+  blancos, no se estorban). Con murallas, la plaza está **en el centro del campo**: un recinto rectangular
+  (`cmbRecinto`: 26×18 casillas, 16×12 un campamento) con muralla en los cuatro lados, una puerta en el centro
+  de cada lienzo, torres en las esquinas y cada seis casillas, y el tramo de la brecha (8 casillas) en el lienzo
+  que mira al primer atacante (`frente`). La guarnición (lado `'C'`) despliega dentro, frente a ese lienzo; los
+  atacantes llegan por su `dir` y pueden desplegar **en cualquier punto alrededor de la plaza** a más de
+  `CMB_ANILLO` = 7 casillas de la muralla. Arietes a la puerta más cercana, torres y catapultas al lienzo más
+  cercano. Con `flancos ≥ 2` parte de los atacantes escala otros lienzos (los que no cubren ya ejércitos) y la
   guarnición se reparte entre los lienzos amenazados. Los refuerzos aparecen por su borde a su hora.
 - `batallaResuelta` de las *Multi con `ctx.emitir`: `{p, atacante, defensor, gana, A, D, s0, d0, gA, gD, ...}` de los dos
   **principales** (el primero y el primero de otro bando, o `ctx.def`) para compatibilidad, más `multi: true`,
@@ -185,9 +189,9 @@ cmbTacticaMulti(lista, ctx, modo)     // Promise del mismo resultado; modo 't3' 
   `hab: [[id, habilidad]]`); la autoridad los aplica con `u.side` = índice del ejército en el campo.
 
 ### Datos para el render (`cmbRender()`, para la Batalla 3D u otras vistas)
-Foto plana en coordenadas de mundo (casillas; campo `BW`×`BH` = 40×24):
-`{t, fase, modo, campo:{w, h, terr[y][x] (0 llano, 1 bosque, 2 colina, 3 río, 4 vado), muro:{hp, hp0, x, y0, y1,
-e (1 = ciudad al este), rota}, lados}, ejercitos:[{lado, f, bando, dir, mio, aguarda, llega, general:{id, ok}}],
+Foto plana en coordenadas de mundo (casillas; campo `BW`×`BH` = 80×50):
+`{t, fase, modo, campo:{w, h, terr[y][x] (0 llano, 1 bosque, 2 colina, 3 río, 4 vado), muro:{hp, hp0, x0, y0, x1,
+y1, cx, cy, puertas:[{l, x, y}], torres:[{x, y, l}], frente, brecha:{l, a, b}, camp, rota}, lados}, ejercitos:[{lado, f, bando, dir, mio, aguarda, llega, general:{id, ok}}],
 unidades:[...], fx: BT.fx (flechas {arrow, x0, y0, x, y, t0} y textos), muertos: BT.dead ({x, y, f} en píxeles;
 std = estandarte caído)}`. Cada unidad: `id, lado, bando, f, t, clase (inf/dis/cab/asd), x, y` (simulada),
 `vx, vy` (dibujada, con inercia), `eje` ('x' u 'y'), `cara` (±1 en su eje), `volteo`, `filas, columnas,
