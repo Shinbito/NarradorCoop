@@ -240,59 +240,12 @@ function menuOpcionesHtml(av) {
     h += mpSi("silencio", "Silenciar todo");
     h += mpVol("volGeneral", "Volumen general") + mpVol("volMusica", "Música") + mpVol("volEfectos", "Efectos (espadas, flechas, caballos…)") + mpVol("volVoces", "Gritos y voces") + mpVol("volAmbiente", "Ambiente (viento, batalla lejana)");
   } else {
-    h += mpSel(
-      "calidad",
-      [
-        ["alta", "Alta"],
-        ["media", "Media"],
-        ["baja", "Baja"],
-      ],
-      "Calidad gráfica",
-    );
-    h += `<p class="dim mp-nota">Elegir una calidad ajusta todo lo de abajo; luego puedes cambiar cada cosa por separado.</p>`;
     {
-      const vb = typeof B3D !== "undefined" ? B3D.pref.vista || "3d" : "3d",
-        b = (v, t) => `<button data-mp="vista" data-val="${v}" class="${vb === v ? "on" : ""}" aria-pressed="${vb === v}">${t}</button>`;
-      h += `<div class="mp-fila"><span>Vista de batalla</span><div class="mp-ops" role="group" aria-label="Vista de batalla">${b("3d", "3D")}${b("2d", "Clásica")}</div></div>`;
+      const bb = typeof B3D !== "undefined" ? B3D.pref.barras !== false : true,
+        b = (v, t) => `<button data-mp="barras" data-val="${v}" class="${bb === v ? "on" : ""}" aria-pressed="${bb === v}">${t}</button>`;
+      h += `<div class="mp-fila"><span>Cifras sobre los pelotones</span><div class="mp-ops" role="group" aria-label="Cifras sobre los pelotones">${b(true, "Sí")}${b(false, "No")}</div></div>`;
     }
-    h += mpSel(
-      "camaraFija",
-      [
-        [false, "Giro libre"],
-        [true, "Isométrica fija"],
-      ],
-      "Cámara de batalla",
-    );
-    h += mpSi("sombras", "Sombras") + mpSi("sombrasSuaves", "Sombras suaves");
-    h += mpSel(
-      "resolucion",
-      [
-        [1, "100 %"],
-        [0.85, "85 %"],
-        [0.7, "70 %"],
-        [0.5, "50 %"],
-      ],
-      "Resolución de la batalla",
-    );
-    h += mpSel(
-      "vegetacion",
-      [
-        ["alta", "Alta"],
-        ["media", "Media"],
-        ["baja", "Baja"],
-      ],
-      "Vegetación",
-    );
-    h += mpSel(
-      "figuras",
-      [
-        ["alta", "Todas"],
-        ["media", "Menos"],
-        ["baja", "Pocas"],
-      ],
-      "Soldados dibujados",
-    );
-    h += mpSi("efectos", "Efectos (lluvia, polvo, humo)") + mpSi("niebla3d", "Bruma de distancia") + mpSi("relieveMapa", "Relieve en el mapa de campaña");
+    h += mpSi("relieveMapa", "Relieve en el mapa de campaña");
     h += mpSel(
       "fps",
       [
@@ -301,7 +254,7 @@ function menuOpcionesHtml(av) {
       ],
       "Cuadros por segundo",
     );
-    h += `<p class="dim mp-nota">Los cambios de la batalla 3D se aplican al empezar la próxima batalla.</p>`;
+
   }
   return h + `</div><div class="btns">${mpB("v-raiz", "Volver")}${mpB("reanudar", "Reanudar", { cls: "gold" })}</div>`;
 }
@@ -352,11 +305,17 @@ function menuClic(e) {
     openStart("home");
     return;
   }
+  if (k === "barras") {
+    if (typeof B3D === "undefined") return;
+    B3D.pref.barras = b.dataset.val === "true";
+    if (typeof b3dGuardar === "function") b3dGuardar();
+    return menuPintar();
+  }
   if (k === "vista") {
     if (typeof B3D === "undefined") return;
-    B3D.pref.vista = b.dataset.val === "2d" ? "2d" : "3d";
+    B3D.pref.vista = ["iso", "3d", "2d"].includes(b.dataset.val) ? b.dataset.val : "iso";
     if (typeof b3dGuardar === "function") b3dGuardar();
-    if (B3D.pref.vista === "2d" && typeof b3dDesmontar === "function" && BT) b3dDesmontar();
+    if (B3D.pref.vista !== "3d" && typeof b3dDesmontar === "function" && BT && B3D.scene) b3dDesmontar();
     return menuPintar();
   }
   if (k.startsWith("o-")) {

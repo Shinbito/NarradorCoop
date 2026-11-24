@@ -17,6 +17,7 @@
  "js/arranque.js",
  "js/batalla.js",
  "js/batalla3d.js",
+ "js/batallaiso.js",
  "js/campana.js",
  "js/civilizaciones.js",
  "js/clases.js",
@@ -92,5 +93,8 @@
  "assets/sprites/gemini/MAPA.salinas.png",
  "assets/sprites/gemini/MAPA.torre.png",
  "assets/sprites/manifest.js",
- "assets/sprites/manifest.json"
+ "assets/sprites/manifest.json",
+ "assets/iso/iso-0-tinte.png",
+ "assets/iso/iso-0.png",
+ "assets/iso/iso-datos.js"
 ]

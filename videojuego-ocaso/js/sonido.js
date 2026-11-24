@@ -1361,7 +1361,14 @@ function sndEv(tipo, d) {
   function oyente() {
     const L = { ok: false };
     try {
-      if (typeof b3dActivo === "function" && b3dActivo() && B3D.camera && B3D.scene && B3D.tamW) {
+      const iso = typeof isoOyente === "function" ? isoOyente() : null;
+      if (iso) {
+        L.ok = true;
+        L.W = iso.W;
+        L.H = iso.H;
+        L.ppc = iso.ppc;
+        L.p = iso.p;
+      } else if (typeof b3dActivo === "function" && b3dActivo() && B3D.camera && B3D.scene && B3D.tamW) {
         L.ok = true;
         L.d3 = true;
         L.W = B3D.tamW;

@@ -34,6 +34,8 @@ async function nueva(browser, opts, errores, sinGL) {
       };
     });
   const page = await ctx.newPage();
+  /* el juego usa siempre la vista isométrica (batallaiso.js): esta prueba la apaga para probar la 3D */
+  await page.addInitScript(() => (window.ISO_APAGADA = true));
   page.on("pageerror", (e) => errores.push("pageerror: " + (e.stack || e.message)));
   page.on("console", (m) => {
     if (m.type() === "error" && !/fonts\.g|ERR_|net::/.test(m.text())) errores.push("console: " + m.text());

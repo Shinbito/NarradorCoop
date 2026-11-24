@@ -4,7 +4,7 @@
 const fs = require("fs");
 const path = require("path");
 const raiz = path.resolve(__dirname, "..");
-const INCLUIR = ["index.html", "manifest.webmanifest", "sw.js", "css", "js", "vendor", "fuentes", "iconos", "assets/sprites"];
+const INCLUIR = ["index.html", "manifest.webmanifest", "sw.js", "css", "js", "vendor", "fuentes", "iconos", "assets/sprites", "assets/iso"];
 const FUERA = /(^|\/)(originales|\.gitignore|README|LICENSE-three\.txt$)/;
 function recorrer(rel, out) {
   const abs = path.join(raiz, rel);

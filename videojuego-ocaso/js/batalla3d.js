@@ -120,7 +120,7 @@ const b3dMovil = () => matchMedia("(pointer: coarse)").matches || innerWidth < 7
     if (s && typeof s === "object") Object.assign(B3D.pref, s);
   } catch (_) {}
   if (!B3D_CAL[B3D.pref.cal]) B3D.pref.cal = b3dMovil() ? "media" : "alta";
-  if (B3D.pref.vista !== "2d" && B3D.pref.vista !== "3d") B3D.pref.vista = null;
+  if (B3D.pref.vista !== "2d" && B3D.pref.vista !== "3d" && B3D.pref.vista !== "iso") B3D.pref.vista = null;
 })();
 function b3dGuardar() {
   try {
@@ -1083,7 +1083,7 @@ function b3dWebGL() {
 /* vista efectiva: la elegida por el jugador o, si no eligió, 3D salvo que no haya GPU (WebGL por software) */
 /* la batalla es isométrica (3D) por defecto, también sin aceleración gráfica (entonces con calidad baja);
    la vista clásica desde arriba solo si el jugador la elige */
-const b3dVista = () => B3D.pref.vista || "3d";
+const b3dVista = () => (typeof ISOB !== "undefined" && ISOB.ok && !window.ISO_APAGADA ? "iso" : B3D.pref.vista || "3d");
 const b3dActivo = () => !!BT && b3dVista() === "3d" && B3D.ok !== false && !B3D.perdido && typeof THREE !== "undefined";
 
 function b3dConstruir() {
