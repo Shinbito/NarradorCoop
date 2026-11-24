@@ -177,6 +177,71 @@ header {
   display: none;
 }
 
+/* ---------- repetición de la estación: bloquea la pantalla y muestra su barra ---------- */
+.ifz-rep {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  cursor: progress;
+  background: rgba(5, 8, 10, 0.08);
+}
+.ifz-rep[hidden] {
+  display: none;
+}
+.ifz-repbar {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  width: min(640px, calc(100vw - 20px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: "t x s" "p p p";
+  gap: 6px 8px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--panel);
+  border: 4px solid #000;
+  box-shadow:
+    inset 0 0 0 3px #b8862b,
+    0 6px 0 #000;
+  cursor: default;
+}
+.ifz-repbar b {
+  grid-area: t;
+  font:
+    400 10px/1.5 "Press Start 2P",
+    monospace;
+  color: var(--gold);
+}
+.ifz-repbar [data-act="ifzrep-x2"] {
+  grid-area: x;
+}
+.ifz-repbar [data-act="ifzrep-saltar"] {
+  grid-area: s;
+}
+.ifz-repprog {
+  grid-area: p;
+  display: block;
+  height: 10px;
+  background: #0b0f12;
+  border: 2px solid #000;
+}
+.ifz-repprog i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--gold);
+}
+/* opciones */
+.ifz-opc h3 {
+  color: var(--gold);
+}
+.ifz-opc .g3 button small,
+.ifz-opc .g2 button small {
+  color: #f3dca0;
+}
+
 /* ---------- tutorial ---------- */
 .ifz-tut {
   border-color: #000;

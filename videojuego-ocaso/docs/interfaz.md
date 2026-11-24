@@ -37,16 +37,24 @@ Archivos: `js/interfaz.js` (todo lo de abajo, incluidas las partes `CAM` de camp
   Guerra / Corte / Economía / Rumores. Usa las clases de la entrada (`good`, `bad`, `nar-rumor`… y, si algún
   sistema las añade, `guerra`, `corte`, `eco`) y, si no, palabras del texto (`IFZ_RE`). «Mi reino» = nombra
   a tu pueblo, tu soberano o tus provincias, o habla de «tu/tus».
-- **Mapa**: la capa de terreno + color de dueños + fronteras se cachea y solo se rehace si cambian dueños,
-  selección, hover o el terreno. Guarniciones con **insignia** (cifra pixel 3×5 sobre fondo oscuro con
-  filete del color del pueblo; gris si ya marcharon). Campaña (`ifzCamDibujar`, sustituye al dibujo de
-  `camDibujar` usando la misma lógica): estandarte del pueblo (con punta dorada si lleva general), sprite de
-  infantería o caballería, insignia con las levas (gris si no le queda marcha; a la izquierda si está en una
-  ciudad, para no tapar el castillo), tienda si acampa, escala si asedia, flecha si tiene marcha pendiente;
-  alcance como relleno suave con **contorno**, objetivos con esquinas rojas, ruta con puntos con borde y el
-  destino marcado (dorado si no llega esta estación); asedios con esquinas rojas, escala, fuego y punto rojo
-  de hambre; campamentos mercenarios con tienda dorada. Si faltara alguna función de campaña se llama a
-  `camDibujar()` como antes. Las órdenes encoladas de Online (`onlDibujarCola`) se dibujan también.
+- **Mapa en alta resolución** (§6): terreno detallado (hierba con matices y flores, bosques de pinos,
+  robles y abedules con sombra, colinas iluminadas, montañas nevadas, ríos con meandros en las provincias
+  con río, costa con arena, espuma y aguas someras, aldeas), campos de cultivo junto a las ciudades,
+  caminos (calzadas empedradas con Calzadas), ciudades que crecen con la población y amurallan según su
+  nivel, y castillo a doble tamaño en las capitales. Guarniciones con **insignia** (cifra pixel 3×5;
+  ×2 con el mapa entero, ×1 al acercarse; gris si ya marcharon).
+- **Ejércitos**: columnas de figuras (1 figura ≈ 1 leva de 10 hombres, entre 3 y 40; jinetes en vanguardia,
+  bestias, infantería, arqueros, máquinas y carros de bagaje), estandarte del pueblo ondeando al frente y
+  pendón dorado si lleva general, polvo al marchar, campamento con empalizada, tiendas, hoguera y humo,
+  cerco con anillo de estacas y torres del color del sitiador y fuego y humo sobre la ciudad. La posición
+  dibujada **se desliza** entre casillas a ritmo de `ifzVel()` (aunque la lógica salte de casilla en
+  casilla). Alcance con relleno suave y contorno dorado, objetivos con esquinas rojas, ruta con huellas y
+  destino marcado. Marcas de flanco y flechas del cerco: `camDibujarCerco` (campaña), que se llama escalado.
+  Las órdenes encoladas de Online (`onlDibujarCola`) se dibujan en el lienzo lógico, encima.
+- **Opciones** (⚙): velocidad de animación (lenta épica / normal / rápida), repetición de la estación
+  sí/no, música y repetir el tutorial.
+- **Repetición de la estación** (§7): tras cada estación con movimientos, el mapa vuelve al principio de la
+  estación y se ven a velocidad acelerada las marchas, batallas, asedios y conquistas.
 - **Minimapa** (esquina del mapa) cuando el mapa no cabe (zoom o móvil): tocarlo o arrastrarlo mueve la
   vista. Botón ♛ para volver a tu capital. Zoom con rueda, pellizco y botones − / +.
 - **Hover**: «Provincia · pueblo · hombres · Ánimo ☺ · sitiada», y delante los ejércitos o el campamento de
@@ -76,14 +84,16 @@ el último HTML de cada contenedor: `#res`, `#tabs`, `#panel`, `#facs`, `#ifztut
 foco, la selección de un `<select>` ni el desplazamiento cuando nada cambia. Medidas en `IFZ.med`
 (`n`, `ms` total, `max`, `ult`, `escrituras`). Con la partida inicial: ~0,4-0,6 ms por `ui()` repetido sin
 cambios y 0 escrituras (`pruebas/interfaz.js` lo comprueba). El mapa reutiliza su capa estática y la capa
-de alcance (clave: ejército, `camVer`, marcha, estación).
+de alcance (clave: ejército, `camVer`, marcha, estación). Mapa HD (partida inicial, 1024×640): terreno
+~55-85 ms una vez por mapa, capa política ~13 ms cuando cambia algo, cada cuadro < 1 ms de CPU
+(`IFZ_HD.ms`, `IFZ_POL.ms`, `IFZ.medMapa`).
 
 ## 3. Estado y preferencias
 
 `IFZ` (no se guarda en `G`): `pref` en `localStorage["ocaso-ifz"]` = `{sec:{id:bool}, pot, potTodas, log,
-tut}`; `res` (desplegable abierto), `anios` (años de la crónica), `baseVer`, `med`. Acciones propias
+tut, vel ('lenta'|'normal'|'rapida'), rep (bool)}`; `res` (desplegable abierto), `anios` (años de la crónica), `baseVer`, `med`. Acciones propias
 (libres): `ifzres`, `ifzpot`, `ifzfac-<f>`, `ifzlog-<filtro>`, `ifztut-sig|fin|otra`, `ifzayuda`,
-`zoom-cap`.
+`ifzopc`, `ifzvel-<v>`, `ifzrepo-1|0`, `ifzrep-saltar|x2`, `zoom-cap`.
 
 ## 4. Online
 
@@ -135,8 +145,11 @@ Formato de `manifest.json` (y de `OCASO_SPRITES` en `manifest.js`):
 - Nombres: `SP.<clave>` (mapa y tropas: `castle`, `castle2`, `town`, `tree`, `hill`, cada tipo de tropa…),
   `MS.<tipo>.<fotograma>` (soldados de la batalla táctica, 0 y 1 al andar), `IFZ.<clave>` (iconos de
   pestaña `IFZ.tab.<id>`, y del mapa: `IFZ.mapa.estandarte`, `tienda`, `mercenarios`, `escala`, `fuego`,
-  `marcha`, `general`), `TILE.mar|llanura|bosque|colina` (casillas de 8×8 del terreno; la costa se pinta
-  encima) y `ESCENA.fondo` (fondo del menú, 200×112; los soldados que desfilan siguen siendo sprites).
+  `marcha`, `general`, `estandarte.0|1`, `pendon.0|1`, `tienda`, `tiendaF`, `hoguera.0|1`, `colina`,
+  `monte`, `monte2`, `casa`, `casa2`, `torre`, `aldea`; árboles `IFZ.arbol.pino|roble|olivo|abedul`; figuras
+  de los ejércitos `IFZ.fig.inf|arq|cab|cam|ele|maq|carro.<0|1>`), `TILE.mar|llanura|bosque|colina|montana`
+  (casillas de 16×16 del mapa HD: con PNG se usa en lugar del suelo y el decorado de ese terreno; la costa y
+  los ríos se pintan encima) y `ESCENA.fondo` (fondo del menú, 200×112; los soldados que desfilan siguen siendo sprites).
 - Muchas tropas únicas y mercenarias **comparten** hoy el dibujo de su clase base (p. ej. `SP.ber` =
   `SP.i`): la plantilla lo indica con `nota`. Si el manifest trae un PNG para una de ellas, el juego la
   desdobla y esa tropa usa su propio PNG sin afectar a las demás.
@@ -148,19 +161,60 @@ Formato de `manifest.json` (y de `OCASO_SPRITES` en `manifest.js`):
   envuelve nada).
 - Funciones: `ifzSprCatalogo()` (lista de sprites con categoría, tamaño, tinte y alias),
   `ifzSprRender(nombre, escala, 'plantilla'|'muestra', f)` (lienzo), `ifzSprAplicar(manifest)`,
-  `ifzTileProc`, `ifzEscenaFondo`.
+  `ifzTeselaSuelta`, `ifzEscenaFondo`. Las categorías de la exportación: tropas, batalla, mapa, ejercito,
+  naturaleza, ciudad, interfaz, terreno, escena.
+- Los sprites de interfaz (`IFZ.*`) usan la paleta `IFZ_PAL`; los teñibles llevan `F`/`f` (color del
+  pueblo) y `r` (su tono oscuro).
 
-## 6. Pruebas
+## 6. Mapa en alta resolución
+
+- `#maphd` mide `W·IFZ_S × H·IFZ_S` (IFZ_S = 16; el doble de la lógica, `T` = 8); `#map` (cv) sigue
+  midiendo `W·T × H·T`, encima, **transparente**: recibe clics, hover y lo que otros sistemas dibujen con
+  `ctx` (en coordenadas lógicas). Ambos van dentro de `#mapcapas`, que es lo que escala el zoom. Las pruebas
+  que calculan posiciones con `cv.width` y `getBoundingClientRect()` siguen valiendo.
+- Capas: `ifzTerrenoHD()` (mapa.js: suelo, costa, ríos, bosques, relieve y aldeas; una vez por mapa),
+  `ifzPolitico(dueños)` (tinte de dueños, campos, caminos, fronteras y ciudades; se rehace solo si cambian
+  dueños, murallas, granjas, población, capitales o Calzadas; recibe los dueños, así la repetición pinta
+  `own0` sin rehacer el terreno) y, cada cuadro, resaltes, banderas, insignias, campaña y efectos.
+- `ifzMapaInfo()`: distancias a la costa, montañas (colinas rodeadas de colinas), ríos (de la casilla más
+  alta de cada provincia con río, `cmbTerreno(p).rio`, hasta el mar), aldeas y casillas/bordes de cada
+  provincia. Nada de esto cambia `gen()` ni la lógica.
+- `drawBase()` solo marca el terreno para rehacerlo en el cuadro siguiente.
+
+## 7. Ritmo de las animaciones y repetición
+
+- **`ifzVel()`** → multiplicador de tiempo: 2,5 lenta (por defecto), 1 normal, 0,45 rápida (Opciones,
+  `IFZ.pref.vel`); **0** con `prefers-reduced-motion` o en un navegador automatizado (`navigator.webdriver`:
+  las pruebas no esperan animaciones). `IFZ.velForzada` lo fija a mano (pruebas).
+- **`ifzPasoMs()`** → ms que tarda la interfaz en mostrar un paso de una casilla (250 × `ifzVel()`: 625 en
+  lenta). La interfaz desliza cada ejército hacia su casilla real a `4 / ifzVel()` casillas por segundo
+  (`ifzPosEj`), aunque la lógica salte antes.
+- **`ifzRepetir(rep)`** → Promise (CONTRATO §9): pinta `rep.own0` y los ejércitos de `rep.ej0` y aplica
+  `rep.pasos` en orden: marchas (se agrupan los pasos consecutivos de ejércitos distintos para que se muevan
+  a la vez), ejércitos que aparecen o se deshacen (fundido), batallas (chispazos, humo y rótulo «lugar ·
+  vence X»), asedios (el anillo aparece y desaparece) y conquistas (la provincia cambia de color con un
+  destello). Duración por grupo: marcha 260 ms, batalla 950, conquista 850, asedio 450, alta/baja 200;
+  si el total pasa de 40 s se acelera, si no llega a 15 s se alarga hasta ×1,6. Barra con progreso, «×2»
+  (×2/×4) y «Saltar» (o Escape); una capa cubre la pantalla mientras dura. Al acabar vuelve al estado real.
+  Devuelve `false` (sin esperar) si no hay pasos, si ya hay otra en curso o si `ifzVel()` es 0
+  (`IFZ.repForzar = true` la fuerza en pruebas).
+- En un jugador se llama en el evento `finEstacion` (tras `camEstacion`, con lo grabado hasta ahí: la IA,
+  batallas, asedios y conquistas) si `IFZ.pref.rep` no es `false`. En online la llama Online.
+
+## 8. Pruebas
 
 `node pruebas/interfaz.js`: en escritorio (1400×900) y móvil (390×844, `isMobile`) recorre inicio, barra
 (estación, oro con signo, desplegable), tutorial, provincia (tropas solo presentes, secciones plegables y su
 memoria), todas las pestañas con todo desplegado **midiendo `scrollWidth`** del documento y del panel,
 pestañas por teclado, crónica y sus filtros, potencias (fuerza con ejércitos de campo y orden), hover con
 ánimo, modales (cola, foco, Tab, Escape, Enter), ayuda, rendimiento de `ui()` y un año de juego; después
-sprites por manifest (PNG que sustituye, tinte, iconos a escala, alias desdoblado, PNG que falta) y una
-partida guardada antigua. Capturas `pruebas/capturas/interfaz-*.png`.
+sprites por manifest (PNG que sustituye, tinte, iconos a escala, alias desdoblado, PNG que falta); mapa
+HD (tamaños, lienzo lógico encima, tiempos del terreno, la capa política y cada cuadro), Opciones
+(velocidad guardada), interpolación de un ejército entre casillas, una repetición sintética (grupos,
+barra, capa de bloqueo, ×2, Saltar, duración, vuelta al estado real; se salta sola con `ifzVel()` 0) y una
+partida guardada antigua. Capturas `interfaz-terreno-*` (antes/después del mapa HD, opciones y repetición). Capturas `pruebas/capturas/interfaz-*.png`.
 
-## 7. Peticiones
+## 9. Peticiones
 
 1. **Economía**: retirar el oyente `document.mousemove` que añade el ánimo a `#hv` (la interfaz ya lo
    muestra con `ecoNivel`).
@@ -175,3 +229,11 @@ partida guardada antigua. Capturas `pruebas/capturas/interfaz-*.png`.
 5. **Núcleo/combate**: un gancho oficial para los sprites (p. ej. que `spr`/`sprF` consulten
    `OC.sprite(filas, paleta)`) evitaría que la interfaz tenga que envolver `spr`, `sprF` e `icon` cuando
    hay PNG.
+6. **Campaña**: para que la lógica vaya a la par del dibujo, esperar `ifzPasoMs()` (250 ms × `ifzVel()`)
+   en cada paso de marcha del jugador en `camDarPaso` (hoy `sleep(55/90 ms × camVel())`); el valor `ej.anim`
+   no hace falta (la interfaz desliza sola). La repetición se lanza en `finEstacion`, antes de
+   `camNuevaEstacion`: si se quiere incluir lo anual y las marchas pendientes en la misma repetición, emitir
+   un evento al cerrar `G.cam.rep` (p. ej. `repeticionLista`) y la interfaz se colgará de él.
+   `camSprite`/`camDibujar` ya no se usan.
+7. **Combate**: escalar sus tiempos de animación de la batalla táctica (marchas, golpes, `sleep`) con
+   `ifzVel()` (0 = sin espera) para que la opción de velocidad se note también allí.
