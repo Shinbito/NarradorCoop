@@ -3,7 +3,7 @@
    combinaciones (incas/mayas/aztecas sin caballos, 11 rivales, todos los pueblos), guardar/cargar,
    y carga de una partida guardada ANTIGUA (rebeldes en el índice 7, pruebas/datos/partida-antigua-410.json).
    Uso:  node pruebas/mundo.js [años=20] [--todas]
-   Con --todas ejecuta además humo, economía, tecnología, diplomacia, narrativa y combate (modo histórico).
+   Con --todas ejecuta además humo, economía, tecnología, diplomacia, narrativa, combate, campaña, interfaz y online.
    Capturas en pruebas/capturas/mundo-*.png */
 const { chromium } = require("playwright");
 const path = require("path");
@@ -110,6 +110,92 @@ fs.mkdirSync(capt, { recursive: true });
     }
     await cerrarModales();
     return page.evaluate(() => G.year);
+  };
+
+  /* relieve del mapa actual: capas, ciudades conectadas por casillas transitables, ríos que llegan al mar,
+     puentes y vados; además pinta un mapa de depuración (montaña, río, puente, vado, camino, bosque) */
+  const relieve = (foto) =>
+    page.evaluate((foto) => {
+      const capas = ["alt", "mont", "paso", "rio", "puente", "vado", "camino", "bosque", "tipo"].filter(
+        (k) => !(MAP[k] && MAP[k].length === H && MAP[k][0].length === W),
+      );
+      const cnt = (k) => MAP[k].flat().filter(Boolean).length,
+        tierra = MAP.terr.flat().filter(Boolean).length,
+        seen = new Set(),
+        c0 = G.P[0],
+        q = [[c0.x, c0.y]],
+        ok = (x, y) => mapaTransitable(x, y);
+      seen.add(c0.y * W + c0.x);
+      while (q.length) {
+        const [x, y] = q.pop();
+        for (let dy = -1; dy <= 1; dy++)
+          for (let dx = -1; dx <= 1; dx++) {
+            const a = x + dx,
+              b = y + dy;
+            if ((!dx && !dy) || !ok(a, b) || seen.has(b * W + a)) continue;
+            if (dx && dy && (!ok(x + dx, y) || !ok(x, y + dy))) continue;
+            seen.add(b * W + a);
+            q.push([a, b]);
+          }
+      }
+      const aisladas = G.P.filter((p) => !seen.has(p.y * W + p.x)).map((p) => p.name),
+        ciudadesMal = G.P.filter((p) => !mapaTransitable(p.x, p.y)).length,
+        rios = (MAP.rios || []).map((c) => {
+          const [x, y] = c[c.length - 1];
+          const fin = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => !MAP.terr[y + dy]?.[x + dx] || (MAP.rio[y + dy]?.[x + dx] && !c.some(([a, b]) => a === x + dx && b === y + dy)));
+          let sube = false;
+          for (let k = 1; k < c.length; k++) if (MAP.alt[c[k][1]][c[k][0]] > MAP.alt[c[k - 1][1]][c[k - 1][0]]) sube = true;
+          return { fin, sube, n: c.length };
+        }),
+        info = mapaInfo(G.P[0].x, G.P[0].y),
+        infoMar = mapaInfo(0, 0);
+      if (foto) {
+        let cvs = document.getElementById("mun-dbg");
+        if (!cvs) {
+          cvs = document.createElement("canvas");
+          cvs.id = "mun-dbg";
+          cvs.style.cssText = "position:fixed;left:0;top:0;z-index:99;image-rendering:pixelated;width:" + W * 8 + "px";
+          document.body.appendChild(cvs);
+        }
+        cvs.width = W;
+        cvs.height = H;
+        const g = cvs.getContext("2d");
+        for (let y = 0; y < H; y++)
+          for (let x = 0; x < W; x++) {
+            const i = mapaInfo(x, y),
+              a = i.alt;
+            g.fillStyle = i.tipo === "mar" ? "#1d4a73" : i.puente ? "#c08a3a" : i.vado ? "#9fd3ff" : i.tipo === "río" ? "#3a8ee6" : i.montana ? "#eeeeee" : i.paso ? "#b0a090" : i.camino ? "#d9c27c" : i.bosque ? "#1f5a22" : i.tipo === "bosque" ? "#3c7d32" : `hsl(${100 - a * 10},40%,${30 + a * 5}%)`;
+            g.fillRect(x, y, 1, 1);
+          }
+        g.fillStyle = "#ff3030";
+        for (const p of G.P) g.fillRect(p.x, p.y, 1, 1);
+      } else document.getElementById("mun-dbg")?.remove();
+      return {
+        v: MAP.v,
+        gv: G.mapa && G.mapa.v,
+        capas,
+        mont: Math.round((cnt("mont") / tierra) * 1000) / 10,
+        rios: rios.length,
+        riosMal: rios.filter((r) => !r.fin || r.sube).length,
+        puentes: cnt("puente"),
+        vados: cnt("vado"),
+        pasos: cnt("paso"),
+        bosque: cnt("bosque"),
+        caminos: cnt("camino"),
+        aisladas,
+        ciudadesMal,
+        info: info.tipo && typeof info.alt === "number" && info.infranqueable === false && infoMar.infranqueable === true,
+      };
+    }, foto);
+  const comprobarRelieve = async (r, nombre) => {
+    console.log(`  relieve v${r.v}: montaña ${r.mont}% · ${r.rios} ríos · ${r.puentes} puentes · ${r.vados} vados · ${r.pasos} pasos · bosque denso ${r.bosque} · caminos ${r.caminos}`);
+    ok(r.v === 2 && r.gv === 2 && !r.capas.length, "mapa con relieve (versión 2): alt, mont, rio, puente, vado, camino, bosque, tipo");
+    ok(r.mont > 2 && r.mont < 12 && r.rios >= 2 && r.puentes >= 1 && r.bosque > 0, "hay montañas, ríos con puentes y bosques densos");
+    ok(!r.riosMal, "los ríos bajan sin subir y acaban en el mar o en otro río");
+    ok(!r.aisladas.length && !r.ciudadesMal, "ninguna ciudad aislada: todas se alcanzan por casillas transitables " + r.aisladas.join(","));
+    ok(r.info, "mapaInfo(x, y) describe tierra y mar");
+    await page.screenshot({ path: path.join(capt, `mundo-relieve-${nombre}.png`) });
+    await page.evaluate(() => document.getElementById("mun-dbg")?.remove());
   };
 
   /* ---------- 1. estructura de CIV ---------- */
@@ -247,6 +333,7 @@ fs.mkdirSync(capt, { recursive: true });
   ok(hi.F === 19 && hi.aus === 12 && hi.vivos === "0,1,2,3,4,5,6", "G.F con 19 facciones; las 12 ausentes sin tierras");
   ok(hi.rel && hi.reb > 0, "G.rel/G.st de NF×NF y rebeldes en el índice REB");
   ok(hi.alianza === "alianza" && hi.trat >= 2 && hi.nombres, "alianza romana, foedus franco y nombres latinos como siempre");
+  await comprobarRelieve(await relieve(true), "historico");
   const yh = await jugar(3);
   ok(yh >= 413, "tres años del modo histórico sin errores");
 
@@ -359,6 +446,7 @@ fs.mkdirSync(capt, { recursive: true });
     ok(r.nombresUnicos && r.capRegional && r.regionales > 0.95, `nombres únicos y con sabor de cada pueblo (${Math.round(r.regionales * 100)}%)`);
     ok(r.tratados === 0, "sin los tratados históricos de 410");
     await cerrarModales();
+    await comprobarRelieve(await relieve(true), titulo.replace(/\W+/g, "-"));
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({ path: path.join(capt, `mundo-${titulo.replace(/\W+/g, "-")}-inicio.png`) });
     const sinCab = [];
@@ -410,7 +498,7 @@ fs.mkdirSync(capt, { recursive: true });
   console.log("\n5. Guardar y cargar (leyendas)");
   const antes = await page.evaluate(() => {
     save();
-    return { y: G.year, W, H, np: G.P.length, seed: G.seed, act: G.activas.join(",") };
+    return { y: G.year, W, H, np: G.P.length, seed: G.seed, act: G.activas.join(","), rel: JSON.stringify([MAP.mont, MAP.rio, MAP.puente, MAP.vado]) };
   });
   await page.reload();
   await page.waitForTimeout(200);
@@ -426,7 +514,9 @@ fs.mkdirSync(capt, { recursive: true });
     seed: G.seed,
     act: G.activas.join(","),
     modo: G.modo,
+    rel: JSON.stringify([MAP.mont, MAP.rio, MAP.puente, MAP.vado]),
   }));
+  ok(desp.rel === antes.rel, "la semilla regenera el mismo relieve al cargar");
   ok(
     desp.W === antes.W && desp.H === antes.H && desp.pts === desp.np && desp.act === antes.act && desp.modo === "leyendas",
     `la partida de leyendas se recarga con su mapa (${desp.W}×${desp.H}, ${desp.pts} provincias)`,
@@ -462,6 +552,8 @@ fs.mkdirSync(capt, { recursive: true });
   ok(mig.modo === "historico" && mig.act === "0,1,2,3,4,5,6", "se marca como histórica con las 7 activas");
   ok(mig.rebs === reb7 && mig.homes === home7 && !mig.siete && !mig.vet, `los rebeldes pasan del 7 a REB (${reb7} provincias, ${home7} de origen)`);
   ok(mig.F === 19 && mig.rel && mig.W === 64, "G.F, G.rel y G.st ampliados; mapa de 64×40");
+  const rv = await relieve(false);
+  ok(rv.v === 1 && !rv.gv && rv.mont === 0 && rv.rios === 0 && !rv.capas.length && !rv.aisladas.length, "la partida antigua conserva su mapa (generador v1: sin montañas ni ríos infranqueables)");
   await page.evaluate(() => OC.emitirSync("partidaLista"));
   const mig2 = await page.evaluate(() => ({ rebs: G.P.filter((p) => p.owner === REB).length, F: G.F.length }));
   ok(mig2.rebs === mig.rebs && mig2.F === 19, "la migración es idempotente");
@@ -475,7 +567,7 @@ fs.mkdirSync(capt, { recursive: true });
   /* ---------- 7. las demás pruebas (modo histórico) ---------- */
   if (TODAS) {
     console.log("\n7. Pruebas de los demás sistemas (modo histórico)");
-    for (const [f, ...a] of [["humo.js", "20"], ["economia.js"], ["tecnologia.js"], ["diplomacia.js"], ["narrativa.js"], ["combate.js"]]) {
+    for (const [f, ...a] of [["humo.js", "20"], ["economia.js"], ["tecnologia.js"], ["diplomacia.js"], ["narrativa.js"], ["combate.js"], ["campana.js"], ["interfaz.js"], ["online.js"]]) {
       try {
         const out = execFileSync("node", [path.join(__dirname, f), ...a], { encoding: "utf8", timeout: 900000 });
         ok(/OK/.test(out.split("\n").slice(-4).join("\n")), `${f} ${a.join(" ")}`);
