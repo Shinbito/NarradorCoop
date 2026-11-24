@@ -15,7 +15,7 @@ function renderStart() {
     } catch (e) {}
     h = `<div class="hero"><div><h2>Ocaso del Imperio</h2><p>Año 410 d.C. Roma se desmorona. Gobierna tu dinastía, sella alianzas con bodas, sobrevive a las traiciones y lleva tus legiones a la batalla.</p>
   <div class="g2" style="margin-top:14px"><button class="gold" data-act="s-new">Nueva campaña</button><button data-act="s-cnt" ${sv ? "" : "disabled"}>Continuar</button><button data-act="s-onl" ${net.db && net.uid ? "" : "disabled"}>Partida online</button>${G ? '<button data-act="s-bk">Volver al juego</button>' : ""}</div>
-  <p class="dim" style="margin-top:10px">${net.db && net.uid ? "Online por turnos: comparte este enlace con tus amigos (permiso de colaborador) y juegan en la misma partida; las civilizaciones libres las controla la IA." : "El modo online se activa cuando abres el juego publicado con tu cuenta."}</p></div><div><button class="music" data-act="music">${AU.want ? "♪ Música: sí" : "♪ Música: no"}</button></div></div>`;
+  <p class="dim" style="margin-top:10px">${net.db && net.uid ? "Online por estaciones: partidas largas con amigos o desconocidos, por correspondencia o en tiempo real; comparte este enlace (permiso de colaborador). Los pueblos libres los lleva la IA." : "El modo online se activa cuando abres el juego publicado con tu cuenta."}</p></div><div><button class="music" data-act="music">${AU.want ? "♪ Música: sí" : "♪ Música: no"}</button></div></div>`;
   }
   if (v === "civ") {
     /* MUNDO: dos modos. Histórico = las 7 de siempre; Leyendas = todos los pueblos, rivales a elegir */
@@ -34,9 +34,8 @@ function renderStart() {
   ${ST.mode === "online" ? `<p style="margin-top:12px"><label for="gname">Nombre de la partida</label><input id="gname" maxlength="40" value="${esc(ST.gname || "Partida de " + x.s)}"></p>` : ""}
   <div class="btns" style="margin-top:12px"><button data-act="s-bk">Atrás</button><button data-act="s-rr">Otros candidatos</button><button class="gold" data-act="s-go">${ley ? "Comenzar la leyenda" : "Comenzar en el año 410"}</button></div>`;
   }
-  if (v === "lobby") {
-    h = `<h2>Partidas online</h2><p class="dim">Partidas por turnos: cada jugador juega su año y el último activa a la IA. Puedes tomar cualquier civilización libre de una partida en curso.</p><div id="games">${lobbyList()}</div><div class="btns" style="margin-top:12px"><button data-act="s-bk">Atrás</button><button class="gold" data-act="s-cre">Crear partida</button></div>`;
-  }
+  /* ONLINE: el vestíbulo lo pinta online.js */
+  if (v === "lobby") h = onlVistaLobby();
   c.innerHTML = h;
 }
 /* MUNDO: tarjeta de un pueblo en la pantalla de elección */
@@ -98,27 +97,6 @@ function drawHero() {
   spr(x, SP.tree, 26, 30, BP);
   spr(x, SP.hill, 58, 28, BP);
 }
-function lobbyList() {
-  if (!net.games.length) return '<p class="dim">Aún no hay partidas. Crea la primera.</p>';
-  return net.games
-    .map((g) => {
-      const d = g.d,
-        seats = d.seats || {},
-        mine = Object.keys(seats).find((f) => seats[f] === net.uid),
-        /* MUNDO: solo los pueblos que juegan esa partida */
-        free = (Array.isArray(d.activas) ? d.activas.filter((f) => f >= 0 && f < NF) : MUNDO_HIST).filter((f) => !(f in seats));
-      return `<div class="row"><div class="hd"><b>${esc(d.name || "Partida")}</b><span class="stats">${d.modo === "leyendas" ? "leyendas · " : ""}año ${+d.year || 410} · ${Object.keys(seats).length} jugador(es)</span></div><span class="stats">${Object.keys(
-        seats,
-      )
-        .map(
-          (f) =>
-            `<span style="color:${CIV[f]?.c}">${CIV[f]?.s}</span>${net.names[seats[f]] ? " (" + esc(net.names[seats[f]]) + ")" : ""}`,
-        )
-        .join(", ")}</span>
-  <div class="btns">${mine !== undefined ? `<button class="gold" data-act="s-rs-${esc(g.id)}">Entrar como ${CIV[mine].s}</button>` : free.length ? `<select id="js-${esc(g.id)}" aria-label="Civilización">${free.map((f) => `<option value="${f}">${CIV[f].s}</option>`).join("")}</select><button data-act="s-jn-${esc(g.id)}">Unirse</button>` : '<span class="dim">Completa</span>'}</div></div>`;
-    })
-    .join("");
-}
 function startAct(v) {
   const [k, x] = [
     v.slice(0, v.indexOf("-") < 0 ? v.length : v.indexOf("-")),
@@ -131,11 +109,18 @@ function startAct(v) {
   }
   if (k === "onl") {
     ST.mode = "online";
+    ONL.tab = "mis";
     openLobby();
   }
+  /* ONLINE: acciones del vestíbulo y de los avisos (online.js) */
+  if (k !== "onl" && k.startsWith("onl")) {
+    onlAccionInicio(k, x);
+    return;
+  }
   if (k === "cre") {
-    ST.modo = ST.modo || "historico";
-    openStart("civ");
+    ST.mode = "online";
+    ONL.tab = "nueva";
+    openLobby();
   }
   /* MUNDO: modo de juego y rivales */
   if (k === "modo") {
@@ -251,17 +236,11 @@ function startAct(v) {
   }
 }
 
-/* ---------- online ---------- */
+/* ---------- online ----------
+   La lógica vive en js/online.js (partidas por estaciones, órdenes simultáneas, amigos, avisos, batallas
+   en vivo). Aquí quedan los nombres de siempre, que usan el resto del juego y turnos.js. */
 function leaveNet() {
-  if (net.unsub) {
-    net.unsub();
-    net.unsub = null;
-  }
-  net.on = false;
-  net.id = null;
-  net.ver = 0;
-  net.seats = {};
-  net.cur = null;
+  onlSalir();
 }
 async function names(ids) {
   if (!net.user) return;
@@ -272,149 +251,20 @@ async function names(ids) {
 }
 function openLobby() {
   openStart("lobby");
-  if (net.lun || !net.db) return;
-  const tm = setTimeout(() => {
-    if (ST.view === "lobby" && !net.games.length)
-      $("games").innerHTML = '<p class="dim">No se pudo cargar la lista todavía. Revisa tu conexión.</p>';
-  }, 10000);
-  net.lun = net.db
-    .collection("partidas")
-    .orderBy("created", "desc")
-    .limit(25)
-    .onSnapshot(
-      (s) => {
-        clearTimeout(tm);
-        net.games = s.docs.map((d) => ({ id: d.id, d: d.data() }));
-        names([...new Set(net.games.flatMap((g) => Object.values(g.d.seats || {})))]).then(() => {
-          if (ST.view === "lobby") $("games").innerHTML = lobbyList();
-        });
-        if (ST.view === "lobby") $("games").innerHTML = lobbyList();
-      },
-      (e) => {
-        clearTimeout(tm);
-        if (ST.view === "lobby")
-          $("games").innerHTML = '<p class="dim">El modo online no está disponible en esta vista.</p>';
-      },
-    );
+  onlSuscribirUsuario();
 }
-async function createOnline() {
-  leaveNet();
-  newGame(ST.civ, ST.cands[ST.ci], mundoOpciones());
-  drawBase();
-  OC.emitirSync("partidaLista");
-  const ref = net.db.collection("partidas").doc();
-  try {
-    await ref.set({
-      name: ST.gname,
-      created: Date.now(),
-      year: G.year,
-      /* MUNDO: el lobby muestra solo los pueblos que juegan */
-      modo: G.modo,
-      activas: G.activas,
-      seats: { [ME]: net.uid },
-      current: ME,
-      ver: 1,
-      state: JSON.stringify(G),
-    });
-    enterGame(ref.id, ME);
-  } catch (e) {
-    modal(
-      "No se pudo crear la partida",
-      `<p>${e?.code === "invalid_argument" ? "Necesitas permiso de colaborador en este juego para jugar online." : "Inténtalo de nuevo en un momento."}</p>`,
-      [{ t: "Vale" }],
-    );
-  }
+function createOnline() {
+  return onlCrear();
 }
-async function joinGame(id, f) {
-  try {
-    const ref = net.db.doc("partidas/" + id),
-      s = await ref.get(),
-      d = s.data();
-    if (!d || (d.seats && f in d.seats)) {
-      modal("Plaza ocupada", "<p>Otro jugador tomó esa civilización. Elige otra.</p>", [{ t: "Vale" }]);
-      return;
-    }
-    await ref.update({ seats: { [f]: net.uid } });
-    enterGame(id, f);
-  } catch (e) {
-    modal("No se pudo unir", "<p>Necesitas permiso de colaborador en este juego para jugar online.</p>", [
-      { t: "Vale" },
-    ]);
-  }
+function joinGame(id, f) {
+  return onlUnirse(id, f);
 }
 function enterGame(id, f) {
-  leaveNet();
-  net.on = true;
-  net.id = id;
-  ME = f;
-  $("start").classList.remove("show");
-  net.unsub = net.db.doc("partidas/" + id).onSnapshot(
-    (s) => {
-      const d = s.data();
-      if (!d) return;
-      net.seats = d.seats || {};
-      net.cur = d.current;
-      names(Object.values(net.seats));
-      if ((d.ver || 0) > net.ver) {
-        net.ver = d.ver;
-        try {
-          const g = JSON.parse(d.state);
-          if (!MAP || MAP.seed !== g.seed) {
-            MAP = gen(g.seed, g.mapa);
-            drawBase();
-          }
-          G = g;
-          OC.emitirSync("partidaLista");
-          if (sel === null || !G.P[sel]) {
-            sel = G.F[ME].capId;
-            centerOn(sel);
-          }
-        } catch (e) {
-          console.error(e);
-        }
-      }
-      if (!G) return;
-      G.human = Object.keys(net.seats).map(Number);
-      ui();
-      if (myTurn() && !busy) startTurn();
-    },
-    (e) => {
-      modal(
-        "Conexión perdida",
-        "<p>La partida online dejó de responder. Vuelve al menú y entra de nuevo.</p>",
-        [{ t: "Menú", fn: () => openStart("home") }],
-      );
-    },
-  );
+  return onlEntrar(id, f);
 }
-async function endOnline() {
-  const hs = Object.keys(net.seats)
-    .map(Number)
-    .filter(alive)
-    .sort((a, b) => a - b);
-  G.human = Object.keys(net.seats).map(Number);
-  let cur = hs.find((f) => f > ME);
-  if (cur === undefined) {
-    await yearEnd();
-    cur =
-      Object.keys(net.seats)
-        .map(Number)
-        .filter(alive)
-        .sort((a, b) => a - b)[0] ?? ME;
-  }
-  net.ver++;
-  net.cur = cur;
-  try {
-    await net.db
-      .doc("partidas/" + net.id)
-      .update({ state: JSON.stringify(G), ver: net.ver, current: cur, year: G.year });
-  } catch (e) {
-    modal("No se guardó el turno", "<p>Revisa tu conexión y vuelve a pulsar «Terminar mi turno».</p>", [
-      { t: "Vale" },
-    ]);
-    net.ver--;
-    net.cur = ME;
-  }
+/* «Terminar mi turno» en online: «Listo» (envía las órdenes de la estación) */
+function endOnline() {
+  return onlListo();
 }
 
 /* ---------- escena del menú ---------- */

@@ -179,6 +179,23 @@ function cmbLado(s, ej, ctx, env) {
     roto: false,
   };
 }
+/* ONL: dificultad de la IA (ctx.dificultad = ['normal'|'dificil', ...] por ejA/ejD). En la automática el
+   bando «difícil» emplea mejor sus fuerzas: +6 % de daño y de moral y algo más de fortuna. */
+function cmbDificultadAuto(L, ctx) {
+  const D = ctx && ctx.dificultad;
+  if (!D) return L;
+  for (const s of [0, 1])
+    if (D[s] === "dificil") {
+      const X = L[s];
+      X.bono *= 1.04;
+      X.suerte = Math.min(1.38, X.suerte + 0.03);
+      for (const b of X.bl) {
+        b.mor *= 1.05;
+        b.mx *= 1.05;
+      }
+    }
+  return L;
+}
 /* reparte un objetivo según preferencias de doctrina */
 function cmbObjetivo(b, ene, frente, fort) {
   let tot0 = 0;
@@ -197,11 +214,16 @@ function cmbObjetivo(b, ene, frente, fort) {
   return ene.map((e, i) => [e, tot0 ? w[i] / tot0 : 0]);
 }
 function cmbResolverAuto(ejA, ejD, ctx = {}) {
+  /* ONL */ if (ctx.onlRes && !ctx.est) {
+    const r = ctx.onlRes;
+    ctx.onlRes = null;
+    return r;
+  }
   const env = cmbEntorno(ctx),
     est = !!ctx.est,
     fort = ctx.fort || 0,
     terr = env.terr,
-    L = [cmbLado(0, ejA, ctx, env), cmbLado(1, ejD, ctx, env)],
+    L = cmbDificultadAuto([cmbLado(0, ejA, ctx, env), cmbLado(1, ejD, ctx, env)], ctx) /* ONL */,
     fx = [{}, {}],
     ron = [],
     gen = [null, null],
@@ -1107,6 +1129,13 @@ function cmbTactica(ejA, ejD, ctx = {}, mode = "rt") {
       done,
       aiT: 0,
     };
+    /* ONL: la IA difícil entra con un poco más de moral */
+    if (ctx.dificultad)
+      for (const u of units)
+        if (ctx.dificultad[map[u.side]] === "dificil") {
+          u.mor *= 1.06;
+          u.morMax *= 1.06;
+        }
     deploy(1);
     units.filter((u) => !u.side).forEach((u) => (u.x = -1));
     BT.sel = units.find((u) => !u.side)?.id ?? null;
@@ -1119,6 +1148,7 @@ function cmbTactica(ejA, ejD, ctx = {}, mode = "rt") {
     music("battle");
     if (ctx.auto) battleAct("go");
     bui();
+    /* ONL */ if (ctx.onl) ctx.onl.inicio(BT);
   });
 }
 const cmbGrp = (t) =>
@@ -1434,7 +1464,7 @@ function simStep(dt, slot) {
   /* la IA (y los capitanes, si se les delega) usa las habilidades con criterio */
   if ((BT.habT -= dt) <= 0) {
     BT.habT = 0.5;
-    for (const u of live) if ((u.side === 1 || BT.auto0) && fighting(u)) cmbHabIA(u, BTB);
+    for (const u of live) if (cmbHabIALado(u.side) && fighting(u)) cmbHabIA(u, BTB);
   }
   for (const u of live) {
     const P = u.plan[slot] || u.plan[0];
@@ -1728,6 +1758,10 @@ function cmbHitoCorte() {
   if (BT.hitos.length > 16) BT.hitos.splice(1, 1);
 }
 function aiOrders(side = 1) {
+  aiOrdersBase(side);
+  /* ONL */ if (BT.ctx.dificultad && BT.ctx.dificultad[BT.map[side]] === "dificil") cmbIADificil(side);
+}
+function aiOrdersBase(side = 1) {
   const back = side ? 1 : -1;
   for (const u of BT.units) {
     if (u.side !== side || !fighting(u)) continue;
@@ -1804,6 +1838,63 @@ function aiOrders(side = 1) {
     });
   }
 }
+/* ONL: IA DIFÍCIL de la táctica (batallas contra un jugador ausente). Sobre las órdenes normales:
+   - retira tras la línea las unidades rotas o casi (≤ 35 % de hombres o ≤ 30 % de moral) para que se rehagan;
+   - la caballería sana no carga de frente: rodea al enemigo trabado y le golpea por el flanco o la espalda
+     (en t3: acción 1 hasta el flanco, acciones 2-3 al ataque);
+   - los tiradores concentran el tiro en la unidad enemiga más dañada o en la caballería que se acerca;
+   - la infantería no persigue escaramuzadores sueltos: sostiene la línea y ataca lo que esté trabado.
+   Las habilidades las sigue usando cmbHabIA con criterio; entra con +6 % de moral (cmbTactica). */
+function cmbIADificil(side) {
+  const back = side ? 1 : -1,
+    mios = BT.units.filter((u) => u.side === side && fighting(u)),
+    ene = BT.units.filter((u) => u.side !== side && fighting(u));
+  if (!ene.length) return;
+  const n = BT.mode === "t3" ? 3 : 1,
+    cx = mios.length ? mios.reduce((a, u) => a + u.x, 0) / mios.length : BW / 2,
+    pon = (u, os, st) =>
+      u.plan.forEach((p, i) => {
+        p.o = i < os.length ? os[i] : i < n ? os[os.length - 1] || null : null;
+        if (p.o && p.o.tg == null) p.o = { x: clamp(p.o.x, 0.5, BW - 0.5), y: clamp(p.o.y, 0.5, BH - 0.5) };
+        p.st = st;
+      });
+  for (const u of mios) {
+    if (u.cs.cl === "asd" || (u.gen && u.n <= SPU)) continue;
+    const roto = u.n < u.n0 * 0.35 || u.mor < u.morMax * 0.3;
+    if (roto) {
+      pon(u, [{ x: cx + 5 * back, y: u.y }], "def");
+      continue;
+    }
+    if (tirador(u)) {
+      const alcU = alc(u) + 2,
+        obj = ene
+          .filter((e) => dd(u, e) < alcU)
+          .sort(
+            (a, b) =>
+              (cmbCab(b.t) && dd(u, b) < 6 ? 2 : 0) - (cmbCab(a.t) && dd(u, a) < 6 ? 2 : 0) ||
+              a.mor / a.morMax - b.mor / b.morMax,
+          )[0];
+      if (obj && !enem(u).some((x) => !tirador(x) && dd(u, x) < 3)) pon(u, [{ tg: obj.id }], "agr");
+      continue;
+    }
+    if (cmbCab(u.t) && u.fat < 70) {
+      const trab = ene.filter((e) => e.eng && !cmbCab(e.t) && UN[e.t].rol !== "l").sort((a, b) => dd(u, a) - dd(u, b))[0];
+      if (trab) {
+        /* punto detrás del enemigo (respecto a nuestra línea) */
+        const fx = trab.x - 2.2 * back,
+          fy = trab.y + (u.y < trab.y ? -1.6 : 1.6);
+        if (Math.hypot(fx - u.x, fy - u.y) > 2 && n > 1) pon(u, [{ x: fx, y: fy }, { tg: trab.id }, { tg: trab.id }], "agr");
+        else if (Math.hypot(fx - u.x, fy - u.y) > 2) pon(u, [{ x: fx, y: fy }], "agr");
+        else pon(u, [{ tg: trab.id }], "agr");
+      }
+      continue;
+    }
+    if (UN[u.t].rol !== "l") {
+      const cerca = ene.filter((e) => dd(u, e) < 6 && (e.eng || !tirador(e) || UN[e.t].rol !== "h")).sort((a, b) => dd(u, a) - dd(u, b))[0];
+      if (cerca) pon(u, [{ tg: cerca.id }], "agr");
+    }
+  }
+}
 function sideAlive(s) {
   return BT.units.filter((u) => u.side === s && fighting(u)).reduce((a, u) => a + u.n, 0) > BT.init[s] * 0.15;
 }
@@ -1825,6 +1916,7 @@ async function runPhase(slot) {
     if (k % 3 === 2) {
       await sleep(16);
       if (!BT) return;
+      /* ONL */ if (BT.ctx.onl) BT.ctx.onl.estado();
     }
   }
   bui();
@@ -1832,8 +1924,14 @@ async function runPhase(slot) {
 async function executeTurn() {
   if (!BT || BT.run || BT.mode === "rt") return;
   BT.run = true;
-  aiOrders(1);
-  if (BT.auto0) aiOrders(0);
+  /* ONL: batalla en vivo: espera los planes de los jugadores remotos; la IA solo lleva sus lados */
+  const O = BT.ctx.onl;
+  if (O && !O.listoTurno()) {
+    BT.run = false;
+    return;
+  }
+  if (!O || O.ctrl[1] === "ia") aiOrders(1);
+  if (BT.auto0 || (O && O.ctrl[0] === "ia")) aiOrders(0);
   bLog(`— Turno ${BT.turn} —`);
   bui();
   const n = BT.mode === "t3" ? 3 : 1;
@@ -1856,8 +1954,9 @@ async function executeTurn() {
     finishBattle(r === 0);
     return;
   }
+  /* ONL */ if (O) O.estado(true);
   bui();
-  if (BT.auto0) setTimeout(executeTurn, 200);
+  if (BT.auto0 || (O && O.ctrl[0] !== "local")) setTimeout(executeTurn, 200);
 }
 async function realtime() {
   if (!BT || BT.run) return;
@@ -1878,13 +1977,15 @@ async function realtime() {
       simStep(1 / 30, 0);
       BT.aiT -= 1 / 30;
       if (BT.aiT <= 0) {
-        aiOrders(1);
-        if (BT.auto0) aiOrders(0);
+        const O = BT.ctx.onl; /* ONL: solo los lados de la IA */
+        if (!O || O.ctrl[1] === "ia") aiOrders(1);
+        if (BT.auto0 || (O && O.ctrl[0] === "ia")) aiOrders(0);
         BT.aiT = 1.2;
       }
     }
     if ((ui += el) > 0.4) {
       ui = 0;
+      /* ONL */ if (BT.ctx.onl) BT.ctx.onl.estado(true);
       bui();
       const r = battleOver();
       if (r >= 0) {
@@ -1997,6 +2098,7 @@ function finishBattle(win, retreat) {
     pl = BT.place,
     yo = m[0],
     auto = BT.ctx.auto && BT.ctx.sinModal;
+  /* ONL */ if (BT.ctx.onl) BT.ctx.onl.fin(res);
   BT = null;
   $("battle").classList.remove("show");
   music("camp");
@@ -2034,6 +2136,7 @@ function battleAct(v) {
     a = ix < 0 ? v : v.slice(0, ix),
     x = ix < 0 ? "" : v.slice(ix + 1),
     u = bU(BT.sel);
+  /* ONL */ if (BT.espejo && typeof onlEspejoAccion === "function" && onlEspejoAccion(a, x)) return;
   if (a === "auto")
     deploy(
       0,
@@ -2199,6 +2302,7 @@ function bui() {
     h += `<div class="btns"><button data-act="b-cap" class="${BT.auto0 ? "on" : ""}">${BT.auto0 ? "Retomar el mando" : "Delegar en los capitanes"}</button></div>`;
     h += `<h3>Tus unidades</h3><div class="ulist">${me.map((o) => `<button data-act="b-sel:${o.id}" class="${(BT.sels || []).includes(o.id) ? "on" : ""}${o.rout ? " cmb-rt" : ""}">${CIV[o.f].un[o.t]} ${o.n}/${o.n0}${o.gen ? " ⚑" : ""}<br><span class="stats">${cmbEstado(o)}</span>${cmbMini(o)}</button>`).join("")}</div>`;
   }
+  /* ONL */ if (BT.onlMsg) h += `<p class="onl-esp">${BT.onlMsg}</p>`;
   h += `<ul id="blog">${BT.log.map((l) => `<li style="border-color:${l.c === "good" ? "#4caf50" : l.c === "bad" ? "#e0503f" : ""}">${l.m}</li>`).join("")}</ul>`;
   c.innerHTML = h;
 }
@@ -2218,7 +2322,14 @@ const hitAt = (x, y) =>
   BT.units
     .filter((u) => act(u) && u.x >= 0 && Math.hypot(u.x - x, u.y - y) < rad(u) + 0.25)
     .sort((a, b) => Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y))[0];
-const canOrder = () => BT.phase === "plan" && (BT.mode === "rt" || !BT.run);
+const canOrder = () =>
+  BT.phase === "plan" && (BT.mode === "rt" || !BT.run) && !(BT.ctx.onl && BT.ctx.onl.ctrl[0] !== "local") /* ONL */;
+/* ONL: ¿usa la IA las habilidades de ese lado? (en vivo, el lado de un jugador remoto las elige él) */
+function cmbHabIALado(s) {
+  const O = BT.ctx && BT.ctx.onl;
+  if (!O) return s === 1 || BT.auto0;
+  return O.ctrl[s] === "ia" || (s === 0 && BT.auto0);
+}
 const selU = () => (BT.sels || []).map(bU).filter((u) => u && act(u) && !u.side);
 const buzz = () => {
   try {
