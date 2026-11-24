@@ -1323,9 +1323,9 @@ function drawMap(now) {
   if (!R && net.on && typeof onlDibujarCola === "function" && typeof ONL !== "undefined" && ONL.cola && ONL.cola.length) onlDibujarCola(now);
 }
 /* ---------- niebla de guerra en alta resolución ----------
-   Con la lógica de campaña (camVisMapa, camExpArr, G.cam.mem): lo no explorado, oscuro con textura; lo
-   explorado pero no visible, el terreno (sin dueños actuales), el color del último dueño conocido, un velo
-   y sus ciudades con las últimas levas conocidas. Se cachea con la misma clave que campaña. Si falta
+   Con la lógica de campaña (camVisMapa, camExpArr): lo que no se ve queda EN SOMBRA, no en negro: el terreno,
+   el color de quien manda cada provincia y un velo (algo más oscuro si nunca se exploró), y sus ciudades con
+   el color de su dueño, sin levas ni ejércitos ajenos. Se cachea con la misma clave que campaña. Si falta
    alguna función de campaña, se dibuja camDibujarNiebla escalada (su versión de baja resolución). */
 const IFZ_NIEBLA = { cv: null, k: "" };
 const ifzNieblaOn = () => typeof camNieblaOn === "function" && camNieblaOn() && ME != null && ME < NF;
@@ -1353,10 +1353,9 @@ function ifzVeloNiebla(c, f, now) {
   const S = IFZ_S,
     V = camVisMapa(f),
     exp = camExpArr(f),
-    m = (camS().mem || {})[f] || {},
     ter = ifzTerrenoHD(),
     z = ifzEscIns(),
-    k = `${V.k}|${f}|${((camS().exp || {})[f] || "").length}|${JSON.stringify(m).length}|${IFZ_HD.terK}|${z}`;
+    k = `${V.k}|${f}|${((camS().exp || {})[f] || "").length}|${G.P.map((p) => p.owner).join(",")}|${IFZ_HD.terK}|${z}`;
   if (IFZ_NIEBLA.k !== k || !IFZ_NIEBLA.cv) {
     const cc = IFZ_NIEBLA.cv || (IFZ_NIEBLA.cv = document.createElement("canvas"));
     cc.width = W * S;
@@ -1364,39 +1363,30 @@ function ifzVeloNiebla(c, f, now) {
     const x = cc.getContext("2d");
     x.imageSmoothingEnabled = false;
     x.clearRect(0, 0, cc.width, cc.height);
+    /* CAM: niebla en sombra (no en negro): todo el terreno se ve, con el color de quien manda cada
+       provincia y un velo; sin ejércitos ajenos ni levas, solo el dueño de cada ciudad */
     for (let i = 0; i < W * H; i++) {
       if (V.vis[i]) continue;
       const X = (i % W) * S,
         Y = Math.floor(i / W) * S;
-      if (!exp[i]) {
-        /* tierra ignota: oscuro con un leve grano */
-        x.fillStyle = "#141a20";
-        x.fillRect(X, Y, S, S);
-        x.fillStyle = "#1b222a";
-        const h = (i * 2654435761) >>> 0;
-        for (let q = 0; q < 4; q++) x.fillRect(X + ((h >> (q * 4)) & 15), Y + ((h >> (q * 4 + 2)) & 15), 2, 1);
-        continue;
-      }
       x.drawImage(ter, X, Y, S, S, X, Y, S, S);
       const pid = MAP.grid[Math.floor(i / W)][i % W],
-        mo = pid >= 0 && m[pid] ? m[pid][0] : null;
+        mo = pid >= 0 && G.P[pid] ? G.P[pid].owner : null;
       if (mo != null && CIV[mo]) {
-        x.globalAlpha = 0.17;
+        x.globalAlpha = 0.2;
         x.fillStyle = CIV[mo].c;
         x.fillRect(X, Y, S, S);
       }
-      x.globalAlpha = 0.45;
+      x.globalAlpha = exp[i] ? 0.38 : 0.5;
       x.fillStyle = "#0c1014";
       x.fillRect(X, Y, S, S);
       x.globalAlpha = 1;
     }
-    /* ciudades exploradas no vistas: su último dueño y sus últimas levas conocidas */
+    /* ciudades que no se ven: solo de quién son */
     for (const p of G.P) {
       const i = camIdx(p.x, p.y);
-      if (V.vis[i] || !exp[i]) continue;
-      const r = m[p.id];
-      if (!r) continue;
-      const o = r[0],
+      if (V.vis[i]) continue;
+      const o = p.owner,
         X = p.x * S + S / 2,
         Y = p.y * S + S / 2;
       x.globalAlpha = 0.85;
@@ -1406,10 +1396,6 @@ function ifzVeloNiebla(c, f, now) {
         spr(x, SP.castle, Math.round(X / 2) - 5, Math.round(Y / 2) - 8, PAL[o] || PAL[0]);
         x.restore();
       } else spr(x, SP.town, X - 4, Y - 6, PAL[o] || PAL[0]);
-      if (r[1] && CIV[o]) {
-        const ins = ifzInsignia(r[1], CIV[o].c, "#c9c2b4");
-        x.drawImage(ins, X + (p.cap ? 11 : 7), Y - 6 - ins.height * z, ins.width * z, ins.height * z);
-      }
       x.globalAlpha = 1;
     }
     IFZ_NIEBLA.k = k;

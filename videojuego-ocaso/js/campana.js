@@ -365,8 +365,7 @@ function camCasillaEv(e) {
   return x >= 0 && y >= 0 && x < W && y < H ? [x, y] : null;
 }
 function camHoverTxt(x, y) {
-  /* niebla: lo no explorado es tierra ignota; lo que no se ve, sin ejércitos ajenos */
-  if (typeof camExplorado === "function" && !camExplorado(ME, x, y)) return "Tierra ignota";
+  /* niebla: el mapa se ve entero en sombra; lo que no se ve, sin ejércitos ajenos (solo quién manda) */
   const es = camEjsEn(x, y).filter((e) => typeof camVeEj !== "function" || camVeEj(ME, e)),
     sp = typeof camEsps === "function" ? camEsps().filter((s) => s.x === x && s.y === y && camSocio(ME, s.f)) : [];
   if (sp.length && !es.length) return sp.map((s) => `Espía ${s.nom} (${CIV[s.f].s})${s.mis ? " · " + CAM_MIS[s.mis.t].toLowerCase() : ""}`).join(" | ");
@@ -375,12 +374,12 @@ function camHoverTxt(x, y) {
       .map((e) => `${camNombre(e)} (${CIV[e.f].s}) · ${camTot(e.u) * SPU} hombres · ${CAM_ESTADO[e.est] || e.est}`)
       .join(" | ");
   const m = typeof mercS === "function" ? mercS().camp.find((c) => c.x === x && c.y === y && c.cias.length) : null;
-  if (m) return `${m.nom}: ${m.cias.map((c) => c.nom).join(", ")}`;
-  /* provincia que no se ve: solo la última noticia */
+  if (m && (typeof camVisible !== "function" || camVisible(ME, x, y))) return `${m.nom}: ${m.cias.map((c) => c.nom).join(", ")}`;
+  /* provincia que no se ve: solo quién manda en ella */
   const pid = camPid(x, y);
   if (pid >= 0 && typeof camVeProv === "function" && !camVeProv(ME, pid)) {
-    const mm = camMemProv(ME, pid);
-    return `${G.P[pid].name} · ${mm ? `${CIV[mm.o] ? CIV[mm.o].s : "?"} · ~${mm.n} levas (${CAM_EST[mm.e].toLowerCase()} de ${mm.y})` : "sin noticias"}`;
+    const o = G.P[pid].owner;
+    return `${G.P[pid].name} · ${CIV[o] ? CIV[o].s : "sin dueño"}`;
   }
   return "";
 }
@@ -943,15 +942,9 @@ function camInfoCiudad(f, q) {
 }
 const camProvOculta = (p) => camNieblaOn() && p && p.owner !== ME && !camVeProv(ME, p.id);
 function camPanelNiebla(p, dis) {
-  const m = camMemProv(ME, p.id),
-    exp = camExplorado(ME, p.x, p.y);
-  return `<h2>${exp ? p.name : "Tierra ignota"}</h2><p class="dim">${
-    m
-      ? `Última noticia (${CAM_EST[m.e].toLowerCase()} de ${m.y}): ${CIV[m.o] ? CIV[m.o].n : "?"} · unos ${m.n * SPU} hombres en armas${m.w ? ` · murallas ${m.w}` : ""}.`
-      : exp
-        ? "Tus exploradores pasaron por aquí, pero no saben quién manda ni cuántos la guardan."
-        : "Ningún explorador tuyo ha llegado hasta aquí."
-  }</p><p class="note">Para saber más: acerca un ejército, levanta una torre de vigilancia en una ciudad cercana o envía un espía (sección «Espías» de tus ciudades).</p>${camNieblaEspiasCerca(p, dis)}`;
+  /* niebla: se sabe quién manda en cada ciudad, nada más (ni tropas ni murallas) */
+  const o = CIV[p.owner];
+  return `<h2>${p.name}</h2><p class="dim">${o ? `Aquí manda ${o.n}.` : "Sin dueño."} No sabes cuántos la guardan ni qué ejércitos hay cerca.</p><p class="note">Para saber más: acerca un ejército, levanta una torre de vigilancia en una ciudad cercana o envía un espía (sección «Espías» de tus ciudades).</p>${camNieblaEspiasCerca(p, dis)}`;
 }
 /* ---------- dibujo de la niebla (capa cacheada; la llama ifzCamDibujar al principio, marcada CAM) ---------- */
 let camNieblaC = { cv: null, k: "" };
