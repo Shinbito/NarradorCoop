@@ -300,6 +300,7 @@ function mercDesertar(c) {
     b.vida = 8;
   }
   mercS().con = mercS().con.filter((x) => x !== c);
+  OC.emitirSync("mercDesercion", { f: c.f, contrato: c, saqueo: saq }); /* OC */
   addLog(
     isMe(c.f)
       ? `Los ${c.nom} no cobran su paga: desertan, saquean ${saq ? saq + " de oro y " : ""}los campos, y se echan al monte.`
