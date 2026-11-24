@@ -293,6 +293,9 @@ ven la sala en vez del mapa (`onlFase` → `onlSalaMostrar`). En ella cada jugad
 («Elegir este pueblo»: reescribe `seats`/`est`/`faltas`, porque `update` no borra claves), marca «Estoy listo»
 (`salaListos[uid]`), se invita a amigos (`invitados` + aviso) y el anfitrión pulsa «Empezar partida» (fase
 `'ordenes'` y el plazo de la primera estación cuenta desde ese momento). Las partidas creadas antes siguen igual.
+**Enlace de invitación**: al abrir «Crear partida» se reserva el id (`ONL.nuevaId`, lo usa `onlCrear`) y se muestra
+ya `?amigo=<anfitrión>&partida=<id>`; quien lo abre (o lo pega en la app) espera a que exista y entra solo en la
+sala con un pueblo libre (`onlSalaPorEnlace`). El enlace también está en la sala.
 
 ### Sin Claude: servidor propio del VPS (`js/red.js`)
 Fuera de un artefacto de Claude, `js/red.js` (el primer script de `index.html`) define `window.claude.use('db'|

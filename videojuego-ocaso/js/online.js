@@ -939,7 +939,7 @@ async function onlCrear() {
   G.human = [ME];
   for (const l of G.log) l.t = -1;
   const pk = onlEmpaquetar(G),
-    ref = net.db.collection("partidas").doc(),
+    ref = ONL.nuevaId ? net.db.doc("partidas/" + ONL.nuevaId) : net.db.collection("partidas").doc() /* SALA: id reservado para el enlace */,
     cfg = { ...ONL.cfg },
     inv = (ONL.nuevaInv || []).slice();
   try {
@@ -975,6 +975,7 @@ async function onlCrear() {
     });
     for (const u of inv)
       await onlAviso(u, "inv-" + ref.id, { tipo: "invitacion", partida: ref.id, nombre: ST.gname, texto: "Te invita a una partida privada." });
+    ONL.nuevaId = null; /* SALA */
     onlEntrar(ref.id, ME);
   } catch (e) {
     console.error(e);

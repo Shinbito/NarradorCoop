@@ -151,3 +151,15 @@ button.onl-mini {
   flex-wrap: wrap;
   gap: 4px 14px;
 }
+.onl-sala-enl {
+  margin: 10px 0;
+  padding: 8px 10px;
+  border: 1px solid var(--edge);
+  background: rgba(242, 193, 78, 0.06);
+}
+.onl-sala-enl input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px;
+  font-size: 13px;
+}

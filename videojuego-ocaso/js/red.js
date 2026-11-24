@@ -391,6 +391,8 @@
   // el enlace lleva a la web pública (desde la app, location es interna: https://localhost)
   const webInv = () => (RED_BASE === location.origin ? location.origin + location.pathname : RED_BASE + "/");
   const enlaceInv = () => webInv() + "?amigo=" + encodeURIComponent(ident.uid);
+  /* para el juego (sala de espera): enlace a una partida concreta, que además hace amigos */
+  window.ocasoEnlacePartida = (id) => (ident ? enlaceInv() + "&partida=" + encodeURIComponent(id) : webInv() + "?partida=" + encodeURIComponent(id));
   const escH = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   function cajaInvitar() {
     if (!ident || !ident.uid) return "";
@@ -428,6 +430,7 @@
       if (b.dataset.red === "pegar") {
         const v = ((caja && caja.querySelector("#red-pega")) || {}).value || "",
           m = v.match(/u_[a-z0-9]{8,32}/);
+        if (!m && /[?&]partida=/.test(v) && typeof onlSalaPorEnlace === "function") return onlSalaPorEnlace(v.match(/[?&]partida=([A-Za-z0-9_\-]+)/)[1]);
         if (!m) {
           if (msg) msg.textContent = "Ese enlace no parece una invitación.";
           return;
@@ -435,6 +438,9 @@
         pInv = m[0];
         await aceptarInvitacion();
         if (typeof onlRefrescarLobby === "function") onlRefrescarLobby();
+        /* enlace de una partida: entrar en su sala (js/online-sala.js) */
+        const mp = v.match(/[?&]partida=([A-Za-z0-9_\-]+)/);
+        if (mp && typeof onlSalaPorEnlace === "function") onlSalaPorEnlace(mp[1]);
       }
       if (b.dataset.red === "compartir") navigator.share({ title: "Ocaso del Imperio", text: "¡Juega conmigo a Ocaso del Imperio!", url }).catch(() => {});
     },
@@ -449,7 +455,12 @@
   }
   async function aceptarInvitacion() {
     if (!pInv || !/^u_[a-z0-9]{8,32}$/.test(pInv)) return;
-    if (/[?&]amigo=/.test(location.search)) history.replaceState(null, "", location.pathname);
+    if (/[?&]amigo=/.test(location.search)) {
+      /* se quita el amigo de la dirección; ?partida= se queda para la sala (js/online-sala.js) */
+      const q = new URLSearchParams(location.search);
+      q.delete("amigo");
+      history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : ""));
+    }
     if (pInv === ident.uid) return aviso("Ese es tu propio enlace: mándaselo a tus amigos.");
     try {
       const perf = (await llama("profiles", { ids: [pInv] }))[pInv];
@@ -569,7 +580,10 @@
     if (typeof onlVistaLobby === "function") {
       const vista = onlVistaLobby;
       onlVistaLobby = function () {
-        return vista.apply(this, arguments).replace('<div id="onl-lob">', cajaInvitar() + `<div class="red-con">${cajaConectados()}</div>` + '<div id="onl-lob">');
+        const h = vista.apply(this, arguments);
+        /* en «Crear partida» manda el enlace de la propia partida (js/online-sala.js), que ya hace amigos */
+        if (typeof ONL !== "undefined" && ONL.tab === "nueva") return h;
+        return h.replace('<div id="onl-lob">', cajaInvitar() + `<div class="red-con">${cajaConectados()}</div>` + '<div id="onl-lob">');
       };
     }
     identLista.then(() => setTimeout(aceptarInvitacion, 300));

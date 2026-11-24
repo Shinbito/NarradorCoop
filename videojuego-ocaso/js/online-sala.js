@@ -9,6 +9,10 @@
      - «Estoy listo» / «Ya no estoy listo» para los invitados; el anfitrión pulsa «Empezar partida»
        (fase 'ordenes' y el plazo de la primera estación empieza a contar en ese momento);
      - «Volver al menú» sin salir de la partida (se vuelve a entrar desde «Mis partidas»).
+   ENLACE DE INVITACIÓN: al abrir «Crear partida» se reserva el id de la partida (ONL.nuevaId, que usa
+   onlCrear) y se muestra ya su enlace (?amigo=<anfitrión>&partida=<id>, de js/red.js). Quien lo abre (o lo
+   pega en la app) espera a que la partida exista y entra solo en la sala con un pueblo libre
+   (onlSalaPorEnlace); el enlace también está en la sala.
    Globales con prefijo onlSala. */
 const ONL_SALA = { html: "", d: null, t: null };
 function onlSalaMostrar(d) {
@@ -56,6 +60,7 @@ function onlSalaPintar() {
   const html = `<p class="dim">${esc(d.name || "Partida")} · ${d.publica ? "pública" : "privada"} · ${cfg.modoTurno === "tr" ? "tiempo real (" + cfg.trSeg + " s)" : "por correspondencia (" + cfg.plazoH + " h por estación)"}${d.modo === "leyendas" ? " · leyendas" : ""}</p>
     <table class="onl-sala-t"><tbody>${act.map(fila).join("")}</tbody></table>
     <p class="onl-sala-est">${host ? (falta.length ? `Faltan por estar listos: ${falta.map((u) => esc(onlNombre(u))).join(", ")}. Puedes empezar igualmente.` : jug.length > 1 ? "¡Todos listos! Puedes empezar." : "Estás solo en la sala: invita a tus amigos o empieza y se unirán después.") : listos[net.uid] ? "Esperando a que el anfitrión empiece la partida…" : "Cuando estés preparado, pulsa «Estoy listo»."}</p>
+    ${onlSalaCajaEnlace(net.id)}
     <h3>Invitar amigos</h3>${htmlAmigos}
     <div class="btns" style="margin-top:12px">${botones}<button data-sala="menu">Volver al menú</button></div>`;
   if (html === ONL_SALA.html) return;
@@ -139,7 +144,111 @@ document.addEventListener(
     if (!b) return;
     e.preventDefault();
     e.stopPropagation();
-    onlSalaAccion(b.dataset.sala);
+    const k = b.dataset.sala;
+    if (k === "copiar" || k === "compartir") return onlSalaCopiar(b, k === "compartir");
+    if (k === "cancelar") {
+      ONL_SALA.espera = null;
+      if (ONL_SALA.unEsp) ONL_SALA.unEsp();
+      ONL_SALA.unEsp = null;
+      return onlCapa(null, "", "onl-sala-esp");
+    }
+    onlSalaAccion(k);
   },
   true,
 );
+
+/* ---------- enlace de invitación a la partida ---------- */
+function onlSalaEnlace(id) {
+  return typeof window.ocasoEnlacePartida === "function" ? window.ocasoEnlacePartida(id) : location.origin + location.pathname + "?partida=" + encodeURIComponent(id);
+}
+function onlSalaCajaEnlace(id, nota) {
+  if (!id) return "";
+  const url = onlSalaEnlace(id),
+    txt = `¡Únete a mi partida de Ocaso del Imperio! ${url}`;
+  return `<div class="onl-sala-enl"><h3>Enlace de invitación</h3>${nota ? `<p class="dim">${nota}</p>` : ""}
+    <input readonly value="${esc(url)}" onclick="this.select()">
+    <div class="btns"><button class="gold" data-sala="copiar">Copiar enlace</button>${navigator.share ? '<button data-sala="compartir">Compartir…</button>' : ""}<a href="https://wa.me/?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener"><button type="button">WhatsApp</button></a></div><p class="dim onl-sala-ok"></p></div>`;
+}
+async function onlSalaCopiar(b, compartir) {
+  const caja = b.closest(".onl-sala-enl"),
+    url = caja ? caja.querySelector("input").value : "";
+  if (!url) return;
+  if (compartir) return navigator.share({ title: "Ocaso del Imperio", text: "¡Únete a mi partida de Ocaso del Imperio!", url }).catch(() => {});
+  try {
+    await navigator.clipboard.writeText(url);
+  } catch (_) {
+    caja.querySelector("input").select();
+    document.execCommand("copy");
+  }
+  const ok = caja.querySelector(".onl-sala-ok");
+  if (ok) ok.textContent = "Enlace copiado: mándalo por donde quieras.";
+}
+/* «Crear partida»: el enlace ya está mientras se configura (el id se reserva aquí y lo usa onlCrear) */
+if (typeof onlLobbyCuerpo === "function") {
+  const onlSalaCuerpo0 = onlLobbyCuerpo;
+  onlLobbyCuerpo = function () {
+    const h = onlSalaCuerpo0.apply(this, arguments);
+    if (ONL.tab !== "nueva" || !net.db || !net.uid) return h;
+    if (!ONL.nuevaId) ONL.nuevaId = net.db.collection("partidas").doc().id;
+    return onlSalaCajaEnlace(ONL.nuevaId, "Mándalo ya: quien lo abra esperará en la sala y entrará en cuanto crees la partida (con un pueblo libre, que podrá cambiar).") + h;
+  };
+}
+/* abrir (o pegar) el enlace de una partida: esperar a que exista y entrar en su sala */
+async function onlSalaPorEnlace(id) {
+  if (!net.db || !net.uid || !/^[A-Za-z0-9_\-]+$/.test(id)) return;
+  if (/[?&]partida=/.test(location.search)) {
+    const q = new URLSearchParams(location.search);
+    q.delete("partida");
+    history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : ""));
+  }
+  if (net.on && net.id === id) return;
+  if (ONL_SALA.unEsp) ONL_SALA.unEsp();
+  ONL_SALA.espera = id;
+  const capa = (t) => onlCapa("Invitación a una partida", `<p>${t}</p><div class="btns"><button data-sala="cancelar">Cancelar</button></div>`, "onl-sala-esp", true);
+  capa("Conectando con la partida…");
+  let hecho = false;
+  const fin = () => {
+    hecho = true;
+    ONL_SALA.espera = null;
+    if (ONL_SALA.unEsp) ONL_SALA.unEsp();
+    ONL_SALA.unEsp = null;
+    onlCapa(null, "", "onl-sala-esp");
+  };
+  ONL_SALA.unEsp = net.db.doc("partidas/" + id).onSnapshot(async (s) => {
+    if (hecho || ONL_SALA.espera !== id) return;
+    const d = s.data();
+    if (!d) return capa("El anfitrión aún está configurando la partida. Entrarás en su sala en cuanto la cree…");
+    if (d.terminada || d.fase === "fin") {
+      fin();
+      return modal("Partida terminada", "<p>Esa partida ya terminó.</p>", [{ t: "Vale" }]);
+    }
+    const mio = onlMiSeat(d);
+    if (mio != null) {
+      fin();
+      return onlEntrar(id, mio);
+    }
+    const libres = onlLibres(d);
+    if (!libres.length) {
+      fin();
+      return modal("Partida completa", "<p>Todos los pueblos de esa partida ya tienen jugador.</p>", [{ t: "Vale" }]);
+    }
+    fin();
+    try {
+      if (!d.publica && d.host !== net.uid && !(d.invitados || []).includes(net.uid))
+        await net.db.doc("partidas/" + id).update({ invitados: [...new Set([...(d.invitados || []), net.uid])] });
+    } catch (_) {}
+    await onlUnirse(id, libres[0].f);
+  });
+}
+/* al abrir la página con ?partida= (cuando ya hay identidad y conexión) */
+(() => {
+  const id = new URLSearchParams(location.search).get("partida");
+  if (!id) return;
+  const t0 = Date.now(),
+    iv = setInterval(() => {
+      if (net.db && net.uid && ONL.room) {
+        clearInterval(iv);
+        onlSalaPorEnlace(id);
+      } else if (Date.now() - t0 > 600000) clearInterval(iv);
+    }, 400);
+})();
