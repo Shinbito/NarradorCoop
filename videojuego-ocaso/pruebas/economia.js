@@ -459,10 +459,11 @@ const comprueba = (ok, msg) => {
     const impIA = sim.crisis.filter((c) => c.tipo === "impagos").length;
     comprueba(impIA <= Math.max(3, S.length / 4), `impagos de la IA poco frecuentes (${impIA})`);
     const todas = S.flatMap((s) => s.f);
-    const malOro = todas.filter((x) => !(x.oro >= 0 && x.oro < 3000));
+    const malOro = todas.filter((x) => !(x.oro >= -Math.max(20, x.gi * 0.5) && x.oro < 3000));
     comprueba(
       !malOro.length,
-      "oro de todas las facciones entre 0 y 3000 " + JSON.stringify(malOro.slice(0, 3)),
+      "oro < 3000 y sin números rojos graves (campaña cobra por estación) " +
+        JSON.stringify(malOro.slice(0, 3)),
     );
     const malCom = todas.filter((x) => !(x.comida >= 0 && x.comida <= x.gran * 1.5));
     comprueba(!malCom.length, "comida dentro del granero " + JSON.stringify(malCom.slice(0, 3)));
