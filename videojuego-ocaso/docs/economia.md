@@ -49,9 +49,12 @@ calculan al cargar).
   nivel lo de la tierra, oro de las vetas al tesoro). Si tecnología no está, economía usa su respaldo
   (`min(nivel, riqueza)` y 2 oro por nivel en vetas de oro). `ecoNivelExp(p, k)` = max(`p[k]`, inicial).
 - Sección de provincia **«Tierras»** (orden 39, también en provincias ajenas y rebeldes): fertilidad,
-  producción anual con iconos, yacimientos con su riqueza (●●○) y su explotación o «sin explotar». Detrás
-  de `ecoInfoVisible(p, f)` (hoy siempre cierto) para la futura niebla de guerra y espías. En el mapa, al
-  pasar el ratón, se añade el recurso principal (`ecoIconoProv`).
+  producción anual con iconos, yacimientos con su riqueza (●●○) y su explotación o «sin explotar».
+  Con la **niebla de guerra** de campaña: lo que se ve ahora (`ecoInfoVisible` → `camInfoVisible`) se muestra
+  entero; lo explorado pero fuera de la vista (`ecoInfoConocida`, `camMemProv`) muestra solo fertilidad y
+  yacimientos («lo que recuerdan tus exploradores», explotaciones «¿?»); lo nunca visto, «Tierras sin
+  explorar». Las sierras (`MAP.mont`) siempre dejan al menos hierro y piedra 1. En el mapa, al pasar el
+  ratón, se añade el recurso principal (`ecoIconoProv`) de las provincias a la vista.
 
 **Pueblos y comarcas** (`ECO_CIV`, por `CIV[f].id`). Al crear la partida cada provincia pertenece a la
 comarca del pueblo cuya capital queda más cerca; ahí pesan más sus especialidades y aparecen las
@@ -197,8 +200,8 @@ tesoro rebosante, los baja.
 - `ecoYac(p)` → `{madera, piedra, hierro, oro, estano, sal: riqueza 1..3}` (solo los que hay);
   `ecoFertil(p)` → `{v: 0..1, txt}`; `ecoExplotaciones(p)` → `{mina, cantera, aserradero, salinas: nivel}`;
   `ecoNivelExp(p, k)`; `ECO_YAC`, `ECO_EXP`.
-- `ecoInfoVisible(p, f)` → hoy `true`: el día que haya niebla de guerra o espías, la sección «Tierras» y
-  el icono del mapa se ocultan con solo cambiar esta función.
+- `ecoInfoVisible(p, f)` → propias siempre; ajenas según `camInfoVisible(p, f)` de campaña (niebla, torres,
+  espías; cierto si no hay campaña). `ecoInfoConocida(p, f)` → visibles o exploradas alguna vez.
 - `ecoIconoProv(p)` → `{id, icono, nombre}` del recurso principal (por valor de mercado), «Grano» si las
   tierras son fértiles y no saca otra cosa, o `null`.
 - `ecoPob(p)`, `ecoEspecialidad(p)` → `{id, n, d, y}`, `ecoCapacidad(p)`, `ecoDiezmar(p, fracción)`.

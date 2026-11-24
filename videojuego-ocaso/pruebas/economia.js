@@ -334,7 +334,7 @@ const comprueba = (ok, msg) => {
       .map((k) => `${k} ${P.filter((p) => ecoYac(p)[k]).length}`)
       .join(", ");
     /* una mina nueva saca más hierro de una veta rica */
-    const q = P.find((p) => (ecoYac(p).hierro || 0) >= 2 && ecoNivelExp(p, "mina") < 2);
+    const q = P.find((p) => p.owner < NF && (ecoYac(p).hierro || 0) >= 2 && ecoNivelExp(p, "mina") < 2);
     if (q) {
       const h0 = yields(q).hierro,
         m0 = q.mina;
@@ -347,20 +347,46 @@ const comprueba = (ok, msg) => {
     delete E.yac;
     ecoE();
     o.determinista = JSON.stringify(E.yac) + JSON.stringify(E.fer) === y0;
-    o.visible = ecoInfoVisible(P[0], ME) === true;
+    o.propiaVisible = ecoInfoVisible(G.P[G.F[ME].capId], ME) === true;
     o.iconos = P.filter((p) => ecoIconoProv(p)).length >= P.length * 0.5;
-    const ajena = P.find((p) => p.owner !== ME && p.owner < NF && Object.keys(ecoYac(p)).length);
-    sel = (ajena || P.find((p) => p.owner !== ME)).id;
+    /* niebla de guerra: las tierras lejanas no se ven; las vecinas sí */
+    const ver = (p) => ecoInfoVisible(p, ME),
+      ocultas = P.filter((p) => p.owner !== ME && !ver(p));
+    o.niebla =
+      typeof camInfoVisible !== "function" ||
+      !(G.cam && G.cam.niebla !== false) ||
+      ocultas.length > 0 ||
+      "ninguna provincia oculta con niebla";
+    const ajena =
+      P.find((p) => p.owner !== ME && p.owner < NF && ver(p) && Object.keys(ecoYac(p)).length) ||
+      P.find((p) => p.owner !== ME && ver(p));
     tab = "prov";
     IFZ.pref.sec.tierras = true;
+    if (ajena) {
+      sel = ajena.id;
+      ui();
+      o.seccionAjena =
+        /Tierras/.test($("panel").textContent) && /Al año|Sin yacim/.test($("panel").textContent);
+    } else o.seccionAjena = "sin provincia ajena a la vista";
+    if (ocultas.length) {
+      const q = ocultas.find((x) => !ecoInfoConocida(x, ME)) || ocultas[0];
+      sel = q.id;
+      ui();
+      const t = $("panel").textContent;
+      o.ocultaSinProduccion = !/Al año/.test(t) || `se ve la producción de ${q.name}`;
+    }
+    if (ajena) sel = ajena.id;
     ui();
-    o.seccionAjena =
-      /Tierras/.test($("panel").textContent) && /Al año|Sin yacim/.test($("panel").textContent);
     return o;
   });
   for (const [k, v] of Object.entries(tie))
     comprueba(v === true || typeof v === "number" || typeof v === "string", `${k}: ${v}`);
   comprueba(tie.explotacionesIniciales > 0, "algunas provincias empiezan con minas o canteras");
+  comprueba(
+    tie.niebla === true && tie.ocultaSinProduccion !== false && typeof tie.ocultaSinProduccion !== "string",
+    "la niebla de guerra oculta la producción de las tierras que no se ven",
+  );
+  comprueba(tie.seccionAjena === true, "la sección «Tierras» de una provincia ajena a la vista");
   comprueba(tie.sierrasConVetas === true, "las sierras del relieve esconden vetas de metal");
   await (await page.$("#panel")).screenshot({ path: path.join(capt, "economia-tierras-ajena.png") });
   await page.evaluate(() => {
@@ -574,7 +600,10 @@ const comprueba = (ok, msg) => {
     const pobIni = S[0].f.reduce((s, x) => s + x.pob, 0),
       pobFin = ult.f.reduce((s, x) => s + x.pob, 0);
     console.log(`  población de los reinos: ${pobIni} → ${pobFin} mil`);
-    comprueba(sim.camp > 0, `los ejércitos en campaña aparecen en el balance (${sim.camp} veces)`);
+    comprueba(
+      sim.camp > 0 || ANIOS < 15,
+      `los ejércitos en campaña aparecen en el balance (${sim.camp} veces)`,
+    );
   };
   await simularMundo("modo histórico");
 

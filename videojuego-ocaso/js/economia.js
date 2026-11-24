@@ -410,6 +410,11 @@ function ecoIniYac(E) {
     Y.estano =
       s[3] >= 0.25 && r() < (clima === "estano" ? 0.5 : 0.1) * (mt > 0 ? 1.5 : 1) ? (r() < 0.3 ? 2 : 1) : 0;
     Y.sal = (tr.costa && r() < 0.35) || (clima === "arido" && r() < 0.3) ? (r() < 0.3 ? 2 : 1) : 0;
+    /* una sierra siempre deja al descubierto alguna veta y piedra */
+    if (mt > 0) {
+      Y.hierro = Math.max(Y.hierro, 1);
+      Y.piedra = Math.max(Y.piedra, 1);
+    }
     /* la especialidad confirma su yacimiento y lo deja explotado */
     const ex = {},
       espYac = {
@@ -494,7 +499,23 @@ function ecoExplotaciones(p) {
 }
 /* ¿Ve el reino f las tierras de p? (hoy siempre; con niebla de guerra y espías dependerá de ellos) */
 function ecoInfoVisible(p, f) {
+  if (!p || p.owner === f) return true;
+  /* niebla de guerra de campaña: solo lo que se ve ahora (propias, aliadas, torres, ejércitos, espías) */
+  if (typeof camInfoVisible === "function")
+    try {
+      return !!camInfoVisible(p, f);
+    } catch (_) {}
   return true;
+}
+/* ¿Se conocen al menos sus tierras (exploradas alguna vez)? La tierra no cambia: yacimientos y
+   fertilidad se recuerdan; producción y explotaciones, solo a la vista. */
+function ecoInfoConocida(p, f) {
+  if (ecoInfoVisible(p, f)) return true;
+  if (typeof camMemProv === "function")
+    try {
+      return !!camMemProv(f, p.id);
+    } catch (_) {}
+  return false;
 }
 /* Recurso principal de una provincia (para el mapa): {id, icono, nombre} o null */
 function ecoIconoProv(p) {
@@ -1562,11 +1583,11 @@ OC.seccion("prov", {
 });
 /* ---------- sección de provincia: tierras (propias y ajenas) ---------- */
 const ecoPuntos = (n) => "●".repeat(n) + "○".repeat(Math.max(0, 3 - n));
-function ecoTierrasHtml(p) {
-  const y = yields(p),
+function ecoTierrasHtml(p, vista = true) {
+  const y = vista ? yields(p) : {},
     fe = ecoFertil(p),
     Y = ecoYac(p),
-    ex = ecoExplotaciones(p),
+    ex = vista ? ecoExplotaciones(p) : {},
     prod = [
       ["oro", "◉", "Oro", y.g],
       ["comida", "❦", "Comida", y.fo],
@@ -1575,14 +1596,14 @@ function ecoTierrasHtml(p) {
       .filter((x) => x[3] > 0)
       .map(([, i, n, v]) => `<span title="${n}">${i}${v}</span>`)
       .join(" ");
-  let h = `<p class="eco-pv"><span class="eco-fer${fe.v < 0.35 ? " eco-dn" : fe.v < 0.55 ? " eco-med" : ""}" title="Fertilidad ${Math.round(fe.v * 100)}%">❦ ${fe.txt}</span>${prod ? `<br><span class="stats">Al año: ${prod}</span>` : ""}</p>`;
+  let h = `<p class="eco-pv"><span class="eco-fer${fe.v < 0.35 ? " eco-dn" : fe.v < 0.55 ? " eco-med" : ""}" title="Fertilidad ${Math.round(fe.v * 100)}%">❦ ${fe.txt}</span>${prod ? `<br><span class="stats">Al año: ${prod}</span>` : ""}${vista ? "" : '<br><span class="stats">Lo que recuerdan tus exploradores; hoy no la ves.</span>'}</p>`;
   const yac = Object.keys(ECO_YAC).filter((k) => Y[k]);
   if (yac.length)
     h += `<ul class="eco-yac">${yac
       .map((k) => {
         const d = ECO_YAC[k],
           n = ex[d.exp] || 0;
-        return `<li><span>${d.icono} ${d.n}</span><span class="eco-riq" title="Riqueza ${Y[k]} de 3">${ecoPuntos(Y[k])}</span><span class="${n ? "eco-up" : "dim"}">${n ? `${ECO_EXP[d.exp].n} ${ECO_ROM[n] || n}` : "sin explotar"}</span></li>`;
+        return `<li><span>${d.icono} ${d.n}</span><span class="eco-riq" title="Riqueza ${Y[k]} de 3">${ecoPuntos(Y[k])}</span><span class="${n ? "eco-up" : "dim"}">${n ? `${ECO_EXP[d.exp].n} ${ECO_ROM[n] || n}` : vista ? "sin explotar" : "¿?"}</span></li>`;
       })
       .join("")}</ul>`;
   else h += '<p class="stats">Sin yacimientos conocidos.</p>';
@@ -1592,7 +1613,7 @@ OC.seccion("prov", {
   id: "tierras",
   orden: 39,
   render: ({ p }) =>
-    `<h3>Tierras</h3>${ecoInfoVisible(p, ME) ? ecoTierrasHtml(p) : '<p class="dim">Tierras sin explorar: nadie sabe qué esconden.</p>'}`,
+    `<h3>Tierras</h3>${ecoInfoVisible(p, ME) ? ecoTierrasHtml(p) : ecoInfoConocida(p, ME) ? ecoTierrasHtml(p, false) : '<p class="dim">Tierras sin explorar: nadie sabe qué esconden.</p>'}`,
 });
 OC.accion("tax", (v) => {
   const p = G.P[sel];
