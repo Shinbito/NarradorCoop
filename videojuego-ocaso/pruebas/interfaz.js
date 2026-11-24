@@ -488,7 +488,51 @@ function OC_N() {
     };
   });
   ok(rel.v >= 2 && rel.mont > 0 && rel.rios > 0 && rel.tramos > 0, `el mapa pinta el relieve: ${rel.mont} casillas de montaña, ${rel.rios} ríos, ${rel.tramos} tramos de camino`);
+  const eco = await pm.evaluate(() => {
+    const p = G.P[G.F[ME].capId];
+    sel = p.id;
+    tab = "prov";
+    ui();
+    IFZ_REC.k = "";
+    drawMap(performance.now());
+    const r = ecoIconoProv(p),
+      sum = document.querySelector('#panel details[data-ifzsec="tierras"] .ifz-sr');
+    return {
+      n: IFZ_REC.l.length,
+      ocultas: IFZ_REC.l.every(({ p: q }) => ifzVeProv(q)),
+      hover: r ? ifzHoverTxt(p.id, "", [p.x, p.y]).includes(r.icono + " " + r.nombre) : true,
+      tierras: sum ? sum.textContent : "",
+      fert: ecoFertil(p).txt,
+    };
+  });
+  ok(eco.n > 0 && eco.ocultas, `recurso principal sobre ${eco.n} provincias visibles (ecoIconoProv, respeta la niebla)`);
+  ok(eco.hover && eco.tierras.includes(eco.fert), `hover con el recurso principal y «Tierras» plegada: «${eco.tierras}»`);
   ok(rel.tm === "Montaña infranqueable" && rel.tr === "Río" && rel.tp === "Puente", `el hover nombra el terreno: ${rel.tm} · ${rel.tr} · ${rel.tp}`);
+  /* online: con «Listo» pulsado, el botón de fin ofrece «Quitar listo» */
+  const ql = await pm.evaluate(() => {
+    const m0 = ONL.meta,
+      on0 = net.on,
+      cur0 = net.cur,
+      q0 = window.onlQuitarListo;
+    let llamado = false;
+    window.onlQuitarListo = async () => (llamado = true);
+    ONL.meta = { fase: "ordenes", turno: 3, listos: { [ME]: 3 }, seats: { [ME]: "u" }, est: { [ME]: "activo" }, cfg: {}, limite: Date.now() + 9e5 };
+    net.on = true;
+    net.cur = null;
+    ui();
+    const b = document.getElementById("endb"),
+      r = { t: b.textContent, act: b.dataset.act, dis: b.disabled };
+    b.click();
+    r.llamado = llamado;
+    ONL.meta = m0;
+    net.on = on0;
+    net.cur = cur0;
+    window.onlQuitarListo = q0;
+    ui();
+    r.vuelve = document.getElementById("endb").dataset.act;
+    return r;
+  });
+  ok(/Quitar listo/.test(ql.t) && ql.act === "ifzquitar" && !ql.dis && ql.llamado && ql.vuelve === "end", `online: «${ql.t}» llama a onlQuitarListo y luego vuelve a «Fin»`);
   /* opciones: velocidad */
   await pm.click('[data-act="ifzopc"]');
   await pm.waitForTimeout(80);
@@ -544,6 +588,19 @@ function OC_N() {
     return { grupos, durante };
   });
   ok(rp.grupos === 9, `los pasos se agrupan (marchas de ejércitos distintos a la vez): ${rp.grupos} grupos`);
+  const nb = await pm.evaluate(() => {
+    const pasos = [
+      { k: "mov", ej: 1, f: 1, de: [0, 0], a: [1, 0], vh: [ME] },
+      { k: "mov", ej: 2, f: 1, de: [0, 0], a: [1, 0], vh: [] },
+      { k: "esp", esp: 3, f: ME, de: [2, 2], a: [3, 2] },
+      { k: "esp-", esp: 3, f: ME },
+    ];
+    const v = ifzRepVisibles(pasos);
+    drawMap(performance.now());
+    return { v: v.length, g: ifzRepGrupos(v).length, niebla: ifzNieblaOn(), cv: IFZ_NIEBLA.cv ? IFZ_NIEBLA.cv.width === W * IFZ_S : false };
+  });
+  ok(nb.v === 3 && nb.g === 2, `la repetición solo muestra los pasos que el jugador ve (vh) y los de espías (${nb.v} pasos, ${nb.g} grupos)`);
+  ok(!nb.niebla || nb.cv, "la niebla de guerra se dibuja en alta resolución (ifzVeloNiebla)");
   ok(rp.durante.on && rp.durante.barra, "la repetición se ve con su barra (Saltar, ×2) y bloquea el mapa");
   await pm.waitForTimeout(1800);
   await pm.locator(".board").screenshot({ path: path.join(capt, "interfaz-terreno-repeticion.png") });

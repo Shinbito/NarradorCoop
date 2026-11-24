@@ -15,7 +15,7 @@
 
 /* ======================= 1. estado y preferencias ======================= */
 const IFZ = {
-  pref: { sec: { reclutar: true, edificios: true }, pot: true, potTodas: false, log: "todo", tut: 0, vel: "lenta", rep: true },
+  pref: { sec: { reclutar: true, edificios: true }, pot: true, potTodas: false, log: "todo", tut: 0, vel: "lenta", rep: true, iconos: true },
   html: {}, // último HTML escrito en cada contenedor (para no reconstruir lo que no cambia)
   res: false, // desplegable de recursos abierto
   anios: {}, // años plegados/abiertos en la crónica
@@ -56,9 +56,14 @@ function ui() {
   const on = net.on ? ifzTurnoOnline() : null,
     tt = on ? on.info : "Un jugador · tecla E: terminar";
   if ($("tinfo").textContent !== tt) $("tinfo").textContent = tt;
-  const eb = $("endb"),
-    et = busy ? "Las potencias mueven…" : on ? on.boton : G.over ? "Partida terminada" : ifzTextoFin();
-  eb.disabled = dis;
+  /* online: si ya estás «Listo», el botón ofrece deshacerlo (onlQuitarListo) */
+  const quitar = !busy && on && ifzPuedeQuitarListo(),
+    eb = $("endb"),
+    et = busy ? "Las potencias mueven…" : quitar ? on.quitar || "Quitar listo ✕" : on ? on.boton : G.over ? "Partida terminada" : ifzTextoFin(),
+    act = quitar ? "ifzquitar" : "end";
+  eb.disabled = quitar ? false : dis;
+  if (eb.dataset.act !== act) eb.dataset.act = act;
+  eb.classList.toggle("ifz-quitar", !!quitar);
   if (eb.textContent !== et) eb.textContent = et;
   eb.setAttribute("aria-busy", busy ? "true" : "false");
   ifzPestanas(dis);
@@ -101,6 +106,25 @@ function ifzTurnoOnline() {
   }
   return r;
 }
+/* ¿está el jugador «Listo» en una estación online que aún no se resuelve? (entonces puede quitarlo) */
+function ifzPuedeQuitarListo() {
+  try {
+    const d = typeof ONL !== "undefined" && ONL && ONL.meta;
+    return !!(net.on && typeof onlQuitarListo === "function" && d && d.fase === "ordenes" && !ONL.resolviendo && !d.terminada && (d.listos || {})[ME] === d.turno && !myTurn());
+  } catch (_) {
+    return false;
+  }
+}
+OC.accion(
+  "ifzquitar",
+  () => {
+    if (!ifzPuedeQuitarListo()) return;
+    Promise.resolve(onlQuitarListo())
+      .catch(console.error)
+      .finally(() => G && ui());
+  },
+  { libre: true },
+);
 /* «Fin de la primavera ▶» / «Fin del año ▶»: el turno es una estación (campaña) */
 function ifzTextoFin() {
   try {
@@ -368,6 +392,13 @@ function ifzResumenSec(id, { p }) {
       return n ? `${n} ${n === 1 ? "compañía" : "compañías"}` : "ninguna";
     }
     if (id === "reclutar") return `${G.F[ME].gold} oro`;
+    if (id === "tierras" && typeof ecoFertil === "function" && !busy) {
+      const vis = ifzVeProv(p),
+        conoc = vis || (typeof ecoInfoConocida === "function" && ecoInfoConocida(p, ME));
+      if (!conoc) return "ignotas";
+      const r = vis && typeof ecoIconoProv === "function" ? ecoIconoProv(p) : null;
+      return `${r ? r.icono + " " : ""}${ecoFertil(p).txt}`;
+    }
   } catch (_) {}
   return "";
 }
@@ -514,6 +545,8 @@ const IFZ_SP = {
   "fig.ele.1": ["...FF....", "..FFFF...", ".mmmmmmm.", "mmmmmmmmm", "mmmmmmmtm", "mmmmmmm.m", "..mm..mm.", "..zz..zz."],
   "fig.maq.0": ["......l", ".....l.", "....l..", "lllllll", ".l...l.", "kk...kk"],
   "fig.maq.1": ["......l", ".....l.", "....l..", "lllllll", ".l...l.", "kk...kk"],
+  "fig.espia.0": [".CC.", "CpCC", "CCCC", "CFCC", "CCCC", ".CC.", ".k.k"],
+  "fig.espia.1": [".CC.", "CpCC", "CCCC", "CFCC", "CCCC", ".CC.", "k.k."],
   "fig.carro.0": [".EEEE...", "EEEEEE..", "nnnnnnnl", ".k...k.."],
   "fig.carro.1": [".EEEE...", "EEEEEE..", "nnnnnnnl", ".k...k.."],
   /* campamento */
@@ -1124,6 +1157,53 @@ function ifzCerco(c, p, f, now, alfa = 1) {
     }
   c.globalAlpha = 1;
 }
+/* ---------- recurso principal de cada provincia (economía: ecoIconoProv) ---------- */
+const IFZ_REC = { k: "", t: 0, l: [] },
+  IFZ_RECI = new Map();
+/* ¿puede el jugador ver la economía de la provincia? (niebla: ecoInfoVisible / camVeProv) */
+function ifzVeProv(p) {
+  try {
+    if (typeof ecoInfoVisible === "function") return !!ecoInfoVisible(p, ME);
+    if (typeof camVeProv === "function") return !!camVeProv(ME, p.id);
+  } catch (_) {}
+  return true;
+}
+/* lista [{p, r}] cacheada (yields es caro): se rehace al cambiar de estación o dueños, o cada 4 s */
+function ifzRecProv(now) {
+  if (typeof ecoIconoProv !== "function") return [];
+  const k = `${G.year}|${G.estacion}|${G.P.reduce((s, p, i) => s + (p.owner + 1) * (i + 3), 0)}|${typeof camVer !== "undefined" ? camVer : 0}`;
+  /* nunca mientras se resuelve la estación (busy): yields pasa por OC.calc('rendimiento') de todos los
+     sistemas y no debe colarse a mitad de la resolución */
+  if ((IFZ_REC.k === k && now - IFZ_REC.t < 4000) || busy || BT) return IFZ_REC.l;
+  IFZ_REC.k = k;
+  IFZ_REC.t = now;
+  IFZ_REC.l = [];
+  for (const p of G.P)
+    try {
+      const r = ifzVeProv(p) ? ecoIconoProv(p) : null;
+      if (r) IFZ_REC.l.push({ p, r });
+    } catch (_) {}
+  return IFZ_REC.l;
+}
+/* insignia pequeña con el icono del recurso (glifo sobre fondo oscuro), cacheada por icono */
+function ifzInsRecurso(ic) {
+  let c = IFZ_RECI.get(ic);
+  if (c) return c;
+  c = document.createElement("canvas");
+  c.width = 12;
+  c.height = 12;
+  const x = c.getContext("2d");
+  x.fillStyle = "rgba(11,15,18,.82)";
+  x.fillRect(1, 0, 10, 12);
+  x.fillRect(0, 1, 12, 10);
+  x.fillStyle = "#f2c14e";
+  x.font = '10px "Pixelify Sans", system-ui, sans-serif';
+  x.textAlign = "center";
+  x.textBaseline = "middle";
+  x.fillText(ic, 6, 6.5);
+  IFZ_RECI.set(ic, c);
+  return c;
+}
 /* escala de las insignias numéricas: ×2 con el mapa entero a la vista, ×1 al acercarse */
 const ifzEscIns = () => (zoom >= 1.8 ? 1 : 2);
 /* ---------- dibujo de cada cuadro ---------- */
@@ -1191,6 +1271,12 @@ function drawMap(now) {
       h.drawImage(ins, X + (p.cap ? 11 : 7), Y - 6 - ins.height * z, ins.width * z, ins.height * z);
     }
   }
+  /* recurso principal de cada provincia visible (opción en ⚙) */
+  if (!R && IFZ.pref.iconos !== false)
+    for (const { p, r } of ifzRecProv(now)) {
+      const ic = ifzInsRecurso(r.icono);
+      h.drawImage(ic, p.x * S + S / 2 - 14 - (p.cap ? 6 : 0), p.y * S + S / 2 + 3);
+    }
   /* CAM: campaña (o la repetición de la estación) */
   if (R) ifzRepDibujar(h, now);
   else ifzCamDibujar(now);
@@ -1236,6 +1322,100 @@ function drawMap(now) {
   ctx.clearRect(0, 0, cv.width, cv.height);
   if (!R && net.on && typeof onlDibujarCola === "function" && typeof ONL !== "undefined" && ONL.cola && ONL.cola.length) onlDibujarCola(now);
 }
+/* ---------- niebla de guerra en alta resolución ----------
+   Con la lógica de campaña (camVisMapa, camExpArr, G.cam.mem): lo no explorado, oscuro con textura; lo
+   explorado pero no visible, el terreno (sin dueños actuales), el color del último dueño conocido, un velo
+   y sus ciudades con las últimas levas conocidas. Se cachea con la misma clave que campaña. Si falta
+   alguna función de campaña, se dibuja camDibujarNiebla escalada (su versión de baja resolución). */
+const IFZ_NIEBLA = { cv: null, k: "" };
+const ifzNieblaOn = () => typeof camNieblaOn === "function" && camNieblaOn() && ME != null && ME < NF;
+/* ¿ve el jugador la casilla? (f = dueño de lo que hay en ella: sus aliados siempre lo ven) */
+function ifzVeCasilla(f, x, y) {
+  if (!ifzNieblaOn()) return true;
+  try {
+    if (f != null && f >= 0 && typeof camSocio === "function" && camSocio(ME, f)) return true;
+    return typeof camVisible === "function" ? camVisible(ME, x, y) : true;
+  } catch (_) {
+    return true;
+  }
+}
+function ifzVeloNiebla(c, f, now) {
+  if (!ifzNieblaOn() || f !== ME) return;
+  if (typeof camVisMapa !== "function" || typeof camExpArr !== "function") {
+    if (typeof camDibujarNiebla === "function") {
+      c.save();
+      c.scale(IFZ_K, IFZ_K);
+      camDibujarNiebla(c, now);
+      c.restore();
+    }
+    return;
+  }
+  const S = IFZ_S,
+    V = camVisMapa(f),
+    exp = camExpArr(f),
+    m = (camS().mem || {})[f] || {},
+    ter = ifzTerrenoHD(),
+    z = ifzEscIns(),
+    k = `${V.k}|${f}|${((camS().exp || {})[f] || "").length}|${JSON.stringify(m).length}|${IFZ_HD.terK}|${z}`;
+  if (IFZ_NIEBLA.k !== k || !IFZ_NIEBLA.cv) {
+    const cc = IFZ_NIEBLA.cv || (IFZ_NIEBLA.cv = document.createElement("canvas"));
+    cc.width = W * S;
+    cc.height = H * S;
+    const x = cc.getContext("2d");
+    x.imageSmoothingEnabled = false;
+    x.clearRect(0, 0, cc.width, cc.height);
+    for (let i = 0; i < W * H; i++) {
+      if (V.vis[i]) continue;
+      const X = (i % W) * S,
+        Y = Math.floor(i / W) * S;
+      if (!exp[i]) {
+        /* tierra ignota: oscuro con un leve grano */
+        x.fillStyle = "#141a20";
+        x.fillRect(X, Y, S, S);
+        x.fillStyle = "#1b222a";
+        const h = (i * 2654435761) >>> 0;
+        for (let q = 0; q < 4; q++) x.fillRect(X + ((h >> (q * 4)) & 15), Y + ((h >> (q * 4 + 2)) & 15), 2, 1);
+        continue;
+      }
+      x.drawImage(ter, X, Y, S, S, X, Y, S, S);
+      const pid = MAP.grid[Math.floor(i / W)][i % W],
+        mo = pid >= 0 && m[pid] ? m[pid][0] : null;
+      if (mo != null && CIV[mo]) {
+        x.globalAlpha = 0.17;
+        x.fillStyle = CIV[mo].c;
+        x.fillRect(X, Y, S, S);
+      }
+      x.globalAlpha = 0.45;
+      x.fillStyle = "#0c1014";
+      x.fillRect(X, Y, S, S);
+      x.globalAlpha = 1;
+    }
+    /* ciudades exploradas no vistas: su último dueño y sus últimas levas conocidas */
+    for (const p of G.P) {
+      const i = camIdx(p.x, p.y);
+      if (V.vis[i] || !exp[i]) continue;
+      const r = m[p.id];
+      if (!r) continue;
+      const o = r[0],
+        X = p.x * S + S / 2,
+        Y = p.y * S + S / 2;
+      x.globalAlpha = 0.85;
+      if (p.cap) {
+        x.save();
+        x.scale(2, 2);
+        spr(x, SP.castle, Math.round(X / 2) - 5, Math.round(Y / 2) - 8, PAL[o] || PAL[0]);
+        x.restore();
+      } else spr(x, SP.town, X - 4, Y - 6, PAL[o] || PAL[0]);
+      if (r[1] && CIV[o]) {
+        const ins = ifzInsignia(r[1], CIV[o].c, "#c9c2b4");
+        x.drawImage(ins, X + (p.cap ? 11 : 7), Y - 6 - ins.height * z, ins.width * z, ins.height * z);
+      }
+      x.globalAlpha = 1;
+    }
+    IFZ_NIEBLA.k = k;
+  }
+  c.drawImage(IFZ_NIEBLA.cv, 0, 0);
+}
 /* CAM: capa de campaña con la lógica de ejercitos.js/campana.js (alcance, rutas, asedios). */
 const IFZ_ALC = { cv: null, k: "" };
 function ifzCamDibujar(now) {
@@ -1259,13 +1439,8 @@ function ifzCamDibujar(now) {
       ])
         c.fillRect(X + a, Y + b, w, h);
     };
-  /* CAM: niebla de guerra (campana.js): oscuro lo no explorado, velo y última noticia en lo no visible */
-  if (typeof camDibujarNiebla === "function") {
-    c.save();
-    c.scale(IFZ_K, IFZ_K);
-    camDibujarNiebla(c, now);
-    c.restore();
-  }
+  /* CAM: niebla de guerra (campana.js), dibujada en HD por la interfaz */
+  ifzVeloNiebla(c, ME, now);
   /* alcance (cacheado): relleno suave y contorno dorado */
   if (mio) {
     const D = camAlcance(se),
@@ -1385,18 +1560,21 @@ const IFZ_REP = { on: false };
    orden; agrupa las marchas de ejércitos distintos para que se muevan a la vez. Barra con progreso,
    «×2» y «Saltar» (o Escape). Bloquea la interacción mientras dura y luego vuelve al estado real. */
 const IFZ_REPD = { mov: 260, "ej+": 200, "ej-": 200, bat: 950, ase: 450, con: 850 };
+/* niebla: los pasos que ve el jugador (vh lo incluye, o el paso no trae vh) */
+const ifzRepVisibles = (pasos) => pasos.filter((p) => p && (!Array.isArray(p.vh) || p.vh.includes(ME)));
 function ifzRepGrupos(pasos) {
   const gs = [];
   let g = null;
   for (const p of pasos) {
     if (!p || !p.k) continue;
-    if (p.k === "mov") {
-      if (!g || g.k !== "mov" || g.ids.has(p.ej)) {
+    if (p.k === "mov" || p.k === "esp") {
+      const id = (p.k === "esp" ? "e" : "") + (p.k === "esp" ? p.esp : p.ej);
+      if (!g || g.k !== "mov" || g.ids.has(id)) {
         g = { k: "mov", pasos: [], ids: new Set() };
         gs.push(g);
       }
       g.pasos.push(p);
-      g.ids.add(p.ej);
+      g.ids.add(id);
     } else {
       g = null;
       gs.push({ k: p.k, pasos: [p] });
@@ -1407,7 +1585,8 @@ function ifzRepGrupos(pasos) {
 function ifzRepetir(rep) {
   if (IFZ_REP.on || !rep || !Array.isArray(rep.pasos) || !rep.pasos.length || !G || !MAP) return Promise.resolve(false);
   if (ifzVel() <= 0 && !IFZ.repForzar) return Promise.resolve(false);
-  const gs = ifzRepGrupos(rep.pasos);
+  /* niebla: cada jugador solo ve los pasos cuyo vh lo incluye (sin vh, los ve todos) */
+  const gs = ifzRepGrupos(ifzRepVisibles(rep.pasos));
   if (!gs.length) return Promise.resolve(false);
   const raw = gs.reduce((s, g) => s + (IFZ_REPD[g.k] || 200), 0),
     fac = raw > 40000 ? 40000 / raw : raw < 15000 ? Math.min(1.6, 15000 / raw) : 1;
@@ -1416,6 +1595,7 @@ function ifzRepetir(rep) {
     rep,
     own: Array.isArray(rep.own0) && rep.own0.length === G.P.length ? rep.own0.slice() : G.P.map((p) => p.owner),
     ej: new Map(),
+    esp: new Map(),
     as: new Map(),
     fx: [],
     gs,
@@ -1426,7 +1606,8 @@ function ifzRepetir(rep) {
     total: gs.reduce((s, g) => s + (IFZ_REPD[g.k] || 200) * fac, 0),
     hecho: 0,
   });
-  for (const e of rep.ej0 || []) IFZ_REP.ej.set(e.id, { id: e.id, f: e.f, n: e.n, x: e.x, y: e.y, u: e.u || null, est: e.est || "marcha", tw: null });
+  for (const e of rep.ej0 || [])
+    if (ifzVeCasilla(e.f, e.x, e.y)) IFZ_REP.ej.set(e.id, { id: e.id, f: e.f, n: e.n, x: e.x, y: e.y, u: e.u || null, est: e.est || "marcha", tw: null });
   ifzRepBarra(true);
   return (async () => {
     try {
@@ -1462,6 +1643,7 @@ function ifzRepAplicar(g, now, dur) {
   const R = IFZ_REP;
   /* los ejércitos que desaparecían en el paso anterior se quitan */
   for (const [id, e] of R.ej) if (e.muere) R.ej.delete(id);
+  for (const [id, e] of R.esp) if (e.muere) R.esp.delete(id);
   R.fx = R.fx.filter((x) => now - x.t0 < x.dur);
   for (const p of g.pasos) {
     if (p.k === "mov") {
@@ -1474,6 +1656,18 @@ function ifzRepAplicar(g, now, dur) {
       e.x = p.a[0];
       e.y = p.a[1];
       e.est = "marcha";
+    } else if (p.k === "esp") {
+      let e = R.esp.get(p.esp);
+      if (!e) {
+        e = { id: p.esp, f: p.f, x: p.de[0], y: p.de[1] };
+        R.esp.set(p.esp, e);
+      }
+      e.tw = { fx: e.x, fy: e.y, t0: now, dur: dur * 0.95 };
+      e.x = p.a[0];
+      e.y = p.a[1];
+    } else if (p.k === "esp-") {
+      const e = R.esp.get(p.esp);
+      if (e) Object.assign(e, { muere: now, mdur: dur });
     } else if (p.k === "ej+") R.ej.set(p.ej, { id: p.ej, f: p.f, n: p.n || 4, u: p.u || null, x: p.x, y: p.y, est: "marcha", nace: now, ndur: dur });
     else if (p.k === "ej-") {
       const e = R.ej.get(p.ej);
@@ -1495,7 +1689,21 @@ function ifzRepAplicar(g, now, dur) {
 function ifzRepDibujar(c, now) {
   const R = IFZ_REP,
     S = IFZ_S;
-  for (const [pid, a] of R.as) if (G.P[pid]) ifzCerco(c, G.P[pid], a.f, now, Math.min(1, (now - a.t0) / 300));
+  ifzVeloNiebla(c, ME);
+  for (const [pid, a] of R.as) if (G.P[pid] && ifzVeCasilla(a.f, G.P[pid].x, G.P[pid].y)) ifzCerco(c, G.P[pid], a.f, now, Math.min(1, (now - a.t0) / 300));
+  /* espías: figura embozada que se desliza */
+  for (const e of R.esp.values()) {
+    let x = e.x,
+      y = e.y;
+    if (e.tw) {
+      const k = Math.min(1, (now - e.tw.t0) / e.tw.dur);
+      x = e.tw.fx + (e.x - e.tw.fx) * k;
+      y = e.tw.fy + (e.y - e.tw.fy) * k;
+    }
+    c.globalAlpha = e.muere ? Math.max(0, 1 - (now - e.muere) / (e.mdur || 200)) : 1;
+    ifzDib(c, "fig.espia." + (reduce ? 0 : Math.floor(now / 200) % 2), x * S + 6, y * S + 4, e.f);
+    c.globalAlpha = 1;
+  }
   const vis = [];
   for (const e of R.ej.values()) {
     let x = e.x,
@@ -1551,7 +1759,7 @@ function ifzRepDibujar(c, now) {
       c.fillStyle = "#fff";
       c.fillText(x.txt, bx + 5, by + 4);
       c.globalAlpha = 1;
-    } else if (x.k === "con" && G.P[x.p]) {
+    } else if (x.k === "con" && G.P[x.p] && ifzVeCasilla(-1, G.P[x.p].x, G.P[x.p].y)) {
       const p = G.P[x.p],
         X = p.x * S + S / 2,
         Y = p.y * S + S / 2,
@@ -1609,10 +1817,12 @@ OC.accion(
   },
   { libre: true },
 );
-/* en un jugador, tras cada estación con movimientos (Campaña graba G.cam.rep; CONTRATO §9) */
-OC.on("finEstacion", async () => {
+
+/* en un jugador: cuando Campaña cierra la repetición de la estación (evento repeticionLista, con lo
+   anual y las marchas pendientes incluidas) */
+OC.on("repeticionLista", async (rep) => {
   if (!G || net.on || IFZ.pref.rep === false) return;
-  const rep = G.cam && G.cam.rep;
+  rep = rep || (G.cam && G.cam.rep);
   if (rep && Array.isArray(rep.pasos) && rep.pasos.length) await ifzRepetir(rep);
 });
 /* minimapa: aparece cuando el mapa no cabe (zoom o móvil); tocarlo lleva la vista allí */
@@ -2128,6 +2338,10 @@ function ifzHoverTxt(i, ct, xy) {
       s += ` · ${a.nombre} ${a.icono}`;
     }
     if (typeof camAsedio === "function" && camAsedio(i)) s += " · sitiada";
+    if (!busy && typeof ecoIconoProv === "function" && ifzVeProv(p)) {
+      const r = ecoIconoProv(p);
+      if (r) s += ` · ${r.icono} ${r.nombre}`;
+    }
   } catch (_) {}
   return ct ? `${ct} — ${s}` : s;
 }
@@ -2237,6 +2451,8 @@ function ifzOpciones() {
 <div class="g3" role="group" aria-label="Velocidad de animación">${bt("ifzvel-lenta", v === "lenta", "Lenta", "épica")}${bt("ifzvel-normal", v === "normal", "Normal")}${bt("ifzvel-rapida", v === "rapida", "Rápida")}</div>
 <h3>Repetición de la estación</h3><p class="dim">Al terminar cada estación, ver a velocidad acelerada las marchas, batallas, asedios y conquistas de todas las potencias.</p>
 <div class="g2" role="group" aria-label="Repetición de la estación">${bt("ifzrepo-1", IFZ.pref.rep !== false, "Sí")}${bt("ifzrepo-0", IFZ.pref.rep === false, "No")}</div>
+<h3>Recursos en el mapa</h3><p class="dim">Un icono pequeño con el recurso principal de cada provincia que ves.</p>
+<div class="g2" role="group" aria-label="Recursos en el mapa">${bt("ifzico-1", IFZ.pref.iconos !== false, "Mostrar")}${bt("ifzico-0", IFZ.pref.iconos === false, "Ocultar")}</div>
 <h3>Música y ayuda</h3><div class="btns"><button class="music" data-act="music">♪ Música</button><button data-act="ifztut-otra">Repetir el tutorial</button></div></div>`,
     [{ t: "Cerrar", cls: "gold" }],
   );
@@ -2255,6 +2471,16 @@ OC.accion(
   (v, b) => {
     if (!IFZ_VELS[v]) return false;
     IFZ.pref.vel = v;
+    ifzGuardar();
+    ifzMarcar(b);
+    return false;
+  },
+  { libre: true },
+);
+OC.accion(
+  "ifzico",
+  (v, b) => {
+    IFZ.pref.iconos = v === "1";
     ifzGuardar();
     ifzMarcar(b);
     return false;
