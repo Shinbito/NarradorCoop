@@ -2450,10 +2450,12 @@ const NAR_ARCOS = [
     },
   },
 ];
+/* todo lo anterior es la historia del 410: solo en el modo histórico (G.modo === 'historico') */
+for (const a of NAR_ARCOS) a.hist = true;
 
 /* ---------- prólogo ---------- */
 const NAR_PROLOGO = {
-  0: {
+  occ: {
     t: "Rávena, año 410",
     d: (c) =>
       `Agosto. Los godos de Alarico han entrado en Roma por la puerta Salaria y la saquean desde hace tres días. En ${c.cap.name}, protegida por los pantanos, ${narTit(c.r)} recibe la noticia entre consejeros pálidos. Al imperio de Occidente le quedan legiones veteranas, un Senado intrigante y ${c.own.length} provincias. Lo que hagas con ellas lo dirá la historia.`,
@@ -2464,7 +2466,7 @@ const NAR_PROLOGO = {
       "Jurar con un escarmiento a los traidores",
     ],
   },
-  1: {
+  ori: {
     t: "La Nueva Roma",
     d: (c) =>
       `Las noticias de Roma llegan a ${c.cap.name} con un mes de retraso y suenan a profecía. Detrás de sus murallas, ${narTit(c.r)} gobierna el imperio más rico del mundo: oro de Egipto, seda de Siria y enemigos en todas las fronteras. Persia acecha al este; los hunos, al norte.`,
@@ -2475,7 +2477,7 @@ const NAR_PROLOGO = {
       "Jurar con un castigo ejemplar",
     ],
   },
-  2: {
+  vis: {
     t: "Tras el saqueo",
     d: (c) =>
       `Tres días y tres noches anduvieron los godos por las calles de Roma. Ahora el pueblo de Alarico marcha cargado de oro, de cautivos y de una pregunta: ¿dónde vivir? ${narTit(c.r)} hereda un pueblo sin tierra y un nombre que todo el mundo teme.`,
@@ -2486,7 +2488,7 @@ const NAR_PROLOGO = {
       "Jurar con sangre de cautivos",
     ],
   },
-  3: {
+  hun: {
     t: "La estepa",
     d: (c) =>
       `Más allá del Danubio, donde la hierba no tiene fin, ${narTit(c.r)} reúne a las tribus hunas. Los romanos pagan tributo para que no crucéis el río; los godos huyen de vosotros desde hace treinta años. El mundo es de quien tenga más caballos.`,
@@ -2497,7 +2499,7 @@ const NAR_PROLOGO = {
       "Jurar sobre el cráneo de un enemigo",
     ],
   },
-  4: {
+  van: {
     t: "Un pueblo en marcha",
     d: (c) =>
       `Los vándalos cruzaron el Rin helado hace cuatro inviernos y no se han detenido. Hispania es rica y está mal defendida; más allá del estrecho brillan los trigales de África. ${narTit(c.r)} gobierna un pueblo que vive del botín y no teme al mar.`,
@@ -2508,7 +2510,7 @@ const NAR_PROLOGO = {
       "Jurar con un saqueo ejemplar",
     ],
   },
-  5: {
+  fra: {
     t: "Los hijos de Meroveo",
     d: (c) =>
       `Entre el Rin y los bosques de las Ardenas, los francos viven en paz con Roma... cuando les conviene. ${narTit(c.r)} es de la estirpe de Meroveo, el hijo del monstruo marino, y sus guerreros arrojan la francisca mejor que nadie. Los viejos dioses aún reinan en los bosques.`,
@@ -2519,7 +2521,7 @@ const NAR_PROLOGO = {
       "Jurar con la cabeza de un rival",
     ],
   },
-  6: {
+  per: {
     t: "Ctesifonte",
     d: (c) =>
       `Bajo la gran bóveda de ladrillo de ${c.cap.name}, ${narTit(c.r)} recibe a los embajadores de Roma con la cortesía de quien sabe que su imperio es más antiguo. Los magos guardan el fuego sagrado; los savaran, la frontera. Roma se tambalea: el mundo podría volver a ser persa.`,
@@ -2581,7 +2583,9 @@ const NAR_MENORES = [
       ? `Un monje de ${c.p.name} asegura haber visto un ángel sobre el río. Acuden peregrinos.`
       : narFe(c.f) === "zoroastra"
         ? `Los magos reavivan el fuego sagrado del templo de ${c.cap.name}.`
-        : `Los ancianos de ${c.p.name} sacrifican un caballo blanco para que el verano sea largo.`,
+        : narAmerica(c.f)
+          ? `En lo alto del templo de ${c.p.name} se quema copal para que las lluvias lleguen a tiempo.`
+          : `Los ancianos de ${c.p.name} sacrifican un caballo blanco para que el verano sea largo.`,
   (c) => `Una nube de langosta oscurece el cielo sobre ${c.p.name}, pero pasa de largo.`,
   (c) => {
     const L = c.N.leg;
@@ -2643,7 +2647,7 @@ function narTextoEpilogo(f) {
   const w =
     G.over && G.over.win != null ? G.over.win : G.human.find((x) => alive(x) && owned(x).length >= need);
   const ab = gano
-    ? `En el año ${G.year}, ${narPueblo(f)} domina ${k} de ${G.P.length} provincias. Ningún otro pueblo puede ya disputarle la herencia de Roma.`
+    ? `En el año ${G.year}, ${narPueblo(f)} domina ${k} de ${G.P.length} provincias. Ningún otro pueblo puede ya disputarle ${narLey() ? "el mundo" : "la herencia de Roma"}.`
     : !vivo
       ? `En el año ${G.year} cayó la última ciudad de ${narPueblo(f)}. Sus estandartes ardieron, y su nombre quedó solo en las crónicas de los vencedores.`
       : w != null && w >= 0 && w !== f
@@ -2674,3 +2678,1888 @@ function narTextoEpilogo(f) {
   ]);
   return `<p>${narFrase(ab)}</p><p>${ver}</p>${eps.length ? `<p>${eps.join(" ")}</p>` : ""}<p class="dim">Reinaron en tu linaje: ${reyes}.</p><p class="stats">${N.vic} conquistas · ${N.bat} batallas ganadas · ${N.dec.length} decisiones · hasta ${N.maxP} provincias</p><p class="nar-cierre">${cierre}</p>`;
 }
+
+/* =====================================================================================
+   MUNDO DE LEYENDAS (G.modo === 'leyendas'): prólogos de los 19 pueblos, arcos culturales de los
+   12 pueblos nuevos (por id) y arcos de «choque de mundos». Escalonados por año (campo y).
+   ===================================================================================== */
+
+/* mundos: América, Oriente lejano y el Viejo Mundo (todo lo demás) */
+const NAR_MUNDO = {
+  inc: "america",
+  may: "america",
+  azt: "america",
+  chi: "oriente",
+  ind: "oriente",
+  mon: "oriente",
+};
+const narMundoDe = (f) => NAR_MUNDO[narId0(f)] || "viejo";
+/* el primer pueblo de otro mundo con el que linda f (o, pasado el 450, el que manda embajadores) */
+function narContacto(f) {
+  const m = narMundoDe(f);
+  if (typeof MAP !== "undefined" && MAP && MAP.adj)
+    for (const p of owned(f))
+      for (const i of MAP.adj[p.id] || []) {
+        const g = G.P[i] && G.P[i].owner;
+        if (g != null && g < NF && g !== f && narMundoDe(g) !== m) return g;
+      }
+  if (G.year < 450) return null;
+  const lejos = [...Array(NF).keys()].filter((g) => g !== f && alive(g) && narMundoDe(g) !== m);
+  return lejos.length ? lejos[0] : null;
+}
+const NAR_CULTIVOS = {
+  america: "el maíz, la patata, el cacao y el tomate",
+  oriente: "el arroz, el té, la caña de azúcar y la morera",
+  viejo: "el trigo, la vid, el olivo y la cebada",
+};
+/* arco cultural de un pueblo nuevo (solo en leyendas) */
+const narArcoLey = (id, t, caps, fines, finDef) => ({
+  id: "ley_" + id,
+  t,
+  ley: true,
+  para: (f) => narEs(f, id),
+  caps,
+  fines,
+  finDef,
+});
+
+const NAR_ARCOS_LEY = [
+  /* ---------- nórdicos ---------- */
+  narArcoLey(
+    "nor",
+    "Las sagas del Norte",
+    [
+      {
+        id: "nor1",
+        t: "El thing",
+        y: 412,
+        d: (c) =>
+          `Los hombres libres se reúnen en el thing, junto a la piedra de la ley. Un jarl acusa a otro de haber quemado su granja con la familia dentro. Todos miran a ${narTit(c.r)}: la ley es lo que el thing decide, pero el thing escucha a quien tiene más espadas.`,
+        o: [
+          {
+            t: "Que decida el thing",
+            tip: "+3 orden durante 8 años",
+            ef: (c) => narEf(c.f, "orden", 3, 8, "La ley del thing"),
+            leg: { sa: 4 },
+          },
+          {
+            t: "Declarar proscrito al incendiario",
+            tip: "+5 orden",
+            ef: (c) => narOrden(c.f, 5),
+            leg: { cr: 3 },
+          },
+          {
+            t: "Que lo resuelvan en holmgang",
+            prob: 0.5,
+            px: "las espadas deciden",
+            si: (c) => {
+              narOrden(c.f, 6);
+              return "El acusado cae en el círculo de pieles. Nadie discute la sentencia de los dioses: +6 orden.";
+            },
+            no: (c) => {
+              narOrden(c.f, -6);
+              return "Gana el incendiario. La familia del muerto jura venganza: −6 orden.";
+            },
+            leg: { gl: 3 },
+          },
+        ],
+      },
+      {
+        id: "nor2",
+        t: "Naves con proa de dragón",
+        y: 428,
+        d: () =>
+          "Las naves largas esperan en la playa, calafateadas con brea y con la proa tallada en forma de dragón. Los jóvenes quieren oro y fama; los viejos recuerdan que el mar se traga a uno de cada tres.",
+        o: [
+          {
+            t: "Saquear las costas del sur",
+            tip: "+60 oro; −15 relación con un vecino",
+            ef: (c) => {
+              OC.ganar(c.f, { oro: 60 });
+              const g = c.own.length ? pick(narVecinos(c.f)) : null;
+              if (g != null) relAdd(c.f, g, -15);
+            },
+            leg: { gl: 5, cr: 2 },
+            mk: "nor_vikingo",
+            cr: (c) => `Las naves de ${narTit(c.r)} vuelven cargadas de plata de monasterios ajenos.`,
+          },
+          {
+            t: "Comerciar en los ríos del este",
+            tip: "+6 oro al año durante 10 años",
+            ef: (c) => narEf(c.f, "oro", 6, 10, "La ruta del ámbar"),
+            leg: { sa: 3 },
+          },
+          {
+            t: "Buscar tierras nuevas al oeste",
+            prob: 0.45,
+            px: "el mar es grande",
+            si: (c) => {
+              narEf(c.f, "comida", 4, 12, "La tierra del vino");
+              return "Tras semanas de niebla, las naves encuentran una tierra verde donde crecen uvas silvestres (+4 comida al año).";
+            },
+            no: (c) => {
+              narTropa(c.cap, "i", -2);
+              return "Dos naves no vuelven. Las viudas miran el mar todas las tardes.";
+            },
+            leg: { gl: 4 },
+          },
+        ],
+      },
+      {
+        id: "nor3",
+        t: "La profecía de la völva",
+        y: 460,
+        d: () =>
+          "Una vidente ciega recorre las granjas cantando la profecía: el lobo devorará el sol, la serpiente saldrá del mar y los dioses morirán en la última batalla. Los guerreros afilan las hachas; las madres esconden a los niños.",
+        o: [
+          {
+            t: "Prepararse para la última batalla",
+            tip: "+8% en batalla durante 10 años",
+            ef: (c) => narEf(c.f, "batalla", 0.08, 10, "Hijos del Ragnarök"),
+            leg: { gl: 4 },
+          },
+          {
+            t: "Gran sacrificio en el templo de los dioses",
+            coste: { oro: 30 },
+            tip: "+5 orden",
+            ef: (c) => narOrden(c.f, 5),
+            leg: { pi: 6 },
+          },
+          {
+            t: "Escuchar a los misioneros del Cristo blanco",
+            tip: "+10 relación con los cristianos",
+            ef: (c) => relFe(c.f, "niceno", 10),
+            leg: { sa: 2 },
+            mk: "nor_cristo",
+          },
+        ],
+      },
+      {
+        id: "nor4",
+        t: "El skald",
+        y: 505,
+        d: (c) =>
+          `Un skald de lengua afilada ha compuesto la saga de la casa de ${c.r.n}: cuarenta estrofas de sangre, oro y naves. Pide un brazalete de oro por cada estrofa. Las sagas viven más que los reyes.`,
+        o: [
+          {
+            t: "Pagarle en brazaletes de oro",
+            coste: { oro: 25 },
+            tip: "+5% diplomacia durante 12 años",
+            ef: (c) => narEf(c.f, "diplo", 0.05, 12, "La saga de la casa"),
+            leg: { gl: 6 },
+            fin: "saga",
+          },
+          { t: "Que cante también las derrotas", leg: { sa: 4 }, fin: "verdad" },
+          { t: "Cortarle la lengua por una burla", leg: { cr: 4 }, fin: "silencio" },
+        ],
+      },
+    ],
+    {
+      saga: {
+        t: "La saga de la casa",
+        d: "Tus hazañas se cantan en todos los salones del Norte.",
+        ep: "Su saga se cantó en los salones del Norte durante siglos.",
+      },
+      verdad: {
+        t: "La saga verdadera",
+        d: "Una saga que cuenta también las derrotas.",
+        ep: "Pidió a su skald que cantara también las derrotas, y por eso se le creyó lo demás.",
+      },
+      silencio: {
+        t: "La lengua cortada",
+        d: "El skald no volverá a cantar.",
+        ep: "Cortó la lengua a un skald; los demás cantaron eso en su lugar.",
+      },
+    },
+  ),
+
+  /* ---------- aztecas ---------- */
+  narArcoLey(
+    "azt",
+    "El Quinto Sol",
+    [
+      {
+        id: "azt1",
+        t: "El águila sobre el nopal",
+        y: 412,
+        d: () =>
+          "Los sacerdotes han visto la señal que anunció Huitzilopochtli: un águila posada sobre un nopal, devorando una serpiente, en un islote del lago. Allí debe alzarse la ciudad del pueblo, dicen, aunque sea entre juncos y barro.",
+        o: [
+          {
+            t: "Fundar la ciudad sobre el lago",
+            coste: { oro: 30 },
+            tip: "+5 comida al año durante 12 años (chinampas)",
+            ef: (c) => narEf(c.f, "comida", 5, 12, "Jardines flotantes"),
+            leg: { pi: 4, sa: 2 },
+            cr: (c) => `${narTit(c.r)} funda la ciudad del lago donde el águila devoró a la serpiente.`,
+          },
+          {
+            t: "Construir calzadas hacia la orilla",
+            tip: "+3 orden durante 10 años",
+            ef: (c) => narEf(c.f, "orden", 3, 10, "Las calzadas del lago"),
+            leg: { sa: 3 },
+          },
+        ],
+      },
+      {
+        id: "azt2",
+        t: "La guerra florida",
+        y: 432,
+        d: () =>
+          "Los señores de las ciudades vecinas proponen un pacto antiguo: guerras concertadas, en fecha fija, no para conquistar sino para capturar prisioneros que alimenten a los dioses. Los guerreros jóvenes ganarían su primer cautivo.",
+        o: [
+          {
+            t: "Concertar guerras floridas",
+            tip: "+6% en batalla durante 10 años; −10 relación con un vecino",
+            ef: (c) => {
+              narEf(c.f, "batalla", 0.06, 10, "Guerreros floridos");
+              const g = pick(narVecinos(c.f));
+              if (g != null) relAdd(c.f, g, -10);
+            },
+            leg: { pi: 4, cr: 3 },
+            mk: "azt_florida",
+          },
+          { t: "Solo guerras de conquista", leg: { gl: 4 } },
+          {
+            t: "Pedir tributo en lugar de cautivos",
+            tip: "+4 oro al año durante 10 años",
+            ef: (c) => narEf(c.f, "oro", 4, 10, "Tributo de los vecinos"),
+            leg: { sa: 3 },
+          },
+        ],
+      },
+      {
+        id: "azt3",
+        t: "El Quinto Sol",
+        y: 466,
+        d: () =>
+          "El sol ha salido pálido tres días seguidos. Los sacerdotes recuerdan que este es el Quinto Sol, y que los cuatro anteriores murieron. Exigen corazones en el templo mayor, muchos, para que el sol no se detenga.",
+        o: [
+          {
+            t: "Gran sacrificio en el templo mayor",
+            tip: "+6 orden durante 8 años",
+            ef: (c) => narEf(c.f, "orden", 6, 8, "El sol alimentado"),
+            leg: { pi: 6, cr: 6 },
+            mk: "azt_sangre",
+          },
+          {
+            t: "Ofrecer flores y mariposas, como pedía Quetzalcóatl",
+            prob: (c) => 0.4 + c.r.di * 0.05,
+            px: (c) => `según la elocuencia de ${c.r.n}`,
+            si: (c) => {
+              narOrden(c.f, 6);
+              return "El sol vuelve a brillar entero. El pueblo canta a la Serpiente Emplumada: +6 orden.";
+            },
+            no: (c) => {
+              narOrden(c.f, -10);
+              return "Los sacerdotes acusan al soberano de impiedad, y el pueblo los escucha: −10 orden.";
+            },
+            leg: { sa: 5 },
+            mk: (c, ok) => (ok ? "azt_serpiente" : "azt_sangre"),
+          },
+        ],
+      },
+      {
+        id: "azt4",
+        t: "El fuego nuevo",
+        y: 516,
+        d: () =>
+          "Se cierra un ciclo de cincuenta y dos años. Esta noche se apagan todos los fuegos del imperio y se rompen los cacharros viejos. Si los sacerdotes logran encender el fuego nuevo en el pecho de un cautivo, el mundo durará otro ciclo.",
+        o: [
+          {
+            t: "Celebrar la atadura de los años",
+            coste: { comida: 10 },
+            tip: "+8 orden",
+            ef: (c) => narOrden(c.f, 8),
+            leg: { pi: 4 },
+          },
+          { t: "Encender el fuego sin sangre", tip: "+4 orden", ef: (c) => narOrden(c.f, 4), leg: { sa: 3 } },
+        ],
+      },
+    ],
+    {
+      sangre: {
+        t: "El sol de sangre",
+        d: "El sol sigue saliendo, alimentado de corazones.",
+        ep: "Alimentó al Quinto Sol con la sangre de sus cautivos, y el sol no se detuvo.",
+      },
+      serpiente: {
+        t: "La Serpiente Emplumada",
+        d: "Flores en lugar de corazones.",
+        ep: "Ofreció flores al sol en lugar de corazones, como pedía la Serpiente Emplumada.",
+      },
+    },
+    (c) => (narTiene(c.f, "azt_serpiente") && !narTiene(c.f, "azt_sangre") ? "serpiente" : "sangre"),
+  ),
+
+  /* ---------- incas ---------- */
+  narArcoLey(
+    "inc",
+    "Los cuatro suyos",
+    [
+      {
+        id: "inc1",
+        t: "La mita",
+        y: 412,
+        d: (c) =>
+          `Cada ayllu debe al Inca su turno de trabajo, la mita. Este año ${narTit(c.r)} decide a qué se dedicarán los brazos de los cuatro suyos.`,
+        o: [
+          {
+            t: "Mita en las terrazas de cultivo",
+            tip: "+5 comida al año durante 12 años",
+            ef: (c) => narEf(c.f, "comida", 5, 12, "Andenes de las montañas"),
+            leg: { sa: 3 },
+          },
+          {
+            t: "Mita guerrera",
+            tip: "+3 infantería en la capital",
+            ef: (c) => narTropa(c.cap, "i", 3),
+            leg: { gl: 3 },
+          },
+          { t: "Mita en los templos del Sol", tip: "+5 orden", ef: (c) => narOrden(c.f, 5), leg: { pi: 4 } },
+        ],
+      },
+      {
+        id: "inc2",
+        t: "El camino del Inca",
+        y: 435,
+        d: () =>
+          "Los chasquis corren de posta en posta con los quipus y llevan un mensaje de un extremo al otro del imperio en pocos días. Los ingenieros proponen tender puentes colgantes sobre los abismos y tambos con grano cada jornada de camino.",
+        o: [
+          {
+            t: "Puentes colgantes y tambos en todo el imperio",
+            coste: { oro: 40 },
+            tip: "+4 orden durante 15 años",
+            ef: (c) => narEf(c.f, "orden", 4, 15, "El camino del Inca"),
+            leg: { sa: 5 },
+            cr: (c) =>
+              `${narTit(c.r)} tiende puentes de fibra sobre los abismos y siembra de tambos el camino real.`,
+          },
+          {
+            t: "Solo los caminos del ejército",
+            tip: "+5% en batalla durante 10 años",
+            ef: (c) => narEf(c.f, "batalla", 0.05, 10, "Caminos de guerra"),
+            leg: { gl: 2 },
+          },
+        ],
+      },
+      {
+        id: "inc3",
+        t: "Los quipus",
+        y: 465,
+        d: () =>
+          "Los quipucamayoc, guardianes de las cuerdas anudadas, ofrecen contar cada llama, cada costal de maíz y cada hombre del imperio. Nada se escribe; todo se anuda.",
+        o: [
+          {
+            t: "Censo de todo el imperio",
+            tip: "+6 oro al año durante 12 años",
+            ef: (c) => narEf(c.f, "oro", 6, 12, "El censo de las cuerdas"),
+            leg: { sa: 5 },
+          },
+          {
+            t: "Quipus para la memoria de los reyes",
+            tip: "+4 orden",
+            ef: (c) => narOrden(c.f, 4),
+            leg: { pi: 3, gl: 3 },
+          },
+        ],
+      },
+      {
+        id: "inc4",
+        t: "Los mitimaes",
+        y: 510,
+        d: () =>
+          "Un pueblo recién sometido se niega a adorar al Sol. Los consejeros proponen la vieja solución: trasladarlo entero a otra punta del imperio y traer en su lugar a colonos leales.",
+        o: [
+          {
+            t: "Trasladar a los rebeldes",
+            tip: "+5 orden durante 10 años",
+            ef: (c) => narEf(c.f, "orden", 5, 10, "Los mitimaes"),
+            leg: { cr: 5 },
+            fin: "mitimaes",
+          },
+          {
+            t: "Integrarlos con fiestas y regalos",
+            coste: { comida: 15 },
+            tip: "+5 orden",
+            ef: (c) => narOrden(c.f, 5),
+            leg: { pi: 3, sa: 2 },
+            fin: "reciprocidad",
+          },
+        ],
+      },
+    ],
+    {
+      mitimaes: {
+        t: "Pueblos trasplantados",
+        d: "Nadie se rebela dos veces en el Tahuantinsuyo.",
+        ep: "Trasladó pueblos enteros de un extremo al otro del imperio para que nadie se rebelara dos veces.",
+      },
+      reciprocidad: {
+        t: "La reciprocidad",
+        d: "Los vencidos comen en la mesa del Inca.",
+        ep: "Gobernó por la reciprocidad: el que daba trabajo recibía fiesta.",
+      },
+    },
+  ),
+
+  /* ---------- mayas ---------- */
+  narArcoLey(
+    "may",
+    "La cuenta larga",
+    [
+      {
+        id: "may1",
+        t: "La cuenta larga",
+        y: 412,
+        d: () =>
+          "Los sacerdotes astrónomos han terminado sus cálculos: se cierra un k'atun de la cuenta larga y hay que levantar una estela que lo recuerde. Discuten si debe hablar de los dioses o de las victorias del señor.",
+        o: [
+          {
+            t: "Una estela con las victorias del señor",
+            coste: { oro: 25 },
+            tip: "+4 orden",
+            ef: (c) => narOrden(c.f, 4),
+            leg: { gl: 4 },
+          },
+          {
+            t: "Que los sacerdotes sigan contando",
+            tip: "+8% investigación durante 10 años",
+            ef: (c) => narEf(c.f, "invest", 0.08, 10, "La cuenta de los días"),
+            leg: { sa: 5 },
+          },
+        ],
+      },
+      {
+        id: "may2",
+        t: "El juego de pelota",
+        y: 440,
+        prep: (c) => {
+          c.g = pick(narVecinos(c.f));
+        },
+        d: (c) =>
+          `${c.g != null ? `El señor de ${narPueblo(c.g)}` : "Un señor vecino"} propone resolver una disputa de tierras en la cancha: el que pase la pelota por el aro de piedra se queda con el valle.`,
+        o: [
+          {
+            t: "Jugar el partido",
+            prob: 0.5,
+            px: "la pelota es caprichosa",
+            si: (c) => {
+              OC.ganar(c.f, { oro: 40 });
+              return "Tu jugador pasa la pelota por el aro con la cadera. El valle y su tributo son tuyos: +40 oro.";
+            },
+            no: (c) => {
+              narOrden(c.f, -5);
+              return "Pierdes el partido, el valle y un poco de prestigio: −5 orden.";
+            },
+            leg: { gl: 2 },
+          },
+          {
+            t: "Sacrificar a los jugadores perdedores",
+            tip: "+4 orden",
+            ef: (c) => narOrden(c.f, 4),
+            leg: { cr: 4, pi: 2 },
+          },
+          { t: "Decidirlo con la guerra", leg: { gl: 4 } },
+        ],
+      },
+      {
+        id: "may3",
+        t: "La gran sequía",
+        y: 475,
+        d: () =>
+          "Tres años sin lluvias. Los aljibes se agrietan, el maíz no sale y las ciudades del sur empiezan a vaciarse: la gente se marcha a la selva con lo que puede cargar.",
+        o: [
+          {
+            t: "Excavar chultunes en cada ciudad",
+            coste: { oro: 40 },
+            tip: "+4 comida al año durante 12 años",
+            ef: (c) => narEf(c.f, "comida", 4, 12, "Los aljibes"),
+            leg: { sa: 4 },
+          },
+          {
+            t: "Rogar a Chaac con ofrendas",
+            prob: (c) => 0.35 + c.N.leg.pi * 0.004,
+            px: "según tu piedad",
+            si: (c) => {
+              narOrden(c.f, 8);
+              return "Las nubes vuelven del mar. El pueblo baila bajo la lluvia: +8 orden.";
+            },
+            no: (c) => {
+              narEf(c.f, "comida", -4, 4, "Sequía");
+              return "La lluvia no llega: −4 comida al año durante 4 años.";
+            },
+            leg: { pi: 3 },
+          },
+        ],
+      },
+      {
+        id: "may4",
+        t: "La serpiente emplumada",
+        y: 520,
+        d: () =>
+          "Llegan del oeste guerreros y sacerdotes de un culto nuevo: Kukulkán, la serpiente emplumada. Traen pirámides con escalinatas, columnas de guerreros y la promesa de una alianza.",
+        o: [
+          {
+            t: "Acoger el nuevo culto",
+            tip: (c) => (alive(civIdx("azt")) ? "+15 relación con los mexicas" : "+4 orden"),
+            ef: (c) => {
+              const a = civIdx("azt");
+              if (a >= 0 && alive(a)) relAdd(c.f, a, 15);
+              else narOrden(c.f, 4);
+            },
+            leg: { sa: 3 },
+            fin: "kukulkan",
+          },
+          {
+            t: "Fieles a los dioses de las ciudades",
+            tip: "+4 orden",
+            ef: (c) => narOrden(c.f, 4),
+            leg: { pi: 3 },
+            fin: "antiguos",
+          },
+        ],
+      },
+    ],
+    {
+      kukulkan: {
+        t: "Kukulkán",
+        d: "La serpiente emplumada desciende por tus escalinatas.",
+        ep: "Abrió sus ciudades al culto de la serpiente emplumada, y sus pirámides se llenaron de peregrinos.",
+      },
+      antiguos: {
+        t: "Los dioses de las ciudades",
+        d: "Tus ciudades guardan a sus viejos dioses.",
+        ep: "Guardó la fe de las viejas ciudades cuando el culto nuevo llegaba del oeste.",
+      },
+    },
+  ),
+
+  /* ---------- chinos ---------- */
+  narArcoLey(
+    "chi",
+    "El Mandato del Cielo",
+    [
+      {
+        id: "chi1",
+        t: "El examen imperial",
+        y: 412,
+        d: () =>
+          "Los letrados proponen que los cargos del imperio se ganen por examen: quien conozca mejor los clásicos gobernará una prefectura, sea hijo de un gran señor o de un campesino.",
+        o: [
+          {
+            t: "Abrir los cargos al examen",
+            tip: "+4 oro al año durante 15 años",
+            ef: (c) => narEf(c.f, "oro", 4, 15, "Mandarines por examen"),
+            leg: { sa: 6 },
+          },
+          {
+            t: "Los cargos para las grandes familias",
+            tip: "+5 orden",
+            ef: (c) => narOrden(c.f, 5),
+            leg: { cr: 1, gl: 1 },
+          },
+        ],
+      },
+      {
+        id: "chi2",
+        t: "La Gran Muralla",
+        y: 438,
+        d: () =>
+          "Los nómadas del norte han vuelto a cruzar la muralla por un tramo derrumbado. El ministro de obras pide cien mil hombres y diez años; el ministro de la guerra, caballos y una campaña en la estepa.",
+        o: [
+          {
+            t: "Reparar la muralla",
+            coste: { oro: 60 },
+            tip: "+12% al defender durante 15 años",
+            ef: (c) => narEf(c.f, "batalla", 0.12, 15, "La Gran Muralla", null, "defensor"),
+            leg: { sa: 3, gl: 2 },
+          },
+          {
+            t: "Llevar la guerra a la estepa",
+            prob: (c) => 0.4 + c.r.ma * 0.05,
+            px: (c) => `según el mando de ${c.r.n}`,
+            si: (c) => {
+              narEf(c.f, "batalla", 0.06, 8, "Vencedores de la estepa");
+              return "Las tiendas de los nómadas arden hasta el horizonte (+6% en batalla, 8 años).";
+            },
+            no: (c) => {
+              narTropa(c.cap, "i", -3);
+              return "La estepa se traga al ejército, como siempre.";
+            },
+            leg: { gl: 4 },
+          },
+          { t: "Pagar a los nómadas con seda", coste: { oro: 30 }, leg: { sa: 2 } },
+        ],
+      },
+      {
+        id: "chi3",
+        t: "Las señales del Cielo",
+        y: 470,
+        d: (c) =>
+          `El río Amarillo se ha desbordado, un cometa cruza el cielo y en las aldeas se dice que ${narTit(c.r)} ha perdido el Mandato del Cielo. Los astrólogos esperan órdenes.`,
+        o: [
+          { t: "Edicto de autocrítica", tip: "+6 orden", ef: (c) => narOrden(c.f, 6), leg: { pi: 3, sa: 3 } },
+          { t: "Reprimir a los adivinos", tip: "+3 orden", ef: (c) => narOrden(c.f, 3), leg: { cr: 5 } },
+          {
+            t: "Cambiar el nombre de la era",
+            tip: "+3 orden durante 8 años",
+            ef: (c) => narEf(c.f, "orden", 3, 8, "Era nueva"),
+            leg: { sa: 2 },
+          },
+        ],
+      },
+      {
+        id: "chi4",
+        t: "El Gran Canal",
+        y: 520,
+        d: () =>
+          "Los ingenieros presentan un plano imposible: un canal que una el río Amarillo con el Yangtsé, para que el arroz del sur llegue a la capital del norte sin pasar por el mar.",
+        o: [
+          {
+            t: "Excavarlo con trabajadores pagados",
+            coste: { oro: 80 },
+            tip: "+6 comida y +4 oro al año durante 15 años",
+            ef: (c) => {
+              narEf(c.f, "comida", 6, 15, "El Gran Canal");
+              narEf(c.f, "oro", 4, 15, "Barcazas del canal");
+            },
+            leg: { sa: 5 },
+            fin: "canal",
+          },
+          {
+            t: "Excavarlo con trabajos forzados",
+            tip: "+6 comida al año (15 años); −6 orden durante 6",
+            ef: (c) => {
+              narEf(c.f, "comida", 6, 15, "El Gran Canal");
+              narEf(c.f, "orden", -6, 6, "Los muertos del canal");
+            },
+            leg: { cr: 6 },
+            fin: "canal_sangre",
+          },
+          { t: "No tentar al Cielo", leg: { pi: 2 }, fin: "mandato" },
+        ],
+      },
+    ],
+    {
+      canal: {
+        t: "El Gran Canal",
+        d: "El arroz del sur llega en barcazas a la capital.",
+        ep: "Unió los dos grandes ríos con un canal, y el arroz del sur alimentó al norte.",
+      },
+      canal_sangre: {
+        t: "Un canal de huesos",
+        d: "El canal está hecho; los muertos también.",
+        ep: "Su canal unió los ríos, pero se dice que en el fondo hay más huesos que piedras.",
+      },
+      mandato: {
+        t: "El Mandato conservado",
+        d: "El Cielo no retiró su favor.",
+        ep: "Gobernó con prudencia, y el Cielo no le retiró el Mandato.",
+      },
+    },
+  ),
+
+  /* ---------- egipcios ---------- */
+  narArcoLey(
+    "egi",
+    "El don del Nilo",
+    [
+      {
+        id: "egi1",
+        t: "La crecida del Nilo",
+        y: 412,
+        d: () =>
+          "El nilómetro marca una crecida pobre: el limo no cubrirá los campos altos. Los escribas calculan ya cuánto faltará en los graneros, y los recaudadores preguntan si se cobrará el impuesto entero.",
+        o: [
+          {
+            t: "Abrir los graneros del reino",
+            coste: { comida: 15 },
+            tip: "+10 orden",
+            ef: (c) => narOrden(c.f, 10),
+            leg: { pi: 3 },
+          },
+          {
+            t: "Cobrar el impuesto igual",
+            tip: "+40 oro, −10 orden",
+            ef: (c) => {
+              OC.ganar(c.f, { oro: 40 });
+              narOrden(c.f, -10);
+            },
+            leg: { cr: 3 },
+          },
+          {
+            t: "Ofrendas a Hapi para el año que viene",
+            prob: 0.55,
+            si: (c) => {
+              narEf(c.f, "comida", 5, 3, "Crecida generosa");
+              return "La crecida siguiente es la mayor que recuerdan los viejos (+5 comida al año durante 3 años).";
+            },
+            no: () => "El río no escucha. Al menos los sacerdotes comen bien.",
+            leg: { pi: 3 },
+          },
+        ],
+      },
+      {
+        id: "egi2",
+        t: "La biblioteca",
+        y: 440,
+        d: () =>
+          "De la gran biblioteca de Alejandría quedan estantes vacíos y algunos rollos chamuscados. Un viejo bibliotecario se ofrece a reunir copias de todo el mundo, si el rey paga barcos y copistas.",
+        o: [
+          {
+            t: "Reconstruir la biblioteca",
+            coste: { oro: 50 },
+            tip: "+12% investigación durante 15 años",
+            ef: (c) => narEf(c.f, "invest", 0.12, 15, "La biblioteca renacida"),
+            leg: { sa: 6 },
+          },
+          {
+            t: "Copiar solo los libros de los templos",
+            tip: "+4 orden",
+            ef: (c) => narOrden(c.f, 4),
+            leg: { pi: 3 },
+          },
+        ],
+      },
+      {
+        id: "egi3",
+        t: "Los últimos sacerdotes de Isis",
+        y: 472,
+        d: () =>
+          "En la isla de Filé, los últimos sacerdotes que saben leer los jeroglíficos siguen cantando a Isis. Los predicadores de otras fes piden que se cierre el templo; los sacerdotes, que se les proteja.",
+        o: [
+          {
+            t: "Proteger el templo de Filé",
+            tip: "+4 orden",
+            ef: (c) => narOrden(c.f, 4),
+            leg: { pi: 5, sa: 2 },
+            mk: "egi_isis",
+          },
+          {
+            t: "Cerrar los templos antiguos",
+            tip: "+20 oro de sus tesoros",
+            ef: (c) => OC.ganar(c.f, { oro: 20 }),
+            leg: { cr: 3 },
+          },
+        ],
+      },
+      {
+        id: "egi4",
+        t: "El canal de los faraones",
+        y: 522,
+        d: () =>
+          "Un ingeniero ha encontrado bajo la arena el trazado del canal que unía el Nilo con el mar Rojo en tiempos de los faraones. Reabrirlo traería las especias de la India hasta el Mediterráneo.",
+        o: [
+          {
+            t: "Reabrir el canal",
+            coste: { oro: 60 },
+            tip: "+7 oro al año durante 15 años",
+            ef: (c) => narEf(c.f, "oro", 7, 15, "El canal de los faraones"),
+            leg: { sa: 5 },
+            fin: "canal",
+          },
+          { t: "Que siga enterrado", leg: { pi: 1 }, fin: "arena" },
+        ],
+      },
+    ],
+    {
+      canal: {
+        t: "El mar Rojo y el Nilo",
+        d: "Las especias llegan por el viejo canal.",
+        ep: "Reabrió el canal de los faraones y las especias de la India llegaron por el Nilo.",
+      },
+      arena: {
+        t: "La arena",
+        d: "El canal sigue bajo la arena.",
+        ep: "Dejó el canal de los faraones bajo la arena, donde aún sigue.",
+      },
+    },
+  ),
+
+  /* ---------- griegos ---------- */
+  narArcoLey(
+    "gri",
+    "La Liga Helénica",
+    [
+      {
+        id: "gri1",
+        t: "El oráculo de Delfos",
+        y: 412,
+        d: () =>
+          "La Pitia, sentada sobre su trípode entre vapores, responde a la pregunta del rey sobre la guerra: «Si cruzas el río, un gran reino caerá». Los sacerdotes no aclaran cuál.",
+        o: [
+          {
+            t: "Cruzar el río confiando en el oráculo",
+            prob: 0.5,
+            px: "los oráculos nunca mienten, solo se equivocan quienes los oyen",
+            si: (c) => {
+              narEf(c.f, "batalla", 0.08, 6, "El oráculo cumplido");
+              return "Cae el reino del enemigo, como dijo la Pitia (+8% en batalla durante 6 años).";
+            },
+            no: (c) => {
+              narEf(c.f, "orden", -4, 4, "El oráculo cumplido");
+              return "El gran reino que cae es el tuyo... al menos su orgullo: −4 orden durante 4 años.";
+            },
+            leg: { gl: 3 },
+          },
+          {
+            t: "Ofrendas sin preguntar nada más",
+            coste: { oro: 20 },
+            tip: "+5 orden",
+            ef: (c) => narOrden(c.f, 5),
+            leg: { pi: 5 },
+          },
+          { t: "No creer en oráculos", leg: { sa: 3 } },
+        ],
+      },
+      {
+        id: "gri2",
+        t: "La asamblea",
+        y: 432,
+        d: (c) =>
+          `La asamblea de ciudadanos pide votar la guerra y los impuestos. Los aristócratas aconsejan a ${narTit(c.r)} que gobierne como los viejos tiranos: con mercenarios y sin preguntar.`,
+        o: [
+          {
+            t: "Que vote la asamblea",
+            tip: "+4 orden durante 10 años",
+            ef: (c) => narEf(c.f, "orden", 4, 10, "La asamblea"),
+            leg: { sa: 5 },
+          },
+          {
+            t: "Gobernar como tirano",
+            tip: "+5% en batalla durante 8 años",
+            ef: (c) => narEf(c.f, "batalla", 0.05, 8, "La tiranía"),
+            leg: { cr: 4 },
+          },
+          {
+            t: "Proponer el ostracismo de un rival",
+            req: (c) => narReq(narAdultos(c.f, (x) => x.id !== c.F.heir).length, "no hay rival en la corte"),
+            tip: "un noble parte al destierro; +3 orden",
+            ef: (c) => {
+              const x = pick(narAdultos(c.f, (x) => x.id !== c.F.heir));
+              if (x) kill(x, "parte al ostracismo, escrito su nombre en mil tejuelas");
+              narOrden(c.f, 3);
+            },
+            leg: { sa: 2 },
+          },
+        ],
+      },
+      {
+        id: "gri3",
+        t: "Los Juegos Olímpicos",
+        y: 464,
+        d: () =>
+          "Llega el año de los Juegos. Los heraldos recorren el mundo anunciando la tregua sagrada: ninguna ciudad debe guerrear mientras los atletas corren desnudos en Olimpia.",
+        o: [
+          {
+            t: "Celebrar los juegos y la tregua",
+            coste: { oro: 40 },
+            tip: "+8 orden y +5 relación con todos",
+            ef: (c) => {
+              narOrden(c.f, 8);
+              for (let g = 0; g < NF; g++) if (g !== c.f && alive(g)) relAdd(c.f, g, 5);
+            },
+            leg: { gl: 3, pi: 2 },
+          },
+          { t: "Solo enviar atletas", leg: { gl: 2 } },
+        ],
+      },
+      {
+        id: "gri4",
+        t: "La Academia",
+        y: 520,
+        d: () =>
+          "Los filósofos de la Academia piden patrocinio: discuten si el alma es inmortal, si el mundo es eterno y si un rey debería ser filósofo. Algunos consejeros creen que deberían discutir menos.",
+        o: [
+          {
+            t: "Patrocinar la Academia",
+            coste: { oro: 30 },
+            tip: "+12% investigación durante 12 años",
+            ef: (c) => narEf(c.f, "invest", 0.12, 12, "La Academia"),
+            leg: { sa: 6 },
+            fin: "academia",
+          },
+          {
+            t: "Que enseñen a los hijos de los guerreros",
+            tip: "+5% en batalla durante 8 años",
+            ef: (c) => narEf(c.f, "batalla", 0.05, 8, "Estrategas"),
+            leg: { gl: 3 },
+            fin: "estrategas",
+          },
+        ],
+      },
+    ],
+    {
+      academia: {
+        t: "El rey filósofo",
+        d: "La Academia florece bajo tu protección.",
+        ep: "Protegió a los filósofos, y algunos dijeron que él mismo lo era.",
+      },
+      estrategas: {
+        t: "Filósofos con espada",
+        d: "Tus generales leen a Jenofonte.",
+        ep: "Hizo que sus generales leyeran a los filósofos antes de mandar ejércitos.",
+      },
+    },
+  ),
+
+  /* ---------- indios ---------- */
+  narArcoLey(
+    "ind",
+    "La rueda del dharma",
+    [
+      {
+        id: "ind1",
+        t: "La sangha",
+        y: 412,
+        d: () =>
+          "Los monjes de la sangha piden tierras para un gran monasterio donde enseñar lógica, medicina y gramática a estudiantes de toda Asia. Los brahmanes recuerdan que los dioses antiguos también tienen templos que reparar.",
+        o: [
+          {
+            t: "Fundar el gran monasterio",
+            coste: { oro: 40 },
+            tip: "+12% investigación durante 15 años",
+            ef: (c) => narEf(c.f, "invest", 0.12, 15, "El gran monasterio"),
+            leg: { sa: 6 },
+          },
+          { t: "Apoyar a los brahmanes", tip: "+5 orden", ef: (c) => narOrden(c.f, 5), leg: { pi: 5 } },
+          {
+            t: "Ambos, como corresponde a un rey justo",
+            req: (c) => narStat(c.r, "di", 5),
+            coste: { oro: 40 },
+            tip: "+8% investigación (12 años), +3 orden",
+            ef: (c) => {
+              narEf(c.f, "invest", 0.08, 12, "El gran monasterio");
+              narOrden(c.f, 3);
+            },
+            leg: { sa: 3, pi: 3 },
+          },
+        ],
+      },
+      {
+        id: "ind2",
+        t: "El mercader y la casta",
+        y: 440,
+        d: () =>
+          "Un mercader inmensamente rico, de casta baja, quiere comprar un título y una esposa de familia guerrera. Ofrece oro suficiente para pagar a un ejército. Los brahmanes se tapan los oídos.",
+        o: [
+          {
+            t: "Concederle el título",
+            tip: "+50 oro, −5 orden",
+            ef: (c) => {
+              OC.ganar(c.f, { oro: 50 });
+              narOrden(c.f, -5);
+            },
+            leg: { sa: 2 },
+          },
+          { t: "Rechazarlo", tip: "+3 orden", ef: (c) => narOrden(c.f, 3), leg: { pi: 3 } },
+        ],
+      },
+      {
+        id: "ind3",
+        t: "Los hunos blancos",
+        y: 470,
+        d: () =>
+          "Por los pasos del noroeste bajan los hunos blancos, jinetes que ya han humillado a Persia. Las ciudades del Punjab arden. Los generales piden elefantes; los ministros, oro para pagarles.",
+        o: [
+          {
+            t: "Elefantes contra caballos",
+            prob: (c) => 0.45 + c.r.ma * 0.04,
+            px: (c) => `según el mando de ${c.r.n}`,
+            si: (c) => {
+              narEf(c.f, "batalla", 0.08, 8, "Los elefantes del rey");
+              return "Los caballos de los hunos no soportan el olor de los elefantes. La horda huye (+8% en batalla, 8 años).";
+            },
+            no: (c) => {
+              narTropa(c.cap, "i", -3);
+              return "Los hunos rodean a los elefantes y los acribillan. El noroeste se pierde por un tiempo.";
+            },
+            leg: { gl: 5 },
+          },
+          { t: "Pagar tributo", coste: { oro: 50 }, leg: { sa: 2 } },
+        ],
+      },
+      {
+        id: "ind4",
+        t: "El cero",
+        y: 505,
+        d: () =>
+          "Un astrónomo de la corte presenta un tratado: con nueve cifras y un signo para la nada, el cero, puede escribir cualquier número y calcular el giro de la Tierra. Los contables lo miran con desconfianza.",
+        o: [
+          {
+            t: "Adoptar la nueva aritmética",
+            tip: "+5 oro al año durante 15 años",
+            ef: (c) => narEf(c.f, "oro", 5, 15, "La aritmética del cero"),
+            leg: { sa: 6 },
+            fin: "cero",
+          },
+          {
+            t: "Que estudie las estrellas",
+            tip: "+10% investigación durante 10 años",
+            ef: (c) => narEf(c.f, "invest", 0.1, 10, "El astrónomo"),
+            leg: { sa: 4 },
+            fin: "estrellas",
+          },
+        ],
+      },
+    ],
+    {
+      cero: {
+        t: "El signo de la nada",
+        d: "Tus contables cuentan con el cero.",
+        ep: "Bajo su reinado se aprendió a escribir la nada, y el mundo contó de otra manera.",
+      },
+      estrellas: {
+        t: "El giro de la Tierra",
+        d: "Tu astrónomo mide los cielos.",
+        ep: "Su astrónomo calculó el giro de la Tierra mientras los demás miraban la guerra.",
+      },
+    },
+  ),
+
+  /* ---------- árabes ---------- */
+  narArcoLey(
+    "ara",
+    "Las arenas de Arabia",
+    [
+      {
+        id: "ara1",
+        t: "La caravana del incienso",
+        y: 412,
+        d: () =>
+          "Mil camellos cargados de incienso y mirra esperan en el oasis para subir hacia el norte. Las tribus del desierto exigen su parte por dejar pasar la caravana; los mercaderes, protección.",
+        o: [
+          {
+            t: "Proteger las rutas",
+            coste: { oro: 30 },
+            tip: "+7 oro al año durante 12 años",
+            ef: (c) => narEf(c.f, "oro", 7, 12, "La ruta del incienso"),
+            leg: { sa: 3 },
+          },
+          {
+            t: "Cobrar peaje a las caravanas",
+            tip: "+40 oro",
+            ef: (c) => OC.ganar(c.f, { oro: 40 }),
+            leg: { cr: 1 },
+          },
+          {
+            t: "Asaltar la caravana de un rival",
+            tip: "+60 oro; −15 relación con un vecino",
+            ef: (c) => {
+              OC.ganar(c.f, { oro: 60 });
+              const g = pick(narVecinos(c.f));
+              if (g != null) relAdd(c.f, g, -15);
+            },
+            leg: { gl: 3, cr: 3 },
+          },
+        ],
+      },
+      {
+        id: "ara2",
+        t: "La feria de Ukaz",
+        y: 434,
+        d: () =>
+          "En la feria de Ukaz los poetas de todas las tribus compiten en versos. El poema vencedor se bordará en oro y se colgará en el santuario. Un poeta de tu casa espera tu favor; otro, de una tribu rival, canta mejor.",
+        o: [
+          {
+            t: "Premiar al poeta de tu casa",
+            coste: { oro: 20 },
+            tip: "+5% diplomacia durante 10 años",
+            ef: (c) => narEf(c.f, "diplo", 0.05, 10, "Los versos colgados"),
+            leg: { gl: 4 },
+          },
+          {
+            t: "Premiar al mejor, sea de quien sea",
+            tip: "+4 orden durante 8 años",
+            ef: (c) => narEf(c.f, "orden", 4, 8, "La justicia del verso"),
+            leg: { sa: 4 },
+          },
+        ],
+      },
+      {
+        id: "ara3",
+        t: "La presa de Marib",
+        y: 470,
+        d: () =>
+          "La gran presa de Marib, que riega el Yemen desde tiempos de la reina de Saba, se agrieta otra vez. Repararla exige miles de hombres; si cae, los jardines volverán a ser desierto y las tribus emigrarán.",
+        o: [
+          {
+            t: "Repararla",
+            coste: { oro: 50 },
+            tip: "+5 comida al año durante 15 años",
+            ef: (c) => narEf(c.f, "comida", 5, 15, "La presa de Marib"),
+            leg: { sa: 4 },
+          },
+          {
+            t: "Dejar que el desierto decida",
+            tip: "−3 comida al año durante 6 años",
+            ef: (c) => narEf(c.f, "comida", -3, 6, "La presa rota"),
+            leg: { gl: 1 },
+          },
+        ],
+      },
+      {
+        id: "ara4",
+        t: "El santuario",
+        y: 540,
+        d: () =>
+          "Peregrinos de toda Arabia acuden al santuario de la piedra negra. Los guardianes proponen declarar meses sagrados en los que nadie pueda guerrear, para que el comercio y la peregrinación prosperen.",
+        o: [
+          {
+            t: "Proclamar los meses sagrados",
+            tip: "+4 orden y +4 oro al año durante 10 años",
+            ef: (c) => {
+              narEf(c.f, "orden", 4, 10, "Los meses sagrados");
+              narEf(c.f, "oro", 4, 10, "La feria de los peregrinos");
+            },
+            leg: { pi: 5 },
+            fin: "santuario",
+          },
+          {
+            t: "Cobrar a los peregrinos",
+            tip: "+50 oro",
+            ef: (c) => OC.ganar(c.f, { oro: 50 }),
+            leg: { cr: 2 },
+            fin: "oro",
+          },
+        ],
+      },
+    ],
+    {
+      santuario: {
+        t: "Los meses sagrados",
+        d: "Hasta las tribus enemigas respetan la tregua.",
+        ep: "Proclamó meses de paz en torno al santuario, y el desierto aprendió a comerciar.",
+      },
+      oro: {
+        t: "El peaje de los peregrinos",
+        d: "Los peregrinos pagan por rezar.",
+        ep: "Cobró a los peregrinos por rezar, y los peregrinos lo recordaron.",
+      },
+    },
+  ),
+
+  /* ---------- celtas ---------- */
+  narArcoLey(
+    "cel",
+    "Los druidas",
+    [
+      {
+        id: "cel1",
+        t: "El consejo de los druidas",
+        y: 412,
+        d: (c) =>
+          `En el bosque sagrado, bajo los robles, los druidas juzgan una disputa entre dos clanes por un rebaño. ${narTit(c.r)} puede dejarles la sentencia o imponer la suya con la espada.`,
+        o: [
+          {
+            t: "Que juzguen los druidas",
+            tip: "+3 orden durante 10 años",
+            ef: (c) => narEf(c.f, "orden", 3, 10, "La ley de los robles"),
+            leg: { pi: 4, sa: 3 },
+          },
+          {
+            t: "La espada del rey juzga",
+            tip: "+5% en batalla durante 6 años",
+            ef: (c) => narEf(c.f, "batalla", 0.05, 6, "La espada del rey"),
+            leg: { gl: 3, cr: 2 },
+          },
+        ],
+      },
+      {
+        id: "cel2",
+        t: "El combate de campeones",
+        y: 434,
+        prep: (c) => {
+          c.pj = narAdultos(c.f, (x) => x.sex === "m").sort((a, b) => b.ma - a.ma)[0] || null;
+        },
+        d: (c) =>
+          `Un ejército vecino propone resolver la guerra como en las viejas historias: un campeón por cada bando, entre los dos ejércitos. ${c.pj ? `${narB(c.pj)} ya pide su lanza.` : "Nadie de tu casa da un paso al frente."}`,
+        o: [
+          {
+            t: (c) => (c.pj ? `Que luche ${c.pj.n}` : "Que luche un guerrero del clan"),
+            prob: (c) => 0.35 + (c.pj ? c.pj.ma : 4) * 0.06,
+            px: "según el mando del campeón",
+            si: (c) => {
+              narEf(c.f, "batalla", 0.06, 6, "La cabeza del campeón");
+              return "El campeón vuelve con la cabeza del rival colgada del cinto (+6% en batalla, 6 años).";
+            },
+            no: (c) => {
+              if (c.pj) kill(c.pj, "cae en combate singular ante los dos ejércitos");
+              return "El campeón cae, y con él el ánimo de los guerreros.";
+            },
+            leg: { gl: 4 },
+          },
+          { t: "Esto no es una historia: batalla", leg: { sa: 2 } },
+        ],
+      },
+      {
+        id: "cel3",
+        t: "Samhain",
+        y: 466,
+        d: () =>
+          "Llega Samhain, la noche en que el velo entre los mundos se adelgaza y los muertos caminan entre los vivos. Los druidas quieren encender las grandes hogueras y leer el futuro en las llamas.",
+        o: [
+          {
+            t: "Grandes hogueras en todas las colinas",
+            coste: { comida: 10 },
+            tip: "+6 orden",
+            ef: (c) => narOrden(c.f, 6),
+            leg: { pi: 3 },
+          },
+          {
+            t: "Que los druidas profeticen",
+            prob: 0.5,
+            si: (c) => {
+              narEf(c.f, "batalla", 0.06, 5, "La profecía de Samhain");
+              return "Las llamas hablan de victorias (+6% en batalla, 5 años).";
+            },
+            no: (c) => {
+              narOrden(c.f, -5);
+              return "Las llamas hablan de traiciones, y la corte empieza a mirarse con recelo: −5 orden.";
+            },
+            leg: { pi: 2 },
+          },
+        ],
+      },
+      {
+        id: "cel4",
+        t: "Los monjes del mar",
+        y: 510,
+        d: () =>
+          "Llegan por mar monjes de cabeza rapada por delante, que copian libros con dibujos de espirales y fundan monasterios en islas de roca. Los druidas ven en ellos rivales; tus bardos, nuevos oyentes.",
+        o: [
+          {
+            t: "Abrazar la fe de los monjes",
+            tip: "conversión; +15 relación con los cristianos",
+            ef: (c) => {
+              narConvertir(c.f, "niceno");
+              relFe(c.f, "niceno", 15);
+            },
+            leg: { pi: 5, sa: 2 },
+            fin: "monjes",
+          },
+          {
+            t: "Que convivan monjes y druidas",
+            tip: "+5% investigación durante 10 años",
+            ef: (c) => narEf(c.f, "invest", 0.05, 10, "Los libros de las islas"),
+            leg: { sa: 4 },
+            fin: "convivencia",
+          },
+          {
+            t: "Fieles a los robles",
+            tip: "+4 orden",
+            ef: (c) => narOrden(c.f, 4),
+            leg: { pi: 3 },
+            fin: "robles",
+          },
+        ],
+      },
+    ],
+    {
+      monjes: {
+        t: "La cruz de las islas",
+        d: "Tu pueblo es ya cristiano a su manera.",
+        ep: "Abrió su pueblo a los monjes del mar, que le dieron libros con espirales y una fe nueva.",
+      },
+      convivencia: {
+        t: "Robles y cruces",
+        d: "Druidas y monjes comparten los bosques.",
+        ep: "Dejó que druidas y monjes compartieran el bosque, y ninguno de los dos olvidó al otro.",
+      },
+      robles: {
+        t: "Los robles sagrados",
+        d: "Los druidas siguen juzgando bajo los robles.",
+        ep: "Mantuvo a los druidas bajo los robles cuando el mundo cambiaba de fe.",
+      },
+    },
+  ),
+
+  /* ---------- eslavos ---------- */
+  narArcoLey(
+    "esl",
+    "El veche",
+    [
+      {
+        id: "esl1",
+        t: "La campana del veche",
+        y: 412,
+        d: (c) =>
+          `Suena la campana y los hombres libres se reúnen en la plaza: el veche. Discuten si ${narTit(c.r)} puede subir el tributo de las pieles. Gritan, se empujan, votan a voces.`,
+        o: [
+          {
+            t: "Someterte al veche",
+            tip: "+4 orden durante 10 años",
+            ef: (c) => narEf(c.f, "orden", 4, 10, "El veche"),
+            leg: { sa: 4 },
+          },
+          {
+            t: "Imponer tu voluntad con la druzhina",
+            tip: "+30 oro, −3 orden",
+            ef: (c) => {
+              OC.ganar(c.f, { oro: 30 });
+              narOrden(c.f, -3);
+            },
+            leg: { gl: 2, cr: 3 },
+          },
+        ],
+      },
+      {
+        id: "esl2",
+        t: "Perún y Veles",
+        y: 436,
+        d: () =>
+          "Un rayo ha partido el roble sagrado del santuario. Los sacerdotes dicen que Perún, señor del trueno, está furioso; otros, que Veles, señor del ganado y del inframundo, se ha llevado su parte.",
+        o: [
+          {
+            t: "Sacrificio a Perún",
+            tip: "+5% en batalla durante 6 años",
+            ef: (c) => narEf(c.f, "batalla", 0.05, 6, "El trueno de Perún"),
+            leg: { gl: 3, pi: 3 },
+          },
+          {
+            t: "Honrar a Veles",
+            tip: "+4 comida al año durante 10 años",
+            ef: (c) => narEf(c.f, "comida", 4, 10, "El ganado de Veles"),
+            leg: { pi: 3 },
+          },
+        ],
+      },
+      {
+        id: "esl3",
+        t: "Los ríos del este",
+        y: 466,
+        d: () =>
+          "Por los grandes ríos bajan mercaderes del norte con pieles, miel y esclavos, y suben jinetes de la estepa con la espada desenvainada. Los ancianos discuten si fortificar los gorods o abrir los ríos al comercio.",
+        o: [
+          {
+            t: "Fortificar los gorods",
+            coste: { oro: 40 },
+            tip: "+10% al defender durante 12 años",
+            ef: (c) => narEf(c.f, "batalla", 0.1, 12, "Los gorods", null, "defensor"),
+            leg: { sa: 2, gl: 2 },
+          },
+          {
+            t: "Abrir los ríos al comercio",
+            tip: "+5 oro al año durante 10 años",
+            ef: (c) => narEf(c.f, "oro", 5, 10, "Los ríos del este"),
+            leg: { sa: 3 },
+          },
+        ],
+      },
+      {
+        id: "esl4",
+        t: "Las letras propias",
+        y: 520,
+        d: () =>
+          "Dos hermanos sabios han inventado letras para escribir la lengua de los eslavos. Con ellas se pueden escribir leyes, oraciones y las historias de los abuelos. Los sacerdotes antiguos temen que también se escriban otros dioses.",
+        o: [
+          {
+            t: "Adoptar las letras",
+            tip: "+10% investigación durante 15 años",
+            ef: (c) => narEf(c.f, "invest", 0.1, 15, "Las letras eslavas"),
+            leg: { sa: 5 },
+            fin: "letras",
+          },
+          {
+            t: "La palabra dicha basta",
+            tip: "+4 orden",
+            ef: (c) => narOrden(c.f, 4),
+            leg: { pi: 2 },
+            fin: "palabra",
+          },
+        ],
+      },
+    ],
+    {
+      letras: {
+        t: "Las letras de los eslavos",
+        d: "Tu pueblo escribe ya en su lengua.",
+        ep: "Dio a su pueblo letras para escribir su propia lengua.",
+      },
+      palabra: {
+        t: "La palabra dicha",
+        d: "Las historias se siguen contando junto al fuego.",
+        ep: "Confió la memoria de su pueblo a la palabra dicha junto al fuego.",
+      },
+    },
+  ),
+
+  /* ---------- mongoles ---------- */
+  narArcoLey(
+    "mon",
+    "La estepa azul",
+    [
+      {
+        id: "mon1",
+        t: "El kurultai",
+        y: 412,
+        d: (c) =>
+          `Los jefes de los clanes acuden al kurultai con sus caballos y sus rencores. Deben decidir si ${narTit(c.r)} es el gran kan de todas las tribus o solo el primero entre iguales.`,
+        o: [
+          {
+            t: "Que el kurultai elija libremente",
+            tip: "+4 orden durante 10 años",
+            ef: (c) => narEf(c.f, "orden", 4, 10, "La voz del kurultai"),
+            leg: { sa: 3 },
+          },
+          {
+            t: "Rodear la asamblea con tus keshig",
+            tip: "+6% en batalla durante 8 años",
+            ef: (c) => narEf(c.f, "batalla", 0.06, 8, "El gran kan"),
+            leg: { gl: 4, cr: 3 },
+          },
+          {
+            t: "Comprar los votos",
+            coste: { oro: 40 },
+            tip: "+5 orden",
+            ef: (c) => narOrden(c.f, 5),
+            leg: { sa: 2 },
+          },
+        ],
+      },
+      {
+        id: "mon2",
+        t: "El yam",
+        y: 434,
+        d: () =>
+          "Un consejero propone una red de postas a lo largo de toda la estepa: caballos frescos cada jornada, para que las órdenes del kan lleguen más rápido que el viento. Cada clan tendría que mantener una.",
+        o: [
+          {
+            t: "Establecer el yam",
+            coste: { oro: 30 },
+            tip: "+3 orden durante 12 años y +4% en batalla",
+            ef: (c) => {
+              narEf(c.f, "orden", 3, 12, "El yam");
+              narEf(c.f, "batalla", 0.04, 12, "Mensajeros del kan");
+            },
+            leg: { sa: 3 },
+          },
+          { t: "Los clanes ya tienen bastantes cargas", leg: { gl: 1 } },
+        ],
+      },
+      {
+        id: "mon3",
+        t: "El chamán del cielo",
+        y: 466,
+        d: (c) =>
+          `Un chamán al que llaman «el que habla con Tengri» dice que el Cielo Eterno le ha revelado que ${narTit(c.r)} no reinará mucho. Tiene cada vez más seguidores entre los clanes.`,
+        o: [
+          {
+            t: "Que tus luchadores le rompan la espalda",
+            tip: "+4 orden",
+            ef: (c) => narOrden(c.f, 4),
+            leg: { cr: 6 },
+          },
+          {
+            t: "Honrarle con regalos",
+            coste: { oro: 20 },
+            tip: "+3 orden",
+            ef: (c) => narOrden(c.f, 3),
+            leg: { pi: 4 },
+          },
+          { t: "Desterrarle a la estepa", leg: { sa: 2 } },
+        ],
+      },
+      {
+        id: "mon4",
+        t: "La Yassa",
+        y: 510,
+        d: () =>
+          "Los escribas de la corte proponen poner por escrito la ley del kan, la Yassa: castigos para el robo de caballos, para quien abandone a un compañero en batalla, para quien orine en el agua.",
+        o: [
+          {
+            t: "Promulgar la Yassa",
+            tip: "+5 orden durante 15 años",
+            ef: (c) => narEf(c.f, "orden", 5, 15, "La Yassa"),
+            leg: { sa: 4 },
+            fin: "yassa",
+          },
+          {
+            t: "La ley es la palabra del kan",
+            tip: "+6% en batalla durante 10 años",
+            ef: (c) => narEf(c.f, "batalla", 0.06, 10, "La palabra del kan"),
+            leg: { gl: 4 },
+            fin: "kan",
+          },
+        ],
+      },
+    ],
+    {
+      yassa: {
+        t: "La Yassa",
+        d: "La ley del kan está escrita.",
+        ep: "Puso por escrito la ley de la estepa, y la estepa la obedeció.",
+      },
+      kan: {
+        t: "La palabra del kan",
+        d: "No hay más ley que tu palabra.",
+        ep: "No hubo más ley que su palabra, y su palabra se cumplió mientras vivió.",
+      },
+    },
+  ),
+
+  /* ---------- choque de mundos (todos los pueblos, solo en leyendas) ---------- */
+  {
+    id: "choque",
+    t: "Mundos que se encuentran",
+    ley: true,
+    para: () => true,
+    finDef: (c) => (narTiene(c.f, "contacto_guerra") ? "hostiles" : "intercambio"),
+    caps: [
+      {
+        id: "cho1",
+        t: "El primer contacto",
+        y: 418,
+        ok: (c) => narContacto(c.f) != null,
+        prep: (c) => {
+          c.g = narContacto(c.f);
+          if (c.g == null) return false;
+          c.N.mk.contacto_g = c.g;
+        },
+        d: (c) =>
+          `Tus exploradores han encontrado a gentes de ${narPueblo(c.g)}: hablan una lengua que nadie entiende, adoran a dioses sin nombre conocido y ${narAmerica(c.g) !== narAmerica(c.f) ? (narAmerica(c.f) ? "montan bestias enormes que nadie había visto jamás" : "nunca han visto un caballo y huyen al ver uno") : "llevan ropas de seda y armas de un hierro extraño"}. Los dos mundos se miran por primera vez.`,
+        o: [
+          {
+            t: "Recibirlos con regalos",
+            tip: "+20 relación",
+            ef: (c) => relAdd(c.f, c.g, 20),
+            leg: { sa: 3, pi: 1 },
+            mk: "contacto_paz",
+            cr: (c) =>
+              `Primer encuentro con ${narPueblo(c.g)}: se intercambian regalos y miradas de asombro.`,
+          },
+          {
+            t: "Mostrarles el poder de tus armas",
+            tip: "−10 relación",
+            ef: (c) => relAdd(c.f, c.g, -10),
+            leg: { gl: 3 },
+            mk: "contacto_guerra",
+            cr: (c) => `Primer encuentro con ${narPueblo(c.g)}: se cruzan lanzas antes que palabras.`,
+          },
+          {
+            t: "Estudiarlos en secreto",
+            req: (c) => narStat(c.r, "in", 4),
+            tip: "+8% investigación durante 8 años",
+            ef: (c) => narEf(c.f, "invest", 0.08, 8, "Lo que aprendimos de los extranjeros"),
+            leg: { sa: 4 },
+          },
+        ],
+      },
+      {
+        id: "cho2",
+        t: "La peste de lejos",
+        tras: 3,
+        prep: (c) => {
+          c.g = c.N.mk.contacto_g;
+          if (c.g == null || !CIV[c.g]) return false;
+        },
+        d: (c) =>
+          `Tras el contacto con ${narPueblo(c.g)} llega una fiebre que nadie conocía: manchas en la piel, toses de sangre, aldeas enteras que no se levantan. ${narAmerica(c.f) ? "Los curanderos dicen que vuestros cuerpos no conocen este mal y lo pagaréis caro." : "Los médicos no tienen nombre para ella."}`,
+        o: [
+          {
+            t: "Cerrar caminos y puertos",
+            coste: { oro: 40 },
+            tip: "−4 oro al año durante 4 años",
+            ef: (c) => narEf(c.f, "oro", -4, 4, "Fronteras cerradas"),
+            leg: { sa: 4 },
+          },
+          {
+            t: "Encomendarse a los dioses",
+            prob: (c) => (narAmerica(c.f) ? 0.25 : 0.45) + c.N.leg.pi * 0.003,
+            px: (c) => (narAmerica(c.f) ? "vuestros cuerpos no conocen este mal" : "según tu piedad"),
+            si: (c) => {
+              narOrden(c.f, 4);
+              return "La fiebre pasa de largo, como una tormenta que cambia de valle: +4 orden.";
+            },
+            no: (c) => {
+              for (const t of TYP) c.cap.u[t] = Math.floor((c.cap.u[t] || 0) / 2);
+              narEf(c.f, "orden", -6, 4, "La peste de lejos");
+              return `La fiebre mata a la mitad de la guarnición de ${c.cap.name} y siembra el miedo: −6 orden durante 4 años.`;
+            },
+            leg: { pi: 2 },
+          },
+          {
+            t: "Culpar a los extranjeros",
+            tip: "−20 relación; +4 orden",
+            ef: (c) => {
+              relAdd(c.f, c.g, -20);
+              narOrden(c.f, 4);
+            },
+            leg: { cr: 3 },
+            mk: "contacto_guerra",
+          },
+        ],
+      },
+      {
+        id: "cho3",
+        t: "Semillas de otro mundo",
+        tras: 3,
+        prep: (c) => {
+          c.g = c.N.mk.contacto_g;
+          if (c.g == null || !CIV[c.g]) return false;
+        },
+        d: (c) =>
+          `Los mercaderes de ${narPueblo(c.g)} traen semillas que nunca se han sembrado aquí: ${NAR_CULTIVOS[narMundoDe(c.g)]}. Piden a cambio ${NAR_CULTIVOS[narMundoDe(c.f)].split(",")[0]} y los secretos de vuestros artesanos.`,
+        o: [
+          {
+            t: "Sembrar los cultivos extranjeros",
+            tip: "+5 comida al año durante 15 años",
+            ef: (c) => narEf(c.f, "comida", 5, 15, "Cultivos de otro mundo"),
+            leg: { sa: 4 },
+            fin: "intercambio",
+            cr: (c) => `Se siembran por primera vez en el reino las semillas traídas de ${narPueblo(c.g)}.`,
+          },
+          {
+            t: "Comerciar, pero no sembrar",
+            tip: "+5 oro al año durante 12 años; +10 relación",
+            ef: (c) => {
+              narEf(c.f, "oro", 5, 12, "El comercio de los dos mundos");
+              relAdd(c.f, c.g, 10);
+            },
+            leg: { sa: 2 },
+            fin: "intercambio",
+          },
+          {
+            t: "Cerrar las fronteras a lo extranjero",
+            tip: "+4 orden",
+            ef: (c) => narOrden(c.f, 4),
+            leg: { pi: 2, gl: 2 },
+            fin: "cerrados",
+          },
+        ],
+      },
+    ],
+    fines: {
+      intercambio: {
+        t: "Dos mundos, una mesa",
+        d: "Las semillas de otro mundo crecen en tus campos.",
+        ep: "Cuando los mundos se encontraron, eligió sembrar en vez de quemar.",
+      },
+      hostiles: {
+        t: "Mundos en guerra",
+        d: "El encuentro terminó en lanzas.",
+        ep: "Recibió a los pueblos de otro mundo con las armas, y así le recordaron ellos.",
+      },
+      cerrados: {
+        t: "Las fronteras cerradas",
+        d: "Nada extranjero cruza tus fronteras.",
+        ep: "Cerró sus fronteras a lo que llegaba de otro mundo, y su pueblo siguió comiendo lo de siempre.",
+      },
+    },
+  },
+];
+NAR_ARCOS.push(...NAR_ARCOS_LEY);
+
+/* ---------- prólogos del mundo de leyendas (los 19 pueblos) ---------- */
+const NAR_PROLOGO_LEY = {
+  occ: {
+    t: "Las águilas ante lo desconocido",
+    d: (c) =>
+      `Dicen los cronistas que en el año ${c.y} el mundo se hizo de pronto pequeño: por los caminos de las legiones llegan noticias de pueblos que no figuran en ningún mapa de Roma. ${narTit(c.r)} gobierna desde ${c.cap.name} lo que queda del imperio de Occidente, y se pregunta si las águilas sabrán volar sobre tierras sin nombre.`,
+    j: [
+      "Jurar ante el altar de la catedral",
+      "Jurar ante las legiones",
+      "Jurar ante el Senado",
+      "Jurar con un escarmiento a los traidores",
+    ],
+  },
+  ori: {
+    t: "La Nueva Roma y el mundo nuevo",
+    d: (c) =>
+      `A los muelles de ${c.cap.name} llegan barcos con velas de formas extrañas y mercaderes que hablan lenguas que ni los intérpretes conocen. ${narTit(c.r)}, heredero de los césares, sabe que su ciudad es el centro del mundo; ahora tendrá que averiguar cuán grande es ese mundo.`,
+    j: [
+      "Jurar en la gran iglesia",
+      "Jurar ante los catafractos",
+      "Jurar ante el consistorio",
+      "Jurar con un castigo ejemplar",
+    ],
+  },
+  vis: {
+    t: "Un pueblo en busca de tierra",
+    d: (c) =>
+      `Los godos de ${narTit(c.r)} caminan desde hace generaciones buscando una tierra propia. Ahora los exploradores vuelven con historias de reinos de oro, de jinetes de la estepa y de pueblos más allá del mar. Hay tierra de sobra en el mundo, dicen; solo hay que tomarla.`,
+    j: [
+      "Jurar ante el obispo arriano",
+      "Jurar alzado sobre los escudos",
+      "Jurar ante la asamblea de los ancianos",
+      "Jurar con sangre de cautivos",
+    ],
+  },
+  hun: {
+    t: "Más allá de la estepa",
+    d: (c) =>
+      `La estepa no tiene fin, decían los abuelos, pero los jinetes de ${narTit(c.r)} han llegado a su borde y han visto ciudades de seda, montañas de hielo y reinos que no temen a los hunos... todavía.`,
+    j: [
+      "Sacrificar un caballo blanco a los dioses",
+      "Jurar sobre la espada desnuda",
+      "Jurar ante los jefes de los clanes",
+      "Jurar sobre el cráneo de un enemigo",
+    ],
+  },
+  van: {
+    t: "El mar sin orillas",
+    d: (c) =>
+      `Los vándalos de ${narTit(c.r)} aprendieron a navegar para saquear. Ahora sus pilotos cuentan que el mar no termina donde decían los romanos: hay costas más allá, y en ellas ciudades que nadie ha saqueado nunca.`,
+    j: [
+      "Jurar ante el obispo arriano",
+      "Jurar ante los guerreros",
+      "Jurar ante los ancianos del pueblo",
+      "Jurar con un saqueo ejemplar",
+    ],
+  },
+  fra: {
+    t: "Los bosques y el ancho mundo",
+    d: (c) =>
+      `En los bosques de los francos se cuentan historias nuevas junto al fuego: de hombres del norte que navegan en dragones, de magos que guardan el fuego en Persia, de imperios de oro tras el mar. ${narTit(c.r)} escucha y afila la francisca.`,
+    j: [
+      "Sacrificar en el bosque sagrado",
+      "Jurar sobre la francisca",
+      "Jurar ante la asamblea de hombres libres",
+      "Jurar con la cabeza de un rival",
+    ],
+  },
+  per: {
+    t: "El rey de reyes y los reinos del mundo",
+    d: (c) =>
+      `${narTit(c.r)} se llama rey de reyes, pero los embajadores que llegan a ${c.cap.name} traen noticias de reyes que nunca han oído su nombre. Los magos consultan el fuego sagrado: el mundo es más grande que Irán, y quizá también más peligroso.`,
+    j: [
+      "Jurar ante el fuego sagrado",
+      "Jurar ante los savaran",
+      "Jurar ante los grandes del reino",
+      "Jurar con un castigo a los rebeldes",
+    ],
+  },
+  ara: {
+    t: "Las arenas y las estrellas",
+    d: (c) =>
+      `Las caravanas de ${narTit(c.r)} cruzan el desierto guiándose por las estrellas, cargadas de incienso que vale su peso en oro. En los oasis se cuentan historias de pueblos nuevos al norte y al este. Los poetas ya buscan rimas para sus nombres.`,
+    j: [
+      "Jurar ante la piedra negra del santuario",
+      "Jurar ante los jinetes de camello",
+      "Jurar ante los jeques de las tribus",
+      "Jurar con la sangre de un enemigo de la tribu",
+    ],
+  },
+  nor: {
+    t: "Hijos del Norte",
+    d: (c) =>
+      `En los fiordos el invierno dura medio año, y en el otro medio se navega. ${narTit(c.r)} reina sobre jarls orgullosos, skalds lenguaraces y naves de proa de dragón. Más allá del mar hay tierras ricas y mal defendidas: los dioses las pusieron ahí por algo.`,
+    j: [
+      "Jurar sobre el anillo del templo de Odín",
+      "Jurar sobre el hacha ante los huscarles",
+      "Jurar ante el thing",
+      "Jurar con la sangre de un proscrito",
+    ],
+  },
+  chi: {
+    t: "Bajo el Mandato del Cielo",
+    d: (c) =>
+      `Desde ${c.cap.name}, centro del mundo bajo el Cielo, ${narTit(c.r)} gobierna con el Mandato de los antepasados. Los bárbaros del norte siempre han existido; ahora los mensajeros hablan de otros bárbaros, más lejanos y más extraños, que no conocen los ritos.`,
+    j: [
+      "Ofrecer sacrificio en el altar del Cielo",
+      "Pasar revista a los ejércitos del norte",
+      "Recibir a los letrados en el palacio",
+      "Ejecutar a los ministros corruptos",
+    ],
+  },
+  inc: {
+    t: "Hijo del Sol",
+    d: (c) =>
+      `En lo alto de las montañas, en ${c.cap.name}, ${narTit(c.r)} es hijo del Sol y señor de los cuatro suyos. Los chasquis corren por caminos de piedra que cruzan abismos. Nadie en estas tierras ha visto un caballo, ni sabe que al otro lado del mar hay otros reinos.`,
+    j: [
+      "Ofrecer chicha y oro al Inti",
+      "Jurar ante los orejones",
+      "Jurar ante los curacas de los ayllus",
+      "Escarmiento ejemplar a un curaca rebelde",
+    ],
+  },
+  may: {
+    t: "Las ciudades de piedra",
+    d: (c) =>
+      `Entre la selva se alzan las pirámides de ${c.cap.name}, y en sus estelas los sacerdotes cuentan los días desde el principio del mundo. ${narTit(c.r)}, señor sagrado, sabe que todo lo que ocurre ya ocurrió y volverá a ocurrir. Quizá esta vez no.`,
+    j: [
+      "Sangrarse ante los dioses, como los antiguos señores",
+      "Jurar ante los guerreros",
+      "Jurar ante los sacerdotes del calendario",
+      "Sacrificar a los cautivos de la última guerra",
+    ],
+  },
+  azt: {
+    t: "El pueblo del lago",
+    d: (c) =>
+      `El pueblo mexica salió de Aztlán buscando la señal de su dios. ${narTit(c.r)} los guía hacia un lago donde, dicen los sacerdotes, un águila devorará a una serpiente sobre un nopal. Allí nacerá un imperio. El Quinto Sol tiene hambre.`,
+    j: [
+      "Ofrecer corazones a Huitzilopochtli",
+      "Jurar ante los guerreros jaguar y águila",
+      "Jurar ante el consejo de los calpullis",
+      "Sacrificar a los traidores en lo alto del templo",
+    ],
+  },
+  gri: {
+    t: "Hijos de Homero",
+    d: (c) =>
+      `Las ciudades griegas, siempre peleadas entre sí, han formado una liga bajo ${narTit(c.r)}. Los filósofos discuten en el ágora, los hoplitas entrenan en el gimnasio y los navegantes cuentan que, más allá de las Columnas de Heracles, el mundo sigue.`,
+    j: [
+      "Consultar al oráculo y ofrecer una hecatombe",
+      "Jurar ante la falange",
+      "Jurar ante la asamblea de ciudadanos",
+      "Desterrar a los rivales por ostracismo",
+    ],
+  },
+  egi: {
+    t: "El don del Nilo",
+    d: (c) =>
+      `El Nilo crece cada verano como hace miles de años y deja el limo negro que alimenta a todo un pueblo. ${narTit(c.r)} reina en ${c.cap.name}, entre pirámides que ya eran antiguas para los griegos. Los sacerdotes recuerdan que Egipto ha visto pasar muchos imperios.`,
+    j: [
+      "Ofrecer al Nilo en el templo de Hapi",
+      "Jurar ante los carros de guerra",
+      "Jurar ante los escribas del reino",
+      "Castigar a los nomarcas rebeldes",
+    ],
+  },
+  ind: {
+    t: "La rueda del mundo",
+    d: (c) =>
+      `En ${c.cap.name}, entre templos tallados en la roca y monasterios donde se enseña la lógica, ${narTit(c.r)} gobierna con el dharma. Los elefantes de guerra barritan en los establos y los mercaderes traen noticias de tierras más allá del Himalaya.`,
+    j: [
+      "Ofrecer en el templo y dar limosna a los monjes",
+      "Pasar revista a los elefantes de guerra",
+      "Reunir a los sabios y ministros",
+      "Castigar a los recaudadores injustos",
+    ],
+  },
+  cel: {
+    t: "Bajo los robles",
+    d: (c) =>
+      `En las tierras de la niebla, los clanes celtas obedecen a ${narTit(c.r)} mientras le sean leales sus druidas y sus bardos. Las historias de los antiguos héroes se cantan cada noche; pronto, quizá, se cantarán las de este reinado.`,
+    j: [
+      "Jurar en el bosque sagrado ante los druidas",
+      "Jurar ante los fianna",
+      "Jurar ante la asamblea de los clanes",
+      "Colgar las cabezas de los rivales en las puertas",
+    ],
+  },
+  esl: {
+    t: "Los hijos de los bosques",
+    d: (c) =>
+      `Entre ríos y bosques sin fin viven las tribus eslavas, que se reúnen en el veche y temen a Perún cuando truena. ${narTit(c.r)} las une por primera vez. Al sur hay imperios ricos; al este, la estepa y sus jinetes.`,
+    j: [
+      "Sacrificar a Perún bajo el roble",
+      "Jurar ante la druzhina",
+      "Jurar ante el veche",
+      "Castigar a los ancianos desleales",
+    ],
+  },
+  mon: {
+    t: "Bajo el Cielo Eterno",
+    d: (c) =>
+      `Bajo el Cielo Eterno, Tengri, los clanes de la estepa reconocen a ${narTit(c.r)} como su kan. Sus jinetes disparan al galope mejor que nadie en el mundo. El mundo, dicen los chamanes, es un pasto inmenso, y todo pasto tiene dueño.`,
+    j: [
+      "Ofrecer leche de yegua al Cielo Eterno",
+      "Jurar ante los keshig",
+      "Jurar ante el kurultai",
+      "Romper la espalda a los rivales",
+    ],
+  },
+};

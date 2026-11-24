@@ -6,6 +6,10 @@ prólogo, hechos menores, epílogo), `css/narrativa.css`, `pruebas/narrativa.js`
 
 ## Qué ve el jugador
 
+- **Dos modos** (`G.modo`). Histórico: los 16 arcos del 410 (marcados `hist`). Mundo de leyendas: prólogos
+  de leyenda para los 19 pueblos, un arco cultural por cada pueblo nuevo y el arco «Mundos que se
+  encuentran» (marcados `ley`). Los eventos sueltos de época romana (`hist: true`) solo salen en el histórico.
+  Todo el contenido por pueblo usa `CIV[f].id` (nunca el índice) y `CIV[f].pueblo` para nombrarlo.
 - **Prólogo** (año 410) distinto para cada pueblo, con un juramento que da tono al reinado:
   altar (+piedad, +4 orden 6 años), ejército (+gloria, +6 % batalla), consejo (+sabiduría, +5 oro/año)
   o escarmiento (+temor, +3 orden).
@@ -31,7 +35,28 @@ prólogo, hechos menores, epílogo), `css/narrativa.css`, `pruebas/narrativa.js`
   | La reconquista de Justiniano   | todos                        | 527, 533, 541 (peste)                      |
   | El concilio de Toledo          | arrianos                     | 560                                        |
 
-- **Eventos** (54: 35 de azar, 5 encadenados y 14 reacciones): de corte, reino, fe, frontera y saber, con un personaje real de tu corte
+- **Mundo de leyendas**: 12 arcos culturales de 4 capítulos (412, ~430, ~466, ~510), con desenlaces:
+
+  | Pueblo   | Arco                 | Capítulos                                                                       |
+  | -------- | -------------------- | ------------------------------------------------------------------------------- |
+  | nórdicos | Las sagas del Norte  | el thing, naves de proa de dragón, la profecía de la völva, el skald            |
+  | aztecas  | El Quinto Sol        | el águila sobre el nopal, la guerra florida, el Quinto Sol, el fuego nuevo      |
+  | incas    | Los cuatro suyos     | la mita, el camino del Inca, los quipus, los mitimaes                           |
+  | mayas    | La cuenta larga      | la cuenta larga, el juego de pelota, la gran sequía, la serpiente emplumada     |
+  | chinos   | El Mandato del Cielo | el examen imperial, la Gran Muralla, las señales del Cielo, el Gran Canal       |
+  | egipcios | El don del Nilo      | la crecida, la biblioteca, los sacerdotes de Isis, el canal de los faraones     |
+  | griegos  | La Liga Helénica     | el oráculo de Delfos, la asamblea, los Juegos Olímpicos, la Academia            |
+  | indios   | La rueda del dharma  | la sangha, el mercader y la casta, los hunos blancos, el cero                   |
+  | árabes   | Las arenas de Arabia | la caravana del incienso, la feria de Ukaz, la presa de Marib, el santuario     |
+  | celtas   | Los druidas          | el consejo de los druidas, el combate de campeones, Samhain, los monjes del mar |
+  | eslavos  | El veche             | la campana del veche, Perún y Veles, los ríos del este, las letras propias      |
+  | mongoles | La estepa azul       | el kurultai, el yam, el chamán del cielo, la Yassa                              |
+
+  «Mundos que se encuentran» (todos, en leyendas): el primer contacto con un pueblo de otro mundo
+  (América / Oriente lejano / Viejo Mundo) al lindar con él (o por embajada a partir del 450), la peste
+  traída de lejos (más dura para los pueblos americanos) y el intercambio de cultivos.
+
+- **Eventos** (59: 35 de azar, 5 encadenados y 19 reacciones): de corte, reino, fe, frontera y saber, con un personaje real de tu corte
   (`G.C`: soberano, heredero, consorte, generales, hijos, con sus rasgos y estadísticas) como protagonista.
   Algunos sólo existen en su época (`y`/`hasta`): alanos y embajada huna hasta 470–480; partición del
   reino desde 470; la regla de San Benito y los filósofos de Atenas en 529; el año sin sol en 536; el
@@ -51,6 +76,14 @@ prólogo, hechos menores, epílogo), `css/narrativa.css`, `pruebas/narrativa.js`
   «El regreso» al recuperarla), revuelta, coronación (primer edicto o regencia), muerte del heredero
   (investigar al sospechoso), consorte extranjera, guerra declarada contra ti, nuevo saber, hambre y bancarrota.
   La nueva era (que ya anuncia tecnología con su modal) sólo queda anotada en los Anales.
+- **Campaña**: asedio largo de una ciudad propia (repartir despensas, ahorcar derrotistas o procesión:
+  todo sube o baja el orden de la ciudad, que es lo que decide la rendición en `ecoApoyoAsedio`) y
+  cerco propio que no acaba (prometer clemencia o terror —con consecuencia al tomarla— o pagar a un
+  traidor); el capitán sin linaje que llega a general y el general de nivel ≥ 6 (honrarle, atarle a la
+  casa o alejarle, que enlaza con «El general resentido»); mercenarios que desertan sin paga. Los
+  capitanes nuevos tienen voz en la crónica y los factores del informe de batalla (berserkers,
+  elefantes, fuego griego, muro de escudos, carga, flanqueo…) se cuentan como crónica.
+- **Tropas**: los eventos nunca dan clases `UN[t].merc` y respetan `civPuede(f, t)` (si no, infantería).
 - **Ritmo**: como mucho 2 modales al año contando los del buzón de diplomacia y las demandas de
   sociedad (`OC.modales`, contado desde el comienzo de `startTurn`); si ya hubo 2, sólo sale lo urgente
   (coronación, exilio). Orden: reacciones → consecuencias → capítulo → azar (40 %, o 15 % si ya hubo uno).
@@ -107,12 +140,17 @@ API para otros sistemas: `narLegado(f)`, `narApodoActual(f)`, `narTiene(f, marca
   ids), `muertePersonaje`, `bodaCelebrada`, `guerraDeclarada`, `pazFirmada`, `alianzaSellada`,
   `tecnologiaInvestigada` (usa `TEC[id].n`), `eraNueva` (usa `tecEras`), `edificioConstruido`,
   `crisisEconomica` (`hambre`, `impagos`, `bancarrota` → evento; `peste`, `inflacion` → crónica),
-  `turnoIA`, `antesFinAnio` (foto del estado), `finAnio` (sucesiones), `finPartida` (el epílogo se abre
+  `turnoIA`, `antesFinAnio` (foto del estado), `batallaResuelta.informe.factores` (crónica), `finAnio` (sucesiones), `finPartida` (el epílogo se abre
   justo antes del modal de victoria/derrota).
   Respaldo al empezar el año por si un evento no llegara: sucesión, muertes, consorte nueva, guerras
   nuevas, hambre y deudas.
 - **Modifica**: `ordenObjetivo`, `rendimiento`, `bonoBatalla`, `puntosInvestigacion`,
   `aceptacionDiplomatica`.
+- **Lee** (sin modificarlos, una vez al año en `startTurn`): `G.cam.as` (asedios), `G.cam.merc.con`
+  (contratos), `G.C[].linaje/rol/nivel` (capitanes y generales), `cmbNivel`, `civPuede`, `civBase`,
+  `G.modo`. Solo toca `p.order` de la ciudad sitiada en las opciones del cerco.
+- **Ritmo con estaciones**: todo lo narrativo sigue siendo anual (en `startTurn`, que el guardia
+  `G.evY` limita a una vez por año aunque se llame cada estación); nada abre modales por estación.
 - **Usa**: `OC.pagar/ganar/puedePagar/textoCoste`; sociedad si existe: `socImp` (estamentos),
   `socPolitica` (el Concilio de obispos fija celo o tolerancia), `socConvertir` (las conversiones de
   los arcos), `socTension`; `kill`, `marry`, `mkChar`, `declareWar`, `makePeace`, `relAdd`,
@@ -123,7 +161,10 @@ API para otros sistemas: `narLegado(f)`, `narApodoActual(f)`, `narTiene(f, marca
 `node pruebas/narrativa.js [años=30] [civ=0]`: campaña con elecciones al azar; comprueba prólogo,
 ≤ 2 modales narrativos por año, decisiones, arcos, legado, uso por la IA, reacciones (capital perdida,
 sucesión), contenido a partir del 500 (saltando años hasta el 590), epílogo antes del modal de victoria
-y carga de una partida guardada sin `G.nar`. Capturas `pruebas/capturas/narrativa-*.png`.
+y carga de una partida guardada sin `G.nar`. En leyendas: nombres y prólogos de los 19 pueblos, arcos
+de los 12 nuevos, tropas sin jinetes ni mercenarios, reacciones de campaña (asedio, capitán, general)
+y un salto de años con arco cultural y choque de mundos, sin ningún arco del 410. Capturas
+`pruebas/capturas/narrativa-*.png`.
 
 ## Peticiones al orquestador
 
@@ -134,3 +175,8 @@ Atendidas: `finPartida`, `OC.modales` y `G.log` de 250 entradas (ya integradas e
 2. **Contrato**: anotar en la sección 5 que la narrativa modifica también `rendimiento` y
    `aceptacionDiplomatica`, y el campo `lado:'defensor'` que uso en `bonoBatalla`.
 3. **Interfaz**: `logPanel` podría agrupar la crónica por año; las entradas `nar-*` ya llevan estilo.
+4. **Campaña**: un evento `asedioLargo {p, f, n}` (o `capitulacion`) y `mercDesercion {f, nom}` ahorrarían
+   leer `G.cam` y el texto de la crónica; y una función `camAsedioAjustar(pid, {vi, mo})` permitiría que
+   los eventos del cerco tocaran víveres y moral en lugar de solo el orden.
+5. **Combate**: un evento `capitanSurge {c, f}` / `generalAsciende {c}` / `nivelSube {c, nivel}` (hoy los
+   detecto una vez al año por `rol` y `nivel`).
