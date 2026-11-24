@@ -842,6 +842,365 @@ function ifzDecor(c, tt, monte, X, Y, r, rio, aldea, denso, paso) {
     }
   }
 }
+/* ======================================================================
+   KIT DE MAPA: atlas de celdas reemplazables (sistema Interfaz, ver docs/interfaz.md §5 y
+   herramientas/LEEME.md). Cada celda mide IFZ_S×IFZ_S px (16; las ciudades 2×2 y la capital 3×3).
+   Nombres «MAPA.<clave>»: si el manifest trae su PNG (suelto o recortado de la hoja «MAPA.atlas»), el mapa
+   lo usa; si no, el dibujo procedural de siempre. Las celdas «IFZ.*» del atlas son los sprites de interfaz
+   (árboles, colinas, montes, casas, aldea) y se sustituyen con su propio nombre.
+   Máscaras de autotile: N = 1, E = 2, S = 4, O = 8 (vecinos que cumplen la condición).
+   ====================================================================== */
+const IFZ_DIR4 = [
+  [0, -1, 1],
+  [1, 0, 2],
+  [0, 1, 4],
+  [-1, 0, 8],
+];
+const ifzAtlImg = (n) => (typeof IFZ_SPR !== "undefined" && IFZ_SPR.m && IFZ_SPR.img["MAPA." + n]) || null;
+/* la variante pedida o, si falta su PNG, la 0 */
+const ifzAtlVar = (base, v) => ifzAtlImg(base + "." + v) || ifzAtlImg(base + ".0");
+const ifzAtlHay = (pref) => typeof IFZ_SPR !== "undefined" && IFZ_SPR.m && Object.keys(IFZ_SPR.img).some((k) => k.startsWith("MAPA." + pref));
+const ifzHash = (i) => {
+  let h = Math.imul(i ^ 0x5bd1e995, 2654435761);
+  h ^= h >>> 15;
+  return h >>> 0;
+};
+/* clave de suelo de una casilla */
+function ifzClaveSuelo(x, y, inf) {
+  const i = y * W + x,
+    tt = MAP.terr[y][x];
+  if (!tt) return inf.dTie[i] >= 3 ? "mar.profundo" : "mar.somero";
+  if (tt === 3 && inf.mont[i]) return inf.v2 && inf.alt[i] >= 9 ? "nieve" : "montana";
+  if (tt === 3 && inf.paso[i]) return "paso";
+  if (tt === 3) return "colina";
+  if (tt === 2) return inf.denso[i] ? "bosque_denso" : "bosque";
+  return "llanura";
+}
+const IFZ_NVAR = { "mar.profundo": 2, "mar.somero": 2, paso: 2 };
+const IFZ_TILE_DE = { "mar.profundo": "mar", "mar.somero": "mar", llanura: "llanura", bosque: "bosque", bosque_denso: "bosque", colina: "colina", paso: "colina", montana: "montana", nieve: "montana" };
+/* PNG del suelo de una casilla (atlas o, como antes, TILE.*) */
+function ifzSueloPNG(clave, i) {
+  const v = ifzHash(i) % (IFZ_NVAR[clave] || 4);
+  return ifzAtlVar(clave, v) || ifzTilePNG(IFZ_TILE_DE[clave]);
+}
+/* ---------- celdas procedurales (el mapa y la exportación del atlas usan las mismas) ---------- */
+/* suelo completo de un tipo (con su decorado), sin vecinos: para la plantilla del atlas */
+function ifzCeldaSuelo(c, X, Y, clave, v) {
+  const h = [0.25, 0.45, 0.65, 0.85][v % 4],
+    inf = {
+      dTie: new Proxy([], { get: () => (clave === "mar.profundo" ? 4 : 1) }),
+      mont: new Proxy([], { get: () => (clave === "montana" || clave === "nieve" ? 1 : 0) }),
+      H1: () => h,
+      H2: () => 1 - h,
+    },
+    tt = { "mar.profundo": 0, "mar.somero": 0, llanura: 1, bosque: 2, bosque_denso: 2, colina: 3, paso: 3, montana: 3, nieve: 3 }[clave],
+    r = mul(97 + v * 31 + clave.length * 7);
+  c.save();
+  c.beginPath();
+  c.rect(X, Y, IFZ_S, IFZ_S);
+  c.clip();
+  for (let dy = 0; dy < IFZ_S; dy += 4)
+    for (let dx = 0; dx < IFZ_S; dx += 4) {
+      c.fillStyle = ifzSuelo(tt, 0.5, 0.5, inf, dx + v * 4, dy);
+      c.fillRect(X + dx, Y + dy, 4, 4);
+    }
+  ifzDetalle(c, tt, X, Y, r, false);
+  if (clave === "nieve") {
+    c.fillStyle = "rgba(240,244,248,.35)";
+    c.fillRect(X, Y, IFZ_S, IFZ_S);
+  }
+  ifzDecor(c, tt, clave === "montana" || clave === "nieve", X, Y, r, false, false, clave === "bosque_denso", clave === "paso");
+  c.restore();
+}
+/* orilla de una casilla de tierra con mar en los lados de la máscara: arena irregular y arena mojada */
+function ifzCeldaCosta(c, X, Y, m, r) {
+  const S = IFZ_S;
+  for (const [a, b, bit] of IFZ_DIR4) {
+    if (!(m & bit)) continue;
+    for (let q = 0; q < S; q++) {
+      const g = 2 + Math.floor(r() * 2.4);
+      c.fillStyle = "#d8c07a";
+      if (b) c.fillRect(X + q, b < 0 ? Y : Y + S - g, 1, g);
+      else c.fillRect(a < 0 ? X : X + S - g, Y + q, g, 1);
+      c.fillStyle = "#b8a463";
+      if (b) c.fillRect(X + q, b < 0 ? Y : Y + S - 1, 1, 1);
+      else c.fillRect(a < 0 ? X : X + S - 1, Y + q, 1, 1);
+    }
+  }
+}
+/* espuma de una casilla de mar con tierra en los lados de la máscara */
+function ifzCeldaEspuma(c, X, Y, m, r) {
+  const S = IFZ_S;
+  for (const [a, b, bit] of IFZ_DIR4) {
+    if (!(m & bit)) continue;
+    for (let q = 0; q < S; q++)
+      for (const [off, pr, col] of [
+        [1, 0.55, "rgba(228,242,244,.85)"],
+        [2, 0.25, "rgba(228,242,244,.45)"],
+        [4, 0.12, "rgba(220,240,245,.35)"],
+      ]) {
+        if (r() > pr) continue;
+        c.fillStyle = col;
+        if (b) c.fillRect(X + q, b < 0 ? Y + off : Y + S - 1 - off, 1, 1);
+        else c.fillRect(a < 0 ? X + off : X + S - 1 - off, Y + q, 1, 1);
+      }
+  }
+}
+/* tramo de río por autotile: del centro a cada lado de la máscara (orilla, agua, reflejo) */
+function ifzCeldaRio(c, X, Y, m) {
+  const S = IFZ_S,
+    C = S / 2;
+  for (const [col, w] of [
+    ["#3e6f30", 7],
+    ["#2f6f9e", 5],
+    ["#5fa2cf", 1],
+  ]) {
+    c.fillStyle = col;
+    c.fillRect(X + C - (w >> 1), Y + C - (w >> 1), w, w);
+    for (const [a, b, bit] of IFZ_DIR4) {
+      if (!(m & bit)) continue;
+      if (a) c.fillRect(a < 0 ? X : X + C, Y + C - (w >> 1), C, w);
+      else c.fillRect(X + C - (w >> 1), b < 0 ? Y : Y + C, w, C);
+    }
+  }
+}
+/* camino (tierra) o calzada (empedrada) por autotile */
+function ifzCeldaCamino(c, X, Y, m, emp) {
+  const S = IFZ_S,
+    C = S / 2,
+    capas = emp
+      ? [
+          ["#6a6152", 4],
+          ["#b9af98", 2],
+        ]
+      : [
+          ["rgba(160,124,80,.85)", 3],
+          ["rgba(196,165,118,.8)", 1],
+        ];
+  for (const [col, w] of capas) {
+    c.fillStyle = col;
+    c.fillRect(X + C - (w >> 1), Y + C - (w >> 1), w, w);
+    for (const [a, b, bit] of IFZ_DIR4) {
+      if (!(m & bit)) continue;
+      if (a) c.fillRect(a < 0 ? X : X + C, Y + C - (w >> 1), C, w);
+      else c.fillRect(X + C - (w >> 1), b < 0 ? Y : Y + C, w, C);
+    }
+  }
+}
+/* puente: tablero de madera; vertical = se cruza de norte a sur (el río corre de este a oeste) */
+function ifzCeldaPuente(c, X, Y, vertical) {
+  const [bx, by, bw, bh] = vertical ? [X + 5, Y + 1, 6, 14] : [X + 1, Y + 5, 14, 6];
+  c.fillStyle = "rgba(0,0,0,.3)";
+  c.fillRect(bx + 1, by + 1, bw, bh);
+  c.fillStyle = "#8a6438";
+  c.fillRect(bx, by, bw, bh);
+  c.fillStyle = "#6b4a2a";
+  if (vertical) for (let q = 1; q < bh; q += 2) c.fillRect(bx, by + q, bw, 1);
+  else for (let q = 1; q < bw; q += 2) c.fillRect(bx + q, by, 1, bh);
+  c.fillStyle = "#3e2a16";
+  if (vertical) {
+    c.fillRect(bx, by, 1, bh);
+    c.fillRect(bx + bw - 1, by, 1, bh);
+  } else {
+    c.fillRect(bx, by, bw, 1);
+    c.fillRect(bx, by + bh - 1, bw, 1);
+  }
+}
+function ifzCeldaVado(c, X, Y, vertical) {
+  const S = IFZ_S;
+  c.fillStyle = "rgba(170,210,230,.55)";
+  c.fillRect(X + 2, Y + 2, S - 4, S - 4);
+  c.fillStyle = "#cbb68a";
+  for (let q = 2; q < S - 2; q += 3) {
+    if (vertical) c.fillRect(X + 6 + (q % 2), Y + q, 2, 2);
+    else c.fillRect(X + q, Y + 6 + (q % 2), 2, 2);
+  }
+}
+/* campos de cultivo (variante: trigo, verde, barbecho, mixto) */
+function ifzCeldaCultivo(c, X, Y, v) {
+  const cols = [
+      ["#c9b458", "#ad9a40"],
+      ["#86b452", "#6b9a3e"],
+      ["#8b6a44", "#73573a"],
+    ],
+    parcelas = [
+      [[1, 2, 8, 5, 0], [9, 8, 6, 6, 0]],
+      [[2, 1, 7, 6, 1], [8, 9, 7, 5, 1]],
+      [[1, 3, 9, 5, 2], [6, 10, 8, 4, 0]],
+      [[2, 2, 6, 5, 0], [9, 3, 6, 5, 1], [3, 9, 9, 5, 2]],
+    ][v % 4];
+  for (const [x, y, w, h, t] of parcelas) {
+    for (let j = 0; j < h; j++) {
+      c.fillStyle = cols[t][j % 2];
+      c.fillRect(X + x, Y + y + j, w, 1);
+    }
+    c.fillStyle = "rgba(60,40,20,.35)";
+    c.fillRect(X + x, Y + y + h, w, 1);
+  }
+}
+/* edificios del mapa: torre de vigilancia, explotaciones y puerto (1 celda) */
+function ifzCeldaEdif(c, X, Y, k) {
+  const R = (x, y, w, h, col) => {
+    c.fillStyle = col;
+    c.fillRect(X + x, Y + y, w, h);
+  };
+  R(3, 13, 10, 2, "rgba(0,0,0,.25)");
+  if (k === "torre") {
+    R(6, 3, 5, 11, "#8a6438");
+    R(5, 2, 7, 2, "#6b4a2a");
+    R(7, 0, 3, 2, "#3e2a16");
+    R(7, 6, 1, 6, "#3e2a16");
+    R(9, 6, 1, 6, "#3e2a16");
+    R(5, 13, 7, 1, "#3e2a16");
+  } else if (k === "mina") {
+    R(2, 6, 12, 8, "#6d655b");
+    R(3, 5, 10, 2, "#8c8478");
+    R(6, 8, 4, 6, "#1a1512");
+    R(5, 7, 6, 1, "#6b4a2a");
+    R(5, 7, 1, 7, "#6b4a2a");
+    R(10, 7, 1, 7, "#6b4a2a");
+    R(11, 12, 3, 2, "#9aa4ad");
+  } else if (k === "cantera") {
+    R(1, 8, 14, 6, "#a39a8e");
+    R(2, 6, 9, 3, "#c9c3b4");
+    R(4, 10, 3, 2, "#7a7066");
+    R(9, 9, 4, 3, "#7a7066");
+    R(12, 6, 2, 2, "#e4dccb");
+  } else if (k === "aserradero") {
+    R(2, 6, 9, 7, "#8a6438");
+    R(1, 4, 11, 3, "#6b4a2a");
+    R(5, 9, 3, 4, "#3e2a16");
+    R(10, 11, 5, 2, "#b08350");
+    R(10, 9, 5, 2, "#c69560");
+    R(12, 7, 3, 2, "#b08350");
+  } else if (k === "salinas") {
+    R(1, 3, 6, 5, "#cfe3ee");
+    R(8, 3, 7, 5, "#e4eef2");
+    R(1, 9, 7, 5, "#e4eef2");
+    R(9, 9, 6, 5, "#cfe3ee");
+    R(1, 8, 14, 1, "#8c8478");
+    R(7, 3, 1, 11, "#8c8478");
+    R(11, 5, 3, 2, "#ffffff");
+  } else if (k === "puerto") {
+    R(1, 6, 14, 3, "#8a6438");
+    R(1, 6, 14, 1, "#b08350");
+    R(3, 9, 1, 4, "#3e2a16");
+    R(12, 9, 1, 4, "#3e2a16");
+    R(6, 10, 6, 3, "#6b4a2a");
+    R(8, 4, 1, 6, "#3e2a16");
+    R(9, 4, 3, 4, "#e9e0c4");
+  }
+}
+/* posiciones de las casas alrededor del centro de la ciudad (espiral) */
+const IFZ_CASAS = [
+  [-8, -1],
+  [8, 0],
+  [-5, 5],
+  [6, 6],
+  [-1, 8],
+  [-10, 5],
+  [11, 5],
+  [3, -9],
+  [-7, -8],
+  [9, -7],
+  [-12, -3],
+  [13, -2],
+];
+/* ciudad procedural centrada en (X, Y): n casas, capital (castillo ×2) o villa, murallas mu (0 = sin) */
+function ifzCiudadProc(c, X, Y, n, cap, mu, pal, semilla) {
+  const rr = mul(semilla),
+    R = (9 + Math.min(5, n * 0.5)) * (cap ? 1.4 : 1);
+  c.fillStyle = "rgba(0,0,0,.18)";
+  c.fillRect(X - R + 2, Y - 3, 2 * R - 2, R / 1.5 + 4);
+  if (mu >= 1) ifzMurallaProc(c, X, Y + 1, R, mu);
+  const orden = IFZ_CASAS.slice(0, n).sort((a, b) => a[1] - b[1]),
+    ex = cap ? 1.55 : 1;
+  for (const [dx, dy] of orden) ifzDibT(c, rr() < 0.4 ? "mapa.casa2" : "mapa.casa", X + Math.round(dx * ex) - 3, Y + Math.round(dy * ex) - 4, null);
+  if (cap) {
+    c.save();
+    c.scale(2, 2);
+    spr(c, SP.castle, Math.round(X / 2) - 5, Math.round(Y / 2) - 8, pal);
+    c.restore();
+  } else spr(c, SP.town, X - 4, Y - 6, pal);
+  if (mu >= 2)
+    for (const [a, b] of [
+      [-R, 2],
+      [R - 2, 2],
+    ])
+      ifzDibT(c, "mapa.torre", X + a, Y + b - 1, null);
+  return R;
+}
+/* muralla: empalizada (nivel 1), piedra con torres (2) y torres también a los lados (3+) */
+function ifzMurallaProc(c, X, Y, R, mu) {
+  const ry = R * 0.7,
+    n = Math.round(R * 4);
+  for (let q = 0; q < n; q++) {
+    const a = (q / n) * Math.PI * 2,
+      x = Math.round(X + Math.cos(a) * R),
+      y = Math.round(Y + Math.sin(a) * ry);
+    if (mu === 1) {
+      if (q % 2) continue;
+      c.fillStyle = "#5b3f22";
+      c.fillRect(x, y - 2, 1, 3);
+      c.fillStyle = "#8a6438";
+      c.fillRect(x, y - 2, 1, 1);
+    } else {
+      c.fillStyle = "#3a3530";
+      c.fillRect(x - 1, y - 1, 3, 3);
+      c.fillStyle = "#b7ae9c";
+      c.fillRect(x - 1, y - 2, 2, 2);
+    }
+  }
+  if (mu >= 2) {
+    const ts = mu >= 3 ? 8 : 4;
+    for (let q = 0; q < ts; q++) {
+      const a = (q / ts) * Math.PI * 2 + Math.PI / ts,
+        x = Math.round(X + Math.cos(a) * R),
+        y = Math.round(Y + Math.sin(a) * ry);
+      ifzDibT(c, "mapa.torre", x - 1, y - 4, null);
+    }
+  }
+}
+/* tamaño de una ciudad: 1 aldea grande … 4 gran ciudad (por número de casas) */
+const ifzClaseCiudad = (n) => (n <= 3 ? 1 : n <= 5 ? 2 : n <= 8 ? 3 : 4);
+const IFZ_CASAS_CLASE = [0, 3, 5, 7, 10];
+/* ---------- el atlas: todas las celdas del mapa, en orden de hoja ---------- */
+const IFZ_PLANT = { F: "#ff00ff", f: "#ff00ff", r: "#800080" };
+function ifzAtlas() {
+  const A = [],
+    S = IFZ_S,
+    add = (nombre, grupo, dib, o = {}) => A.push({ nombre, grupo, w: o.w || 1, h: o.h || 1, px: o.px || null, tinte: !!o.tinte, opaco: !!o.opaco, dib }),
+    palPl = () => Object.assign({}, BP, IFZ_PLANT);
+  for (const k of ["llanura", "bosque", "bosque_denso", "colina", "paso", "montana", "nieve", "mar.profundo", "mar.somero"])
+    for (let v = 0; v < (IFZ_NVAR[k] || 4); v++) add(`MAPA.${k}.${v}`, "suelos", (c, X, Y) => ifzCeldaSuelo(c, X, Y, k, v), { opaco: true });
+  for (let v = 0; v < 4; v++) add(`MAPA.cultivo.${v}`, "suelos", (c, X, Y) => ifzCeldaCultivo(c, X, Y, v));
+  for (let m = 0; m < 16; m++) add(`MAPA.costa.${m}`, "costa", (c, X, Y) => ifzCeldaCosta(c, X, Y, m, mul(300 + m)));
+  for (let m = 0; m < 16; m++) add(`MAPA.espuma.${m}`, "costa", (c, X, Y) => ifzCeldaEspuma(c, X, Y, m, mul(400 + m)));
+  for (let m = 0; m < 16; m++) add(`MAPA.rio.${m}`, "rios", (c, X, Y) => ifzCeldaRio(c, X, Y, m));
+  for (const [k, vert] of [
+    ["puente.h", false],
+    ["puente.v", true],
+  ])
+    add(`MAPA.${k}`, "rios", (c, X, Y) => ifzCeldaPuente(c, X, Y, vert));
+  for (const [k, vert] of [
+    ["vado.h", false],
+    ["vado.v", true],
+  ])
+    add(`MAPA.${k}`, "rios", (c, X, Y) => ifzCeldaVado(c, X, Y, vert));
+  for (let m = 0; m < 16; m++) add(`MAPA.camino.${m}`, "caminos", (c, X, Y) => ifzCeldaCamino(c, X, Y, m, false));
+  for (let m = 0; m < 16; m++) add(`MAPA.calzada.${m}`, "caminos", (c, X, Y) => ifzCeldaCamino(c, X, Y, m, true));
+  for (const k of ["torre", "mina", "cantera", "aserradero", "salinas", "puerto"]) add(`MAPA.${k}`, "edificios", (c, X, Y) => ifzCeldaEdif(c, X, Y, k));
+  for (let k = 1; k <= 4; k++) add(`MAPA.ciudad.${k}`, "ciudades", (c, X, Y) => ifzCiudadProc(c, X + S, Y + S, IFZ_CASAS_CLASE[k], false, 0, palPl(), 1000 + k), { w: 2, h: 2, tinte: true });
+  for (let mu = 1; mu <= 3; mu++) add(`MAPA.muralla.${mu}`, "ciudades", (c, X, Y) => ifzMurallaProc(c, X + S, Y + S + 1, 12, mu), { w: 2, h: 2 });
+  add("MAPA.capital", "ciudades", (c, X, Y) => ifzCiudadProc(c, X + 1.5 * S, Y + 1.5 * S, 10, true, 0, palPl(), 1100), { w: 3, h: 3, tinte: true });
+  for (let mu = 1; mu <= 3; mu++) add(`MAPA.muralla_capital.${mu}`, "ciudades", (c, X, Y) => ifzMurallaProc(c, X + 1.5 * S, Y + 1.5 * S + 1, 19.6, mu), { w: 3, h: 3 });
+  /* sprites de interfaz que forman parte del mapa (se sustituyen con su nombre IFZ.*) */
+  for (const k of ["arbol.pino", "arbol.roble", "arbol.olivo", "arbol.abedul", "mapa.colina", "mapa.monte", "mapa.monte2", "mapa.aldea", "mapa.casa", "mapa.casa2", "mapa.torre"]) {
+    const rows = IFZ_SP[k];
+    add(`IFZ.${k}`, "naturaleza y casas", (c, X, Y) => ifzDibT(c, k, X, Y, null), { w: Math.ceil(rows[0].length / S), h: Math.ceil(rows.length / S), px: [rows[0].length, rows.length] });
+  }
+  return A;
+}
 /* capa de terreno completa en alta resolución (una vez por mapa o al cargar PNG) */
 function ifzTerrenoHD() {
   const k = MAP.seed + "|" + W + "x" + H + "|" + (typeof IFZ !== "undefined" ? IFZ.baseVer : 0);
@@ -857,8 +1216,9 @@ function ifzTerrenoHD() {
   }
   const c = c0.getContext("2d"),
     r = mul(MAP.seed + 7),
-    png = IFZ_TILE.map(ifzTilePNG),
-    tipoDe = (x, y) => (tr[y][x] === 3 && inf.mont[y * W + x] ? 4 : tr[y][x]);
+    /* PNG de suelo por casilla (atlas MAPA.* o TILE.*); null = dibujo procedural */
+    pngs = new Array(W * H).fill(null);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) pngs[y * W + x] = ifzSueloPNG(ifzClaveSuelo(x, y, inf), y * W + x);
   c.imageSmoothingEnabled = false;
   /* 1. suelo con matices y textura */
   for (let y = 0; y < H; y++)
@@ -866,7 +1226,7 @@ function ifzTerrenoHD() {
       const tt = tr[y][x],
         X = x * S,
         Y = y * S,
-        im = png[tipoDe(x, y)];
+        im = pngs[y * W + x];
       if (im) {
         c.drawImage(im, X, Y, S, S);
         continue;
@@ -884,7 +1244,7 @@ function ifzTerrenoHD() {
     for (let y = 0; y < H; y++)
       for (let x = 0; x < W; x++) {
         const i = y * W + x;
-        if (!tr[y][x] || png[tipoDe(x, y)]) continue;
+        if (!tr[y][x]) continue;
         const a = inf.alt[i],
           an = y ? inf.alt[i - W] : a,
           ao = x ? inf.alt[i - 1] : a,
@@ -901,49 +1261,36 @@ function ifzTerrenoHD() {
           c.fillRect(x * S, y * S, S, S);
         }
       }
-  /* 2. costa: arena en la orilla, espuma y rompientes en el agua */
+  /* 2. costa: arena en la orilla (MAPA.costa.<máscara>) y espuma en el agua (MAPA.espuma.<máscara>) */
   const at = (x, y) => (x < 0 || y < 0 || x >= W || y >= H ? 0 : tr[y][x]);
   for (let y = 0; y < H; y++)
     for (let x = 0; x < W; x++) {
-      const tt = tr[y][x],
-        X = x * S,
-        Y = y * S;
-      for (const [a, b] of [
-        [0, -1],
-        [0, 1],
-        [-1, 0],
-        [1, 0],
-      ]) {
-        const o = at(x + a, y + b);
-        if (tt && !o) {
-          /* arena: banda irregular de 2-4 px y una línea de arena mojada */
-          for (let q = 0; q < S; q++) {
-            const g = 2 + Math.floor(r() * 2.4);
-            c.fillStyle = "#d8c07a";
-            if (b) c.fillRect(X + q, b < 0 ? Y : Y + S - g, 1, g);
-            else c.fillRect(a < 0 ? X : X + S - g, Y + q, g, 1);
-            c.fillStyle = "#b8a463";
-            if (b) c.fillRect(X + q, b < 0 ? Y : Y + S - 1, 1, 1);
-            else c.fillRect(a < 0 ? X : X + S - 1, Y + q, 1, 1);
-          }
-        } else if (!tt && o) {
-          for (let q = 0; q < S; q++) {
-            for (const [off, pr, col] of [
-              [1, 0.55, "rgba(228,242,244,.85)"],
-              [2, 0.25, "rgba(228,242,244,.45)"],
-              [4, 0.12, "rgba(220,240,245,.35)"],
-            ]) {
-              if (r() > pr) continue;
-              c.fillStyle = col;
-              if (b) c.fillRect(X + q, b < 0 ? Y + off : Y + S - 1 - off, 1, 1);
-              else c.fillRect(a < 0 ? X + off : X + S - 1 - off, Y + q, 1, 1);
-            }
-          }
-        }
-      }
+      const tt = tr[y][x];
+      let m = 0;
+      for (const [a, b, bit] of IFZ_DIR4) if (!tt !== !at(x + a, y + b)) m |= bit;
+      if (!m) continue;
+      const im = ifzAtlImg((tt ? "costa." : "espuma.") + m);
+      if (im) c.drawImage(im, x * S, y * S, S, S);
+      else if (tt) ifzCeldaCosta(c, x * S, y * S, m, r);
+      else ifzCeldaEspuma(c, x * S, y * S, m, r);
     }
-  /* 3. ríos con meandros: orilla, agua y reflejo */
-  for (const path of inf.rios) {
+  /* 3. ríos: con PNG del atlas, por autotile (MAPA.rio.<máscara>: vecinos con río, o el mar en la
+     desembocadura); si no, con meandros procedurales (orilla, agua y reflejo) */
+  const rioAtlas = ifzAtlHay("rio.");
+  if (rioAtlas)
+    for (let y = 0; y < H; y++)
+      for (let x = 0; x < W; x++) {
+        const i = y * W + x;
+        if (!inf.rio[i]) continue;
+        let m = 0,
+          nr = 0;
+        for (const [a, b, bit] of IFZ_DIR4) if (inf.rio[(y + b) * W + x + a] && at(x + a, y + b)) (m |= bit), nr++;
+        if (nr <= 1) for (const [a, b, bit] of IFZ_DIR4) if (x + a >= 0 && y + b >= 0 && x + a < W && y + b < H && !at(x + a, y + b)) m |= bit;
+        const im = ifzAtlImg("rio." + m);
+        if (im) c.drawImage(im, x * S, y * S, S, S);
+        else ifzCeldaRio(c, x * S, y * S, m);
+      }
+  for (const path of rioAtlas ? [] : inf.rios) {
     const pts = path.map((j, n) => {
       const x = j % W,
         y = (j / W) | 0,
@@ -987,39 +1334,22 @@ function ifzTerrenoHD() {
         hor = (x > 0 && inf.rio[i - 1]) || (x < W - 1 && inf.rio[i + 1]),
         ver = (y > 0 && inf.rio[i - W]) || (y < H - 1 && inf.rio[i + W]),
         cruzaV = hor && !ver; /* el río corre de este a oeste: se cruza de norte a sur */
-      if (inf.puente[i]) {
-        const [bx, by, bw, bh] = cruzaV ? [X + 5, Y + 1, 6, 14] : [X + 1, Y + 5, 14, 6];
-        c.fillStyle = "rgba(0,0,0,.3)";
-        c.fillRect(bx + 1, by + 1, bw, bh);
-        c.fillStyle = "#8a6438";
-        c.fillRect(bx, by, bw, bh);
-        c.fillStyle = "#6b4a2a";
-        if (cruzaV) for (let q = 1; q < bh; q += 2) c.fillRect(bx, by + q, bw, 1);
-        else for (let q = 1; q < bw; q += 2) c.fillRect(bx + q, by, 1, bh);
-        c.fillStyle = "#3e2a16";
-        if (cruzaV) {
-          c.fillRect(bx, by, 1, bh);
-          c.fillRect(bx + bw - 1, by, 1, bh);
-        } else {
-          c.fillRect(bx, by, bw, 1);
-          c.fillRect(bx, by + bh - 1, bw, 1);
-        }
-      } else {
-        c.fillStyle = "rgba(170,210,230,.55)";
-        c.fillRect(X + 2, Y + 2, S - 4, S - 4);
-        c.fillStyle = "#cbb68a";
-        for (let q = 2; q < S - 2; q += 3) {
-          if (cruzaV) c.fillRect(X + 6 + (q % 2), Y + q, 2, 2);
-          else c.fillRect(X + q, Y + 6 + (q % 2), 2, 2);
-        }
-      }
+      const k = (inf.puente[i] ? "puente." : "vado.") + (cruzaV ? "v" : "h"),
+        im = ifzAtlImg(k);
+      if (im) c.drawImage(im, X, Y, S, S);
+      else if (inf.puente[i]) ifzCeldaPuente(c, X, Y, cruzaV);
+      else ifzCeldaVado(c, X, Y, cruzaV);
     }
   /* 4. bosques, colinas, montañas, árboles sueltos y aldeas (por filas) */
   for (let y = 0; y < H; y++)
     for (let x = 0; x < W; x++) {
       const tt = tr[y][x],
         i = y * W + x;
-      if (!tt || png[tipoDe(x, y)]) continue;
+      if (!tt) continue;
+      if (pngs[i]) {
+        if (inf.aldea[i]) ifzDibT(c, "mapa.aldea", x * S + 3, y * S + 6, null);
+        continue;
+      }
       ifzDecor(c, tt, !!inf.mont[i], x * S, y * S, r, !!inf.rio[i], !!inf.aldea[i], !!inf.denso[i], !!inf.paso[i]);
     }
   IFZ_HD.terK = k;

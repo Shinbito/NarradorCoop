@@ -108,23 +108,58 @@ Cuando el jugador ya está «Listo» y la estación aún no se resuelve (`ONL.me
 
 ## 5. Sprites reemplazables por PNG
 
-Todos los sprites del juego son matrices de texto en el código (`SP` en nucleo.js, `MS` en batalla.js,
-`IFZ_SP` en interfaz.js) o dibujo procedural (terreno, fondo del menú). Cualquiera puede sustituirse por
-un PNG sin tocar código:
+Todos los gráficos del juego (sprites de `SP`, `MS` e `IFZ_SP`, el **kit de mapa** `MAPA.*`, el fondo del
+menú) pueden sustituirse por PNG sin tocar código. El flujo para el usuario está en
+**`herramientas/LEEME.md`**: exportar → rediseñar (Gemini) → importar.
 
-1. Exportar los actuales: `node herramientas/exportar-sprites.js` (Node + Playwright) crea
-   `assets/sprites/originales/` con cada sprite a tamaño original y ×8 sin suavizado
-   (`<categoría>/<nombre>.png`, `<nombre>@8x.png`), muestras teñidas (`muestras/`), **hojas por categoría**
-   (`hojas/tropas.png`, `mapa`, `batalla`, `interfaz`, `terreno`, `escena`) y `manifest.plantilla.json`
-   con todas las entradas. (Esa carpeta es de trabajo: no hace falta subirla.)
-2. Rediseñar los PNG (p. ej. con Gemini). Se pueden entregar a ×1 o más grandes (×2, ×4, ×8: poner
-   `escala`). En los teñibles, **#ff00ff (magenta) = color del pueblo** y **#800080 = su tono oscuro**;
-   los tonos intermedios de magenta se respetan como sombreado.
-3. Guardarlos en `assets/sprites/<categoría>/<nombre>.png` y copiar sus entradas a
-   `assets/sprites/manifest.json`.
-4. Para jugar desde `file://` (abrir index.html con doble clic): `node herramientas/exportar-sprites.js
-   --manifest` regenera `assets/sprites/manifest.js` con los PNG incrustados en base64 (en `file://` el
-   navegador no deja leer el JSON ni teñir PNG sueltos).
+1. **Exportar**: `node herramientas/exportar-sprites.js` (Node + Playwright) crea `assets/sprites/originales/`
+   (carpeta de trabajo, ignorada por git): cada gráfico a tamaño real y ×8, muestras teñidas, **hojas por
+   categoría** `hojas/<cat>@8x.png` (el atlas también `@4x`) con su **plantilla** `hojas/<cat>@<k>x.json`,
+   **mapas de referencia** `renders/mapa-historico.png` (×2), `mapa-historico-detalle.png` (×4) y
+   `mapa-leyendas.png`, y `manifest.plantilla.json`.
+   Cada hoja: fondo #12171c, cada celda sobre **turquesa plano #00b4b4** (= transparente) con su etiqueta
+   debajo, una rejilla gris y un **marco dorado #f2c14e de 4 px** alrededor de todo (la importación lo usa
+   para encajar la hoja). Sin semitransparencias: cada píxel está entero o es fondo.
+2. **Rediseñar** las hojas (Gemini u otro): mismo tamaño y posición de cada celda, el marco dorado y el
+   fondo turquesa intactos. En los teñibles, **#ff00ff = color del pueblo** y **#800080 = su tono oscuro**.
+3. **Importar**: `node herramientas/importar-hoja.js <hoja.png|jpg> <categoría>` encuentra el marco (tolera
+   reescalado, desplazamiento y ruido de JPEG), elige la plantilla de esa categoría que mejor encaja,
+   reduce cada celda a su tamaño real por **mayoría de 3×3 muestras por píxel**, cuantiza los colores
+   (los cercanos se pegan al más frecuente), fuerza #ff00ff/#800080 en los teñibles, vuelve transparente el
+   turquesa (salvo en las celdas opacas: suelos y agua), escribe `assets/sprites/<cat>/<nombre>.png`, añade
+   las entradas a `manifest.json` y regenera `manifest.js`. Opciones: `--plantilla`, `--destino`, `--solo
+   a,b`, `--prueba`. Probado con hojas ×1,03 y ×0,97, desplazadas y en JPEG: 99 % de píxeles iguales.
+4. Para jugar desde `file://`, `manifest.js` lleva los PNG incrustados (lo regeneran el importador y
+   `node herramientas/exportar-sprites.js --manifest`).
+
+### Kit de mapa (atlas)
+
+Celda base: **16×16 px = una casilla del mapa HD** (`IFZ_S`). Se decidió no subir a 32: el mapa de
+Leyendas con 19 pueblos ya mide 1792×1120 px por capa, y a 32 px serían 3584×2240 (≈ 32 MB por capa,
+demasiado para el móvil y la app de iPhone). Para dibujar con detalle se trabaja sobre la hoja ×8 (128 px
+por celda); el importador la reduce. `ifzAtlas()` (mapa.js) lista todas las celdas en orden de hoja, cada
+una con su dibujo procedural (el mismo que usa el mapa):
+
+| Grupo | Celdas | Uso en el mapa |
+|---|---|---|
+| suelos | `MAPA.llanura|bosque|bosque_denso|colina|montana|nieve.0-3`, `paso.0-1`, `mar.profundo.0-1`, `mar.somero.0-1` (opacas) | suelo completo de la casilla (con su decorado: árboles, colinas, picos); la variante sale de un hash de la casilla. `nieve` = montaña de altura 9; mar profundo a ≥ 3 casillas de la costa |
+| suelos | `MAPA.cultivo.0-3` | campos junto a las ciudades (capa encima del suelo) |
+| costa | `MAPA.costa.<m>` (tierra con mar en los lados de la máscara) y `MAPA.espuma.<m>` (mar con tierra), m = 0-15 | autotile |
+| ríos | `MAPA.rio.<m>` (vecinos con río; en la desembocadura, el mar), `puente.h|v`, `vado.h|v` | autotile; `v` = se cruza de norte a sur |
+| caminos | `MAPA.camino.<m>`, `MAPA.calzada.<m>` (empedrada, con Calzadas) | autotile por casilla de `MAP.camino` |
+| edificios | `MAPA.torre` (vigilancia), `mina`, `cantera`, `aserradero`, `salinas`, `puerto` | en una casilla de la provincia según el terreno (el puerto, en el mar junto a la ciudad) |
+| ciudades | `MAPA.ciudad.1-4` (2×2, por número de casas), `capital` (3×3), `muralla.1-3` (2×2), `muralla_capital.1-3` (3×3) | ciudad y capital teñibles (bandera magenta) |
+| naturaleza y casas | `IFZ.arbol.pino|roble|olivo|abedul`, `IFZ.mapa.colina|monte|monte2|aldea|casa|casa2|torre` | sprites sueltos (se sustituyen con su nombre `IFZ.*`) |
+
+Máscaras de autotile: **N = 1, E = 2, S = 4, O = 8**. Desierto y estepa no existen como terreno del mapa
+(son una cualidad económica de la provincia), así que no tienen celda.
+
+El renderizador usa cada PNG si está y si no, el dibujo procedural: se pueden sustituir celdas sueltas.
+Los ríos y caminos cambian a autotile en cuanto hay alguna celda `MAPA.rio.*` / `MAPA.camino.*` en el
+manifest (si no, siguen con meandros y serpenteo procedurales). También vale una **hoja entera**:
+`"MAPA.atlas": {"png": "atlas/hoja.png", "escala": 1, "celdas": {"MAPA.llanura.0": [x, y, w, h, tinte], …}}`
+(coordenadas en píxeles de esa hoja; un PNG suelto manda sobre la hoja). Los antiguos `TILE.*` siguen
+valiendo como respaldo de los suelos.
 
 Formato de `manifest.json` (y de `OCASO_SPRITES` en `manifest.js`):
 
@@ -145,7 +180,7 @@ Formato de `manifest.json` (y de `OCASO_SPRITES` en `manifest.js`):
 - `escala`: píxeles del PNG por píxel del juego (por defecto 1). Con `escala > 1`, los **iconos de tropa**
   del panel se generan a esa resolución (se ven más nítidos); en el mapa y la batalla, que se dibujan a
   1:1, se usa el PNG reducido.
-- Nombres: `SP.<clave>` (mapa y tropas: `castle`, `castle2`, `town`, `tree`, `hill`, cada tipo de tropa…),
+- Nombres: `MAPA.<clave>` (kit de mapa, tabla de arriba), `SP.<clave>` (mapa y tropas: `castle`, `castle2`, `town`, `tree`, `hill`, cada tipo de tropa…),
   `MS.<tipo>.<fotograma>` (soldados de la batalla táctica, 0 y 1 al andar), `IFZ.<clave>` (iconos de
   pestaña `IFZ.tab.<id>`, y del mapa: `IFZ.mapa.estandarte`, `tienda`, `mercenarios`, `escala`, `fuego`,
   `marcha`, `general`, `estandarte.0|1`, `pendon.0|1`, `tienda`, `tiendaF`, `hoguera.0|1`, `colina`,

@@ -635,6 +635,151 @@ function OC_N() {
   ok(!e3.length, "sin errores de JS " + e3.join(" | "));
   await pm.close();
 
+  /* ---------- kit de mapa: atlas, exportar → hoja maltratada → importar → el juego la usa ---------- */
+  console.log("\n== Kit de mapa (exportar e importar hojas)");
+  {
+    const os = require("os"),
+      { execFileSync } = require("child_process"),
+      tmp = fs.mkdtempSync(path.join(os.tmpdir(), "ocaso-kit-")),
+      exp = path.join(tmp, "exp"),
+      copia = path.join(tmp, "juego");
+    const e5 = [];
+    const pa = await nueva(browser, { width: 1200, height: 800 }, false, e5);
+    await pa.click('[data-act="s-new"]');
+    await pa.click('[data-act="s-civ-0"]');
+    await pa.click('[data-act="s-go"]');
+    await pa.waitForTimeout(300);
+    await cerrarModales(pa);
+    const at = await pa.evaluate(() => {
+      const A = ifzAtlas(),
+        n = (re) => A.filter((a) => re.test(a.nombre)).length;
+      return {
+        total: A.length,
+        suelos: ["llanura", "bosque", "bosque_denso", "colina", "montana", "nieve"].every((k) => n(new RegExp(`^MAPA\\.${k}\\.\\d$`)) >= 3),
+        costa: n(/^MAPA\.costa\.\d+$/) === 16 && n(/^MAPA\.espuma\.\d+$/) === 16,
+        rio: n(/^MAPA\.rio\.\d+$/) === 16 && n(/^MAPA\.(puente|vado)\.[hv]$/) === 4,
+        caminos: n(/^MAPA\.camino\.\d+$/) === 16 && n(/^MAPA\.calzada\.\d+$/) === 16,
+        ciudades: n(/^MAPA\.ciudad\.\d$/) === 4 && n(/^MAPA\.muralla\.\d$/) === 3 && n(/^MAPA\.capital$/) === 1,
+        edificios: ["torre", "mina", "cantera", "aserradero", "salinas", "puerto"].every((k) => n(new RegExp(`^MAPA\\.${k}$`)) === 1),
+        arboles: n(/^IFZ\.arbol\./) === 4,
+      };
+    });
+    ok(at.suelos && at.costa && at.rio && at.caminos && at.ciudades && at.edificios && at.arboles, `atlas del mapa completo (${at.total} celdas): suelos con variantes, costa y espuma 16+16, ríos 16 + puentes y vados, caminos y calzadas 16+16, ciudades, murallas, capital, edificios y árboles`);
+    await pa.close();
+    /* exportar (con la herramienta) */
+    execFileSync("node", [path.join(raiz, "herramientas/exportar-sprites.js"), exp], { stdio: "pipe" });
+    const hojas = fs.readdirSync(path.join(exp, "hojas")),
+      renders = fs.readdirSync(path.join(exp, "renders"));
+    ok(hojas.includes("atlas@4x.png") && hojas.includes("atlas@8x.json") && hojas.includes("tropas@8x.png") && renders.length >= 3, `exportación: ${hojas.length / 2} hojas con plantilla y ${renders.length} mapas de referencia`);
+    /* copia del juego para no tocar el de verdad */
+    fs.cpSync(raiz, copia, { recursive: true, filter: (f) => !/(\/pruebas\/capturas|\/assets\/sprites\/originales|\/app-movil|\/\.git)(\/|$)/.test(f) });
+    /* maltratar la hoja del atlas (×1,03, desplazada, JPEG) y la de tropas (×0,97) en el navegador */
+    const pm2 = await browser.newPage();
+    const maltratar = async (ent, sal, esc, dx, dy, q) => {
+      const url = "data:image/png;base64," + fs.readFileSync(ent).toString("base64");
+      const out = await pm2.evaluate(
+        async ({ url, esc, dx, dy, q }) => {
+          const im = new Image();
+          await new Promise((r) => ((im.onload = r), (im.src = url)));
+          const c = document.createElement("canvas");
+          c.width = Math.round(im.width * esc) + 2 * dx;
+          c.height = Math.round(im.height * esc) + 2 * dy;
+          const g = c.getContext("2d");
+          g.fillStyle = "#101418";
+          g.fillRect(0, 0, c.width, c.height);
+          g.drawImage(im, dx, dy, im.width * esc, im.height * esc);
+          return c.toDataURL("image/jpeg", q);
+        },
+        { url, esc, dx, dy, q },
+      );
+      fs.writeFileSync(sal, Buffer.from(out.split(",")[1], "base64"));
+    };
+    await maltratar(path.join(exp, "hojas/atlas@8x.png"), path.join(tmp, "atlas-gemini.jpg"), 1.03, 13, 9, 0.75);
+    await maltratar(path.join(exp, "hojas/tropas@8x.png"), path.join(tmp, "tropas-gemini.jpg"), 0.97, 5, 21, 0.8);
+    await pm2.close();
+    const imp = (hoja, cat) =>
+      execFileSync("node", [path.join(raiz, "herramientas/importar-hoja.js"), hoja, cat, "--plantilla", path.join(exp, `hojas/${cat}@8x.json`), "--destino", copia], { encoding: "utf8" });
+    const s1 = imp(path.join(tmp, "atlas-gemini.jpg"), "atlas"),
+      s2 = imp(path.join(tmp, "tropas-gemini.jpg"), "tropas");
+    const m = JSON.parse(fs.readFileSync(path.join(copia, "assets/sprites/manifest.json"), "utf8")),
+      nMapa = Object.keys(m.sprites).filter((k) => k.startsWith("MAPA.")).length,
+      nTrop = Object.keys(m.sprites).filter((k) => k.startsWith("SP.")).length;
+    ok(/escala 1\.03/.test(s1) && /escala 0\.9[67]/.test(s2) && nMapa > 120 && nTrop > 20, `importación de hojas maltratadas: ${nMapa} celdas del atlas y ${nTrop} tropas (${s1.split("\n")[0].replace(/^Hoja /, "")} | ${s2.split("\n")[0].replace(/^Hoja /, "")})`);
+    /* fidelidad: lo importado se parece a lo exportado (alfa igual y color cercano) */
+    const pc = await browser.newPage();
+    const fid = await pc.evaluate(
+      async (pares) => {
+        const leer = async (u) => {
+          const im = new Image();
+          await new Promise((r) => ((im.onload = r), (im.src = u)));
+          const c = document.createElement("canvas");
+          c.width = im.width;
+          c.height = im.height;
+          const g = c.getContext("2d");
+          g.drawImage(im, 0, 0);
+          return g.getImageData(0, 0, c.width, c.height);
+        };
+        let s = 0,
+          peor = 1;
+        for (const [A, B] of pares) {
+          const x = await leer(A),
+            y = await leer(B);
+          let ok = 0;
+          const N = x.width * x.height;
+          if (x.width === y.width && x.height === y.height)
+            for (let i = 0; i < N * 4; i += 4) {
+              const a = x.data[i + 3] >= 110,
+                b = y.data[i + 3] >= 110;
+              if (a === b && (!a || Math.hypot(x.data[i] - y.data[i], x.data[i + 1] - y.data[i + 1], x.data[i + 2] - y.data[i + 2]) < 40)) ok++;
+            }
+          s += ok / N;
+          peor = Math.min(peor, ok / N);
+        }
+        return { media: s / pares.length, peor };
+      },
+      ["MAPA.llanura.0", "MAPA.costa.5", "MAPA.rio.10", "MAPA.calzada.15", "MAPA.ciudad.3", "MAPA.mina", "IFZ.arbol.pino"].map((n) => [
+        "data:image/png;base64," + fs.readFileSync(path.join(exp, "atlas", n + ".png")).toString("base64"),
+        "data:image/png;base64," + fs.readFileSync(path.join(copia, "assets/sprites/atlas", n + ".png")).toString("base64"),
+      ]),
+    );
+    await pc.close();
+    ok(fid.media > 0.95 && fid.peor > 0.85, `lo importado coincide con lo exportado (${Math.round(fid.media * 100)} % de media, peor ${Math.round(fid.peor * 100)} %)`);
+    /* el juego (la copia) carga lo importado desde manifest.js y lo usa en el mapa */
+    const e6 = [];
+    const pj = await browser.newPage({ viewport: { width: 1200, height: 800 } });
+    pj.on("pageerror", (e) => e6.push(e.message));
+    await pj.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
+    await pj.goto("file://" + path.join(copia, "index.html"));
+    await pj.evaluate(() => localStorage.clear());
+    await pj.click('[data-act="s-new"]');
+    await pj.click('[data-act="s-civ-0"]');
+    await pj.click('[data-act="s-go"]');
+    await pj.waitForTimeout(600);
+    await cerrarModales(pj);
+    const usa = await pj.evaluate(async () => {
+      await new Promise((r) => setTimeout(r, 400));
+      G.cam.niebla = false;
+      sel = null;
+      drawMap(performance.now());
+      /* una casilla de llanura sin nada encima: su píxel central debe salir de un PNG MAPA.llanura.* */
+      const inf = ifzMapaInfo();
+      let i = -1;
+      for (let k = 0; k < W * H && i < 0; k++) if (ifzClaveSuelo(k % W, (k / W) | 0, inf) === "llanura" && !inf.aldea[k] && !inf.camino[k] && !inf.rio[k] && inf.dMar[k] >= 2 && inf.alt[k] === inf.alt[k - 1] && inf.alt[k] === inf.alt[k - W] && inf.alt[k] < 5) i = k;
+      const im = IFZ_SPR.img["MAPA.llanura." + (ifzHash(i) % 4)] || IFZ_SPR.img["MAPA.llanura.0"],
+        c = document.createElement("canvas");
+      c.width = c.height = 16;
+      c.getContext("2d").drawImage(im, 0, 0);
+      const a = c.getContext("2d").getImageData(2, 2, 1, 1).data,
+        b = IFZ_HD.ter.getContext("2d").getImageData((i % W) * 16 + 2, ((i / W) | 0) * 16 + 2, 1, 1).data;
+      return { n: Object.keys(IFZ_SPR.img).filter((k) => k.startsWith("MAPA.")).length, png: !!ifzSueloPNG("llanura", i), d: Math.round(Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])) };
+    });
+    await pj.locator(".board").screenshot({ path: path.join(capt, "interfaz-kit-importado.png") });
+    await pj.close();
+    ok(usa.n > 120 && usa.png && usa.d < 70, `el juego carga las ${usa.n} celdas importadas y pinta el mapa con ellas (diferencia de color ${usa.d}, con el relieve encima)`);
+    ok(!e5.length && !e6.length, "sin errores de JS " + [...e5, ...e6].join(" | "));
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+
   /* ---------- partida guardada antigua ---------- */
   console.log("\n== Partida antigua");
   const e2 = [];

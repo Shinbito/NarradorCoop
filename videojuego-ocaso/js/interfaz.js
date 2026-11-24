@@ -721,21 +721,6 @@ const ifzVias = (f) => {
     return false;
   }
 };
-/* posiciones de las casas alrededor del centro de la ciudad (espiral) */
-const IFZ_CASAS = [
-  [-8, -1],
-  [8, 0],
-  [-5, 5],
-  [6, 6],
-  [-1, 8],
-  [-10, 5],
-  [11, 5],
-  [3, -9],
-  [-7, -8],
-  [9, -7],
-  [-12, -3],
-  [13, -2],
-];
 function ifzPolitico(own) {
   const inf = ifzMapaInfo(),
     ter = ifzTerrenoHD(),
@@ -745,7 +730,7 @@ function ifzPolitico(own) {
       "|" +
       own.join(",") +
       "|" +
-      G.P.map((p) => `${p.walls || 0}.${p.farm || 0}.${Math.round(ifzPob(p) / 3)}.${p.cap ? 1 : 0}`).join(",") +
+      G.P.map((p) => `${p.walls || 0}.${p.farm || 0}.${Math.round(ifzPob(p) / 3)}.${p.cap ? 1 : 0}.${ifzTorre(p)}.${p.puerto || 0}.${Object.keys(ifzExpl(p)).join("")}`).join(",") +
       "|" +
       dues.map((f) => (ifzVias(f) ? 1 : 0)).join("");
   if (IFZ_POL.cv && IFZ_POL.k === k) return IFZ_POL.cv;
@@ -769,7 +754,8 @@ function ifzPolitico(own) {
     for (const i of ts) c.fillRect((i % W) * S, ((i / W) | 0) * S, S, S);
   });
   c.globalAlpha = 1;
-  /* campos de cultivo alrededor de las ciudades (más con granja y población) */
+  /* campos de cultivo alrededor de las ciudades (más con granja y población); con atlas, MAPA.cultivo.* */
+  const cultAtlas = ifzAtlHay("cultivo.");
   for (const p of G.P) {
     const rr = mul(MAP.seed * 7 + p.id * 131),
       cand = (inf.provT[p.id] || []).filter((i) => {
@@ -779,6 +765,17 @@ function ifzPolitico(own) {
       });
     if (!cand.length) continue;
     const n = clamp(2 + 2 * (p.farm || 0) + Math.floor(ifzPob(p) / 4), 2, 12);
+    if (cultAtlas) {
+      const usadas = new Set();
+      for (let k2 = 0; k2 < Math.ceil(n / 2); k2++) {
+        const i = cand[Math.floor(rr() * cand.length)];
+        if (usadas.has(i)) continue;
+        usadas.add(i);
+        const im = ifzAtlVar("cultivo", ifzHash(i) % 4);
+        if (im) c.drawImage(im, (i % W) * S, ((i / W) | 0) * S, S, S);
+      }
+      continue;
+    }
     for (let k2 = 0; k2 < n; k2++) {
       const i = cand[Math.floor(rr() * cand.length)],
         X = (i % W) * S + Math.floor(rr() * 8),
@@ -849,6 +846,23 @@ function ifzPolitico(own) {
       tramos.push({ pts, emp: vias[own[a]] || vias[own[b]] });
     }),
   );
+  /* con atlas: autotile por casilla de camino (MAPA.camino.<máscara> / MAPA.calzada.<máscara>) */
+  const camAtlas = inf.v2 && (ifzAtlHay("camino.") || ifzAtlHay("calzada."));
+  if (camAtlas) {
+    tramos.length = 0;
+    for (let y = 0; y < H; y++)
+      for (let x = 0; x < W; x++) {
+        const i = y * W + x;
+        if (!inf.camino[i]) continue;
+        let m = 0;
+        for (const [a, b, bit] of IFZ_DIR4) if (x + a >= 0 && y + b >= 0 && x + a < W && y + b < H && inf.camino[(y + b) * W + x + a]) m |= bit;
+        const pid = MAP.grid[y][x],
+          emp = pid >= 0 && vias[own[pid]],
+          im = ifzAtlImg((emp ? "calzada." : "camino.") + m) || ifzAtlImg("camino." + m);
+        if (im) c.drawImage(im, x * S, y * S, S, S);
+        else ifzCeldaCamino(c, x * S, y * S, m, emp);
+      }
+  }
   for (const [pas, sel2] of [
     [0, (t) => t.emp],
     [1, (t) => t.emp],
@@ -900,66 +914,103 @@ function ifzPolitico(own) {
       }
     }
   });
-  /* ciudades: casas según la población, murallas según su nivel, castillo o torre en el centro */
+  /* edificios del mapa: torre de vigilancia, minas, canteras, aserraderos, salinas y puerto */
+  for (const p of G.P)
+    for (const [k2, i] of ifzEdificiosProv(p, inf)) {
+      const im = ifzAtlImg(k2),
+        X = (i % W) * S,
+        Y = ((i / W) | 0) * S;
+      if (im) c.drawImage(im, X, Y, S, S);
+      else ifzCeldaEdif(c, X, Y, k2);
+    }
+  /* ciudades: casas según la población, murallas según su nivel, castillo o torre en el centro;
+     con atlas, MAPA.ciudad.<1-4> / MAPA.capital y MAPA.muralla.<nivel> / MAPA.muralla_capital.<nivel> */
   for (const p of G.P) {
     const o = own[p.id],
       X = p.x * S + S / 2,
       Y = p.y * S + S / 2,
-      pob = ifzPob(p),
-      n = clamp(Math.round(pob / 2.2) + (p.cap ? 2 : 0), 2, IFZ_CASAS.length),
-      mu = p.walls || 0,
-      rr = mul(p.id * 7919 + MAP.seed),
-      R = (9 + Math.min(5, n * 0.5)) * (p.cap ? 1.4 : 1);
-    /* sombra del conjunto */
-    c.fillStyle = "rgba(0,0,0,.18)";
-    c.fillRect(X - R + 2, Y - 3, 2 * R - 2, R / 1.5 + 4);
-    if (mu >= 1) ifzMuralla(c, X, Y + 1, R, mu, rr);
-    const orden = IFZ_CASAS.slice(0, n).sort((a, b) => a[1] - b[1]),
-      ex = p.cap ? 1.55 : 1;
-    for (const [dx, dy] of orden) ifzDib(c, rr() < 0.4 ? "mapa.casa2" : "mapa.casa", X + Math.round(dx * ex) - 3, Y + Math.round(dy * ex) - 4, null);
-    /* el castillo de la capital, a doble tamaño: es el hito del mapa */
-    if (p.cap) {
-      c.save();
-      c.scale(2, 2);
-      spr(c, SP.castle, Math.round(X / 2) - 5, Math.round(Y / 2) - 8, PAL[o] || PAL[0]);
-      c.restore();
-    } else spr(c, SP.town, X - 4, Y - 6, PAL[o] || PAL[0]);
-    if (mu >= 2) for (const [a, b] of [[-R, 2], [R - 2, 2]]) ifzDib(c, "mapa.torre", X + a, Y + b - 1, null);
+      n = clamp(Math.round(ifzPob(p) / 2.2) + (p.cap ? 2 : 0), 2, IFZ_CASAS.length),
+      mu = Math.min(3, p.walls || 0),
+      pal = PAL[o] || PAL[0],
+      nomC = p.cap ? "capital" : "ciudad." + ifzClaseCiudad(n),
+      imC = ifzAtlImg(nomC),
+      imM = mu ? ifzAtlImg((p.cap ? "muralla_capital." : "muralla.") + mu) : null,
+      t = p.cap ? 3 : 2;
+    if (imC) {
+      c.drawImage(ifzSprTenidoImg(imC, "MAPA." + nomC, pal), X - (t * S) / 2, Y - (t * S) / 2, t * S, t * S);
+      if (mu) {
+        if (imM) c.drawImage(imM, X - (t * S) / 2, Y - (t * S) / 2, t * S, t * S);
+        else ifzMurallaProc(c, X, Y + 1, p.cap ? 19.6 : 12, mu);
+      }
+      continue;
+    }
+    if (imM) c.drawImage(imM, X - (t * S) / 2, Y - (t * S) / 2, t * S, t * S);
+    ifzCiudadProc(c, X, Y, n, !!p.cap, imM ? 0 : mu, pal, p.id * 7919 + MAP.seed);
   }
   IFZ_POL.k = k;
   IFZ_POL.ms = performance.now() - t0;
   return cc;
 }
-/* muralla: empalizada (nivel 1), piedra con torres (2) y torres también a los lados (3+) */
-function ifzMuralla(c, X, Y, R, mu, rr) {
-  const ry = R * 0.7,
-    n = Math.round(R * 4);
-  for (let q = 0; q < n; q++) {
-    const a = (q / n) * Math.PI * 2,
-      x = Math.round(X + Math.cos(a) * R),
-      y = Math.round(Y + Math.sin(a) * ry);
-    if (mu === 1) {
-      if (q % 2) continue;
-      c.fillStyle = "#5b3f22";
-      c.fillRect(x, y - 2, 1, 3);
-      c.fillStyle = "#8a6438";
-      c.fillRect(x, y - 2, 1, 1);
-    } else {
-      c.fillStyle = "#3a3530";
-      c.fillRect(x - 1, y - 1, 3, 3);
-      c.fillStyle = "#b7ae9c";
-      c.fillRect(x - 1, y - 2, 2, 2);
-    }
+/* torre de vigilancia y explotaciones de una provincia */
+const ifzTorre = (p) => {
+  try {
+    return typeof tecVision === "function" ? tecVision(p) : +p.torre || 0;
+  } catch (_) {
+    return +p.torre || 0;
   }
-  if (mu >= 2) {
-    const ts = mu >= 3 ? 8 : 4;
-    for (let q = 0; q < ts; q++) {
-      const a = (q / ts) * Math.PI * 2 + Math.PI / ts,
-        x = Math.round(X + Math.cos(a) * R),
-        y = Math.round(Y + Math.sin(a) * ry);
-      ifzDib(c, "mapa.torre", x - 1, y - 4, null);
-    }
+};
+const ifzExpl = (p) => {
+  try {
+    return typeof ecoExplotaciones === "function" && G.eco ? ecoExplotaciones(p) : {};
+  } catch (_) {
+    return {};
   }
+};
+/* dónde se dibuja cada edificio de la provincia: [[clave, casilla]] (determinista; una casilla cada uno) */
+function ifzEdificiosProv(p, inf) {
+  const out = [],
+    usadas = new Set([p.y * W + p.x]),
+    ts = (inf.provT[p.id] || [])
+      .filter((i) => !inf.rio[i] && !inf.mont[i] && !(inf.camino && inf.camino[i]))
+      .sort((a, b) => Math.hypot((a % W) - p.x, ((a / W) | 0) - p.y) - Math.hypot((b % W) - p.x, ((b / W) | 0) - p.y) || a - b),
+    tr = (i) => MAP.terr[(i / W) | 0][i % W],
+    costa = (i) =>
+      IFZ_DIR4.some(([a, b]) => {
+        const x = (i % W) + a,
+          y = ((i / W) | 0) + b;
+        return x >= 0 && y >= 0 && x < W && y < H && !MAP.terr[y][x];
+      }),
+    pon = (k, ok) => {
+      const i = ts.find((j) => !usadas.has(j) && ok(j)) ?? ts.find((j) => !usadas.has(j));
+      if (i == null) return;
+      usadas.add(i);
+      out.push([k, i]);
+    };
+  if (ifzTorre(p) > 0) pon("torre", () => true);
+  const ex = ifzExpl(p);
+  if (ex.mina) pon("mina", (i) => tr(i) === 3);
+  if (ex.cantera) pon("cantera", (i) => tr(i) === 3);
+  if (ex.aserradero) pon("aserradero", (i) => tr(i) === 2);
+  if (ex.salinas) pon("salinas", costa);
+  if ((p.puerto || 0) > 0) {
+    /* el puerto, en el mar junto a la ciudad (o en la orilla más cercana de la provincia) */
+    const mar = IFZ_DIR4.map(([a, b]) => [p.x + a, p.y + b]).find(([x, y]) => x >= 0 && y >= 0 && x < W && y < H && !MAP.terr[y][x]);
+    if (mar) out.push(["puerto", mar[1] * W + mar[0]]);
+    else pon("puerto", costa);
+  }
+  return out;
+}
+/* PNG teñible del atlas (ciudades, capital) con el color del pueblo */
+function ifzSprTenidoImg(im, nombre, pal) {
+  const e = (IFZ_SPR.m && IFZ_SPR.m.sprites[nombre]) || {};
+  if (!e.tinte || !pal || !pal.f) return im;
+  const k = nombre + "|" + pal.f + "|" + pal.r;
+  let t = IFZ_SPR.tin.get(k);
+  if (t === undefined) {
+    t = ifzTenir(im, pal.f, pal.r);
+    IFZ_SPR.tin.set(k, t);
+  }
+  return t || im;
 }
 /* ---------- ejércitos: columnas de figuras ---------- */
 const IFZ_FIG_MAX = 40;
@@ -1253,7 +1304,7 @@ function drawMap(now) {
     const X = p.x * S + S / 2,
       Y = p.y * S + S / 2,
       o = own[p.id];
-    if (p.cap && wave) {
+    if (p.cap && wave && !ifzAtlImg("capital")) {
       h.save();
       h.scale(2, 2);
       spr(h, SP.castle2, Math.round(X / 2) - 5, Math.round(Y / 2) - 8, PAL[o] || PAL[0]);
@@ -2603,6 +2654,9 @@ function ifzSprCatalogo() {
   for (const k in IFZ_SP) add("IFZ." + k, IFZ_SP[k]);
   for (const t of IFZ_TILE) out.push({ nombre: "TILE." + t, cat: "terreno", w: IFZ_S, h: IFZ_S, tinte: false, alias: null });
   out.push({ nombre: "ESCENA.fondo", cat: "escena", w: 200, h: 112, tinte: false, alias: null });
+  /* kit de mapa: el atlas completo (MAPA.* y los sprites de interfaz del mapa) */
+  for (const a of ifzAtlas())
+    out.push({ nombre: a.nombre, cat: "atlas", grupo: a.grupo, w: a.px ? a.px[0] : a.w * IFZ_S, h: a.px ? a.px[1] : a.h * IFZ_S, tinte: a.nombre.startsWith("IFZ.") ? IFZ_SP[a.nombre.slice(4)].some((r) => /[Ff]/.test(r)) : a.tinte, opaco: a.opaco, alias: null });
   return out;
 }
 /* filas de un sprite por su nombre */
@@ -2624,6 +2678,20 @@ function ifzSprRender(n, k = 1, modo = "plantilla", f = 0) {
     const tc = document.createElement("canvas");
     tc.width = tc.height = IFZ_S;
     ifzTeselaSuelta(tc.getContext("2d"), n.slice(5));
+    x.drawImage(tc, 0, 0, c.width, c.height);
+    return c;
+  }
+  if (n.startsWith("MAPA.")) {
+    const a = ifzAtlas().find((x) => x.nombre === n);
+    if (!a) return c;
+    const tc = document.createElement("canvas");
+    tc.width = a.w * IFZ_S;
+    tc.height = a.h * IFZ_S;
+    const tx = tc.getContext("2d");
+    tx.imageSmoothingEnabled = false;
+    a.dib(tx, 0, 0);
+    c.width = tc.width * k;
+    c.height = tc.height * k;
     x.drawImage(tc, 0, 0, c.width, c.height);
     return c;
   }
@@ -2811,10 +2879,26 @@ function ifzSprAplicar(man) {
     const e = { ...e0 },
       src = e.datos || (e.png ? "assets/sprites/" + e.png : null);
     if (!src) continue;
-    IFZ_SPR.m.sprites[n] = e;
+    const hoja = n === "MAPA.atlas" && e.celdas;
+    /* una hoja entera del atlas: sus celdas se registran como si fueran PNG sueltos */
+    if (hoja)
+      for (const [nc, cel] of Object.entries(e.celdas)) {
+        const esc = e.escala || 1;
+        if (!IFZ_SPR.m.sprites[nc]) IFZ_SPR.m.sprites[nc] = { w: Math.round(cel[2] / esc), h: Math.round(cel[3] / esc), tinte: !!cel[4] };
+      }
+    else IFZ_SPR.m.sprites[n] = e;
     const im = new Image();
     im.onload = () => {
-      IFZ_SPR.img[n] = im;
+      if (hoja)
+        for (const [nc, cel] of Object.entries(e.celdas)) {
+          if (IFZ_SPR.img[nc]) continue; /* un PNG suelto manda sobre la hoja */
+          const cc = document.createElement("canvas");
+          cc.width = cel[2];
+          cc.height = cel[3];
+          cc.getContext("2d").drawImage(im, cel[0], cel[1], cel[2], cel[3], 0, 0, cel[2], cel[3]);
+          IFZ_SPR.img[nc] = cc;
+        }
+      else IFZ_SPR.img[n] = im;
       ifzSprInstalar();
       ifzSprRefrescar();
     };
