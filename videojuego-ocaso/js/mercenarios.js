@@ -127,7 +127,7 @@ function mercCasillaLibre() {
     const x = ri(1, W - 2),
       y = ri(1, H - 2),
       pid = MAP.grid[y][x];
-    if (pid < 0 || !MAP.terr[y][x] || camCiudadEn(x, y)) continue;
+    if (pid < 0 || !camPasable(x, y) || camCiudadEn(x, y)) continue;
     if (S.ej.some((e) => camCheb(e.x, e.y, x, y) <= 1) || M.camp.some((c) => camCheb(c.x, c.y, x, y) < 8)) continue;
     if (G.P.some((p) => camCheb(p.x, p.y, x, y) <= 1)) continue;
     return [x, y];
@@ -292,7 +292,7 @@ function mercDesertar(c) {
     let bx = x,
       by = y;
     if (s.p) {
-      const v = CAM_V8.map(([dx, dy]) => [x + dx, y + dy]).find(([a, b]) => MAP.terr[b]?.[a] && !camEjsEn(a, b).length && !camCiudadEn(a, b));
+      const v = CAM_V8.map(([dx, dy]) => [x + dx, y + dy]).find(([a, b]) => camPasable(a, b) && !camEjsEn(a, b).length && !camCiudadEn(a, b));
       if (v) [bx, by] = v;
     }
     const b = camNuevoEj(REB, bx, by, { [c.t]: s.n }, { vet: { [c.t]: MERC_K.vet }, nom: `Desertores ${c.nom.toLowerCase().startsWith("los") ? c.nom : "de " + c.nom}`, sum: 2 });

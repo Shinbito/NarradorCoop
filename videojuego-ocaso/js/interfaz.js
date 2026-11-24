@@ -251,6 +251,9 @@ const stTag = (g) =>
 function provPanel(dis) {
   /* CAM: con un ejército seleccionado, su panel (campana.js) */
   if (typeof camSel !== "undefined" && camSel != null && camEj(camSel)) return camPanelEj(dis);
+  /* CAM: espía seleccionado y provincias que la niebla oculta (campana.js) */
+  if (typeof camEspSel !== "undefined" && camEspSel != null && typeof camPanelEsp === "function" && camEspPorId(camEspSel)) return camPanelEsp(dis);
+  if (sel !== null && G.P[sel] && typeof camProvOculta === "function" && camProvOculta(G.P[sel])) return camPanelNiebla(G.P[sel], dis);
   if (sel === null || !G.P[sel])
     return '<h2>Mapa de campaña</h2><p class="dim">Haz clic (o toca) una provincia del mapa. Las tuyas llevan tu color; los castillos son capitales y la cifra junto a cada ciudad son sus levas.</p>';
   const p = G.P[sel],
@@ -1230,6 +1233,13 @@ function ifzCamDibujar(now) {
       ])
         c.fillRect(X + a, Y + b, w, h);
     };
+  /* CAM: niebla de guerra (campana.js): oscuro lo no explorado, velo y última noticia en lo no visible */
+  if (typeof camDibujarNiebla === "function") {
+    c.save();
+    c.scale(IFZ_K, IFZ_K);
+    camDibujarNiebla(c, now);
+    c.restore();
+  }
   /* alcance (cacheado): relleno suave y contorno dorado */
   if (mio) {
     const D = camAlcance(se),
@@ -1268,7 +1278,7 @@ function ifzCamDibujar(now) {
     for (const p of G.P)
       if (camCiudadCerrada(se.f, p) && CAM_V8.some(([dx, dy]) => D.dist[camIdx(p.x + dx, p.y + dy)] <= se.mov + 1e-9 || (se.x === p.x + dx && se.y === p.y + dy)))
         tgt(p.x * S, p.y * S);
-    for (const e of S0.ej) if (camGuerra(se.f, e.f) && D.dist[camIdx(e.x, e.y)] <= se.mov + 1e-9) tgt(e.x * S, e.y * S);
+    for (const e of S0.ej) if (camGuerra(se.f, e.f) && D.dist[camIdx(e.x, e.y)] <= se.mov + 1e-9 && (typeof camVeEj !== "function" || camVeEj(ME, e))) tgt(e.x * S, e.y * S); /* CAM: niebla */
     /* ruta hasta la casilla bajo el ratón: huellas con borde; destino marcado */
     const r = camRutaHover(se);
     if (r) {
@@ -1288,7 +1298,7 @@ function ifzCamDibujar(now) {
   }
   /* huella de la última marcha */
   for (const e of S0.ej) {
-    if (!e.pas || !e.pas.length) continue;
+    if (!e.pas || !e.pas.length || (typeof camVeEj === "function" && !camVeEj(ME, e))) continue; /* CAM: niebla */
     c.fillStyle = CIV[e.f].d;
     c.globalAlpha = 0.55;
     for (const j of e.pas) {
@@ -1300,14 +1310,14 @@ function ifzCamDibujar(now) {
   /* campamentos mercenarios: tiendas doradas y banderola */
   if (typeof mercS === "function")
     for (const m of mercS().camp)
-      if (m.cias.length) {
+      if (m.cias.length && (typeof camExplorado !== "function" || camExplorado(ME, m.x, m.y))) { /* CAM: niebla */
         ifzDib(c, "mapa.mercenarios", m.x * S + 1, m.y * S + 4, null);
         ifzDib(c, "mapa.mercenarios", m.x * S + 8, m.y * S + 8, null);
       }
   /* asedios: anillo de cerco, torres, fuego y humo; punto rojo si la ciudad pasa hambre */
   for (const a of Object.values(S0.as)) {
     const p = G.P[a.p];
-    if (!p) continue;
+    if (!p || (typeof camVeProv === "function" && !camVeProv(ME, p.id))) continue; /* CAM: niebla */
     ifzCerco(c, p, a.f, now);
     if (a.vi < 0) {
       c.fillStyle = "#000";
@@ -1329,7 +1339,7 @@ function ifzCamDibujar(now) {
     vis = [];
   for (const e of S0.ej) {
     const n = camTot(e.u);
-    if (n <= 0) continue;
+    if (n <= 0 || (typeof camVeEj === "function" && !camVeEj(ME, e))) continue; /* CAM: niebla */
     const enC = ciu.has(camIdx(e.x, e.y)),
       tx = e.x * S + S / 2 - (enC ? 14 : 0),
       ty = e.y * S + S / 2 + 4,

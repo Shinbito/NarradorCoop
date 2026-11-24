@@ -98,7 +98,7 @@ const ok = (c, m) => {
       const l = [];
       for (let y = 1; y < H - 1; y++)
         for (let x = 1; x < W - 1; x++) {
-          if (MAP.grid[y][x] !== pid || !MAP.terr[y][x] || camCiudadEn(x, y) || camEjsEn(x, y).length) continue;
+          if (MAP.grid[y][x] !== pid || !camPasable(x, y) || camCiudadEn(x, y) || camEjsEn(x, y).length) continue;
           if (cerca && camCheb(x, y, cerca[0], cerca[1]) !== 1) continue;
           if (!cerca && G.P.some((p) => camCheb(p.x, p.y, x, y) <= 1)) continue;
           l.push([x, y]);
@@ -237,12 +237,12 @@ const ok = (c, m) => {
     const ps = G.P.filter((p) => p.owner !== ME && !p.cap).sort((a, b) => Math.hypot(a.x - cap.x, a.y - cap.y) - Math.hypot(b.x - cap.x, b.y - cap.y));
     let q = null, reu = null;
     for (const p of ps) {
-      const libres = CAM_V8.filter(([dx, dy]) => MAP.terr[p.y + dy] && MAP.terr[p.y + dy][p.x + dx] && !camEjsEn(p.x + dx, p.y + dy).length && !camCiudadEn(p.x + dx, p.y + dy));
+      const libres = CAM_V8.filter(([dx, dy]) => camPasable(p.x + dx, p.y + dy) && !camEjsEn(p.x + dx, p.y + dy).length && !camCiudadEn(p.x + dx, p.y + dy));
       const lados = new Set(libres.map(([dx, dy]) => camFlanco(dx, dy)));
       if (lados.size < 4) continue;
       for (const [dx, dy] of [[-3, 0], [3, 0], [0, -3], [0, 3]]) {
         const x = p.x + dx, y = p.y + dy;
-        if (MAP.terr[y] && MAP.terr[y][x] && MAP.grid[y][x] >= 0 && !camCiudadEn(x, y) && !camEjsEn(x, y).length) { reu = [x, y]; break; }
+        if (camPasable(x, y) && MAP.grid[y][x] >= 0 && !camCiudadEn(x, y) && !camEjsEn(x, y).length) { reu = [x, y]; break; }
       }
       if (reu) { q = p; break; }
     }
@@ -302,7 +302,7 @@ const ok = (c, m) => {
   console.log("3c. Un cerco es de quien lo puso");
   const m3d = await corre(`
     const A = [...Array(NF).keys()].find((f) => f !== ME && alive(f));
-    const libre = (p) => CAM_V8.map(([dx, dy]) => [p.x + dx, p.y + dy]).filter(([x, y]) => MAP.terr[y] && MAP.terr[y][x] && !camEjsEn(x, y).length && !camCiudadEn(x, y));
+    const libre = (p) => CAM_V8.map(([dx, dy]) => [p.x + dx, p.y + dy]).filter(([x, y]) => camPasable(x, y) && !camEjsEn(x, y).length && !camCiudadEn(x, y));
     const cs = G.P.filter((p) => p.owner !== ME && p.owner !== A && !p.cap && libre(p).length >= 4 && !camAsedio(p.id));
     const [q, q3] = cs;
     const guerra = (a, b) => { if (b < NF) G.st[a][b] = G.st[b][a] = "guerra"; };
@@ -333,7 +333,7 @@ const ok = (c, m) => {
     G.rel[ME][A] = G.rel[A][ME] = -50;
     q3.walls = 1; q3.u = cmbNorm({ i: 6 });
     const lb = libre(q3);
-    const lejos = (x0, y0) => { for (let r = 3; r <= 4; r++) for (const [dx, dy] of [[-r, 0], [r, 0], [0, -r], [0, r]]) { const x = x0 + dx, y = y0 + dy; if (MAP.terr[y] && MAP.terr[y][x] && MAP.grid[y][x] >= 0 && !camCiudadEn(x, y) && !camEjsEn(x, y).length && camPaso(ME, G.P[MAP.grid[y][x]].owner) && camPaso(A, G.P[MAP.grid[y][x]].owner)) return [x, y]; } return null; };
+    const lejos = (x0, y0) => { for (let r = 3; r <= 4; r++) for (const [dx, dy] of [[-r, 0], [r, 0], [0, -r], [0, r]]) { const x = x0 + dx, y = y0 + dy; if (camPasable(x, y) && MAP.grid[y][x] >= 0 && !camCiudadEn(x, y) && !camEjsEn(x, y).length && camPaso(ME, G.P[MAP.grid[y][x]].owner) && camPaso(A, G.P[MAP.grid[y][x]].owner)) return [x, y]; } return null; };
     const s1 = lejos(q3.x, q3.y);
     if (!s1) return { ...res, sinCarrera: true };
     const m1 = camNuevoEj(ME, s1[0], s1[1], { i: 8 }, {}), m2 = camNuevoEj(A, s1[0], s1[1], { c: 6 }, {});
@@ -382,7 +382,7 @@ const ok = (c, m) => {
     const cap = G.P[G.F[ME].capId];
     const xy = casilla(cap.id);
     const mio = camNuevoEj(ME, xy[0], xy[1], { i: 12, c: 4, a: 3 }, {});
-    const v = CAM_V8.map(([dx, dy]) => [xy[0] + dx, xy[1] + dy]).find(([x, y]) => MAP.terr[y][x] && !camEjsEn(x, y).length && !camCiudadEn(x, y));
+    const v = CAM_V8.map(([dx, dy]) => [xy[0] + dx, xy[1] + dy]).find(([x, y]) => camPasable(x, y) && !camEjsEn(x, y).length && !camCiudadEn(x, y));
     const ene = camNuevoEj(REB, v[0], v[1], { i: 4 }, { nom: "Bagaudas del bosque" });
     const n0 = window.__ev.bat.length;
     await camAplicarOrden(G, { tipo: "mover", f: ME, ej: mio.id, x: v[0], y: v[1] });
@@ -400,7 +400,7 @@ const ok = (c, m) => {
     outer: for (const p of ps) for (let y = 2; y < H - 2; y++) for (let x = 2; x < W - 2; x++) {
       if (MAP.grid[y][x] !== p.id || camCiudadEn(x, y) || camEjsEn(x, y).length) continue;
       const A = [x - 2, y], B = [x + 2, y];
-      if ([A, B, [x - 1, y], [x + 1, y]].every(([i, j]) => MAP.terr[j][i] === 1 && MAP.grid[j][i] >= 0 && !camCiudadEn(i, j) && !camEjsEn(i, j).length) && MAP.terr[y][x] === 1) { a = A; b = B; meta = [x, y]; break outer; }
+      if ([A, B, [x - 1, y], [x + 1, y]].every(([i, j]) => MAP.terr[j][i] === 1 && camPasable(i, j) && MAP.grid[j][i] >= 0 && !camCiudadEn(i, j) && !camEjsEn(i, j).length) && MAP.terr[y][x] === 1 && camPasable(x, y)) { a = A; b = B; meta = [x, y]; break outer; }
     }
     if (!meta) return { sin: true };
     const lento = camNuevoEj(ME, a[0], a[1], { i: 6 }, {});
@@ -439,7 +439,7 @@ const ok = (c, m) => {
           for (let dy = -2; dy <= 2 && ok; dy++)
             for (let dx = -2; dx <= 2 && ok; dx++) {
               const a = x + dx, b = y + dy, pid = MAP.grid[b][a];
-              if (!MAP.terr[b][a] || pid < 0 || camCiudadEn(a, b) || camEjsEn(a, b).length || G.P.some((q) => camCheb(q.x, q.y, a, b) <= 0) || !camPaso(ME, G.P[pid].owner) || !camPaso(L, G.P[pid].owner) || !camPaso(E, G.P[pid].owner)) ok = false;
+              if (!camPasable(a, b) || pid < 0 || camCiudadEn(a, b) || camEjsEn(a, b).length || G.P.some((q) => camCheb(q.x, q.y, a, b) <= 0) || !camPaso(ME, G.P[pid].owner) || !camPaso(L, G.P[pid].owner) || !camPaso(E, G.P[pid].owner)) ok = false;
             }
           if (ok) P = [x, y];
         }
@@ -489,7 +489,7 @@ const ok = (c, m) => {
     const M = mercS();
     if (!M.camp.length) mercCampos();
     const c = M.camp.find((x) => x.cias.length);
-    const xy = CAM_V8.map(([dx, dy]) => [c.x + dx, c.y + dy]).find(([x, y]) => MAP.terr[y][x] && !camEjsEn(x, y).length && !camCiudadEn(x, y));
+    const xy = CAM_V8.map(([dx, dy]) => [c.x + dx, c.y + dy]).find(([x, y]) => camPasable(x, y) && !camEjsEn(x, y).length && !camCiudadEn(x, y));
     paz(ME);
     const ej = camNuevoEj(ME, xy[0], xy[1], { i: 5 }, {});
     const F = G.F[ME]; F.gold = 2000;
@@ -543,6 +543,149 @@ const ok = (c, m) => {
   const vieja = await page.evaluate(() => ({ cam: !!G.cam && Array.isArray(G.cam.ej), est: G.estacion, err: /Error al mostrar/.test(document.getElementById("panel").innerHTML) }));
   ok(vieja.cam && vieja.est === 0 && !vieja.err, "la partida antigua carga con G.cam vacío y en primavera");
 
+  /* ---------- 7b. niebla de guerra y espías ---------- */
+  console.log("7b. Niebla de guerra y espías");
+  const nb = await corre(`
+    G.cam.niebla = true;
+    for (const e of G.cam.ej.slice()) camQuitar(e);
+    G.cam.esp = [];
+    camTocar();
+    const libre = (x, y) => camPasable(x, y) && MAP.grid[y][x] >= 0 && !camCiudadEn(x, y) && !camEjsEn(x, y).length;
+    const lejosDe = (x, y, l, d) => l.every((p) => camCheb(p.x, p.y, x, y) > d);
+    const r = {};
+    /* a) un ejército lejano no se ve; ni en el panel ni al pasar el ratón */
+    let far = null;
+    for (let y = 2; y < H - 2 && !far; y++) for (let x = 2; x < W - 2 && !far; x++) if (libre(x, y) && !camVisible(ME, x, y)) far = [x, y];
+    const lej = camNuevoEj(REB, far[0], far[1], { i: 9 }, { nom: "Hueste oculta" });
+    r.lejosOculto = !camVeEj(ME, lej) && !camHoverTxt(far[0], far[1]).includes("Hueste oculta");
+    r.ignota = !camExplorado(ME, far[0], far[1]) ? camHoverTxt(far[0], far[1]) : "explorada";
+    camQuitar(lej);
+    /* b) en el bosque solo se ve a una casilla */
+    let F = null, M = null;
+    for (let y = 3; y < H - 3 && !F; y++)
+      for (let x = 3; x < W - 3 && !F; x++) {
+        if (!camEsBosque(x, y) || !libre(x, y) || !lejosDe(x, y, G.P, 4)) continue;
+        const m2 = CAM_V8.map(([dx, dy]) => [x + 2 * dx, y + 2 * dy]).find(([a, b]) => libre(a, b) && !camEsBosque(a, b));
+        if (m2) { F = [x, y]; M = m2; }
+      }
+    if (F) {
+      const yo = camNuevoEj(ME, M[0], M[1], { i: 4 }, {}), oc = camNuevoEj(REB, F[0], F[1], { i: 6 }, { nom: "Emboscados" });
+      r.bosqueA2 = camVisible(ME, F[0], F[1]) && !camVeEj(ME, oc);
+      yo.x = F[0] + Math.sign(M[0] - F[0]); yo.y = F[1] + Math.sign(M[1] - F[1]); camTocar();
+      r.bosqueA1 = camVeEj(ME, oc);
+      /* d) un espía a 3 casillas lo revela sin acercar el ejército */
+      yo.x = M[0]; yo.y = M[1]; camTocar();
+      const cap = G.P[G.F[ME].capId];
+      G.F[ME].gold = 500;
+      const ce = await camAplicarOrden(G, { tipo: "espia", f: ME, p: cap.id });
+      const s = camEspPorId(ce.esp);
+      s.mov = 999;
+      await camAplicarOrden(G, { tipo: "espiaMover", f: ME, esp: s.id, x: F[0] + 3 * Math.sign(M[0] - F[0] || 1), y: F[1] });
+      r.espiaEn = camCheb(s.x, s.y, F[0], F[1]);
+      r.espiaRevela = r.espiaEn <= 3 && camVeEj(ME, oc);
+      camQuitar(yo); camQuitar(oc);
+      /* sabotaje de máquinas de un ejército enemigo */
+      const sx = s.x, sy = s.y;
+      const v = CAM_V8.map(([dx, dy]) => [sx + dx, sy + dy]).find(([a, b]) => libre(a, b));
+      const en = camNuevoEj(REB, v[0], v[1], { i: 6 }, { nom: "Sitiadores" });
+      en.maq = { ari: 2, tor: 1 }; en.obra = [{ t: "cat", q: 2 }];
+      const m0 = camMaqTot(en) + en.obra.length;
+      let k = 0, hecho = false;
+      for (; k < 8 && !hecho; k++) {
+        let sp = camEspPorId(s.id) || camEspDe(ME)[0];
+        if (!sp) { const c2 = await camAplicarOrden(G, { tipo: "espia", f: ME, p: cap.id }); sp = camEspPorId(c2.esp); sp.x = sx; sp.y = sy; }
+        sp.cal = 10;
+        const mo = await camAplicarOrden(G, JSON.parse(JSON.stringify({ tipo: "mision", f: ME, esp: sp.id, mis: "sabotear", obj: en.id })));
+        if (!mo.ok) break;
+        await camEspias();
+        hecho = camMaqTot(en) + en.obra.length < m0;
+      }
+      r.sabotaje = hecho;
+      r.intentos = k;
+      camQuitar(en);
+    }
+    /* c) la torre de vigilancia amplía la vista de la ciudad */
+    const cap = G.P[G.F[ME].capId];
+    const t0 = cap.torre || 0;
+    cap.torre = 0; camTocar();
+    let lejana = null;
+    for (let y = 0; y < H && !lejana; y++) for (let x = 0; x < W && !lejana; x++) {
+      const d = Math.hypot(x - cap.x, y - cap.y);
+      if (d > 3.6 && d < 8.6 && MAP.terr[y][x] && !camVisible(ME, x, y)) lejana = [x, y];
+    }
+    if (lejana) {
+      cap.torre = 3; camTocar();
+      r.torre = camVisible(ME, lejana[0], lejana[1]);
+    }
+    cap.torre = t0; camTocar();
+    /* e) la IA no ve a través de la niebla: un ejército débil en el bosque a 2 casillas no le atrae;
+          el mismo en llano a 2 casillas, sí */
+    const A = [...Array(NF).keys()].find((f) => f !== ME && alive(f));
+    G.st[A][ME] = G.st[ME][A] = "guerra";
+    let caso = null;
+    for (let y = 3; y < H - 3 && !caso; y++)
+      for (let x = 3; x < W - 3 && !caso; x++) {
+        if (!camEsBosque(x, y) || !libre(x, y) || !lejosDe(x, y, G.P, 4)) continue;
+        const pX = CAM_V8.map(([dx, dy]) => [x + 2 * dx, y + 2 * dy]).find(([a, b]) => libre(a, b) && camPaso(A, G.P[MAP.grid[b][a]].owner) && !camEsBosque(a, b));
+        if (!pX) continue;
+        const pW = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => [pX[0] + 2 * dx, pX[1] + 2 * dy]).find(([a, b]) => libre(a, b) && MAP.terr[b][a] === 1 && !camEsBosque(a, b) && !(a === x && b === y) && camCheb(a, b, x, y) >= 2);
+        if (!pW) continue;
+        const Dx = camDijkstra({ id: -1, f: A, x: pX[0], y: pX[1], u: { i: 1 } }, { presu: 30, sinZoc: true });
+        if (!camPaso(A, G.P[MAP.grid[pW[1]][pW[0]]].owner) || !Number.isFinite(Dx.dist[camIdx(pW[0], pW[1])]) || !Number.isFinite(Dx.dist[camIdx(x, y)])) continue;
+        caso = { F: [x, y], X: pX, Wv: pW };
+      }
+    if (caso) {
+      const X = camNuevoEj(A, caso.X[0], caso.X[1], { i: 20, c: 6 }, { nom: "Cazadores" });
+      X.mov = 30;
+      const Wej = camNuevoEj(ME, caso.F[0], caso.F[1], { i: 1 }, { nom: "Presa" });
+      const o1 = await camIAEj(A, X);
+      r.iaOculto = !camVeEj(A, Wej) && !(o1 && o1.x === Wej.x && o1.y === Wej.y);
+      Wej.x = caso.Wv[0]; Wej.y = caso.Wv[1]; X.mov = 30; X.obj = null; camTocar();
+      const o2 = await camIAEj(A, X);
+      r.iaVisto = camVeEj(A, Wej) && !!(o2 && o2.x === Wej.x && o2.y === Wej.y);
+      camQuitar(X); camQuitar(Wej);
+    }
+    /* relieve: montañas y ríos sin puente ni vado no se pisan, ni se cortan sus esquinas en diagonal */
+    if (typeof camRelieve === "function" && camRelieve()) {
+      let monte = null;
+      for (let y = 0; y < H && !monte; y++) for (let x = 0; x < W && !monte; x++) if (MAP.mont && MAP.mont[y][x]) monte = [x, y];
+      r.monteInf = monte ? !Number.isFinite(camCoste(ME, camIdx(monte[0], monte[1]))) : null;
+      const cap2 = G.P[G.F[ME].capId],
+        ej2 = camNuevoEj(ME, cap2.x, cap2.y, { i: 2 }, {});
+      let pr = null;
+      for (const q of G.P.slice().sort((a, b) => Math.hypot(b.x - cap2.x, b.y - cap2.y) - Math.hypot(a.x - cap2.x, a.y - cap2.y))) {
+        pr = camPlanRuta(ej2, q.x, q.y, { sinZoc: true, noEntrar: true });
+        if (pr && pr.ruta.length > 8) break;
+      }
+      let ok2 = pr ? true : null, px = ej2.x, py = ej2.y;
+      for (const j of pr ? pr.ruta : []) {
+        const [x, y] = camXY(j);
+        if (!camPasable(x, y) || (x !== px && y !== py && (!camPasable(x, py) || !camPasable(px, y)))) ok2 = false;
+        px = x; py = y;
+      }
+      r.rutaRelieve = ok2;
+      camQuitar(ej2);
+    }
+    /* lo explorado se guarda en G (base64) y sobrevive a JSON */
+    const g2 = JSON.parse(JSON.stringify(G.cam));
+    r.exp = typeof g2.exp[ME] === "string" && g2.exp[ME].length > 10;
+    r.mem = Object.keys((g2.mem || {})[ME] || {}).length;
+    camSel = null; camEspSel = camEspDe(ME)[0] ? camEspDe(ME)[0].id : null; sel = G.F[ME].capId; tab = "prov"; ui();
+    return r;
+  `);
+  console.log("  " + JSON.stringify(nb));
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: path.join(capt, "campana-niebla.png") });
+  ok(nb.lejosOculto, "la niebla oculta un ejército fuera de la vista (también en el texto del ratón)");
+  ok(nb.bosqueA2 !== false && nb.bosqueA1 !== false, "en el bosque solo se ve a una casilla");
+  ok(nb.torre !== false, "la torre de vigilancia amplía la vista de la ciudad");
+  ok(nb.espiaRevela !== false, `el espía revela lo que oculta el bosque (a ${nb.espiaEn} casillas)`);
+  ok(nb.sabotaje !== false, `el espía sabotea máquinas de asedio (${nb.intentos} intentos)`);
+  ok(nb.iaOculto !== false && nb.iaVisto !== false, "la IA no persigue lo que no ve y sí lo que ve");
+  ok(nb.exp && nb.mem > 0, `lo explorado y la última noticia de ${nb.mem} ciudades se guardan`);
+  ok(nb.monteInf !== false && nb.rutaRelieve !== false, `relieve: la montaña no se pisa (${nb.monteInf}) y la ruta larga solo pisa casillas transitables sin cortar esquinas (${nb.rutaRelieve})`);
+  console.log(`  (comprobado: bosque ${nb.bosqueA2 != null}, torre ${nb.torre != null}, espía ${nb.espiaRevela != null}, IA ${nb.iaOculto != null})`);
+
   /* ---------- 8. la IA durante muchos años ---------- */
   console.log(`8. La IA durante ${ANIOS} años`);
   await page.evaluate(() => {
@@ -577,8 +720,8 @@ const ok = (c, m) => {
     const t0 = Date.now();
     await corre(`
       /* el jugador se defiende: recluta en su capital */
-      const cap = G.P[G.F[ME].capId];
-      if (cap && cap.owner === ME) { cap.u.i += 2; G.F[ME].gold = Math.max(G.F[ME].gold, 80); }
+      const cap = G.P[G.F[ME].capId] && G.P[G.F[ME].capId].owner === ME ? G.P[G.F[ME].capId] : owned(ME)[0];
+      if (cap && cap.owner === ME) { cap.u.i += owned(ME).length <= 3 ? 8 : 2; if (owned(ME).length <= 2) cap.walls = Math.max(cap.walls || 0, 2); G.F[ME].gold = Math.max(G.F[ME].gold, 80); }
       await yearEnd();
     `);
     tiempos.push(Date.now() - t0);
@@ -612,7 +755,7 @@ const ok = (c, m) => {
         if (!human(a) && !human(b) && alive(a) && alive(b) && owned(a).some((p) => MAP.adj[p.id].some((i) => G.P[i].owner === b))) declareWar(a, b);
     const blanco = G.P.find((p) => p.owner !== ME && p.owner !== REB && !camAsedio(p.id));
     if (blanco) {
-      const v = CAM_V8.map(([dx, dy]) => [blanco.x + 2 * dx, blanco.y + 2 * dy]).find(([x, y]) => MAP.terr[y] && MAP.terr[y][x] && MAP.grid[y][x] >= 0 && !camCiudadEn(x, y) && !camEjsEn(x, y).length);
+      const v = CAM_V8.map(([dx, dy]) => [blanco.x + 2 * dx, blanco.y + 2 * dy]).find(([x, y]) => camPasable(x, y) && MAP.grid[y][x] >= 0 && !camCiudadEn(x, y) && !camEjsEn(x, y).length);
       if (v) camNuevoEj(REB, v[0], v[1], { i: 40, c: 6 }, { nom: "Bandidos" }).vida = 8;
     }
     for (let k = 0; k < 4; k++) {

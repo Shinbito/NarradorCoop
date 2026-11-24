@@ -218,131 +218,7 @@ function camRutaHover(ej) {
   camRutaC = { k, r };
   return r;
 }
-function camSprite(c, ej, X, Y, now) {
-  const cab = Object.keys(ej.u).reduce((s, t) => s + (UN[t] && UN[t].cl === "cab" ? ej.u[t] || 0 : 0), 0),
-    pal = PAL[ej.f] || PAL[0],
-    bob = ej.est === "marcha" && !reduce ? Math.floor(now / 300 + ej.id) % 2 : 0;
-  /* estandarte del pueblo */
-  c.fillStyle = "#211c26";
-  c.fillRect(X - 2, Y - 5, 1, 9);
-  c.fillStyle = CIV[ej.f].c;
-  c.fillRect(X - 1, Y - 5, 4, 3);
-  c.fillStyle = CIV[ej.f].d;
-  c.fillRect(X - 1, Y - 3, 4, 1);
-  spr(c, cab * 2 > camTot(ej.u) ? SP.c : SP.i, X, Y - 3 - bob, pal);
-  if (ej.est === "campamento") {
-    /* tienda */
-    c.fillStyle = "#e9dcb4";
-    for (let k = 0; k < 4; k++) c.fillRect(X + 6 - k, Y + 3 + k, 1 + 2 * k, 1);
-    c.fillStyle = "#6b4a2a";
-    c.fillRect(X + 6, Y + 5, 1, 2);
-  }
-  const s = String(camTot(ej.u));
-  c.fillStyle = "#000";
-  for (const [a, b] of [
-    [1, 0],
-    [-1, 0],
-    [0, 1],
-    [0, -1],
-  ])
-    c.fillText(s, X + 8 + a, Y + b);
-  c.fillStyle = ej.mov > 0.5 || !isMe(ej.f) ? "#fff" : "#a9a9a9";
-  c.fillText(s, X + 8, Y);
-}
-function camDibujar(now) {
-  if (!G || !MAP) return;
-  const S = camS(),
-    c = ctx,
-    sel = camSel != null ? camEj(camSel) : null,
-    mio = sel && isMe(sel.f) && myTurn() && !G.over;
-  /* alcance de la estación y ruta */
-  if (mio) {
-    const D = camAlcance(sel);
-    c.globalAlpha = 0.16 + 0.08 * Math.sin(now / 160);
-    c.fillStyle = "#fff";
-    for (let i = 0; i < W * H; i++) if (D.dist[i] <= sel.mov + 1e-9 && i !== D.s) c.fillRect((i % W) * T, Math.floor(i / W) * T, T, T);
-    c.globalAlpha = 0.45;
-    c.fillStyle = "#ff5a3a";
-    for (const p of G.P)
-      if (camCiudadCerrada(sel.f, p) && CAM_V8.some(([dx, dy]) => D.dist[camIdx(p.x + dx, p.y + dy)] <= sel.mov + 1e-9 || (sel.x === p.x + dx && sel.y === p.y + dy)))
-        c.fillRect(p.x * T, p.y * T, T, T);
-    for (const e of S.ej) if (camGuerra(sel.f, e.f) && D.dist[camIdx(e.x, e.y)] <= sel.mov + 1e-9) c.fillRect(e.x * T, e.y * T, T, T);
-    c.globalAlpha = 1;
-    const r = camRutaHover(sel);
-    if (r) {
-      c.fillStyle = "#fff3b0";
-      for (const j of r.dentro) c.fillRect((j % W) * T + 3, Math.floor(j / W) * T + 3, 2, 2);
-      c.fillStyle = "rgba(255,243,176,.45)";
-      for (const j of r.fuera) c.fillRect((j % W) * T + 3, Math.floor(j / W) * T + 3, 2, 2);
-    }
-  }
-  /* huella de la última marcha */
-  for (const e of S.ej) {
-    if (!e.pas || !e.pas.length) continue;
-    c.fillStyle = CIV[e.f].d;
-    c.globalAlpha = 0.6;
-    for (const j of e.pas) c.fillRect((j % W) * T + 3, Math.floor(j / W) * T + 4, 2, 1);
-    c.globalAlpha = 1;
-  }
-  /* campamentos mercenarios */
-  if (typeof mercS === "function")
-    for (const m of mercS().camp) {
-      if (!m.cias.length) continue;
-      const X = m.x * T,
-        Y = m.y * T;
-      c.fillStyle = "#c9a227";
-      for (let k = 0; k < 4; k++) c.fillRect(X + 4 - k, Y + 3 + k, 1 + 2 * k, 1);
-      c.fillStyle = "#211c26";
-      c.fillRect(X + 4, Y - 2, 1, 5);
-      c.fillStyle = "#e8b632";
-      c.fillRect(X + 5, Y - 2, 3, 2);
-    }
-  /* asedios: escalas y fuego sobre la ciudad */
-  for (const a of Object.values(S.as)) {
-    const p = G.P[a.p];
-    if (!p) continue;
-    const X = p.x * T,
-      Y = p.y * T,
-      fl = Math.floor(now / 200) % 2;
-    c.fillStyle = "#6b4a2a";
-    c.fillRect(X - 1, Y - 4, 1, 8);
-    c.fillRect(X + 1, Y - 4, 1, 8);
-    for (let k = 0; k < 4; k++) c.fillRect(X - 1, Y - 3 + k * 2, 3, 1);
-    c.fillStyle = fl ? "#ff7a2a" : "#ffd04a";
-    c.fillRect(X + 6, Y - 6 + fl, 2, 2);
-    if (a.vi < 0) {
-      c.fillStyle = "#e0503f";
-      c.fillRect(X + 3, Y - 7, 2, 2);
-    }
-  }
-  camDibujarCerco(c, now);
-  /* ejércitos */
-  const ciu = camCiudades();
-  for (const e of S.ej) {
-    if (camTot(e.u) <= 0) continue;
-    let X = e.x * T + 1,
-      Y = e.y * T + 2;
-    if (ciu.has(camIdx(e.x, e.y))) X -= 8;
-    camSprite(c, e, X, Y, now);
-    if (e.id === camSel && Math.floor(now / 350) % 2) {
-      c.strokeStyle = "#fff";
-      c.lineWidth = 1;
-      c.strokeRect(e.x * T + 0.5, e.y * T + 0.5, T - 1, T - 1);
-    }
-  }
-  /* estación en curso */
-  const tx = `${CAM_EST[G.estacion]} ${G.year}`;
-  c.fillStyle = "rgba(0,0,0,.55)";
-  c.fillRect(2, 2, tx.length * 8 + 6, 12);
-  c.fillStyle = G.estacion === 3 ? "#cfe3ff" : "#f2d27a";
-  c.fillText(tx, 5, 4);
-  /* el botón de fin de turno dice qué termina (la interfaz escribe «Fin del año») */
-  const eb = $("endb");
-  if (eb && !busy && myTurn() && !G.over && !net.on) {
-    const t = camTextoFin();
-    if (eb.textContent !== t) eb.textContent = t;
-  }
-}
+/* (el dibujo de ejércitos y el botón de fin de estación los hace interfaz.js: ifzCamDibujar, camTextoFin) */
 /* ---------- cercos por flancos (capa que también llama interfaz.js, marcada CAM) ----------
    Marca de color del sitiador en cada lado ocupado de la ciudad, flechas de cada ejército hacia ella,
    los compañeros de un asalto conjunto resaltados al seleccionar a uno y la animación del asalto. */
@@ -379,14 +255,15 @@ function camFlecha(c, e, p, col, now, fase) {
 }
 function camDibujarCerco(c, now) {
   if (!G || !MAP) return;
+  camDibujarEspias(c, now);
   const S = camS(),
     vistos = new Set();
   /* ciudades cercadas (o con ejércitos enemigos en cerco a su lado) */
   for (const a of Object.values(S.as)) {
     const p = G.P[a.p];
-    if (!p) continue;
+    if (!p || !camVeProv(ME, p.id)) continue;
     vistos.add(p.id);
-    const ejs = S.ej.filter((e) => e.asd === p.id && camCheb(e.x, e.y, p.x, p.y) === 1 && camTot(e.u) > 0);
+    const ejs = S.ej.filter((e) => e.asd === p.id && camCheb(e.x, e.y, p.x, p.y) === 1 && camTot(e.u) > 0 && camVeEj(ME, e));
     for (const e of ejs) {
       const l = camFlanco(e.x - p.x, e.y - p.y);
       if (l) camMarcaLado(c, p, l, CIV[e.f].c);
@@ -488,13 +365,23 @@ function camCasillaEv(e) {
   return x >= 0 && y >= 0 && x < W && y < H ? [x, y] : null;
 }
 function camHoverTxt(x, y) {
-  const es = camEjsEn(x, y);
+  /* niebla: lo no explorado es tierra ignota; lo que no se ve, sin ejércitos ajenos */
+  if (typeof camExplorado === "function" && !camExplorado(ME, x, y)) return "Tierra ignota";
+  const es = camEjsEn(x, y).filter((e) => typeof camVeEj !== "function" || camVeEj(ME, e)),
+    sp = typeof camEsps === "function" ? camEsps().filter((s) => s.x === x && s.y === y && camSocio(ME, s.f)) : [];
+  if (sp.length && !es.length) return sp.map((s) => `Espía ${s.nom} (${CIV[s.f].s})${s.mis ? " · " + CAM_MIS[s.mis.t].toLowerCase() : ""}`).join(" | ");
   if (es.length)
     return es
       .map((e) => `${camNombre(e)} (${CIV[e.f].s}) · ${camTot(e.u) * SPU} hombres · ${CAM_ESTADO[e.est] || e.est}`)
       .join(" | ");
   const m = typeof mercS === "function" ? mercS().camp.find((c) => c.x === x && c.y === y && c.cias.length) : null;
   if (m) return `${m.nom}: ${m.cias.map((c) => c.nom).join(", ")}`;
+  /* provincia que no se ve: solo la última noticia */
+  const pid = camPid(x, y);
+  if (pid >= 0 && typeof camVeProv === "function" && !camVeProv(ME, pid)) {
+    const mm = camMemProv(ME, pid);
+    return `${G.P[pid].name} · ${mm ? `${CIV[mm.o] ? CIV[mm.o].s : "?"} · ~${mm.n} levas (${CAM_EST[mm.e].toLowerCase()} de ${mm.y})` : "sin noticias"}`;
+  }
   return "";
 }
 /* ejecuta una orden del jugador con la interfaz bloqueada y animación */
@@ -518,8 +405,26 @@ async function camOrdenUI(o) {
 }
 /* clic en el mapa: devuelve true si la campaña lo atiende */
 function camClic(x, y) {
+  /* espía seleccionado: el clic lo mueve (o selecciona otro espía propio) */
+  const espSel = camEspSel != null ? camEspPorId(camEspSel) : null,
+    espAqui = camEspDe(ME).find((s) => s.x === x && s.y === y);
+  if (espSel && isMe(espSel.f) && myTurn() && !G.over) {
+    if (espAqui && espAqui !== espSel) camEspSel = espAqui.id;
+    else if (espSel.x === x && espSel.y === y) camEspSel = null;
+    else if (camPasable(x, y)) camOrdenUI({ tipo: "espiaMover", f: ME, esp: espSel.id, x, y });
+    else camEspSel = null;
+    ui();
+    return true;
+  }
+  if (espAqui && !camEjsEn(x, y).some((e) => isMe(e.f))) {
+    camEspSel = espAqui.id;
+    camSel = null;
+    if (tab !== "prov") tab = "prov";
+    ui();
+    return true;
+  }
   const aqui0 = camS(),
-    aqui = aqui0 && camEjsEn(x, y),
+    aqui = aqui0 && camEjsEn(x, y).filter((e) => typeof camVeEj !== "function" || camVeEj(ME, e)),
     mio = aqui.find((e) => isMe(e.f)),
     cur = camSel != null ? camEj(camSel) : null;
   if (cur && isMe(cur.f) && myTurn() && !G.over) {
@@ -777,7 +682,41 @@ OC.accion("cam", (v) => {
   const o = { f: ME };
   if (k === "desel") {
     camSel = null;
+    camEspSel = null;
     return;
+  }
+  /* niebla y espías */
+  if (k === "niebla") {
+    camS().niebla = !camNieblaOn();
+    camTocar();
+    return;
+  }
+  if (k === "esel") {
+    camEspSel = id;
+    camSel = null;
+    const s = camEspPorId(id);
+    if (s) centerOn(camPid(s.x, s.y));
+    tab = "prov";
+    return;
+  }
+  if (k === "ecrear") {
+    camOrdenUI({ tipo: "espia", f: ME, p: id }).then((r) => {
+      if (r && r.ok) camEspSel = r.esp;
+      ui();
+    });
+    return false;
+  }
+  if (k === "eret") {
+    camOrdenUI({ tipo: "espiaRetirar", f: ME, esp: id });
+    return false;
+  }
+  if (k === "emis") {
+    const ex = String(v.split(":")[3] || ""),
+      o2 = { tipo: "mision", f: ME, esp: id, mis: b2 };
+    if (ex.startsWith("e")) o2.obj = +ex.slice(1);
+    else if (ex) o2.p = +ex;
+    camOrdenUI(o2);
+    return false;
   }
   if (k === "sel") {
     camSel = id;
@@ -828,9 +767,11 @@ OC.panel({
     const S = camS(),
       mios = S.ej.filter((e) => isMe(e.f)),
       cercos = Object.values(S.as).filter((a) => a.f === ME || (G.P[a.p] && G.P[a.p].owner === ME)),
-      ene = S.ej.filter((e) => camGuerra(ME, e.f) && camProv(e) && camProv(e).owner === ME);
+      ene = S.ej.filter((e) => camGuerra(ME, e.f) && camProv(e) && camProv(e).owner === ME && camVeEj(ME, e));
     let h = `<h2>Campaña · ${camEstTxt()}</h2><p class="dim">Cada turno es una estación. Los ejércitos marchan por casillas hasta agotar su alcance (la clase más lenta, el general, las calzadas y el invierno lo deciden). La economía y la investigación se cierran al acabar el invierno.</p>`;
-    h += `<div class="btns"><button data-act="cam-rapido" title="Sin ejércitos fuera ni cercos, el año pasa de una vez">${S.rapido ? "☑" : "☐"} Estaciones rápidas sin campañas</button></div>`;
+    h += `<div class="btns"><button data-act="cam-rapido" title="Sin ejércitos fuera ni cercos, el año pasa de una vez">${S.rapido ? "☑" : "☐"} Estaciones rápidas sin campañas</button><button data-act="cam-niebla" title="Solo ves lo que alcanzan tus provincias, torres, ejércitos y espías">${camNieblaOn() ? "☑" : "☐"} Niebla de guerra</button></div>`;
+    const esps = camEspDe(ME);
+    h += `<h3>Espías <span class="stats">· ${esps.length}/${camEspMax(ME)}${camMaestro(ME) ? " · maestro: " + camMaestro(ME).n : ""}</span></h3>${esps.length ? `<div class="btns">${esps.map((s) => `<button data-act="cam-esel:${s.id}">${esc(s.nom)}<small>${s.mis ? CAM_MIS[s.mis.t] : "sin misión"} · ${G.P[camPid(s.x, s.y)]?.name || ""}</small></button>`).join("")}</div>` : `<p class="dim">Ninguno. Se reclutan en tus ciudades (sección «Espías»).</p>`}`;
     h += `<h3>Tus ejércitos</h3>${mios.length ? `<div class="btns">${mios.map((e) => `<button data-act="cam-sel:${e.id}">${esc(camNombre(e))}<small>${camTot(e.u) * SPU} h. · ${CAM_ESTADO[e.est]} · ${camProv(e)?.name || ""}</small></button>`).join("")}</div>` : `<p class="dim">Ninguno en campaña. Fórmalos desde la provincia (sección Ejército).</p>`}`;
     if (ene.length) h += `<h3>Enemigos en tu tierra</h3><div class="btns">${ene.map((e) => `<button data-act="cam-sel:${e.id}">${esc(camNombre(e))}<small>${CIV[e.f].s} · ${camTot(e.u) * SPU} h. · ${camProv(e).name}</small></button>`).join("")}</div>`;
     if (cercos.length)
@@ -850,5 +791,573 @@ OC.panel({
       h += `<p class="stats">Campamentos: ${M.camp.filter((c) => c.cias.length).map((c) => `${esc(c.nom)} (${G.P[camPid(c.x, c.y)]?.name || "?"})`).join(" · ") || "ninguno"}.</p>`;
     }
     return h;
+  },
+});
+
+/* ======================================================================
+   NIEBLA DE GUERRA Y ESPÍAS (sistema Campaña)
+   Visibilidad por facción y por estación: provincias propias y aliadas (todas sus casillas y 3 alrededor
+   de la ciudad, más con torre de vigilancia), ejércitos (2 casillas, 3 si son mayoría jinetes), espías
+   (3, y ven dentro de los bosques); las colinas dan +1. Un ejército en BOSQUE solo se ve a 1 casilla, con
+   una torre cerca o con un espía. Lo explorado se recuerda (G.cam.exp[f], bits en base64) con la última
+   noticia de cada ciudad (G.cam.mem[f][pid] = [dueño, levas, murallas, año, estación]).
+   API: camVisible(f, x, y) · camExplorado(f, x, y) · camVeProv(f, pid) · camVeEj(f, ej) · camMemProv(f, pid).
+   ====================================================================== */
+const CAM_VIS = { ciudad: 3, torre: 2, ej: 2, cab: 3, colina: 1, espia: 3 };
+/* nivel de la torre de vigilancia de una ciudad (tecnología: tecVision; si no, p.torre) */
+const camTorre = (p) => (typeof tecVision === "function" ? tecVision(p) : Math.max(0, Math.min(3, +p.torre || 0)));
+const camNieblaOn = () => !!(G && G.cam && G.cam.niebla !== false);
+function camB64(bits) {
+  const by = new Uint8Array(Math.ceil(bits.length / 8));
+  for (let i = 0; i < bits.length; i++) if (bits[i]) by[i >> 3] |= 1 << (i & 7);
+  let s = "";
+  for (let i = 0; i < by.length; i++) s += String.fromCharCode(by[i]);
+  return btoa(s);
+}
+function camDeB64(str, n) {
+  const out = new Uint8Array(n);
+  let s = "";
+  try {
+    s = atob(str || "");
+  } catch (_) {}
+  for (let i = 0; i < n; i++) out[i] = (s.charCodeAt(i >> 3) >> (i & 7)) & 1;
+  return out;
+}
+/* casillas de cada provincia (por mapa) */
+let camProvCasC = null;
+function camProvCasillas() {
+  if (camProvCasC && camProvCasC.seed === MAP.seed && camProvCasC.n === W * H && camProvCasC.l.length === G.P.length) return camProvCasC.l;
+  const l = G.P.map(() => []);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (MAP.grid[y][x] >= 0 && l[MAP.grid[y][x]]) l[MAP.grid[y][x]].push(y * W + x);
+  camProvCasC = { seed: MAP.seed, n: W * H, l };
+  return l;
+}
+const camSocio = (f, o) => f === o || (f < NF && o < NF && camAliado(f, o));
+const camExpC = {};
+function camExpArr(f) {
+  const S = camS(),
+    N = W * H;
+  S.exp = S.exp || {};
+  const s = S.exp[f] || "";
+  if (!camExpC[f] || camExpC[f].s !== s || camExpC[f].a.length !== N) camExpC[f] = { s, a: camDeB64(s, N) };
+  return camExpC[f].a;
+}
+let camVisC = {};
+function camVisMapa(f) {
+  const S = camS(),
+    esp = S.esp || [],
+    k = `${camVer}|${G.year}|${G.estacion}|${esp.map((s) => s.x * 97 + s.y + (s.mis ? 1 : 0)).join(",")}|${G.P.reduce((s, p, i) => s + (p.owner + 1) * (i + 7) + camTorre(p) * 1000, 0)}|${W}x${H}`;
+  if (camVisC[f] && camVisC[f].k === k) return camVisC[f];
+  const N = W * H,
+    vis = new Uint8Array(N),
+    hondo = new Uint8Array(N),
+    disc = (x0, y0, r, h) => {
+      if (MAP.terr[y0] && MAP.terr[y0][x0] === 3) r += CAM_VIS.colina;
+      for (let dy = -r; dy <= r; dy++)
+        for (let dx = -r; dx <= r; dx++) {
+          const x = x0 + dx,
+            y = y0 + dy;
+          if (x < 0 || y < 0 || x >= W || y >= H || dx * dx + dy * dy > r * r + r) continue;
+          const i = y * W + x;
+          vis[i] = 1;
+          if (h === true || Math.max(Math.abs(dx), Math.abs(dy)) <= (h || 0)) hondo[i] = 1;
+        }
+    },
+    cas = camProvCasillas();
+  for (const p of G.P) {
+    if (!camSocio(f, p.owner)) continue;
+    for (const i of cas[p.id] || []) vis[i] = 1;
+    disc(p.x, p.y, CAM_VIS.ciudad + CAM_VIS.torre * camTorre(p), 1 + camTorre(p));
+  }
+  for (const e of S.ej) {
+    if (!camSocio(f, e.f) || camTot(e.u) <= 0) continue;
+    const cab = Object.keys(e.u).reduce((s, t) => s + (UN[t] && UN[t].cl === "cab" ? e.u[t] || 0 : 0), 0);
+    disc(e.x, e.y, cab * 2 > camTot(e.u) ? CAM_VIS.cab : CAM_VIS.ej, 1);
+  }
+  for (const s of esp) {
+    if (!camSocio(f, s.f)) continue;
+    disc(s.x, s.y, CAM_VIS.espia, true);
+    /* vigilancia: el espía ve toda la provincia que vigila, también dentro de los bosques */
+    if (s.mis && s.mis.t === "vigilar" && G.P[s.mis.p] && camCheb(s.x, s.y, G.P[s.mis.p].x, G.P[s.mis.p].y) <= 1)
+      for (const i of cas[s.mis.p] || []) vis[i] = hondo[i] = 1;
+  }
+  const r = { k, vis, hondo };
+  camVisC[f] = r;
+  if (f < NF && S.niebla !== false) camExplorar(f, vis);
+  return r;
+}
+/* lo visto pasa a explorado y deja la última noticia de cada ciudad */
+function camExplorar(f, vis) {
+  const S = camS(),
+    a = camExpArr(f);
+  let nuevo = false;
+  for (let i = 0; i < a.length; i++)
+    if (vis[i] && !a[i]) {
+      a[i] = 1;
+      nuevo = true;
+    }
+  if (nuevo) {
+    S.exp[f] = camB64(a);
+    camExpC[f].s = S.exp[f];
+  }
+  S.mem = S.mem || {};
+  const m = (S.mem[f] = S.mem[f] || {});
+  for (const p of G.P) if (vis[camIdx(p.x, p.y)]) m[p.id] = [p.owner, tot(p.u), p.walls || 0, G.year, G.estacion];
+}
+function camVisible(f, x, y) {
+  if (!camNieblaOn() || f == null || f >= NF) return true;
+  return !!camVisMapa(f).vis[camIdx(x, y)];
+}
+function camExplorado(f, x, y) {
+  if (!camNieblaOn() || f == null || f >= NF) return true;
+  return !!(camVisMapa(f) && camExpArr(f)[camIdx(x, y)]);
+}
+function camVeProv(f, pid) {
+  const p = G.P[pid];
+  if (!p || !camNieblaOn() || f == null || f >= NF || camSocio(f, p.owner)) return true;
+  return !!camVisMapa(f).vis[camIdx(p.x, p.y)];
+}
+function camVeEj(f, e) {
+  if (!e || !camNieblaOn() || f == null || f >= NF || camSocio(f, e.f)) return true;
+  const V = camVisMapa(f),
+    i = camIdx(e.x, e.y);
+  return !!(V.hondo[i] || (V.vis[i] && !camEsBosque(e.x, e.y)));
+}
+/* última noticia de una ciudad: {o, n, w, y, e, vista} (la real si se ve) */
+function camMemProv(f, pid) {
+  const p = G.P[pid];
+  if (!p) return null;
+  if (camVeProv(f, pid)) return { o: p.owner, n: tot(p.u), w: p.walls || 0, y: G.year, e: G.estacion, vista: true };
+  const m = (camS().mem || {})[f],
+    r = m && m[pid];
+  return r ? { o: r[0], n: r[1], w: r[2], y: r[3], e: r[4], vista: false } : null;
+}
+/* para economía (ecoInfoVisible) y para la IA: lo que f sabe de la guarnición de q */
+const camInfoVisible = (p, f) => camVeProv(f, p.id);
+function camInfoCiudad(f, q) {
+  const m = camMemProv(f, q.id);
+  if (m && m.vista) return { u: { ...q.u }, walls: q.walls || 0, vista: true };
+  const n = m ? m.n : 5,
+    w = m ? m.w : q.cap ? 1 : 0;
+  return { u: { ...cmbVacio(), i: Math.max(0, Math.round(n * 0.7)), a: Math.round(n * 0.3) }, walls: w, vista: false };
+}
+const camProvOculta = (p) => camNieblaOn() && p && p.owner !== ME && !camVeProv(ME, p.id);
+function camPanelNiebla(p, dis) {
+  const m = camMemProv(ME, p.id),
+    exp = camExplorado(ME, p.x, p.y);
+  return `<h2>${exp ? p.name : "Tierra ignota"}</h2><p class="dim">${
+    m
+      ? `Última noticia (${CAM_EST[m.e].toLowerCase()} de ${m.y}): ${CIV[m.o] ? CIV[m.o].n : "?"} · unos ${m.n * SPU} hombres en armas${m.w ? ` · murallas ${m.w}` : ""}.`
+      : exp
+        ? "Tus exploradores pasaron por aquí, pero no saben quién manda ni cuántos la guardan."
+        : "Ningún explorador tuyo ha llegado hasta aquí."
+  }</p><p class="note">Para saber más: acerca un ejército, levanta una torre de vigilancia en una ciudad cercana o envía un espía (sección «Espías» de tus ciudades).</p>${camNieblaEspiasCerca(p, dis)}`;
+}
+/* ---------- dibujo de la niebla (capa cacheada; la llama ifzCamDibujar al principio, marcada CAM) ---------- */
+let camNieblaC = { cv: null, k: "" };
+function camDibujarNiebla(c, now) {
+  if (!G || !MAP || !camNieblaOn() || ME == null || ME >= NF) return;
+  const V = camVisMapa(ME),
+    exp = camExpArr(ME),
+    m = (camS().mem || {})[ME] || {},
+    k = `${V.k}|${ME}|${((camS().exp || {})[ME] || "").length}|${JSON.stringify(m).length}`;
+  if (camNieblaC.k !== k || !camNieblaC.cv) {
+    const cc = camNieblaC.cv || (camNieblaC.cv = document.createElement("canvas"));
+    cc.width = W * T;
+    cc.height = H * T;
+    const x = cc.getContext("2d");
+    x.clearRect(0, 0, cc.width, cc.height);
+    for (let i = 0; i < W * H; i++) {
+      if (V.vis[i]) continue;
+      const X = (i % W) * T,
+        Y = Math.floor(i / W) * T;
+      if (!exp[i]) {
+        x.fillStyle = (i * 7919) % 5 ? "#151a1f" : "#1b2128";
+        x.fillRect(X, Y, T, T);
+        continue;
+      }
+      /* explorado y no visible: el terreno, el color del último dueño conocido y un velo */
+      x.drawImage(base, X, Y, T, T, X, Y, T, T);
+      const pid = MAP.grid[Math.floor(i / W)][i % W],
+        mo = pid >= 0 && m[pid] ? m[pid][0] : null;
+      if (mo != null && CIV[mo]) {
+        x.globalAlpha = 0.22;
+        x.fillStyle = CIV[mo].c;
+        x.fillRect(X, Y, T, T);
+      }
+      x.globalAlpha = 0.42;
+      x.fillStyle = "#0c1014";
+      x.fillRect(X, Y, T, T);
+      x.globalAlpha = 1;
+    }
+    /* ciudades exploradas no vistas: su último dueño y sus últimas levas conocidas */
+    for (const p of G.P) {
+      const i = camIdx(p.x, p.y);
+      if (V.vis[i] || !exp[i]) continue;
+      const r = m[p.id],
+        cx = p.x * T + 4,
+        cy = p.y * T + 4;
+      if (!r) continue;
+      const o = r[0];
+      if (p.cap) spr(x, SP.castle, cx - 5, cy - 7, PAL[o] || PAL[0]);
+      else spr(x, SP.town, cx - 4, cy - 4, PAL[o] || PAL[0]);
+      if (r[1] && typeof ifzInsignia === "function" && CIV[o]) {
+        x.globalAlpha = 0.75;
+        x.drawImage(ifzInsignia(r[1], CIV[o].c, "#c9c2b4"), cx + 6, cy - 4);
+        x.globalAlpha = 1;
+      }
+    }
+    camNieblaC.k = k;
+  }
+  c.drawImage(camNieblaC.cv, 0, 0);
+}
+
+/* ---------- espías: G.cam.esp = [{id, f, x, y, cal, mov, mis:{t, p?, ej?}, nom, plan}] ---------- */
+const CAM_ESP = { coste: 30, costeMaestro: 20, mov: 14, robo: 0.5, soborno: 0.6, sabotaje: 1, revuelta: 0.8 };
+const CAM_MIS = {
+  vigilar: "Vigilar",
+  sabotear: "Sabotear",
+  sobornar: "Sobornar la guarnición",
+  robar: "Robar una técnica",
+  revuelta: "Incitar una revuelta",
+  contra: "Contraespionaje",
+};
+let camEspSel = null;
+const camEsps = () => (camS().esp = camS().esp || []);
+const camEspDe = (f) => camEsps().filter((s) => s.f === f);
+const camEspPorId = (id) => camEsps().find((s) => s.id === id) || null;
+const camMaestro = (f) => (f < NF && typeof socCargo === "function" ? socCargo(f, "esp") : null);
+function camIntriga(f) {
+  const m = camMaestro(f);
+  if (m) return m.in;
+  const r = f < NF && G.F[f] ? G.C[G.F[f].ruler] : null;
+  return r ? r.in * 0.6 : 2;
+}
+const camEspMax = (f) => 1 + Math.floor(owned(f).length / 5) + (camMaestro(f) ? 1 : 0);
+const camEspCoste = (f) => (camMaestro(f) ? CAM_ESP.costeMaestro : CAM_ESP.coste);
+/* contraespionaje de quien manda en (x, y): su maestro de espías, sus torres y sus espías de guardia */
+function camContra(o, x, y) {
+  if (o == null || o >= NF) return 2;
+  let v = camIntriga(o);
+  for (const p of owned(o)) if (camTorre(p) > 0 && camCheb(p.x, p.y, x, y) <= 4) v += 1.5 * camTorre(p);
+  for (const s of camEspDe(o)) if (s.mis && s.mis.t === "contra" && camCheb(s.x, s.y, x, y) <= 3) v += 2;
+  return v;
+}
+function camEspCrear(f, p) {
+  if (!p || p.owner !== f) return { ok: false, motivo: "Solo en una ciudad propia" };
+  if (camEspDe(f).length >= camEspMax(f)) return { ok: false, motivo: `Máximo ${camEspMax(f)} espías` };
+  const c = camEspCoste(f);
+  if (!OC.pagar(f, { oro: c })) return { ok: false, motivo: `Faltan ${c} de oro` };
+  const S = camS(),
+    noms = ["Sombra", "Zorro", "Mercader", "Peregrino", "Juglar", "Liberto", "Copista", "Arriero", "Viuda", "Monje"],
+    s = {
+      id: (S.espSig = (S.espSig || 0) + 1),
+      f,
+      x: p.x,
+      y: p.y,
+      cal: Math.round(clamp(2 + camIntriga(f) * 0.7 + R() * 2, 1, 10) * 10) / 10,
+      mov: CAM_ESP.mov,
+      mis: null,
+      nom: `«${pick(noms)}»`,
+      plan: null,
+    };
+  camEsps().push(s);
+  camTocar();
+  if (isMe(f)) addLog(`Un espía, ${s.nom}, sale de ${p.name} (destreza ${s.cal}).`, "good");
+  return { ok: true, esp: s.id };
+}
+/* casilla de tierra más cercana a (x, y) */
+function camTierraCerca(x, y) {
+  for (let r = 0; r < 4; r++)
+    for (let dy = -r; dy <= r; dy++)
+      for (let dx = -r; dx <= r; dx++) {
+        const a = x + dx,
+          b = y + dy;
+        if (a >= 0 && b >= 0 && a < W && b < H && camPasable(a, b)) return [a, b];
+      }
+  return null;
+}
+/* el espía va en línea recta, rápido, sin bloquear ni ser bloqueado; lo que no alcanza queda en plan */
+function camEspMover(s, x, y) {
+  const d = camCheb(s.x, s.y, x, y);
+  if (!d) return { ok: true };
+  if (s.mov <= 0.5) {
+    s.plan = [x, y];
+    return { ok: true, plan: true };
+  }
+  let nx = x,
+    ny = y;
+  if (d > s.mov) {
+    const k = s.mov / d;
+    nx = Math.round(s.x + (x - s.x) * k);
+    ny = Math.round(s.y + (y - s.y) * k);
+  }
+  const t = camTierraCerca(nx, ny);
+  if (!t) return { ok: false, motivo: "No hay tierra allí" };
+  const x0 = s.x,
+    y0 = s.y;
+  s.mov = Math.max(0, s.mov - camCheb(s.x, s.y, t[0], t[1]));
+  s.x = t[0];
+  s.y = t[1];
+  s.plan = t[0] === x && t[1] === y ? null : [x, y];
+  camRep({ k: "esp", esp: s.id, f: s.f, de: [x0, y0], a: [s.x, s.y] });
+  camTocar();
+  return { ok: true };
+}
+/* objetivo junto al espía: ciudad a 1 casilla, o ejército ajeno con máquinas u obras a 1 casilla */
+const camEspCiudad = (s) => G.P.find((p) => camCheb(p.x, p.y, s.x, s.y) <= 1) || null;
+const camEspEjercito = (s) =>
+  camS().ej.find((e) => e.f !== s.f && camCheb(e.x, e.y, s.x, s.y) <= 1 && (camMaqTot(e) > 0 || (e.obra || []).length)) || null;
+function camRobable(f, o) {
+  if (o == null || o >= NF || f >= NF || typeof tecF !== "function" || !G.tec) return [];
+  try {
+    return tecF(o).h.filter((id) => !tecTiene(f, id) && (typeof tecDisponible !== "function" || tecDisponible(f, id)));
+  } catch (_) {
+    return [];
+  }
+}
+function camEspMision(s, t, o = {}) {
+  if (!CAM_MIS[t]) return { ok: false, motivo: "Misión desconocida" };
+  if (t === "contra") {
+    const q = G.P[camPid(s.x, s.y)];
+    if (!q || q.owner !== s.f) return { ok: false, motivo: "El contraespionaje se hace en tierra propia" };
+    s.mis = { t };
+    camTocar();
+    return { ok: true };
+  }
+  if (t === "sabotear" && o.obj != null) {
+    const e = camEj(+o.obj);
+    if (!e || camCheb(e.x, e.y, s.x, s.y) > 1) return { ok: false, motivo: "Hay que llegar junto al ejército" };
+    s.mis = { t, ej: e.id };
+    return { ok: true };
+  }
+  const p = o.p != null ? G.P[+o.p] : camEspCiudad(s);
+  if (!p || camCheb(p.x, p.y, s.x, s.y) > 1) return { ok: false, motivo: "Hay que llegar junto a la ciudad" };
+  if (p.owner === s.f) return { ok: false, motivo: "Es tu ciudad" };
+  if (t === "sobornar") {
+    const as = camAsedio(p.id);
+    if (!as || !camCoCerco(as, s.f)) return { ok: false, motivo: "Solo una ciudad que cercas tú o tus socios" };
+  }
+  if (t === "robar" && !camRobable(s.f, p.owner).length) return { ok: false, motivo: "No saben nada que tú no sepas" };
+  s.mis = { t, p: p.id };
+  camTocar();
+  return { ok: true };
+}
+async function camEspOrden(o) {
+  const f = o.f;
+  if (o.tipo === "espia") return camEspCrear(f, G.P[o.p]);
+  const s = camEspPorId(+o.esp);
+  if (!s || s.f !== f) return { ok: false, motivo: "Espía desconocido" };
+  if (o.tipo === "espiaMover") return camEspMover(s, +o.x, +o.y);
+  if (o.tipo === "mision") return camEspMision(s, o.mis, o);
+  if (o.tipo === "espiaRetirar") {
+    camS().esp = camEsps().filter((x) => x !== s);
+    if (camEspSel === s.id) camEspSel = null;
+    camTocar();
+    return { ok: true };
+  }
+  return { ok: false, motivo: "Orden desconocida" };
+}
+/* espía descubierto: preso, agravio (casus belli) y peor relación */
+function camEspCaptura(s, o, por) {
+  camS().esp = camEsps().filter((x) => x !== s);
+  if (camEspSel === s.id) camEspSel = null;
+  if (o != null && o < NF && s.f < NF && o !== s.f) {
+    if (typeof dipMem === "function" && G.dip) dipMem(o, s.f, "espias", "Espías descubiertos", -8, 1, 30);
+    else relAdd(o, s.f, -8);
+    if (typeof dipAgravio === "function" && G.dip) dipAgravio(o, s.f, `Espías de ${CIV[s.f].s}`, 3);
+  }
+  addLog(
+    isMe(s.f)
+      ? `Tu espía ${s.nom} cae en manos de ${CIV[o] ? CIV[o].s : "sus enemigos"}${por ? " " + por : ""}.`
+      : isMe(o)
+        ? `Tus guardias apresan a un espía de ${CIV[s.f].s}${por ? " " + por : ""}: tienes un agravio contra ellos.`
+        : `${CIV[o] ? CIV[o].s : "?"} apresa a un espía de ${CIV[s.f].s}.`,
+    isMe(s.f) ? "bad" : isMe(o) ? "good" : "",
+  );
+  camRep({ k: "esp-", esp: s.id, f: s.f });
+  camTocar();
+}
+/* resolución de la misión de un espía (si sigue junto al objetivo); devuelve true si sale bien */
+function camEspResolver(s) {
+  const m = s.mis,
+    p = m.p != null ? G.P[m.p] : null,
+    e = m.ej != null ? camEj(m.ej) : null,
+    dueno = p ? p.owner : e ? e.f : null,
+    cerca = p ? camCheb(p.x, p.y, s.x, s.y) <= 1 : e ? camCheb(e.x, e.y, s.x, s.y) <= 1 : false,
+    dif = CAM_ESP[{ sabotear: "sabotaje", sobornar: "soborno", robar: "robo", revuelta: "revuelta" }[m.t]] || 1,
+    pr = clamp(0.35 + (s.cal - camContra(dueno, s.x, s.y)) * 0.06, 0.1, 0.85) * dif;
+  if (!cerca) return { cerca: false };
+  s.mis = null;
+  if (R() >= pr) return { cerca: true, exito: false };
+  let txt = "";
+  if (m.t === "sabotear" && e) {
+    const n = (e.obra || []).length + camMaqTot(e);
+    e.obra = [];
+    for (const k in CAM_MAQ) {
+      if (e.u && e.u[k]) e.u[k] = Math.floor(e.u[k] / 2);
+      if (e.maq && e.maq[k]) e.maq[k] = Math.floor(e.maq[k] / 2);
+    }
+    txt = `quema ${n ? "las máquinas y obras" : "los pertrechos"} de ${camNombre(e)}`;
+  } else if (m.t === "sabotear" && p) {
+    const as = camAsedio(p.id);
+    if (as) as.brecha = Math.min(p.walls || 0, (as.brecha || 0) + 0.5);
+    else {
+      p.order = clamp(p.order - 6, 0, 100);
+      if (camF(p.owner)) camF(p.owner).food = Math.max(0, Math.round(camF(p.owner).food * 0.9));
+    }
+    txt = as ? `abre una brecha en las murallas de ${p.name}` : `incendia los graneros de ${p.name}`;
+  } else if (m.t === "sobornar" && p) {
+    const as = camAsedio(p.id),
+      ap = typeof ecoApoyoAsedio === "function" ? ecoApoyoAsedio(p, s.f) : 0,
+      precio = 20 + tot(p.u) * 2,
+      sit = as ? camSitiadores(p.id).filter((x) => x.f === as.f).sort((a, b) => pw(b.u) - pw(a.u))[0] || camSitiadores(p.id)[0] : null;
+    if (!sit || R() >= clamp(0.6 - ap * 0.3, 0.2, 0.95) || !OC.pagar(s.f, { oro: precio })) return { cerca: true, exito: false };
+    txt = `compra a la guardia de ${p.name} (${precio} de oro): abren las puertas`;
+    camConquistar(p, sit, "rendicion", null, 0);
+  } else if (m.t === "robar" && p) {
+    const l = camRobable(s.f, p.owner);
+    if (!l.length || typeof tecAprender !== "function") return { cerca: true, exito: false };
+    const id = pick(l);
+    tecAprender(s.f, id);
+    txt = `roba el secreto de «${typeof TEC !== "undefined" && TEC[id] ? TEC[id].n : id}»`;
+  } else if (m.t === "revuelta" && p) {
+    p.order = clamp(p.order - 15, 0, 100);
+    txt = `agita a la plebe de ${p.name}`;
+  }
+  if (txt && (isMe(s.f) || isMe(dueno))) addLog(isMe(s.f) ? `Tu espía ${s.nom} ${txt}.` : `Un espía de ${CIV[s.f].s} ${txt}.`, isMe(s.f) ? "good" : "bad");
+  return { cerca: true, exito: !!txt };
+}
+/* cada estación (desde camEstacion): misiones, descubrimiento y contraespionaje */
+async function camEspias() {
+  for (const s of camEsps().slice()) {
+    if (!camEsps().includes(s)) continue;
+    if (s.f < NF && !alive(s.f)) {
+      camS().esp = camEsps().filter((x) => x !== s);
+      continue;
+    }
+    const pid = camPid(s.x, s.y),
+      o = pid >= 0 ? G.P[pid].owner : null,
+      ajena = o != null && !camSocio(s.f, o),
+      hostil = s.mis && s.mis.t !== "vigilar" && s.mis.t !== "contra";
+    let det = ajena ? clamp(0.05 + (camContra(o, s.x, s.y) - s.cal) * 0.03 + (hostil ? 0.08 : 0), 0.02, 0.6) : 0;
+    if (hostil) {
+      const r = camEspResolver(s);
+      if (r.cerca && !r.exito) det += 0.12;
+    }
+    if (ajena && R() < det) camEspCaptura(s, o, "en " + G.P[pid].name);
+  }
+  for (const s of camEsps().slice()) {
+    if (!s.mis || s.mis.t !== "contra") continue;
+    for (const x of camEsps().slice())
+      if (x.f !== s.f && !camSocio(s.f, x.f) && camCheb(x.x, x.y, s.x, s.y) <= 3 && R() < clamp(0.2 + (s.cal - x.cal) * 0.05, 0.05, 0.7))
+        camEspCaptura(x, s.f, "por tus agentes");
+  }
+}
+function camEspNuevaEstacion() {
+  for (const s of camEsps()) {
+    s.mov = CAM_ESP.mov;
+    if (s.plan && human(s.f)) camEspMover(s, s.plan[0], s.plan[1]);
+  }
+}
+/* IA: espías para vigilar al enemigo, sobornar sus cercos largos, robar técnicas e incitar revueltas */
+function camEspIA(f) {
+  const F = camF(f);
+  if (!F || f >= NF) return;
+  const guerras = [...Array(NF).keys()].filter((g) => g !== f && alive(g) && camGuerra(f, g)),
+    mios = camEspDe(f);
+  if (mios.length < camEspMax(f) && F.gold > 70 + camEspCoste(f) && (guerras.length || F.gold > 220)) {
+    const fr = owned(f).filter((p) => foes(p, f).length).sort((a, b) => b.order - a.order)[0];
+    if (fr) camEspCrear(f, fr);
+  }
+  for (const s of camEspDe(f)) {
+    if (s.mis && s.mis.t !== "vigilar") continue;
+    const cerco = Object.values(camS().as).find((a) => a.f === f && a.n >= 2);
+    let q = cerco ? G.P[cerco.p] : null,
+      t = q && F.gold > 40 + tot(q.u) * 2 ? "sobornar" : null;
+    if (!t) {
+      q = G.P.filter((p) => p.owner !== f && p.owner < NF && guerras.includes(p.owner)).sort(
+        (a, b) => camCheb(a.x, a.y, s.x, s.y) - camCheb(b.x, b.y, s.x, s.y),
+      )[0];
+      if (!q) continue;
+      t = camRobable(f, q.owner).length && R() < 0.35 ? "robar" : R() < 0.25 ? "revuelta" : "vigilar";
+    }
+    if (camCheb(q.x, q.y, s.x, s.y) > 1) {
+      const v = CAM_V8.map(([dx, dy]) => [q.x + dx, q.y + dy]).find(([x, y]) => camPasable(x, y));
+      if (v) camEspMover(s, v[0], v[1]);
+    }
+    if (camCheb(q.x, q.y, s.x, s.y) <= 1) camEspMision(s, t, { p: q.id });
+  }
+}
+/* ---------- interfaz de los espías ---------- */
+function camDibujarEspias(c, now) {
+  for (const s of camEsps()) {
+    const mio = camSocio(ME, s.f);
+    if (!mio && camNieblaOn() && !camVisMapa(ME).hondo[camIdx(s.x, s.y)]) continue;
+    const X = s.x * T + 1,
+      Y = s.y * T + 1;
+    c.fillStyle = "#000";
+    c.fillRect(X + 1, Y, 5, 7);
+    c.fillStyle = mio ? "#3a3550" : "#5a2a2a";
+    c.fillRect(X + 2, Y + 1, 3, 5);
+    c.fillStyle = CIV[s.f] ? CIV[s.f].c : "#fff";
+    c.fillRect(X + 2, Y + 1, 3, 1);
+    c.fillStyle = "#e3b48a";
+    c.fillRect(X + 3, Y + 2, 1, 1);
+    if (s.mis) {
+      c.fillStyle = s.mis.t === "vigilar" || s.mis.t === "contra" ? "#c9a8ff" : "#ff7a2a";
+      c.fillRect(X + 5, Y - 1, 2, 2);
+    }
+    if (s.id === camEspSel && (reduce || Math.floor(now / 350) % 2)) {
+      c.strokeStyle = "#c9a8ff";
+      c.lineWidth = 1;
+      c.strokeRect(s.x * T + 0.5, s.y * T + 0.5, T - 1, T - 1);
+    }
+  }
+}
+function camNieblaEspiasCerca(p, dis) {
+  const l = camEspDe(ME).filter((s) => camCheb(s.x, s.y, p.x, p.y) <= 1);
+  return l.length ? `<div class="btns">${l.map((s) => `<button data-act="cam-esel:${s.id}">Espía ${esc(s.nom)}</button>`).join("")}</div>` : "";
+}
+function camPanelEsp(dis) {
+  const s = camEspPorId(camEspSel);
+  if (!s) return "";
+  const p = camEspCiudad(s),
+    e = camEspEjercito(s),
+    q = G.P[camPid(s.x, s.y)],
+    b = (mis, txt, ok, tit, extra = "") => `<button data-act="cam-emis:${s.id}:${mis}${extra}" ${dis || !ok ? "disabled" : ""} title="${esc(tit || "")}">${txt}</button>`;
+  let h = `<h2 style="color:#c9a8ff">Espía ${esc(s.nom)}</h2><p class="dim">${CIV[s.f].n} · destreza ${s.cal} · en ${q ? q.name : "despoblado"}${q && q.owner !== s.f ? ` (${CIV[q.owner].s})` : ""}<br>Marcha ${s.mov}/${CAM_ESP.mov} · ${s.mis ? "misión: " + CAM_MIS[s.mis.t].toLowerCase() + (s.mis.p != null ? " en " + G.P[s.mis.p].name : "") : "sin misión"}${s.plan ? " · de camino" : ""}</p>`;
+  if (q && !camSocio(s.f, q.owner)) {
+    const det = clamp(0.05 + (camContra(q.owner, s.x, s.y) - s.cal) * 0.03, 0.02, 0.6);
+    h += `<p class="stats">Riesgo de ser descubierto cada estación: ≈${Math.round(det * 100)} % (más si actúa).</p>`;
+  }
+  h += `<div class="btns">`;
+  if (p && p.owner !== s.f) {
+    const ex = `:${p.id}`,
+      pr = Math.round(clamp(0.35 + (s.cal - camContra(p.owner, s.x, s.y)) * 0.06, 0.1, 0.85) * 100),
+      as = camAsedio(p.id);
+    h += b("vigilar", `Vigilar ${p.name}`, true, "Mientras esté allí ves toda la provincia, también lo que esconden sus bosques", ex);
+    h += b("sabotear", `Sabotear ${p.name}<small>≈${pr} %</small>`, true, "Abre brecha si está cercada; si no, quema graneros", ex);
+    h += b("sobornar", `Sobornar la guardia<small>${20 + tot(p.u) * 2} oro · ≈${Math.round(pr * CAM_ESP.soborno)} %</small>`, !!(as && camCoCerco(as, s.f)), "Solo si la cercas tú o tus socios: abren las puertas", ex);
+    h += b("robar", `Robar una técnica<small>≈${Math.round(pr * CAM_ESP.robo)} %</small>`, camRobable(s.f, p.owner).length > 0, "Un secreto que ellos conocen y tú no", ex);
+    h += b("revuelta", `Incitar revuelta<small>≈${Math.round(pr * CAM_ESP.revuelta)} %</small>`, true, "Baja el orden de la ciudad", ex);
+  }
+  if (e) h += b("sabotear", `Sabotear las máquinas de ${esc(camNombre(e))}`, true, "Quema obras y máquinas de asedio", `:e${e.id}`);
+  if (q && q.owner === s.f) h += b("contra", "Contraespionaje", true, "Vigila tu tierra: puede apresar espías enemigos a 3 casillas");
+  h += `<button data-act="cam-eret:${s.id}" ${dis ? "disabled" : ""}>Retirar</button><button data-act="cam-desel">Cerrar</button></div>`;
+  h += `<p class="note">Clic en el mapa para moverlo (hasta ${CAM_ESP.mov} casillas por estación; cruza fronteras y ejércitos). Las misiones se resuelven al acabar la estación, si sigue junto al objetivo.</p>`;
+  return h;
+}
+OC.seccion("prov", {
+  id: "espias",
+  orden: 47,
+  visible: (c) => c.mine,
+  render: ({ p }, dis) => {
+    const n = camEspDe(ME).length,
+      mx = camEspMax(ME),
+      c = camEspCoste(ME),
+      ma = camMaestro(ME),
+      aqui = camEspDe(ME).filter((s) => s.x === p.x && s.y === p.y);
+    return `<h3>Espías <span class="stats">· ${n}/${mx}</span></h3><div class="btns"><button data-act="cam-ecrear:${p.id}" ${dis || n >= mx || G.F[ME].gold < c ? "disabled" : ""} title="Su destreza depende de la intriga de ${ma ? "tu maestro de espías" : "tu soberano (nombra un maestro de espías en la Corte)"}">Reclutar espía<small>${c} oro</small></button>${aqui.map((s) => `<button data-act="cam-esel:${s.id}">${esc(s.nom)}</button>`).join("")}</div>${camTorre(p) > 0 ? `<p class="stats">Torre de vigilancia ${camTorre(p)}: ve ${CAM_VIS.ciudad + CAM_VIS.torre * camTorre(p)} casillas y dentro de los bosques cercanos.</p>` : ""}`;
   },
 });

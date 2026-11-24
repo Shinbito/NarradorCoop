@@ -23,6 +23,7 @@ const CAM_K = {
   desHambre: 0.08, // deserción por estación sin víveres
   desInvierno: 0.04, // desgaste por invernar fuera de tierra propia (la mitad acampado)
   maxEj: 3, // ejércitos de la IA a la vez (más con muchas provincias)
+  emboscada: 1.2, // bono de daño del que sale de un bosque contra quien no lo veía
 };
 /* máquinas de asedio: se construyen in situ durante un asedio (estaciones, coste, efecto en el asalto) */
 const CAM_MAQ = {
@@ -64,6 +65,18 @@ function camRepIni() {
 function camRep(o) {
   const r = G && G.cam && G.cam.rep;
   if (!r || r.fin) return;
+  /* niebla: vh = jugadores humanos que llegan a ver el paso (la repetición de cada uno solo muestra esos) */
+  if (typeof camNieblaOn === "function" && camNieblaOn() && G.human && ["mov", "ej+", "bat", "esp", "esp-"].includes(o.k)) {
+    const e = o.ej != null ? camEj(o.ej) : null;
+    o.vh = G.human.filter(
+      (h) =>
+        h < NF &&
+        ((o.f != null && camSocio(h, o.f)) ||
+          (o.k === "mov" && ((e && camVeEj(h, e)) || camVisible(h, o.de[0], o.de[1]))) ||
+          (o.k === "ej+" && e && camVeEj(h, e)) ||
+          (o.k === "bat" && (camVisible(h, o.x, o.y) || (o.fs || []).some((f) => camSocio(h, f))))),
+    );
+  }
   const P = r.pasos;
   if (P.length >= CAM_REP_TOPE && o.k === "mov") {
     /* pasado el tope, los pasos de marcha de un ejército se resumen en uno (su último tramo) */
@@ -140,7 +153,28 @@ function camCalzadas(f) {
   return f < NF && typeof tecTiene === "function" && G.tec ? !!tecTiene(f, "vias") : false;
 }
 
-/* ---------- terreno de una casilla ---------- */
+/* ---------- terreno de una casilla ----------
+   Relieve (mundo.md §6, mapas v2): montañas infranqueables, ríos que solo se cruzan por puente o vado,
+   caminos baratos, pasos de montaña caros y bosque denso que oculta. En mapas v1 (partidas antiguas) esas
+   capas vienen vacías: todo funciona como antes (río «por provincia», cualquier bosque oculta). */
+const CAM_REL = { camino: 0.6, caminoCalz: 0.45, paso: 1.5, vado: 2, vadoInv: 2, montana: Infinity };
+let camRelC = null;
+function camRelieve() {
+  if (!MAP) return false;
+  if (!camRelC || camRelC.m !== MAP) {
+    const tiene = (k) => !!(MAP[k] && MAP[k].some((r) => r && r.some && r.some((v) => v)));
+    camRelC = { m: MAP, v: tiene("mont") || tiene("rio") || tiene("camino") || tiene("bosque") };
+  }
+  return camRelC.v;
+}
+const camCapa = (k, x, y) => !!(MAP[k] && MAP[k][y] && MAP[k][y][x]);
+/* casilla transitable: tierra, no montaña y, si es río, con puente o vado */
+function camPasable(x, y) {
+  if (x < 0 || y < 0 || x >= W || y >= H || !MAP.terr[y] || !MAP.terr[y][x]) return false;
+  return typeof mapaTransitable === "function" ? mapaTransitable(x, y) : true;
+}
+/* bosque que oculta ejércitos: el denso en mapas con relieve, cualquier bosque en los antiguos */
+const camEsBosque = (x, y) => (camRelieve() ? camCapa("bosque", x, y) : MAP.terr[y] && MAP.terr[y][x] === 2);
 function camRio(pid) {
   return typeof cmbTerreno === "function" && G.P[pid] ? !!cmbTerreno(G.P[pid]).rio : false;
 }
@@ -158,7 +192,9 @@ function camTerrCasilla(x, y) {
       if (k === 2) b++;
       if (k === 3) c++;
     }
-  const rio = pid >= 0 && camRio(pid) && t === 1;
+  const rio = camRelieve()
+    ? CAM_V8.some(([dx, dy]) => camCapa("rio", x + dx, y + dy)) || camCapa("rio", x, y)
+    : pid >= 0 && camRio(pid) && t === 1;
   return {
     tag: t === 3 ? "colinas" : t === 2 ? "bosque" : rio ? "vado" : "llanura",
     bosque: n ? b / n : 0,
@@ -172,8 +208,9 @@ function camCoste(f, i, cc) {
     y = (i - x) / W,
     t = MAP.terr[y][x],
     pid = MAP.grid[y][x];
-  if (!t || pid < 0) return Infinity;
-  let c = CAM_K.terr[t] + (t === 1 && camRio(pid) ? CAM_K.vado : 0);
+  if (!t || pid < 0 || !camPasable(x, y)) return Infinity;
+  const rel = camRelieve();
+  let c = CAM_K.terr[t] + (!rel && t === 1 && camRio(pid) ? CAM_K.vado : 0);
   const o = G.P[pid].owner;
   let pr;
   if (cc) {
@@ -181,8 +218,15 @@ function camCoste(f, i, cc) {
     pr = cc.pr.get(o);
     if (cc.cz == null) cc.cz = camCalzadas(f);
   } else pr = camPropia(f, o);
+  const calz = cc ? cc.cz : camCalzadas(f);
+  if (rel) {
+    /* camino (más barato aún con Calzadas, en cualquier tierra), paso de montaña, vado (peor en invierno) */
+    if (camCapa("camino", x, y)) c = Math.min(c, 1) * (calz ? CAM_REL.caminoCalz : CAM_REL.camino);
+    if (camCapa("paso", x, y)) c += CAM_REL.paso;
+    if (camCapa("rio", x, y) && camCapa("vado", x, y) && !camCapa("puente", x, y)) c += CAM_REL.vado + (G.estacion === 3 ? CAM_REL.vadoInv : 0);
+  }
   if (pr) {
-    if (cc ? cc.cz : camCalzadas(f)) c *= CAM_K.calzadas;
+    if (calz && !(rel && camCapa("camino", x, y))) c *= CAM_K.calzadas;
   } else c *= CAM_K.ajeno;
   return c;
 }
@@ -196,6 +240,8 @@ function camMovMax(ej, est = G.estacion) {
   if (g) m += g.ma * CAM_K.gen;
   if (est === 3) m *= CAM_K.invierno;
   if ((ej.fat || 0) > 70) m *= 0.8;
+  /* OC alcanceEjercito: puntos de marcha por estación. ctx {f, ej, est} */
+  m = +OC.calc("alcanceEjercito", m, { f: ej.f, ej, est }) || m;
   return Math.round(m * 10) / 10;
 }
 
@@ -275,6 +321,8 @@ function camDijkstra(ej, o = {}) {
     if (e.id === ej.id || camTot(e.u) <= 0) continue;
     const i = camIdx(e.x, e.y);
     if (camGuerra(f, e.f)) {
+      /* niebla: el camino se traza con lo que se ve; el que no se ve aparece al toparse con él */
+      if (typeof camVeEj === "function" && !camVeEj(f, e)) continue;
       enem[i] = 1;
       if (!o.sinZoc)
         for (const [dx, dy] of CAM_V8) {
@@ -306,7 +354,7 @@ function camDijkstra(ej, o = {}) {
       const nx = x + dx,
         ny = y + dy;
       if (nx < 0 || ny < 0 || nx >= W || ny >= H || !MAP.terr[ny][nx]) continue;
-      if (dx && dy && (!MAP.terr[y][nx] || !MAP.terr[ny][x])) continue;
+      if (dx && dy && (!camPasable(nx, y) || !camPasable(x, ny))) continue; // sin cortar esquinas de costa, sierra o río
       const j = camIdx(nx, ny),
         pid = MAP.grid[ny][nx];
       if (pid < 0 || neut[j] || !puede(pid) || (enZoc && !enem[j])) continue;
@@ -352,7 +400,7 @@ function camJuntoA(ej, p, D) {
   for (const [dx, dy] of CAM_V8) {
     const x = p.x + dx,
       y = p.y + dy;
-    if (x < 0 || y < 0 || x >= W || y >= H || !MAP.terr[y]?.[x]) continue;
+    if (x < 0 || y < 0 || x >= W || y >= H || !camPasable(x, y)) continue;
     if (x === ej.x && y === ej.y) return camIdx(x, y);
     const j = camIdx(x, y);
     if (!Number.isFinite(D.dist[j])) continue;
@@ -672,7 +720,7 @@ function camRetirar(ej, dx, dy) {
     for (let rx = -2; rx <= 2; rx++) {
       const x = ej.x + rx,
         y = ej.y + ry;
-      if (x < 0 || y < 0 || x >= W || y >= H || !MAP.terr[y][x] || (rx === 0 && ry === 0)) continue;
+      if (x < 0 || y < 0 || x >= W || y >= H || !camPasable(x, y) || (rx === 0 && ry === 0)) continue;
       const pid = MAP.grid[y][x];
       if (pid < 0 || !camPaso(f, G.P[pid].owner, ej) || camEjsEn(x, y, ej.id).some((e) => e.f !== f)) continue;
       const c = camCiudadEn(x, y);
@@ -795,7 +843,11 @@ async function camBatallaLados(lados, bctx, o = {}) {
   }
   /* alternativa (sin batallas de varios bandos en combate): cada bando, una fuerza; los generales de más
      dan su pequeño bono a cada lado */
-  camBonoAct = [camBonoGen(F[0].ej.f, F[0].extraGen, "atacante"), camBonoGen(F[1].ej.f, F[1].extraGen, "defensor")];
+  camBonoAct = [
+    camBonoGen(F[0].ej.f, F[0].extraGen, "atacante"),
+    camBonoGen(F[1].ej.f, F[1].extraGen, "defensor"),
+    o.emboscada ? { f: F[0].ej.f, lado: "atacante", v: CAM_K.emboscada } : null,
+  ];
   let res;
   try {
     res = await camLibrar(F[0].ej, F[1].ej, bctx, {
@@ -875,6 +927,7 @@ async function camChoqueConjunto(lados, x, y, p, o = {}) {
       x,
       y,
       nombreLugar: p ? (camCiudadEn(x, y) ? p.name : `los campos de ${p.name}`) : "campo abierto",
+      emboscada: !!o.emboscada,
     },
     u0 = lados.map((l) => l.map((e) => camUCampo(e.u)));
   camRep({ k: "bat+", x, y, lados: lados.map((l) => l.map((e) => ({ ej: e.id, f: e.f, dir: e.dir }))) });
@@ -882,6 +935,7 @@ async function camChoqueConjunto(lados, x, y, p, o = {}) {
     tipo: "encuentro",
     campo: D.est === "campamento",
     auto: o.auto,
+    emboscada: o.emboscada,
     titulo: `Batalla de ${n} ejércitos en ${bctx.nombreLugar} (${lados[0].length} contra ${lados[1].length})`,
     factor: { k: "conjunto", s: 0, txt: `Batalla en conjunto: ${lados[0].length} contra ${lados[1].length} ejércitos` },
   });
@@ -942,14 +996,23 @@ async function camChoque(A, D, o = {}) {
       x,
       y,
       nombreLugar: p ? (camCiudadEn(x, y) ? p.name : `los campos de ${p.name}`) : "campo abierto",
-    },
+      emboscada: !!o.emboscada,
+    };
+  /* emboscada: mientras combate no lea ctx.emboscada, campaña da el bono de sorpresa al atacante */
+  camBonoAct = o.emboscada ? [{ f: A.f, lado: "atacante", v: CAM_K.emboscada }] : null;
+  let res;
+  try {
     res = await camLibrar(ejA, ejD, bctx, {
       tipo: "encuentro",
       ejs: [A, D],
       campo: D.est === "campamento",
       auto: o.auto,
-      titulo: `${sal ? "Socorro de " + ps.name : "Encuentro"} en ${bctx.nombreLugar}`,
+      titulo: `${o.emboscada ? "¡Emboscada! " : sal ? "Socorro de " + ps.name + ": " : "Encuentro "}en ${bctx.nombreLugar}`,
+      factor: o.emboscada ? { k: "emboscada", s: 0, txt: `Emboscada desde el bosque (${CIV[A.f].s})` } : null,
     });
+  } finally {
+    camBonoAct = null;
+  }
   let rA = res.A;
   if (sal) {
     /* los de la salida vuelven a la ciudad en proporción */
@@ -1193,8 +1256,8 @@ function camGuarnicion(p) {
 let camBonoAct = null;
 OC.mod("bonoBatalla", (v, c) => {
   const l = !camBonoAct ? [] : Array.isArray(camBonoAct) ? camBonoAct : [camBonoAct],
-    b = c && l.find((x) => x && x.f === c.f && (x.lado || "atacante") === c.lado);
-  return b ? v * b.v : undefined;
+    m = c ? l.filter((x) => x && x.f === c.f && (x.lado || "atacante") === c.lado) : [];
+  return m.length ? m.reduce((a, x) => a * x.v, v) : undefined;
 });
 const camBonoGen = (f, n, lado) => (n > 0 ? { f, lado, v: 1 + Math.min(0.09, 0.03 * n) } : null);
 const camFlancoMur = (ctx) => (ctx && ctx.flancos > 1 ? Math.max(0.4, 1 - 0.15 * (ctx.flancos - 1)) : 1);
@@ -1479,7 +1542,8 @@ async function camSalida(p, o = {}) {
 }
 /* máquinas de asedio: se pagan al empezar y se terminan al cabo de sus estaciones */
 function camCosteMaq(f, k) {
-  const c = { ...CAM_MAQ[k].coste };
+  /* OC costeMaquina: coste de una máquina de asedio. ctx {f, k} */
+  const c = { ...(OC.calc("costeMaquina", { ...CAM_MAQ[k].coste }, { f, k }) || CAM_MAQ[k].coste) };
   if (OC.puedePagar(f, c)) return c;
   /* sin madera suficiente: se compra a 3 de oro por unidad que falte */
   const r = { oro: c.oro || 0 };
@@ -1508,8 +1572,10 @@ function camConstruir(ej, k) {
   if (m) return { ok: false, motivo: m };
   OC.pagar(ej.f, camCosteMaq(ej.f, k));
   ej.obra = ej.obra || [];
-  ej.obra.push({ t: k, q: CAM_MAQ[k].est });
-  if (isMe(ej.f)) addLog(`Los carpinteros del ${camNombre(ej).toLowerCase()} empiezan ${k === "ari" ? "un ariete" : k === "tor" ? "una torre de asedio" : "una catapulta"} (${CAM_MAQ[k].est} ${CAM_MAQ[k].est > 1 ? "estaciones" : "estación"}).`);
+  /* OC estacionesMaquina: estaciones de obra. ctx {f, k, ej} */
+  const q = Math.max(1, Math.round(OC.calc("estacionesMaquina", CAM_MAQ[k].est, { f: ej.f, k, ej }) || CAM_MAQ[k].est));
+  ej.obra.push({ t: k, q });
+  if (isMe(ej.f)) addLog(`Los carpinteros del ${camNombre(ej).toLowerCase()} empiezan ${k === "ari" ? "un ariete" : k === "tor" ? "una torre de asedio" : "una catapulta"} (${q} ${q > 1 ? "estaciones" : "estación"}).`);
   return { ok: true };
 }
 
@@ -1520,13 +1586,16 @@ async function camDarPaso(ej, j, o = {}) {
   if (camCheb(ej.x, ej.y, x, y) !== 1) return { ok: false, parar: true };
   const diag = x !== ej.x && y !== ej.y,
     c = camCoste(f, j) * (diag ? CAM_K.diag : 1);
+  if (diag && (!camPasable(x, ej.y) || !camPasable(ej.x, y))) return { ok: false, parar: true };
   if (!Number.isFinite(c) || ej.mov + 1e-9 < c) return { ok: false, parar: true, sinMov: true };
   const pid = MAP.grid[y][x];
   if (pid < 0 || !camPaso(f, G.P[pid].owner, ej)) return { ok: false, parar: true };
   const otros = camEjsEn(x, y, ej.id);
   const ene = otros.filter((e) => camGuerra(f, e.f)).sort((a, b) => pw(b.u) - pw(a.u))[0];
   if (ene) {
-    await camChoque(ej, ene, o);
+    /* emboscada: sale de un bosque contra quien no lo veía (bono de sorpresa; ctx.emboscada para combate) */
+    const emb = typeof camNieblaOn === "function" && camNieblaOn() && camEsBosque(ej.x, ej.y) && !camVeEj(ene.f, ej);
+    await camChoque(ej, ene, { ...o, emboscada: emb });
     return { ok: false, parar: true, batalla: true };
   }
   if (otros.some((e) => e.f !== f)) return { ok: false, parar: true };
@@ -1540,7 +1609,7 @@ async function camDarPaso(ej, j, o = {}) {
   /* animación: la interfaz interpola de (x0, y0) a la casilla nueva durante dur ms (solo con o.anim) */
   const x0r = ej.x,
     y0r = ej.y;
-  ej.anim = o.anim && !reduce ? { x0: ej.x, y0: ej.y, t0: performance.now(), dur: Math.round((o.lento ? 90 : 55) * camVel()) } : null;
+  ej.anim = o.anim && !reduce ? { x0: ej.x, y0: ej.y, t0: performance.now(), dur: typeof ifzPasoMs === "function" ? ifzPasoMs() : Math.round((o.lento ? 90 : 55) * camVel()) } : null;
   ej.x = x;
   ej.y = y;
   camRep({ k: "mov", ej: ej.id, f, de: [x0r, y0r], a: [x, y] });
@@ -1620,7 +1689,7 @@ function camPlanRuta(ej, x, y, o = {}) {
 /* ======================================================================
    ÓRDENES: la API pública. Cada orden es un objeto plano (JSON) con f = bando que la da.
    ====================================================================== */
-const CAM_ORDENES = ["formar", "mover", "acampar", "asediar", "asaltar", "construir", "levantar", "disolver", "dividir", "unir", "general", "salida", "contratar", "licenciar", "renovar", "apoyo"];
+const CAM_ORDENES = ["formar", "mover", "acampar", "asediar", "asaltar", "construir", "levantar", "disolver", "dividir", "unir", "general", "salida", "contratar", "licenciar", "renovar", "apoyo", "espia", "espiaMover", "mision", "espiaRetirar"];
 async function camAplicarOrden(g, o, opc = {}) {
   if (g && g !== G) return { ok: false, motivo: "Estado distinto del de la partida" };
   if (!o || !CAM_ORDENES.includes(o.tipo)) return { ok: false, motivo: "Orden desconocida" };
@@ -1697,7 +1766,11 @@ async function camAplicarOrden(g, o, opc = {}) {
       break;
     }
     default:
-      r = typeof camMercOrden === "function" ? camMercOrden(o, ej) : { ok: false, motivo: "Sin mercenarios" };
+      r = ["espia", "espiaMover", "mision", "espiaRetirar"].includes(o.tipo)
+        ? await camEspOrden(o)
+        : typeof camMercOrden === "function"
+          ? camMercOrden(o, ej)
+          : { ok: false, motivo: "Sin mercenarios" };
   }
   camTocar();
   return r || { ok: false };
@@ -1772,6 +1845,7 @@ async function camEstacion() {
     if (G.over) return;
     if (human(f) || !alive(f)) continue;
     try {
+      if (typeof camEspIA === "function") camEspIA(f);
       if (typeof camIA === "function") ords.push(...(await camIA(f)));
     } catch (e) {
       console.error("[cam] IA", f, e);
@@ -1781,6 +1855,7 @@ async function camEstacion() {
   await camResolverSimultaneo(G, ords, { auto: false });
   /* 2) asedios, obras, víveres, mercenarios */
   await camAsedios();
+  if (typeof camEspias === "function") await camEspias();
   camObras();
   camSuministros();
   if (typeof camMercEstacion === "function") await camMercEstacion();
@@ -1810,12 +1885,18 @@ async function camNuevaEstacion() {
   }
   G.P.forEach((p) => (p.tired = false));
   if (typeof camMercNuevaEstacion === "function") await camMercNuevaEstacion();
+  if (typeof camEspNuevaEstacion === "function") camEspNuevaEstacion();
   for (const e of S.ej.slice())
     if (human(e.f) && e.plan && camEj(e.id) && !G.over) {
       const pl = e.plan;
       await camAplicarOrden(G, { tipo: "mover", f: e.f, ej: e.id, x: pl.x, y: pl.y, luego: pl.luego, p: pl.p, con: pl.con }, {});
     }
   camRepCerrar();
+  /* la repetición está completa (incluye lo anual y las marchas pendientes): la interfaz puede mostrarla */
+  if (S.rep && S.rep.fin && !S.rep.avisada) {
+    S.rep.avisada = true;
+    await OC.emitir("repeticionLista", S.rep);
+  }
   camTocar();
 }
 /* estado que resulta de aplicar los pasos de una repetición (hasta el paso n): {own:[], ej: Map id→{f,x,y,n}} */
