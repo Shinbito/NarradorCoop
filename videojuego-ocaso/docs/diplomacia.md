@@ -302,3 +302,13 @@ llamadas, gobernadores, renombrar, 30 años de IA, la partida antigua y un mundo
 4. **Contrato**: añadir `propuestaHumana` a la tabla de eventos (lo emite diplomacia).
 5. **Narrativa**: `life()` lleva dos líneas `/* OC */` (`dipProbNacer`, `dipProbBodaIA`). El
    «Concilio de obispos» podría usar `socPolitica`/`socImp`.
+
+## Diplomáticos (legados) — `js/diplomaticos.js`
+Como los espías (campaña), pero para negociar. Se reclutan en una ciudad propia (sección «Diplomáticos», 25 oro;
+máximo 1 + provincias/6, +1 con canciller); destreza 1-10 = 2 + 0,7 × diplomacia del canciller (o 0,6 × la del
+soberano) + azar. Se mueven 10 casillas por estación y cruzan fronteras. **En la corte** de otro pueblo (a 1 casilla
+de una de sus ciudades): una negociación por estación aparte de la gestión anual (`F.dip[g]` no se gasta), abrir
+embajada, +1,5 % × destreza a la aceptación de todas las propuestas a ese pueblo (envoltura de `dipAceptacion`,
+motivo «Legado X en su corte») y la relación sube 1 + 0,2 × destreza cada estación; en guerra solo la paz y un 12 %
+por estación de ser apresado. **Junto a un campamento de mercenarios**: contrata sin ejército con un 10-30 % de
+rebaja en el enganche; las tropas acuden a la ciudad propia más cercana no sitiada. Estado en `G.cam.dpl`.
