@@ -1,7 +1,7 @@
 /* Service worker de Ocaso del Imperio: guarda el juego para jugar sin conexión (app instalable).
    La lista de archivos se genera con: node herramientas/lista-archivos.js → archivos.json.
    Estrategia: red primero para index y archivos.json (actualizaciones), caché primero para el resto. */
-const VERSION = "ocaso-v2";
+const VERSION = "ocaso-v3";
 self.addEventListener("install", (e) => {
   e.waitUntil(
     (async () => {

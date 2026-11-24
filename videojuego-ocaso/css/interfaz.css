@@ -992,3 +992,108 @@ img.ico {
   image-rendering: pixelated;
   display: inline-block;
 }
+
+/* ---------- menú de pausa y opciones (js/menu.js) ---------- */
+#mpausa {
+  z-index: 60;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 8, 12, 0.72);
+}
+#mpausa.show {
+  display: flex;
+}
+.mp-card {
+  width: min(560px, calc(94vw / var(--tx, 1)));
+  max-height: calc(92vh / var(--tx, 1));
+  max-height: calc(92dvh / var(--tx, 1));
+  overflow-y: auto;
+  zoom: var(--tx, 1);
+}
+.mp-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0;
+}
+.mp-lista > button,
+.mp-archivo .btn-como {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+}
+.mp-ranura {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mp-ranura span {
+  font-size: 0.85em;
+  opacity: 0.85;
+}
+.mp-archivo .btn-como {
+  display: block;
+  cursor: pointer;
+  background: #2b3540;
+  border: 2px solid #11161b;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.35);
+  font: inherit;
+}
+.mp-aviso {
+  color: #ffd04a;
+}
+.mp-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 8px 0 10px;
+}
+.mp-tabs button {
+  flex: 1;
+}
+.mp-tabs button.on,
+.mp-ops button.on {
+  background: #8a6514;
+  color: #fff3c4;
+}
+.mp-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.mp-ops {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.mp-ops button {
+  padding: 6px 9px;
+}
+.mp-vol {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mp-vol input {
+  width: 160px;
+  accent-color: #e8b632;
+}
+.mp-vol output {
+  min-width: 2.5em;
+  text-align: right;
+}
+.mp-nota {
+  font-size: 0.85em;
+  margin: 4px 0 8px;
+}
+/* tamaño del texto (Opciones · General): paneles, avisos y cabecera */
+.wrap > aside,
+#modalc,
+#startc,
+#bside,
+header #res {
+  zoom: var(--tx, 1);
+}

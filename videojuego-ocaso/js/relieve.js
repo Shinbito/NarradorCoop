@@ -77,6 +77,22 @@ function relOscuro(im) {
   REL_OSC.set(im, o);
   return o;
 }
+/* silueta oscura de un dibujo: sombra de contacto (cada casa, cada choza, pegada al suelo) */
+const REL_SIL = new WeakMap();
+function relSilueta(im) {
+  let o = REL_SIL.get(im);
+  if (o) return o;
+  o = document.createElement("canvas");
+  o.width = im.width;
+  o.height = im.height;
+  const x = o.getContext("2d");
+  x.drawImage(im, 0, 0);
+  x.globalCompositeOperation = "source-in";
+  x.fillStyle = "rgba(8,10,6,.42)";
+  x.fillRect(0, 0, o.width, o.height);
+  REL_SIL.set(im, o);
+  return o;
+}
 /* una ciudad de pie: se dibuja en un lienzo aparte, se mide dónde está su base real (la fila opaca más baja:
    las imágenes dejan aire debajo) y ahí se apoya, con la sombra pegada; crece desde esa base */
 const REL_CIUC = new Map(); /* p.id → {k, cv, fb, x0, x1}: el dibujo preparado de cada ciudad */
@@ -132,13 +148,12 @@ function relCiudad(x, p, o, sombra, RR) {
     cxL = (e.x0 + e.x1 + 1) / 2 / RR,
     bx = X - L / 2 + cxL,
     an = ((e.x1 - e.x0 + 1) / RR) * k;
-  /* sombra pegada a la base (un poco hacia la derecha: luz del noroeste) */
-  x.fillStyle = "rgba(0,0,0,.3)";
-  x.beginPath();
-  x.ellipse(bx + an * 0.06, by - 1, an * 0.55, Math.max(2.5, an * 0.13), 0, 0, Math.PI * 2);
-  x.fill();
+  /* sombra de contacto: la silueta de cada casa, corrida hacia el sureste (luz del noroeste) */
+  const sx = bx - cxL * k,
+    sy = by - bL * k;
+  x.drawImage(relSilueta(e.cv), sx + 2, sy + 1.5, L * k, L * k);
   /* la ciudad crece desde su base */
-  x.drawImage(e.cv, bx - cxL * k, by - bL * k, L * k, L * k);
+  x.drawImage(e.cv, sx, sy, L * k, L * k);
 }
 /* la capa de pie (montañas, colinas, árboles, aldeas y ciudades), en caché */
 function relCapa(own, niebla) {
@@ -187,12 +202,15 @@ function relCapa(own, niebla) {
     const { o, w, h, e, bx, by } = d,
       W2 = w * e,
       H2 = h * e;
-    x.fillStyle = o.n.startsWith("arbol") ? "rgba(0,0,0,.22)" : "rgba(0,0,0,.26)";
-    x.beginPath();
-    x.ellipse(bx + W2 * 0.12, by - 1, W2 * 0.48, Math.max(1.5, W2 * 0.16), 0, 0, Math.PI * 2);
-    x.fill();
     const im = ifzDibCanvas(o.n, o.f, o.fl);
     if (!im) continue;
+    if (o.n === "mapa.aldea") x.drawImage(relSilueta(im), Math.round(bx - W2 / 2) + 2, Math.round(by - H2) + 1.5, Math.round(W2), Math.round(H2));
+    else {
+      x.fillStyle = o.n.startsWith("arbol") ? "rgba(0,0,0,.22)" : "rgba(0,0,0,.26)";
+      x.beginPath();
+      x.ellipse(bx + W2 * 0.12, by - 1, W2 * 0.48, Math.max(1.5, W2 * 0.16), 0, 0, Math.PI * 2);
+      x.fill();
+    }
     x.drawImage(sombra ? relOscuro(im) : im, Math.round(bx - W2 / 2), Math.round(by - H2), Math.round(W2), Math.round(H2));
   }
   REL.k = k;

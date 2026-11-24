@@ -2134,7 +2134,7 @@ function modal(title, html, btns) {
 function ifzBotonEscape() {
   const mc = $("modalc"),
     bs = [...mc.querySelectorAll("[data-mi]")].filter((b) => !b.disabled);
-  const can = bs.find((b) => IFZ_CANCEL.test(b.textContent.trim()));
+  const can = bs.find((b) => IFZ_CANCEL.test((typeof idiomaOriginal === "function" ? idiomaOriginal(b) || b.textContent : b.textContent).trim()));
   if (can) return can;
   return bs.length === 1 && !mc.querySelector(".ifz-mcu [data-mi], .ifz-mcu input, .ifz-mcu select") ? bs[0] : null;
 }
@@ -2166,7 +2166,10 @@ document.addEventListener("click", (e) => {
     return;
   }
   if (a === "ifzopc") {
-    ifzOpciones();
+    if (typeof menuAbrir === "function") {
+      MENU.pest = "general";
+      menuAbrir("opciones");
+    } else ifzOpciones();
     return;
   }
   if (a === "zoom") {
@@ -2183,7 +2186,8 @@ document.addEventListener("click", (e) => {
     return;
   }
   if (a === "menu") {
-    openStart("home");
+    if (G && typeof menuAbrir === "function") menuAbrir();
+    else openStart("home");
     return;
   }
   if (a === "s") {

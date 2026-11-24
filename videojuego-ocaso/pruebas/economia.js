@@ -264,7 +264,7 @@ const comprueba = (ok, msg) => {
   /* el ánimo aparece en la línea de información al pasar el ratón por el mapa */
   const pto = await page.evaluate(() => {
     const r = cv.getBoundingClientRect();
-    for (const p of G.P.filter((q) => q.owner < NF)) {
+    for (const p of G.P.filter((q) => q.owner < NF && (typeof camVeProv !== "function" || camVeProv(ME, q.id)))) {
       const x = r.left + ((p.x * T + 4) * r.width) / cv.width,
         y = r.top + ((p.y * T + 4) * r.height) / cv.height;
       if (document.elementFromPoint(x, y) === cv) return { x, y, n: ecoNivel(p).nombre };

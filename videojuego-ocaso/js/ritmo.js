@@ -70,7 +70,7 @@ document.addEventListener("change", (e) => {
 function ritPuedeJugar() {
   const m = document.getElementById("modal"),
     st = document.getElementById("start");
-  return !!G && !G.over && !BT && !busy && myTurn() && !(m && m.classList.contains("show")) && !(st && st.classList.contains("show"));
+  return !!G && !G.over && !BT && !busy && myTurn() && !(m && m.classList.contains("show")) && !(st && st.classList.contains("show")) && !(typeof menuAbierto === "function" && menuAbierto());
 }
 function ritReloj() {
   let el = document.getElementById("ritreloj");

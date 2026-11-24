@@ -542,8 +542,9 @@ function OC_N() {
   /* opciones: velocidad */
   await pm.click('[data-act="ifzopc"]');
   await pm.waitForTimeout(80);
-  await pm.click('#modalc [data-act="ifzvel-normal"]');
-  const vo = await pm.evaluate(() => ({ p: JSON.parse(localStorage.getItem("ocaso-ifz")).vel, on: document.querySelector('#modalc [data-act="ifzvel-normal"]').getAttribute("aria-pressed") }));
+  /* el ⚙︎ abre el menú de opciones (js/menu.js), pestaña General, con las opciones de juego */
+  await pm.click('#mpausa [data-act="ifzvel-normal"]');
+  const vo = await pm.evaluate(() => ({ p: JSON.parse(localStorage.getItem("ocaso-ifz")).vel, on: document.querySelector('#mpausa [data-act="ifzvel-normal"]').getAttribute("aria-pressed") }));
   ok(vo.p === "normal" && vo.on === "true", "Opciones: la velocidad de animación se guarda en las preferencias");
   await pm.screenshot({ path: path.join(capt, "interfaz-terreno-opciones.png") });
   await pm.keyboard.press("Escape");

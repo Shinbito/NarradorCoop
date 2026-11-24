@@ -95,13 +95,20 @@ const esperaCam = (page) => page.waitForFunction(() => Math.abs(B3D.cam.az - B3D
   console.log("\n1. Escritorio (1400×900): batallas t3, t1 y rt en 3D");
   const page = await nueva(browser, { viewport: { width: 1400, height: 900 } }, errores);
   ok(await page.evaluate(() => typeof THREE !== "undefined" && THREE.REVISION === "160"), "Three.js r160 local cargado (vendor/three.min.js)");
-  /* sin GPU (SwiftShader) la vista automática es la clásica; el botón «Vista» pasa a 3D */
+  /* la batalla es isométrica (3D) por defecto, también sin GPU (SwiftShader: en calidad baja); «Vista» pasa a
+     la clásica y vuelve */
   await abrir(page, "t1");
-  const auto = await page.evaluate(() => ({ soft: B3D.soft, gpu: B3D.gpu, v: b3dVista(), on: document.getElementById("battle").classList.contains("b3d-on") }));
-  ok(auto.soft && auto.v === "2d" && !auto.on, `con WebGL por software («${auto.gpu.slice(0, 40)}») la vista automática es la clásica`);
+  await page.waitForTimeout(600);
+  const auto = await page.evaluate(() => ({ soft: B3D.soft, gpu: B3D.gpu, v: b3dVista(), cal: B3D.pref.cal, on: document.getElementById("battle").classList.contains("b3d-on") }));
+  ok(auto.soft && auto.v === "3d" && auto.on && auto.cal === "baja", `con WebGL por software («${auto.gpu.slice(0, 40)}») la vista automática es la isométrica, en calidad baja`);
   await page.click('[data-b3d="vista"]');
-  await page.waitForTimeout(400);
-  ok(await page.evaluate(() => B3D.pref.vista === "3d" && document.getElementById("battle").classList.contains("b3d-on") && !!B3D.scene), "«Vista: 3D» activa la vista 3D y se recuerda");
+  await page.waitForTimeout(300);
+  await page.click('[data-b3d="vista"]');
+  await page.waitForTimeout(900);
+  ok(await page.evaluate(() => B3D.pref.vista === "3d" && document.getElementById("battle").classList.contains("b3d-on") && !!B3D.scene), "«Vista» pasa a la clásica y vuelve a la 3D, y se recuerda");
+  await page.evaluate(() => {
+    B3D.pref.cal = "alta";
+  });
   await page.evaluate(() => battleAct("flee"));
   await page.waitForTimeout(300);
   await page.evaluate(() => document.querySelector("#modalc button")?.click());
@@ -287,10 +294,15 @@ const esperaCam = (page) => page.waitForFunction(() => Math.abs(B3D.cam.az - B3D
       /* desplazar arrastrando el suelo */
       const t0 = await page.evaluate(() => [B3D.cam.tx, B3D.cam.tz]);
       const g = await pant(page, 20, 20);
-      await page.mouse.move(g.x, g.y);
-      await page.mouse.down();
-      await page.mouse.move(g.x - 120, g.y - 40, { steps: 5 });
-      await page.mouse.up();
+      /* el arrastre va en una sola tarea: con la GPU por software, un fotograma lento entre pulsar y mover
+         superaría los 420 ms de la pulsación larga (que pasa a seleccionar con recuadro) */
+      await page.evaluate((g) => {
+        const w = B3D.wrap,
+          ev = (t, x, y, b) => w.dispatchEvent(new PointerEvent(t, { clientX: x, clientY: y, pointerId: 7, button: 0, buttons: b, bubbles: true, pointerType: "mouse" }));
+        ev("pointerdown", g.x, g.y, 1);
+        for (let k = 1; k <= 5; k++) ev("pointermove", g.x - 24 * k, g.y - 8 * k, 1);
+        ev("pointerup", g.x - 120, g.y - 40, 0);
+      }, g);
       const t1 = await page.evaluate(() => [B3D.cam.tx, B3D.cam.tz]);
       ok(Math.hypot(t1[0] - t0[0], t1[1] - t0[1]) > 1, "arrastrar el suelo desplaza la vista");
       /* seguir unidad y reiniciar */
@@ -325,7 +337,7 @@ const esperaCam = (page) => page.waitForFunction(() => Math.abs(B3D.cam.az - B3D
       const cl = await page.evaluate(() => ({ on: document.getElementById("battle").classList.contains("b3d-on"), d: getComputedStyle(document.getElementById("bscroll")).display, esc: B3D.scene }));
       ok(!cl.on && cl.d !== "none" && cl.esc === null, "«Vista: clásica» vuelve al lienzo 2D y libera la escena 3D");
       await page.click('[data-b3d="vista"]');
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(900);
       ok(await page.evaluate(() => !!B3D.scene && document.getElementById("battle").classList.contains("b3d-on")), "«Vista: 3D» reconstruye la escena");
     } else {
       /* ejecutar un turno con la vista 3D */

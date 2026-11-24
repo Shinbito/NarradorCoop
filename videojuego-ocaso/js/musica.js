@@ -9,12 +9,19 @@ function musLabel() {
   b && b.setAttribute("aria-label", AU.want ? "Silenciar música" : "Activar música");
   b && b.setAttribute("aria-pressed", AU.want ? "true" : "false");
 }
+/* volumen de la música según las opciones: 0,14 con los valores por defecto (general 0,8 × música 0,5 = 0,4),
+   curva suave hasta 0,27 con todo al máximo y 0 en silencio */
+const musVol = () => 0.14 * Math.pow((typeof opcVol === "function" ? opcVol("Musica") : 0.4) / 0.4, 0.7);
+if (typeof OPC !== "undefined" && OPC.on)
+  OPC.on(() => {
+    if (AU.ctx && AU.out) AU.out.gain.setTargetAtTime(musVol(), AU.ctx.currentTime, 0.05);
+  });
 function audioInit() {
   if (AU.ctx) return;
   try {
     AU.ctx = new (window.AudioContext || window.webkitAudioContext)();
     AU.out = AU.ctx.createGain();
-    AU.out.gain.value = 0.14;
+    AU.out.gain.value = musVol();
     AU.out.connect(AU.ctx.destination);
     const b = AU.ctx.createBuffer(1, AU.ctx.sampleRate * 0.4, AU.ctx.sampleRate),
       d = b.getChannelData(0);

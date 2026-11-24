@@ -668,7 +668,7 @@ function b3dBarra() {
   v.setAttribute("aria-pressed", on ? "true" : "false");
   v.disabled = B3D.ok === false;
   if (B3D.ok === false) v.title = "Tu navegador no ofrece WebGL: se usa la vista clásica";
-  else if (B3D.soft && !B3D.pref.vista) v.title = "Sin aceleración gráfica se empieza en la vista clásica; pulsa para probar la 3D";
+  else if (B3D.soft && !B3D.pref.vista) v.title = "Sin aceleración gráfica: si va lenta, baja la calidad o pasa a la vista clásica";
   q("seguir").setAttribute("aria-pressed", B3D.cam.seguir ? "true" : "false");
   q("barras").setAttribute("aria-pressed", B3D.pref.barras ? "true" : "false");
   q("cal").textContent = "Calidad: " + B3D_CAL[B3D.pref.cal].n;
@@ -882,6 +882,62 @@ function b3dAlt(x, y) {
     H[j * n + i] * (1 - a) * (1 - b) + H[j * n + i + 1] * a * (1 - b) + H[(j + 1) * n + i] * (1 - a) * b + H[(j + 1) * n + i + 1] * a * b
   );
 }
+/* ---------- paisaje fuera del campo ---------- */
+const b3dMargen = () => (B3D_CAL[B3D.pref.cal] && B3D_CAL[B3D.pref.cal].simple ? 16 : 26);
+/* distancia (casillas) al rectángulo del campo */
+const b3dFueraD = (x, y) => Math.hypot(x - clamp(x, 0, BW), y - clamp(y, 0, BH));
+/* altura fuera del campo: en el borde, la del campo (sin costura); lejos, lomas suaves */
+function b3dFueraH(x, y) {
+  const d = b3dFueraD(x, y);
+  if (d <= 1e-6) return b3dAlt(x, y);
+  const he = b3dAlt(clamp(x, 0, BW), clamp(y, 0, BH)),
+    f = Math.max(0, 1 - d / 9),
+    n = 0.5 + 0.5 * Math.sin(x * 0.23 + 1.3) * Math.cos(y * 0.19 + 0.7) + 0.3 * Math.sin((x - y) * 0.09 + 2) + 0.12 * Math.sin(x * 0.7 + y * 0.5);
+  /* hacia el final del margen, las lomas bajan a 0: ahí empieza el llano infinito (b3dLlano) */
+  return (he * f + Math.min(1, d / 7) * Math.max(0, n) * 1.25) * clamp((b3dMargen() - d) / 5, 0, 1);
+}
+/* llano enorme bajo todo, del color del pasto: tapa las esquinas y se pierde en la bruma */
+function b3dLlano() {
+  const g = new THREE.PlaneGeometry(1200, 1200),
+    c = b3dCol(B3D_TERR_PAL.pasto[0]).clone().multiplyScalar(0.8),
+    m = new THREE.MeshLambertMaterial({ color: c });
+  g.rotateX(-Math.PI / 2);
+  const me = new THREE.Mesh(g, m);
+  me.position.y = -0.02;
+  me.receiveShadow = false;
+  return { me, g, m };
+}
+const b3dFueraBosque = (x, y) => Math.sin(x * 0.13 + 0.4) * Math.cos(y * 0.16 + 1.1) + 0.5 * Math.sin((x + y) * 0.071) + 0.25 * Math.sin(x * 0.41 - y * 0.37) > 0.5;
+/* línea roja: el margen del campo donde se pelea (una cinta sobre el suelo) */
+function b3dBordeRojo() {
+  const pos = [],
+    e = 0.09,
+    h = (x, y) => b3dAlt(x, y) + 0.035,
+    seg = (x0, y0, x1, y1, nx, ny) => {
+      const n = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0) * B3D_K));
+      for (let k = 0; k < n; k++) {
+        const ax = x0 + ((x1 - x0) * k) / n,
+          ay = y0 + ((y1 - y0) * k) / n,
+          bx = x0 + ((x1 - x0) * (k + 1)) / n,
+          by = y0 + ((y1 - y0) * (k + 1)) / n,
+          A = [ax - nx * e, h(ax, ay), ay - ny * e],
+          B = [bx - nx * e, h(bx, by), by - ny * e],
+          C = [bx + nx * e, h(bx, by), by + ny * e],
+          D = [ax + nx * e, h(ax, ay), ay + ny * e];
+        for (const v of [A, D, B, B, D, C]) pos.push(v[0] - BW / 2, v[1], v[2] - BH / 2);
+      }
+    };
+  seg(0, 0, BW, 0, 0, 1);
+  seg(BW, 0, BW, BH, 1, 0);
+  seg(BW, BH, 0, BH, 0, 1);
+  seg(0, BH, 0, 0, 1, 0);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  const m = new THREE.MeshBasicMaterial({ color: "#d8392b", side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, fog: false });
+  const me = new THREE.Mesh(g, m);
+  me.renderOrder = 3;
+  return { me, g, m };
+}
 /* malla del suelo: triángulos de color plano (aire low-poly) con faldón de tierra en los bordes */
 function b3dSuelo(terr, rnd, campos) {
   const Rl = B3D.rel,
@@ -933,36 +989,34 @@ function b3dSuelo(terr, rnd, campos) {
         tri([a, c, b], c2);
       }
     }
-  /* faldón de tierra */
-  const fondo = -1.4,
-    lado = (pts) => {
-      for (let k = 0; k < pts.length - 1; k++) {
-        const [p, q] = [pts[k], pts[k + 1]],
-          cc = pick(B3D_TERR_PAL.tierra, k * 31 + pts.length),
-          A = [p[0], p[1], p[2]],
-          B = [q[0], q[1], q[2]],
-          Cc = [q[0], fondo, q[2]],
-          Dd = [p[0], fondo, p[2]];
-        tri([A, Dd, B], cc);
-        tri([B, Dd, Cc], cc);
+  /* PAISAJE ALREDEDOR (antes, un faldón de tierra: el campo parecía una maqueta flotando): el terreno sigue
+     B3D_MARGEN() casillas más allá del campo, con lomas suaves y manchas de bosque que se funden con la bruma
+     del horizonte. El borde del campo jugable lo marca la línea roja (b3dBordeRojo). */
+  const M = b3dMargen(),
+    st = 1 / B3D_K;
+  for (let y = -M; y < BH + M; y += st)
+    for (let x = -M; x < BW + M; x += st) {
+      if (x >= 0 && x < BW - 1e-6 && y >= 0 && y < BH - 1e-6) continue;
+      const P = (X, Y) => [X, b3dFueraH(X, Y), Y],
+        a = P(x, y),
+        b = P(x + st, y),
+        c = P(x + st, y + st),
+        d = P(x, y + st),
+        n = Math.round((x + M) * 7919 + (y + M) * 104729),
+        dd = b3dFueraD(x + st / 2, y + st / 2),
+        k = 1 - Math.min(0.22, dd * 0.009),
+        bos = dd > 0.6 && b3dFueraBosque(x, y),
+        l = bos ? B3D_TERR_PAL.bosque : B3D_TERR_PAL.pasto,
+        c1 = pick(l, n).clone().multiplyScalar(k),
+        c2 = pick(l, n + 5).clone().multiplyScalar(k);
+      if ((Math.round(x * B3D_K) + Math.round(y * B3D_K)) % 2) {
+        tri([a, d, b], c1);
+        tri([b, d, c], c2);
+      } else {
+        tri([a, d, c], c1);
+        tri([a, c, b], c2);
       }
-    };
-  const top = [],
-    bot = [],
-    izq = [],
-    der = [];
-  for (let i = 0; i < Rl.nx; i++) {
-    top.push([i / B3D_K, hv(i, 0), 0]);
-    bot.unshift([i / B3D_K, hv(i, Rl.ny - 1), BH]);
-  }
-  for (let j = 0; j < Rl.ny; j++) {
-    izq.unshift([0, hv(0, j), j / B3D_K]);
-    der.push([BW, hv(Rl.nx - 1, j), j / B3D_K]);
-  }
-  lado(top);
-  lado(der);
-  lado(bot);
-  lado(izq);
+    }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
   g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
@@ -1006,6 +1060,8 @@ function b3dWebGL() {
       B3D.gpu = "";
     }
     B3D.soft = /swiftshader|llvmpipe|softpipe|software|basic render/i.test(B3D.gpu);
+    /* sin aceleración gráfica, la isométrica empieza en calidad baja (si el jugador no eligió otra) */
+    if (B3D.soft && !B3D.pref.vista && !/"calidad"/.test(localStorage.getItem("ocaso-opc") || "")) B3D.pref.cal = "baja";
     B3D.gl.addEventListener("webglcontextlost", (e) => {
       e.preventDefault();
       B3D.perdido = true;
@@ -1025,12 +1081,14 @@ function b3dWebGL() {
   return true;
 }
 /* vista efectiva: la elegida por el jugador o, si no eligió, 3D salvo que no haya GPU (WebGL por software) */
-const b3dVista = () => B3D.pref.vista || (B3D.soft ? "2d" : "3d");
+/* la batalla es isométrica (3D) por defecto, también sin aceleración gráfica (entonces con calidad baja);
+   la vista clásica desde arriba solo si el jugador la elige */
+const b3dVista = () => B3D.pref.vista || "3d";
 const b3dActivo = () => !!BT && b3dVista() === "3d" && B3D.ok !== false && !B3D.perdido && typeof THREE !== "undefined";
 
 function b3dConstruir() {
   b3dDesmontar();
-  const cal = B3D_CAL[B3D.pref.cal],
+  const cal = typeof b3dCal === "function" ? b3dCal() : B3D_CAL[B3D.pref.cal],
     S = new THREE.Scene(),
     terr = BT.terr,
     E = BT.env || { clima: "despejado", hora: "a media mañana" };
@@ -1057,7 +1115,7 @@ function b3dConstruir() {
     ca = cli.a || cie.a,
     cb = cli.b || cie.b;
   B3D.wrap.style.background = `linear-gradient(180deg, ${ca} 0%, ${cb} 70%, ${cb} 100%)`;
-  S.fog = new THREE.Fog(cb, 70 + 30 * cli.niebla, 90 + 70 * cli.niebla);
+  S.fog = typeof OPC !== "undefined" && OPC.v.niebla3d === false ? new THREE.Fog(cb, 140, 260) : new THREE.Fog(cb, 70 + 30 * cli.niebla, 90 + 70 * cli.niebla);
   const hemi = new THREE.HemisphereLight(cb, "#3a3020", 1.1 * cli.k);
   S.add(hemi);
   const sol = new THREE.DirectionalLight(cie.sol, cie.i * cli.k),
@@ -1079,7 +1137,7 @@ function b3dConstruir() {
     sc.far = 260;
     sol.shadow.bias = -0.0008;
     sol.shadow.normalBias = 0.02;
-    sol.shadow.radius = 2;
+    sol.shadow.radius = cal.suaves === false ? 0 : 2;
   } else B3D.ren.shadowMap.enabled = false;
   S.add(sol);
   B3D.sombras = sol.castShadow;
@@ -1104,6 +1162,12 @@ function b3dConstruir() {
   suelo.receiveShadow = true;
   S.add(suelo);
   dis.push(gs, ms);
+  {
+    const br = b3dBordeRojo(),
+      ll = b3dLlano();
+    S.add(br.me, ll.me);
+    dis.push(br.g, br.m, ll.g, ll.m);
+  }
   /* agua del río y los vados */
   const wp = [],
     wc = [];
@@ -1158,6 +1222,21 @@ function b3dConstruir() {
       if (t === 4) for (let k = 0; k < 2; k++) rocas.push([x + rnd(), y + rnd(), 0.08 + rnd() * 0.08, rnd() * 6.28]);
       if (t === 0 && rnd() < 0.015) rocas.push([x + rnd(), y + rnd(), 0.08 + rnd() * 0.1, rnd() * 6.28]);
     }
+  /* bosques del paisaje de alrededor */
+  {
+    const M = b3dMargen();
+    for (let y = -M; y < BH + M; y++)
+      for (let x = -M; x < BW + M; x++) {
+        const d = b3dFueraD(x + 0.5, y + 0.5);
+        if (d < 1.2 || !b3dFueraBosque(x, y)) continue;
+        for (let k = 0; k < cal.arboles; k++) {
+          if (rnd() < 0.25) continue;
+          const px = x + 0.15 + rnd() * 0.7,
+            py = y + 0.15 + rnd() * 0.7;
+          (rnd() < 0.6 ? tA : tB).push([px, py, 0.13 * (0.8 + rnd() * 0.4), rnd() * 6.28, 0.78 + rnd() * 0.25, 1]);
+        }
+      }
+  }
   const mVeg = new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true });
   dis.push(mVeg);
   const M4 = new THREE.Matrix4(),
@@ -1173,9 +1252,9 @@ function b3dConstruir() {
     if (!l.length) continue;
     const g = b3dModeloGeo(id),
       im = new THREE.InstancedMesh(g, mVeg, l.length);
-    l.forEach(([x, y, s, a, k], i) => {
+    l.forEach(([x, y, s, a, k, fuera], i) => {
       Q.setFromAxisAngle(Y, a);
-      M4.compose(V.set(x - BW / 2, b3dAlt(x, y) - 0.05, y - BH / 2), Q, Vs.set(s, s * (0.9 + b3dH(i) * 0.3), s));
+      M4.compose(V.set(x - BW / 2, (fuera ? b3dFueraH(x, y) : b3dAlt(x, y)) - 0.05, y - BH / 2), Q, Vs.set(s, s * (0.9 + b3dH(i) * 0.3), s));
       im.setMatrixAt(i, M4);
       im.setColorAt(i, tint.setRGB(k, k * (0.95 + b3dH(i + 9) * 0.1), k));
     });
