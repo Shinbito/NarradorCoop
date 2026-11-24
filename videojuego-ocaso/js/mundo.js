@@ -4,18 +4,21 @@
    - G.modo: 'historico' (410 d.C., las 7 originales, como siempre) o 'leyendas' (subconjunto elegido).
    - G.activas: índices de los pueblos que juegan. Los demás existen en G.F (para que todo bucle f < NF
      funcione) pero sin provincias ni corte viva: alive(f) es falso y G.F[f].ausente = true.
-   - G.mapa: {w, h, gx, gy} tamaño del mapa (gen() en mapa.js lo usa para regenerarlo desde la semilla).
+   - G.mapa: {w, h, gx, gy, v} tamaño del mapa y versión del generador (gen() en mapa.js lo usa para regenerarlo desde la semilla).
    Ver docs/mundo.md. */
 
 const MUNDO_HIST = [0, 1, 2, 3, 4, 5, 6];
 /* el mapa del modo histórico: 64×40 casillas, rejilla de 8×5 semillas (~38 provincias) */
 const MUNDO_DIM0 = { w: 64, h: 40, gx: 8, gy: 5 };
+/* versión del generador de mapas para partidas NUEVAS (G.mapa.v). Sin v (partidas antiguas) = 1: mapa sin
+   relieve infranqueable. 2 = montañas, pasos, ríos, puentes, vados, caminos y bosques densos (mapa.js). */
+const MUNDO_GEN_V = 2;
 
 /* tamaño del mundo para n pueblos activos: el área crece con el número de pueblos (~5 provincias por pueblo) */
 function mundoDims(modo, n) {
-  if (modo !== "leyendas" || n <= 7) return { ...MUNDO_DIM0 };
+  if (modo !== "leyendas" || n <= 7) return { ...MUNDO_DIM0, v: MUNDO_GEN_V };
   const s = Math.sqrt(n / 6.2);
-  return { w: Math.round(64 * s), h: Math.round(40 * s), gx: Math.round(8 * s), gy: Math.round(5 * s) };
+  return { w: Math.round(64 * s), h: Math.round(40 * s), gx: Math.round(8 * s), gy: Math.round(5 * s), v: MUNDO_GEN_V };
 }
 /* fija W/H y redimensiona los lienzos del mapa (lo llama gen) */
 function mundoLienzo(w, h) {

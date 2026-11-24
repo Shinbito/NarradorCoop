@@ -29,7 +29,7 @@ ofrezca los pueblos que juegan.
   «de nombre» **muerto** (`G.C[...]` con `alive: false`, `mundoAusente: true`), para que `ruler(f).n`
   no falle pero no haya corte que envejezca, se case ni herede.
 - `G.rel` / `G.st`: matrices NF×NF (19×19).
-- `G.mapa = {w, h, gx, gy}`: con `gen(G.seed, G.mapa)` se regenera el mismo mapa. `W`/`H` (globales)
+- `G.mapa = {w, h, gx, gy, v}`: con `gen(G.seed, G.mapa)` se regenera el mismo mapa (`v` = versión del generador, §6). `W`/`H` (globales)
   los fija `gen()`, que también redimensiona los lienzos `cv`/`base`. Usad siempre `W`/`H`, nunca 64/40.
 - Guarnición inicial de la capital: `CIV[f].u0` (hunos y mongoles a caballo; incas, mayas y aztecas
   con honderos/átlatl y sin jinetes), por defecto `{i:6, a:4, c:2}`.
@@ -167,6 +167,63 @@ Lo que falte cae en un respaldo razonable, pero conviene completarlo. Usad `CIV[
   9 clases para los 20 pueblos), modo histórico (64×40, tratados, 19 facciones con 12 ausentes), pantalla
   de inicio en escritorio y móvil, cuatro partidas de leyendas (incas+aztecas+mayas sin caballos; los
   19 pueblos; 3 pueblos; árabes con 11 rivales durante 20 años) comprobando capitales, nombres y que
-  nadie sin caballos tenga jinetes, guardar/cargar una partida de leyendas y cargar la partida antigua.
+  nadie sin caballos tenga jinetes, el relieve de cada mapa (capas, ríos que bajan al mar, ninguna ciudad
+  aislada; captura de depuración `mundo-relieve-*.png`), guardar/cargar una partida de leyendas y cargar la partida antigua.
   Con `--todas` ejecuta también humo (20 años), economía, tecnología, diplomacia, narrativa y combate.
 - Capturas: `pruebas/capturas/mundo-*.png`.
+
+## 6. Relieve del mapa (generador v2)
+
+`gen(semilla, G.mapa)` primero fija costa, provincias y ciudades exactamente como antes (misma forma con
+la misma semilla) y después, con su propio generador aleatorio, calcula el relieve (`mapaRelieve`).
+
+### Versiones del generador (`G.mapa.v`)
+| v | Partidas | Relieve |
+|---|---|---|
+| 1 (sin `v`) | las guardadas antes de este cambio (y las de leyendas creadas antes) | solo `alt` (informativa); `mont`, `rio`, `puente`, `vado`, `camino`, `bosque` vacías: nada infranqueable, como siempre |
+| 2 (`MUNDO_GEN_V`) | todas las partidas nuevas (histórico y leyendas) | montañas, pasos, ríos, puentes, vados, caminos y bosques densos |
+
+La forma (costa, `grid`, `pts`, `adj`, `terr`) es idéntica en v1 y v2 (comprobado con 15 semillas por tamaño),
+así que provincias, capitales y economía del modo histórico no cambian. Los ejércitos de una partida vieja
+no pueden quedar dentro de una montaña nueva porque las viejas siguen en v1.
+
+### Capas de `MAP` (todas `[y][x]`, de `H`×`W`)
+| Capa | Valores | Qué es |
+|---|---|---|
+| `terr` | 0 mar, 1 llanura, 2 bosque, 3 colina | **Sin códigos nuevos** (economía, combate y campaña indexan arrays de 4). Las montañas están siempre en casillas `terr` 3 |
+| `tipo` | `MAPA_T`: 0 mar, 1 llanura, 2 bosque, 3 colina, **4 montaña**, **5 río** | código extendido para el dibujo y el 3D (`MAPA_TN[tipo]` = nombre) |
+| `alt` | 0 (mar) … 9 | altura: 1-7 en tierra (crece tierra adentro y con el relieve; colinas ≥ 4), 8-9 montaña, 7 en los pasos. A lo largo de un río nunca sube |
+| `mont` | 0/1 | montaña **infranqueable** (≈5,5 % de la tierra, en el corazón de las colinas, formando sierras; nunca en la costa ni junto a una ciudad) |
+| `paso` | 0/1 | paso de montaña: casilla de sierra abierta por un camino (transitable, `terr` 3) |
+| `rio` | 0/1 | cauce (4-conexo). Nace al pie de una montaña o en colinas altas y baja hasta el mar u otro río. **Solo se cruza por puente o vado** |
+| `puente` | 0/1 | donde un camino cruza un río, o una ciudad está sobre él |
+| `vado` | 0/1 | pocos, en tramos de llanura lejos de los puentes |
+| `camino` | 0/1 | caminos entre ciudades vecinas: un árbol que une TODAS las provincias más algún ramal (≈12 % de los pares vecinos) |
+| `bosque` | 0/1 | bosque denso (subconjunto de `terr` 2 fuera de caminos y ríos): donde se ocultan tropas |
+| `costa` | 0 mar, 1 costa, n | distancia en casillas al mar |
+| `rios`, `caminos` | listas | cauces (`[[x,y],...]`, de la fuente a la desembocadura) y pares de provincias unidas por camino |
+
+`mapaTransitable(x, y)`: tierra, no montaña, y si es río solo con puente o vado.
+`mapaInfo(x, y)` → `{tipo, terr, alt, rio, puente, vado, bosque, camino, paso, montana, costa, infranqueable, provincia}`.
+
+**Garantía de conexión:** los caminos forman un árbol entre todas las ciudades; donde cruzan un río ponen
+puente y donde cruzan una sierra abren un paso. Por eso cualquier ciudad llega a cualquier otra por casillas
+transitables (8 direcciones; en diagonal solo si las dos casillas ortogonales también lo son).
+`pruebas/mundo.js` lo comprueba en cada mapa con una búsqueda en anchura.
+
+### Peticiones del relieve
+- **Campaña** (`ejercitos.js`: `camCoste`, búsqueda de caminos, `camTerrCasilla`; `mercenarios.js`):
+  - coste **infinito** si `MAP.mont[y][x]` (usar `mapaTransitable`);
+  - un río solo se pisa por `MAP.puente` o `MAP.vado`; el vado, caro (y quizá solo fuera del invierno);
+  - en diagonal, prohibir el paso si alguna de las dos ortogonales no es transitable (como ya se hace con el mar),
+    para que nadie cruce un río o una sierra por una esquina;
+  - `MAP.camino` más barato (el bono de vías de tecnología encaja aquí); `MAP.paso`, caro;
+  - `MAP.bosque`: los ejércitos dentro no se ven desde lejos (niebla/ocultación) y emboscan;
+  - no colocar ejércitos, mercenarios ni guarniciones en casillas no transitables;
+  - `camRio(pid)` puede usar `MAP.rio` de la casilla en vez del río «por provincia».
+- **Interfaz** (`drawBase`/`ifzTileProc` en `mapa.js`): dibujar `MAP.tipo` 4 (montaña nevada) y 5 (agua),
+  puentes, vados, caminos y bosque denso; `mapaInfo` sirve para el texto de la casilla al pasar el ratón.
+- **Batalla 3D**: `MAP.alt` (0-9) y `MAP.tipo` dan la altura y el tipo de cada casilla; un río por provincia
+  puede salir de `MAP.rio`.
+- **Combate** (`cmbTerreno`): el río de una batalla puede salir de `MAP.rio`/`MAP.puente` de la provincia.
+- **Economía**: si quiere, provincias con río más fértiles y con puente más comerciales.
