@@ -32,7 +32,9 @@ Tesoro solo se muestran los lujos que tienes o produces.
 calculan al cargar).
 - *Yacimientos* `{recurso: riqueza 1..3}`: madera (bosque), piedra (colinas), hierro (colinas, con azar),
   oro (colinas; más en los Andes incas), estaño (colinas; más en tierra celta) y sal (litoral o tierras
-  áridas). La especialidad confirma su yacimiento (riqueza ≥ 2).
+  áridas). Las sierras del relieve (`MAP.mont`, mapas v2) dan más piedra, hierro y oro. La especialidad
+  confirma su yacimiento (riqueza ≥ 2). El río sale del cauce real (`MAP.rio`: +0,2 con 3 casillas o más,
+  +0,12 con menos) o, en mapas viejos, del río por provincia de combate.
 - *Fertilidad* 0..1: `0,3 + 0,4·llanura + 0,1·bosque − 0,2·colina + 0,2 río + 0,05 costa + azar`; árido
   (árabes, egipcios) −0,35 salvo con río (+0,15, el Nilo); estepa (hunos, mongoles) −0,15; China e India
   +0,1; Trigales, Nilo y Chinampas ≥ 0,75. Texto: Desierto, Estepa de pastos, Tierras yermas, pobres,

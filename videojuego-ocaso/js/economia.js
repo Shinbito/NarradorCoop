@@ -199,19 +199,29 @@ let ecoCacheT = null;
 function ecoTerreno(i) {
   if (!MAP) return { n: 40, s: [0, 0.7, 0.15, 0.15], costa: false };
   if (!ecoCacheT || ecoCacheT.seed !== MAP.seed || ecoCacheT.t.length !== MAP.pts.length) {
-    const t = MAP.pts.map(() => ({ n: 0, c: [0, 0, 0, 0], k: 0 }));
+    /* relieve v2 (mundo): casillas de montaña y de río de cada provincia */
+    const t = MAP.pts.map(() => ({ n: 0, c: [0, 0, 0, 0], k: 0, m: 0, r: 0 }));
     for (let y = 0; y < H; y++)
       for (let x = 0; x < W; x++) {
         const j = MAP.grid[y][x];
         if (j < 0) continue;
         t[j].n++;
         t[j].c[MAP.terr[y][x]]++;
+        if (MAP.mont && MAP.mont[y] && MAP.mont[y][x]) t[j].m++;
+        if (MAP.rio && MAP.rio[y] && MAP.rio[y][x]) t[j].r++;
         if ((MAP.terr[y - 1]?.[x] ?? 0) === 0 || (MAP.terr[y + 1]?.[x] ?? 0) === 0) t[j].k++;
         else if ((MAP.terr[y][x - 1] ?? 0) === 0 || (MAP.terr[y][x + 1] ?? 0) === 0) t[j].k++;
       }
     ecoCacheT = {
       seed: MAP.seed,
-      t: t.map((q) => ({ n: q.n, s: q.c.map((v) => v / Math.max(1, q.n)), costa: q.k >= 3 })),
+      relieve: !!(MAP.rios && MAP.rios.length),
+      t: t.map((q) => ({
+        n: q.n,
+        s: q.c.map((v) => v / Math.max(1, q.n)),
+        costa: q.k >= 3,
+        mont: q.m / Math.max(1, q.n),
+        rio: q.r,
+      })),
     };
   }
   return ecoCacheT.t[i] || { n: 40, s: [0, 0.7, 0.15, 0.15], costa: false };
@@ -376,15 +386,29 @@ function ecoIniYac(E) {
       tr = ecoTerreno(p.id),
       s = tr.s,
       clima = (ECO_CIV[E.cul[p.id]] || {}).clima,
-      rio = typeof cmbTerreno === "function" ? !!cmbTerreno(p).rio : r() < 0.2,
+      /* río: el cauce real del relieve (mapas v2) o el «río por provincia» de combate (mapas viejos) */
+      rio =
+        ecoCacheT && ecoCacheT.relieve
+          ? tr.rio > 0
+          : typeof cmbTerreno === "function"
+            ? !!cmbTerreno(p).rio
+            : r() < 0.2,
+      mt = tr.mont || 0,
       esp = E.esp[p.id],
       Y = {},
       nivel = (x, a, b, c) => (x >= c ? 3 : x >= b ? 2 : x >= a ? 1 : 0);
     Y.madera = nivel(s[2] + (r() - 0.5) * 0.1, 0.15, 0.3, 0.45);
-    Y.piedra = nivel(s[3] + (r() - 0.5) * 0.15, 0.15, 0.35, 0.6);
-    Y.hierro = nivel(s[3] * 1.1 + r() * 0.45 - 0.25, 0.2, 0.45, 0.75);
-    Y.oro = s[3] >= 0.3 && r() < (clima === "montes" ? 0.4 : 0.14) ? (r() < 0.3 ? 2 : 1) : 0;
-    Y.estano = s[3] >= 0.25 && r() < (clima === "estano" ? 0.5 : 0.1) ? (r() < 0.3 ? 2 : 1) : 0;
+    /* las sierras (montañas del relieve) esconden las mejores vetas */
+    Y.piedra = nivel(s[3] + mt * 0.8 + (r() - 0.5) * 0.15, 0.15, 0.35, 0.6);
+    Y.hierro = nivel(s[3] * 1.1 + mt * 1.5 + r() * 0.45 - 0.25, 0.2, 0.45, 0.75);
+    Y.oro =
+      s[3] >= 0.3 && r() < (clima === "montes" ? 0.4 : 0.14) * (mt > 0 ? 2 : 1)
+        ? r() < 0.3 + mt
+          ? 2
+          : 1
+        : 0;
+    Y.estano =
+      s[3] >= 0.25 && r() < (clima === "estano" ? 0.5 : 0.1) * (mt > 0 ? 1.5 : 1) ? (r() < 0.3 ? 2 : 1) : 0;
     Y.sal = (tr.costa && r() < 0.35) || (clima === "arido" && r() < 0.3) ? (r() < 0.3 ? 2 : 1) : 0;
     /* la especialidad confirma su yacimiento y lo deja explotado */
     const ex = {},
@@ -407,7 +431,14 @@ function ecoIniYac(E) {
     E.yac[p.id] = Y;
     if (E.exp[p.id] === undefined) E.exp[p.id] = ex;
     /* fertilidad: llanuras y ríos riegan; colinas y climas secos o de estepa empobrecen */
-    let v = 0.3 + s[1] * 0.4 + s[2] * 0.1 - s[3] * 0.2 + (rio ? 0.2 : 0) + (tr.costa ? 0.05 : 0) + r() * 0.15;
+    let v =
+      0.3 +
+      s[1] * 0.4 +
+      s[2] * 0.1 -
+      s[3] * 0.2 +
+      (rio ? (tr.rio >= 3 || !(ecoCacheT && ecoCacheT.relieve) ? 0.2 : 0.12) : 0) +
+      (tr.costa ? 0.05 : 0) +
+      r() * 0.15;
     if (clima === "arido") v += rio ? 0.15 : -0.35;
     if (clima === "estepa") v -= 0.15;
     if (clima === "fertil") v += 0.1;

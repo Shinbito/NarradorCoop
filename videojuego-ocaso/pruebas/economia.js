@@ -320,6 +320,12 @@ const comprueba = (ok, msg) => {
       !bosques.length || bosques.filter((p) => (ecoYac(p).madera || 0) >= 2).length >= bosques.length * 0.7;
     o.llanosFertiles =
       !colinas.length || media(llanos.map((p) => ecoFertil(p).v)) > media(colinas.map((p) => ecoFertil(p).v));
+    const sierras = P.filter((p) => (ecoTerreno(p.id).mont || 0) > 0);
+    o.sierrasConVetas =
+      !sierras.length ||
+      sierras.filter((p) => ecoYac(p).hierro || ecoYac(p).oro || ecoYac(p).estano).length >=
+        sierras.length * 0.6 ||
+      `solo ${sierras.filter((p) => ecoYac(p).hierro).length}/${sierras.length}`;
     o.explotacionesIniciales = P.filter((p) => Object.keys(ecoExplotaciones(p)).length).length;
     o.especialidadExplotada = P.filter((p) => E.esp[p.id] === "hierro").every(
       (p) => ecoExplotaciones(p).mina >= 1,
@@ -355,6 +361,7 @@ const comprueba = (ok, msg) => {
   for (const [k, v] of Object.entries(tie))
     comprueba(v === true || typeof v === "number" || typeof v === "string", `${k}: ${v}`);
   comprueba(tie.explotacionesIniciales > 0, "algunas provincias empiezan con minas o canteras");
+  comprueba(tie.sierrasConVetas === true, "las sierras del relieve esconden vetas de metal");
   await (await page.$("#panel")).screenshot({ path: path.join(capt, "economia-tierras-ajena.png") });
   await page.evaluate(() => {
     sel = G.F[ME].capId;
