@@ -543,6 +543,124 @@ const ok = (c, m) => {
   const vieja = await page.evaluate(() => ({ cam: !!G.cam && Array.isArray(G.cam.ej), est: G.estacion, err: /Error al mostrar/.test(document.getElementById("panel").innerHTML) }));
   ok(vieja.cam && vieja.est === 0 && !vieja.err, "la partida antigua carga con G.cam vacío y en primavera");
 
+  /* ---------- 7b. niebla de guerra y espías ---------- */
+  console.log("7b. Niebla de guerra y espías");
+  const nb = await corre(`
+    G.cam.niebla = true;
+    for (const e of G.cam.ej.slice()) camQuitar(e);
+    G.cam.esp = [];
+    camTocar();
+    const libre = (x, y) => MAP.terr[y] && MAP.terr[y][x] && MAP.grid[y][x] >= 0 && !camCiudadEn(x, y) && !camEjsEn(x, y).length;
+    const lejosDe = (x, y, l, d) => l.every((p) => camCheb(p.x, p.y, x, y) > d);
+    const r = {};
+    /* a) un ejército lejano no se ve; ni en el panel ni al pasar el ratón */
+    let far = null;
+    for (let y = 2; y < H - 2 && !far; y++) for (let x = 2; x < W - 2 && !far; x++) if (libre(x, y) && !camVisible(ME, x, y)) far = [x, y];
+    const lej = camNuevoEj(REB, far[0], far[1], { i: 9 }, { nom: "Hueste oculta" });
+    r.lejosOculto = !camVeEj(ME, lej) && !camHoverTxt(far[0], far[1]).includes("Hueste oculta");
+    r.ignota = !camExplorado(ME, far[0], far[1]) ? camHoverTxt(far[0], far[1]) : "explorada";
+    camQuitar(lej);
+    /* b) en el bosque solo se ve a una casilla */
+    let F = null, M = null;
+    for (let y = 3; y < H - 3 && !F; y++)
+      for (let x = 3; x < W - 3 && !F; x++) {
+        if (MAP.terr[y][x] !== 2 || !libre(x, y) || !lejosDe(x, y, G.P, 4)) continue;
+        const m2 = CAM_V8.map(([dx, dy]) => [x + 2 * dx, y + 2 * dy]).find(([a, b]) => libre(a, b) && MAP.terr[b][a] !== 2);
+        if (m2) { F = [x, y]; M = m2; }
+      }
+    if (F) {
+      const yo = camNuevoEj(ME, M[0], M[1], { i: 4 }, {}), oc = camNuevoEj(REB, F[0], F[1], { i: 6 }, { nom: "Emboscados" });
+      r.bosqueA2 = camVisible(ME, F[0], F[1]) && !camVeEj(ME, oc);
+      yo.x = F[0] + Math.sign(M[0] - F[0]); yo.y = F[1] + Math.sign(M[1] - F[1]); camTocar();
+      r.bosqueA1 = camVeEj(ME, oc);
+      /* d) un espía a 3 casillas lo revela sin acercar el ejército */
+      yo.x = M[0]; yo.y = M[1]; camTocar();
+      const cap = G.P[G.F[ME].capId];
+      G.F[ME].gold = 500;
+      const ce = await camAplicarOrden(G, { tipo: "espia", f: ME, p: cap.id });
+      const s = camEspPorId(ce.esp);
+      s.mov = 999;
+      await camAplicarOrden(G, { tipo: "espiaMover", f: ME, esp: s.id, x: F[0] + 3 * Math.sign(M[0] - F[0] || 1), y: F[1] });
+      r.espiaEn = camCheb(s.x, s.y, F[0], F[1]);
+      r.espiaRevela = r.espiaEn <= 3 && camVeEj(ME, oc);
+      camQuitar(yo); camQuitar(oc);
+      /* sabotaje de máquinas de un ejército enemigo */
+      const sx = s.x, sy = s.y;
+      const v = CAM_V8.map(([dx, dy]) => [sx + dx, sy + dy]).find(([a, b]) => libre(a, b));
+      const en = camNuevoEj(REB, v[0], v[1], { i: 6 }, { nom: "Sitiadores" });
+      en.maq = { ari: 2, tor: 1 }; en.obra = [{ t: "cat", q: 2 }];
+      const m0 = camMaqTot(en) + en.obra.length;
+      let k = 0, hecho = false;
+      for (; k < 8 && !hecho; k++) {
+        let sp = camEspPorId(s.id) || camEspDe(ME)[0];
+        if (!sp) { const c2 = await camAplicarOrden(G, { tipo: "espia", f: ME, p: cap.id }); sp = camEspPorId(c2.esp); sp.x = sx; sp.y = sy; }
+        sp.cal = 10;
+        const mo = await camAplicarOrden(G, JSON.parse(JSON.stringify({ tipo: "mision", f: ME, esp: sp.id, mis: "sabotear", obj: en.id })));
+        if (!mo.ok) break;
+        await camEspias();
+        hecho = camMaqTot(en) + en.obra.length < m0;
+      }
+      r.sabotaje = hecho;
+      r.intentos = k;
+      camQuitar(en);
+    }
+    /* c) la torre de vigilancia amplía la vista de la ciudad */
+    const cap = G.P[G.F[ME].capId];
+    const t0 = cap.torre || 0;
+    cap.torre = 0; camTocar();
+    let lejana = null;
+    for (let y = 0; y < H && !lejana; y++) for (let x = 0; x < W && !lejana; x++) {
+      const d = Math.hypot(x - cap.x, y - cap.y);
+      if (d > 3.6 && d < 8.6 && MAP.terr[y][x] && !camVisible(ME, x, y)) lejana = [x, y];
+    }
+    if (lejana) {
+      cap.torre = 3; camTocar();
+      r.torre = camVisible(ME, lejana[0], lejana[1]);
+    }
+    cap.torre = t0; camTocar();
+    /* e) la IA no ve a través de la niebla: un ejército débil en el bosque a 2 casillas no le atrae;
+          el mismo en llano a 2 casillas, sí */
+    const A = [...Array(NF).keys()].find((f) => f !== ME && alive(f));
+    G.st[A][ME] = G.st[ME][A] = "guerra";
+    let caso = null;
+    for (let y = 3; y < H - 3 && !caso; y++)
+      for (let x = 3; x < W - 3 && !caso; x++) {
+        if (MAP.terr[y][x] !== 2 || !libre(x, y) || !lejosDe(x, y, G.P, 4)) continue;
+        const pX = CAM_V8.map(([dx, dy]) => [x + 2 * dx, y + 2 * dy]).find(([a, b]) => libre(a, b) && camPaso(A, G.P[MAP.grid[b][a]].owner) && MAP.terr[b][a] !== 2);
+        if (!pX) continue;
+        const pW = CAM_V8.map(([dx, dy]) => [pX[0] + 2 * dx, pX[1] + 2 * dy]).find(([a, b]) => libre(a, b) && MAP.terr[b][a] === 1 && !(a === x && b === y) && camCheb(a, b, x, y) >= 2);
+        if (pW) caso = { F: [x, y], X: pX, Wv: pW };
+      }
+    if (caso) {
+      const X = camNuevoEj(A, caso.X[0], caso.X[1], { i: 20, c: 6 }, { nom: "Cazadores" });
+      X.mov = 30;
+      const Wej = camNuevoEj(ME, caso.F[0], caso.F[1], { i: 1 }, { nom: "Presa" });
+      const o1 = await camIAEj(A, X);
+      r.iaOculto = !camVeEj(A, Wej) && !(o1 && o1.x === Wej.x && o1.y === Wej.y);
+      Wej.x = caso.Wv[0]; Wej.y = caso.Wv[1]; X.mov = 30; X.obj = null; camTocar();
+      const o2 = await camIAEj(A, X);
+      r.iaVisto = camVeEj(A, Wej) && !!(o2 && o2.x === Wej.x && o2.y === Wej.y);
+      camQuitar(X); camQuitar(Wej);
+    }
+    /* lo explorado se guarda en G (base64) y sobrevive a JSON */
+    const g2 = JSON.parse(JSON.stringify(G.cam));
+    r.exp = typeof g2.exp[ME] === "string" && g2.exp[ME].length > 10;
+    r.mem = Object.keys((g2.mem || {})[ME] || {}).length;
+    camSel = null; camEspSel = camEspDe(ME)[0] ? camEspDe(ME)[0].id : null; sel = G.F[ME].capId; tab = "prov"; ui();
+    return r;
+  `);
+  console.log("  " + JSON.stringify(nb));
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: path.join(capt, "campana-niebla.png") });
+  ok(nb.lejosOculto, "la niebla oculta un ejército fuera de la vista (también en el texto del ratón)");
+  ok(nb.bosqueA2 !== false && nb.bosqueA1 !== false, "en el bosque solo se ve a una casilla");
+  ok(nb.torre !== false, "la torre de vigilancia amplía la vista de la ciudad");
+  ok(nb.espiaRevela !== false, `el espía revela lo que oculta el bosque (a ${nb.espiaEn} casillas)`);
+  ok(nb.sabotaje !== false, `el espía sabotea máquinas de asedio (${nb.intentos} intentos)`);
+  ok(nb.iaOculto !== false && nb.iaVisto !== false, "la IA no persigue lo que no ve y sí lo que ve");
+  ok(nb.exp && nb.mem > 0, `lo explorado y la última noticia de ${nb.mem} ciudades se guardan`);
+  console.log(`  (comprobado: bosque ${nb.bosqueA2 != null}, torre ${nb.torre != null}, espía ${nb.espiaRevela != null}, IA ${nb.iaOculto != null})`);
+
   /* ---------- 8. la IA durante muchos años ---------- */
   console.log(`8. La IA durante ${ANIOS} años`);
   await page.evaluate(() => {

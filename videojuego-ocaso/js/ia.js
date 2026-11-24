@@ -160,19 +160,22 @@ function camIATomar(f, p, fr) {
   return u;
 }
 const camIAEjDe = (f, p, u) => ({ f, u, gen: p.gen, vet: cmbVetDe(p), ori: cmbOriDe(p), fat: 5 });
-const camIACtxCiudad = (q) => ({
-  fort: Math.max(0, (q.walls || 0) - 1.25),
-  p: q,
-  terreno: cmbTerreno(q),
-  asedio: q.walls ? 2 : 0,
-});
+/* lo que la IA sabe de una ciudad (niebla de guerra: si no la ve, la última noticia o una suposición) */
+const camIACtxCiudad = (q, f) => {
+  const w = f != null && typeof camInfoCiudad === "function" ? camInfoCiudad(f, q).walls : q.walls || 0;
+  return { fort: Math.max(0, (w || 0) - 1.25), p: q, terreno: cmbTerreno(q), asedio: w ? 2 : 0 };
+};
+function camIAGuarn(f, q) {
+  const i = typeof camInfoCiudad === "function" ? camInfoCiudad(f, q) : { vista: true };
+  return i.vista ? camGuarnicion(q) : { f: q.owner, u: i.u, gen: null, vet: {}, ori: {}, fat: 0, hambre: false };
+}
 async function camIAFormar(f) {
   const S = camS(),
     mios = camEjDe(f),
     own = owned(f),
     max = Math.min(CAM_K.maxEj + 1, 1 + Math.floor(own.length / 4));
   /* defensa: ejércitos enemigos dentro de su tierra */
-  const intr = S.ej.filter((e) => camGuerra(f, e.f) && camProv(e) && camProv(e).owner === f && camTot(e.u) > 0);
+  const intr = S.ej.filter((e) => camGuerra(f, e.f) && camVeEj(f, e) && camProv(e) && camProv(e).owner === f && camTot(e.u) > 0);
   for (const e of intr.slice(0, 2)) {
     if (mios.some((m) => m.obj && m.obj.ej === e.id)) continue;
     const cand = own
@@ -212,7 +215,7 @@ async function camIAFormar(f) {
       if ((asq && !refuerzo) || (!asq && van.length) || van.length >= 2) continue;
       const ya = refuerzo ? van.reduce((t, m) => t + pw(camUCampo(m.u)), 0) : 0,
         s =
-          ((my + ya) / (pw(q.u) * (1 + 0.15 * (q.walls || 0)) * gb(q.gen) + 3)) *
+          ((my + ya) / (pw(camInfoCiudad(f, q).u) * (1 + 0.15 * (camInfoCiudad(f, q).walls || 0)) * gb(q.gen) + 3)) *
           (q.owner === REB ? 1.15 : 1) *
           (q.cap ? 1.2 : 1);
       if (s > 0.9) c.push({ p, q, u, s, con: refuerzo ? van : null });
@@ -221,7 +224,7 @@ async function camIAFormar(f) {
   c.sort((a, b) => b.s - a.s);
   for (const x of c.slice(0, 3)) {
     const uu = x.con ? x.con.reduce((t, m) => cmbSuma(t, camUCampo(m.u)), { ...x.u }) : x.u,
-      e = tot(x.q.u) ? cmbEstimar(camIAEjDe(f, x.p, uu), camGuarnicion(x.q), camCtxFlancos(camIACtxCiudad(x.q), x.con ? 2 : 1), 4) : 1;
+      e = tot(camInfoCiudad(f, x.q).u) ? cmbEstimar(camIAEjDe(f, x.p, uu), camIAGuarn(f, x.q), camCtxFlancos(camIACtxCiudad(x.q, f), x.con ? 2 : 1), 4) : 1;
     if (e < ((x.q.walls || 0) > 0 ? 0.5 : 0.62) / (x.q.owner === REB ? 1.1 : 1)) continue;
     const r = await camIAOrd({ tipo: "formar", f, p: x.p.id, u: x.u });
     if (r.ok) camEj(r.ej).obj = { p: x.q.id };
@@ -291,7 +294,7 @@ async function camIAEj(f, ej) {
   /* 1) interceptar ejércitos enemigos al alcance (sobre todo los que pisan tierra propia) */
   const yo = camParaBatalla(ej),
     ene = S.ej
-      .filter((e) => camGuerra(f, e.f) && camTot(e.u) > 0 && Number.isFinite(D.dist[camIdx(e.x, e.y)]))
+      .filter((e) => camGuerra(f, e.f) && camTot(e.u) > 0 && camVeEj(f, e) && Number.isFinite(D.dist[camIdx(e.x, e.y)]))
       .map((e) => ({ e, dentro: camProv(e) && camProv(e).owner === f ? 1 : 0, r: pw(yo.u) / (pw(camUCampo(e.u)) + 1) }))
       .filter((x) => x.r > 0.8)
       .sort((a, b) => b.dentro - a.dentro || b.r - a.r);
@@ -307,7 +310,7 @@ async function camIAEj(f, ej) {
   /* persecución de un intruso elegido al formar */
   if (ej.obj && ej.obj.ej != null) {
     const e = camEj(ej.obj.ej);
-    if (e && camGuerra(f, e.f) && camProv(e) && camProv(e).owner === f) return ataca(e.x, e.y);
+    if (e && camGuerra(f, e.f) && camVeEj(f, e) && camProv(e) && camProv(e).owner === f) return ataca(e.x, e.y);
     ej.obj = null;
   }
   /* 2) sin víveres en tierra ajena: forrajear acampado o volver */
@@ -343,7 +346,8 @@ async function camIAEj(f, ej) {
         .map((c) => {
           const j = camJuntoA(ej, c, L),
             d = j >= 0 ? L.dist[j] : Infinity,
-            r = pw(yo.u) / (pw(c.u) * (1 + 0.15 * (c.walls || 0)) + 2);
+            ic = camInfoCiudad(f, c),
+            r = pw(yo.u) / (pw(ic.u) * (1 + 0.15 * (ic.walls || 0)) + 2);
           return { c, d, s: (r * (c.cap ? 1.2 : 1) * (c.owner === REB ? 1.1 : 1)) / (1 + d / mx) };
         })
         .filter((x) => Number.isFinite(x.d) && x.d < mx * 3)
@@ -353,7 +357,8 @@ async function camIAEj(f, ej) {
     for (const x of cs.slice(0, 3)) {
       const aj = camCercoAjeno(f, x.c);
       if (aj && (camGuerra(f, aj.f) || pedidas++ || !(await camPedirCerco(f, x.c)))) continue;
-      const e = tot(x.c.u) ? cmbEstimar(yo, camGuarnicion(x.c), camIACtxCiudad(x.c), 3) : 1;
+      const ic = camInfoCiudad(f, x.c),
+        e = tot(ic.u) ? cmbEstimar(yo, camIAGuarn(f, x.c), camIACtxCiudad(x.c, f), 3) : 1;
       if (e >= ((x.c.walls || 0) > 0 ? 0.5 : 0.6) || (camAsedio(x.c.id) && e >= 0.35)) {
         q = x.c;
         ej.obj = { p: q.id };

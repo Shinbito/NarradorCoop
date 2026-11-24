@@ -23,6 +23,7 @@ const CAM_K = {
   desHambre: 0.08, // deserción por estación sin víveres
   desInvierno: 0.04, // desgaste por invernar fuera de tierra propia (la mitad acampado)
   maxEj: 3, // ejércitos de la IA a la vez (más con muchas provincias)
+  emboscada: 1.2, // bono de daño del que sale de un bosque contra quien no lo veía
 };
 /* máquinas de asedio: se construyen in situ durante un asedio (estaciones, coste, efecto en el asalto) */
 const CAM_MAQ = {
@@ -275,6 +276,8 @@ function camDijkstra(ej, o = {}) {
     if (e.id === ej.id || camTot(e.u) <= 0) continue;
     const i = camIdx(e.x, e.y);
     if (camGuerra(f, e.f)) {
+      /* niebla: el camino se traza con lo que se ve; el que no se ve aparece al toparse con él */
+      if (typeof camVeEj === "function" && !camVeEj(f, e)) continue;
       enem[i] = 1;
       if (!o.sinZoc)
         for (const [dx, dy] of CAM_V8) {
@@ -795,7 +798,11 @@ async function camBatallaLados(lados, bctx, o = {}) {
   }
   /* alternativa (sin batallas de varios bandos en combate): cada bando, una fuerza; los generales de más
      dan su pequeño bono a cada lado */
-  camBonoAct = [camBonoGen(F[0].ej.f, F[0].extraGen, "atacante"), camBonoGen(F[1].ej.f, F[1].extraGen, "defensor")];
+  camBonoAct = [
+    camBonoGen(F[0].ej.f, F[0].extraGen, "atacante"),
+    camBonoGen(F[1].ej.f, F[1].extraGen, "defensor"),
+    o.emboscada ? { f: F[0].ej.f, lado: "atacante", v: CAM_K.emboscada } : null,
+  ];
   let res;
   try {
     res = await camLibrar(F[0].ej, F[1].ej, bctx, {
@@ -875,6 +882,7 @@ async function camChoqueConjunto(lados, x, y, p, o = {}) {
       x,
       y,
       nombreLugar: p ? (camCiudadEn(x, y) ? p.name : `los campos de ${p.name}`) : "campo abierto",
+      emboscada: !!o.emboscada,
     },
     u0 = lados.map((l) => l.map((e) => camUCampo(e.u)));
   camRep({ k: "bat+", x, y, lados: lados.map((l) => l.map((e) => ({ ej: e.id, f: e.f, dir: e.dir }))) });
@@ -882,6 +890,7 @@ async function camChoqueConjunto(lados, x, y, p, o = {}) {
     tipo: "encuentro",
     campo: D.est === "campamento",
     auto: o.auto,
+    emboscada: o.emboscada,
     titulo: `Batalla de ${n} ejércitos en ${bctx.nombreLugar} (${lados[0].length} contra ${lados[1].length})`,
     factor: { k: "conjunto", s: 0, txt: `Batalla en conjunto: ${lados[0].length} contra ${lados[1].length} ejércitos` },
   });
@@ -942,14 +951,23 @@ async function camChoque(A, D, o = {}) {
       x,
       y,
       nombreLugar: p ? (camCiudadEn(x, y) ? p.name : `los campos de ${p.name}`) : "campo abierto",
-    },
+      emboscada: !!o.emboscada,
+    };
+  /* emboscada: mientras combate no lea ctx.emboscada, campaña da el bono de sorpresa al atacante */
+  camBonoAct = o.emboscada ? [{ f: A.f, lado: "atacante", v: CAM_K.emboscada }] : null;
+  let res;
+  try {
     res = await camLibrar(ejA, ejD, bctx, {
       tipo: "encuentro",
       ejs: [A, D],
       campo: D.est === "campamento",
       auto: o.auto,
-      titulo: `${sal ? "Socorro de " + ps.name : "Encuentro"} en ${bctx.nombreLugar}`,
+      titulo: `${o.emboscada ? "¡Emboscada! " : sal ? "Socorro de " + ps.name + ": " : "Encuentro "}en ${bctx.nombreLugar}`,
+      factor: o.emboscada ? { k: "emboscada", s: 0, txt: `Emboscada desde el bosque (${CIV[A.f].s})` } : null,
     });
+  } finally {
+    camBonoAct = null;
+  }
   let rA = res.A;
   if (sal) {
     /* los de la salida vuelven a la ciudad en proporción */
@@ -1193,8 +1211,8 @@ function camGuarnicion(p) {
 let camBonoAct = null;
 OC.mod("bonoBatalla", (v, c) => {
   const l = !camBonoAct ? [] : Array.isArray(camBonoAct) ? camBonoAct : [camBonoAct],
-    b = c && l.find((x) => x && x.f === c.f && (x.lado || "atacante") === c.lado);
-  return b ? v * b.v : undefined;
+    m = c ? l.filter((x) => x && x.f === c.f && (x.lado || "atacante") === c.lado) : [];
+  return m.length ? m.reduce((a, x) => a * x.v, v) : undefined;
 });
 const camBonoGen = (f, n, lado) => (n > 0 ? { f, lado, v: 1 + Math.min(0.09, 0.03 * n) } : null);
 const camFlancoMur = (ctx) => (ctx && ctx.flancos > 1 ? Math.max(0.4, 1 - 0.15 * (ctx.flancos - 1)) : 1);
@@ -1526,7 +1544,9 @@ async function camDarPaso(ej, j, o = {}) {
   const otros = camEjsEn(x, y, ej.id);
   const ene = otros.filter((e) => camGuerra(f, e.f)).sort((a, b) => pw(b.u) - pw(a.u))[0];
   if (ene) {
-    await camChoque(ej, ene, o);
+    /* emboscada: sale de un bosque contra quien no lo veía (bono de sorpresa; ctx.emboscada para combate) */
+    const emb = typeof camNieblaOn === "function" && camNieblaOn() && MAP.terr[ej.y][ej.x] === 2 && !camVeEj(ene.f, ej);
+    await camChoque(ej, ene, { ...o, emboscada: emb });
     return { ok: false, parar: true, batalla: true };
   }
   if (otros.some((e) => e.f !== f)) return { ok: false, parar: true };
@@ -1620,7 +1640,7 @@ function camPlanRuta(ej, x, y, o = {}) {
 /* ======================================================================
    ÓRDENES: la API pública. Cada orden es un objeto plano (JSON) con f = bando que la da.
    ====================================================================== */
-const CAM_ORDENES = ["formar", "mover", "acampar", "asediar", "asaltar", "construir", "levantar", "disolver", "dividir", "unir", "general", "salida", "contratar", "licenciar", "renovar", "apoyo"];
+const CAM_ORDENES = ["formar", "mover", "acampar", "asediar", "asaltar", "construir", "levantar", "disolver", "dividir", "unir", "general", "salida", "contratar", "licenciar", "renovar", "apoyo", "espia", "espiaMover", "mision", "espiaRetirar"];
 async function camAplicarOrden(g, o, opc = {}) {
   if (g && g !== G) return { ok: false, motivo: "Estado distinto del de la partida" };
   if (!o || !CAM_ORDENES.includes(o.tipo)) return { ok: false, motivo: "Orden desconocida" };
@@ -1697,7 +1717,11 @@ async function camAplicarOrden(g, o, opc = {}) {
       break;
     }
     default:
-      r = typeof camMercOrden === "function" ? camMercOrden(o, ej) : { ok: false, motivo: "Sin mercenarios" };
+      r = ["espia", "espiaMover", "mision", "espiaRetirar"].includes(o.tipo)
+        ? await camEspOrden(o)
+        : typeof camMercOrden === "function"
+          ? camMercOrden(o, ej)
+          : { ok: false, motivo: "Sin mercenarios" };
   }
   camTocar();
   return r || { ok: false };
@@ -1772,6 +1796,7 @@ async function camEstacion() {
     if (G.over) return;
     if (human(f) || !alive(f)) continue;
     try {
+      if (typeof camEspIA === "function") camEspIA(f);
       if (typeof camIA === "function") ords.push(...(await camIA(f)));
     } catch (e) {
       console.error("[cam] IA", f, e);
@@ -1781,6 +1806,7 @@ async function camEstacion() {
   await camResolverSimultaneo(G, ords, { auto: false });
   /* 2) asedios, obras, víveres, mercenarios */
   await camAsedios();
+  if (typeof camEspias === "function") await camEspias();
   camObras();
   camSuministros();
   if (typeof camMercEstacion === "function") await camMercEstacion();
@@ -1810,6 +1836,7 @@ async function camNuevaEstacion() {
   }
   G.P.forEach((p) => (p.tired = false));
   if (typeof camMercNuevaEstacion === "function") await camMercNuevaEstacion();
+  if (typeof camEspNuevaEstacion === "function") camEspNuevaEstacion();
   for (const e of S.ej.slice())
     if (human(e.f) && e.plan && camEj(e.id) && !G.over) {
       const pl = e.plan;
