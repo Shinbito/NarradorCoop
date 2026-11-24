@@ -1613,7 +1613,7 @@ OC.seccion("prov", {
   id: "tierras",
   orden: 39,
   render: ({ p }) =>
-    `<h3>Tierras</h3>${ecoInfoVisible(p, ME) ? ecoTierrasHtml(p) : ecoInfoConocida(p, ME) ? ecoTierrasHtml(p, false) : '<p class="dim">Tierras sin explorar: nadie sabe qué esconden.</p>'}`,
+    `<h3>Tierras</h3>${ecoInfoVisible(p, ME) ? ecoTierrasHtml(p) : ecoInfoConocida(p, ME) ? ecoTierrasHtml(p, false) : '<p class="dim">Tierra ignota: nadie sabe qué esconde.</p>'}`,
 });
 OC.accion("tax", (v) => {
   const p = G.P[sel];

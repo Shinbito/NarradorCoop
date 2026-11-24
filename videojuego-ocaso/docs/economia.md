@@ -52,8 +52,8 @@ calculan al cargar).
   producción anual con iconos, yacimientos con su riqueza (●●○) y su explotación o «sin explotar».
   Con la **niebla de guerra** de campaña: lo que se ve ahora (`ecoInfoVisible` → `camInfoVisible`) se muestra
   entero; lo explorado pero fuera de la vista (`ecoInfoConocida`, `camMemProv`) muestra solo fertilidad y
-  yacimientos («lo que recuerdan tus exploradores», explotaciones «¿?»); lo nunca visto, «Tierras sin
-  explorar». Las sierras (`MAP.mont`) siempre dejan al menos hierro y piedra 1. En el mapa, al pasar el
+  yacimientos («lo que recuerdan tus exploradores», explotaciones «¿?»); lo nunca visto, «Tierra
+  ignota». Las sierras (`MAP.mont`) siempre dejan al menos hierro y piedra 1. En el mapa, al pasar el
   ratón, se añade el recurso principal (`ecoIconoProv`) de las provincias a la vista.
 
 **Pueblos y comarcas** (`ECO_CIV`, por `CIV[f].id`). Al crear la partida cada provincia pertenece a la
