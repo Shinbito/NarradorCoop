@@ -10,7 +10,8 @@
 const TEC_CAT = ["i", "a", "c"],
   TEC_ROM = ["0", "I", "II", "III", "IV", "V"],
   TEC_COLA = 3, // obras y adopciones por ciudad: una en marcha y dos en espera
-  TEC_SUPLE = 3; // oro por cada unidad de material que falte
+  TEC_SUPLE = 3, // oro por cada unidad de material que falte
+  TEC_ORO = 0.62; // parte en oro de edificios e implantaciones (los materiales no cambian)
 
 const TEC_RAMAS = { mil: "Milicia", eco: "Economía", civ: "Gobierno", rel: "Culto", pro: "Propias" };
 
@@ -337,6 +338,87 @@ const TEC = {
   },
 };
 
+/* ---------- yacimientos ----------
+   Qué recurso explota cada edificio. Economía expone ecoYac(p) → {hierro, piedra, sal, oro, madera|bosque, ...}
+   con riqueza 0-3; si aún no existe, se estima con la especialidad y el terreno de la provincia. */
+const TEC_YAC = {
+  mina: ["hierro", "oro", "plata", "estano", "cobre"],
+  cantera: ["piedra"],
+  aserradero: ["madera"],
+  salinas: ["sal"],
+};
+const TEC_YAC_N = {
+  hierro: "hierro",
+  oro: "oro",
+  plata: "plata",
+  estano: "estaño",
+  cobre: "cobre",
+  piedra: "piedra",
+  madera: "bosque",
+  sal: "sal",
+};
+function tecYac(p) {
+  if (typeof ecoYac === "function")
+    try {
+      const y = ecoYac(p);
+      if (y && typeof y === "object") return { ...y, madera: y.madera ?? y.bosque ?? 0 };
+    } catch (e) {}
+  let esp = null,
+    s = [0, 0.7, 0.15, 0.15];
+  try {
+    if (typeof ecoEspecialidad === "function" && G.eco) esp = ecoEspecialidad(p).id;
+    if (typeof ecoTerreno === "function") s = ecoTerreno(p.id).s || s;
+  } catch (e) {}
+  return {
+    hierro: esp === "hierro" ? 3 : s[3] >= 0.75 ? 2 : s[3] >= 0.5 ? 1 : 0,
+    oro: esp === "oro" ? 2 : 0,
+    piedra: esp === "cantera" ? 3 : s[3] >= 0.6 ? 2 : s[3] >= 0.3 ? 1 : 0,
+    madera: esp === "madera" ? 3 : s[2] >= 0.35 ? 2 : s[2] >= 0.18 ? 1 : 0,
+    sal: esp === "sal" ? 3 : tecCosta(p) ? 1 : 0,
+  };
+}
+/* Riqueza (0-3) del yacimiento que explotaría el edificio k en la ciudad p. */
+function tecRiqueza(p, k) {
+  const ids = (TEC_EDI[k] && TEC_EDI[k].yac) || [],
+    y = tecYac(p);
+  return Math.max(0, ...ids.map((id) => Math.min(3, +y[id] || 0)));
+}
+/* Producción: cada nivel suma la riqueza del yacimiento y multiplica lo que ya daba la tierra (+25%).
+   El oro y la plata de las minas van al tesoro (2 y 1,5 por nivel y riqueza). */
+function tecRenYac(y, p, k, L) {
+  const Y = tecYac(p),
+    r = { ...y };
+  for (const id of TEC_EDI[k].yac) {
+    const q = Math.min(3, +Y[id] || 0);
+    if (!q) continue;
+    if (id === "oro") r.g = (r.g || 0) + 2 * L * q;
+    else if (id === "plata") r.g = (r.g || 0) + 1.5 * L * q;
+    else if (id in r || OC.recursos.some((x) => x.id === id)) r[id] = (+r[id] || 0) * (1 + 0.25 * L) + L * q;
+  }
+  return r;
+}
+function tecIAYac(p, k, x) {
+  const q = tecRiqueza(p, k),
+    falta = TEC_EDI[k].yac.some((id) => id !== "oro" && id !== "plata" && OC.saldo(x.f, id) < 10);
+  return q ? (0.6 + 0.6 * q) * (falta ? 1.5 : 1) : 0;
+}
+/* Lo que da y daría el edificio k en p: {ahora, sig} como texto («+4 hierro»). */
+function tecProdTxt(p, k) {
+  let base = { g: 0, fo: 0 };
+  try {
+    if (typeof ecoDesglose === "function" && G.eco) base = { g: 0, fo: 0, ...ecoDesglose(p).res };
+  } catch (e) {}
+  const dif = (L) => {
+    const r = tecRenYac(base, p, k, L);
+    return Object.keys(r)
+      .filter((id) => id !== "fo" && Math.round((r[id] || 0) - (base[id] || 0)) > 0)
+      .map((id) => `+${Math.round(r[id] - (base[id] || 0))} ${id === "g" ? "oro" : id}`)
+      .join(", ");
+  };
+  const L = p[k] || 0;
+  return { ahora: L ? dif(L) : "", sig: dif(L + 1) };
+}
+
 /* Detalle de los edificios de BLD (nucleo.js) y de los propios de cada pueblo (civilizaciones.js).
    t = años por nivel; anio = {nivel: año mínimo}; req = {nivel: técnica}; mat = material extra;
    costa = solo en ciudades costeras; cat = "mil" | "eco" | "saber" (perfil de la ciudad; null = neutro);
@@ -456,7 +538,26 @@ const TEC_EDI = {
     ren: (y, p, L) => ({ ...y, g: y.g + 3 * L }),
     ia: () => 2,
   },
+  /* torre de vigilancia: barata y sin hueco; Campaña la usa para ver en la niebla (tecVision) */
+  torre: {
+    t: [1, 1, 2],
+    anio: { 2: 430, 3: 455 },
+    req: { 3: "poliorcetica" },
+    mat: "madera",
+    sinHueco: true,
+    ia: (p, x) => (x.amen ? 2.4 : x.front ? 1.4 : 0.05),
+  },
+  /* sobre yacimientos (tecYac): solo donde los hay y hasta el nivel de su riqueza (1-3) */
+  mina: { t: [1, 2, 2], anio: { 2: 425, 3: 450 }, mat: "madera", cat: "eco", yac: TEC_YAC.mina },
+  cantera: { t: [1, 2, 2], anio: { 2: 425, 3: 450 }, mat: "madera", cat: "eco", yac: TEC_YAC.cantera },
+  aserradero: { t: [1, 1, 2], anio: { 2: 425, 3: 450 }, mat: "hierro", cat: "eco", yac: TEC_YAC.aserradero },
+  salinas: { t: [1, 2], anio: { 2: 440 }, mat: "madera", cat: "eco", yac: TEC_YAC.salinas },
 };
+for (const k in TEC_EDI)
+  if (TEC_EDI[k].yac) {
+    TEC_EDI[k].ren = (y, p, L) => tecRenYac(y, p, k, L);
+    TEC_EDI[k].ia = (p, x) => tecIAYac(p, k, x);
+  }
 
 /* Perfiles de ciudad: emergen de lo construido y adoptado; los especializados tienen sinergias. */
 const TEC_PERFIL = {
@@ -630,9 +731,13 @@ function tecPerfil(p) {
 function tecHuecos(p) {
   const total = clamp(2 + Math.floor(tecPob(p) / 5) + (tecEsCapital(p) ? 2 : 0), 3, 9),
     q = tecCola(p.id),
-    usados = tecEdificios().filter((k) => p[k] > 0 || q.some((o) => o.k === k)).length;
+    usados = tecEdificios().filter((k) => !tecB(k).sinHueco && (p[k] > 0 || q.some((o) => o.k === k))).length;
   return { usados, total, libres: total - usados };
 }
+
+/* Visión extra de la ciudad para la niebla de guerra de Campaña: el nivel de su torre de vigilancia (0-3),
+   que Campaña traduce en radio. */
+const tecVision = (p) => Math.max(0, Math.min(3, (p && +p.torre) || 0));
 
 /* ---------- bonificaciones (caché por año y revisión) ---------- */
 function tecCacheOk() {
@@ -823,7 +928,7 @@ function tecReclutaAqui(f, p) {
 /* ---------- puntos de investigación: los generan las ciudades ---------- */
 function tecPuntosCiudad(p, f = p.owner) {
   if (!tecListo(f)) return 0;
-  let v = 0.4 + tecPob(p) * 0.07;
+  let v = 0.6 + tecPob(p) * 0.075;
   for (const k in TEC_EDI) {
     const L = p[k] || 0,
       e = TEC_EDI[k];
@@ -919,6 +1024,7 @@ function tecComprobarEra(f) {
 /* ---------- obras: edificios ---------- */
 function tecMax(k, f, p) {
   let m = tecB(k).max;
+  if (tecB(k).yac) m = Math.min(m, Math.max(p[k] || 0, tecRiqueza(p, k)));
   if (tecListo(f) && G.F[f] && G.F[f].capId === p.id)
     for (const id of tecF(f).h)
       if (TEC[id] && TEC[id].maxCap && TEC[id].maxCap[k]) m = Math.max(m, TEC[id].maxCap[k]);
@@ -929,6 +1035,7 @@ function tecVisible(k, f, p) {
   if (B.civ != null && B.civ !== f && !p[k]) return false;
   if (B.caballo && tecSinCaballos(f) && !p[k]) return false;
   if (B.sinCaballos && !tecSinCaballos(f) && !p[k]) return false;
+  if (B.yac && !p[k] && !tecRiqueza(p, k)) return false;
   return !B.costa || tecCosta(p) || p[k] > 0;
 }
 function tecAnios(f, k, n) {
@@ -937,7 +1044,7 @@ function tecAnios(f, k, n) {
 }
 function tecCoste(f, p, k, n) {
   const B = tecB(k),
-    c = { oro: Math.round(B.c * (1 + 0.6 * (n - 1))) };
+    c = { oro: Math.round(B.c * (1 + 0.6 * (n - 1)) * TEC_ORO) };
   if (B.mat && OC.recursos.some((r) => r.id === B.mat)) c[B.mat] = 4 * n;
   /* OC 'costeConstruccion': objeto coste. ctx {f, p, id, nivel} */
   return OC.calc("costeConstruccion", c, { f, p, id: k, nivel: n });
@@ -980,7 +1087,7 @@ function tecMejora(f, p, k) {
     };
   const an = tecAnioEdi(k, n);
   if (!tecDesde(an)) return { ...r, motivo: "desde el año " + an };
-  if (n === 1 && tecHuecos(p).libres <= 0) return { ...r, motivo: "sin hueco" };
+  if (n === 1 && !B.sinHueco && tecHuecos(p).libres <= 0) return { ...r, motivo: "sin hueco" };
   r.coste = tecCoste(f, p, k, n);
   r.anios = tecAnios(f, k, n);
   r.pago = tecPago(f, r.coste);
@@ -1019,7 +1126,7 @@ function tecAdopcion(f, p, id) {
   const en = [].concat(T.en || []);
   if (en.length && !en.some((k) => (p[k] || 0) >= (T.enN || 1)))
     return { ...r, motivo: "requiere " + tecEnTxt(T, f) };
-  const c = { oro: 15 + T.c },
+  const c = { oro: Math.round((15 + T.c) * TEC_ORO) },
     mat = { mil: "hierro", eco: "madera" }[T.r] || "piedra";
   if (OC.recursos.some((x) => x.id === mat)) c[mat] = T.r === "mil" ? 4 : 3;
   r.coste = OC.calc("costeConstruccion", c, { f, p, id: "tec:" + id, nivel: 1 });
@@ -1296,15 +1403,42 @@ function tecResumen(p) {
     if (e.ord) o += e.ord(p, L, p.owner) || 0;
     if (e.pts) pts += e.pts(p, L, p.owner) || 0;
   }
+  const otros = Object.keys(y)
+    .filter((id) => id !== "g" && id !== "fo" && Math.round(y[id]) > 0)
+    .map((id) => `+${Math.round(y[id])} ${id}`);
   return [
-    y.fo && `+${y.fo} comida`,
-    y.g && `+${y.g} oro`,
+    y.fo && `+${Math.round(y.fo)} comida`,
+    y.g && `+${Math.round(y.g)} oro`,
+    ...otros,
     o && `+${o} orden`,
     p.walls && `+${25 * p.walls}% defensa`,
     pts && `+${pts} investigación`,
   ]
     .filter(Boolean)
     .join(" · ");
+}
+/* Yacimientos de la ciudad y lo que rinden o rendirían sus explotaciones. */
+function tecYacHtml(p, f) {
+  const Y = tecYac(p),
+    pips = (q) => "●".repeat(q) + "○".repeat(3 - q),
+    hay = Object.keys(TEC_YAC_N).filter((id) => (+Y[id] || 0) > 0);
+  let fer = "";
+  if (typeof ecoFertil === "function")
+    try {
+      const x = ecoFertil(p);
+      if (x != null)
+        fer = ` · tierra ${typeof x === "object" ? x.n || x.etiqueta || Math.round((x.v ?? 0) * 100) + "%" : Math.round(x * 100) + "%"}`;
+    } catch (e) {}
+  if (!hay.length && !fer) return "";
+  const ex = Object.keys(TEC_YAC)
+    .filter((k) => tecVisible(k, f, p))
+    .map((k) => {
+      const t = tecProdTxt(p, k),
+        L = p[k] || 0,
+        max = tecMax(k, f, p);
+      return `${tecB(k, f).n}${L ? " " + TEC_ROM[L] + (t.ahora ? ` (${t.ahora})` : "") : ""}${L < max && t.sig ? ` → ${TEC_ROM[L + 1]}: ${t.sig}` : ""}`;
+    });
+  return `<p class="stats tec-yac">⛏ ${hay.map((id) => `${TEC_YAC_N[id]} <span class="tec-pip">${pips(Math.min(3, +Y[id]))}</span>`).join(" · ") || "sin yacimientos"}${fer}${ex.length ? "<br>" + ex.join(" · ") : ""}</p>`;
 }
 /* Línea corta con los edificios construidos y el perfil: «⚔ Plaza fuerte · Murallas II · Cuartel I» */
 function tecLineaEdificios(p) {
@@ -1353,6 +1487,7 @@ OC.seccion("prov", {
       .join("")}</div>`;
     const r = tecResumen(p);
     if (r) h += `<p class="stats tec-res">${r}</p>`;
+    h += tecYacHtml(p, f);
     /* técnicas: adoptadas aquí y descubrimientos por implantar */
     const ad = tecAdopciones(p),
       pend = tecPorAdoptar(f, p);

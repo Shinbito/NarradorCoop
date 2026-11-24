@@ -393,10 +393,15 @@ function OC_N() {
         "MS.i.0": { png: "falta.png", w: 6, h: 8 },
       },
     });
-    await new Promise((r) => setTimeout(r, 400));
+    sel = null;
+    hover = null;
+    await new Promise((r) => setTimeout(r, 600));
+    /* el castillo de la capital se pinta a doble tamaño en el lienzo HD: esquina en (x·S−2, y·S−8) */
     const p = G.P[G.F[ME].capId],
-      d = ctx.getImageData(p.x * T + 4 - 5 + 1, p.y * T + 4 - 7 + 1, 1, 1).data,
-      d2 = ctx.getImageData(p.x * T + 4 - 5 + 5, p.y * T + 4 - 7 + 5, 1, 1).data,
+      x0 = p.x * IFZ_S - 2,
+      y0 = p.y * IFZ_S - 8,
+      d = hctx.getImageData(x0 + 2, y0 + 2, 1, 1).data,
+      d2 = hctx.getImageData(x0 + 10, y0 + 10, 1, 1).data,
       col = ifzRGB(CIV[p.owner].c);
     return {
       n: cat.length,
@@ -420,6 +425,133 @@ function OC_N() {
   await page.locator("#mapwrap").screenshot({ path: path.join(capt, "interfaz-sprites-png.png") });
   ok(!errores.length, "un PNG que falta no rompe nada " + errores.join(" | "));
   await page.close();
+
+  /* ---------- mapa HD, ritmo de animación, interpolación y repetición de la estación ---------- */
+  console.log("\n== Mapa HD, ritmo y repetición");
+  const e3 = [];
+  const pm = await nueva(browser, { width: 1400, height: 900 }, false, e3);
+  await pm.click('[data-act="s-new"]');
+  await pm.click('[data-act="s-civ-0"]');
+  await pm.click('[data-act="s-go"]');
+  await pm.waitForTimeout(300);
+  await cerrarModales(pm);
+  const hdm = await pm.evaluate(async () => {
+    IFZ.pref.tut = 99;
+    ui();
+    for (let k = 0; k < 3; k++) await new Promise((r) => requestAnimationFrame(r));
+    const t0 = performance.now();
+    let n = 0;
+    while (performance.now() - t0 < 600) {
+      drawMap(performance.now());
+      n++;
+    }
+    const rh = hd.getBoundingClientRect(),
+      rc = cv.getBoundingClientRect();
+    return {
+      hd: hd.width + "x" + hd.height,
+      cv: cv.width + "x" + cv.height,
+      esp: W * IFZ_S + "x" + H * IFZ_S,
+      log: W * T + "x" + H * T,
+      encima: Math.abs(rh.left - rc.left) < 1 && Math.abs(rh.width - rc.width) < 1 && Math.abs(rh.height - rc.height) < 1,
+      terreno: Math.round(IFZ_HD.ms.terreno),
+      pol: Math.round(IFZ_POL.ms),
+      cuadro: (performance.now() - t0) / n,
+      vel: ifzVel(),
+    };
+  });
+  ok(hdm.hd === hdm.esp && hdm.cv === hdm.log && hdm.encima, `mapa HD ${hdm.hd} bajo el lienzo lógico ${hdm.cv} (clics y pruebas intactos)`);
+  ok(hdm.terreno < 2500 && hdm.pol < 400, `terreno en ${hdm.terreno} ms (una vez), capa política en ${hdm.pol} ms`);
+  ok(hdm.cuadro < 16, `cada cuadro del mapa ${hdm.cuadro.toFixed(1)} ms`);
+  console.log(`  · terreno ${hdm.terreno} ms · política ${hdm.pol} ms · cuadro ${hdm.cuadro.toFixed(2)} ms`);
+  ok(hdm.vel === 0, "en un navegador automatizado ifzVel() = 0 (las pruebas no esperan animaciones)");
+  /* opciones: velocidad */
+  await pm.click('[data-act="ifzopc"]');
+  await pm.waitForTimeout(80);
+  await pm.click('#modalc [data-act="ifzvel-normal"]');
+  const vo = await pm.evaluate(() => ({ p: JSON.parse(localStorage.getItem("ocaso-ifz")).vel, on: document.querySelector('#modalc [data-act="ifzvel-normal"]').getAttribute("aria-pressed") }));
+  ok(vo.p === "normal" && vo.on === "true", "Opciones: la velocidad de animación se guarda en las preferencias");
+  await pm.screenshot({ path: path.join(capt, "interfaz-terreno-opciones.png") });
+  await pm.keyboard.press("Escape");
+  /* interpolación: el ejército se desliza entre casillas */
+  const it = await pm.evaluate(async () => {
+    IFZ.velForzada = 1;
+    const p = G.P[G.F[ME].capId];
+    p.u.i = (p.u.i || 0) + 6;
+    const r = await camAplicarOrden(G, { tipo: "formar", f: ME, p: p.id, u: { i: 6 }, gen: false });
+    const e = camEj(r.ej);
+    drawMap(performance.now());
+    const a = { ...IFZ_POS.get(e.id) };
+    e.x += 3;
+    const t = performance.now();
+    drawMap(t);
+    drawMap(t + 100);
+    const b = { ...IFZ_POS.get(e.id) };
+    for (let k = 2; k < 200; k++) drawMap(t + 100 + k * 16);
+    const c2 = { ...IFZ_POS.get(e.id) };
+    e.x -= 3;
+    IFZ.velForzada = null;
+    return { mitad: b.x > a.x && b.x < a.x + 2 * IFZ_S, llega: !c2.mov && c2.x >= a.x + 3 * IFZ_S - 1, mov: b.mov, a: a.x, b: b.x, c: c2.x };
+  });
+  ok(it.mitad && it.mov && it.llega, `la posición mostrada se desliza suavemente hasta la casilla nueva (${it.a} → ${it.b} → ${it.c})`);
+  /* repetición sintética */
+  const rp = await pm.evaluate(async () => {
+    IFZ.repForzar = true;
+    const yo = G.P[G.F[ME].capId],
+      otra = G.P.find((q) => q.owner !== ME && q.owner < NF),
+      own0 = G.P.map((p) => p.owner),
+      ej0 = [{ id: 901, f: otra.owner, x: otra.x, y: otra.y, n: 12 }],
+      pasos = [];
+    for (let k = 1; k <= 3; k++) pasos.push({ k: "mov", ej: 901, f: otra.owner, de: [otra.x + k - 1, otra.y], a: [otra.x + k, otra.y] });
+    pasos.push({ k: "ej+", ej: 902, f: ME, x: yo.x, y: yo.y, n: 20 });
+    pasos.push({ k: "mov", ej: 902, f: ME, de: [yo.x, yo.y], a: [yo.x + 1, yo.y] });
+    pasos.push({ k: "mov", ej: 901, f: otra.owner, de: [otra.x + 3, otra.y], a: [otra.x + 4, otra.y] });
+    pasos.push({ k: "bat", x: otra.x + 4, y: otra.y, fs: [otra.owner, ME], gana: ME, lugar: "Campos de prueba" });
+    pasos.push({ k: "ase", p: otra.id, f: ME, fase: "ini" });
+    pasos.push({ k: "con", p: otra.id, de: otra.owner, a: ME });
+    pasos.push({ k: "ej-", ej: 901, motivo: "deshecho" });
+    const rep = { v: 1, anio: G.year, est: G.estacion, own0, ej0, pasos };
+    const grupos = ifzRepGrupos(pasos).length;
+    const t0 = performance.now(),
+      pr = ifzRepetir(rep);
+    await new Promise((r) => setTimeout(r, 120));
+    const durante = { on: IFZ_REP.on, barra: !document.getElementById("ifzrep").hidden, dueño: IFZ_REP.own[otra.id] };
+    window.__rep = { pr, t0, otra: otra.id, real: otra.owner };
+    return { grupos, durante };
+  });
+  ok(rp.grupos === 9, `los pasos se agrupan (marchas de ejércitos distintos a la vez): ${rp.grupos} grupos`);
+  ok(rp.durante.on && rp.durante.barra, "la repetición se ve con su barra (Saltar, ×2) y bloquea el mapa");
+  await pm.waitForTimeout(1800);
+  await pm.locator(".board").screenshot({ path: path.join(capt, "interfaz-terreno-repeticion.png") });
+  const bloq = await pm.evaluate(() => {
+    const r = document.getElementById("ifzrep").getBoundingClientRect();
+    return r.width >= innerWidth - 1 && r.height >= innerHeight - 1;
+  });
+  ok(bloq, "una capa cubre la pantalla mientras dura");
+  await pm.click('[data-act="ifzrep-x2"]');
+  await pm.click('[data-act="ifzrep-saltar"]');
+  const fin = await pm.evaluate(async () => {
+    await __rep.pr;
+    return { on: IFZ_REP.on, barra: !document.getElementById("ifzrep").hidden, dueño: G.P[__rep.otra].owner === __rep.real, t: performance.now() - __rep.t0 };
+  });
+  ok(!fin.on && !fin.barra && fin.dueño, `«Saltar» acaba la repetición y vuelve al estado real (${Math.round(fin.t)} ms)`);
+  const dura = await pm.evaluate(async () => {
+    const yo = G.P[G.F[ME].capId],
+      pasos = [];
+    for (let k = 0; k < 40; k++) pasos.push({ k: "mov", ej: 950 + (k % 4), f: ME, de: [yo.x, yo.y], a: [yo.x + 1, yo.y] });
+    const t0 = performance.now();
+    await ifzRepetir({ v: 1, anio: G.year, est: 0, own0: G.P.map((p) => p.owner), ej0: [], pasos });
+    IFZ.repForzar = false;
+    return performance.now() - t0;
+  });
+  ok(dura > 1500 && dura < 45000, `una repetición completa dura lo previsto (${Math.round(dura)} ms para 10 grupos)`);
+  const sinRep = await pm.evaluate(async () => {
+    const t0 = performance.now();
+    const r = await ifzRepetir({ v: 1, pasos: [{ k: "mov", ej: 1, f: 0, de: [0, 0], a: [1, 0] }], own0: [], ej0: [] });
+    return { r, t: performance.now() - t0 };
+  });
+  ok(sinRep.r === false && sinRep.t < 50, "en pruebas (ifzVel 0) la repetición se salta sola");
+  ok(!e3.length, "sin errores de JS " + e3.join(" | "));
+  await pm.close();
 
   /* ---------- partida guardada antigua ---------- */
   console.log("\n== Partida antigua");
