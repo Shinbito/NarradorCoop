@@ -90,6 +90,7 @@ const CMBA_FX = {
   proyectiles: "Las descargas de proyectiles",
   armadura: "Armaduras y escudos",
   murallas: "Las murallas",
+  torres: "Las torres de la muralla",
   terreno: "El terreno",
   mando: "El mando del general",
   veterania: "La veteranía de las tropas",
@@ -1710,6 +1711,141 @@ function cmbLocal(side, d, a) {
   if (l === "S") return { x: a2, y: BH - d * 0.55 };
   return { x: d, y: a2 };
 }
+/* ---------- el adarve: arqueros y honderos sobre la muralla ----------
+   Los tiradores a pie del bando que defiende la plaza (no la caballería) pueden estar EN EL ADARVE
+   (u.adarve): su posición va sobre la línea de los lienzos y solo se mueven por ella. Suben y bajan SOLO
+   POR LAS TORRES: una orden de mover a un punto de la muralla lleva primero al pie de la torre más
+   cercana (dentro del recinto) y de ahí al adarve; una orden a un punto fuera de la muralla los lleva por el
+   adarve hasta la torre más cercana a ese punto, bajan y siguen. Arriba: +25 % de alcance y de daño de sus
+   proyectiles, −30 % de los que reciben y la protección de la muralla; desde el suelo solo los alcanzan en
+   cuerpo a cuerpo quienes suben por escalas (u.escala) o junto a una torre de asedio propia.
+   Las torres de la muralla disparan por su cuenta (CMB_TORRE_N hombres, alcance CMB_TORRE_AL). */
+const CMB_SOBRE = 0.55, // a menos de esto de la línea del lienzo: sobre la muralla
+  CMB_TORRE_N = 4,
+  CMB_TORRE_AL = 7;
+const cmbPuedeSubir = (u) => {
+  const M = BT.muro;
+  return !!(M && M.x0 != null && BT.def != null && cmbBnd(u.side) === cmbBnd(BT.def) && u.cs.cl === "dis" && u.cs.al > 0 && !cmbCab(u.t));
+};
+const cmbSobreMuro = (M, p) => cmbDistMuro(M, p) < CMB_SOBRE;
+const cmbTorreCerca = (M, p) => M.torres.reduce((a, t) => (Math.hypot(t.x - p.x, t.y - p.y) < Math.hypot(a.x - p.x, a.y - p.y) ? t : a));
+/* pie de una torre, dentro del recinto */
+function cmbTorrePie(M, t) {
+  const ix = t.x <= M.x0 + 0.01 ? 1 : t.x >= M.x1 - 0.01 ? -1 : 0,
+    iy = t.y <= M.y0 + 0.01 ? 1 : t.y >= M.y1 - 0.01 ? -1 : 0;
+  return { x: t.x + ix * 0.9, y: t.y + iy * 0.9 };
+}
+function cmbSubir(u, t) {
+  u.adarve = true;
+  u.x = t.x;
+  u.y = t.y;
+  bHito("sub" + u.id, 2, `${uname(u)} suben al adarve por la torre.`, aliado(u) ? "good" : "");
+}
+function cmbBajar(u, t) {
+  const q = cmbTorrePie(BT.muro, t);
+  u.adarve = false;
+  u.x = q.x;
+  u.y = q.y;
+}
+/* recorrido por el adarve: coordenada a lo largo del perímetro (desde la esquina noroeste, en el sentido de
+   las agujas del reloj) y su inversa; un paso hacia un punto del perímetro va por el lado más corto y
+   dobla las esquinas */
+function cmbPerS(M, p) {
+  const w = M.x1 - M.x0,
+    h = M.y1 - M.y0,
+    q = cmbPuntoMuro(M, p);
+  if (q.l === "N") return q.x - M.x0;
+  if (q.l === "E") return w + (q.y - M.y0);
+  if (q.l === "S") return w + h + (M.x1 - q.x);
+  return 2 * w + h + (M.y1 - q.y);
+}
+function cmbPerP(M, s) {
+  const w = M.x1 - M.x0,
+    h = M.y1 - M.y0,
+    T = 2 * (w + h);
+  s = ((s % T) + T) % T;
+  if (s < w) return { x: M.x0 + s, y: M.y0 };
+  if (s < w + h) return { x: M.x1, y: M.y0 + (s - w) };
+  if (s < 2 * w + h) return { x: M.x1 - (s - w - h), y: M.y1 };
+  return { x: M.x0, y: M.y1 - (s - 2 * w - h) };
+}
+function cmbPasoMuro(M, u, G) {
+  const T = 2 * (M.x1 - M.x0 + M.y1 - M.y0),
+    a = cmbPerS(M, u),
+    b = cmbPerS(M, G);
+  let d = b - a;
+  if (d > T / 2) d -= T;
+  if (d < -T / 2) d += T;
+  if (Math.abs(d) < 0.05) return { x: G.x, y: G.y };
+  return cmbPerP(M, a + Math.sign(d) * Math.min(Math.abs(d), 0.9));
+}
+/* destino del paso para quien puede usar el adarve (g: el que calculó la orden normal) */
+function cmbRutaAdarve(u, P, g) {
+  const M = BT.muro;
+  if (!M || M.x0 == null) return g;
+  const mov = P.o && P.o.tg == null && P.o.x != null ? P.o : null;
+  if (u.adarve) {
+    /* en desbandada (o si ya no puede estar arriba) baja por la torre más cercana */
+    if (u.rout || !cmbPuedeSubir(u)) {
+      cmbBajar(u, cmbTorreCerca(M, u));
+      return g;
+    }
+    if (mov && !cmbSobreMuro(M, mov)) {
+      const t = cmbTorreCerca(M, mov);
+      if (Math.hypot(u.x - t.x, u.y - t.y) < 0.35) {
+        cmbBajar(u, t);
+        return { x: mov.x, y: mov.y };
+      }
+      return cmbPasoMuro(M, u, t);
+    }
+    if (mov) return cmbPasoMuro(M, u, cmbPuntoMuro(M, mov));
+    /* con blanco: a tiro, quietos; fuera de tiro, por el adarve hacia él */
+    if (P.o && P.o.tg != null) {
+      const t = bU(P.o.tg);
+      if (t && fighting(t) && dd(u, t) > alc(u)) return cmbPasoMuro(M, u, cmbPuntoMuro(M, t));
+    }
+    return null; /* arriba no persiguen por el campo */
+  }
+  if (!u.rout && mov && cmbPuedeSubir(u) && cmbSobreMuro(M, mov)) {
+    const t = cmbTorreCerca(M, mov),
+      pie = cmbTorrePie(M, t);
+    if (Math.hypot(u.x - pie.x, u.y - pie.y) < 0.5) {
+      cmbSubir(u, t);
+      const q = cmbPuntoMuro(M, mov);
+      return { x: q.x, y: q.y };
+    }
+    return { x: pie.x, y: pie.y };
+  }
+  return g;
+}
+/* ¿pueden a y b llegar al cuerpo a cuerpo? (uno en el adarve y otro abajo: solo con escalas o torre) */
+function cmbToca(a, b) {
+  if (!a.adarve === !b.adarve) return true;
+  const s = a.adarve ? b : a,
+    M = BT.muro;
+  return (
+    s.escala > 0 ||
+    (!!M && BT.units.some((t) => t.t === "tor" && !hostil(t, s) && fighting(t) && cmbDistMuro(M, t) < 1.6 && dd(t, s) < 2.6))
+  );
+}
+/* colocar una unidad en el despliegue (a mano): en la muralla si es un tirador de la plaza y se suelta sobre
+   un lienzo; si no, dentro de su zona. Devuelve si se colocó. */
+function cmbColocar(u, x, y) {
+  const M = BT.muro;
+  if (M && M.x0 != null && cmbPuedeSubir(u) && cmbDistMuro(M, { x, y }) < 0.9) {
+    const q = cmbPuntoMuro(M, { x, y });
+    u.x = q.x;
+    u.y = q.y;
+    u.adarve = true;
+    return true;
+  }
+  if (!cmbEnZona(u.side, x, y)) return false;
+  const q = cmbAZona(u.side, x, y);
+  u.x = q.x;
+  u.y = q.y;
+  u.adarve = false;
+  return true;
+}
 /* zona de despliegue (ver cmbZona) */
 function cmbEnZona(side, x, y) {
   const z = cmbZona(side);
@@ -1777,6 +1913,15 @@ function deploy(side, only) {
         q = fr === "O" ? { x: M.x0 + d2, y: M.cy + o2 } : fr === "E" ? { x: M.x1 - d2, y: M.cy + o2 } : fr === "N" ? { x: M.cx + o2, y: M.y0 + d2 } : { x: M.cx + o2, y: M.y1 - d2 };
       }
       q = { x: clamp(q.x, M.x0 + 0.6, M.x1 - 0.6), y: clamp(q.y, M.y0 + 0.6, M.y1 - 0.6) };
+      /* arqueros y honderos, arriba: en el adarve del lienzo del frente */
+      if (cmbPuedeSubir(u)) {
+        q = cmbPuntoMuro(M, { x: fr === "O" ? M.x0 : fr === "E" ? M.x1 : q.x, y: fr === "N" ? M.y0 : fr === "S" ? M.y1 : q.y });
+        for (let n = 0; n < 40 && BT.units.some((o) => o !== u && o.adarve && o.x >= 0 && Math.hypot(o.x - q.x, o.y - q.y) < crd(o, u) + 0.1); n++) {
+          const o2 = clamp(off + (n % 2 ? 1 : -1) * Math.ceil((n + 1) / 2) * 1.4, -L / 2 + 0.3, L / 2 - 0.3);
+          q = fr === "O" ? { x: M.x0, y: M.cy + o2 } : fr === "E" ? { x: M.x1, y: M.cy + o2 } : fr === "N" ? { x: M.cx + o2, y: M.y0 } : { x: M.cx + o2, y: M.y1 };
+        }
+        u.adarve = true;
+      } else u.adarve = false;
     }
     u.x = q.x;
     u.y = q.y;
@@ -1812,7 +1957,7 @@ const tile = (u) => BT.terr[clamp(Math.floor(u.y), 0, BH - 1)]?.[clamp(Math.floo
   onHill = (u) => tile(u) === 2,
   inRiver = (u) => tile(u) === 3;
 const tirador = (u) => u.cs.al > 0 && u.ammo > 0,
-  alc = (u) => u.cs.al * (BT.env.clima === "niebla" ? 0.7 : 1) * (onHill(u) ? 1.15 : 1),
+  alc = (u) => u.cs.al * (BT.env.clima === "niebla" ? 0.7 : 1) * (onHill(u) ? 1.15 : 1) * (u.adarve ? 1.25 : 1),
   murOk = (u) => cmbMurF(u) > 0;
 /* nivel efectivo de muralla que protege a u: baja con los daños (arietes, catapultas) y casi se anula
    junto a una torre de asedio enemiga */
@@ -1941,7 +2086,7 @@ function cmbZonaRects(side) {
 }
 function cmbMurF(u) {
   const M = BT.muro;
-  if (!M || M.hp <= 0 || cmbBnd(u.side) !== cmbBnd(BT.def) || !cmbDentro(M, u)) return 0;
+  if (!M || M.hp <= 0 || cmbBnd(u.side) !== cmbBnd(BT.def) || !(u.adarve || cmbDentro(M, u))) return 0;
   const torre = BT.units.some(
     (o) => hostil(o, u) && o.t === "tor" && fighting(o) && cmbDistMuro(M, o) < 1.6 && dd(o, u) < 4,
   );
@@ -2146,8 +2291,9 @@ function volley(u, t) {
     hu.pr *
     (1 - esc) *
     arm *
-    (onHill(u) ? 1.25 : 1) *
+    (onHill(u) || u.adarve ? 1.25 : 1) *
     (inForest(t) ? 0.6 : 1) *
+    (t.adarve ? 0.7 : 1) *
     (cl === "lluvia" && u.t !== "h" ? 0.65 : 1) *
     (cl === "niebla" ? 0.8 : 1) *
     BT.gb[u.side] *
@@ -2290,11 +2436,12 @@ function simStep(dt, slot) {
         g = { x: u.x + ((u.x - m.x) / L) * 3, y: u.y + ((u.y - m.y) / L) * 3 };
       }
     }
+    if (M && (u.adarve || cmbPuedeSubir(u))) g = cmbRutaAdarve(u, P, g);
     u.goal = g;
   }
   for (const u of live) {
     const was = u.eng,
-      cont = enem(u).filter((o) => dd(u, o) < crd(u, o) + 0.08);
+      cont = enem(u).filter((o) => dd(u, o) < crd(u, o) + 0.08 && cmbToca(u, o));
     u.eng = cont.length;
     if (u.eng && !was && u.cs.ca >= 2 && u.moved >= (cmbCab(u.t) ? 1.5 : 1)) {
       u.charge = cmbCab(u.t) ? 1.5 : 0.8;
@@ -2346,7 +2493,8 @@ function simStep(dt, slot) {
   }
   for (const u of live)
     for (const o of live) {
-      if (u.id >= o.id || u.n <= 0 || o.n <= 0) continue;
+      /* el adarve no empuja a los de abajo, y los amigos que van por él se cruzan sin estorbarse */
+      if (u.id >= o.id || u.n <= 0 || o.n <= 0 || !u.adarve !== !o.adarve || (u.adarve && !hostil(u, o))) continue;
       const d = dd(u, o),
         mn = !hostil(u, o) ? crd(u, o) + 0.05 : crd(u, o);
       if (d < mn && d > 0) {
@@ -2370,12 +2518,18 @@ function simStep(dt, slot) {
     } else {
       u.x = clamp(u.x, 0.5, BW - 0.5);
       u.y = clamp(u.y, 0.5, BH - 0.5);
+      /* en el adarve: siempre sobre la línea de los lienzos */
+      if (u.adarve && M && M.x0 != null) {
+        const q = cmbPuntoMuro(M, u);
+        u.x = q.x;
+        u.y = q.y;
+      }
     }
   }
   for (const u of live) u.flk = 0;
   for (const u of live)
     for (const o of live)
-      if (u.id < o.id && hostil(u, o) && u.n > 0 && o.n > 0 && dd(u, o) < crd(u, o) + 0.08) {
+      if (u.id < o.id && hostil(u, o) && u.n > 0 && o.n > 0 && dd(u, o) < crd(u, o) + 0.08 && cmbToca(u, o)) {
         if (u.side < o.side) {
           fight(u, o, dt);
           fight(o, u, dt);
@@ -2458,6 +2612,29 @@ function simStep(dt, slot) {
         (u.t === "cat" ? 4 : rol === "h" ? 1.8 : rol === "m" ? 2.4 : 2.2) *
         (u.mvT && now - u.mvT < 200 ? (u.hm.parto ? 1 : rol === "m" ? 1.2 : 1.6) : 1);
     } else u.rel = 0.3;
+  }
+  /* las torres de la muralla disparan por su cuenta (pocas flechas: CMB_TORRE_N hombres cada una) */
+  if (M && M.x0 != null && M.hp > 0 && BT.def != null && (BT.torT = (BT.torT ?? 1.5) - dt) <= 0) {
+    BT.torT = 2.4;
+    const k = clamp(M.hp / M.hp0, 0, 1),
+      cl = BT.env.clima;
+    for (const tw of M.torres) {
+      if (M.rota && cmbEnBrecha(M, tw.l, tw.l === "N" || tw.l === "S" ? tw.x : tw.y)) continue;
+      const o = live
+        .filter((x) => fighting(x) && cmbBnd(x.side) !== cmbBnd(BT.def) && dd(x, tw) <= CMB_TORRE_AL * (cl === "niebla" ? 0.7 : 1))
+        .sort((a, b) => dd(a, tw) - dd(b, tw))[0];
+      if (!o) continue;
+      const esc = Math.min(0.9, o.cs.es * 0.6 * (o.st === "def" ? 1.3 : 1)),
+        arm = 10 / (10 + o.cs.ar * 1.5),
+        v = CMB_TORRE_N * 0.22 * 1.25 * (0.4 + 0.6 * k) * (1 - esc) * arm * (inForest(o) ? 0.6 : 1) * (cl === "lluvia" ? 0.65 : 1) * 0.8,
+        l = hurt(o, v);
+      o.tiroT = BT.t;
+      cmbTal(BT.def, "torres", l || v / o.hpS);
+      if (!BT.quiet) {
+        const t0 = performance.now();
+        for (let j = 0; j < 3; j++) BT.fx.push({ arrow: 1, x0: tw.x, y0: tw.y, x: o.x + (R() - 0.5), y: o.y + (R() - 0.5) * 0.8, t0: t0 + j * 60 });
+      }
+    }
   }
   for (const u of live) {
     if (u.n <= 0) {
@@ -3459,10 +3636,7 @@ function tapAt(x, y, shift) {
     if (hit && mio(hit)) {
       BT.sel = hit.id;
       BT.sels = [hit.id];
-    } else if (s && mio(s) && cmbEnZona(s.side, x, y) && !hit) {
-      const q = cmbAZona(s.side, x, y);
-      s.x = q.x;
-      s.y = q.y;
+    } else if (s && mio(s) && !hit && cmbColocar(s, x, y)) {
       const nx = BT.units.find((o) => mio(o) && o.x < 0);
       if (nx) {
         BT.sel = nx.id;
@@ -3631,11 +3805,7 @@ bc.addEventListener("pointerup", (e) => {
   if (d.mode === "unit") {
     if (BT.phase === "deploy") {
       const u = bU(d.h);
-      if (u && cmbEnZona(u.side, p.x, p.y)) {
-        const q = cmbAZona(u.side, p.x, p.y);
-        u.x = q.x;
-        u.y = q.y;
-      }
+      if (u) cmbColocar(u, p.x, p.y);
       bui();
       return;
     }
@@ -3792,6 +3962,7 @@ function cmbRender() {
           eje: u.ax || "x",
           cara: u.face,
           volteo: !!(u.flv ?? (u.ax === "y" ? u.flx : u.face < 0)),
+          adarve: !!u.adarve,
           filas: SL.rows,
           columnas: SL.cols,
           figuras: vivas,

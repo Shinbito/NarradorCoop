@@ -176,6 +176,15 @@ cmbTacticaMulti(lista, ctx, modo)     // Promise del mismo resultado; modo 't3' 
   `CMB_ANILLO` = 7 casillas de la muralla. Arietes a la puerta más cercana, torres y catapultas al lienzo más
   cercano. Con `flancos ≥ 2` parte de los atacantes escala otros lienzos (los que no cubren ya ejércitos) y la
   guarnición se reparte entre los lienzos amenazados. Los refuerzos aparecen por su borde a su hora.
+- **Adarve** (`cmbPuedeSubir`, `cmbRutaAdarve`): los tiradores a pie del bando de la plaza pueden estar sobre
+  la muralla (`u.adarve`; despliegan en el adarve del frente, o se sueltan sobre un lienzo al colocarlos). Solo
+  suben y bajan por las torres: una orden a un punto del lienzo los lleva al pie de la torre más cercana y
+  arriba; una orden fuera de la muralla, por el adarve (camino por el perímetro, `cmbPasoMuro`) hasta la torre
+  más cercana a ese punto, bajan y siguen. Arriba: alcance y daño ×1,25, proyectiles recibidos ×0,7 y la
+  protección de la muralla; desde abajo solo los alcanzan quienes suben por escalas (`u.escala`) o junto a una
+  torre de asedio propia (`cmbToca`). En desbandada bajan. Las **torres de la muralla** disparan solas cada
+  2,4 s al atacante más cercano a 7 casillas, como 4 arqueros (menos con la muralla dañada; las de la brecha
+  caída, no): factor «Las torres de la muralla». Online: bit 16 del estado de cada unidad.
 - `batallaResuelta` de las *Multi con `ctx.emitir`: `{p, atacante, defensor, gana, A, D, s0, d0, gA, gD, ...}` de los dos
   **principales** (el primero y el primero de otro bando, o `ctx.def`) para compatibilidad, más `multi: true`,
   `bandos`, `ganaBando` y `ejs: [{f, bando, gen, u0, A, gana, heridos, bajas, general}]`. Experiencia, fama y

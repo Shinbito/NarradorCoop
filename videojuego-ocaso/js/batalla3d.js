@@ -1678,11 +1678,15 @@ function b3dTropas(now, dt, R) {
       pool = P[mo];
     B3D.vis.set(r.id, e);
     if (!pool) continue;
+    /* en el adarve: mirando hacia fuera del lienzo, en fila a lo largo de él, sobre el paseo de ronda */
+    const M = BT.muro,
+      arriba = !!(r.adarve && M && M.x0 != null),
+      nor = arriba ? CMB_NOR[cmbPuntoMuro(M, { x: e.vx, y: e.vy }).l] : null;
     const civ = CIV[r.f] || CIV[0],
       c1 = b3dCol(civ.c),
       c2 = b3dCol(civ.d),
-      dx = Math.cos(e.a),
-      dy = Math.sin(e.a),
+      dx = nor ? nor[0] : Math.cos(e.a),
+      dy = nor ? nor[1] : Math.sin(e.a),
       px = -dy,
       py = dx,
       H = r.huecos,
@@ -1699,8 +1703,8 @@ function b3dTropas(now, dt, R) {
       if (ratio < 1 && b3dH(r.id * 31 + k) > ratio) continue;
       const h1 = b3dH(r.id * 977 + k),
         h2 = b3dH(r.id * 613 + k * 7 + 1);
-      let lat = H[k][0] + (h1 - 0.5) * 0.04,
-        dep = -H[k][1] * prof + (h2 - 0.5) * 0.04,
+      let lat = H[k][0] * (arriba ? 1.35 : 1) + (h1 - 0.5) * 0.04,
+        dep = arriba ? (h2 - 0.5) * 0.18 : -H[k][1] * prof + (h2 - 0.5) * 0.04,
         fx = dx,
         fy = dy;
       if (-dep > dmax) dmax = -dep;
@@ -1715,7 +1719,7 @@ function b3dTropas(now, dt, R) {
         wy = clamp(e.vy + dy * dep + py * lat, -1, BH + 1),
         /* en la melé pelean las primeras filas; las de atrás esperan */
         st = e.st === 2 && H[k][1] > 0.15 ? 0 : e.st;
-      b3dPon(pool, wx - BW / 2, b3dAlt(wx, wy), wy - BH / 2, fx, fy, s, h1 * 6.283, st, (0.85 + h2 * 0.3) * ritmo, c1, c2);
+      b3dPon(pool, wx - BW / 2, arriba ? Math.max(1.04, b3dAlt(wx, wy)) : b3dAlt(wx, wy), wy - BH / 2, fx, fy, s, h1 * 6.283, st, (0.85 + h2 * 0.3) * ritmo, c1, c2);
       tot++;
     }
     /* estandarte detrás del centro: oro si va el general; blanco si huyen */
@@ -2349,11 +2353,7 @@ function b3dEntrada(w) {
       if (!p) return;
       if (BT.phase === "deploy") {
         const u = bU(d.h);
-        if (u && cmbEnZona(u.side, p.x, p.y)) {
-          const q = cmbAZona(u.side, p.x, p.y);
-          u.x = q.x;
-          u.y = q.y;
-        }
+        if (u) cmbColocar(u, p.x, p.y); /* también sobre la muralla (arqueros de la plaza) */
         bui();
         return;
       }

@@ -2318,7 +2318,7 @@ function onlFoto(bid, fin) {
       Math.round(x.morMax * 10),
       Math.round(x.fat),
       x.ammo,
-      (x.rout ? 1 : 0) | (x.gone ? 2 : 0) | (x.eng ? 4 : 0) | (x.flk ? 8 : 0),
+      (x.rout ? 1 : 0) | (x.gone ? 2 : 0) | (x.eng ? 4 : 0) | (x.flk ? 8 : 0) | (x.adarve ? 16 : 0),
       x.st === "def" ? 1 : 0,
       x.desb > 0 ? Math.round(x.desb * 10) : 0,
       (x.hab || []).map((h) => [Math.round((h.t || 0) * 10), Math.round((h.cd || 0) * 10), Math.round((h.b || 0) * 10), h.n || 0]),
@@ -2580,6 +2580,7 @@ function onlEspejoFoto(E, d) {
     u.gone = !!(r[11] & 2);
     u.eng = r[11] & 4 ? 1 : 0;
     u.flk = r[11] & 8 ? 1 : 0;
+    u.adarve = !!(r[11] & 16);
     u.st = r[12] ? "def" : "agr";
     u.desb = r[13] / 10;
     (r[14] || []).forEach((h, i) => {
