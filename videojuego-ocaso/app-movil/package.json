@@ -1,6 +1,6 @@
 {
   "name": "ocaso-app",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "App de Android (y proyecto iOS) de Ocaso del Imperio con Capacitor",
   "scripts": {
