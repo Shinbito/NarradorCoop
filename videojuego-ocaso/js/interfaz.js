@@ -766,6 +766,30 @@ function ifzPolitico(own) {
   const vias = {};
   for (const f of dues) vias[f] = ifzVias(f);
   const tramos = [];
+  /* relieve v2: los caminos de verdad (MAP.camino), casilla a casilla, con un leve serpenteo */
+  if (inf.v2)
+    for (let q = 0; q < inf.tramos.length; q += 2) {
+      const i = inf.tramos[q],
+        j = inf.tramos[q + 1],
+        rr = mul(i * 131 + j * 7 + MAP.seed),
+        ax = (i % W) * S + S / 2,
+        ay = ((i / W) | 0) * S + S / 2,
+        bx = (j % W) * S + S / 2,
+        by = ((j / W) | 0) * S + S / 2,
+        cx = (ax + bx) / 2 + (rr() - 0.5) * 4,
+        cy = (ay + by) / 2 + (rr() - 0.5) * 4,
+        L = Math.max(1, Math.round(Math.hypot(bx - ax, by - ay))),
+        pts = [];
+      for (let k2 = 0; k2 <= L; k2++) {
+        const t = k2 / L,
+          u = 1 - t;
+        pts.push([Math.round(u * u * ax + 2 * u * t * cx + t * t * bx), Math.round(u * u * ay + 2 * u * t * cy + t * t * by)]);
+      }
+      const pa = MAP.grid[(i / W) | 0][i % W],
+        pb = MAP.grid[(j / W) | 0][j % W];
+      tramos.push({ pts, emp: (pa >= 0 && vias[own[pa]]) || (pb >= 0 && vias[own[pb]]) });
+    }
+  else
   MAP.adj.forEach((ls, a) =>
     ls.forEach((b) => {
       if (b <= a) return;
@@ -808,8 +832,10 @@ function ifzPolitico(own) {
             c.fillStyle = q % 3 ? "#b9af98" : "#9c927c";
             c.fillRect(x, y, 1, 1);
             c.fillRect(x - (q % 2), y, 1, 1);
-          } else if (q % 5 < 3) {
-            c.fillStyle = "rgba(150,118,74,.75)";
+          } else if (q % 7 < 6) {
+            c.fillStyle = "rgba(160,124,80,.85)";
+            c.fillRect(x, y, 2, 2);
+            c.fillStyle = "rgba(196,165,118,.8)";
             c.fillRect(x, y, 1, 1);
           }
         }
@@ -2074,10 +2100,28 @@ cv.addEventListener("click", (e) => {
 /* línea de información bajo el mapa: provincia, dueño, hombres, ánimo (ecoNivel) y asedio; y los
    ejércitos o campamentos de la casilla. (El parche de economía en document/mousemove que añadía
    el ánimo ya no hace falta: ve el nombre del ánimo y no repite nada. Puede retirarse.) */
-function ifzHoverTxt(i, ct) {
+/* nombre del terreno de una casilla (relieve de Mundo: mapaInfo) */
+function ifzTerrenoTxt(x, y) {
+  if (typeof mapaInfo !== "function" || x == null) return "";
+  try {
+    const m = mapaInfo(x, y);
+    if (m.montana) return "Montaña infranqueable";
+    if (m.puente) return "Puente";
+    if (m.vado) return "Vado";
+    if (m.rio) return "Río";
+    if (m.paso) return "Paso de montaña";
+    if (m.bosque) return "Bosque denso";
+    const n = { llanura: "Llanura", bosque: "Bosque", colina: "Colinas" }[m.tipo] || "";
+    return n && m.camino ? n + " con camino" : n;
+  } catch (_) {
+    return "";
+  }
+}
+function ifzHoverTxt(i, ct, xy) {
   const p = G.P[i];
   if (i < 0 || !p) return ct || "Mar";
-  let s = `${p.name} · ${CIV[p.owner].s} · ${tot(p.u) * ifzSPU()} hombres`;
+  const tr = xy ? ifzTerrenoTxt(xy[0], xy[1]) : "";
+  let s = `${p.name}${tr ? " · " + tr : ""} · ${CIV[p.owner].s} · ${tot(p.u) * ifzSPU()} hombres`;
   try {
     if (p.owner !== REB && typeof ecoNivel === "function") {
       const a = ecoNivel(p);
@@ -2095,7 +2139,7 @@ cv.addEventListener("mousemove", (e) => {
   const cxy = camCasillaEv(e),
     ct = cxy ? camHoverTxt(cxy[0], cxy[1]) : "";
   camHov = cxy ? camIdx(cxy[0], cxy[1]) : -1;
-  const tx = ifzHoverTxt(i, ct);
+  const tx = ifzHoverTxt(i, ct, cxy);
   if ($("hv").textContent !== tx) $("hv").textContent = tx;
 });
 cv.addEventListener("mouseleave", () => {
