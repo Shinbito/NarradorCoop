@@ -422,7 +422,38 @@ function camClic(x, y) {
       );
       return true;
     }
-    const otro = mio && mio.id !== cur.id ? mio : null;
+    const otro = mio && mio.id !== cur.id ? mio : null,
+      ciu = !otro && camCiudadEn(x, y);
+    /* ciudad propia: ¿resguardar el ejército tras sus muros? */
+    if (ciu && ciu.owner === ME) {
+      modal(
+        `¿Resguardar el ejército?`,
+        `<p>${esc(camNombre(cur))} marcha hacia ${ciu.name}.</p><p class="dim">Si se resguarda, entra en la ciudad y se suma a su guarnición (deja de ser un ejército en el mapa). Si solo se acerca, se queda allí como ejército, listo para seguir marchando.</p>`,
+        [
+          { t: `Resguardar en ${ciu.name}`, cls: "gold", fn: () => camOrdenUI({ tipo: "mover", f: ME, ej: cur.id, x, y, luego: "disolver", p: ciu.id }) },
+          { t: "Solo acercarse", fn: () => camOrdenUI({ tipo: "mover", f: ME, ej: cur.id, x, y, noEntrar: true }) },
+          { t: "Cancelar" },
+        ],
+      );
+      return true;
+    }
+    /* ciudad rival en guerra (o rebelde): ¿asediar o atacar? */
+    if (ciu && ciu.owner !== ME && camGuerra(ME, ciu.owner)) {
+      const gu = tot(ciu.u) * SPU,
+        mu = ciu.walls || 0,
+        mios = camTot(cur.u) * SPU,
+        maq = Object.values(camMaq(cur)).reduce((a, b) => a + b, 0);
+      modal(
+        `${ciu.name}`,
+        `<p>${esc(camNombre(cur))} (${mios} hombres${maq ? `, ${maq} máquinas` : ""}) contra ${ciu.name}: ${gu ? gu + " defensores" : "sin guarnición"}${mu ? ` tras murallas de nivel ${mu}` : ", sin murallas"}.</p><p class="dim">Asediar: cercas la ciudad varias estaciones, sus víveres y su moral caen y puedes construir arietes, torres y catapultas. Atacar: asalto inmediato al llegar${mu ? "; contra murallas sin máquinas es muy costoso" : ""}. Si no llega esta estación, seguirá la marcha y lo hará al llegar.</p>`,
+        [
+          { t: "Asediar", cls: "gold", fn: () => camOrdenUI({ tipo: "mover", f: ME, ej: cur.id, x, y, luego: "asediar", p: ciu.id }) },
+          { t: "¡Atacar!", cls: "red", fn: () => camOrdenUI({ tipo: "mover", f: ME, ej: cur.id, x, y, luego: "asaltar", p: ciu.id }) },
+          { t: "Cancelar" },
+        ],
+      );
+      return true;
+    }
     camOrdenUI({ tipo: "mover", f: ME, ej: cur.id, x, y, luego: otro ? "unir" : undefined, con: otro ? otro.id : undefined });
     return true;
   }
