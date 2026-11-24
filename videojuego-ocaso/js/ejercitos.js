@@ -141,7 +141,28 @@ function camCalzadas(f) {
   return f < NF && typeof tecTiene === "function" && G.tec ? !!tecTiene(f, "vias") : false;
 }
 
-/* ---------- terreno de una casilla ---------- */
+/* ---------- terreno de una casilla ----------
+   Relieve (mundo.md §6, mapas v2): montañas infranqueables, ríos que solo se cruzan por puente o vado,
+   caminos baratos, pasos de montaña caros y bosque denso que oculta. En mapas v1 (partidas antiguas) esas
+   capas vienen vacías: todo funciona como antes (río «por provincia», cualquier bosque oculta). */
+const CAM_REL = { camino: 0.6, caminoCalz: 0.45, paso: 1.5, vado: 2, vadoInv: 2, montana: Infinity };
+let camRelC = null;
+function camRelieve() {
+  if (!MAP) return false;
+  if (!camRelC || camRelC.m !== MAP) {
+    const tiene = (k) => !!(MAP[k] && MAP[k].some((r) => r && r.some && r.some((v) => v)));
+    camRelC = { m: MAP, v: tiene("mont") || tiene("rio") || tiene("camino") || tiene("bosque") };
+  }
+  return camRelC.v;
+}
+const camCapa = (k, x, y) => !!(MAP[k] && MAP[k][y] && MAP[k][y][x]);
+/* casilla transitable: tierra, no montaña y, si es río, con puente o vado */
+function camPasable(x, y) {
+  if (x < 0 || y < 0 || x >= W || y >= H || !MAP.terr[y] || !MAP.terr[y][x]) return false;
+  return typeof mapaTransitable === "function" ? mapaTransitable(x, y) : true;
+}
+/* bosque que oculta ejércitos: el denso en mapas con relieve, cualquier bosque en los antiguos */
+const camEsBosque = (x, y) => (camRelieve() ? camCapa("bosque", x, y) : MAP.terr[y] && MAP.terr[y][x] === 2);
 function camRio(pid) {
   return typeof cmbTerreno === "function" && G.P[pid] ? !!cmbTerreno(G.P[pid]).rio : false;
 }
@@ -159,7 +180,9 @@ function camTerrCasilla(x, y) {
       if (k === 2) b++;
       if (k === 3) c++;
     }
-  const rio = pid >= 0 && camRio(pid) && t === 1;
+  const rio = camRelieve()
+    ? CAM_V8.some(([dx, dy]) => camCapa("rio", x + dx, y + dy)) || camCapa("rio", x, y)
+    : pid >= 0 && camRio(pid) && t === 1;
   return {
     tag: t === 3 ? "colinas" : t === 2 ? "bosque" : rio ? "vado" : "llanura",
     bosque: n ? b / n : 0,
@@ -173,8 +196,9 @@ function camCoste(f, i, cc) {
     y = (i - x) / W,
     t = MAP.terr[y][x],
     pid = MAP.grid[y][x];
-  if (!t || pid < 0) return Infinity;
-  let c = CAM_K.terr[t] + (t === 1 && camRio(pid) ? CAM_K.vado : 0);
+  if (!t || pid < 0 || !camPasable(x, y)) return Infinity;
+  const rel = camRelieve();
+  let c = CAM_K.terr[t] + (!rel && t === 1 && camRio(pid) ? CAM_K.vado : 0);
   const o = G.P[pid].owner;
   let pr;
   if (cc) {
@@ -182,8 +206,15 @@ function camCoste(f, i, cc) {
     pr = cc.pr.get(o);
     if (cc.cz == null) cc.cz = camCalzadas(f);
   } else pr = camPropia(f, o);
+  const calz = cc ? cc.cz : camCalzadas(f);
+  if (rel) {
+    /* camino (más barato aún con Calzadas, en cualquier tierra), paso de montaña, vado (peor en invierno) */
+    if (camCapa("camino", x, y)) c = Math.min(c, 1) * (calz ? CAM_REL.caminoCalz : CAM_REL.camino);
+    if (camCapa("paso", x, y)) c += CAM_REL.paso;
+    if (camCapa("rio", x, y) && camCapa("vado", x, y) && !camCapa("puente", x, y)) c += CAM_REL.vado + (G.estacion === 3 ? CAM_REL.vadoInv : 0);
+  }
   if (pr) {
-    if (cc ? cc.cz : camCalzadas(f)) c *= CAM_K.calzadas;
+    if (calz && !(rel && camCapa("camino", x, y))) c *= CAM_K.calzadas;
   } else c *= CAM_K.ajeno;
   return c;
 }
@@ -309,7 +340,7 @@ function camDijkstra(ej, o = {}) {
       const nx = x + dx,
         ny = y + dy;
       if (nx < 0 || ny < 0 || nx >= W || ny >= H || !MAP.terr[ny][nx]) continue;
-      if (dx && dy && (!MAP.terr[y][nx] || !MAP.terr[ny][x])) continue;
+      if (dx && dy && (!camPasable(nx, y) || !camPasable(x, ny))) continue; // sin cortar esquinas de costa, sierra o río
       const j = camIdx(nx, ny),
         pid = MAP.grid[ny][nx];
       if (pid < 0 || neut[j] || !puede(pid) || (enZoc && !enem[j])) continue;
@@ -355,7 +386,7 @@ function camJuntoA(ej, p, D) {
   for (const [dx, dy] of CAM_V8) {
     const x = p.x + dx,
       y = p.y + dy;
-    if (x < 0 || y < 0 || x >= W || y >= H || !MAP.terr[y]?.[x]) continue;
+    if (x < 0 || y < 0 || x >= W || y >= H || !camPasable(x, y)) continue;
     if (x === ej.x && y === ej.y) return camIdx(x, y);
     const j = camIdx(x, y);
     if (!Number.isFinite(D.dist[j])) continue;
@@ -675,7 +706,7 @@ function camRetirar(ej, dx, dy) {
     for (let rx = -2; rx <= 2; rx++) {
       const x = ej.x + rx,
         y = ej.y + ry;
-      if (x < 0 || y < 0 || x >= W || y >= H || !MAP.terr[y][x] || (rx === 0 && ry === 0)) continue;
+      if (x < 0 || y < 0 || x >= W || y >= H || !camPasable(x, y) || (rx === 0 && ry === 0)) continue;
       const pid = MAP.grid[y][x];
       if (pid < 0 || !camPaso(f, G.P[pid].owner, ej) || camEjsEn(x, y, ej.id).some((e) => e.f !== f)) continue;
       const c = camCiudadEn(x, y);
@@ -1538,6 +1569,7 @@ async function camDarPaso(ej, j, o = {}) {
   if (camCheb(ej.x, ej.y, x, y) !== 1) return { ok: false, parar: true };
   const diag = x !== ej.x && y !== ej.y,
     c = camCoste(f, j) * (diag ? CAM_K.diag : 1);
+  if (diag && (!camPasable(x, ej.y) || !camPasable(ej.x, y))) return { ok: false, parar: true };
   if (!Number.isFinite(c) || ej.mov + 1e-9 < c) return { ok: false, parar: true, sinMov: true };
   const pid = MAP.grid[y][x];
   if (pid < 0 || !camPaso(f, G.P[pid].owner, ej)) return { ok: false, parar: true };
@@ -1545,7 +1577,7 @@ async function camDarPaso(ej, j, o = {}) {
   const ene = otros.filter((e) => camGuerra(f, e.f)).sort((a, b) => pw(b.u) - pw(a.u))[0];
   if (ene) {
     /* emboscada: sale de un bosque contra quien no lo veía (bono de sorpresa; ctx.emboscada para combate) */
-    const emb = typeof camNieblaOn === "function" && camNieblaOn() && MAP.terr[ej.y][ej.x] === 2 && !camVeEj(ene.f, ej);
+    const emb = typeof camNieblaOn === "function" && camNieblaOn() && camEsBosque(ej.x, ej.y) && !camVeEj(ene.f, ej);
     await camChoque(ej, ene, { ...o, emboscada: emb });
     return { ok: false, parar: true, batalla: true };
   }

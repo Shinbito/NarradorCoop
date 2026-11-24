@@ -536,7 +536,7 @@ function camClic(x, y) {
   if (espSel && isMe(espSel.f) && myTurn() && !G.over) {
     if (espAqui && espAqui !== espSel) camEspSel = espAqui.id;
     else if (espSel.x === x && espSel.y === y) camEspSel = null;
-    else if (MAP.terr[y] && MAP.terr[y][x]) camOrdenUI({ tipo: "espiaMover", f: ME, esp: espSel.id, x, y });
+    else if (camPasable(x, y)) camOrdenUI({ tipo: "espiaMover", f: ME, esp: espSel.id, x, y });
     else camEspSel = null;
     ui();
     return true;
@@ -1044,7 +1044,7 @@ function camVeEj(f, e) {
   if (!e || !camNieblaOn() || f == null || f >= NF || camSocio(f, e.f)) return true;
   const V = camVisMapa(f),
     i = camIdx(e.x, e.y);
-  return !!(V.hondo[i] || (V.vis[i] && MAP.terr[e.y][e.x] !== 2));
+  return !!(V.hondo[i] || (V.vis[i] && !camEsBosque(e.x, e.y)));
 }
 /* última noticia de una ciudad: {o, n, w, y, e, vista} (la real si se ve) */
 function camMemProv(f, pid) {
@@ -1196,7 +1196,7 @@ function camTierraCerca(x, y) {
       for (let dx = -r; dx <= r; dx++) {
         const a = x + dx,
           b = y + dy;
-        if (a >= 0 && b >= 0 && a < W && b < H && MAP.terr[b][a]) return [a, b];
+        if (a >= 0 && b >= 0 && a < W && b < H && camPasable(a, b)) return [a, b];
       }
   return null;
 }
@@ -1406,7 +1406,7 @@ function camEspIA(f) {
       t = camRobable(f, q.owner).length && R() < 0.35 ? "robar" : R() < 0.25 ? "revuelta" : "vigilar";
     }
     if (camCheb(q.x, q.y, s.x, s.y) > 1) {
-      const v = CAM_V8.map(([dx, dy]) => [q.x + dx, q.y + dy]).find(([x, y]) => MAP.terr[y] && MAP.terr[y][x]);
+      const v = CAM_V8.map(([dx, dy]) => [q.x + dx, q.y + dy]).find(([x, y]) => camPasable(x, y));
       if (v) camEspMover(s, v[0], v[1]);
     }
     if (camCheb(q.x, q.y, s.x, s.y) <= 1) camEspMision(s, t, { p: q.id });
