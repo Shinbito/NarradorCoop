@@ -1070,6 +1070,8 @@ function onlEntrar(id, f) {
   net.unsub = ONL.unMeta;
 }
 async function onlMeta(d) {
+  /* los datos de una instantánea llegan congelados: copia propia para poder anotar cambios locales */
+  d = onlClon(d);
   ONL.meta = d;
   const sigL = JSON.stringify(d.listos || {});
   if (sigL !== ONL.sigListos) {
@@ -1215,14 +1217,21 @@ async function onlRepCargar(d) {
     onlTraza("rep falla", e && e.message);
   }
 }
+/* jugadores humanos de la partida mientras se resuelve (para la niebla de la repetición, campaña camRep) */
+const onlHumanosVista = () => (ONL.resolviendo && ONL.resolviendo.meta ? onlActivos(ONL.resolviendo.meta) : null);
+/* niebla: cada jugador solo ve los pasos cuyo vh lo incluye (sin vh, los ve todos) */
+function onlRepFiltrada(rep, f = ME) {
+  return { ...rep, pasos: (rep.pasos || []).filter((p) => !p || !Array.isArray(p.vh) || p.vh.includes(f)) };
+}
 const onlRepHay = () => !!(G && G.cam && G.cam.rep && (G.cam.rep.pasos || []).length);
 async function onlRepetir() {
   if (!onlRepHay()) return false;
+  const rep = onlRepFiltrada(G.cam.rep);
   ONL.repVista = (ONL.repVista || 0) + 1;
-  onlTraza("repeticion", (G.cam.rep.pasos || []).length);
-  if (typeof ifzRepetir !== "function") return false;
+  onlTraza("repeticion", (G.cam.rep.pasos || []).length, "vistos", rep.pasos.length);
+  if (typeof ifzRepetir !== "function" || !rep.pasos.length) return false;
   try {
-    await ifzRepetir(G.cam.rep);
+    await ifzRepetir(rep);
   } catch (e) {
     console.error("[onl] repetición", e);
   }
@@ -1516,14 +1525,17 @@ function onlFinPartidaCon(act) {
     checkEnd = orig;
   };
 }
-function onlInyectar(ords) {
+/* fijas: si la estación se reanuda tras una batalla pendiente, se repiten las mismas órdenes (también las de
+   la IA) para que las marchas lleven otra vez al mismo encuentro */
+function onlInyectar(ords, fijas) {
   const orig = camResolverSimultaneo;
   let usado = false;
   camResolverSimultaneo = async function (g, o, opc) {
     if (!usado) {
       usado = true;
       camResolverSimultaneo = orig;
-      o = (o || []).concat(ords);
+      o = Array.isArray(fijas) && fijas.length ? fijas.map((x) => ({ ...x })) : (o || []).concat(ords);
+      if (ONL.resolviendo) ONL.resolviendo.ordsTodas = onlClon(o);
     }
     return orig(g, o, opc);
   };
@@ -1616,7 +1628,8 @@ async function onlResolver0(op = {}) {
     for (const f of act)
       if (!presentes.includes(f)) onlCron([f], `Sin órdenes a tiempo: la IA gobernó ${CIV[f].s} esta estación.`, "bad");
     const ords = envs.flatMap((e) => (e.ords || []).map((o) => ({ ...o, f: e.f })));
-    restaurar = onlInyectar(ords);
+    const pend = m.fase === "batalla" && m.batalla ? ONL.resolviendo.bats[m.batalla.bid] : null;
+    restaurar = onlInyectar(ords, pend && pend.ords);
     restFin = onlFinPartidaCon(act);
     onlTraza("resolver", m.turno, "envios", presentes.join(","), "ordenes", ords.length, "resto", Math.round(((m.limite || 0) - onlAhora()) / 1000), "listos", JSON.stringify(m.listos || {}));
     const y0 = G.year;
@@ -1723,7 +1736,7 @@ async function onlSuspender(m) {
   ONL.susp = null;
   if (!S) return;
   onlTraza("suspendida", S.bid, S.lugar);
-  await net.db.doc(`partidas/${id}/batallas/${S.bid}`).set({ turno: m.turno, clave: S.clave, estado: "pendiente", a: S.a, d: S.d, fa: S.fa, fd: S.fd, lugar: S.lugar, limite: S.limite, s0: S.s0, d0: S.d0, ts: onlAhora() });
+  await net.db.doc(`partidas/${id}/batallas/${S.bid}`).set({ turno: m.turno, clave: S.clave, estado: "pendiente", a: S.a, d: S.d, fa: S.fa, fd: S.fd, lugar: S.lugar, limite: S.limite, s0: S.s0, d0: S.d0, ts: onlAhora(), ords: (ONL.resolviendo && ONL.resolviendo.ordsTodas) || [] });
   await net.db.doc("partidas/" + id).update({
     fase: "batalla",
     batalla: { bid: S.bid, a: S.a, d: S.d, fa: S.fa, fd: S.fd, lugar: S.lugar, limite: S.limite, turno: m.turno },

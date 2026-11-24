@@ -59,7 +59,10 @@ vez, cada uno en su pantalla sobre una copia del estado publicado:
    más, va comprimida en `partidas/<id>/rep/t<turno>` (una repetición sintética de 3 000 pasos: 146 KB →
    32 KB) y se borra al publicar la estación siguiente; nunca viaja en los envíos de los jugadores. Al
    volver tras una estación se reproduce sola; tras varias, «Mientras no estabas» ofrece «Ver la repetición
-   de la última estación» (solo se conserva la última).
+   de la última estación» (solo se conserva la última). **Niebla**: cada jugador solo ve los pasos cuyo
+   `vh` lo incluye (`onlRepFiltrada`); para que `vh` cuente a todos los jugadores de la partida y no solo a
+   los que enviaron órdenes, `camRep` (ejercitos.js, cambio mínimo `/* ONL */`) usa `onlHumanosVista()`
+   mientras se resuelve.
 
 **Por correspondencia** (`cfg.modoTurno = 'corr'`): plazo `cfg.plazoH` horas. **Simultáneo en tiempo
 real** (`'tr'`): mientras todos los jugadores activos tienen la partida abierta (presencia del room), la
@@ -204,6 +207,13 @@ durante una resolución, `camResolverSimultaneo` (añadir las órdenes humanas).
 cambian nada. Interfaz llama directamente a `onlDibujarCola(now)` (las órdenes encoladas sobre el mapa) y
 a `onlTextoTurno()` → `{info, boton}` (barra de turno: «Online · correspondencia · listos 1/3 · 5 h»).
 
+### Cambio mínimo en `js/ejercitos.js` (campaña)
+
+`camRep`: `o.vh = ((typeof onlHumanosVista === "function" && onlHumanosVista()) || G.human).filter(…)`,
+marcado `/* ONL */` (ver «Repetición»). Las batallas de varios ejércitos por bando (`camReunir`, sin modal
+en online: usa `ej.apoyo`) pasan por `camLibrar` mientras combate no defina `cmbResolverMulti`; si lo
+define, las batallas conjuntas entre humanos se resolverán en automático (ver peticiones).
+
 ### La guerra es cosa de los implicados (partidas de 3 o más)
 
 Nada de una guerra o batalla ajena llega a quien no participa (salvo, si procede, una línea en la crónica
@@ -301,4 +311,8 @@ grande en su documento, sin viajar en los envíos, y llamada a `ifzRepetir`. Cap
 7. **Campaña (mercenarios)**: en online, al vencer el contrato de un jugador humano
    (`mercenarios.js`, `if (!isMe(c.f) || net.on) continue;`) no se decide nada y el contrato queda vencido
    para siempre; convendría encolar la decisión para su dueño (buzón) o renovarlo por defecto.
-8. **Campaña**: grabar `G.cam.rep` (contrato §9); Online ya lo transporta.
+8. **Combate/Campaña**: si llega `cmbResolverMulti`/`cmbTacticaMulti` (batallas conjuntas), `camMulti` no
+   pasa por `camLibrar`: hará falta un gancho equivalente para que las batallas conjuntas entre jugadores
+   sean en vivo / IA difícil.
+9. **Interfaz/Campaña**: `rep.ej0` (ejércitos al empezar la repetición) no lleva `vh`: con niebla, cada
+   jugador vería al principio todos los ejércitos; convendría filtrarlos por visibilidad al grabarlos.
