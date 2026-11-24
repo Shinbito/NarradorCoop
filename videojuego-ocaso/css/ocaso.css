@@ -389,6 +389,7 @@ input {
 }
 .over.show {
   display: grid;
+  place-items: safe center;
 }
 #modal {
   z-index: 9;
@@ -667,6 +668,8 @@ input {
   }
   #start {
     place-items: start center;
+    /* centrado vertical; «safe» vuelve a arriba solo si el menú no cabe en la pantalla */
+    place-items: safe center;
   }
   .slot {
     grid-template-columns: minmax(0, 1fr);
