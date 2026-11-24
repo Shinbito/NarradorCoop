@@ -3,6 +3,11 @@
    PICTURE: el mapa ficticio (costas, bosques, colinas, ciudades) y el campo de batalla táctico
    COLOUR and TYPE: noche de piedra #12171c, oro imperial #f2c14e, colores propios de cada pueblo; Press Start 2P + Pixelify Sans
    LAYOUT: barra de recursos, mapa grande, panel de mando con pestañas; pantallas superpuestas para inicio, eventos y batalla */
+html,
+body {
+  touch-action: manipulation; /* sin zoom por doble toque */
+  -webkit-text-size-adjust: 100%;
+}
 :root {
   color-scheme: dark;
   --bg: #12171c;

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Ocaso del Imperio</title>
 <meta name="theme-color" content="#12171c">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
@@ -7,6 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="iconos/icono-192.png">
 <link rel="apple-touch-icon" href="iconos/icono-180.png">
+<script src="js/red.js"></script>
 <link rel="stylesheet" href="css/fuentes.css">
 <link rel="stylesheet" href="css/ocaso.css">
 <link rel="stylesheet" href="css/narrativa.css">
@@ -62,10 +63,16 @@
 <script src="js/batalla3d.js"></script>
 <script src="js/inicio.js"></script>
 <script src="js/online.js"></script>
+<script src="js/online-ia.js"></script>
 <script src="js/musica.js"></script>
 <script src="js/tutorial.js"></script>
 <script src="js/arranque.js"></script>
 <script>
+/* sin zoom de página: el doble toque o el pellizco ampliaban todo el juego y quedaba así (el mapa y la
+   batalla tienen su propio zoom). iOS Safari ignora user-scalable=no: se cortan sus gestos aquí. */
+for (const t of ["gesturestart", "gesturechange"]) document.addEventListener(t, (e) => e.preventDefault(), { passive: false });
+document.addEventListener("dblclick", (e) => e.preventDefault(), { passive: false });
+document.addEventListener("touchmove", (e) => e.touches.length > 1 && !e.target.closest("canvas, #mapwrap, .b3d") && e.preventDefault(), { passive: false });
 /* app instalable (PWA): solo por http(s) y fuera de la app nativa */
 if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && !window.Capacitor)
   addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
