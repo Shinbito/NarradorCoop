@@ -462,6 +462,136 @@ fs.mkdirSync(capt, { recursive: true });
     "la pestaña Progreso funciona tras cargar",
   );
 
+  /* ---------- Mundo de leyendas: los 12 pueblos nuevos ---------- */
+  console.log("Mundo de leyendas (aztecas contra los pueblos nuevos)");
+  const ley = await page.evaluate(() => {
+    const me = civIdx("azt"),
+      riv = ["ara", "nor", "chi", "inc", "may", "gri", "egi", "ind", "cel", "esl", "mon", "per"].map(civIdx);
+    leaveNet();
+    newGame(me, cands(me)[0], { modo: "leyendas", activas: [me, ...riv] });
+    drawBase();
+    OC.emitirSync("partidaLista");
+    $("start").classList.remove("show");
+    ui();
+    save();
+    startTurn();
+    const cap = G.P[G.F[ME].capId],
+      genericas = G.activas.filter((f) => !CIV[f].eras || CIV[f].eras[0] === "Tribal").map((f) => CIV[f].id),
+      propias = G.activas
+        .filter((f) => Object.values(TEC).filter((T) => T.civ === f).length !== 2)
+        .map((f) => CIV[f].id),
+      edis = G.activas
+        .filter((f) => Object.values(TEC_EDI).filter((e) => e.civ === f).length !== 1)
+        .map((f) => CIV[f].id);
+    /* qué pide cada única de los 19 pueblos */
+    const unicas = [];
+    for (let f = 0; f < NF; f++)
+      for (const t of CIV[f].unicas || []) {
+        const r = tecReqUnidad(t, f);
+        unicas.push({
+          id: CIV[f].id,
+          t,
+          edif: r.edif,
+          nivel: r.nivel,
+          tec: r.tec,
+          ok: !!BLD[r.edif] && (!r.tec || !!TEC[r.tec]),
+        });
+      }
+    sel = cap.id;
+    tab = "prov";
+    ui();
+    const txt = document.getElementById("panel").textContent,
+      recluta = (txt.match(/Recluta: ([^\n]*?)Sus tropas/) || [])[1] || "",
+      montadas = TYP.filter((t) => !civPuede(ME, t)).map((t) => CIV[ME].un[t] || UN[t].s);
+    const jag0 = tecPuedeReclutar(ME, cap, "jag");
+    tecF(ME).h.push("floridas");
+    (G.tec.ad[cap.id] = G.tec.ad[cap.id] || []).push("floridas");
+    G.tec.rev++;
+    const jag1 = tecPuedeReclutar(ME, cap, "jag");
+    return {
+      genericas,
+      propias,
+      edis,
+      unicas,
+      guerreros: cap.guerreros,
+      establo: cap.establo,
+      establoVisible: tecVisible("establo", ME, cap),
+      guerrerosNombre: tecB("guerreros", ME).n,
+      remonta:
+        tecDisponible(ME, "remonta") ||
+        Object.keys(TEC).some((id) => TEC[id].caballo && tecParaCiv(ME, TEC[id])),
+      aqui: tecReclutaAqui(ME, cap),
+      recluta,
+      montadasEnLinea: montadas.filter((n) => recluta.includes(n)),
+      jag0: jag0.motivo,
+      jag1: jag1.ok,
+      ele: { per: tecReqUnidad("ele", civIdx("per")).tec, ind: tecReqUnidad("ele", civIdx("ind")).tec },
+      tec0: G.activas.map((f) => tecF(f).h.length),
+    };
+  });
+  comprobar(!ley.genericas.length, "todos los pueblos tienen eras propias " + ley.genericas.join(","));
+  comprobar(
+    !ley.propias.length && !ley.edis.length,
+    `cada pueblo: 2 técnicas y 1 edificio propios ${ley.propias.join(",")} ${ley.edis.join(",")}`,
+  );
+  for (const u of ley.unicas)
+    console.log(`    ${u.id} ${u.t}: ${u.edif} ${u.nivel}${u.tec ? " + " + u.tec : ""}`);
+  comprobar(
+    ley.unicas.length >= 20 && ley.unicas.every((u) => u.ok),
+    `las ${ley.unicas.length} únicas piden edificio y técnica existentes`,
+  );
+  comprobar(
+    ley.guerreros >= 1 && !ley.establo && !ley.establoVisible,
+    `aztecas: ${ley.guerrerosNombre} en vez de establo`,
+  );
+  comprobar(!ley.remonta, "sin caballos no se ofrecen técnicas ecuestres");
+  comprobar(
+    !ley.aqui.some((t) => !["i", "a", "l", "p", "h", "jag", "agu"].includes(t)),
+    "aztecas reclutan solo a pie: " + ley.aqui.join(","),
+  );
+  comprobar(
+    ley.recluta && !ley.montadasEnLinea.length,
+    `la línea «Recluta:» no ofrece monturas («${ley.recluta.trim()}»)`,
+  );
+  comprobar(/Guerras floridas/.test(ley.jag0) && ley.jag1, `guerreros jaguar: «${ley.jag0}» y luego sí`);
+  comprobar(
+    ley.ele.per === "clibanarios" && ley.ele.ind === "gajashastra",
+    "elefantes: clibanarios (persas) o gajashastra (indios)",
+  );
+  await page.screenshot({ path: path.join(capt, "tec-leyendas-provincia.png"), fullPage: true });
+  for (let y = 0; y < 25; y++) await finAnio();
+  const ley2 = await page.evaluate(() => {
+    const uni = new Set(Object.keys(TEC_EDI).filter((k) => TEC_EDI[k].civ != null)),
+      propias = G.activas.filter((f) => f !== ME && alive(f) && tecF(f).h.some((id) => TEC[id].r === "pro")),
+      unicos = G.P.filter((p) => [...uni].some((k) => p[k] > 0)).length,
+      perfiles = {};
+    for (const p of G.P) if (p.owner < NF) perfiles[tecPerfil(p).id] = (perfiles[tecPerfil(p).id] || 0) + 1;
+    return {
+      tecs: G.activas.map((f) => `${CIV[f].id}:${tecF(f).h.length}`),
+      vivos: G.activas.filter((f) => f !== ME && alive(f)).length,
+      propias: propias.length,
+      unicos,
+      perfiles,
+      montados: G.P.filter(
+        (p) => p.owner < NF && Object.keys(p.u).some((t) => p.u[t] > 0 && !civPuede(p.owner, t)),
+      ).length,
+      ano: G.year,
+    };
+  });
+  console.log("  técnicas:", ley2.tecs.join(" "), "· perfiles:", JSON.stringify(ley2.perfiles));
+  comprobar(
+    ley2.propias >= Math.ceil(ley2.vivos * 0.6),
+    `las IA investigan su rama propia (${ley2.propias}/${ley2.vivos})`,
+  );
+  comprobar(ley2.unicos >= 3, `se levantan edificios propios (${ley2.unicos})`);
+  comprobar(!ley2.montados, "nadie sin caballos tiene tropas montadas");
+  await page.evaluate(() => {
+    tab = "tec";
+    tecRama = "pro";
+    ui();
+  });
+  await page.screenshot({ path: path.join(capt, "tec-leyendas-progreso.png"), fullPage: true });
+
   const malos = errores.concat(fallos);
   console.log("\n" + (malos.length ? "ERRORES:\n" + malos.join("\n") : "OK sin errores"));
   await browser.close();

@@ -34,6 +34,7 @@ const TEC = {
   },
   remonta: {
     n: "Remonta de caballos",
+    caballo: true,
     r: "mil",
     c: 12,
     anio: 410,
@@ -383,11 +384,27 @@ const TEC_EDI = {
     anio: { 2: 445 },
     mat: "madera",
     cat: "mil",
+    caballo: true, // no se ofrece a los pueblos sin caballos
+
     local: (b, L) => {
       b.st.c.atk += 0.04 * L;
       b.cu.c -= 0.06 * L;
     },
     ia: (p, x) => (x.front ? 1.5 : 0.5),
+  },
+  guerreros: {
+    t: [1, 2],
+    anio: { 2: 440 },
+    mat: "madera",
+    cat: "mil",
+    sinCaballos: true, // solo para los pueblos sin caballos (sustituye al establo)
+    local: (b, L) => {
+      for (const c of ["i", "a"]) {
+        b.st[c].atk += 0.04 * L;
+        b.cu[c] -= 0.05 * L;
+      }
+    },
+    ia: (p, x) => (x.front ? 1.6 : 0.6),
   },
   arqueria: {
     t: [1, 2],
@@ -492,11 +509,18 @@ const tecAdoptada = (p, id) => tecAdopciones(p).includes(id);
 const tecRige = (f, p, id) => (tecLocal(TEC[id]) ? tecAdoptada(p, id) : tecTiene(f, id));
 const tecEdificios = () => Object.keys(BLD).concat(Object.keys(TEC_EDI).filter((k) => !BLD[k]));
 const tecEsCapital = (p) => !!p && (p.cap || (G.F[p.owner] && G.F[p.owner].capId === p.id));
-function tecB(k) {
+function tecB(k, f) {
   const b = BLD[k],
-    e = TEC_EDI[k] || {};
-  return b ? { n: b[0], ef: b[1], c: b[2], max: b[3] || 2, ...e } : { max: 1, ...e };
+    e = TEC_EDI[k] || {},
+    r = b ? { n: b[0], ef: b[1], c: b[2], max: b[3] || 2, ...e } : { max: 1, ...e };
+  if (k === "guerreros" && f != null && CIV[f] && CIV[f].tecGuerreros) r.n = CIV[f].tecGuerreros;
+  return r;
 }
+/* Pueblos sin caballos (CIV[f].sinTipos con "caballos"): ni establo ni técnicas ecuestres. */
+const tecSinCaballos = (f) => !!(CIV[f] && (CIV[f].sinTipos || []).includes("caballos"));
+const tecCivPuede = (f, t) => (typeof civPuede === "function" ? civPuede(f, t) : true);
+/* ¿Es la técnica para este pueblo? (la suya propia, y nada ecuestre si no tiene caballos) */
+const tecParaCiv = (f, T) => !!T && (T.civ == null || T.civ === f) && !(T.caballo && tecSinCaballos(f));
 function tecEras(f) {
   return (CIV[f] && CIV[f].eras) || ["Tribal", "Federado", "Reino", "Reino consolidado"];
 }
@@ -540,7 +564,7 @@ function tecPreparar() {
         cap = G.F[f] && G.P[G.F[f].capId];
       for (const id of ini.tec || []) if (TEC[id] && !s.f[f].h.includes(id)) s.f[f].h.push(id);
       if (cap && cap.owner === f) {
-        const edi = { cuartel: 1, establo: 1, ...(ini.edi || {}) };
+        const edi = { cuartel: 1, [tecSinCaballos(f) ? "guerreros" : "establo"]: 1, ...(ini.edi || {}) };
         for (const [k, v] of Object.entries(edi))
           if (!tecB(k).costa || tecCosta(cap)) cap[k] = Math.max(cap[k] || 0, v);
         for (const id of ini.tec || [])
@@ -702,20 +726,33 @@ function tecCat(t) {
   if ((u.mv || 0) >= 4) return "c";
   return "i";
 }
-/* Edificio y nivel que pide una clase nueva. Combate puede fijarlo con UN[t].edif y UN[t].nivel. */
-function tecReqUnidad(t) {
+/* Edificio, nivel y técnica que pide una clase. Orden: UN[t].tec (combate) > TEC_UNIDADES[t]
+   (civilizaciones.js, únicas y bestias) > regla general (élite = coste > 1,4× su clase base: un nivel más y
+   la doctrina TEC_ELITE adoptada en la ciudad). Edificio: TEC_UNIDADES[t].edif > UN[t].edif > el de su clase. */
+function tecReqUnidad(t, f) {
   const u = UN[t] || {},
+    x = (typeof TEC_UNIDADES !== "undefined" && TEC_UNIDADES[t]) || null,
     cat = tecCat(t),
-    edif = u.edif && BLD[u.edif] ? u.edif : { i: "cuartel", a: "arqueria", c: "establo" }[cat],
-    elite = !!(UN[cat] && u.cost > UN[cat].cost * 1.4);
-  return { edif, nivel: u.nivel || (edif === "cuartel" ? (elite ? 3 : 2) : elite ? 2 : 1), elite };
+    elite = !!(UN[cat] && u.cost > UN[cat].cost * 1.4),
+    edif =
+      x && x.edif && BLD[x.edif]
+        ? x.edif
+        : u.edif && BLD[u.edif]
+          ? u.edif
+          : { i: "cuartel", a: "arqueria", c: "establo" }[cat],
+    nivel = (x && x.nivel) || u.nivel || (edif === "cuartel" ? (elite ? 3 : 2) : elite ? 2 : 1);
+  let tec = null;
+  if (u.tec && TEC[u.tec]) tec = u.tec;
+  else if (x) tec = x.tec && typeof x.tec === "object" ? x.tec[CIV[f] && CIV[f].id] || null : x.tec || null;
+  else if (elite) tec = TEC_ELITE[cat];
+  return { edif, nivel, elite, tec: tec && TEC[tec] ? tec : null };
 }
 /* Año desde el que se puede reclutar una clase: UN[t].anio, o el del nivel de edificio que pide. */
-function tecAnioUnidad(t) {
+function tecAnioUnidad(t, f) {
   if (TEC_CAT.includes(t)) return 0;
   const u = UN[t] || {};
   if (u.anio) return u.anio;
-  const r = tecReqUnidad(t);
+  const r = tecReqUnidad(t, f);
   return tecAnioEdi(r.edif, r.nivel);
 }
 function tecUnidadPropia(t, f) {
@@ -731,19 +768,28 @@ function tecPuedeReclutar(f, p, t) {
   const u = (typeof UN !== "undefined" && UN[t]) || null,
     libres = (CIV[f] && CIV[f].tecLibres) || [];
   if (!u) return { ok: false, motivo: "desconocida" };
+  if (u.asedio) return { ok: false, motivo: "se construye durante un asedio" };
+  if (!tecCivPuede(f, t))
+    return {
+      ok: false,
+      motivo: typeof mundoMotivoVeto === "function" ? mundoMotivoVeto(f) : "no hay caballos en estas tierras",
+    };
   if (t === "i" || libres.includes(t)) return { ok: true, motivo: "" };
   if (t === "a")
-    return p.cuartel > 0 || p.arqueria > 0
+    return p.cuartel > 0 || p.arqueria > 0 || p.guerreros > 0
       ? { ok: true, motivo: "" }
-      : { ok: false, motivo: "requiere Cuartel o Campo de tiro" };
+      : {
+          ok: false,
+          motivo: `requiere Cuartel, Campo de tiro${tecSinCaballos(f) ? " o " + tecB("guerreros", f).n : ""}`,
+        };
   if (t === "c") return p.establo > 0 ? { ok: true, motivo: "" } : { ok: false, motivo: "requiere Establo" };
   if (!tecUnidadPropia(t, f)) return { ok: false, motivo: "no es de tu pueblo" };
-  const r = tecReqUnidad(t);
+  const r = tecReqUnidad(t, f);
   if ((p[r.edif] || 0) < r.nivel)
-    return { ok: false, motivo: `requiere ${tecB(r.edif).n} ${TEC_ROM[r.nivel]}` };
-  const an = tecAnioUnidad(t);
+    return { ok: false, motivo: `requiere ${tecB(r.edif, f).n} ${TEC_ROM[r.nivel]}` };
+  const an = tecAnioUnidad(t, f);
   if (!tecDesde(an)) return { ok: false, motivo: "desde el año " + an };
-  const doc = u.tec && TEC[u.tec] ? u.tec : r.elite ? TEC_ELITE[tecCat(t)] : null;
+  const doc = r.tec;
   if (doc && !tecRige(f, p, doc))
     return {
       ok: false,
@@ -753,8 +799,25 @@ function tecPuedeReclutar(f, p, t) {
 }
 /* Lista para la interfaz: todas las clases conocidas con su estado en la ciudad. */
 function tecReclutables(f, p) {
-  const ks = [...new Set([...(typeof TYP !== "undefined" ? TYP : TEC_CAT), ...Object.keys(UN)])];
-  return ks.filter((t) => tecUnidadPropia(t, f)).map((t) => ({ t, ...tecPuedeReclutar(f, p, t) }));
+  const ks =
+    typeof cmbRoster === "function"
+      ? cmbRoster(f)
+      : [...new Set([...(typeof TYP !== "undefined" ? TYP : TEC_CAT), ...Object.keys(UN)])];
+  return ks
+    .filter((t) => UN[t] && !UN[t].asedio && !UN[t].merc && tecUnidadPropia(t, f) && tecCivPuede(f, t))
+    .map((t) => ({ t, ...tecPuedeReclutar(f, p, t) }));
+}
+/* Lo que de verdad se recluta en la ciudad: lo que decide combate (fama, repertorio) o, si no está,
+   OC.calc('unidadesDisponibles') con su ciudad (tecnología + vetos de Mundo). */
+function tecReclutaAqui(f, p) {
+  if (typeof cmbDisp === "function") {
+    try {
+      return cmbDisp(f, p).ok;
+    } catch (e) {}
+  }
+  const base = tecReclutables(f, p).map((x) => x.t),
+    r = OC.calc("unidadesDisponibles", base.slice(), { f, p, motivos: {} });
+  return (Array.isArray(r) ? r : base).filter((t) => tecCivPuede(f, t));
 }
 
 /* ---------- puntos de investigación: los generan las ciudades ---------- */
@@ -789,7 +852,7 @@ function tecDisponible(f, id) {
   return (
     !!T &&
     !tecTiene(f, id) &&
-    (T.civ == null || T.civ === f) &&
+    tecParaCiv(f, T) &&
     T.req.every((x) => tecTiene(f, x)) &&
     (T.era == null || tecF(f).era >= T.era) &&
     (!T.saber || tecMejorEscuela(f) >= T.saber) &&
@@ -864,6 +927,8 @@ function tecMax(k, f, p) {
 function tecVisible(k, f, p) {
   const B = tecB(k);
   if (B.civ != null && B.civ !== f && !p[k]) return false;
+  if (B.caballo && tecSinCaballos(f) && !p[k]) return false;
+  if (B.sinCaballos && !tecSinCaballos(f) && !p[k]) return false;
   return !B.costa || tecCosta(p) || p[k] > 0;
 }
 function tecAnios(f, k, n) {
@@ -934,9 +999,14 @@ function tecEncolar(f, p, k) {
 }
 
 /* ---------- obras: adopción local de descubrimientos ---------- */
-const tecEnTxt = (T) => {
-  const en = [].concat(T.en || []);
-  return en.map((k) => tecB(k).n + (T.enN > 1 ? " " + TEC_ROM[T.enN] : "")).join(" o ");
+const tecEnTxt = (T, f) => {
+  const en = []
+    .concat(T.en || [])
+    .filter(
+      (k) =>
+        f == null || !((tecB(k).caballo && tecSinCaballos(f)) || (tecB(k).sinCaballos && !tecSinCaballos(f))),
+    );
+  return en.map((k) => tecB(k, f).n + (T.enN > 1 ? " " + TEC_ROM[T.enN] : "")).join(" o ");
 };
 function tecAdopcion(f, p, id) {
   const T = TEC[id],
@@ -948,7 +1018,7 @@ function tecAdopcion(f, p, id) {
   if (q.some((o) => o.ad === id)) return { ...r, motivo: "en curso" };
   const en = [].concat(T.en || []);
   if (en.length && !en.some((k) => (p[k] || 0) >= (T.enN || 1)))
-    return { ...r, motivo: "requiere " + tecEnTxt(T) };
+    return { ...r, motivo: "requiere " + tecEnTxt(T, f) };
   const c = { oro: 15 + T.c },
     mat = { mil: "hierro", eco: "madera" }[T.r] || "piedra";
   if (OC.recursos.some((x) => x.id === mat)) c[mat] = T.r === "mil" ? 4 : 3;
@@ -999,7 +1069,7 @@ function tecObras(f) {
     }
     if ((p[o.k] || 0) >= tecMax(o.k, f, p)) continue;
     p[o.k] = (p[o.k] || 0) + 1;
-    if (isMe(f)) addLog(`Concluye la obra en ${p.name}: ${tecB(o.k).n} ${TEC_ROM[p[o.k]]}.`, "good");
+    if (isMe(f)) addLog(`Concluye la obra en ${p.name}: ${tecB(o.k, f).n} ${TEC_ROM[p[o.k]]}.`, "good");
     OC.emitirSync("edificioConstruido", { f, p, id: o.k, nivel: p[o.k] });
   }
 }
@@ -1168,9 +1238,10 @@ OC.mod("statsUnidad", (st, x = {}) => {
 OC.mod("bonoBatalla", (v, x = {}) => {
   const b = tecBon(x.f);
   if (!b || typeof v !== "number") return;
-  const fuerte =
-    x.lado === "defensor" && x.p && x.p.owner === x.f && tecPerfil(x.p).id === "fuerte" ? 0.05 : 0;
-  return v * (1 + (b.bono[x.lado] || 0) + fuerte);
+  const casa = x.lado === "defensor" && x.p && x.p.owner === x.f;
+  let def = casa && tecPerfil(x.p).id === "fuerte" ? 0.05 : 0;
+  if (casa) for (const k in TEC_EDI) if (TEC_EDI[k].def && x.p[k] > 0) def += TEC_EDI[k].def;
+  return v * (1 + (b.bono[x.lado] || 0) + def);
 });
 OC.mod("costeUnidad", (v, x = {}) => {
   const b = tecListo(x.f) && tecTropas(x.f, x.p);
@@ -1239,7 +1310,7 @@ function tecResumen(p) {
 function tecLineaEdificios(p) {
   const l = tecEdificios()
     .filter((k) => p[k] > 0)
-    .map((k) => `${tecB(k).n} ${TEC_ROM[p[k]]}`);
+    .map((k) => `${tecB(k, p.owner).n} ${TEC_ROM[p[k]]}`);
   const per = G && G.tec ? tecPerfil(p) : null;
   return (
     (per && per.id !== "aldea" ? `${per.icono} ${per.nombre} · ` : "") +
@@ -1268,13 +1339,13 @@ OC.seccion("prov", {
       h += `<div class="tec-cola">${q
         .map(
           (o, i) =>
-            `<div class="tec-obra"><span>${o.ad ? "✎ <b>" + TEC[o.ad].n : "⚒ <b>" + tecB(o.k).n + " " + TEC_ROM[o.n]}</b><br><small>${i ? "en espera" : "faltan " + tecAnioTxt(o.a)}</small></span><button data-act="tecanu-${i}" ${dis ? "disabled" : ""} title="Se recupera la mitad de lo pagado">Cancelar</button></div>`,
+            `<div class="tec-obra"><span>${o.ad ? "✎ <b>" + TEC[o.ad].n : "⚒ <b>" + tecB(o.k, f).n + " " + TEC_ROM[o.n]}</b><br><small>${i ? "en espera" : "faltan " + tecAnioTxt(o.a)}</small></span><button data-act="tecanu-${i}" ${dis ? "disabled" : ""} title="Se recupera la mitad de lo pagado">Cancelar</button></div>`,
         )
         .join("")}</div>`;
     h += `<h3>Edificios</h3><div class="g2 tec-edis">${tecEdificios()
       .filter((k) => tecVisible(k, f, p))
       .map((k) => {
-        const B = tecB(k),
+        const B = tecB(k, f),
           m = tecMejora(f, p, k),
           sub = m.coste ? `${OC.textoCoste(m.pago || m.coste)} · ${tecAnioTxt(m.anios)}` : m.motivo;
         return `<button data-act="bld-${k}" class="tec-ed" ${dis || !m.ok ? "disabled" : ""} title="${esc(`${B.n}: ${B.ef}${B.max > 1 ? " por nivel" : ""}${m.motivo ? " (" + m.motivo + ")" : ""}`)}"><span>${B.n}</span>${tecPips(p, k, f)}<small>${sub}</small></button>`;
@@ -1300,17 +1371,13 @@ OC.seccion("prov", {
         })
         .join("")}</div>`;
     /* tropas */
-    const rc = tecReclutables(f, p),
-      nom = (t) => (CIV[f].un && CIV[f].un[t]) || UN[t].s;
+    const aqui = tecReclutaAqui(f, p),
+      nom = (t) => (CIV[f].un && CIV[f].un[t]) || UN[t].s,
+      /* los bloqueos con detalle ya los muestra «Reclutar» (combate); aquí, solo si no existe */
+      no = typeof cmbDisp === "function" ? [] : tecReclutables(f, p).filter((x) => !aqui.includes(x.t));
     h += `<h3>Tropas de esta ciudad</h3><p class="stats">Recluta: <b class="tec-ok">${
-      rc
-        .filter((x) => x.ok)
-        .map((x) => nom(x.t))
-        .join(", ") || "nada"
-    }</b>${rc
-      .filter((x) => !x.ok)
-      .map((x) => `<br>✗ ${nom(x.t)}: ${x.motivo}`)
-      .join("")}<br>Sus tropas: ${tecTropasTxt(f, p)}</p>`;
+      aqui.map(nom).join(", ") || "nada"
+    }</b>${no.map((x) => `<br>✗ ${nom(x.t)}: ${x.motivo || "no disponible"}`).join("")}<br>Sus tropas: ${tecTropasTxt(f, p)}</p>`;
     return h;
   },
 });
@@ -1318,7 +1385,8 @@ OC.accion("bld", (v) => {
   const p = G.P[sel];
   if (!p || p.owner !== ME || !tecB(v).t) return;
   const m = tecEncolar(ME, p, v);
-  if (m) addLog(`Comienzan las obras de ${tecB(v).n} ${TEC_ROM[m.n]} en ${p.name} (${tecAnioTxt(m.anios)}).`);
+  if (m)
+    addLog(`Comienzan las obras de ${tecB(v, ME).n} ${TEC_ROM[m.n]} en ${p.name} (${tecAnioTxt(m.anios)}).`);
 });
 OC.accion("tecado", (v) => {
   const p = G.P[sel];
@@ -1339,7 +1407,7 @@ OC.accion("tecanu", (v) => {
   for (const [id, c] of Object.entries(o.c || {})) dev[id] = Math.floor(c / 2);
   OC.ganar(ME, dev);
   addLog(
-    `Se abandona en ${p.name} ${o.ad ? "la implantación de «" + TEC[o.ad].n + "»" : "la obra de " + tecB(o.k).n}; se recupera ${OC.textoCoste(dev) || "nada"}.`,
+    `Se abandona en ${p.name} ${o.ad ? "la implantación de «" + TEC[o.ad].n + "»" : "la obra de " + tecB(o.k, ME).n}; se recupera ${OC.textoCoste(dev) || "nada"}.`,
   );
 });
 
@@ -1372,10 +1440,10 @@ function tecPanel(dis) {
     )
     .join("")}</div><div class="tec-lista">`;
   for (const id of Object.keys(TEC)
-    .filter((id) => TEC[id].r === tecRama && (TEC[id].civ == null || TEC[id].civ === ME))
+    .filter((id) => TEC[id].r === tecRama && tecParaCiv(ME, TEC[id]))
     .sort((a, b) => (TEC[a].anio || 0) - (TEC[b].anio || 0))) {
     const X = TEC[id],
-      amb = tecLocal(X) ? `ciudad · ${tecEnTxt(X)}` : "reino";
+      amb = tecLocal(X) ? `ciudad · ${tecEnTxt(X, ME)}` : "reino";
     if (tecTiene(ME, id)) {
       const n = tecLocal(X) ? own.filter((p) => tecAdoptada(p, id)).length : 0;
       h += `<div class="tec-t hecha"><span>✓ ${X.n}<b>${tecLocal(X) ? `${n}/${own.length} ciudades` : "todo el reino"}</b></span><small>${X.ef}</small></div>`;
