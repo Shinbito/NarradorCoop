@@ -393,6 +393,8 @@ function tecRenYac(y, p, k, L) {
     if (!q) continue;
     if (id === "oro") r.g = (r.g || 0) + 2 * L * q;
     else if (id === "plata") r.g = (r.g || 0) + 1.5 * L * q;
+    /* el estaño no es un recurso del almacén: se vende a los broncistas (oro) */
+    else if (id === "estano" && !OC.recursos.some((x) => x.id === "estano")) r.g = (r.g || 0) + 1 * L * q;
     else if (id in r || OC.recursos.some((x) => x.id === id)) r[id] = (+r[id] || 0) * (1 + 0.25 * L) + L * q;
   }
   return r;
