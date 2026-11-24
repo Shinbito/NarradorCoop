@@ -1,1 +1,77 @@
-/* estilos del sistema: batalla 3D */
+/* estilos del sistema: batalla 3D (vista isométrica ortográfica girable) */
+#b3dwrap {
+  position: relative;
+  display: none;
+  width: 100%;
+  aspect-ratio: 5 / 3;
+  max-height: 70vh;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: crosshair;
+  background: linear-gradient(180deg, #3f74b8 0%, #bcd8ec 70%);
+  outline: none;
+}
+#b3dwrap:focus-visible {
+  box-shadow: 0 0 0 3px var(--gold, #f2c14e);
+}
+#b3dwrap canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* «pixel 3D»: el lienzo WebGL se dibuja a baja resolución y se amplía sin suavizado */
+#b3dgl {
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+#b3dhud {
+  pointer-events: none;
+}
+#battle.b3d-on #b3dwrap {
+  display: block;
+}
+#battle.b3d-on #bscroll {
+  display: none;
+}
+.b3d-bar {
+  margin: 4px 0 0;
+}
+#battle:not(.b3d-on) .b3d-s {
+  display: none;
+}
+.b3d-bar button[aria-pressed="true"] {
+  color: #fff;
+  box-shadow:
+    inset -3px -3px 0 #1c252c,
+    inset 3px 3px 0 #52636f,
+    0 0 0 2px var(--gold, #f2c14e);
+}
+.b3d-bar button[data-b3d="izq"],
+.b3d-bar button[data-b3d="der"] {
+  font-size: 16px;
+  font-family: "Pixelify Sans", sans-serif;
+  min-width: 44px;
+}
+@media (max-width: 1000px) {
+  #b3dwrap {
+    max-height: 52vh;
+  }
+}
+@media (max-width: 640px) {
+  #b3dwrap {
+    aspect-ratio: 4 / 3;
+  }
+  .b3d-bar button {
+    flex: 1 1 auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .b3d-bar button {
+    transition: none;
+  }
+}

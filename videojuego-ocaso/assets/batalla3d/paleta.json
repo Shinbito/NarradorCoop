@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "vox": 0.04,
+  "figuras": {
+    "k": "#211c26",
+    "h": "#9ea3ad",
+    "H": "#e2e5ec",
+    "b": "#e3b48a",
+    "p": "#6b4a2a",
+    "n": "#7a4f2c",
+    "c": "#8a5a32",
+    "C": "#4a3020",
+    "w": "#d8d0c0",
+    "e": "#8a8f98",
+    "E": "#efe6cf",
+    "a": "#c9a46a",
+    "z": "#c08a3e",
+    "o": "#f2c14e",
+    "t": "#ece8dc",
+    "j": "#d9a53a",
+    "g": "#3f8a35",
+    "G": "#2f6b2a",
+    "y": "#58a648",
+    "R": "#8d8a82",
+    "s": "#7a1c14",
+    "F": "#c8402e",
+    "D": "#6a170e"
+  },
+  "terreno": {
+    "pasto": [
+      "#5a983f",
+      "#62a044",
+      "#4f8a37",
+      "#57923c"
+    ],
+    "bosque": [
+      "#3f7a30",
+      "#3a722c",
+      "#447f34"
+    ],
+    "colina": [
+      "#7c8850",
+      "#8a9658",
+      "#9aa060",
+      "#6f7a47"
+    ],
+    "lecho": [
+      "#3a5a6a",
+      "#2f4f60"
+    ],
+    "vado": [
+      "#8fa37a",
+      "#9aae84",
+      "#a3a585"
+    ],
+    "trigo": [
+      "#c9b458",
+      "#b39a42"
+    ],
+    "arado": [
+      "#8c6e3c",
+      "#7a5e32"
+    ],
+    "tierra": [
+      "#5b4330",
+      "#463326",
+      "#6a4e36"
+    ],
+    "agua": "#2f6fa8",
+    "aguaVado": "#6fa7c8",
+    "piedra": "#b7ad9a"
+  },
+  "cielo": {
+    "al alba": {
+      "a": "#33406e",
+      "b": "#f0a878",
+      "sol": "#ffc890",
+      "i": 2.2,
+      "el": 18,
+      "az": 120
+    },
+    "a media mañana": {
+      "a": "#3f74b8",
+      "b": "#bcd8ec",
+      "sol": "#fff2dc",
+      "i": 2.6,
+      "el": 52,
+      "az": 150
+    },
+    "por la tarde": {
+      "a": "#3b3058",
+      "b": "#f08a4a",
+      "sol": "#ffa860",
+      "i": 2.2,
+      "el": 22,
+      "az": 230
+    }
+  },
+  "tipos": {
+    "l": "l",
+    "i": "i",
+    "p": "p",
+    "h": "h",
+    "a": "a",
+    "x": "x",
+    "c": "c",
+    "k": "k",
+    "m": "m",
+    "ele": "ele",
+    "cam": "cam",
+    "car": "car",
+    "ari": "ari",
+    "tor": "tor",
+    "cat": "cat",
+    "com": "com",
+    "sif": "sif",
+    "esg": "esg",
+    "hpa": "hpa",
+    "cor": "cor",
+    "fca": "fca",
+    "inm": "inm",
+    "ber": "ber",
+    "jag": "jag",
+    "agu": "agu",
+    "bal": "bal",
+    "hop": "hop",
+    "mac": "mac",
+    "atl": "atl",
+    "fia": "fia",
+    "bos": "bos",
+    "kes": "kes"
+  },
+  "escala": {
+    "ele": 1.15,
+    "ari": 1.6,
+    "tor": 1.6,
+    "cat": 1.5,
+    "car": 1.05
+  }
+}
