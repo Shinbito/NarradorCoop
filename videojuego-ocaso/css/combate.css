@@ -191,3 +191,7 @@
 #modalc input#cmbnom {
   margin-top: 6px;
 }
+
+/* botón «A distancia» (icono de arco) */
+.ico-arco{display:inline-block;vertical-align:-3px;image-rendering:pixelated;margin-right:4px}
+#disb[hidden]{display:none}

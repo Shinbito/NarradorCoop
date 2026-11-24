@@ -1483,7 +1483,7 @@ function simStep(dt, slot) {
     else if (P.o && P.o.tg != null) {
       const t = bU(P.o.tg);
       if (t && fighting(t))
-        g = tirador(u)
+        g = tirador(u) && !P.o.cc
           ? { x: t.x, y: t.y, stop: alc(u) - 0.6 }
           : { x: t.x, y: t.y, stop: crd(u, t) - 0.05, p: 1 };
       else P.o = null;
@@ -2183,9 +2183,15 @@ function battleAct(v) {
     BT.sels = [+x];
     fixSlot();
   }
+  /* ⚔ = atacar cuerpo a cuerpo; arco = atacar a distancia (solo tropas con alcance) */
   if (a === "atk") {
-    BT.atk = !BT.atk;
+    BT.atk = BT.atk === true ? false : true;
     if (BT.atk && !selU().length) BT.atk = false;
+  }
+  if (a === "dis") {
+    BT.atk = BT.atk === "dis" ? false : "dis";
+    if (BT.atk && !selU().some(cmbPuedeTirar)) BT.atk = false;
+    if (BT.atk) bLog("Elige el blanco: toca una unidad enemiga para atacarla a distancia.");
   }
   if (a === "selall") {
     BT.sels = BT.units.filter((o) => !o.side && fighting(o)).map((o) => o.id);
@@ -2222,11 +2228,20 @@ function battleAct(v) {
   bui();
 }
 const bar = (v, c) => `<div class="bar"><i style="width:${clamp(v, 0, 100)}%;background:${c}"></i></div>`;
+/* Icono de arco en pixel art para el botón «A distancia» */
+const CMB_ICO_ARCO =
+  '<svg class="ico-arco" viewBox="0 0 10 10" width="16" height="16" shape-rendering="crispEdges" aria-hidden="true">' +
+  '<g fill="#c8894a"><rect x="2" y="0" width="2" height="1"/><rect x="1" y="1" width="2" height="1"/><rect x="1" y="2" width="1" height="6"/><rect x="1" y="8" width="2" height="1"/><rect x="2" y="9" width="2" height="1"/></g>' +
+  '<g fill="#e8e2d0"><rect x="3" y="1" width="1" height="8"/></g>' +
+  '<g fill="#f2c14e"><rect x="4" y="4" width="5" height="1"/><rect x="8" y="3" width="1" height="3"/><rect x="7" y="2" width="1" height="1"/><rect x="7" y="6" width="1" height="1"/></g></svg>';
+/* ¿la unidad puede disparar (tiene alcance)? aunque se haya quedado sin munición */
+const cmbPuedeTirar = (u) => !!(u && u.cs && u.cs.al > 0);
 function ordTxt(o) {
   if (!o) return "Quieto";
   if (o.tg != null) {
     const t = bU(o.tg);
-    return t ? "Atacar " + CIV[t.f].un[t.t].toLowerCase() : "Atacar";
+    const nm = t ? " " + CIV[t.f].un[t.t].toLowerCase() : "";
+    return (o.dis ? "Disparar a" : o.cc ? "Cargar contra" : "Atacar") + nm;
   }
   return "Marchar";
 }
@@ -2268,7 +2283,15 @@ const cmbMini = (o) =>
 function bui() {
   if (!BT) return;
   const ab = $("atkb");
-  if (ab) ab.classList.toggle("on", !!BT.atk);
+  if (ab) ab.classList.toggle("on", BT.atk === true);
+  const db = $("disb");
+  if (db) {
+    const tir = BT.phase !== "deploy" && selU().some(cmbPuedeTirar);
+    db.hidden = !tir;
+    db.classList.toggle("on", BT.atk === "dis");
+    db.disabled = !tir || !selU().some((x) => cmbPuedeTirar(x) && x.ammo > 0);
+    db.title = db.disabled && tir ? "Sin munición" : "Atacar a distancia: elige la tropa enemiga";
+  }
   const me = BT.units.filter((u) => !u.side && act(u)),
     u = bU(BT.sel),
     c = $("bside"),
@@ -2287,6 +2310,8 @@ function bui() {
       h += `<h3>${SG.length > 1 ? "Principal: " : ""}${CIV[u.f].un[u.t]} · ${u.n}/${u.n0}${u.gen ? " · ⚑ general" : ""}${u.rout ? " · ¡HUYENDO!" : ""}</h3>
   <div class="stats">${cmbInfo(u.t).tag} · ${cmbNivelVet(u.cs.xp).toLowerCase()} · ${cmbEstado(u)}<br>Ataque ${Math.round(u.cs.me * fm * 10) / 10}${u.cs.ca ? " · carga " + u.cs.ca : ""} · Defensa ${Math.round(u.cs.de * 10) / 10} · Armadura ${u.cs.ar}${u.cs.al ? ` · munición ${u.ammo}/${u.cs.mu}` : ""} · heridos ${u.her}</div>
   <div class="stats">Moral</div>${bar((u.mor / u.morMax) * 100, u.mor < u.morMax * 0.35 ? "#e0503f" : "#5b97f0")}<div class="stats">Cansancio</div>${bar(u.fat, "#e8b632")}`;
+      if (cmbPuedeTirar(u) && !u.rout)
+        h += `<div class="btns"><button data-act="b-dis" class="${BT.atk === "dis" ? "on" : ""}" ${u.ammo > 0 ? "" : "disabled"} title="Elige una tropa enemiga para atacarla a distancia">${CMB_ICO_ARCO} A distancia</button><button data-act="b-atk" class="${BT.atk === true ? "on" : ""}" title="Cargar cuerpo a cuerpo">⚔ Cuerpo a cuerpo</button></div>`;
       const n = BT.mode === "t3" ? 3 : 1;
       for (let i = 0; i < n; i++) {
         const p = u.plan[i];
@@ -2423,10 +2448,20 @@ function orderGroup(o) {
   if (!us.length || !canOrder()) return;
   const sl = BT.mode === "t3" ? BT.slot : 0;
   if (o.tg != null) {
-    us.forEach((u) => setOrder(u, { tg: o.tg }, sl));
-    const t = bU(o.tg);
+    /* a distancia: solo obedecen las tropas que pueden tirar; el resto sigue con su orden */
+    const quien = o.dis ? us.filter(cmbPuedeTirar) : us;
+    quien.forEach((u) => {
+      const ord = { tg: o.tg };
+      if (o.dis) ord.dis = 1;
+      else if (o.cc && cmbPuedeTirar(u)) ord.cc = 1;
+      setOrder(u, ord, sl);
+    });
+    const t = bU(o.tg),
+      nm = CIV[t.f].un[t.t].toLowerCase();
     bLog(
-      `${us.length > 1 ? us.length + " unidades atacan" : "Orden de ataque contra"} ${CIV[t.f].un[t.t].toLowerCase()}.`,
+      o.dis
+        ? `${quien.length > 1 ? quien.length + " unidades disparan" : "Orden de disparar"} contra ${nm}.`
+        : `${quien.length > 1 ? quien.length + " unidades atacan" : "Orden de ataque contra"} ${nm}.`,
     );
   } else {
     const cx = us.reduce((s, u) => s + u.x, 0) / us.length,
@@ -2470,7 +2505,7 @@ function tapAt(x, y, shift) {
   }
   if (!selU().length || !canOrder()) return;
   if (hit && hit.side) {
-    orderGroup({ tg: hit.id });
+    orderGroup({ tg: hit.id, cc: BT.atk === true ? 1 : 0, dis: BT.atk === "dis" ? 1 : 0 });
     return;
   }
   if (BT.atk) {
