@@ -185,3 +185,4 @@ Al cerrar una estación (un jugador o online) el jugador ve, a velocidad acelera
   Tope razonable de pasos (p.ej. 2000; si se supera, se resumen los movimientos de la IA lejana).
 - **Interfaz** reproduce con `ifzRepetir(rep)`: dibuja el mapa con `own0` y los ejércitos de `ej0` y aplica los pasos animados (rápido: unos 15-40 s por estación según la cantidad, con botones Saltar y ×2), luego vuelve al estado real.
 - **Online** llama a `ifzRepetir(G.cam.rep)` al recibir una estación resuelta (y el que resuelve también la ve); en un jugador se llama tras la estación si hubo movimientos (opción para desactivarla).
+- **Campaña** emite `repeticionLista` (rep) al CERRAR `G.cam.rep` (tras lo anual y las marchas pendientes, al final de `camNuevaEstacion`): es el momento de lanzar `ifzRepetir`.

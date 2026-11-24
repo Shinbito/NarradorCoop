@@ -628,7 +628,7 @@ const ok = (c, m) => {
         if (!camEsBosque(x, y) || !libre(x, y) || !lejosDe(x, y, G.P, 4)) continue;
         const pX = CAM_V8.map(([dx, dy]) => [x + 2 * dx, y + 2 * dy]).find(([a, b]) => libre(a, b) && camPaso(A, G.P[MAP.grid[b][a]].owner) && !camEsBosque(a, b));
         if (!pX) continue;
-        const pW = CAM_V8.map(([dx, dy]) => [pX[0] + 2 * dx, pX[1] + 2 * dy]).find(([a, b]) => libre(a, b) && MAP.terr[b][a] === 1 && !camEsBosque(a, b) && !(a === x && b === y) && camCheb(a, b, x, y) >= 2);
+        const pW = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => [pX[0] + 2 * dx, pX[1] + 2 * dy]).find(([a, b]) => libre(a, b) && MAP.terr[b][a] === 1 && !camEsBosque(a, b) && !(a === x && b === y) && camCheb(a, b, x, y) >= 2);
         if (!pW) continue;
         const Dx = camDijkstra({ id: -1, f: A, x: pX[0], y: pX[1], u: { i: 1 } }, { presu: 30, sinZoc: true });
         if (!camPaso(A, G.P[MAP.grid[pW[1]][pW[0]]].owner) || !Number.isFinite(Dx.dist[camIdx(pW[0], pW[1])]) || !Number.isFinite(Dx.dist[camIdx(x, y)])) continue;
@@ -720,8 +720,8 @@ const ok = (c, m) => {
     const t0 = Date.now();
     await corre(`
       /* el jugador se defiende: recluta en su capital */
-      const cap = G.P[G.F[ME].capId];
-      if (cap && cap.owner === ME) { cap.u.i += 2; G.F[ME].gold = Math.max(G.F[ME].gold, 80); }
+      const cap = G.P[G.F[ME].capId] && G.P[G.F[ME].capId].owner === ME ? G.P[G.F[ME].capId] : owned(ME)[0];
+      if (cap && cap.owner === ME) { cap.u.i += owned(ME).length <= 3 ? 8 : 2; if (owned(ME).length <= 2) cap.walls = Math.max(cap.walls || 0, 2); G.F[ME].gold = Math.max(G.F[ME].gold, 80); }
       await yearEnd();
     `);
     tiempos.push(Date.now() - t0);

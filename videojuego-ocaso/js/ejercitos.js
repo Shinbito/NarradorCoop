@@ -65,6 +65,18 @@ function camRepIni() {
 function camRep(o) {
   const r = G && G.cam && G.cam.rep;
   if (!r || r.fin) return;
+  /* niebla: vh = jugadores humanos que llegan a ver el paso (la repetición de cada uno solo muestra esos) */
+  if (typeof camNieblaOn === "function" && camNieblaOn() && G.human && ["mov", "ej+", "bat", "esp", "esp-"].includes(o.k)) {
+    const e = o.ej != null ? camEj(o.ej) : null;
+    o.vh = G.human.filter(
+      (h) =>
+        h < NF &&
+        ((o.f != null && camSocio(h, o.f)) ||
+          (o.k === "mov" && ((e && camVeEj(h, e)) || camVisible(h, o.de[0], o.de[1]))) ||
+          (o.k === "ej+" && e && camVeEj(h, e)) ||
+          (o.k === "bat" && (camVisible(h, o.x, o.y) || (o.fs || []).some((f) => camSocio(h, f))))),
+    );
+  }
   const P = r.pasos;
   if (P.length >= CAM_REP_TOPE && o.k === "mov") {
     /* pasado el tope, los pasos de marcha de un ejército se resumen en uno (su último tramo) */
@@ -1592,7 +1604,7 @@ async function camDarPaso(ej, j, o = {}) {
   /* animación: la interfaz interpola de (x0, y0) a la casilla nueva durante dur ms (solo con o.anim) */
   const x0r = ej.x,
     y0r = ej.y;
-  ej.anim = o.anim && !reduce ? { x0: ej.x, y0: ej.y, t0: performance.now(), dur: Math.round((o.lento ? 90 : 55) * camVel()) } : null;
+  ej.anim = o.anim && !reduce ? { x0: ej.x, y0: ej.y, t0: performance.now(), dur: typeof ifzPasoMs === "function" ? ifzPasoMs() : Math.round((o.lento ? 90 : 55) * camVel()) } : null;
   ej.x = x;
   ej.y = y;
   camRep({ k: "mov", ej: ej.id, f, de: [x0r, y0r], a: [x, y] });
@@ -1875,6 +1887,11 @@ async function camNuevaEstacion() {
       await camAplicarOrden(G, { tipo: "mover", f: e.f, ej: e.id, x: pl.x, y: pl.y, luego: pl.luego, p: pl.p, con: pl.con }, {});
     }
   camRepCerrar();
+  /* la repetición está completa (incluye lo anual y las marchas pendientes): la interfaz puede mostrarla */
+  if (S.rep && S.rep.fin && !S.rep.avisada) {
+    S.rep.avisada = true;
+    await OC.emitir("repeticionLista", S.rep);
+  }
   camTocar();
 }
 /* estado que resulta de aplicar los pasos de una repetición (hasta el paso n): {own:[], ej: Map id→{f,x,y,n}} */
