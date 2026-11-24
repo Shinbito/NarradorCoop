@@ -170,3 +170,16 @@ por estación; economía, investigación y eventos siguen siendo anuales (al cer
 - Economía cobra en su balance anual solo lo que campaña no cobra por estación (`b.gAnual`, `b.netAnual`); las tropas `merc` no pagan soldada por `ecoMant` (las paga su contrato). `ecoSaqueo(p, fr, orden)` aplica un saqueo y devuelve el botín.
 - Combate acepta en `ctx`: `dificultad` (`"dificil"`: IA de batalla más hábil, la usa el online cuando falta un jugador), `onl` y `onlRes` (batallas en vivo entre jugadores; ver docs/online.md).
 - Personajes muertos hace más de 5 años se compactan a un esbozo (`id, n, f, sex, age, fa, mo, sp, tr, alive, dm, linaje, rol`): no leas otros campos de muertos antiguos.
+
+## 9. Repetición de la estación (replay)
+
+Al cerrar una estación (un jugador o online) el jugador ve, a velocidad acelerada, cada movimiento y cómo cambia el mapa.
+- **Campaña** graba durante la resolución en `G.cam.rep` (se vacía al empezar cada estación; viaja en el estado online):
+  `{ v: 1, anio, est, own0: [dueño de cada provincia al empezar], ej0: [{id, f, x, y, n}], pasos: [...] }` con pasos en orden:
+  - `{k:'mov', ej, f, de:[x,y], a:[x,y]}` un paso de marcha
+  - `{k:'ej+', ej, f, x, y, n}` ejército formado · `{k:'ej-', ej, motivo}` disuelto, deshecho o resguardado
+  - `{k:'bat', x, y, fs:[facciones], gana, lugar}` batalla · `{k:'ase', p, f, fase:'ini'|'fin'}` asedio
+  - `{k:'con', p, de, a}` cambio de dueño de una provincia (conquista, revuelta, rendición)
+  Tope razonable de pasos (p.ej. 2000; si se supera, se resumen los movimientos de la IA lejana).
+- **Interfaz** reproduce con `ifzRepetir(rep)`: dibuja el mapa con `own0` y los ejércitos de `ej0` y aplica los pasos animados (rápido: unos 15-40 s por estación según la cantidad, con botones Saltar y ×2), luego vuelve al estado real.
+- **Online** llama a `ifzRepetir(G.cam.rep)` al recibir una estación resuelta (y el que resuelve también la ve); en un jugador se llama tras la estación si hubo movimientos (opción para desactivarla).
