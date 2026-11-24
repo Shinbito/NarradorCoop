@@ -92,12 +92,18 @@ fs.mkdirSync(capt, { recursive: true });
           console.error("mundo-accion", e);
         }
       });
-      const fin = await page.$("#endb:not([disabled])");
-      if (fin) await fin.click();
-      for (let k = 0; k < 600; k++) {
+      /* con estaciones, un clic puede avanzar solo una estación: seguir hasta que cambie el año */
+      const y0 = await page.evaluate(() => G.year);
+      for (let e = 0; e < 8; e++) {
         await cerrarModales();
-        if (!(await page.evaluate(() => typeof busy !== "undefined" && busy))) break;
-        await page.waitForTimeout(80);
+        const fin = await page.$("#endb:not([disabled])");
+        if (fin) await fin.click();
+        for (let k = 0; k < 600; k++) {
+          await cerrarModales();
+          if (!(await page.evaluate(() => typeof busy !== "undefined" && busy))) break;
+          await page.waitForTimeout(80);
+        }
+        if (await page.evaluate((y0) => !G || G.over || G.year > y0, y0)) break;
       }
       if (cada) await cada(y);
       if (await page.evaluate(() => !G || G.over || !alive(ME))) break;
