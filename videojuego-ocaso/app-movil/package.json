@@ -1,0 +1,19 @@
+{
+  "name": "ocaso-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "App de Android (y proyecto iOS) de Ocaso del Imperio con Capacitor",
+  "scripts": {
+    "copiar-web": "node copiar-web.js",
+    "android": "npm run copiar-web && npx cap add android && node iconos-android.js && npx cap sync android",
+    "sync": "npm run copiar-web && npx cap sync"
+  },
+  "dependencies": {
+    "@capacitor/android": "6.2.1",
+    "@capacitor/core": "6.2.1",
+    "@capacitor/ios": "6.2.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "6.2.1"
+  }
+}

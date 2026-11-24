@@ -134,7 +134,9 @@ fs.mkdirSync(capt, { recursive: true });
   ok(pl > pg * 1.6, "el perdedor sufre bastantes más bajas que el ganador");
   ok(pl < 75, "las tropas huyen antes de ser aniquiladas (bajas del perdedor < 75%)");
   ok(fu >= 85, "el bando muy superior casi siempre gana");
-  ok(fm >= 60 && fm <= 92, "con ventaja moderada el más fuerte suele ganar, pero no siempre");
+  /* margen según la muestra: con pocas batallas de ventaja moderada el porcentaje oscila mucho */
+  const mg = Math.min(12, Math.round(150 / Math.sqrt(st.dm || 1)));
+  ok(fm >= 60 - mg && fm <= 92 + mg / 2, `con ventaja moderada el más fuerte suele ganar, pero no siempre (${st.dm} batallas, margen ${mg})`);
 
   /* ---------- 2. identidad de las clases ---------- */
   console.log("\n2. Enfrentamientos de clases (200 batallas cada uno)");

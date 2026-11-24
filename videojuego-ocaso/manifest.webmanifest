@@ -1,0 +1,30 @@
+{
+ "name": "Ocaso del Imperio",
+ "short_name": "Ocaso",
+ "description": "Gran estrategia por turnos: dinastías, ejércitos y el ocaso de los imperios.",
+ "lang": "es",
+ "start_url": "./",
+ "scope": "./",
+ "display": "fullscreen",
+ "orientation": "any",
+ "background_color": "#12171c",
+ "theme_color": "#12171c",
+ "icons": [
+  {
+   "src": "iconos/icono-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "iconos/icono-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "iconos/icono-512-mask.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
