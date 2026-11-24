@@ -240,11 +240,7 @@ function menuOpcionesHtml(av) {
     h += mpSi("silencio", "Silenciar todo");
     h += mpVol("volGeneral", "Volumen general") + mpVol("volMusica", "Música") + mpVol("volEfectos", "Efectos (espadas, flechas, caballos…)") + mpVol("volVoces", "Gritos y voces") + mpVol("volAmbiente", "Ambiente (viento, batalla lejana)");
   } else {
-    {
-      const bb = typeof B3D !== "undefined" ? B3D.pref.barras !== false : true,
-        b = (v, t) => `<button data-mp="barras" data-val="${v}" class="${bb === v ? "on" : ""}" aria-pressed="${bb === v}">${t}</button>`;
-      h += `<div class="mp-fila"><span>Cifras sobre los pelotones</span><div class="mp-ops" role="group" aria-label="Cifras sobre los pelotones">${b(true, "Sí")}${b(false, "No")}</div></div>`;
-    }
+    h += mpSi("barras", "Cifras sobre los pelotones");
     h += mpSi("relieveMapa", "Relieve en el mapa de campaña");
     h += mpSel(
       "fps",
@@ -304,19 +300,6 @@ function menuClic(e) {
     menuCerrar();
     openStart("home");
     return;
-  }
-  if (k === "barras") {
-    if (typeof B3D === "undefined") return;
-    B3D.pref.barras = b.dataset.val === "true";
-    if (typeof b3dGuardar === "function") b3dGuardar();
-    return menuPintar();
-  }
-  if (k === "vista") {
-    if (typeof B3D === "undefined") return;
-    B3D.pref.vista = ["iso", "3d", "2d"].includes(b.dataset.val) ? b.dataset.val : "iso";
-    if (typeof b3dGuardar === "function") b3dGuardar();
-    if (B3D.pref.vista !== "3d" && typeof b3dDesmontar === "function" && BT && B3D.scene) b3dDesmontar();
-    return menuPintar();
   }
   if (k.startsWith("o-")) {
     const clave = k.slice(2);
@@ -389,34 +372,9 @@ function menuAplicarTexto() {
 function menuAplicarRelieve() {
   if (typeof relPoner === "function" && typeof REL !== "undefined" && REL.on !== !!OPC.v.relieveMapa) relPoner(!!OPC.v.relieveMapa);
 }
-/* calidad de la batalla 3D: el preajuste de batalla3d.js con los ajustes sueltos encima */
-function b3dCal() {
-  /* el botón «Calidad» de la barra de batalla cambia B3D.pref.cal: la opción lo sigue */
-  if (typeof B3D !== "undefined" && B3D_CAL[B3D.pref.cal] && OPC.v.calidad !== B3D.pref.cal) {
-    OPC.v.calidad = B3D.pref.cal;
-    OPC.guardar();
-  }
-  const base = typeof B3D_CAL !== "undefined" ? B3D_CAL[B3D.pref.cal] || B3D_CAL.media : {},
-    c = { ...base },
-    v = OPC.v;
-  if (!v.sombras) c.sombras = 0;
-  else if (!v.sombrasSuaves && c.sombras) c.sombras = Math.min(c.sombras, 1024);
-  c.suaves = !!v.sombrasSuaves;
-  c.px = (c.px || 2) / clamp(+v.resolucion || 1, 0.5, 1);
-  c.fig = Math.round((c.fig || 4000) * ({ alta: 1, media: 0.6, baja: 0.35 }[v.figuras] || 1));
-  c.arboles = { alta: 2, media: 1, baja: 1 }[v.vegetacion] || c.arboles;
-  c.vegPoca = v.vegetacion === "baja";
-  if (!v.efectos) c.lluvia = 0;
-  c.niebla = v.niebla3d !== false;
-  return c;
-}
 OPC.on(({ clave }) => {
   if (clave === "texto") menuAplicarTexto();
   if (clave === "relieveMapa") menuAplicarRelieve();
-  if (clave === "calidad" && typeof B3D !== "undefined" && B3D_CAL[OPC.v.calidad]) {
-    B3D.pref.cal = OPC.v.calidad;
-    if (typeof b3dGuardar === "function") b3dGuardar();
-  }
 });
 menuAplicarTexto();
 /* el relieve de campaña sigue a la opción (si el jugador lo apagó con el botón, la opción se actualiza) */
@@ -458,22 +416,4 @@ if (typeof REL !== "undefined") {
       return menuDB0.apply(this, arguments);
     };
   }
-}
-
-/* cámara de batalla isométrica fija: no gira (ni con botones, teclas Q/E o dos dedos) y vuelve al ángulo de siempre */
-{
-  const fija = () => typeof OPC !== "undefined" && OPC.v.camaraFija;
-  for (const n of ["b3dGira", "b3dGiraLibre"])
-    if (typeof window[n] === "function") {
-      const f0 = window[n];
-      window[n] = function () {
-        if (fija()) return;
-        return f0.apply(this, arguments);
-      };
-    }
-  OPC.on(({ clave }) => {
-    if (clave !== "camaraFija" || typeof B3D === "undefined" || !B3D.cam) return;
-    if (fija() && typeof b3dReinicia === "function") b3dReinicia();
-    if (typeof b3dBarra === "function" && B3D.bar) b3dBarra();
-  });
 }

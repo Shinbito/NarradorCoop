@@ -835,7 +835,7 @@ const camApoya = (e, otros) => e.apoyo == null || e.apoyo === "siempre" || (e.ap
 async function camReunir(A, D, x, y, o = {}) {
   const cand = camCandidatos(A, D, x, y),
     lados = [[A], [D]],
-    bctx0 = { fort: D.est === "campamento" ? CAM_K.fortCampo : 0, terreno: camTerrCasilla(x, y), p: G.P[camPid(x, y)] || null, est: true };
+    bctx0 = { fort: D.est === "campamento" ? CAM_K.fortCampo : 0, campo: D.est === "campamento", terreno: camTerrCasilla(x, y), p: G.P[camPid(x, y)] || null, est: true };
   for (const s of [0, 1]) {
     const mios = cand[s].filter((e) => isMe(e.f) && !net.on && !o.auto),
       solos = cand[s].filter((e) => !mios.includes(e));
@@ -984,7 +984,7 @@ async function camChoqueConjunto(lados, x, y, p, o = {}) {
     n = lados[0].length + lados[1].length,
     bctx = {
       terreno: camTerrCasilla(x, y),
-      fort: D.est === "campamento" ? CAM_K.fortCampo : 0,
+      fort: D.est === "campamento" ? CAM_K.fortCampo : 0, campo: D.est === "campamento",
       p,
       x,
       y,
@@ -1053,7 +1053,7 @@ async function camChoque(A, D, o = {}) {
   }
   const bctx = {
       terreno: camTerrCasilla(x, y),
-      fort: D.est === "campamento" ? CAM_K.fortCampo : 0,
+      fort: D.est === "campamento" ? CAM_K.fortCampo : 0, campo: D.est === "campamento",
       p,
       x,
       y,

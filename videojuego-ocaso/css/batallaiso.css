@@ -1,0 +1,30 @@
+/* estilos de la batalla isométrica (js/batallaiso.js) */
+/* vista isométrica (js/batallaiso.js): mismo hueco que la 3D */
+#bisowrap {
+  position: relative;
+  display: none;
+  width: 100%;
+  aspect-ratio: 8 / 5;
+  max-height: 70vh;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: crosshair;
+  background: #7d8a3a;
+  outline: none;
+}
+#bisowrap canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+#battle.biso-on #bisowrap {
+  display: block;
+}
+#battle.biso-on #bscroll {
+  display: none;
+}

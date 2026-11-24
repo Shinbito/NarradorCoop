@@ -15,8 +15,7 @@
      zona de despliegue, cifras de cada pelotón.
    - Mandos: los de la vista clásica (tocar, arrastrar una unidad, pulsación larga, recuadro), traducidos del
      rombo al campo; arrastrar el terreno desplaza la vista; rueda o pellizco: zoom (el mismo zoom de la batalla).
-   Botón «Vista» de la barra (isométrica → 3D → clásica) y Opciones · Vídeo. B3D.pref.vista: 'iso' | '3d' | '2d'
-   (sin elegir: isométrica). Globales con prefijo iso / ISOB. */
+   Es la única vista de batalla. Cifras sobre los pelotones: OPC.v.barras. Globales con prefijo iso / ISOB. */
 const ISOB = { ok: false, img: null, tin: null, spr: {}, wrap: null, cv: null, x: null, cam: { x: 40, y: 25 }, btId: null, est: [], fig: [], suelo: null, drag: null, pts: new Map(), dpr: 1 };
 const ISO_BASE = 56; /* ancho de una casilla en pantalla con el zoom de batalla al 100 % (los dibujos están hechos para 120) */
 
@@ -103,8 +102,8 @@ function isoSil(s, col) {
 }
 
 /* ---------- ¿qué vista? ---------- */
-/* la batalla se ve SIEMPRE en isométrica (decisión de diseño: el jugador no elige). La 3D y la clásica quedan
-   como respaldo si los dibujos no cargan, y para las pruebas (window.ISO_APAGADA). */
+/* la batalla se ve SIEMPRE en isométrica (decisión de diseño: el jugador no elige). La vista clásica de
+   batalla.js queda solo de respaldo si los dibujos no cargan (y para pruebas: window.ISO_APAGADA). */
 function isoActiva() {
   return !!BT && ISOB.ok && !window.ISO_APAGADA;
 }
@@ -133,6 +132,18 @@ function isoCalza(s, pa, PA, pb, PB) {
   return { k, x: PA[0] - s[pa][0] * k, y: PA[1] - s[pa][1] * k };
 }
 
+/* el tramo de muralla o empalizada que va en una orientación: entre «dir1», «dir2» (y sus variantes «b»),
+   el que baja hacia la derecha (ori 1) o sube (ori 2) */
+function isoTramo(base, ori, col) {
+  if (!base) return null;
+  for (const n of ["dir1", "dir2", "dir1b", "dir2b"]) {
+    const t = isoSpr(base + n, col);
+    if (!t) continue;
+    const baja = t.l[1] < t.r[1];
+    if ((ori === 1) === baja) return t;
+  }
+  return null;
+}
 /* ---------- el escenario (una vez por batalla): lo que está de pie ---------- */
 const isoH = (a, b) => {
   const s = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453;
@@ -169,7 +180,20 @@ function isoEscenario() {
       else if (t !== 3 && t !== 4 && isoH(tx * 5, ty * 7) < 0.05 && !(MU && cercaMU(tx, ty, 6)))
         E.push({ n: ["E_hierba1", "E_hierba2", "E_arbusto1", "E_arbusto2", "E_roca1", "E_hierba3"][(isoH(tx, ty * 2) * 6) | 0], fx: tx + 0.5, fy: ty + 0.5, d: tx + ty + 1, k: 0.55 });
     }
-  if (MU) isoCiudad(E, MU);
+  if (MU && BT.ctx && BT.ctx.campo) isoCampamento(E, MU);
+  else if (MU) isoCiudad(E, MU);
+  if (!MU || (BT.ctx && BT.ctx.campo)) {
+    /* ruinas en el paisaje de fuera, cerca de la línea roja (no estorban a la batalla) */
+    const RU = ["R_casa", "R_templo", "R_muralla", "R_torre", "R_granja", "R_carro", "R_escombros"],
+      n = 2 + ((isoH(BW * 7 + (BT.t0 || 1), BH) * 4) | 0);
+    for (let k = 0; k < n; k++) {
+      const a = isoH(k * 13.7, 3.1) * Math.PI * 2,
+        tx = Math.round(BW / 2 + Math.cos(a) * (BW / 2 + 3 + isoH(k, 9) * 5)),
+        ty = Math.round(BH / 2 + Math.sin(a) * (BH / 2 + 3 + isoH(9, k) * 4));
+      if (ISOB.terr(tx, ty) === 3) continue;
+      E.push({ lote: 1, n: RU[(isoH(k, 5) * RU.length) | 0], bx: tx, by: ty, t: 2, d: tx + ty + 4, tapa: true });
+    }
+  }
   ISOB.est = E;
   ISOB.suelo = null;
 }
@@ -188,13 +212,13 @@ function isoCiudad(E, MU) {
       [MU.y0, "N"],
       [MU.y1, "S"],
     ])
-      E.push({ muro: 1, n: puerta(tx, ly, l) ? W("p_cerrada") : W("dir1"), pu: puerta(tx, ly, l), a: [tx, ly], b: [tx + 1, ly], ori: 1, d: tx + ly + 0.5, col, tapa: true });
+      E.push({ muro: 1, n: puerta(tx, ly, l) ? W("p_cerrada") : W("dir1"), base: W(""), pu: puerta(tx, ly, l), a: [tx, ly], b: [tx + 1, ly], ori: 1, d: tx + ly + 0.5, col, tapa: true });
   for (let ty = MU.y0; ty < MU.y1; ty++)
     for (const [lx, l] of [
       [MU.x0, "O"],
       [MU.x1, "E"],
     ])
-      E.push({ muro: 1, n: puerta(lx, ty, l) ? W("p_cerrada") : W("dir2"), pu: puerta(lx, ty, l), a: [lx, ty + 1], b: [lx, ty], ori: 2, d: lx + ty + 0.5, col, tapa: true });
+      E.push({ muro: 1, n: puerta(lx, ty, l) ? W("p_cerrada") : W("dir2"), base: W(""), pu: puerta(lx, ty, l), a: [lx, ty + 1], b: [lx, ty], ori: 2, d: lx + ty + 0.5, col, tapa: true });
   /* torres en la línea de la muralla (y en las esquinas) */
   const tor = [...MU.torres.map((t) => [t.x, t.y]), [MU.x0, MU.y0], [MU.x1, MU.y0], [MU.x0, MU.y1], [MU.x1, MU.y1]],
     vistas = new Set();
@@ -284,17 +308,49 @@ function isoCiudad(E, MU) {
   });
 }
 
+/* el campamento del defensor: empalizada de estacas en el recinto (con hueco en las entradas), tiendas
+   dentro, la del general y el estandarte en el centro */
+function isoCampamento(E, MU) {
+  const def = BT.ejs && BT.ejs[BT.map ? BT.map[BT.def] : 1],
+    col = def && CIV[def.f] ? CIV[def.f].c : "#888888",
+    puerta = (tx, ty, l) => MU.puertas.some((q) => q.l === l && (l === "N" || l === "S" ? q.x - tx > -0.01 && q.x - tx <= 0.99 : q.y - ty > -0.01 && q.y - ty <= 0.99));
+  for (let tx = MU.x0; tx < MU.x1; tx++)
+    for (const [ly, l] of [
+      [MU.y0, "N"],
+      [MU.y1, "S"],
+    ])
+      if (!puerta(tx, ly, l)) E.push({ muro: 1, n: "K_emp_dir1", base: "K_emp_", a: [tx, ly], b: [tx + 1, ly], ori: 1, d: tx + ly + 0.5, col, tapa: true });
+  for (let ty = MU.y0; ty < MU.y1; ty++)
+    for (const [lx, l] of [
+      [MU.x0, "O"],
+      [MU.x1, "E"],
+    ])
+      if (!puerta(lx, ty, l)) E.push({ muro: 1, n: "K_emp_dir2", base: "K_emp_", a: [lx, ty + 1], b: [lx, ty], ori: 2, d: lx + ty + 0.5, col, tapa: true });
+  const cx = Math.round(MU.cx),
+    cy = Math.round(MU.cy);
+  for (let by = MU.y0 + 1; by + 2 <= MU.y1 - 1; by += 2)
+    for (let bx = MU.x0 + 1; bx + 2 <= MU.x1 - 1; bx += 2) {
+      if (Math.abs(bx + 1 - cx) < 2.5 && Math.abs(by + 1 - cy) < 2.5) continue;
+      if (isoH(bx * 3, by * 5) > 0.55) continue;
+      E.push({ lote: 1, n: isoH(bx, by) < 0.3 ? "K_tienda_med" : "K_tienda_peq", bx, by, t: 2, d: bx + by + 4, col, tapa: true, esc: 0.8 });
+    }
+  E.push({ lote: 1, n: "K_tienda_gen", bx: cx - 1, by: cy - 1, t: 2, d: cx + cy + 2, col, tapa: true });
+  E.push({ fx: cx + 1.3, fy: cy + 1.3, n: "K_estandarte", d: cx + cy + 3, k: 0.7, col });
+}
 /* ---------- el suelo, cacheado ---------- */
 function isoSueloTile(tx, ty) {
   const v = (isoH(tx, ty) * 4) | 0,
     MU = ISOB.mu,
     t = ISOB.terr(tx, ty);
-  if (MU && ISOB.dentroMU(tx, ty)) return Math.abs(tx + 0.5 - MU.cx) < 1 || Math.abs(ty + 0.5 - MU.cy) < 1 ? "F_calzada_" + v : "F_tierra_" + v;
+  if (MU && ISOB.dentroMU(tx, ty)) return !(BT.ctx && BT.ctx.campo) && (Math.abs(tx + 0.5 - MU.cx) < 1 || Math.abs(ty + 0.5 - MU.cy) < 1) ? "F_calzada_" + v : "F_tierra_" + v;
   if (ISOB.campos.has(tx + "," + ty)) return (isoH(Math.floor(tx / 3), Math.floor(ty / 3)) < 0.5 ? "F_trigo_" : "F_arado_") + v;
   if (t === 1) return "F_sbosque_" + Math.min(2, v);
   if (t === 2) return "F_colina_" + v;
   if (t === 3) return "F_rio_" + v;
   if (t === 4) return "F_lago_3";
+  /* manchas naturales: pasto seco donde un ruido suave sube, flores sueltas */
+  const r = Math.sin(tx * 0.17 + 1.3) * Math.cos(ty * 0.21 - 0.4) + 0.5 * Math.sin((tx - ty) * 0.09 + 2.1);
+  if (r > 0.75) return "F_seco_" + v;
   return isoH(ty, tx) < 0.035 ? "F_flores_" + v : "F_pasto_" + v;
 }
 function isoSuelo() {
@@ -472,7 +528,13 @@ function isoFrame(now) {
   ISOB.fig = FIG;
   const L = [];
   /* lo que está de pie */
+  const mg = TW * 3;
   for (const e of ISOB.est) {
+    /* descarte rápido: lo que está lejos de la pantalla ni se calcula */
+    const ax = e.fx != null ? e.fx : e.a ? e.a[0] : e.bx,
+      ay = e.fy != null ? e.fy : e.a ? e.a[1] : e.by,
+      [qx, qy] = isoP(ax, ay);
+    if (qx < -mg || qx > ISOB.W + mg || qy < -mg || qy > ISOB.H + mg * 1.5) continue;
     const s = isoSpr(e.n, e.col);
     if (!s) continue;
     let k, dx, dy;
@@ -484,10 +546,14 @@ function isoFrame(now) {
         dx = (A[0] + Bp[0]) / 2 - (s.w * k) / 2;
         dy = (A[1] + Bp[1]) / 2 + TW * 0.12 - s.h * k;
       } else {
-        const c = e.ori === 1 ? isoCalza(s, "l", A, "b", Bp) : isoCalza(s, "b", A, "r", Bp);
-        k = c.k;
-        dx = c.x;
-        dy = c.y;
+        /* el tramo que baja hacia la derecha va en los lienzos N/S (ori 1); el que sube, en los O/E (ori 2):
+           se elige por la inclinación del dibujo (los nombres de las hojas no son fiables) */
+        const t = isoTramo(e.base, e.ori, e.col) || s,
+          sp = Math.max(1, t.r[0] - t.l[0]);
+        k = (Math.abs(Bp[0] - A[0]) * 1.12) / sp;
+        dx = A[0] - t.l[0] * k - Math.abs(Bp[0] - A[0]) * 0.06;
+        dy = e.ori === 1 ? Bp[1] - t.r[1] * k : A[1] - t.l[1] * k;
+        e.sp = t;
       }
     } else if (e.torre) {
       const [X, Y] = isoP(e.fx, e.fy);
@@ -508,8 +574,8 @@ function isoFrame(now) {
       dx = X - (s.w * k) / 2;
       dy = Y + 4 * S - s.h * k;
     }
-    const w = s.w * k,
-      h = s.h * k;
+    const w = (e.sp || s).w * k,
+      h = (e.sp || s).h * k;
     if (dx > ISOB.W || dy > ISOB.H || dx + w < 0 || dy + h < 0) continue;
     L.push({ d: e.d, s: 1, f: () => {
       /* si tapa a alguna tropa que está detrás, translúcido */
@@ -518,7 +584,8 @@ function isoFrame(now) {
         for (const f of FIG) if (f.fx + f.fy < e.d - 0.2 && f.X > dx && f.X < dx + w && f.Y > dy && f.Y < dy + h + 4 * S) { f.sil = true; t = true; }
         if (t) x.globalAlpha = 0.4;
       }
-      x.drawImage(s.c, dx, dy, w, h);
+      const ss = e.sp || s;
+      x.drawImage(ss.c, dx, dy, ss.w * k, ss.h * k);
       x.globalAlpha = 1;
     } });
   }
@@ -592,7 +659,7 @@ function isoFrame(now) {
     x.stroke();
   }
   /* cifras de cada pelotón (como las barras de la 3D) */
-  if (!B3D.pref || B3D.pref.barras !== false) {
+  if (typeof OPC === "undefined" || OPC.v.barras !== false) {
     x.font = `${Math.round(Math.max(10, TW / 6))}px "Press Start 2P", monospace`;
     x.textAlign = "center";
     for (const u of BT.units) {
@@ -633,7 +700,9 @@ function isoDom() {
   const bm = document.querySelector("#battle .bmain"),
     sc = $("bscroll");
   if (!bm || !sc) return;
-  if (typeof b3dDom === "function") b3dDom(); /* la barra con el botón «Vista» */
+  /* la ayuda bajo el campo */
+  const ay = [...bm.querySelectorAll(".btns span.stats")].pop();
+  if (ay) ay.textContent = matchMedia("(pointer: coarse)").matches ? "Pellizca: zoom · arrastra el terreno: desplazar · toca una unidad y luego el destino" : "Rueda: zoom · arrastra el terreno: desplazar · toca una unidad y luego el destino (o arrástrala)";
   const w = document.createElement("div");
   w.id = "bisowrap";
   w.setAttribute("role", "application");
@@ -790,55 +859,18 @@ function isoOyente() {
   return { W: ISOB.W / ISOB.dpr, H: ISOB.H / ISOB.dpr, ppc: TW / 1.4, p: (x, y) => { const [X, Y] = isoP(x, y); return { x: X / ISOB.dpr, y: Y / ISOB.dpr }; } };
 }
 
-/* ---------- enganche: drawBattle, el botón «Vista» y su etiqueta ---------- */
+/* ---------- enganche: drawBattle ---------- */
 if (typeof drawBattle === "function") {
   const isoDB0 = drawBattle;
   drawBattle = function (now) {
-    const on = isoActiva();
-    const bt = $("battle");
+    const on = isoActiva(),
+      bt = $("battle");
     if (bt) bt.classList.toggle("biso-on", on);
     if (!on) return isoDB0.apply(this, arguments);
-    if (typeof b3dDesmontar === "function" && B3D.scene) b3dDesmontar();
     try {
       isoFrame(now);
     } catch (e) {
       console.error(e);
     }
-    if (B3D.bar && !ISOB.barra) {
-      ISOB.barra = 1;
-      b3dBarra();
-    }
-  };
-}
-if (typeof b3dBoton === "function") {
-  const isoBot0 = b3dBoton;
-  b3dBoton = function (k) {
-    if (k !== "vista") return isoBot0.apply(this, arguments);
-    /* isométrica → 3D → clásica → isométrica */
-    const v = b3dVista();
-    B3D.pref.vista = v === "iso" ? "3d" : v === "3d" ? "2d" : "iso";
-    b3dGuardar();
-    if (B3D.pref.vista !== "3d" && B3D.scene) b3dDesmontar();
-    if (B3D.pref.vista === "3d") b3dWebGL();
-    ISOB.barra = 0;
-    b3dBarra();
-  };
-}
-if (typeof b3dBarra === "function") {
-  const isoBar0 = b3dBarra;
-  b3dBarra = function () {
-    const r = isoBar0.apply(this, arguments);
-    if (B3D.bar && isoActiva()) {
-      if (B3D.ayuda) B3D.ayuda.textContent = matchMedia("(pointer: coarse)").matches ? "Pellizca: zoom · arrastra el terreno: desplazar · toca una unidad y luego el destino" : "Rueda: zoom · arrastra el terreno: desplazar · toca una unidad y luego el destino (o arrástrala)";
-      const v = B3D.bar.querySelector('[data-b3d="vista"]');
-      if (v) {
-        v.textContent = "Vista: isométrica";
-        v.setAttribute("aria-pressed", "true");
-        v.title = "Cambiar entre la vista isométrica, la 3D y la clásica";
-      }
-      const z = $("bzl");
-      if (z) z.textContent = Math.round(bzoom * 100) + "%";
-    }
-    return r;
   };
 }

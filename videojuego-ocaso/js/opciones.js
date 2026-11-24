@@ -23,7 +23,7 @@ const OPC_DEF = {
   niebla3d: true, // bruma de distancia
   relieveMapa: true, // montañas y bosques de pie en el mapa de campaña
   fps: 60, // 30 | 60 tope de cuadros
-  camaraFija: false, // batalla 3D: isométrica fija (sin girar) en vez de giro libre
+  barras: true, // cifras sobre los pelotones en la batalla
   /* audio (0..1) */
   volGeneral: 0.8,
   volMusica: 0.5,
