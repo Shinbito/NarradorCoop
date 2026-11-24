@@ -1,0 +1,51 @@
+name: Web Ocaso (GitHub Pages)
+
+# Publica el juego (solo los archivos que necesita, sin pruebas ni documentos) en la rama gh-pages.
+# Activar una vez: Settings → Pages → Build and deployment → Deploy from a branch → gh-pages / (root).
+# Dirección: https://shinbito.github.io/NarradorCoop/  (pública para quien tenga el enlace).
+on:
+  push:
+    paths:
+      - "videojuego-ocaso/**"
+      - ".github/workflows/pages-ocaso.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-ocaso
+  cancel-in-progress: true
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Preparar el sitio
+        run: |
+          cd videojuego-ocaso
+          node herramientas/lista-archivos.js
+          node -e '
+            const fs=require("fs"),path=require("path");
+            const l=require("./archivos.json"), out=path.resolve("../_sitio");
+            fs.rmSync(out,{recursive:true,force:true});
+            for (const r of [...l,"archivos.json"]) { const d=path.join(out,r); fs.mkdirSync(path.dirname(d),{recursive:true}); fs.copyFileSync(r,d); }
+            fs.writeFileSync(path.join(out,".nojekyll"),"");
+            console.log(l.length+" archivos");
+          '
+
+      - name: Publicar en gh-pages
+        run: |
+          cd _sitio
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "Web de Ocaso del Imperio (${GITHUB_SHA::7})"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
