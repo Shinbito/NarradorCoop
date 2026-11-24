@@ -80,6 +80,10 @@ Secciones de provincia actuales: `reclutar` (20, combate), `edificios` (30, tecn
 | `finAnio` | `anio` | turnos | tras envejecer la corte y pasar al año nuevo |
 | `finPartida` | `{win, vivo}` | turnos (`checkEnd`) | justo antes del modal de victoria/derrota |
 | `finEstacion` | `{anio, estacion}` | turnos (campaña) | al cerrar cada estación (0 primavera … 3 invierno) |
+| `capitanSurge` | `{c, f, lugar}` | combate | surge un capitán de entre las filas |
+| `generalAsciende` | `{c, f}` | combate | un capitán es ascendido a general |
+| `nivelSube` | `{c, antes, nivel}` | combate | un mando sube de nivel |
+| `mercDesercion` | `{f, contrato, saqueo}` | campaña | mercenarios impagados desertan |
 | `conquista` | `{p, de, a}` | combate | una provincia cambia de dueño por las armas |
 | `batallaResuelta` | `{p, atacante, defensor, gana, A, D, s0, gA, gD, ...}` | combate | después de cualquier batalla (auto o táctica) |
 | `revuelta` | `{p, de}` | economía (y sociedad en traiciones/guerra civil) | una provincia se subleva y pasa a `REB` (se emite antes del cambio de dueño) |
@@ -162,3 +166,4 @@ por estación; economía, investigación y eventos siguen siendo anuales (al cer
 - Los generales de ejércitos en campaña están en `G.cam.ej[].gen` (no los devuelve `genOf`).
 - No entregues tropas `UN[t].merc` a otro pueblo por eventos o sobornos; respeta `civPuede(f, t)` al dar tropas.
 - Mundo: `G.modo`, `G.activas`, `G.mapa`; pueblos ausentes con `G.F[f].ausente`. `CIV[f].pueblo` (frase), `CIV[f].base` (pueblo original pariente).
+- Economía cobra en su balance anual solo lo que campaña no cobra por estación (`b.gAnual`, `b.netAnual`); las tropas `merc` no pagan soldada por `ecoMant` (las paga su contrato). `ecoSaqueo(p, fr, orden)` aplica un saqueo y devuelve el botín.

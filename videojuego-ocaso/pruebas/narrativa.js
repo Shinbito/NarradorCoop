@@ -313,6 +313,116 @@ fs.mkdirSync(capt, { recursive: true });
     "Anales tras cargar",
   );
 
+  // ---------- mundo de leyendas ----------
+  console.log("Mundo de leyendas");
+  const est = await page.evaluate(() => {
+    const ids = CIV.slice(0, NF).map((c) => c.id);
+    return {
+      n: ids.length,
+      pueblos: ids.filter((id) => /rebeldes|extraño/.test(narPueblo(civIdx(id)))),
+      prologos: ids.filter((id) => !NAR_PROLOGO_LEY[id]),
+      arcos: ["ara", "nor", "chi", "inc", "may", "azt", "gri", "egi", "ind", "cel", "esl", "mon"].map((id) =>
+        NAR_ARCOS.filter((a) => a.ley && a.para(civIdx(id))).reduce((s, a) => s + a.caps.length, 0),
+      ),
+    };
+  });
+  ok(est.pueblos.length === 0, `todos los pueblos tienen nombre en la crónica (${est.n})`);
+  ok(
+    est.prologos.length === 0,
+    "prólogo de leyendas para los " + est.n + " pueblos " + est.prologos.join(","),
+  );
+  ok(
+    est.arcos.every((n) => n >= 3 + 3),
+    "cada pueblo nuevo tiene ≥3 capítulos propios (más el choque): " + est.arcos.join(","),
+  );
+  const yo = "azt";
+  await page.evaluate(
+    ({ yo }) => {
+      const me = civIdx(yo),
+        riv = ["nor", "chi", "occ", "inc"].map(civIdx);
+      leaveNet();
+      newGame(me, cands(me)[0], { modo: "leyendas", activas: [me, ...riv] });
+      drawBase();
+      OC.emitirSync("partidaLista");
+      $("start").classList.remove("show");
+      window.__mods.length = 0;
+      ui();
+      save();
+    },
+    { yo },
+  );
+  await turno();
+  const pro = await page.evaluate(() => {
+    const m = window.__mods.find((m) => /Prólogo/.test(m.html));
+    return m && { ...m, esperado: NAR_PROLOGO_LEY.azt.t };
+  });
+  ok(
+    pro && /leyendas/.test(pro.html) && pro.t === pro.esperado,
+    "prólogo propio de leyendas: " + (pro && pro.t),
+  );
+  // tropas por eventos: nunca caballería a quien no tiene caballos, nunca mercenarios
+  const tro = await page.evaluate(() => {
+    const cap = G.P[G.F[ME].capId],
+      c0 = cap.u.c || 0,
+      i0 = cap.u.i || 0;
+    narTropa(cap, "c", 3);
+    const m = Object.keys(UN).find((t) => UN[t].merc);
+    if (m) narTropa(cap, m, 2);
+    return { c: (cap.u.c || 0) - c0, i: (cap.u.i || 0) - i0, merc: m ? cap.u[m] || 0 : 0 };
+  });
+  ok(
+    tro.c === 0 && tro.i === 5 && tro.merc === 0,
+    `los eventos dan infantería en lugar de jinetes o mercenarios (${JSON.stringify(tro)})`,
+  );
+  // asedio largo, capitán ascendido y general famoso → reacciones
+  const re = await page.evaluate(() => {
+    const cap = G.P[G.F[ME].capId],
+      g = G.activas.find((f) => f !== ME);
+    G.cam = G.cam || { ej: [], as: {} };
+    G.cam.as = G.cam.as || {};
+    G.cam.as[cap.id] = { p: cap.id, f: g, n: 3, vi: 0, mo: 50, brecha: 0, ini: [G.year, 0] };
+    const k = cmbCapitanSurge(ME, cap.name);
+    narCampana(ME);
+    k.rol = "general";
+    k.xp = 300;
+    k.nivel = 6;
+    narCampana(ME);
+    const cola = G.nar.f[ME].cola.map((q) => q.e);
+    delete G.cam.as[cap.id];
+    return cola;
+  });
+  ok(
+    re.includes("asedio_def") && re.includes("capitan_general") && re.includes("gran_general"),
+    "reacciones de campaña encoladas: " + re.join(","),
+  );
+  // salto de años: arcos culturales y choque de mundos, ninguno del 410
+  const vistosLey = new Set();
+  for (const y of [412, 420, 425, 433, 440, 466, 470, 476, 505, 516, 520]) {
+    if (await page.evaluate(() => !alive(ME) || G.over)) break;
+    await page.evaluate((y) => {
+      G.year = y;
+      G.evY[ME] = 0;
+      G.F[ME].gold = Math.max(G.F[ME].gold, 300);
+      G.F[ME].food = Math.max(G.F[ME].food, 100);
+      window.__mods.length = 0;
+    }, y);
+    await turno();
+    (await page.evaluate(() => window.__mods.filter((m) => m.nar).map((m) => m.y + " " + m.t))).forEach((t) =>
+      vistosLey.add(t),
+    );
+  }
+  console.log("  leyendas:", [...vistosLey].join(" | "));
+  const arcLey = await page.evaluate(() => Object.keys(G.nar.f[ME].arc));
+  const hist = await page.evaluate(() => NAR_ARCOS.filter((x) => x.hist).map((x) => x.id));
+  ok(
+    arcLey.includes("ley_azt") && arcLey.includes("choque"),
+    "arcos de leyenda en curso: " + arcLey.join(","),
+  );
+  ok(!arcLey.some((a) => hist.includes(a)), "ningún arco del 410 en el mundo de leyendas");
+  await page.click('[data-act="tab-nar"]');
+  await page.evaluate(() => document.querySelectorAll("#panel details").forEach((d) => (d.open = true)));
+  await page.screenshot({ path: path.join(capt, "narrativa-leyendas-anales.png") });
+
   console.log(errores.length ? "ERRORES:\n" + errores.join("\n") : "Sin errores de JS");
   console.log(fallos.length ? "FALLOS:\n" + fallos.join("\n") : "OK narrativa");
   await browser.close();

@@ -125,10 +125,17 @@ function cmbLado(s, ej, ctx, env) {
     bono = OC.calc("bonoBatalla", 1, { f, lado, p: ctx.p || null }) || 1,
     hambre = ej.hambre != null ? ej.hambre : !!(G.F[f] && G.F[f].food <= 0),
     as = s === 1 && ctx.asedio ? Math.min(20, ctx.asedio * 4) : 0,
-    bl = [];
+    bl = [],
+    maq = {};
   for (const t of TYP) {
     const n = (ej.u[t] || 0) * SPU;
     if (n <= 0 || !UN[t]) continue;
+    /* en campo abierto las máquinas de asedio no entran en combate: se quedan atrás con el bagaje
+       (se conservan si su bando gana; si pierde, se las queman o capturan) */
+    if (UN[t].asedio && !ctx.fort) {
+      maq[t] = (maq[t] || 0) + (ej.u[t] || 0);
+      continue;
+    }
     const st = cmbStats(f, t, cmbOrigenP(f, t, ej.ori, ctx.p), lado, (ej.vet && ej.vet[t]) || 0),
       mx =
         st.mo +
@@ -170,6 +177,7 @@ function cmbLado(s, ej, ctx, env) {
     suerte: 0.62 + (R() + R()) * 0.38,
     hambre,
     bl,
+    maq,
     n0: bl.reduce((a, b) => a + b.n, 0),
     /* sin las máquinas: su dotación no sostiene la moral de la línea */
     nl0: bl.filter((b) => b.cl !== "asd").reduce((a, b) => a + b.n, 0),
@@ -750,6 +758,7 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
       out[s][t] = Math.floor(x) + (R() < x % 1 ? 1 : 0);
     }
     her[s] = Math.round(bajas[s].r);
+    for (const t in L[s].maq || {}) out[s][t] = (out[s][t] || 0) + (gana === s ? L[s].maq[t] : 0);
   }
   let informe = null;
   if (!est)

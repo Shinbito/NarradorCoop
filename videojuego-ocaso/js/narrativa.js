@@ -31,7 +31,7 @@ function life() {
     autoHeir(f);
     if (human(f)) continue;
     for (const c of family(f))
-      if (c.sp == null && c.age >= 18 && c.age <= 40 && R() < 0.2)
+      if (c.linaje !== false && c.sp == null && c.age >= 18 && c.age <= 40 && R() < 0.2)
         marry(c, mkChar(f, c.sex === "m" ? "f" : "m", clamp(c.age + ri(-4, 2), 16, 45)));
   }
 }
@@ -95,17 +95,27 @@ const narPlano = (s) => String(s == null ? "" : s).replace(/<[^>]+>/g, "");
 const narEl = (c) => (c && c.sex === "f" ? "la" : "el");
 const narO = (c, o = "o", a = "a") => (c && c.sex === "f" ? a : o);
 const narTit = (c) => (c ? `${narEl(c)} ${ttl(c).toLowerCase()} ${c.n}` : "el soberano");
-/* «el pueblo visigodo», «el Imperio de Oriente»: siempre en singular */
-const NAR_PUEBLO = [
-  "el Imperio de Occidente",
-  "el Imperio de Oriente",
-  "el pueblo visigodo",
-  "el pueblo huno",
-  "el pueblo vándalo",
-  "el pueblo franco",
-  "la Persia sasánida",
-];
-const narPueblo = (f) => NAR_PUEBLO[f] || "los rebeldes";
+/* «el pueblo visigodo», «el Imperio de Oriente»: siempre en singular. Por id (CIV[f].id); los pueblos
+   nuevos traen su frase en CIV[f].pueblo */
+const NAR_PUEBLO = {
+  occ: "el Imperio de Occidente",
+  ori: "el Imperio de Oriente",
+  vis: "el pueblo visigodo",
+  hun: "el pueblo huno",
+  van: "el pueblo vándalo",
+  fra: "el pueblo franco",
+  per: "la Persia sasánida",
+  reb: "los rebeldes",
+};
+const narId0 = (f) => (CIV[f] && CIV[f].id) || "";
+const narPueblo = (f) =>
+  (CIV[f] && (CIV[f].pueblo || NAR_PUEBLO[CIV[f].id] || CIV[f].n)) || "un pueblo extraño";
+const narEs = (f, ...ids) => ids.includes(narId0(f));
+/* modos de juego (mundo): los arcos del 410 solo en el histórico; los de leyenda solo en leyendas */
+const narLey = () => !!(G && G.modo === "leyendas");
+const narAmerica = (f) => narEs(f, "inc", "may", "azt");
+const narPuedeT = (f, t) =>
+  (typeof civPuede === "function" ? civPuede(f, t) : true) && !(UN[t] && UN[t].merc);
 /* pulido de la prosa: mayúscula al empezar frase y contracciones «de el» → «del», «a el» → «al» */
 function narFrase(s) {
   return String(s == null ? "" : s)
@@ -120,8 +130,9 @@ const narB = (c) => (c ? `<b>${c.n}</b>` : "");
 const narStat = (ch, k, n) =>
   !ch ? "nadie puede hacerlo" : ch[k] >= n || `requiere ${NAR_ST[k]} ${n} (${ch.n} tiene ${ch[k]})`;
 const narReq = (cond, msg) => !!cond || msg;
+/* adultos de la casa (sin capitanes ni generales de carrera, que no tienen linaje) */
 const narAdultos = (f, fn = () => true) =>
-  family(f).filter((x) => x.age >= 16 && x.id !== G.F[f].ruler && fn(x));
+  family(f).filter((x) => x.age >= 16 && x.id !== G.F[f].ruler && x.linaje !== false && fn(x));
 const narHijos = (f) => kidsOf(ruler(f)).filter((x) => x.alive && x.f === f);
 const narEnemigos = (f) =>
   [...Array(NF).keys()].filter((g) => g !== f && alive(g) && G.st[f][g] === "guerra");
@@ -153,6 +164,8 @@ function narRol(ch, f = ch.f) {
   const F = G.F[f];
   if (!F) return "";
   if (ch.id === F.ruler) return ttl(ch);
+  if (ch.linaje === false)
+    return ch.rol === "general" ? "general de carrera" : ch.rol === "gobernador" ? "gobernador" : "capitán";
   if (ch.id === F.heir) return narO(ch, "heredero", "heredera");
   if (genOf(ch)) return "general en " + genOf(ch).name;
   if (ruler(f) && ch.id === ruler(f).sp) return "consorte";
@@ -205,7 +218,7 @@ function narInit() {
   S.m = S.m || {};
   S.f = S.f || {};
   for (let f = 0; f < NF; f++) {
-    if (!G.F[f]) continue;
+    if (!G.F[f] || G.F[f].ausente) continue;
     const N = narF(f),
       d = narNuevo();
     for (const k in d) if (N[k] === undefined) N[k] = d[k];
@@ -279,8 +292,13 @@ function narOrden(f, v, p) {
     if (q && q.owner === f) q.order = clamp(Math.round(q.order + v), 0, 100);
   });
 }
+/* dar o quitar tropas: nunca mercenarias y solo clases que el pueblo puede tener (si no, infantería) */
 function narTropa(p, t, v) {
-  if (p) p.u[t] = Math.max(0, p.u[t] + v);
+  if (!p) return;
+  if (v > 0 && p.owner < NF && !narPuedeT(p.owner, t))
+    t = narPuedeT(p.owner, "i") ? "i" : TYP.find((k) => narPuedeT(p.owner, k));
+  if (!t) return;
+  p.u[t] = Math.max(0, (p.u[t] || 0) + v);
 }
 function narSanear() {
   for (const p of G.P) {
@@ -522,6 +540,8 @@ function narAuto(f, ev, d = {}) {
 const narEv = (id) => EVENTS.find((e) => e.id === id);
 /* y: año mínimo, hasta: año máximo (partidas largas: el contenido se despliega por épocas) */
 const narLibre = (N, e) =>
+  (!e.hist || !narLey()) &&
+  (!e.ley || narLey()) &&
   (!e.y || G.year >= e.y) &&
   (!e.hasta || G.year <= e.hasta) &&
   (!N.vis[e.id] || (!e.una && G.year - N.vis[e.id] >= (e.cd ?? 8)));
@@ -569,6 +589,8 @@ async function narAzar(f) {
 
 /* ---------- arcos (capítulos en js/historia.js) ---------- */
 const narArcos = () => (typeof NAR_ARCOS === "undefined" ? [] : NAR_ARCOS);
+/* hist: solo modo histórico (los del 410); ley: solo mundo de leyendas */
+const narArcoValido = (a) => !((a.hist && narLey()) || (a.ley && !narLey()));
 function narCapPendiente(f) {
   const N = narF(f),
     c = narCtx(f);
@@ -576,6 +598,7 @@ function narCapPendiente(f) {
   for (const arc of narArcos()) {
     let A = N.arc[arc.id];
     if (A && A.fin) continue;
+    if (!narArcoValido(arc)) continue;
     if (!A && !arc.para(f)) continue;
     c.arc = arc;
     c.A = A;
@@ -747,6 +770,24 @@ function narConquista({ p, de, a }) {
       narEncolar(a, "triunfo", { p: p.id, g: de });
     }
     if (p.id === G.F[a].capId && narTiene(a, "exilio")) narEncolar(a, "regreso", { p: p.id });
+    if (narTiene(a, "clemencia_" + p.id)) {
+      narQuita(a, "clemencia_" + p.id);
+      narOrden(a, 15, p);
+      narLeg(a, { pi: 4 });
+      if (human(a))
+        narCron(a, `Se cumple la palabra dada: ${p.name} se rinde y nadie es pasado a cuchillo.`, "nar-dec");
+    }
+    if (narTiene(a, "terror_" + p.id)) {
+      narQuita(a, "terror_" + p.id);
+      narOrden(a, -10, p);
+      narLeg(a, { cr: 3 });
+      if (human(a))
+        narCron(
+          a,
+          `${p.name} cae y la amenaza se cumple. Las piedras de la ciudad recordarán ese día.`,
+          "nar-dec",
+        );
+    }
   }
   if (de != null && de < NF) {
     const N = narF(de);
@@ -774,6 +815,7 @@ function narBatalla(b) {
       if (narTiene(f, "voto") && !narTiene(f, "voto_cumplido")) narMk(f, "voto_cumplido");
     }
     if (!human(f) || !p) continue;
+    if (isMe(f)) narInforme(b, at ? 0 : 1, vence);
     const vivo = g && g.alive && g.f === f && g.id !== G.F[f].ruler;
     if (vence && vivo && narTiene(f, "redencion_" + g.id)) {
       narQuita(f, "redencion_" + g.id);
@@ -786,6 +828,109 @@ function narBatalla(b) {
       narEncolar(f, "derrota", { c: g.id, p: p.id });
   }
 }
+/* ---------- campaña: asedios, capitanes, generales y mercenarios (se revisa una vez al año) ---------- */
+const narAsedios = () => (G && G.cam && G.cam.as ? Object.values(G.cam.as).filter(Boolean) : []);
+function narCampana(f) {
+  const N = narF(f);
+  /* asedios largos: la ciudad propia cercada o el cerco propio que no acaba */
+  for (const as of narAsedios()) {
+    const p = G.P[as.p != null ? as.p : -1];
+    if (!p || (as.n || 0) < 2) continue;
+    if (p.owner === f && !narHecho(N, "asd" + p.id, 3)) narEncolar(f, "asedio_def", { p: p.id });
+    else if (as.f === f && (as.n || 0) >= 3 && !narHecho(N, "asa" + p.id, 3))
+      narEncolar(f, "asedio_atk", { p: p.id });
+  }
+  /* capitanes (sin linaje) que surgen y ascienden; generales que alcanzan gran renombre */
+  const mandos = G.C.filter((c) => c.alive && c.f === f && (c.linaje === false || (c.nivel || 0) >= 6));
+  const caps0 = N.caps || [];
+  for (const c of mandos) {
+    if (c.linaje === false && c.rol === "capitan" && !caps0.includes(c.id) && isMe(f))
+      narCron(
+        f,
+        pick([
+          `Los soldados cantan ya en los fuegos del campamento el nombre de ${c.n}.`,
+          `${c.n} no tiene linaje ni tierras, pero sus hombres le seguirían al infierno.`,
+          `Dicen que ${c.n} fue mozo de mulas antes de mandar una línea de escudos.`,
+        ]),
+        "nar-rumor",
+        true,
+      );
+    if (c.linaje === false && c.rol === "general" && caps0.includes(c.id))
+      narEncolar(f, "capitan_general", { c: c.id });
+    if ((c.nivel || 0) >= 6 && !narTiene(f, "gg_" + c.id) && c.id !== G.F[f].ruler) {
+      narMk(f, "gg_" + c.id);
+      narEncolar(f, "gran_general", { c: c.id });
+    }
+  }
+  N.caps = mandos.filter((c) => c.linaje === false && c.rol === "capitan").map((c) => c.id);
+  /* mercenarios que desertaron por falta de paga (mercenarios.js lo anota en la crónica) */
+  const con =
+    G.cam && G.cam.merc && Array.isArray(G.cam.merc.con) ? G.cam.merc.con.filter((x) => x.f === f) : [];
+  for (const m of N.merc || [])
+    if (!con.some((x) => x.id === m.id) && G.log.some((l) => l.m.includes(`Los ${m.nom} no cobran`)))
+      if (!narHecho(N, "mer" + m.id, 99)) narEncolar(f, "merc_saqueo", { nom: m.nom });
+  N.merc = con.map((x) => ({ id: x.id, nom: x.nom }));
+}
+/* informe de batalla (combate): los factores decisivos pasan a la crónica con voz de cronista */
+const NAR_FX = {
+  "hab:berserker": [
+    (v) =>
+      v
+        ? "Los berserkers mordieron sus escudos y cayeron sobre el enemigo como lobos."
+        : "La furia de los berserkers no bastó: cuando se apagó, quedaron indefensos.",
+  ],
+  "hab:estampida": [
+    (v) =>
+      v
+        ? "Los elefantes rompieron la línea enemiga y aplastaron cuanto hallaron."
+        : "Los elefantes se desbocaron y pisotearon a los suyos.",
+  ],
+  "hab:espanto": [
+    (v) =>
+      v
+        ? "Los caballos enemigos huyeron espantados por el olor de las bestias."
+        : "Ni el espanto de las bestias salvó la jornada.",
+  ],
+  "hab:fuegoGriego": [
+    (v) =>
+      v
+        ? "El fuego que no se apaga con agua devoró las filas contrarias."
+        : "El fuego líquido ardió en vano.",
+  ],
+  "hab:muroEscudos": [
+    (v) =>
+      v
+        ? "El muro de escudos no cedió un palmo en toda la jornada."
+        : "El muro de escudos aguantó hasta que ya no hubo hombres que lo sostuvieran.",
+  ],
+  "hab:testudo": [(v) => (v ? "La tortuga avanzó bajo la lluvia de flechas sin perder un hombre." : "")],
+  "hab:sacrificio": [
+    (v) => (v ? "La sangre ofrecida antes de la batalla dio a los guerreros un valor sin miedo." : ""),
+  ],
+  "hab:tambores": [
+    (v) => (v ? "Los tambores marcaron el paso hasta que el enemigo no soportó más su sonido." : ""),
+  ],
+  "hab:emboscada": [(v) => (v ? "La emboscada en la espesura decidió la jornada antes de empezar." : "")],
+  "hab:disparoParto": [
+    (v) => (v ? "Los jinetes fingieron huir y dispararon de espaldas, como enseñaron los partos." : ""),
+  ],
+  carga: [(v) => (v ? "La carga de la caballería barrió el campo." : "")],
+  flanqueo: [(v) => (v ? "Un rodeo por el flanco hundió al enemigo." : "")],
+  murallas: [(v) => (v ? "Las murallas hicieron lo que no habría hecho ningún ejército." : "")],
+  persecucion: [(v) => (v ? "La persecución fue más sangrienta que la batalla." : "")],
+};
+function narInforme(b, lado, vence) {
+  const inf = b.informe,
+    fx =
+      inf && Array.isArray(inf.factores)
+        ? inf.factores
+        : (b.factores || []).map((k) => ({ k, s: b.gana ? 0 : 1 }));
+  if (!fx.length || R() > 0.6) return;
+  for (const x of fx) {
+    const t = NAR_FX[x.k] && NAR_FX[x.k][0](x.s === lado);
+    if (t) return addLog(`${b.p.name}: ${t}`, "nar-rumor");
+  }
+}
 /* respaldo: detecta al empezar el año lo que otros sistemas aún no emitan como evento */
 function narRevisar(f) {
   const N = narF(f),
@@ -793,6 +938,7 @@ function narRevisar(f) {
   N.ef = N.ef.filter((e) => e.h >= G.year);
   for (const k in N.hx) if (G.year - N.hx[k] > 12) delete N.hx[k];
   N.maxP = Math.max(N.maxP, owned(f).length);
+  narCampana(f);
   if (N.rey !== F.ruler) narSucesion(f, N.rey, F.ruler);
   for (const id of N.vivos) if (G.C[id] && !G.C[id].alive) narMuerte(G.C[id], null);
   const r = ruler(f);
@@ -1208,6 +1354,7 @@ const EVENTS = [
   },
   {
     id: "huna",
+    hist: true,
     t: "Embajada huna",
     hasta: 470,
     k: "Frontera",
@@ -1294,6 +1441,7 @@ const EVENTS = [
   {
     id: "alanos",
     t: "Mercenarios alanos",
+    ok: (c) => narPuedeT(c.f, "c"),
     hasta: 480,
     k: "Frontera",
     d: () =>
@@ -1369,10 +1517,12 @@ const EVENTS = [
   },
   {
     id: "juegos",
-    t: "Juegos en el hipódromo",
+    t: (c) => (narAmerica(c.f) ? "El juego de pelota" : "Juegos en el hipódromo"),
     k: "Reino",
     d: (c) =>
-      `La plebe de ${c.cap.name} pide carreras y espectáculos. Los aurigas de las facciones ya entrenan a sus caballos y los panaderos hacen cuentas.`,
+      narAmerica(c.f)
+        ? `La gente de ${c.cap.name} pide un gran juego de pelota en la cancha del templo. Los jugadores ya se untan las caderas y los nobles apuestan plumas de quetzal.`
+        : `La plebe de ${c.cap.name} pide carreras y espectáculos. Los aurigas de las facciones ya entrenan a sus caballos y los panaderos hacen cuentas.`,
     o: [
       {
         t: "Celebrar grandes juegos",
@@ -1826,7 +1976,8 @@ const EVENTS = [
     k: "Corte",
     ia: false,
     prep: (c) => {
-      c.g = pick([...Array(NF).keys()].filter((g) => g !== c.f));
+      c.g = pick([...Array(NF).keys()].filter((g) => g !== c.f && alive(g)));
+      if (c.g == null) return false;
       c.nom = pick(CIV[c.g].m);
     },
     d: (c) =>
@@ -1887,7 +2038,7 @@ const EVENTS = [
     t: "El acueducto",
     k: "Reino",
     d: (c) =>
-      `El viejo acueducto romano que da agua a ${c.cap.name} pierde por cien grietas. Las fuentes se secan y en verano habrá fiebres. Los ingenieros piden oro; los nobles, que pague otro.`,
+      `El viejo acueducto que da agua a ${c.cap.name} pierde por cien grietas. Las fuentes se secan y en verano habrá fiebres. Los ingenieros piden oro; los nobles, que pague otro.`,
     o: [
       {
         t: "Repararlo con el tesoro",
@@ -2224,6 +2375,7 @@ const EVENTS = [
   },
   {
     id: "benito",
+    hist: true,
     t: "La regla del monje",
     k: "Fe",
     y: 529,
@@ -2255,6 +2407,7 @@ const EVENTS = [
   },
   {
     id: "atenas",
+    hist: true,
     t: "Los filósofos de Atenas",
     k: "Saber",
     y: 529,
@@ -2321,6 +2474,7 @@ const EVENTS = [
   },
   {
     id: "gusanos",
+    hist: true,
     t: "Los huevos del gusano",
     k: "Saber",
     y: 552,
@@ -2352,6 +2506,7 @@ const EVENTS = [
   },
   {
     id: "avaros",
+    hist: true,
     t: "Los ávaros",
     k: "Frontera",
     y: 558,
@@ -2399,6 +2554,7 @@ const EVENTS = [
   },
   {
     id: "lombardos",
+    hist: true,
     t: "Los lombardos bajan de los Alpes",
     k: "Frontera",
     y: 568,
@@ -2443,6 +2599,7 @@ const EVENTS = [
   },
   {
     id: "gregorio",
+    hist: true,
     t: "Las cartas del papa",
     k: "Fe",
     y: 590,
@@ -2469,6 +2626,217 @@ const EVENTS = [
       { t: "Que el papa rece y los reyes gobiernen", leg: { gl: 1 } },
     ],
   },
+  /* ---------- reacciones de campaña: asedios, capitanes, generales, mercenarios ---------- */
+  {
+    id: "asedio_def",
+    t: (c) => `El cerco de ${c.pv.name}`,
+    k: "Guerra",
+    re: true,
+    prio: 8,
+    prep: (c) => {
+      c.pv = G.P[c.d.p];
+      c.as = G.cam && G.cam.as && G.cam.as[c.d.p];
+      if (!c.pv || !c.as || c.pv.owner !== c.f) return false;
+      c.g = c.as.f;
+    },
+    d: (c) =>
+      `${c.as.n} estaciones lleva ${c.pv.name} cercada por ${c.g != null && c.g < NF ? narPueblo(c.g) : "los rebeldes"}. ${(c.as.vi ?? 1) <= 0 ? "Ya no queda grano: se comen los caballos, luego los perros, y alguien ha visto ratas a precio de oro." : "Los víveres menguan y en el mercado se habla en voz baja de rendirse."} El ánimo de los vecinos decidirá si las puertas aguantan.`,
+    o: [
+      {
+        t: "Repartir las despensas del palacio",
+        coste: { comida: 10 },
+        tip: (c) => `+15 orden en ${c.pv.name}: la ciudad resiste mejor`,
+        ef: (c) => narOrden(c.f, 15, c.pv),
+        leg: { pi: 3 },
+        cr: (c) =>
+          `Cercada ${c.pv.name}, ${narTit(c.r)} reparte las despensas del palacio entre los sitiados.`,
+      },
+      {
+        t: "Ahorcar a quien hable de rendirse",
+        tip: (c) => `+10 orden en ${c.pv.name} por miedo`,
+        ef: (c) => narOrden(c.f, 10, c.pv),
+        leg: { cr: 5 },
+      },
+      {
+        t: (c) =>
+          narCristiano(c.f) ? "Procesión con las reliquias por las murallas" : "Sacrificios en las murallas",
+        prob: (c) => 0.45 + c.N.leg.pi * 0.004,
+        px: "según tu piedad",
+        si: (c) => {
+          narOrden(c.f, 18, c.pv);
+          return `Los sitiados ven una señal en el cielo y juran morir antes que abrir: +18 orden en ${c.pv.name}.`;
+        },
+        no: (c) => {
+          narOrden(c.f, -10, c.pv);
+          return "Una piedra del enemigo derriba el estandarte en plena procesión. Nadie lo toma por buen presagio: −10 orden.";
+        },
+        leg: { pi: 2 },
+      },
+    ],
+  },
+  {
+    id: "asedio_atk",
+    t: (c) => `Ante las murallas de ${c.pv.name}`,
+    k: "Guerra",
+    re: true,
+    prio: 6,
+    prep: (c) => {
+      c.pv = G.P[c.d.p];
+      c.as = G.cam && G.cam.as && G.cam.as[c.d.p];
+      if (!c.pv || !c.as || c.as.f !== c.f || c.pv.owner === c.f) return false;
+    },
+    d: (c) =>
+      `El cerco de ${c.pv.name} dura ya ${c.as.n} estaciones. Tus soldados cavan, maldicen y enferman; los de dentro aún gritan desde los adarves. Un desertor de la ciudad asegura que hay quien abriría una poterna por un precio.`,
+    o: [
+      {
+        t: "Prometer clemencia si abren las puertas",
+        tip: (c) => `−8 orden dentro de ${c.pv.name}; al tomarla, +15 orden allí`,
+        ef: (c) => {
+          c.pv.order = clamp(c.pv.order - 8, 0, 100);
+          narMk(c.f, "clemencia_" + c.pv.id);
+        },
+        leg: { pi: 3 },
+      },
+      {
+        t: "Amenazar con no dejar a nadie vivo",
+        tip: (c) => `−15 orden dentro de ${c.pv.name}; al tomarla, −10 orden allí`,
+        ef: (c) => {
+          c.pv.order = clamp(c.pv.order - 15, 0, 100);
+          narMk(c.f, "terror_" + c.pv.id);
+        },
+        leg: { cr: 5 },
+      },
+      {
+        t: "Pagar al traidor de la poterna",
+        coste: { oro: 40 },
+        prob: (c) => 0.3 + c.r.in * 0.05,
+        px: (c) => `según la intriga de ${c.r.n}`,
+        si: (c) => {
+          c.pv.order = clamp(c.pv.order - 35, 0, 100);
+          return `El traidor cumple: en ${c.pv.name} ya se habla de abrir las puertas (−35 orden en la ciudad).`;
+        },
+        no: () =>
+          "El traidor cobra, se emborracha y lo descubren. Su cabeza aparece clavada en una pica sobre la puerta.",
+        leg: { sa: 2 },
+      },
+    ],
+  },
+  {
+    id: "capitan_general",
+    t: "Un general sin linaje",
+    k: "Guerra",
+    re: true,
+    prio: 5,
+    prep: (c) => {
+      const g = G.C[c.d.c];
+      if (!g || !g.alive || g.f !== c.f) return false;
+      c.pj = g;
+    },
+    d: (c) =>
+      `${narB(c.pj)} empezó como un soldado más; hoy manda ejércitos. Los nobles de sangre lo miran por encima del hombro, los soldados lo adoran. Espera, como todos, una señal de ${narTit(c.r)}.`,
+    o: [
+      {
+        t: "Darle tierras y un escudo de armas",
+        coste: { oro: 30 },
+        tip: "+5% en batalla durante 6 años",
+        ef: (c) => narEf(c.f, "batalla", 0.05, 6, "Un general del pueblo"),
+        leg: { gl: 3 },
+        cr: (c) => `${narTit(c.r)} da tierras y escudo a ${c.pj.n}, un general salido de las filas.`,
+      },
+      {
+        t: "Banquete en su honor ante los nobles",
+        tip: "+4 orden",
+        ef: (c) => narOrden(c.f, 4),
+        leg: { sa: 2 },
+      },
+      {
+        t: "Recordarle de dónde viene",
+        tip: (c) => `${c.pj.n} no lo olvidará`,
+        ef: (c) => narMk(c.f, "resentido_" + c.pj.id),
+        leg: { cr: 2 },
+      },
+    ],
+  },
+  {
+    id: "gran_general",
+    t: (c) => `La fama de ${c.pj.n}`,
+    k: "Guerra",
+    re: true,
+    prio: 6,
+    prep: (c) => {
+      const g = G.C[c.d.c];
+      if (!g || !g.alive || g.f !== c.f || g.id === c.F.ruler) return false;
+      c.pj = g;
+      c.niv = typeof cmbNivel === "function" ? cmbNivel(g) : { nivel: g.nivel || 6, titulo: "" };
+    },
+    d: (c) =>
+      `${narB(c.pj)}${c.niv.titulo ? ", " + c.niv.titulo.toLowerCase() + "," : ""} es ya el soldado más famoso del reino: los juglares cantan sus batallas y los embajadores extranjeros preguntan por él antes que por ${narTit(c.r)}. En palacio, alguien susurra que la fama es la antesala de la púrpura.`,
+    o: [
+      {
+        t: "Concederle un triunfo",
+        coste: { oro: 40 },
+        tip: "+6 orden en la capital",
+        ef: (c) => narOrden(c.f, 6, c.cap),
+        leg: { gl: 5 },
+        cr: (c) => `${c.pj.n} desfila en triunfo por ${c.cap.name}. Hasta los niños saben su nombre.`,
+      },
+      {
+        t: "Casarle con una mujer de tu casa",
+        vis: (c) => c.pj.sp == null && c.pj.sex === "m",
+        req: (c) =>
+          narReq(
+            narAdultos(c.f, (x) => x.sex === "f" && x.sp == null).length,
+            "no hay ninguna dama libre en la casa",
+          ),
+        tip: "lo atas a la dinastía",
+        ef: (c) => {
+          const d = narAdultos(c.f, (x) => x.sex === "f" && x.sp == null)[0];
+          if (d) marry(c.pj, d);
+          return d ? `${c.pj.n} se casa con ${d.n}.` : "";
+        },
+        ver: true,
+        leg: { sa: 3 },
+      },
+      {
+        t: "Mandarle lejos, a la frontera más dura",
+        tip: (c) => `${c.pj.n} no lo olvidará`,
+        ef: (c) => narMk(c.f, "resentido_" + c.pj.id),
+        leg: { cr: 3 },
+      },
+    ],
+  },
+  {
+    id: "merc_saqueo",
+    t: "Los mercenarios sin paga",
+    k: "Guerra",
+    re: true,
+    prio: 7,
+    d: (c) =>
+      `${c.d.nom || "Los mercenarios"} no cobraron y se cobraron solos: saquearon los campos, robaron el tesoro de la provincia y ahora vagan como bandidos. En las aldeas se dice que el rey paga peor que los bárbaros.`,
+    o: [
+      {
+        t: "Indemnizar a los campesinos",
+        coste: { oro: 30 },
+        tip: "+6 orden en el reino",
+        ef: (c) => narOrden(c.f, 6),
+        leg: { pi: 3 },
+      },
+      {
+        t: "Ahorcar al tesorero",
+        tip: "+3 orden",
+        ef: (c) => narOrden(c.f, 3),
+        leg: { cr: 4 },
+        cr: (c) => `${narTit(c.r)} cuelga al tesorero por la deserción de los mercenarios.`,
+      },
+      {
+        t: "Jurar que pagarán con su sangre",
+        tip: "+6% en batalla durante 3 años",
+        ef: (c) => narEf(c.f, "batalla", 0.06, 3, "Venganza contra los desertores"),
+        leg: { gl: 2 },
+      },
+    ],
+  },
+
   /* ---------- reacciones (se encolan al ocurrir algo y se muestran al empezar el año) ---------- */
   {
     id: "recompensa",
@@ -3028,12 +3396,18 @@ function narEraNombre(f, e) {
 
 /* ---------- prólogo y epílogo (textos en js/historia.js) ---------- */
 async function narPrologo(f) {
-  if (typeof NAR_PROLOGO === "undefined" || !NAR_PROLOGO[f]) return false;
-  const P = NAR_PROLOGO[f];
+  if (typeof NAR_PROLOGO === "undefined") return false;
+  const id = narId0(f),
+    ley = narLey() && typeof NAR_PROLOGO_LEY !== "undefined",
+    P =
+      (ley && (NAR_PROLOGO_LEY[id] || NAR_PROLOGO_LEY[narId0(civBase(f))])) ||
+      NAR_PROLOGO[id] ||
+      NAR_PROLOGO[narId0(typeof civBase === "function" ? civBase(f) : f)];
+  if (!P) return false;
   return runEvent(
     { id: "prologo", t: P.t, d: P.d, o: narJuramentos(P.j) },
     {},
-    { kick: "Prólogo · Año 410 d.C." },
+    { kick: ley ? `Prólogo · El mundo de leyendas · Año ${G.year}` : `Prólogo · Año ${G.year} d.C.` },
   );
 }
 function narJuramentos(j) {
@@ -3116,7 +3490,7 @@ function narPanel() {
   if (ef.length)
     h += `<h3>Influjos</h3>${ef.map((e) => `<div class="nar-li"><b>${e.t}</b> <span class="stats">${narEfTxt(e)} · hasta ${e.h}</span></div>`).join("")}`;
   const arcs = narArcos().filter((a) => N.arc[a.id]),
-    fut = narArcos().filter((a) => !N.arc[a.id] && a.para(f)).length;
+    fut = narArcos().filter((a) => !N.arc[a.id] && narArcoValido(a) && a.para(f)).length;
   h += `<h3>Historias</h3>`;
   h += arcs.length
     ? arcs

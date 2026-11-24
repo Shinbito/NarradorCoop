@@ -545,6 +545,7 @@ function cmbGanarXp(c, xp, fama) {
   c.fama = Math.max(0, Math.round(((c.fama || 0) + fama) * 10) / 10);
   c.nivel = cmbNivelXp(c.xp);
   for (let n = n0 + 1; n <= c.nivel; n++) if (n % 2 === 1) c.ma = Math.min(10, (c.ma || 1) + 1);
+  if (c.nivel > n0) OC.emitirSync("nivelSube", { c, antes: n0, nivel: c.nivel }); /* OC */
   if (c.nivel > n0 && human(c.f))
     addLog(
       `${c.n} gana renombre en el campo: ${CMB_TIT[c.nivel].toLowerCase()} (nivel ${c.nivel}).`,
@@ -580,6 +581,7 @@ function cmbCapitanSurge(f, lugar) {
     ma: Math.max(c.ma, ri(3, 6)),
   });
   c.nivel = cmbNivelXp(c.xp);
+  OC.emitirSync("capitanSurge", { c, f, lugar }); /* OC */
   if (human(f))
     addLog(
       `De entre las filas${lugar ? " de " + lugar : ""} surge un capitán: ${c.n}. Sus hombres reconocen su liderazgo.`,
@@ -630,6 +632,7 @@ OC.accion("cmbasc", (v) => {
   if (!c || c.f !== ME || c.alive === false || c.rol !== "capitan") return;
   c.rol = "general";
   c.fama = (c.fama || 0) + 2;
+  OC.emitirSync("generalAsciende", { c, f: c.f }); /* OC */
   addLog(`${c.n} es ascendido a general.`, "good");
 });
 /* renombrar a un mando (si sociedad no ofrece ya la acción) */
