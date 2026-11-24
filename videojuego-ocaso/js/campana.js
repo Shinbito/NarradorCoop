@@ -784,7 +784,7 @@ OC.panel({
         ? con
             .map((c) => {
               const n = mercCuenta(ME, c.t);
-              return `<div class="cam-merc"><img src="${icon(ME, c.t)}" alt=""><div><b>${esc(c.nom)}</b> <span class="stats">${n * SPU} hombres · ${mercPago(c.t, n)} oro/estación · hasta ${c.hasta}${c.imp ? " · ¡sin cobrar!" : ""}</span><div class="btns"><button data-act="camm-r:${c.t}" ${dis ? "disabled" : ""}>Renovar</button><button data-act="camm-l:${c.t}" ${dis ? "disabled" : ""}>Licenciar</button></div></div></div>`;
+              return `<div class="cam-merc"><img src="${icon(ME, c.t)}" alt=""><div><b>${esc(c.nom)}</b> <span class="stats">${n * SPU} hombres · ${mercPago(c.t, n)} oro/estación · hasta ${c.hasta}${c.imp ? " · ¡sin cobrar!" : ""}</span><div class="btns"><button data-act="camm-r:${c.t}" ${dis ? "disabled" : ""}>Renovar</button><button data-act="camm-l:${c.t}" ${dis ? "disabled" : ""}>Licenciar</button><button data-act="camm-a:${c.t}:${c.auto ? 0 : 1}" ${dis ? "disabled" : ""} title="Qué hacer al vencer si no se te puede preguntar (online)">${c.auto ? "☑" : "☐"} Renovar al vencer</button></div></div></div>`;
             })
             .join("")
         : `<p class="dim">Sin compañías a sueldo. Se contratan llegando con un ejército a un campamento mercenario (tienda dorada del mapa) o en tus ciudades.</p>`;

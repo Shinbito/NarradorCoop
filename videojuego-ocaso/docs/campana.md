@@ -226,7 +226,7 @@ cerrar, si algo cambió sin pasar por los ganchos (sucesos, sociedad…) se aña
 `ajustes` (0 en la prueba). `camRepEstado(rep, n)` → `{own, ej}` tras aplicar los n primeros pasos (útil
 para `ifzRepetir`). Al cerrarla se emite **`repeticionLista` (rep)** (async; la interfaz lanza ahí la
 repetición). Con niebla, los pasos `mov`, `ej+`, `bat`, `esp`, `esp-` llevan `vh`: los jugadores humanos que
-llegaron a verlos (la repetición de cada uno debería mostrar solo esos). Pasos nuevos de espías: `esp`
+llegaron a verlos (la repetición de cada uno debería mostrar solo esos); también cada entrada de `ej0` (quién lo ve al empezar). Pasos nuevos de espías: `esp`
 (`{esp, f, de, a}`) y `esp-` (apresado).
 
 ## Niebla de guerra (en `campana.js`)
@@ -341,7 +341,9 @@ Cada compañía tiene nombre propio («Hérulos de Fara», «Jinetes alanos de G
   (murmuran); a la segunda **desertan**: desaparecen de ejércitos y guarniciones, saquean la provincia
   (−20 de orden, −5 % de población, roban hasta 4 de oro por leva) y forman una banda rebelde que vaga
   2 años, acampa, saquea y toma ciudades indefensas. Al vencer (primavera): renovar (medio enganche) o
-  licenciar; el jugador recibe un modal, la IA renueva si está en guerra y puede pagarles.
+  licenciar; el jugador recibe un modal, la IA renueva si está en guerra y puede pagarles. Sin modal (online,
+  o el jugador está en otro cliente) se licencia, salvo que lo marcara antes con «Renovar al vencer» (orden
+  `{tipo:"renovar", f, t, auto: true|false, anos}`, sin pagar hasta el vencimiento).
 - Son **fieles**: no hay oferta del rival que les haga cambiar de bando (decisión de diseño).
 - IA: contrata en guerra con un reino si el saldo anual sostiene la paga (un año) o el tesoro la cubre;
   prefiere campamentos junto a sus ejércitos y si no, ciudades fronterizas; máximo 2 contratos.
@@ -364,7 +366,11 @@ Cada compañía tiene nombre propio («Hérulos de Fara», «Jinetes alanos de G
 
 ## Ganchos
 
-- **Emite**: `finEstacion {anio, estacion}` (turnos), `batallaResuelta` (con `campana`), `conquista`.
+- **Emite**: `finEstacion {anio, estacion}` (turnos), `batallaResuelta` (con `campana`), `conquista`,
+  `antesBatalla` (async; `ev = {tipo: "dos"|"multi", ejA, ejD, lista, bctx, o, resultado: null, modo: null}`:
+  un oyente puede ajustar `bctx`/`o`, fijar `modo` o dar `resultado` —dos: `{gana, A, D, heridos, informe, gen}`;
+  multi: `{gana, ejs: [{id, u}], informe}`— y campaña sigue con él sin librarla; pensado para el online) y
+  `repeticionLista` (rep).
 - **Escucha**: `partidaLista` (crea `G.cam`, define mercenarios, campamentos), `pazFirmada` (levanta
   cercos y devuelve los ejércitos a su tierra).
 - **Usa**: `cmbResolverAuto`, `cmbTactica`, `cmbEstimar`, `cmbVetDe/Fijar`, `cmbOriDe/Fijar`, `cmbLlega`,
