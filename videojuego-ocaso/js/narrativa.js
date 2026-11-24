@@ -31,7 +31,7 @@ function life() {
     autoHeir(f);
     if (human(f)) continue;
     for (const c of family(f))
-      if (c.sp == null && c.age >= 18 && c.age <= 40 && R() < 0.2)
+      if (c.linaje !== false && c.sp == null && c.age >= 18 && c.age <= 40 && R() < 0.2)
         marry(c, mkChar(f, c.sex === "m" ? "f" : "m", clamp(c.age + ri(-4, 2), 16, 45)));
   }
 }
