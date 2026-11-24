@@ -190,7 +190,11 @@ function operar(cli, op, a) {
       if (tam(a.data) > 4096) return { err: "invalid_argument", msg: "mensaje > 4 KiB" };
       const R = hub.rooms.get(a.nombre);
       if (!R) return true;
-      for (const [, x] of R) enviar(x.cli, "msg", [a.nombre, { topic: a.topic, data: clon(a.data), peer: cli.peer, by: cli.uid }]);
+      for (const [, x] of R) {
+        const k = (a.nombre.startsWith("b-") ? "sala" : a.nombre || "vestibulo") + ":" + a.topic;
+        x.cli.rec[k] = (x.cli.rec[k] || 0) + 1;
+        enviar(x.cli, "msg", [a.nombre, { topic: a.topic, data: clon(a.data), peer: cli.peer, by: cli.uid }]);
+      }
       hub.emits = (hub.emits || 0) + 1;
       return true;
     }
@@ -323,14 +327,19 @@ const MOCK_PAGINA = function (uid) {
       },
       connected: () => true,
       onConnection: (fn) => (setTimeout(() => fn(true), 0), () => {}),
-      leave: () => llama("leave", { nombre }),
+      leave: () => {
+        S.dentro = false;
+        return llama("leave", { nombre });
+      },
     };
   }
   const lobby = Sala("");
   llama("join", { nombre: "" });
   const room = { ...lobby };
   room.join = async (nm) => {
+    if (salas[nm] && salas[nm].api && salas[nm].dentro) return salas[nm].api;
     const api = Sala(nm);
+    salas[nm].dentro = true;
     salas[nm].api = api;
     await llama("join", { nombre: nm });
     return api;
@@ -382,7 +391,7 @@ let browser;
 async function pagina(uid) {
   const context = await browser.newContext({ viewport: { width: 1300, height: 860 } });
   const page = await context.newPage();
-  const cli = { uid, page, cola: Promise.resolve(), vivo: true, peer: "p" + ++hub.n + uid };
+  const cli = { uid, page, cola: Promise.resolve(), vivo: true, peer: "p" + ++hub.n + uid, rec: {} };
   hub.clis.set(cli.peer, cli);
   page.on("pageerror", (e) => errores.push(`[${uid}] pageerror: ${e.stack || e.message}`));
   page.on("console", (m) => {
@@ -406,6 +415,7 @@ async function pagina(uid) {
       if (window.__modales[window.__modales.length - 1] !== t + "|" + m.dataset.n) {
         m.dataset.n = String(Math.random());
         window.__modales.push(t + "|" + m.dataset.n);
+        (window.__textos = window.__textos || []).push(t + " :: " + document.getElementById("modalc").textContent);
       }
       const bs = [...document.querySelectorAll("#modalc button")].filter((b) => !b.disabled);
       (bs.find((b) => window.__prefer && window.__prefer.test(b.textContent)) || bs[0])?.click();
@@ -680,8 +690,86 @@ async function escaramuza(c, fa, fb) {
   ok(await ev(B, () => ONL.log.some((l) => /^batalla .* remoto\/local/.test(l))), "el amigo que vuelve dirige su defensa en vivo");
 
   /* --- tamaño del estado y dificultad --- */
-  console.log("Tamaño del estado y dificultad de la IA");
+  /* --- tres jugadores: la guerra de A contra B no le llega a C --- */
+  console.log("Tres jugadores: la guerra es cosa de los implicados");
   const C = await pagina("u_cai");
+  await ev(A, () => {
+    ONL.cfg = { ...ONL_CFG_DEF, plazoH: 1, invitSeg: 60, amigoMin: 0, modoBatalla: "t1" };
+    ONL.nuevaPub = true;
+    ONL.nuevaInv = [];
+    ST.civ = 0;
+    ST.modo = "historico";
+    ST.cands = cands(0);
+    ST.ci = 0;
+    ST.gname = "Tres reinos";
+    return onlCrear();
+  });
+  await esperar(A, () => net.on && ONL.meta && ONL.meta.name === "Tres reinos" && ONL.ver === 1, null, 15000, "partida de tres creada");
+  const id3 = await ev(A, () => net.id);
+  await ev(B, (id) => onlUnirse(id, 2), id3);
+  await ev(C, (id) => onlUnirse(id, 3), id3);
+  await esperar(B, (id) => net.on && net.id === id && G && ONL.ver >= 1, id3, 15000, "B en la partida de tres");
+  await esperar(C, (id) => net.on && net.id === id && G && ONL.ver >= 1, id3, 15000, "C en la partida de tres");
+  await esperar(A, () => Object.keys(ONL.meta.seats).length === 3, null, 8000, "tres asientos");
+  /* A declara la guerra a B (diplomacia de verdad) y prepara la escaramuza */
+  await ev(A, () => declareWar(0, 2));
+  const s3 = await escaramuza(A, 0, 2);
+  for (const c of [A, B, C]) await esperar(c, (v) => ONL.ver === v, meta(id3).ver, 10000, "escaramuza de tres");
+  const recC0 = { ...C.rec };
+  await ev(C, () => {
+    window.__vioBT = false;
+    window.__vigia = setInterval(() => {
+      if (BT || document.querySelector("#onl-inv.show")) window.__vioBT = true;
+    }, 100);
+    window.__textos = [];
+  });
+  await ev(A, (sc) => camOrdenUI({ tipo: "mover", f: ME, ej: sc.A, x: sc.x, y: sc.y }), s3);
+  await ev(C, () => endTurn());
+  await ev(B, () => endTurn());
+  await esperar(A, () => ONL.meta.listos[2] === ONL.meta.turno && ONL.meta.listos[3] === ONL.meta.turno, null, 8000, "B y C listos");
+  await ev(A, () => endTurn());
+  await esperar(B, () => !!document.querySelector('[data-act="s-onlinv-si"]'), null, 30000, "B invitado (tres)");
+  await B.page.click('[data-act="s-onlinv-si"]');
+  await esperar(B, () => BT && BT.espejo && BT.espejo.ok, null, 20000, "espejo de B (tres)");
+  await ev(A, () => battleAct("go"));
+  await ev(B, () => battleAct("flee"));
+  await esperar(A, (t) => ONL.meta && ONL.meta.turno > t && !ONL.resolviendo, meta(id3).turno, 40000, "estación de tres publicada");
+  await esperar(C, (v) => ONL.ver === v, meta(id3).ver, 15000, "C recibe la estación");
+  await C.page.waitForTimeout(800);
+  const vistoC = await ev(C, () => ({ bt: window.__vioBT, inv: !!ONL.inv, textos: window.__textos.join(" || "), notif: ONL.ultNotif || "", avisos: ONL.avisos.map((a) => a.id), armas: (narF(3).cola || []).some((q) => q.e === "armas"), cron: onlS().cron.filter((c) => c.f.includes(3)).map((c) => c.m) }));
+  ok(!vistoC.bt && !vistoC.inv, "C (conectado, ajeno) no ve la batalla ni la invitación");
+  ok(!C.rec["sala:onl.b"], "C no recibe ni una foto de la sala de la batalla");
+  ok(!/Victoria|Derrota|¡Te atacan|Batalla en|guerra/i.test(vistoC.textos), "C no recibe modales de la guerra ajena");
+  ok(!/atac|batalla/i.test(vistoC.notif) && !vistoC.avisos.some((a) => /^bat-/.test(a)), "ni avisos ni notificaciones de batalla para C");
+  ok(!vistoC.armas, "la declaración de guerra solo avisa al defendido (no a C)");
+  ok(!vistoC.cron.some((m) => /Visigodos|Occidente/.test(m)), "la crónica personal de C no recoge la guerra ajena");
+  ok(await ev(B, () => (narF(2).cola || []).some((q) => q.e === "armas") || G.evY[2] === G.year), "el defendido sí recibe el aviso de guerra");
+  /* ahora resuelve C, que no participa: la batalla la dirige A y nunca se abre en C */
+  const s4 = await escaramuza(A, 0, 2);
+  for (const c of [A, B, C]) await esperar(c, (v) => ONL.ver === v, meta(id3).ver, 10000, "escaramuza 2 de tres");
+  await ev(C, () => ((window.__vioBT = false), (window.__textos = [])));
+  await ev(A, (sc) => camOrdenUI({ tipo: "mover", f: ME, ej: sc.A, x: sc.x, y: sc.y }), s4);
+  await ev(A, () => endTurn());
+  await ev(B, () => endTurn());
+  await esperar(C, () => ONL.meta.listos[0] === ONL.meta.turno && ONL.meta.listos[2] === ONL.meta.turno, null, 8000, "A y B listos");
+  await ev(C, () => endTurn());
+  await esperar(A, () => !!document.querySelector('[data-act="s-onlinv-si"]'), null, 30000, "A invitado por C");
+  await A.page.click('[data-act="s-onlinv-si"]');
+  await esperar(B, () => !!document.querySelector('[data-act="s-onlinv-si"]'), null, 30000, "B invitado por C");
+  await B.page.click('[data-act="s-onlinv-si"]');
+  await esperar(A, () => BT && BT.ctx && BT.ctx.onl, null, 40000, "A dirige la batalla delegada");
+  await esperar(B, () => BT && BT.espejo && BT.espejo.ok, null, 20000, "B ve el espejo (delegada)");
+  await ev(A, () => battleAct("go"));
+  await ev(B, () => battleAct("flee"));
+  await esperar(C, (t) => ONL.meta && ONL.meta.turno > t && !ONL.resolviendo, meta(id3).turno, 60000, "C publica tras la batalla delegada");
+  const vistoC2 = await ev(C, () => ({ bt: window.__vioBT, log: ONL.log.slice(-6), textos: window.__textos.join(" || ") }));
+  ok(!vistoC2.bt, "quien resuelve sin participar no abre la batalla en su pantalla");
+  ok(vistoC2.log.some((l) => /^delegar/.test(l)) && (await ev(A, () => ONL.log.some((l) => /^delegado/.test(l)))), "la batalla se delega en un participante");
+  ok(!/Victoria|Derrota|Batalla en/i.test(vistoC2.textos), "C tampoco ve el informe de la batalla delegada");
+  await ev(C, () => clearInterval(window.__vigia));
+  void recC0;
+
+  console.log("Tamaño del estado y dificultad de la IA");
   const AN = RAPIDA ? 20 : 50;
   const tam = await ev(
     C,
