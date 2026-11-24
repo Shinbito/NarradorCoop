@@ -1163,7 +1163,27 @@ OC.accion(
   },
   { libre: true },
 );
-/* memoria de los plegables (secciones de provincia, años de la crónica, potencias) */
+/* memoria de los plegables (secciones de provincia, años de la crónica, potencias).
+   El evento 'toggle' llega tarde (asíncrono): si ui() redibuja antes, se perdería el cambio.
+   Por eso se anota ya en el clic del <summary> el estado que va a tener. */
+document.addEventListener(
+  "click",
+  (e) => {
+    const sm = e.target.closest && e.target.closest("summary");
+    const d = sm && sm.parentElement;
+    if (!d || d.tagName !== "DETAILS" || !d.dataset) return;
+    const nuevo = !d.open;
+    if (d.dataset.ifzsec != null) {
+      IFZ.pref.sec[d.dataset.ifzsec] = nuevo;
+      ifzGuardar();
+    } else if (d.dataset.ifzanio != null) IFZ.anios[d.dataset.ifzanio] = nuevo;
+    else if (d.id === "potd") {
+      IFZ.pref.pot = nuevo;
+      ifzGuardar();
+    }
+  },
+  true,
+);
 document.addEventListener(
   "toggle",
   (e) => {
