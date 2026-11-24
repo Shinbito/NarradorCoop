@@ -26,7 +26,7 @@ cambian. Funciona con las batallas de dos ejércitos (`cmbTactica`) y con las de
 | Botón | Qué hace |
 |---|---|
 | **Vista: 3D / clásica** | Cambia entre la vista 3D y el lienzo 2D de siempre (la elección se recuerda). Si el jugador no ha elegido: 3D cuando hay WebGL con GPU; con WebGL **por software** (SwiftShader, llvmpipe… detectado con `WEBGL_debug_renderer_info`) se empieza en la clásica, porque cada fotograma costaría cientos de milisegundos y frenaría los turnos. Sin WebGL el botón queda en «clásica» y deshabilitado (sin errores: se sondea el contexto antes de crear el renderizador). |
-| **⟲ ⟳** | Giran la vista 90° (con transición suave; instantánea con `prefers-reduced-motion`). |
+| **⟲ ⟳** | Giran la vista 22,5° (con transición suave; instantánea con `prefers-reduced-motion`). El giro es libre: con el botón derecho o dos dedos gira de forma continua. |
 | **Reiniciar vista** | Giro, zoom y encuadre iniciales (tu línea abajo a la izquierda). |
 | **Seguir unidad** | La cámara sigue a la unidad elegida (`BT.sel`). |
 | **Barras** | Cifras de hombres y barras de tamaño, moral y cansancio sobre cada unidad. Los avisos (general ⚑, habilidad, vacilación, desbocados) se ven siempre. |
@@ -37,8 +37,8 @@ Los botones «− Zoom / Zoom +» de la barra existente hacen zoom ortográfico 
 
 ## Controles
 
-La cámara es **ortográfica con inclinación fija de 30°** (aire isométrico, figuras nítidas). No hay órbita
-libre ni vistas desde el suelo: solo se gira alrededor del eje vertical, en pasos de 90°.
+La cámara es **ortográfica con inclinación fija de 30°** (aire isométrico, figuras nítidas). No hay vistas
+desde el suelo: se gira libremente alrededor del eje vertical (sin pasos fijos).
 
 | Gesto | Escritorio | Móvil |
 |---|---|---|
@@ -50,7 +50,7 @@ libre ni vistas desde el suelo: solo se gira alrededor del eje vertical, en paso
 | Desplegar | clic en tu franja clara, o arrastrar la unidad | igual |
 | Desplazar la vista | arrastrar el suelo (sin unidad bajo el puntero), botón central, flechas | arrastrar el suelo, o mover dos dedos |
 | Zoom | rueda (conserva el punto bajo el cursor), `+` / `−`, botones de zoom | pellizco |
-| Girar 90° | ⟲ ⟳, **Q / E**, arrastre horizontal con el botón derecho | girar dos dedos (≈ 60° de giro = un paso) |
+| Girar | ⟲ ⟳ y **Q / E** (22,5°), arrastre horizontal con el botón derecho (continuo) | girar dos dedos (continuo) |
 | Reiniciar / seguir | R / F | botones |
 
 Toques y clics se convierten en casillas del campo con un rayo desde la cámara contra el **relieve**

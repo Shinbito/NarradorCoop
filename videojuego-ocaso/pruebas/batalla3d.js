@@ -1,6 +1,6 @@
 /* Prueba del sistema BATALLA 3D: vista isométrica ortográfica girable (Three.js) sobre la batalla táctica.
    - Batallas en los tres modos (t3, t1, rt) con la vista 3D: despliegue, selección tocando en 3D, órdenes
-     de mover y de atacar por rayos, arrastre de una unidad, selección por rectángulo, giros (⟲ ⟳, Q/E),
+     de mover y de atacar por rayos, arrastre de una unidad, selección por rectángulo, giro libre (⟲ ⟳, Q/E),
      zoom, ejecución de turnos y cierre (la escena se libera).
    - Batallas automáticas completas en 3D (con murallas, río y lluvia) sin errores.
    - Batalla grande con tres pueblos (miles de figuras): fps aproximados y coste del fotograma.
@@ -248,7 +248,7 @@ const esperaCam = (page) => page.waitForFunction(() => Math.abs(B3D.cam.az - B3D
       const n = await page.evaluate(() => BT.sels.length);
       ok(n >= Math.min(3, r.n), `rectángulo de selección proyectado: ${n} unidades`);
     }
-    /* giros de 90° (botones y teclas Q/E), siempre con la misma inclinación */
+    /* giro libre: botones y teclas Q/E a pasos de 22,5°, siempre con la misma inclinación */
     if (modo === "rt") {
       await page.evaluate(() => {
         BT.sels = [];
@@ -258,16 +258,16 @@ const esperaCam = (page) => page.waitForFunction(() => Math.abs(B3D.cam.az - B3D
       for (let k = 0; k < 4; k++) {
         await esperaCam(page);
         await page.waitForTimeout(150);
-        await page.screenshot({ path: path.join(capt, `batalla3d-giro${k * 90}.png`) });
+        await page.screenshot({ path: path.join(capt, `batalla3d-giro${k * 22.5}.png`) });
         if (k < 3) await page.click('[data-b3d="der"]');
       }
       const az1 = await page.evaluate(() => B3D.cam.azT);
-      ok(Math.abs(az1 - az0 - (3 * Math.PI) / 2) < 1e-6, "⟳ gira la vista en pasos de 90° (4 capturas)");
+      ok(Math.abs(az1 - az0 - (3 * Math.PI) / 8) < 1e-6, "⟳ gira la vista en pasos de 22,5° (4 capturas)");
       await page.keyboard.press("q");
       await page.keyboard.press("Q");
       await page.keyboard.press("e");
       const az2 = await page.evaluate(() => B3D.cam.azT);
-      ok(Math.abs(az2 - (az1 - Math.PI / 2)) < 1e-6, "teclas Q/E giran 90°");
+      ok(Math.abs(az2 - (az1 - Math.PI / 8)) < 1e-6, "teclas Q/E giran 22,5°");
       const inc = await page.evaluate(() => {
         const c = B3D.camera,
           d = c.getWorldDirection(new THREE.Vector3());
@@ -573,7 +573,7 @@ const esperaCam = (page) => page.waitForFunction(() => Math.abs(B3D.cam.az - B3D
   const aA = await mov.evaluate(() => B3D.cam.azT);
   await dosDedos([wr.cx - 60, wr.cy], [wr.cx + 60, wr.cy], [wr.cx, wr.cy - 60], [wr.cx, wr.cy + 60]);
   const aB = await mov.evaluate(() => B3D.cam.azT);
-  ok(Math.abs(Math.abs(aB - aA) - Math.PI / 2) < 1e-6, "girar dos dedos gira la vista 90°");
+  ok(Math.abs(Math.abs(aB - aA) - Math.PI / 2) < 0.05, `girar dos dedos 90° gira la vista lo mismo, sin pasos (${((Math.abs(aB - aA) * 180) / Math.PI).toFixed(1)}°)`);
   await mov.waitForTimeout(800);
   await mov.screenshot({ path: path.join(capt, "batalla3d-movil.png") });
   await mov.context().close();

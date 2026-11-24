@@ -3,7 +3,7 @@
    cuando la opción «Vista: 3D» está activa (por defecto si hay WebGL). La simulación no cambia: cada
    fotograma solo se LEE el estado global BT (unidades, efectos, terreno, murallas) de js/batalla.js.
    - Cámara ORTOGRÁFICA con inclinación isométrica fija (30°); solo gira alrededor del eje vertical en
-     pasos de 90° con transición (⟲ ⟳, Q/E, arrastre con botón derecho o giro con dos dedos), zoom
+     giro libre (⟲ ⟳ y Q/E a pasos de 22,5°; arrastre con botón derecho o giro con dos dedos, continuo), zoom
      (rueda, pellizco, botones de zoom) y desplazamiento (arrastre del suelo, flechas, dos dedos).
    - «Pixel 3D»: se dibuja a baja resolución y se escala sin suavizado (image-rendering: pixelated).
    - Tropas voxel por clase con InstancedMesh (un solo material para todas las figuras); la animación
@@ -614,7 +614,7 @@ function b3dCierra(P) {
 
 /* ======================= DOM: lienzos, barra de vista ======================= */
 const B3D_AYUDA =
-  "Rueda o pellizco: zoom · arrastra el terreno: desplazar · ⟲ ⟳, Q/E, botón derecho o dos dedos girando: girar 90°";
+  "Rueda o pellizco: zoom · arrastra el terreno: desplazar · ⟲ ⟳, Q/E, botón derecho o dos dedos girando: girar libremente";
 function b3dDom() {
   if (B3D.wrap) return;
   const bm = document.querySelector("#battle .bmain"),
@@ -632,8 +632,8 @@ function b3dDom() {
   bar.id = "b3dbar";
   bar.innerHTML =
     '<button class="zb" data-b3d="vista" aria-pressed="true" title="Cambiar entre la vista 3D y la clásica">Vista: 3D</button>' +
-    '<button class="zb b3d-s" data-b3d="izq" title="Girar la vista 90° (Q)" aria-label="Girar la vista a la izquierda">⟲</button>' +
-    '<button class="zb b3d-s" data-b3d="der" title="Girar la vista 90° (E)" aria-label="Girar la vista a la derecha">⟳</button>' +
+    '<button class="zb b3d-s" data-b3d="izq" title="Girar la vista (Q; mantén el botón derecho o gira dos dedos para girar libremente)" aria-label="Girar la vista a la izquierda">⟲</button>' +
+    '<button class="zb b3d-s" data-b3d="der" title="Girar la vista (E; mantén el botón derecho o gira dos dedos para girar libremente)" aria-label="Girar la vista a la derecha">⟳</button>' +
     '<button class="zb b3d-s" data-b3d="reset" title="Vista inicial (R)">Reiniciar vista</button>' +
     '<button class="zb b3d-s" data-b3d="seguir" aria-pressed="false" title="La cámara sigue a la unidad elegida (F)">Seguir unidad</button>' +
     '<button class="zb b3d-s" data-b3d="barras" aria-pressed="true" title="Cifras y barras de moral sobre las unidades">Barras</button>' +
@@ -676,7 +676,7 @@ function b3dBarra() {
     B3D.ayuda.textContent = !on
       ? B3D.ayuda0
       : matchMedia("(pointer: coarse)").matches
-        ? "Pellizca: zoom · arrastra el terreno: desplazar · ⟲ ⟳ o gira dos dedos: girar 90°"
+        ? "Pellizca: zoom · arrastra el terreno: desplazar · ⟲ ⟳ o gira dos dedos: girar libremente"
         : B3D_AYUDA;
   const z = $("bzl");
   if (z && on) z.textContent = Math.round(B3D.cam.zoomT * 100) + "%";
@@ -719,14 +719,19 @@ function b3dAz0() {
     s = -Math.SQRT1_2;
   return Math.atan2(x * c - z * s, x * s + z * c);
 }
+/* giro libre: los botones y Q/E giran 22,5° con transición; los gestos, lo que se mueva el dedo */
+const B3D_PASO_GIRO = Math.PI / 8;
 function b3dGira(d) {
-  const C = B3D.cam,
-    q = Math.PI / 2;
-  /* siempre a un múltiplo de 90° desde el giro inicial */
-  const a0 = B3D.az0 ?? B3D_AZ0,
-    k = Math.round((C.azT - a0) / q) + d;
-  C.azT = a0 + k * q;
+  const C = B3D.cam;
+  C.azT += d * B3D_PASO_GIRO;
   if (B3D.reduce) C.az = C.azT;
+}
+/* giro continuo (radianes), sin transición: sigue al ratón o a los dedos */
+function b3dGiraLibre(a) {
+  const C = B3D.cam;
+  C.azT += a;
+  C.az = C.azT;
+  b3dCamara();
 }
 function b3dReinicia() {
   const C = B3D.cam,
@@ -2175,7 +2180,7 @@ function b3dEntrada(w) {
     } catch (_) {}
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pts.size === 2) {
-      /* dos dedos: pellizco = zoom, giro = girar 90°, mover = desplazar */
+      /* dos dedos: pellizco = zoom, giro = girar (libre), mover = desplazar */
       clearTimeout(B3D.lp);
       B3D.drag = null;
       const [a, b] = [...pts.values()];
@@ -2234,9 +2239,10 @@ function b3dEntrada(w) {
         my = (a.y + b.y) / 2;
       B3D.cam.zoomT = clamp((D.z0 * dist) / D.d0, 0.8, 8);
       if (B3D.reduce) B3D.cam.zoom = B3D.cam.zoomT;
+      /* giro libre con dos dedos: la vista gira lo mismo que los dedos */
       const da = b3dAng(an - D.an0);
-      if (Math.abs(da) > 1) {
-        b3dGira(da > 0 ? -1 : 1);
+      if (Math.abs(da) > 0.004) {
+        b3dGiraLibre(-da);
         D.an0 = an;
       }
       b3dPan(mx - D.mx, my - D.my);
@@ -2249,12 +2255,9 @@ function b3dEntrada(w) {
     if (!d) return;
     const rc = w.getBoundingClientRect();
     if (d.mode === "giro") {
-      d.acc += e.clientX - d.lx;
+      /* giro libre con el botón derecho: 1 px = ~0,4° */
+      b3dGiraLibre(-(e.clientX - d.lx) * 0.007);
       d.lx = e.clientX;
-      if (Math.abs(d.acc) > 80) {
-        b3dGira(d.acc > 0 ? -1 : 1);
-        d.acc = 0;
-      }
       return;
     }
     if (d.mode === "pan") {

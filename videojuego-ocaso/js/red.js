@@ -184,8 +184,8 @@
     if (!ident || !ident.uid || !ident.token || !ident.name) {
       // «Ahora no» deja jugar sin conexión; la chapa «Entrar online» lo vuelve a pedir
       if (!forzar && !pInvTemprano && localStorage.getItem(CLAVE + ".ahorano")) return pintarChapa();
-      /* OC: en navegadores automatizados (pruebas) no se pide el nombre al arrancar */
-      if (!forzar && !pInvTemprano && navigator.webdriver) return pintarChapa();
+      /* pruebas automáticas (Playwright) sin servidor indicado: no se pregunta (como «Ahora no») */
+      if (!forzar && navigator.webdriver && !localStorage.getItem("ocaso.servidor") && !window.OCASO_SERVIDOR) return pintarChapa();
       const name = await pedirNombre(pInvTemprano ? "Te han invitado a Ocaso del Imperio. ¿Cómo te llamas?" : "¿Cómo te llamas, señor? (para jugar online)", "", !pInvTemprano);
       if (!name) {
         localStorage.setItem(CLAVE + ".ahorano", "1");
