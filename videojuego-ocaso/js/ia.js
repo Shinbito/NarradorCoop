@@ -205,17 +205,23 @@ async function camIAFormar(f) {
     for (const i of MAP.adj[p.id]) {
       const q = G.P[i];
       if (q.owner === f || !camGuerra(f, q.owner)) continue;
-      if (camAsedio(q.id) || mios.some((m) => m.obj && m.obj.p === q.id)) continue;
-      const s =
-        (my / (pw(q.u) * (1 + 0.15 * (q.walls || 0)) * gb(q.gen) + 3)) *
-        (q.owner === REB ? 1.15 : 1) *
-        (q.cap ? 1.2 : 1);
-      if (s > 0.9) c.push({ p, q, u, s });
+      /* una ciudad que ya cerca un ejército propio puede recibir un segundo por otro flanco (asalto conjunto) */
+      const asq = camAsedio(q.id),
+        van = mios.filter((m) => (m.obj && m.obj.p === q.id) || m.asd === q.id),
+        refuerzo = asq && asq.f === f && van.length === 1;
+      if ((asq && !refuerzo) || (!asq && van.length) || van.length >= 2) continue;
+      const ya = refuerzo ? van.reduce((t, m) => t + pw(camUCampo(m.u)), 0) : 0,
+        s =
+          ((my + ya) / (pw(q.u) * (1 + 0.15 * (q.walls || 0)) * gb(q.gen) + 3)) *
+          (q.owner === REB ? 1.15 : 1) *
+          (q.cap ? 1.2 : 1);
+      if (s > 0.9) c.push({ p, q, u, s, con: refuerzo ? van : null });
     }
   }
   c.sort((a, b) => b.s - a.s);
   for (const x of c.slice(0, 3)) {
-    const e = tot(x.q.u) ? cmbEstimar(camIAEjDe(f, x.p, x.u), camGuarnicion(x.q), camIACtxCiudad(x.q), 4) : 1;
+    const uu = x.con ? x.con.reduce((t, m) => cmbSuma(t, camUCampo(m.u)), { ...x.u }) : x.u,
+      e = tot(x.q.u) ? cmbEstimar(camIAEjDe(f, x.p, uu), camGuarnicion(x.q), camCtxFlancos(camIACtxCiudad(x.q), x.con ? 2 : 1), 4) : 1;
     if (e < ((x.q.walls || 0) > 0 ? 0.5 : 0.62) / (x.q.owner === REB ? 1.1 : 1)) continue;
     const r = await camIAOrd({ tipo: "formar", f, p: x.p.id, u: x.u });
     if (r.ok) camEj(r.ej).obj = { p: x.q.id };
@@ -237,7 +243,17 @@ async function camIAEj(f, ej) {
     const q = G.P[ej.asd];
     if (!q || !camGuerra(f, q.owner)) camLevantar(ej);
     else {
+      if (ej.acc === camClaveEst()) return null; // ya asaltó (sola o con otros) esta estación
       const e = tot(q.u) ? cmbEstimar(camParaBatalla(ej), camGuarnicion(q), camCtxAsalto(ej, q), 4) : 1;
+      /* asalto conjunto con los demás ejércitos junto a la ciudad si así mejora la estimación */
+      const part = camParticipantes(ej, q);
+      if (part.length > 1 && tot(q.u)) {
+        const ec = camEstimarAsalto(part, q, 4);
+        if (ec >= 0.6 && ec > e + 0.05) {
+          await camIAOrd({ tipo: "asaltar", f, ej: ej.id, con: part.slice(1).map((x) => x.id) });
+          return null;
+        }
+      }
       if (e >= 0.62 || (!(q.walls > 0) && e >= 0.55)) {
         await camIAOrd({ tipo: "asaltar", f, ej: ej.id });
         return null;
@@ -327,24 +343,32 @@ async function camIAEj(f, ej) {
         })
         .filter((x) => Number.isFinite(x.d) && x.d < mx * 3)
         .sort((a, b) => b.s - a.s);
-    for (const x of cs.slice(0, 2)) {
+    /* una ciudad cercada por otro bando solo se toca sumándose a su cerco (si lo acepta) */
+    let pedidas = 0;
+    for (const x of cs.slice(0, 3)) {
+      const aj = camCercoAjeno(f, x.c);
+      if (aj && (camGuerra(f, aj.f) || pedidas++ || !(await camPedirCerco(f, x.c)))) continue;
       const e = tot(x.c.u) ? cmbEstimar(yo, camGuarnicion(x.c), camIACtxCiudad(x.c), 3) : 1;
-      if (e >= ((x.c.walls || 0) > 0 ? 0.5 : 0.6)) {
+      if (e >= ((x.c.walls || 0) > 0 ? 0.5 : 0.6) || (camAsedio(x.c.id) && e >= 0.35)) {
         q = x.c;
         ej.obj = { p: q.id };
         break;
       }
     }
   }
+  if (q && camCercoAjeno(f, q)) {
+    ej.obj = null;
+    q = null;
+  }
   if (q) {
-    const vacia = !tot(q.u) && !(q.walls > 0);
+    const vacia = !tot(q.u) && !(q.walls > 0) && !camAsedio(q.id);
     return {
       tipo: "mover",
       f,
       ej: ej.id,
       x: q.x,
       y: q.y,
-      luego: vacia ? null : (q.walls || 0) > 0 ? "asediar" : "asaltar",
+      luego: vacia ? null : (q.walls || 0) > 0 || (camAsedio(q.id) && camAsedio(q.id).f === f) ? "asediar" : "asaltar",
       p: q.id,
     };
   }
@@ -382,7 +406,7 @@ function camIARebeldes() {
       continue;
     }
     const presa = G.P.filter(
-      (q) => q.owner !== REB && Math.hypot(q.x - e.x, q.y - e.y) < 12 && pw(q.u) * (1 + 0.3 * (q.walls || 0)) < pw(e.u) * 0.8,
+      (q) => q.owner !== REB && !camCercoAjeno(REB, q) && Math.hypot(q.x - e.x, q.y - e.y) < 12 && pw(q.u) * (1 + 0.3 * (q.walls || 0)) < pw(e.u) * 0.8,
     ).sort((a, b) => Math.hypot(a.x - e.x, a.y - e.y) - Math.hypot(b.x - e.x, b.y - e.y))[0];
     if (presa && e.est !== "asedio")
       ords.push({ tipo: "mover", f: REB, ej: e.id, x: presa.x, y: presa.y, luego: "asaltar", p: presa.id });

@@ -229,6 +229,75 @@ const ok = (c, m) => {
   ok(m3.own === MEv, "la ciudad cae (asalto o rendición)");
   ok(!m3.asalto || !m3.combateMaq || m3.asalto.maq >= 2, `el asalto lleva las máquinas en ejA.u (${m3.asalto ? m3.asalto.maq : "-"})`);
 
+  /* ---------- 3b. varios ejércitos por distintos flancos y asalto conjunto ---------- */
+  console.log("3b. Flancos y asalto conjunto");
+  const m3b = await corre(`
+    const cap = G.P[G.F[ME].capId];
+    /* ciudad enemiga con sitio libre a su alrededor y una casilla de reunión a 3 casillas */
+    const ps = G.P.filter((p) => p.owner !== ME && !p.cap).sort((a, b) => Math.hypot(a.x - cap.x, a.y - cap.y) - Math.hypot(b.x - cap.x, b.y - cap.y));
+    let q = null, reu = null;
+    for (const p of ps) {
+      const libres = CAM_V8.filter(([dx, dy]) => MAP.terr[p.y + dy] && MAP.terr[p.y + dy][p.x + dx] && !camEjsEn(p.x + dx, p.y + dy).length && !camCiudadEn(p.x + dx, p.y + dy));
+      const lados = new Set(libres.map(([dx, dy]) => camFlanco(dx, dy)));
+      if (lados.size < 4) continue;
+      for (const [dx, dy] of [[-3, 0], [3, 0], [0, -3], [0, 3]]) {
+        const x = p.x + dx, y = p.y + dy;
+        if (MAP.terr[y] && MAP.terr[y][x] && MAP.grid[y][x] >= 0 && !camCiudadEn(x, y) && !camEjsEn(x, y).length) { reu = [x, y]; break; }
+      }
+      if (reu) { q = p; break; }
+    }
+    if (!q) return { sin: true };
+    if (q.owner < NF) G.st[ME][q.owner] = G.st[q.owner][ME] = "guerra";
+    for (const e of G.cam.ej.slice()) if (e.f !== ME && camCheb(e.x, e.y, q.x, q.y) <= 2) camQuitar(e);
+    q.walls = 2; q.u = cmbNorm({ l: 6, i: 14, a: 6 }); q.order = 95; q.gen = null;
+    const hace = (u) => { const e = camNuevoEj(ME, reu[0], reu[1], u, {}); e.mov = 30; return e; };
+    const A = hace({ i: 10, a: 3, c: 2 }), B = hace({ i: 8, l: 3, a: 2 }), C = hace({ i: 6, c: 3, x: 2 });
+    for (const e of [A, B, C]) await camAplicarOrden(G, { tipo: "mover", f: ME, ej: e.id, x: q.x, y: q.y, luego: "asediar", p: q.id });
+    const fl = camFlancosDe(ME, q);
+    const lados = [A, B, C].map((e) => camFlanco(e.x - q.x, e.y - q.y));
+    /* estimaciones: el mayor solo, los tres juntos, y la misma fuerza por 1 o por 3 flancos */
+    const solo = camEstimarAsalto([A], q, 40), junto = camEstimarAsalto([A, B, C], q, 40);
+    const F = camFuerzaConjunta([A, B, C]), ctx3 = camCtxAsalto(A, q, [A, B, C]);
+    const f1 = cmbEstimar(F.ej, camGuarnicion(q), camCtxAsalto(A, q, [A]), 60), f3 = cmbEstimar(F.ej, camGuarnicion(q), ctx3, 60);
+    /* captura del cerco por tres flancos con un ejército seleccionado */
+    camSel = A.id; sel = q.id; tab = "prov"; ui();
+    if (typeof setZoom === "function") setZoom(3);
+    centerOn(q.id);
+    return { sin: false, q: q.id, lados, nl: fl.lados.length, solo, junto, f1, f3, ids: [A.id, B.id, C.id], k3: ctx3.flancos };
+  `);
+  console.log("  " + JSON.stringify(m3b));
+  if (!m3b.sin) {
+    ok(m3b.nl >= 3 && new Set(m3b.lados).size >= 3, `tres ejércitos cercan por flancos distintos (${m3b.lados.join(", ")}; ${m3b.nl}/4)`);
+    ok(m3b.junto > m3b.solo, `el asalto conjunto gana más que uno solo (${Math.round(m3b.junto * 100)}% frente a ${Math.round(m3b.solo * 100)}%)`);
+    ok(m3b.f3 >= m3b.f1, `la misma fuerza por 3 flancos rinde más que por 1 (${Math.round(m3b.f3 * 100)}% frente a ${Math.round(m3b.f1 * 100)}%)`);
+    await page.waitForTimeout(300);
+    await page.screenshot({ path: path.join(capt, "campana-flancos-cerco.png") });
+    /* el asalto conjunto como orden serializable */
+    const m3c = await corre(`
+      const [a, b, c] = arg.ids.map(camEj), q = G.P[arg.q];
+      const n0 = [a, b, c].map((e) => camTot(camUCampo(e.u))), nb = window.__ev.bat.length;
+      const o = JSON.parse(JSON.stringify({ tipo: "asaltar", f: ME, ej: a.id, p: q.id, con: [b.id, c.id] }));
+      const r = await camAplicarOrden(G, o, { auto: true });
+      const bats = window.__ev.bat.slice(nb).filter((x) => x.t === "asalto");
+      const inf = (G.cmb.inf || [])[0];
+      const bajas = (r.bajas || []).map((x) => ({ ...x, pc: x.n0 ? (x.n0 - x.n1) / x.n0 : 0 }));
+      const otra = await camAplicarOrden(G, { tipo: "asaltar", f: ME, ej: b.id, p: q.id });
+      camAnimAsalto = { p: q.id, t0: performance.now() - 500, ejs: arg.ids.map((id, i) => [camEj(id) ? camEj(id).x : q.x - 1, camEj(id) ? camEj(id).y : q.y, ME]) };
+      ui();
+      return { ok: r.ok, gana: r.gana, k: r.flancos, n: (r.ejs || []).length, bats: bats.length, factor: !!(inf && inf.factores.some((x) => x.k === "flancos")), bajas, n0, otra: otra.ok, own: q.owner, enCiudad: arg.ids.filter((id) => camEj(id) && camEj(id).x === q.x && camEj(id).y === q.y).length };
+    `, m3b);
+    console.log("  " + JSON.stringify(m3c));
+    await page.waitForTimeout(150);
+    await page.screenshot({ path: path.join(capt, "campana-flancos-asalto.png") });
+    await page.evaluate(() => typeof setZoom === "function" && setZoom(1));
+    ok(m3c.ok && m3c.n === 3 && m3c.k === 3 && m3c.bats === 1, "los tres ejércitos asaltan juntos en UNA batalla por 3 flancos");
+    ok(m3c.factor, "el informe lleva el factor «asalto por 3 flancos»");
+    const pcs = m3c.bajas.map((x) => x.pc);
+    ok(m3c.bajas.length === 3 && Math.max(...pcs) - Math.min(...pcs) < 0.3, `las bajas se reparten según lo aportado (${pcs.map((x) => Math.round(x * 100) + "%").join(", ")})`);
+    ok(!m3c.otra, "un ejército que ya asaltó no repite en la misma estación");
+    ok(!m3c.gana || (m3c.own === MEv && m3c.enCiudad === 1), "si se gana, el que más aportó entra en la ciudad y los demás quedan junto a ella");
+  }
+
   /* ---------- 4. rendición por hambre ---------- */
   console.log("4. Rendición por hambre");
   const m4 = await corre(`

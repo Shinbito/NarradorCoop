@@ -753,6 +753,8 @@ function ifzCamDibujar(now) {
       c.fillRect(X + 3, Y - 7, 2, 2);
     }
   }
+  /* CAM: flancos del cerco, flechas, compañeros de asalto conjunto y su animación (campana.js) */
+  if (typeof camDibujarCerco === "function") camDibujarCerco(c, now);
   /* ejércitos */
   const ciu = camCiudades();
   for (const e of S.ej) {

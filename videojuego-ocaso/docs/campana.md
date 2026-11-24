@@ -123,6 +123,43 @@ aliado), media guarnición sale a la vez y vuelve después. Se emite `batallaRes
   desde la ciudad. Si pierde: la IA levanta el cerco si quedó muy débil.
 - **Capitanes**: si de una victoria de un ejército sin general surge un capitán (combate,
   `cmbCapitanSurge`), campaña le da el mando de ese ejército (en vez de la provincia).
+- Cada ejército asalta como mucho **una vez por estación** (`ej.acc = "año.estación"`).
+
+### Cerco por flancos y asalto conjunto
+
+- **Flancos**: las 8 casillas vecinas de una ciudad forman 4 lados, cada uno una recta y una diagonal
+  en sentido horario: N = (0,−1)(1,−1), E = (1,0)(1,1), S = (0,1)(−1,1), O = (−1,0)(−1,−1)
+  (`camFlanco(dx, dy)`). `camFlancosDe(f, p)` → `{ejs, lados}`: ejércitos de f (y de sus aliados en
+  guerra con el dueño) junto a la ciudad y lados que cubren.
+- Al asediar con un segundo ejército, `camJuntoA` busca un **flanco libre** (sin ejército propio ni
+  casilla ocupada) si se alcanza esta estación o cuesta poco más (≤ 4 puntos o 40 % del alcance) que el
+  lado cubierto más cercano.
+- **Asalto conjunto**: `{tipo:'asaltar', f, ej, p?, con:[ids]}` (o `mover` con `luego:'asaltar'` y
+  `con`). Atacan en **una** batalla `ej` y los de `con` que sigan junto a la ciudad y no hayan asaltado
+  esta estación (`camParticipantes`; los aliados solo si no los lleva una persona). Fuerza conjunta
+  (`camFuerzaConjunta`): tropas y máquinas sumadas, veteranía ponderada por hombres, origen de quien
+  más aporta, al mando el mejor general (mando, luego experiencia) y +3 % de daño por cada general más
+  (máx. +9 %, `OC.mod('bonoBatalla')` solo durante ese asalto). `F.por` guarda el desglose por ejército
+  y facción para cuando combate tenga batallas de varios bandos (`cmbResolverMulti`).
+- **Ventaja por flancos** (k lados): `ctx.flancos = k`. Mientras combate no lo lea de forma nativa,
+  campaña lo traduce (`ctx.flancosAplicados = true`): murallas ×(1 − 0,15·(k−1)) (mín. ×0,4) y
+  `ctx.asedio` +1,25 por flanco extra (= −5 de moral de la guarnición por flanco; `ctx.estaciones`
+  guarda las de cerco reales). El informe lleva al frente el factor «Asalto por k flancos».
+- **Reparto**: supervivientes de cada clase en proporción a lo aportado (restos mayores,
+  `camRepartir`), heridos y veteranía por ejército; botín de la ciudad (`4 + 0,4·población` de oro)
+  repartido por bandos según fuerza aportada. Si se gana entra en la ciudad el que más aportó y los
+  demás quedan junto a ella; si se pierde, cada uno sigue (la IA levanta el cerco si quedan débiles).
+- **Interfaz**: el modal de la ciudad rival muestra «Tus ejércitos junto a la ciudad: N · flancos
+  cubiertos k/4» y ofrece «Asalto conjunto (N ejércitos, k flancos)»; el panel del ejército, la
+  estimación conjunta y el botón. En el mapa (`camDibujarCerco`, llamado desde `ifzCamDibujar`, marcado
+  CAM): marca del color del sitiador en cada lado ocupado, flechas de cada ejército hacia la ciudad,
+  esquinas doradas en los ejércitos que participarían al seleccionar uno y una animación breve del
+  asalto conjunto (columnas que convergen y estallido).
+- **Táctica**: el asalto conjunto se libra con la fuerza sumada en un solo bando; desplegar a los
+  atacantes por varios lados del campo táctico queda para combate (no se toca `batalla.js`).
+- **IA**: si tiene varios ejércitos junto a una ciudad y la estimación conjunta (`camEstimarAsalto`)
+  supera 0,6 y mejora en 5 puntos la de uno solo, asalta en conjunto; puede enviar un segundo ejército
+  a una ciudad que ya cerca (llega por otro flanco y se suma al cerco).
 
 ## Órdenes (API para el futuro online)
 
@@ -134,7 +171,7 @@ Todo se expresa con objetos planos (JSON) con `f` = bando que da la orden:
 | `mover` | `ej`, `x`, `y`, `luego?` (`asediar`/`asaltar`/`acampar`/`disolver`/`unir`), `p?`, `con?` | marcha por la ruta más barata hasta agotar el alcance; lo que falte queda en `plan` |
 | `acampar` / `levantar` / `disolver` / `dividir` (`frac`) / `unir` (`con`) | `ej` | |
 | `asediar` | `ej`, `p` | cerco desde una casilla vecina |
-| `asaltar` | `ej` | asalto a la ciudad sitiada |
+| `asaltar` | `ej`, `p?`, `con?:[ids]` | asalto a la ciudad sitiada (o vecina); con `con`, asalto conjunto por varios flancos |
 | `construir` | `ej`, `maq` (`ari`/`tor`/`cat`) | encarga una máquina |
 | `general` | `ej`, `c` (id o null) | da o quita el mando |
 | `salida` | `p` | la guarnición sitiada ataca |
