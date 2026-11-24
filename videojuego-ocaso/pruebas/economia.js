@@ -295,14 +295,11 @@ const comprueba = (ok, msg) => {
 
   /* ---------- simulación larga del mundo: todas las potencias gestionadas por la IA ----------
      (el reino del jugador también, para que dure; si cae, la prueba sigue con otra potencia) */
-  console.log(`Simulación de ${ANIOS} años del mundo (IA con su hacienda)`);
   await page.evaluate(() => {
-    window.__crisis = [];
-    window.__serie = [];
-    window.__saltos = 0;
-    window.__revueltas = 0;
-    window.__decIA = 0;
-    OC.on("crisisEconomica", (e) => window.__crisis.push({ f: e.f, tipo: e.tipo, y: G.year }));
+    OC.on(
+      "crisisEconomica",
+      (e) => window.__crisis && window.__crisis.push({ f: e.f, tipo: e.tipo, y: G.year }),
+    );
     OC.on("revuelta", () => window.__revueltas++);
     /* cuenta las decisiones de ciudad que toma la IA */
     const dec0 = ecoDecision;
@@ -312,162 +309,194 @@ const comprueba = (ok, msg) => {
       return r;
     };
   });
-  for (let y = 0; y < ANIOS; y++) {
+  const simularMundo = async (etiqueta) => {
+    console.log(`Simulación de ${ANIOS} años del mundo, ${etiqueta} (IA con su hacienda)`);
     await page.evaluate(() => {
-      window.__fin = false;
-      busy = true;
-      (async () => {
-        ecoIA(ME);
-        await ai(ME);
-        ecoIATasas(ME);
-        await yearEnd();
-      })()
-        .catch((e) => console.error("sim", e))
-        .finally(() => {
-          busy = false;
-          window.__fin = true;
-        });
+      window.__crisis = [];
+      window.__serie = [];
+      window.__saltos = 0;
+      window.__revueltas = 0;
+      window.__decIA = 0;
+      window.__camp = 0;
+      window.__malPob = null;
     });
-    for (let k = 0; k < 600; k++) {
-      if (await page.evaluate(() => window.__fin)) break;
+    for (let y = 0; y < ANIOS; y++) {
+      await page.evaluate(() => {
+        window.__fin = false;
+        busy = true;
+        (async () => {
+          ecoIA(ME);
+          await ai(ME);
+          ecoIATasas(ME);
+          await yearEnd();
+        })()
+          .catch((e) => console.error("sim", e))
+          .finally(() => {
+            busy = false;
+            window.__fin = true;
+          });
+      });
+      for (let k = 0; k < 600; k++) {
+        if (await page.evaluate(() => window.__fin)) break;
+        await cerrarModales();
+        await page.waitForTimeout(20);
+      }
       await cerrarModales();
-      await page.waitForTimeout(20);
+      const fin = await page.evaluate(() => {
+        const fila = { y: G.year, f: [], precios: {} };
+        for (let f = 0; f < NF; f++) {
+          if (!alive(f)) continue;
+          const F = G.F[f],
+            S = ecoF(f),
+            b = ecoBalance(f);
+          fila.f.push({
+            f,
+            prov: owned(f).length,
+            oro: F.gold,
+            comida: F.food,
+            gran: b.granero,
+            deuda: S.deuda,
+            infl: S.infl,
+            g: b.g,
+            gi: b.gi,
+            tropas: b.tropas,
+            pob: Math.round(b.pob),
+            res: { ...F.res },
+            tope: ecoTope(f),
+            rutas: comDe(f).length,
+            camp: b.gas.camp + b.gas.merc,
+          });
+          if (b.gas.camp > 0) window.__camp++;
+        }
+        for (const id of comBienes()) fila.precios[id] = comPrecio(id) / COM_MER[id].base;
+        const E = G.eco;
+        fila.pobMal = G.P.filter(
+          (p) => !(E.pob[p.id] >= 1) || E.pob[p.id] > ecoCapacidad(p) * 1.35 + 0.2,
+        ).length;
+        /* cifras no numéricas en reinos vivos (los ausentes y los huecos de G.eco.f no cuentan) */
+        const num = (v) => typeof v === "number" && Number.isFinite(v);
+        fila.nan = [...Array(NF).keys()]
+          .filter(alive)
+          .some(
+            (f) =>
+              !num(G.F[f].gold) ||
+              !num(G.F[f].food) ||
+              !Object.values(G.F[f].res || {}).every(num) ||
+              !["deuda", "infl", "gi"].every((k) => num(ecoF(f)[k])),
+          );
+        if (fila.pobMal || fila.nan)
+          window.__malPob = window.__malPob || { y: G.year, pob: fila.pobMal, nan: fila.nan };
+        window.__serie.push(fila);
+        /* si el reino del jugador cae o alguien gana, la simulación sigue con otra potencia */
+        if (!alive(ME) || G.over) {
+          const otro = [...Array(NF).keys()]
+            .filter(alive)
+            .sort((a, b) => owned(a).length - owned(b).length)[0];
+          if (otro === undefined) return { y: G.year, acabado: true };
+          ME = otro;
+          G.human = [otro];
+          G.over = null;
+          window.__saltos++;
+        }
+        return { y: G.year };
+      });
+      process.stdout.write(`${fin.y} `);
+      if (fin.acabado) break;
     }
-    await cerrarModales();
-    const fin = await page.evaluate(() => {
-      const fila = { y: G.year, f: [], precios: {} };
-      for (let f = 0; f < NF; f++) {
-        if (!alive(f)) continue;
-        const F = G.F[f],
-          S = ecoF(f),
-          b = ecoBalance(f);
-        fila.f.push({
-          f,
-          prov: owned(f).length,
-          oro: F.gold,
-          comida: F.food,
-          gran: b.granero,
-          deuda: S.deuda,
-          infl: S.infl,
-          g: b.g,
-          gi: b.gi,
-          tropas: b.tropas,
-          pob: Math.round(b.pob),
-          res: { ...F.res },
-          tope: ecoTope(f),
-          rutas: comDe(f).length,
-        });
-      }
-      for (const id of comBienes()) fila.precios[id] = comPrecio(id) / COM_MER[id].base;
-      const E = G.eco;
-      fila.pobMal = G.P.filter(
-        (p) => !(E.pob[p.id] >= 1) || E.pob[p.id] > ecoCapacidad(p) * 1.15 + 0.2,
-      ).length;
-      fila.nan = /null|NaN/.test(
-        JSON.stringify(G.eco.f) + JSON.stringify(G.F.map((F) => [F.gold, F.food, F.res])),
-      );
-      window.__serie.push(fila);
-      /* si el reino del jugador cae o alguien gana, la simulación sigue con otra potencia */
-      if (!alive(ME) || G.over) {
-        const otro = [...Array(NF).keys()].filter(alive).sort((a, b) => owned(a).length - owned(b).length)[0];
-        if (otro === undefined) return { y: G.year, acabado: true };
-        ME = otro;
-        G.human = [otro];
-        G.over = null;
-        window.__saltos++;
-      }
-      return { y: G.year };
-    });
-    process.stdout.write(`${fin.y} `);
-    if (fin.acabado) break;
-  }
-  console.log("");
-  const sim = await page.evaluate(() => ({
-    serie: window.__serie,
-    crisis: window.__crisis,
-    saltos: window.__saltos,
-    revueltas: window.__revueltas,
-    decIA: window.__decIA,
-    animos: ECO_ANIMO.map(
-      (n) => `${n.nombre} ${G.P.filter((p) => p.owner < NF && ecoNivel(p) === n).length}`,
-    ).join(", "),
-    animoOk: G.P.every((p) => {
-      if (p.owner >= NF) return true;
-      const a = ecoAnimo(p);
-      return a.objetivo === Math.round(ordTarget(p)) && a.causas.every((c) => Number.isFinite(c.valor));
-    }),
-  }));
-  console.log(`  ánimo final: ${sim.animos}`);
-  console.log(`  revueltas: ${sim.revueltas} · decisiones de ciudad de la IA: ${sim.decIA}`);
-  comprueba(sim.animoOk, "ecoAnimo coherente con ordTarget en todas las provincias");
-  comprueba(sim.decIA > 0, "la IA gobierna sus ciudades descontentas");
-  comprueba(sim.revueltas <= S_REV_MAX(ANIOS), `revueltas razonables (${sim.revueltas})`);
-  if (sim.saltos) console.log(`  (el reino vigilado cayó ${sim.saltos} veces; se siguió con otra potencia)`);
-  const S = sim.serie;
-  const tabla = (fila) =>
-    fila.f
-      .map(
-        (x) =>
-          `${CIVabbr(x.f)} p${x.prov} oro${x.oro}${x.g >= 0 ? "+" : ""}${x.g} com${x.comida}/${x.gran} d${x.deuda} t${x.tropas} pob${x.pob} r${x.rutas}${x.infl > 1 ? " i" + x.infl : ""}`,
-      )
-      .join(" | ");
-  function CIVabbr(f) {
-    return ["OCC", "ORI", "VIS", "HUN", "VAN", "FRA", "PER"][f];
-  }
-  for (const fila of S.filter((_, i) => i % 5 === 4 || i === S.length - 1))
-    console.log(`  ${fila.y}: ${tabla(fila)}`);
-  const ult = S[S.length - 1];
-  console.log(
-    "  precios finales: " +
-      Object.entries(ult.precios)
-        .map(([k, v]) => `${k} ×${v.toFixed(2)}`)
-        .join(", "),
-  );
-  const cuenta = {};
-  for (const c of sim.crisis) cuenta[c.tipo] = (cuenta[c.tipo] || 0) + 1;
-  console.log("  crisis: " + (JSON.stringify(cuenta) || "{}"));
-
-  console.log("Equilibrio");
-  const banIA = sim.crisis.filter((c) => c.tipo === "bancarrota");
-  comprueba(banIA.length === 0, `ninguna IA en bancarrota (${banIA.length})`);
-  const impIA = sim.crisis.filter((c) => c.tipo === "impagos").length;
-  comprueba(impIA <= Math.max(3, S.length / 4), `impagos de la IA poco frecuentes (${impIA})`);
-  const todas = S.flatMap((s) => s.f);
-  const malOro = todas.filter((x) => !(x.oro >= 0 && x.oro < 3000));
-  comprueba(
-    !malOro.length,
-    "oro de todas las facciones entre 0 y 3000 " + JSON.stringify(malOro.slice(0, 3)),
-  );
-  const malCom = todas.filter((x) => !(x.comida >= 0 && x.comida <= x.gran * 1.5));
-  comprueba(!malCom.length, "comida dentro del granero " + JSON.stringify(malCom.slice(0, 3)));
-  comprueba(
-    todas.every((x) => Object.values(x.res).every((v) => v >= 0 && v <= x.tope)),
-    "recursos dentro del almacén",
-  );
-  comprueba(
-    todas.every((x) => x.infl <= 1.6),
-    "inflación contenida (≤1,6)",
-  );
-  comprueba(
-    todas.every((x) => x.deuda <= Math.max(60, x.gi * 3) * 1.6),
-    "deudas por debajo del umbral de bancarrota",
-  );
-  comprueba(
-    S.every((s) => !s.pobMal && !s.nan),
-    "población dentro de su capacidad y sin NaN",
-  );
-  /* precios: que no pasen la mayor parte del tiempo pegados al suelo o al techo */
-  for (const id of Object.keys(ult.precios)) {
-    const v = S.map((s) => s.precios[id]),
-      ext = v.filter((x) => x <= 0.5 || x >= 2.4).length;
-    comprueba(
-      ext <= v.length * 0.35,
-      `precio de ${id} estable (×${Math.min(...v).toFixed(2)}–×${Math.max(...v).toFixed(2)})`,
+    console.log("");
+    const sim = await page.evaluate(() => ({
+      serie: window.__serie,
+      crisis: window.__crisis,
+      saltos: window.__saltos,
+      revueltas: window.__revueltas,
+      decIA: window.__decIA,
+      camp: window.__camp,
+      malPob: window.__malPob,
+      animos: ECO_ANIMO.map(
+        (n) => `${n.nombre} ${G.P.filter((p) => p.owner < NF && ecoNivel(p) === n).length}`,
+      ).join(", "),
+      animoOk: G.P.every((p) => {
+        if (p.owner >= NF) return true;
+        const a = ecoAnimo(p);
+        return a.objetivo === Math.round(ordTarget(p)) && a.causas.every((c) => Number.isFinite(c.valor));
+      }),
+    }));
+    console.log(`  ánimo final: ${sim.animos}`);
+    console.log(`  revueltas: ${sim.revueltas} · decisiones de ciudad de la IA: ${sim.decIA}`);
+    comprueba(sim.animoOk, "ecoAnimo coherente con ordTarget en todas las provincias");
+    comprueba(sim.decIA > 0, "la IA gobierna sus ciudades descontentas");
+    comprueba(sim.revueltas <= S_REV_MAX(ANIOS), `revueltas razonables (${sim.revueltas})`);
+    if (sim.saltos)
+      console.log(`  (el reino vigilado cayó ${sim.saltos} veces; se siguió con otra potencia)`);
+    const S = sim.serie;
+    const tabla = (fila) =>
+      fila.f
+        .map(
+          (x) =>
+            `${CIVabbr(x.f)} p${x.prov} oro${x.oro}${x.g >= 0 ? "+" : ""}${x.g} com${x.comida}/${x.gran} d${x.deuda} t${x.tropas} pob${x.pob} r${x.rutas}${x.infl > 1 ? " i" + x.infl : ""}${x.camp ? " c" + x.camp : ""}`,
+        )
+        .join(" | ");
+    const ids = await page.evaluate(() => CIV.map((c) => c.id.toUpperCase()));
+    function CIVabbr(f) {
+      return ids[f];
+    }
+    for (const fila of S.filter((_, i) => i % 5 === 4 || i === S.length - 1))
+      console.log(`  ${fila.y}: ${tabla(fila)}`);
+    const ult = S[S.length - 1];
+    console.log(
+      "  precios finales: " +
+        Object.entries(ult.precios)
+          .map(([k, v]) => `${k} ×${v.toFixed(2)}`)
+          .join(", "),
     );
-  }
-  const pobIni = S[0].f.reduce((s, x) => s + x.pob, 0),
-    pobFin = ult.f.reduce((s, x) => s + x.pob, 0);
-  console.log(`  población de los reinos: ${pobIni} → ${pobFin} mil`);
+    const cuenta = {};
+    for (const c of sim.crisis) cuenta[c.tipo] = (cuenta[c.tipo] || 0) + 1;
+    console.log("  crisis: " + (JSON.stringify(cuenta) || "{}"));
+
+    console.log("Equilibrio");
+    const banIA = sim.crisis.filter((c) => c.tipo === "bancarrota");
+    comprueba(banIA.length === 0, `ninguna IA en bancarrota (${banIA.length})`);
+    const impIA = sim.crisis.filter((c) => c.tipo === "impagos").length;
+    comprueba(impIA <= Math.max(3, S.length / 4), `impagos de la IA poco frecuentes (${impIA})`);
+    const todas = S.flatMap((s) => s.f);
+    const malOro = todas.filter((x) => !(x.oro >= 0 && x.oro < 3000));
+    comprueba(
+      !malOro.length,
+      "oro de todas las facciones entre 0 y 3000 " + JSON.stringify(malOro.slice(0, 3)),
+    );
+    const malCom = todas.filter((x) => !(x.comida >= 0 && x.comida <= x.gran * 1.5));
+    comprueba(!malCom.length, "comida dentro del granero " + JSON.stringify(malCom.slice(0, 3)));
+    comprueba(
+      todas.every((x) => Object.values(x.res).every((v) => v >= 0 && v <= x.tope)),
+      "recursos dentro del almacén",
+    );
+    comprueba(
+      todas.every((x) => x.infl <= 1.6),
+      "inflación contenida (≤1,6)",
+    );
+    comprueba(
+      todas.every((x) => x.deuda <= Math.max(60, x.gi * 3) * 1.6),
+      "deudas por debajo del umbral de bancarrota",
+    );
+    comprueba(
+      S.every((s) => !s.pobMal && !s.nan),
+      "población dentro de su capacidad y sin NaN " + JSON.stringify(sim.malPob || ""),
+    );
+    /* precios: que no pasen la mayor parte del tiempo pegados al suelo o al techo */
+    for (const id of Object.keys(ult.precios)) {
+      const v = S.map((s) => s.precios[id]),
+        ext = v.filter((x) => x <= 0.5 || x >= 2.4).length;
+      comprueba(
+        ext <= v.length * 0.35,
+        `precio de ${id} estable (×${Math.min(...v).toFixed(2)}–×${Math.max(...v).toFixed(2)})`,
+      );
+    }
+    const pobIni = S[0].f.reduce((s, x) => s + x.pob, 0),
+      pobFin = ult.f.reduce((s, x) => s + x.pob, 0);
+    console.log(`  población de los reinos: ${pobIni} → ${pobFin} mil`);
+    comprueba(sim.camp > 0, `los ejércitos en campaña aparecen en el balance (${sim.camp} veces)`);
+  };
+  await simularMundo("modo histórico");
 
   await page.evaluate(() => {
     tab = "eco";
@@ -476,52 +505,141 @@ const comprueba = (ok, msg) => {
   });
   await page.screenshot({ path: path.join(capt, "economia-final.png") });
 
-  /* ---------- jugador pasivo: partida nueva en la que el jugador no toca nada y no hay guerra ----------
-     (solo su economía, año tras año: no debe arruinarse por sí sola) */
-  console.log(`Jugador pasivo durante ${ANIOS} años (sin guerras)`);
-  const pas = await page.evaluate(async (anios) => {
-    newGame(ME, cands(ME)[0]);
+  /* ---------- modo leyendas: 12 pueblos, sabor económico de los nuevos ---------- */
+  console.log("Modo leyendas (12 pueblos)");
+  const ley = await page.evaluate(async () => {
+    const me = civIdx("inc"),
+      riv = mundoRivalesAzar(me, 11);
+    newGame(me, cands(me)[0], { modo: "leyendas", activas: [me, ...riv] });
+    $("start").classList.remove("show");
+    ME = me;
+    G.human = [me];
     drawBase();
     OC.emitirSync("partidaLista");
-    const crisis = [];
-    OC.on(
-      "crisisEconomica",
-      (e) => e.f === ME && /hambre|impagos|bancarrota/.test(e.tipo) && crisis.push(e.tipo),
-    );
-    const g0 = G.F[ME].gold,
-      serie = [];
-    for (let y = 0; y < anios; y++) {
-      await OC.emitir("antesFinAnio", G.year);
-      economy(ME);
-      OC.emitirSync("economiaFaccion", ME);
-      G.year++;
-      const b = ecoBalance(ME);
-      serie.push({
-        y: G.year,
-        oro: G.F[ME].gold,
-        g: b.g,
-        comida: G.F[ME].food,
-        net: b.net,
-        deuda: ecoF(ME).deuda,
-        pob: Math.round(b.pob),
-      });
+    ui();
+    const E = ecoE(),
+      caps = ecoCapitales(),
+      cerca = (p) => {
+        let m = -1,
+          bd = 1e9;
+        for (const [f, q] of caps) {
+          const d = (q.x - p.x) ** 2 + (q.y - p.y) ** 2;
+          if (d < bd) {
+            bd = d;
+            m = f;
+          }
+        }
+        return m;
+      },
+      o = { pueblos: G.activas.length };
+    const sin = [];
+    for (const [f, cap] of caps) {
+      const firma = Object.keys(ecoCiv(f).esp).filter(
+        (k) => ECO_ESP[k] && ((ECO_ESP[k].civ || []).includes(CIV[f].id) || ecoCiv(f).esp[k] >= 2),
+      );
+      const reg = G.P.filter((p) => p !== cap && cerca(p) === f);
+      if (firma.length && reg.length && !reg.some((p) => firma.includes(E.esp[p.id]))) sin.push(CIV[f].id);
     }
-    return { crisis, g0, serie };
-  }, ANIOS);
-  for (const x of pas.serie.filter((_, i) => i % 10 === 9))
-    console.log(
-      `  ${x.y}: oro ${x.oro} (${x.g >= 0 ? "+" : ""}${x.g}) comida ${x.comida} (${x.net >= 0 ? "+" : ""}${x.net}) deuda ${x.deuda} pob ${x.pob}`,
+    o.firmaPorPueblo = !sin.length || "sin firma: " + sin.join(",");
+    o.comarcas = caps
+      .map(
+        ([f]) =>
+          `${CIV[f].id}:${[...new Set(G.P.filter((p) => cerca(p) === f).map((p) => E.esp[p.id]))].join("/")}`,
+      )
+      .join(" ");
+    o.incasSinCaballos =
+      OC.saldo(me, "caballos") === 0 &&
+      !G.P.some((p) => cerca(p) === me && ECO_CABALLAR.includes(E.esp[p.id])) &&
+      cost(me, "i") > 0;
+    o.lujosNuevos = ["incienso", "especias", "ambar", "cacao"].every(
+      (id) => OC.recursos.some((r) => r.id === id) && COM_MER[id] && E.mer[id],
     );
-  const pf = pas.serie[pas.serie.length - 1];
-  comprueba(
-    !pas.crisis.length,
-    "el jugador pasivo no sufre hambre, impagos ni bancarrota: " + JSON.stringify(pas.crisis),
+    /* un ejército en campaña: el balance lo muestra y la economía anual no lo cobra dos veces */
+    const F = G.F[me],
+      cap = G.P[F.capId];
+    cap.u.i = (cap.u.i || 0) + 6;
+    F.gold = 500;
+    const r = await camAplicarOrden(G, { tipo: "formar", f: me, p: cap.id, u: { i: 5 }, gen: false });
+    const b = ecoBalance(me);
+    o.campEnBalance = !!(r && r.ok) && b.gas.camp > 0 && b.tropas >= 5;
+    const g0 = F.gold;
+    economy(me);
+    o.unaSolaVez = F.gold - g0 === b.gAnual && b.gAnual === b.g + b.gas.camp + b.gas.merc;
+    window.__ejPrueba = r && r.ej;
+    return o;
+  });
+  for (const [k, v] of Object.entries(ley)) comprueba(v === true || typeof v !== "boolean", `${k}: ${v}`);
+  await page.evaluate(() => {
+    tab = "eco";
+    ecoVista = "bal";
+    ui();
+  });
+  await (await page.$("#panel")).screenshot({ path: path.join(capt, "economia-leyendas.png") });
+  await page.evaluate(
+    async () =>
+      window.__ejPrueba != null && camAplicarOrden(G, { tipo: "disolver", f: ME, ej: window.__ejPrueba }),
   );
-  comprueba(
-    pf.deuda === 0 && pf.oro >= pas.g0,
-    `el jugador pasivo acaba sin deuda y con más oro (${pas.g0} → ${pf.oro})`,
-  );
-  comprueba(pf.oro < 5000, "el tesoro pasivo no crece de forma absurda");
+  await simularMundo("leyendas con 12 pueblos");
+
+  /* ---------- jugador pasivo: partida nueva en la que el jugador no toca nada y no hay guerra ----------
+     (solo su economía, año tras año: no debe arruinarse por sí sola) */
+  const pasivo = async (etiqueta, modo, idCiv) => {
+    console.log(`Jugador pasivo durante ${ANIOS} años (${etiqueta}, sin guerras)`);
+    const pas = await page.evaluate(
+      async ([anios, modo, idCiv]) => {
+        const me = civIdx(idCiv);
+        if (modo === "leyendas")
+          newGame(me, cands(me)[0], { modo, activas: [me, ...mundoRivalesAzar(me, 11)] });
+        else newGame(me, cands(me)[0]);
+        ME = me;
+        G.human = [me];
+        drawBase();
+        OC.emitirSync("partidaLista");
+        const crisis = [];
+        OC.on(
+          "crisisEconomica",
+          (e) => e.f === ME && /hambre|impagos|bancarrota/.test(e.tipo) && crisis.push(e.tipo),
+        );
+        const g0 = G.F[ME].gold,
+          serie = [];
+        for (let y = 0; y < anios; y++) {
+          await OC.emitir("antesFinAnio", G.year);
+          economy(ME);
+          OC.emitirSync("economiaFaccion", ME);
+          G.year++;
+          const b = ecoBalance(ME);
+          serie.push({
+            y: G.year,
+            oro: G.F[ME].gold,
+            g: b.g,
+            comida: G.F[ME].food,
+            net: b.net,
+            deuda: ecoF(ME).deuda,
+            pob: Math.round(b.pob),
+          });
+        }
+        return { crisis, g0, serie };
+      },
+      [ANIOS, modo, idCiv],
+    );
+    for (const x of pas.serie.filter((_, i) => i % 10 === 9))
+      console.log(
+        `  ${x.y}: oro ${x.oro} (${x.g >= 0 ? "+" : ""}${x.g}) comida ${x.comida} (${x.net >= 0 ? "+" : ""}${x.net}) deuda ${x.deuda} pob ${x.pob}`,
+      );
+    const pf = pas.serie[pas.serie.length - 1];
+    comprueba(
+      !pas.crisis.length,
+      "el jugador pasivo no sufre hambre, impagos ni bancarrota: " + JSON.stringify(pas.crisis),
+    );
+    comprueba(
+      pf.deuda === 0 && pf.oro >= pas.g0,
+      `el jugador pasivo acaba sin deuda y con más oro (${pas.g0} → ${pf.oro})`,
+    );
+    comprueba(pf.oro < 5000, "el tesoro pasivo no crece de forma absurda");
+  };
+  const civIni = await page.evaluate((n) => CIV[n].id, CIVN);
+  await pasivo("histórico", "historico", civIni);
+  await pasivo("leyendas, incas", "leyendas", "inc");
 
   /* ---------- partida antigua (sin G.eco ni F.res) ---------- */
   console.log("Partida guardada antigua");
