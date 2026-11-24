@@ -571,6 +571,8 @@ function camDividir(ej, frac = 0.5) {
     }
   }
   if (!n || n >= camTot(ej.u)) return { ok: false, motivo: "No se puede dividir" };
+  /* los hombres que faltan se reparten en proporción */
+  const mv = Math.round(((ej.mer || 0) * n) / Math.max(1, camTot(ej.u)));
   for (const t in s) ej.u[t] -= s[t];
   const nv = camNuevoEj(ej.f, ej.x, ej.y, s, {
     vet: { ...ej.vet },
@@ -581,6 +583,12 @@ function camDividir(ej, frac = 0.5) {
     mov: Math.min(ej.mov, camMovMax({ ...ej, u: s })),
     nom: `${camNombre(ej)} (destacamento)`,
   });
+  if (mv > 0) {
+    nv.mer = mv;
+    ej.mer = (ej.mer || 0) - mv;
+    camMerNorm(nv);
+    camMerNorm(ej);
+  }
   return { ok: true, ej: nv };
 }
 function camUnir(a, b) {
@@ -598,6 +606,10 @@ function camUnir(a, b) {
   for (const k in b.maq || {}) a.maq[k] = (a.maq[k] || 0) + b.maq[k];
   for (const k in b.her || {}) a.her[k] = (a.her[k] || 0) + b.her[k];
   if (a.gen == null && b.gen != null) a.gen = b.gen;
+  if (a.mer || b.mer) {
+    a.mer = (a.mer || 0) + (b.mer || 0);
+    camMerNorm(a);
+  }
   a.sum = Math.min(a.sum, b.sum);
   a.mov = Math.min(a.mov, b.mov);
   a.fat = Math.round((a.fat * na + b.fat * nb) / Math.max(1, na + nb));
@@ -615,10 +627,13 @@ function camParaBatalla(ej) {
     ori: ej.ori || {},
     fat: clamp(Math.round(ej.fat || 0), 0, 100),
     hambre: (ej.sum || 0) <= 0,
+    mer: Math.max(0, Math.round(ej.mer || 0)),
   };
 }
+/* hombres reales de un ejército (pelotones mermados: ej.mer, ver cmbMerTipo) */
+const camHombres = (ej) => Math.max(0, camTot(ej.u) * SPU - Math.round(ej.mer || 0));
 const camTxtEj = (e) =>
-  `${CIV[e.f].s}: ${tot(e.u) * SPU} hombres${e.gen != null && G.C[e.gen] ? " al mando de " + G.C[e.gen].n : ""}<br><span class="stats">${cmbComp(e.f, e.u)}</span>`;
+  `${CIV[e.f].s}: ${Math.max(0, tot(e.u) * SPU - Math.round(e.mer || 0))} hombres${e.gen != null && G.C[e.gen] ? " al mando de " + G.C[e.gen].n : ""}<br><span class="stats">${cmbComp(e.f, e.u)}</span>`;
 /* libra una batalla: modal táctica/automática si hay un jugador; emite batallaResuelta */
 /* Gancho 'antesBatalla' (async): ev = {tipo: 'dos'|'multi', ejA, ejD, lista, bctx, o, resultado: null, modo: null}.
    Un oyente (p. ej. online) puede ajustar bctx/o, fijar ev.modo ('auto'|'t3'|'t1'|'rt') o dar ev.resultado:
@@ -718,8 +733,21 @@ async function camLibrar(ejA, ejD, bctx, o = {}) {
   res.rondas = inf ? inf.rondas.length : 0;
   return res;
 }
+/* pelotones mermados: nunca falta un pelotón entero (se quita) ni más hombres de los que hay */
+function camMerNorm(ej) {
+  let m = Math.max(0, Math.round(ej.mer || 0));
+  const ts = () => TYP.filter((t) => (ej.u[t] || 0) > 0 && UN[t] && !UN[t].asedio);
+  while (m >= SPU && ts().length) {
+    const t = ts().sort((a, b) => ej.u[b] - ej.u[a])[0];
+    ej.u[t]--;
+    m -= SPU;
+  }
+  const lv = ts().reduce((a, t) => a + ej.u[t], 0);
+  ej.mer = Math.min(m, lv * (SPU - 1));
+  if (!ej.mer) delete ej.mer;
+}
 /* vuelve a poner en el ejército lo que sobrevive (y guarda heridos graves) */
-function camTrasBatalla(ej, u0, uFin, gana, rondas) {
+function camTrasBatalla(ej, u0, uFin, gana, rondas, mer) {
   const vivos = cmbNorm({ ...uFin });
   for (const t in u0) {
     if (!UN[t] || UN[t].asedio) continue;
@@ -728,6 +756,8 @@ function camTrasBatalla(ej, u0, uFin, gana, rondas) {
     if (her > 0) ej.her[t] = (ej.her[t] || 0) + her;
     ej.u[t] = vivos[t] || 0;
   }
+  if (mer != null) ej.mer = mer;
+  camMerNorm(ej);
   ej.vet = cmbVetGanar(ej.vet, ej.u, gana, rondas || 4);
   ej.fat = clamp((ej.fat || 0) + 18, 0, 100);
   ej.mor = clamp((ej.mor || 70) + (gana ? 12 : -18), 5, 100);
@@ -1029,6 +1059,7 @@ async function camChoque(A, D, o = {}) {
       y,
       nombreLugar: p ? (camCiudadEn(x, y) ? p.name : `los campos de ${p.name}`) : "campo abierto",
       emboscada: !!o.emboscada,
+      merma: !sal,
     };
   /* emboscada: mientras combate no lea ctx.emboscada, campaña da el bono de sorpresa al atacante */
   camBonoAct = o.emboscada ? [{ f: A.f, lado: "atacante", v: CAM_K.emboscada }] : null;
@@ -1058,8 +1089,8 @@ async function camChoque(A, D, o = {}) {
     }
   }
   const win = res.gana === 0;
-  camTrasBatalla(A, uA0, rA, win, res.rondas);
-  camTrasBatalla(D, uD0, res.D, !win, res.rondas);
+  camTrasBatalla(A, uA0, rA, win, res.rondas, sal ? undefined : res.mer && res.mer.A);
+  camTrasBatalla(D, uD0, res.D, !win, res.rondas, res.mer && res.mer.D);
   A.mov = 0;
   const vence = win ? A : D,
     pierde = win ? D : A,
@@ -1542,13 +1573,14 @@ async function camSalida(p, o = {}) {
       x: sit.x,
       y: sit.y,
       nombreLugar: `las puertas de ${p.name}`,
+      merma: true,
     };
   const res = await camLibrar(ejA, ejD, bctx, { tipo: "salida", ejs: [null, sit], auto: o.auto, titulo: `Salida desde ${p.name}` });
   const win = res.gana === 0;
   /* los que salen vuelven tras las murallas */
   p.u = cmbNorm({ ...res.A });
   cmbVetFijar(p, cmbVetGanar(cmbVetDe(p), p.u, win, res.rondas));
-  camTrasBatalla(sit, uD0, res.D, !win, res.rondas);
+  camTrasBatalla(sit, uD0, res.D, !win, res.rondas, res.mer && res.mer.D);
   const as = camAsedio(p.id);
   if (as) as.mo = clamp(as.mo + (win ? 15 : -10), 0, 100);
   addLog(

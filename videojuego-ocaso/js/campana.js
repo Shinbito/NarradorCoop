@@ -581,7 +581,8 @@ function camPanelEj(dis) {
   h += `<div class="troops">${ts.map((t) => `<div><img src="${icon(ej.f, t)}" alt=""><b>${ej.u[t]}</b>${(CIV[ej.f].un && CIV[ej.f].un[t]) || UN[t].s}</div>`).join("")}</div>`;
   const her = Object.values(ej.her || {}).reduce((a, b) => a + b, 0),
     mq0 = Object.entries(m).filter(([, v]) => v > 0);
-  h += `<p class="stats">${camTot(ej.u) * SPU} hombres · fuerza ${pw(camUCampo(ej.u))}${her ? ` · ${her * SPU} heridos en los carros` : ""}${mq0.length ? " · " + mq0.map(([k, v]) => `${v} ${v > 1 ? CAM_MAQ[k].pl : CAM_MAQ[k].n.toLowerCase()}`).join(", ") : ""}${(ej.obra || []).length ? " · construyendo: " + ej.obra.map((o) => `${CAM_MAQ[o.t].n.toLowerCase()} (${o.q} est.)`).join(", ") : ""}</p>`;
+  h += `<p class="stats">${camHombres(ej)} hombres · fuerza ${pw(camUCampo(ej.u))}${her ? ` · ${her * SPU} heridos en los carros` : ""}${mq0.length ? " · " + mq0.map(([k, v]) => `${v} ${v > 1 ? CAM_MAQ[k].pl : CAM_MAQ[k].n.toLowerCase()}`).join(", ") : ""}${(ej.obra || []).length ? " · construyendo: " + ej.obra.map((o) => `${CAM_MAQ[o.t].n.toLowerCase()} (${o.q} est.)`).join(", ") : ""}</p>`;
+  if (typeof ritMermaHtml === "function") h += ritMermaHtml(ej, mio && !d);
   if (mio) {
     const free = family(ME).filter((c) => c.age >= 16 && !genOf(c) && !c.dipReh && !camS().ej.some((e) => e.gen === c.id));
     h += g

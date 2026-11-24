@@ -960,13 +960,20 @@ function ifzPolitico(own) {
   /* ciudades: casas según la población, murallas según su nivel, castillo o torre en el centro;
      con atlas, MAPA.ciudad.<1-4> / MAPA.capital y MAPA.muralla.<nivel> / MAPA.muralla_capital.<nivel>.
      IFZ.sinCiudades: no se pintan (otra vista las dibuja a su manera) */
-  for (const p of G.P) {
-    if (IFZ.sinCiudades) break;
-    const o = own[p.id],
-      X = p.x * S + S / 2,
+  if (!IFZ.sinCiudades) for (const p of G.P) ifzCiudad(c, p, own[p.id]);
+  IFZ_POL.k = k;
+  IFZ_POL.ms = performance.now() - t0;
+  return cc;
+}
+/* una ciudad (en su casilla, centrada): la usan la capa política y la vista con relieve (js/relieve.js) */
+/* oculta (bajo la niebla): se dibuja un pueblo cualquiera, sin su tamaño ni sus murallas reales */
+function ifzCiudad(c, p, o, oculta) {
+  const S = IFZ_S;
+  {
+    const X = p.x * S + S / 2,
       Y = p.y * S + S / 2,
-      n = clamp(Math.round(ifzPob(p) / 2.2) + (p.cap ? 2 : 0), 2, IFZ_CASAS.length),
-      mu = Math.min(3, p.walls || 0),
+      n = oculta ? (p.cap ? 6 : 4) : clamp(Math.round(ifzPob(p) / 2.2) + (p.cap ? 2 : 0), 2, IFZ_CASAS.length),
+      mu = oculta ? 0 : Math.min(3, p.walls || 0),
       pal = PAL[o] || PAL[0],
       nomC = p.cap ? "capital" : "ciudad." + ifzClaseCiudad(n),
       imC = ifzAtlImg(nomC),
@@ -978,14 +985,11 @@ function ifzPolitico(own) {
         if (imM) c.drawImage(imM, X - (t * S) / 2, Y - (t * S) / 2, t * S, t * S);
         else ifzMurallaProc(c, X, Y + 1, p.cap ? 19.6 : 12, mu);
       }
-      continue;
+      return;
     }
     if (imM) c.drawImage(imM, X - (t * S) / 2, Y - (t * S) / 2, t * S, t * S);
     ifzCiudadProc(c, X, Y, n, !!p.cap, imM ? 0 : mu, pal, p.id * 7919 + MAP.seed);
   }
-  IFZ_POL.k = k;
-  IFZ_POL.ms = performance.now() - t0;
-  return cc;
 }
 /* torre de vigilancia y explotaciones de una provincia */
 const ifzTorre = (p) => {
@@ -1337,6 +1341,11 @@ function drawMap(now) {
       h.globalAlpha = 1;
     }
   }
+  /* relieve (js/relieve.js): la niebla va antes, para que montañas, bosques y ciudades queden de pie encima */
+  if (typeof REL !== "undefined" && REL.on) {
+    if (!R) ifzVeloNiebla(h, ME, now);
+    relDibujar(h, own, !R);
+  }
   /* banderas de las capitales (ondean), generales y guarniciones */
   const wave = reduce ? 0 : Math.floor(now / 450) % 2;
   for (const p of G.P) {
@@ -1350,6 +1359,8 @@ function drawMap(now) {
       h.restore();
     }
     if (R) continue;
+    /* bajo la niebla no se sabe quién la manda ni cuántos la guardan: solo de quién es */
+    if (typeof camVeProv === "function" && !camVeProv(ME, p.id)) continue;
     if (p.gen != null) {
       const g = ifzDibCanvas("mapa.general", null);
       h.drawImage(g, X - 14, Y - 16, g.width * 2, g.height * 2);
@@ -1517,8 +1528,8 @@ function ifzCamDibujar(now) {
       ])
         c.fillRect(X + a, Y + b, w, h);
     };
-  /* CAM: niebla de guerra (campana.js), dibujada en HD por la interfaz */
-  ifzVeloNiebla(c, ME, now);
+  /* CAM: niebla de guerra (campana.js), dibujada en HD por la interfaz (con relieve, ya la dibujó drawMap) */
+  if (!(typeof REL !== "undefined" && REL.on)) ifzVeloNiebla(c, ME, now);
   /* alcance (cacheado): relleno suave y contorno dorado */
   if (mio) {
     const D = camAlcance(se),

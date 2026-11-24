@@ -303,3 +303,8 @@ partida guardada antigua. Capturas `interfaz-terreno-*` (antes/después del mapa
 8. **Campaña** (niebla): la interfaz ya dibuja la niebla en HD con `ifzVeloNiebla` en lugar de
    `camDibujarNiebla` (que queda como respaldo); si cambia la estructura de `camVisMapa`/`camExpArr`/`mem`,
    avisar para mantenerla.
+
+
+## Relieve (`js/relieve.js`)
+
+El mapa de campaña se ve de frente (sin girar): clics, zoom y desplazamiento son los de siempre. Al construir el terreno (`ifzTerrenoHD`) se **graban** las llamadas a `ifzDibT` de los decorados con altura (`REL_ESC`: picos, colinas, árboles, aldeas) en vez de pintarlos; después `relCapa` los pinta de pie, más grandes, apoyados en su base, con sombra y ordenados por profundidad, junto con las ciudades (`ifzCiudad`, ahora una función aparte; `relCiudad` mide la base real del dibujo para que no floten). Con relieve, `drawMap` pinta la niebla antes de la capa de pie (lo oculto sale ensombrecido, y las ciudades ocultas como un pueblo cualquiera, `ifzCiudad(…, oculta)`), y encima insignias y ejércitos; las insignias de provincias que no se ven no se pintan. La capa se guarda en caché (se rehace al cambiar mapa, dueños o lo visible: ~13 ms). Botón «Relieve» en la barra del mapa (`localStorage["ocaso-relieve"]`).

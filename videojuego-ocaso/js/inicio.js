@@ -38,6 +38,7 @@ function renderStart() {
     h = `<h2 style="color:${x.c}">Elige a tu soberano</h2><p class="dim">${x.n}. Tu soberano y su descendencia son tu personaje: si muere sin heredero, tu dinastía cae.</p><div class="civs">${ST.cands.map((o, i) => `<button class="civ ${ST.ci === i ? "on" : ""}" data-act="s-rc-${i}"><b>${o.sex === "m" ? x.tm : x.tf} ${o.n}</b>${o.age} años · ${o.tr} (${TRAITS[o.tr]})<span>Mando ${o.ma} · Astucia ${o.in}<br>Diplomacia ${o.di} · Gestión ${o.ge}</span></button>`).join("")}</div>
   ${ley ? `<p class="dim" style="margin-top:10px">Mundo de leyendas · ${ST.riv.length} rivales: ${ST.riv.map((f) => `<span style="color:${CIV[f].c}">${CIV[f].s}</span>`).join(", ")}</p>` : ""}
   ${typeof difSelector === "function" ? difSelector() : ""}
+  ${typeof ritSelector === "function" ? ritSelector() : ""}
   ${ST.mode === "online" ? `<p style="margin-top:12px"><label for="gname">Nombre de la partida</label><input id="gname" maxlength="40" value="${esc(ST.gname || "Partida de " + x.s)}"></p>` : ""}
   <div class="btns" style="margin-top:12px"><button data-act="s-bk">Atrás</button><button data-act="s-rr">Otros candidatos</button><button class="gold" data-act="s-go">${ley ? "Comenzar la leyenda" : "Comenzar en el año 410"}</button></div>`;
   }

@@ -14,6 +14,7 @@
 /* ---------- A. constantes y utilidades ---------- */
 const ONL_V = 2;
 const ONL_CFG_DEF = {
+  ritmo: "larga", // 'larga' (días o semanas) | 'rapida' (5 min por estación, batallas de 10 min como máximo: js/ritmo.js)
   modoTurno: "corr", // 'corr' por correspondencia | 'tr' simultáneo en tiempo real (si todos están conectados)
   plazoH: 24, // horas para dar las órdenes de una estación (correspondencia)
   trSeg: 90, // segundos por estación en tiempo real
@@ -776,7 +777,7 @@ function onlFila(g, conAcc) {
     else acc = '<span class="dim">Completa</span>';
   }
   const cfg = d.cfg || {};
-  return `<div class="row onl-p onl-${E.k}"><div class="hd"><b>${esc(d.name || "Partida")}</b><span class="stats">${d.modo === "leyendas" ? "leyendas · " : ""}${d.publica ? "pública" : "privada"} · ${cfg.modoTurno === "tr" ? "tiempo real" : "correspondencia " + (cfg.plazoH || 24) + " h"} · ${esc(onlEstTxt(d.year || 410, d.estacion))}</span></div>
+  return `<div class="row onl-p onl-${E.k}"><div class="hd"><b>${esc(d.name || "Partida")}</b><span class="stats">${d.modo === "leyendas" ? "leyendas · " : ""}${d.publica ? "pública" : "privada"} · ${cfg.ritmo === "rapida" ? "rápida (5 min)" : cfg.modoTurno === "tr" ? "tiempo real" : "correspondencia " + (cfg.plazoH || 24) + " h"} · ${esc(onlEstTxt(d.year || 410, d.estacion))}</span></div>
   <span class="stats">${onlJugadoresTxt(d)}</span>${E.t ? `<div class="onl-est">${esc(E.t)}</div>` : ""}<div class="btns">${acc}</div></div>`;
 }
 /* plazas libres: pueblos sin dueño o abandonados (sustitución) */
@@ -830,9 +831,12 @@ function onlLobbyCuerpo() {
     return `<div class="onl-form">
     <p><label for="onl-pub">Quién puede entrar</label>${sel("onl-pub", ONL.nuevaPub ? 1 : 0, [[0, "Privada: solo amigos invitados"], [1, "Pública: aparece en la lista para cualquiera"]])}</p>
     <fieldset><legend>Invitar a amigos</legend>${ok.length ? ok.map((u) => `<label class="onl-chk"><input type="checkbox" id="onl-inv-${esc(u)}" ${ONL.nuevaInv && ONL.nuevaInv.includes(u) ? "checked" : ""}> ${esc(onlNombre(u))}</label>`).join("") : '<span class="dim">Sin amigos todavía (pestaña Amigos).</span>'}</fieldset>
+    <p><label for="onl-ritmo">Duración</label>${sel("onl-ritmo", c.ritmo || "larga", [["larga", "Partida larga: días o semanas, con plazo por estación"], ["rapida", "Partida rápida: 5 min por estación y batallas de 10 min como máximo"]])}</p>
+    <div class="onl-larga" ${c.ritmo === "rapida" ? "hidden" : ""}>
     <p><label for="onl-modo">Turnos</label>${sel("onl-modo", c.modoTurno, [["corr", "Por correspondencia: cada uno cuando puede, con plazo"], ["tr", "Simultáneos en tiempo real cuando estéis todos conectados"]])}</p>
     <p><label for="onl-plazo">Plazo para dar las órdenes de cada estación</label>${sel("onl-plazo", c.plazoH, ONL_PLAZOS.map((h) => [h, h + " h"]))}</p>
     <p><label for="onl-trseg">Estación en tiempo real</label>${sel("onl-trseg", c.trSeg, [60, 90, 120, 180, 300].map((s) => [s, s + " s"]))}</p>
+    </div>
     <p><label for="onl-invseg">Espera a que un rival conectado acepte su batalla</label>${sel("onl-invseg", c.invitSeg, [60, 90, 120].map((s) => [s, s + " s"]))}</p>
     <p><label for="onl-amigo">Si el amigo atacado no está conectado, se le espera</label>${sel("onl-amigo", c.amigoMin, [[0, "No: IA difícil al momento"], [30, "30 min"], [120, "2 h"], [360, "6 h"], [720, "12 h"], [1440, "24 h"]])}</p>
     <p><label for="onl-mbat">Batallas en vivo</label>${sel("onl-mbat", c.modoBatalla, [["t3", "Por turnos · 3 acciones"], ["t1", "Por turnos · 1 acción"], ["rt", "Tiempo real (necesita buena conexión)"]])}</p>
@@ -867,6 +871,8 @@ function onlLeerCfg() {
     amigoMin: +v("onl-amigo", 120) || 0,
     modoBatalla: ["t3", "t1", "rt"].includes(v("onl-mbat", "t3")) ? v("onl-mbat", "t3") : "t3",
   };
+  /* partida rápida: 5 minutos por estación (al acabarse se envían las órdenes dadas), batallas de 10 min */
+  if (v("onl-ritmo", "larga") === "rapida") Object.assign(ONL.cfg, { ritmo: "rapida", modoTurno: "corr", plazoH: 5 / 60, trSeg: 300, invitSeg: 60, amigoMin: 0 });
   ONL.nuevaPub = v("onl-pub", "0") === "1";
   ONL.nuevaInv = Object.keys(ONL.amigos).filter((u) => $("onl-inv-" + u) && $("onl-inv-" + u).checked);
 }
@@ -1344,7 +1350,7 @@ function onlPanel(dis) {
     E = onlEstadoPartida(d, net.id),
     todos = onlActivos(d).every((f) => onlConectado(d.seats[f], net.id)),
     mio = onlMiSeat(d) === ME;
-  let h = `<h2>${esc(d.name || "Partida online")}</h2><p class="dim">${d.publica ? "Pública" : "Privada"} · ${cfg.modoTurno === "tr" ? "simultánea en tiempo real" : "por correspondencia (" + cfg.plazoH + " h por estación)"} · ${esc(onlEstTxt(G.year, G.estacion))} · estación nº ${d.turno + 1}</p>`;
+  let h = `<h2>${esc(d.name || "Partida online")}</h2><p class="dim">${d.publica ? "Pública" : "Privada"} · ${cfg.ritmo === "rapida" ? "partida rápida (5 min por estación, batallas de 10 min)" : cfg.modoTurno === "tr" ? "simultánea en tiempo real" : "por correspondencia (" + cfg.plazoH + " h por estación)"} · ${esc(onlEstTxt(G.year, G.estacion))} · estación nº ${d.turno + 1}</p>`;
   h += `<div class="onl-fase onl-${E.k}"><b>${esc(E.t || "")}</b><br><span class="stats">Cierre: <span id="onl-cuenta">${esc(onlFmtResto((d.limite || 0) - onlAhora()))}</span></span></div>`;
   h += `<h3>Jugadores</h3><ul class="onl-jug">${onlSeats(d)
     .map((f) => {
@@ -1506,7 +1512,7 @@ function onlTick() {
         net.db.doc("partidas/" + net.id).update({ limite: onlAhora() + cfg.trSeg * 1000, trT: d.turno });
       }
     }
-    if (cfg.modoTurno === "tr" && myTurn() && resto < 1500 && resto > -5000 && ONL.autoListo !== d.turno) {
+    if ((cfg.modoTurno === "tr" || cfg.ritmo === "rapida") && myTurn() && resto < 1500 && resto > -5000 && ONL.autoListo !== d.turno) {
       ONL.autoListo = d.turno;
       endTurn();
     }

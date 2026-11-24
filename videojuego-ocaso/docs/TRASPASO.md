@@ -48,9 +48,7 @@ tiempos agotados bajo carga: repetir antes de investigar. Las capturas van a `pr
    los datos del juego con buscador, «?» de ayuda en cada pestaña y sección, elección al empezar (completo /
    básico / ya sé jugar). Archivos ya preparados: `js/tutorial.js`, `css/tutorial.css` (vacíos). Hacerlo al final
    para que explique el juego terminado. Sustituye el tutorial corto de interfaz (`IFZ_TUT`).
-2. **Mapa de campaña en 3D**: se probó (relieve texturizado con giro libre, ciudades, montañas y bosques en volumen) y el usuario prefirió el mapa 2D: retirado. Se quiere, en cambio, ejércitos y personajes en pseudo-3D sobre el mapa 2D con la misma cámara isométrica girable de `batalla3d.js` (`b3dCamara`, `b3dGira`,
-   `b3dPan`), usando el relieve de `MAP` (`mapaInfo`, `MAP.alt/mont/rio/puente/vado/camino/bosque`) y
-   `ifzMapaInfo()` / `ifzFiguras(u)` de interfaz; el mapa 2D HD queda como vista clásica.
+2. **Mapa de campaña con relieve** (HECHO: `js/relieve.js`, `docs/interfaz.md` §Relieve). Se probó un 3D con WebGL y un isométrico en rombo; el usuario prefirió el mapa 2D visto **de frente**, con montañas, colinas, bosques, aldeas y ciudades **de pie** (más grandes, con sombra, por profundidad). Bajo la niebla, los pueblos no muestran guarnición ni tamaño.
 3. **Paquete de diseños para Gemini**: `node herramientas/exportar-sprites.js` (sprites a PNG ×1 y ×8, hojas por
    categoría y manifest) + capturas de cada pantalla + `assets/batalla3d/` + ficha técnica (paleta, tamaños,
    estilo) + texto listo para pegar en Gemini; y cómo reimportar con `assets/sprites/manifest.js`.
@@ -64,3 +62,8 @@ tiempos agotados bajo carga: repetir antes de investigar. Las capturas van a `pr
    repetición con niebla, niebla HD).
 6. Decisión de diseño pendiente con el usuario: en leyendas, en 120 años sobreviven 4-5 de 12 pueblos (frenos en
    `dipTensionLey` de `js/diplomacia.js`).
+
+## Partidas rápidas / largas y pelotones mermados (`js/ritmo.js`)
+
+- Al empezar (y online, «Duración» en la configuración): **larga** (como siempre; online plazos de horas) o **rápida**: 5 min por turno (en solitario un reloj que solo corre mientras puedes jugar; online, estación de 5 min y se envían las órdenes dadas) y batallas en vivo de 10 min reales como máximo (`cmbTopeResta` en `battleOver`): al vencer acaba como al anochecer, el atacante pierde y se retira con sus supervivientes.
+- **Pelotones mermados**: tras una batalla de dos ejércitos (`bctx.merma`), los pelotones tocados no se redondean; `ej.mer` guarda los hombres que faltan (`cmbMerTipo` los reparte al desplegar, `camMerNorm` nunca deja faltar un pelotón entero). Se completan en una ciudad propia pagando oro (coste de la leva / 10 por hombre); la IA lo hace sola si le sobra el oro. Las batallas conjuntas (varios ejércitos por bando) siguen redondeando como antes.

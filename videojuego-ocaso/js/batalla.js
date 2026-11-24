@@ -135,9 +135,10 @@ function cmbLado(s, ej, ctx, env, def = s === 1) {
     as = def && ctx.asedio ? Math.min(20, ctx.asedio * 4) : 0,
     fl = def && ctx.fort ? cmbFlancos(ctx) - 1 : 0,
     bl = [],
-    maq = {};
+    maq = {},
+    merT = cmbMerTipo(ej);
   for (const t of TYP) {
-    const n = (ej.u[t] || 0) * SPU;
+    const n = (ej.u[t] || 0) * SPU - (merT[t] || 0);
     if (n <= 0 || !UN[t]) continue;
     /* en campo abierto las máquinas de asedio no entran en combate: se quedan atrás con el bagaje
        (se conservan si su bando gana; si pierde, se las queman o capturan) */
@@ -265,6 +266,24 @@ function cmbObjetivo(b, ene, frente, fort, fac) {
   return ene.map((e, i) => [e, tot0 ? w[i] / tot0 : 0]);
 }
 /* Dos ejércitos (atacante y defensor): envoltorio de cmbResolverMulti con el resultado de siempre */
+/* PELOTONES MERMADOS: un ejército de campaña guarda en ej.mer los hombres que le faltan (en total) para
+   tener sus pelotones completos. Al desplegar se reparten entre sus tipos (cada tipo conserva al menos un
+   hombre por pelotón). Tras una batalla con ctx.merma, los pelotones tocados NO se redondean: quedan
+   mermados (ceil) y lo que falta va a res.mer; se completan en una ciudad propia pagando oro (js/ritmo.js). */
+function cmbMerTipo(ej) {
+  const m = Math.max(0, Math.round((ej && ej.mer) || 0)),
+    o = {};
+  if (!m) return o;
+  const ts = TYP.filter((t) => (ej.u[t] || 0) > 0 && UN[t] && !UN[t].asedio),
+    tt = ts.reduce((a, t) => a + ej.u[t], 0);
+  let resto = m;
+  ts.forEach((t, i) => {
+    const v = Math.max(0, Math.min(resto, i === ts.length - 1 ? resto : Math.round((m * ej.u[t]) / tt), ej.u[t] * SPU - ej.u[t]));
+    o[t] = v;
+    resto -= v;
+  });
+  return o;
+}
 function cmbResolverAuto(ejA, ejD, ctx = {}) {
   /* ONL */ if (ctx.onlRes && !ctx.est) {
     const r = ctx.onlRes;
@@ -283,6 +302,7 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
     A: r.ejs[0].A,
     D: r.ejs[1].A,
     heridos: { A: r.ejs[0].heridos, D: r.ejs[1].heridos },
+    mer: { A: r.ejs[0].mer, D: r.ejs[1].mer },
     informe: r.informe,
     gen: r.gen,
     brecha: r.brecha,
@@ -947,6 +967,7 @@ function cmbResolverMulti(ejs0, ctx = {}) {
   const rec = L.map((X) => (X.bando === gana ? 0.6 : X.rompe ? 0.25 : fin === "noche" ? 0.45 : 0.25)),
     out = L.map(() => cmbVacio()),
     her = L.map(() => 0),
+    mer = L.map(() => 0),
     bajas = L.map(() => ({ m: 0, h: 0, r: 0 }));
   for (const X of L) {
     const s = X.s,
@@ -958,10 +979,16 @@ function cmbResolverMulti(ejs0, ctx = {}) {
       bajas[s].h += b.her;
       bajas[s].r += vu;
     }
+    const mm = ctx.merma && ejs[s] && ejs[s].mer !== undefined;
     for (const t in sv) {
       const x = sv[t] / SPU;
-      out[s][t] = Math.floor(x) + (R() < x % 1 ? 1 : 0);
+      if (mm) {
+        const c = Math.ceil(x - 1e-6);
+        out[s][t] = c;
+        mer[s] += Math.max(0, c * SPU - sv[t]);
+      } else out[s][t] = Math.floor(x) + (R() < x % 1 ? 1 : 0);
     }
+    mer[s] = mm ? Math.round(mer[s]) : undefined;
     her[s] = Math.round(bajas[s].r);
     for (const t in X.maq || {}) out[s][t] = (out[s][t] || 0) + (X.bando === gana ? X.maq[t] : 0);
   }
@@ -1002,6 +1029,7 @@ function cmbResolverMulti(ejs0, ctx = {}) {
       u: out[i],
       heridos: her[i],
       her: her[i],
+      mer: mer[i],
       bajas: bajas[i],
       gen: gen[i],
       llego: !(llega[i] > r),
@@ -1485,8 +1513,9 @@ function cmbTacticaCore(ejs0, ctx, mode, op) {
       gens.push({ id: gc ? gc.id : null, ok: !!gc, ma: gc ? gc.ma : 0, lv, res: null });
       gbs.push(gc ? 1 + gc.ma * 0.04 + (lv - 1) * 0.015 : 1);
       bono.push(OC.calc("bonoBatalla", 1, { f, lado, p }) || 1);
+      const merT = cmbMerTipo(ej);
       for (const t of TYP) {
-        let n = (u[t] || 0) * SPU;
+        let n = (u[t] || 0) * SPU - (merT[t] || 0);
         const cs = cmbStats(f, t, cmbOrigenP(f, t, ej.ori, p), lado, (ej.vet && ej.vet[t]) || 0),
           m =
             cs.mo +
@@ -3013,6 +3042,18 @@ function cmbRatioB(b) {
     ? BT.units.filter((u) => cmbBnd(u.side) === b && fighting(u)).reduce((a, u) => a + u.n, 0) / n0
     : 0;
 }
+/* PARTIDA RÁPIDA (js/ritmo.js): ninguna batalla en vivo dura más de ritTopeBatalla() segundos REALES (desde
+   que se abre, despliegue incluido). Al vencer, acaba como al anochecer: el defensor aguanta y gana; el
+   atacante pierde, pero no muere: se retira con sus supervivientes. */
+function cmbTopeSeg() {
+  return BT && !BT.ctx.est && typeof ritTopeBatalla === "function" ? ritTopeBatalla() || 0 : 0;
+}
+function cmbTopeResta() {
+  const s = cmbTopeSeg();
+  if (!s) return Infinity;
+  if (!BT.real0) BT.real0 = performance.now();
+  return s - (performance.now() - BT.real0) / 1000;
+}
 /* devuelve el BANDO que gana, o -1 si sigue (con dos ejércitos, bando = ejército) */
 function battleOver() {
   const vivos = cmbBandosDe().filter(bandoVivo);
@@ -3020,7 +3061,7 @@ function battleOver() {
     if (vivos.length) return vivos[0];
     return BT.def != null ? cmbBnd(BT.def) : cmbBandosDe().sort((a, b) => cmbRatioB(b) - cmbRatioB(a))[0];
   }
-  if ((BT.mode === "rt" ? BT.t : BT.turn - 1) >= BT.lim) {
+  if ((BT.mode === "rt" ? BT.t : BT.turn - 1) >= BT.lim || cmbTopeResta() <= 0) {
     BT.noche = true;
     return BT.def != null && vivos.includes(cmbBnd(BT.def))
       ? cmbBnd(BT.def)
@@ -3202,6 +3243,7 @@ function finishBattle(win, retreat) {
     });
   const rec = lados.map((s) => (cmbBnd(s) === w ? 0.6 : noche ? 0.45 : huye(s) ? 0.35 : 0.25)),
     out = lados.map(() => cmbVacio()),
+    merS = lados.map(() => undefined),
     bajas = lados.map(() => ({ m: 0, h: 0, r: 0 }));
   for (const s of lados) {
     const sv = {};
@@ -3212,10 +3254,18 @@ function finishBattle(win, retreat) {
       bajas[s].h += u.her;
       bajas[s].r += vu;
     }
+    const ejS = BT.ejs[BT.map[s]],
+      mm = BT.ctx.merma && ejS && ejS.mer !== undefined;
+    if (mm) merS[s] = 0;
     for (const t in sv) {
       const x = sv[t] / SPU;
-      out[s][t] = Math.floor(x) + (R() < x % 1 ? 1 : 0);
+      if (mm) {
+        const c = Math.ceil(x - 1e-6);
+        out[s][t] = c;
+        merS[s] += Math.max(0, c * SPU - sv[t]);
+      } else out[s][t] = Math.floor(x) + (R() < x % 1 ? 1 : 0);
     }
+    if (mm) merS[s] = Math.round(merS[s]);
   }
   /* de lados del campo al orden de los ejércitos recibidos */
   const m = BT.map,
@@ -3254,11 +3304,13 @@ function finishBattle(win, retreat) {
   if (N > 2 || bandosEj.some((b, i) => b !== i)) informe.bandos = bandosEj;
   const outE = ej(out),
     bajE = ej(bajas),
+    merE = ej(merS),
     res = {
       gana,
       A: outE[0],
       D: outE[1],
       heridos: { A: Math.round(bajE[0].r), D: Math.round(bajE[1].r) },
+      mer: { A: merE[0], D: merE[1] },
       informe,
       gen: informe.gen,
       ejs: BT.ejs.map((e, i) => ({
@@ -3270,6 +3322,7 @@ function finishBattle(win, retreat) {
         u: outE[i],
         heridos: Math.round(bajE[i].r),
         her: Math.round(bajE[i].r),
+        mer: merE[i],
         bajas: bajE[i],
         gen: informe.gen[i],
       })),
@@ -3540,7 +3593,8 @@ function bui() {
       )
       .join(" contra ");
   let h = `<h2>Batalla de ${BT.place}</h2><p class="dim">${ejTxt}${BT.fort ? " · murallas " + BT.fort : ""}${BT.flancos > 1 ? " · " + BT.flancos + " flancos" : ""}<br>`;
-  h += `${MODES[BT.mode]}${BT.mode === "rt" ? ` · ${Math.floor(BT.t)} / ${BT.lim} s` : ` · turno ${BT.turn} / ${BT.lim}`} · ${E.clima}</p>`;
+  const tope = cmbTopeResta();
+  h += `${MODES[BT.mode]}${BT.mode === "rt" ? ` · ${Math.floor(BT.t)} / ${BT.lim} s` : ` · turno ${BT.turn} / ${BT.lim}`} · ${E.clima}${tope < Infinity ? ` · <b class="${tope < 60 ? "bad" : ""}">quedan ${Math.floor(Math.max(0, tope) / 60)}:${String(Math.floor(Math.max(0, tope) % 60)).padStart(2, "0")}</b>` : ""}</p>`;
   if (BT.phase === "deploy") {
     h += `<p>${BT.muro && BT.muro.x0 != null ? (cmbBnd((BT.mios || [0])[0]) === cmbBnd(BT.def) ? "Defiendes la plaza: coloca tus unidades dentro de la muralla (la zona clara). Arqueros junto al lienzo, la línea detrás y la caballería al fondo, lista para salir por una puerta." : "Asedio: despliega en cualquier punto alrededor de la plaza (la zona clara). Arietes a las puertas, torres y escalas contra los lienzos, catapultas a tiro de la muralla; rodearla reparte a la guarnición.") : "Arrastra tus unidades dentro de la franja clara. Lanceros al frente frenan la caballería; arqueros detrás; caballería en las alas. Bosque: cubre y frena jinetes. Colina: mejor tiro y defensa. Río: frena y debilita; usa los vados."}</p><div class="g2"><button data-act="b-auto">Despliegue automático</button><button data-act="b-go" class="gold">¡A la batalla!</button></div>`;
   } else {
