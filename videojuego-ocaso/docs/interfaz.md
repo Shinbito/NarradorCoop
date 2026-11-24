@@ -91,9 +91,9 @@ de alcance (clave: ejército, `camVer`, marcha, estación). Mapa HD (partida ini
 ## 3. Estado y preferencias
 
 `IFZ` (no se guarda en `G`): `pref` en `localStorage["ocaso-ifz"]` = `{sec:{id:bool}, pot, potTodas, log,
-tut, vel ('lenta'|'normal'|'rapida'), rep (bool)}`; `res` (desplegable abierto), `anios` (años de la crónica), `baseVer`, `med`. Acciones propias
+tut, vel ('lenta'|'normal'|'rapida'), rep (bool), iconos (bool)}`; `res` (desplegable abierto), `anios` (años de la crónica), `baseVer`, `med`. Acciones propias
 (libres): `ifzres`, `ifzpot`, `ifzfac-<f>`, `ifzlog-<filtro>`, `ifztut-sig|fin|otra`, `ifzayuda`,
-`ifzopc`, `ifzvel-<v>`, `ifzrepo-1|0`, `ifzrep-saltar|x2`, `zoom-cap`.
+`ifzopc`, `ifzvel-<v>`, `ifzrepo-1|0`, `ifzico-1|0`, `ifzrep-saltar|x2`, `zoom-cap`.
 
 ## 4. Online
 
@@ -102,6 +102,9 @@ debe devolver `{info, boton}` (o una cadena = `info`), que van a `#tinfo` y al b
 con estaciones simultáneas (`ONL.meta.listos`, `onlActivos`) se muestra «Online · listos 2/3» y «Listo ▶»
 («Esperando a los demás…» si ya estás listo); si tampoco, «Online · turno de X» como antes. Online puede
 seguir escribiendo `#tinfo` desde su reloj (cuenta atrás): `ui()` solo lo reescribe si su texto cambia.
+Cuando el jugador ya está «Listo» y la estación aún no se resuelve (`ONL.meta.fase === 'ordenes'`,
+`listos[ME] === turno`, sin `ONL.resolviendo`), el botón de fin pasa a **«Quitar listo ✕»** (o el texto
+`quitar` que devuelva `onlTextoTurno()`), con `data-act="ifzquitar"`, y llama a `onlQuitarListo()`.
 
 ## 5. Sprites reemplazables por PNG
 
@@ -186,10 +189,21 @@ Formato de `manifest.json` (y de `OCASO_SPRITES` en `manifest.js`):
   respaldo: montañas solo decorativas en el corazón de las colinas, ríos decorativos en las provincias con
   río de `cmbTerreno` y caminos entre ciudades vecinas. Además calcula distancias a la costa, aldeas y
   casillas/bordes de cada provincia. Nada de esto cambia `gen()` ni la lógica.
+- **Recurso principal** (`ecoIconoProv(p)`): icono pequeño (glifo dorado sobre fondo oscuro) junto a cada
+  provincia cuya economía ve el jugador (`ecoInfoVisible(p, ME)`, o `camVeProv`); lista cacheada
+  (`ifzRecProv`, se rehace al cambiar de estación o de dueños, o cada 4 s, porque `yields` es caro). Se oculta
+  en ⚙ Opciones (`IFZ.pref.iconos`). También va en el hover («· ⚒ Hierro») y en el resumen de la sección
+  plegada «Tierras» (icono + `ecoFertil(p).txt`, o «ignotas»).
 - Hover: el nombre del terreno de la casilla con `mapaInfo` («Montaña infranqueable», «Río», «Puente»,
   «Vado», «Paso de montaña», «Bosque denso», «Llanura con camino»…) tras el nombre de la provincia
   (`ifzTerrenoTxt(x, y)`).
 - `drawBase()` solo marca el terreno para rehacerlo en el cuadro siguiente.
+- **Niebla de guerra en HD** (`ifzVeloNiebla(c, f)`, con la lógica de campaña: `camVisMapa`, `camExpArr`,
+  `G.cam.mem`): lo no explorado, oscuro con grano; lo explorado y no visible, el terreno HD sin los dueños
+  actuales, el color del último dueño conocido, un velo y sus ciudades con las últimas levas conocidas. Se
+  pinta encima de banderas, guarniciones y resaltes (no filtra información) y se cachea con la clave de
+  campaña. `ifzVeCasilla(f, x, y)` dice si el jugador ve una casilla. Si faltan funciones de campaña se usa
+  `camDibujarNiebla` escalada.
 
 ## 7. Ritmo de las animaciones y repetición
 
@@ -208,8 +222,12 @@ Formato de `manifest.json` (y de `OCASO_SPRITES` en `manifest.js`):
   (×2/×4) y «Saltar» (o Escape); una capa cubre la pantalla mientras dura. Al acabar vuelve al estado real.
   Devuelve `false` (sin esperar) si no hay pasos, si ya hay otra en curso o si `ifzVel()` es 0
   (`IFZ.repForzar = true` la fuerza en pruebas).
-- En un jugador se llama en el evento `finEstacion` (tras `camEstacion`, con lo grabado hasta ahí: la IA,
-  batallas, asedios y conquistas) si `IFZ.pref.rep` no es `false`. En online la llama Online.
+- **Niebla**: solo se reproducen los pasos cuyo `vh` incluye al jugador (o que no traen `vh`), los
+  ejércitos iniciales que ve, y la niebla HD se pinta encima (las conquistas bajo la niebla no destellan).
+  Los espías (`esp` / `esp-`) se ven como una figura embozada que se desliza (`IFZ.fig.espia.0|1`).
+  `ifzRepVisibles(pasos)` hace el filtro.
+- En un jugador se lanza con el evento de campaña **`repeticionLista`** (al cerrar `G.cam.rep`, con lo anual y
+  las marchas pendientes incluidas) si `IFZ.pref.rep` no es `false`. En online la llama Online.
 
 ## 8. Pruebas
 
@@ -226,8 +244,8 @@ partida guardada antigua. Capturas `interfaz-terreno-*` (antes/después del mapa
 
 ## 9. Peticiones
 
-1. **Economía**: retirar el oyente `document.mousemove` que añade el ánimo a `#hv` (la interfaz ya lo
-   muestra con `ecoNivel`).
+1. **Economía**: retirar el oyente `document.mousemove` que añade el ánimo y el recurso principal a `#hv`:
+   la interfaz ya los muestra (`ecoNivel`, `ecoIconoProv` con `ecoInfoVisible`) y el oyente no añade nada.
 2. **Campaña** (inactiva): `camDibujar` y `camSprite` ya no se usan desde `drawMap` (la interfaz dibuja la
    capa de campaña con sus funciones de lógica); se pueden dejar como respaldo. El texto del botón de fin ya
    no hace falta corregirlo desde `camDibujar`.
@@ -247,3 +265,6 @@ partida guardada antigua. Capturas `interfaz-terreno-*` (antes/después del mapa
    `camSprite`/`camDibujar` ya no se usan.
 7. **Combate**: escalar sus tiempos de animación de la batalla táctica (marchas, golpes, `sleep`) con
    `ifzVel()` (0 = sin espera) para que la opción de velocidad se note también allí.
+8. **Campaña** (niebla): la interfaz ya dibuja la niebla en HD con `ifzVeloNiebla` en lugar de
+   `camDibujarNiebla` (que queda como respaldo); si cambia la estructura de `camVisMapa`/`camExpArr`/`mem`,
+   avisar para mantenerla.

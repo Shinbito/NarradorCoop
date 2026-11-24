@@ -177,6 +177,13 @@ header {
   display: none;
 }
 
+/* online: el botón de fin ofrece «Quitar listo» */
+.end.ifz-quitar {
+  background: #33414c;
+  box-shadow:
+    inset -3px -3px 0 #1c252c,
+    inset 3px 3px 0 #52636f;
+}
 /* ---------- repetición de la estación: bloquea la pantalla y muestra su barra ---------- */
 .ifz-rep {
   position: fixed;
