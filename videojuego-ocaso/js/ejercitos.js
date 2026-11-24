@@ -1507,6 +1507,14 @@ async function camNuevaEstacion() {
     }
     if (e.gen != null && (!camGen(e) || G.P.some((p) => p.gen === e.gen))) e.gen = null;
     e.mov = camMovMax(e);
+    /* ejército varado en tierra de un reino en paz (derecho de salida): aviso y, si se queda, enfado */
+    const pr = camProv(e);
+    if (pr && e.f < NF && pr.owner < NF && !camPaso(e.f, pr.owner)) {
+      e.intruso = (e.intruso || 0) + 1;
+      if (e.intruso === 1 && (isMe(e.f) || isMe(pr.owner)))
+        addLog(`${camNombre(e)} (${CIV[e.f].s}) está en tierras de ${CIV[pr.owner].s} sin derecho de paso: debe salir.`, isMe(e.f) ? "bad" : "");
+      if (e.intruso >= 3) relAdd(e.f, pr.owner, -2);
+    } else e.intruso = 0;
     e.pas = [];
   }
   G.P.forEach((p) => (p.tired = false));

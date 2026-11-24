@@ -281,6 +281,11 @@ async function camIAEj(f, ej) {
     }
   }
   if (ej.mov <= 0.5) return null;
+  /* varado en tierra de un reino en paz (derecho de salida): lo primero es salir */
+  if (p && !camPaso(f, p.owner)) {
+    const c = camIACasa(ej);
+    if (c) return { tipo: "mover", f, ej: ej.id, x: c.x, y: c.y };
+  }
   const D = camDijkstra(ej, { presu: ej.mov }),
     ataca = (x, y) => ({ tipo: "mover", f, ej: ej.id, x, y });
   /* 1) interceptar ejércitos enemigos al alcance (sobre todo los que pisan tierra propia) */

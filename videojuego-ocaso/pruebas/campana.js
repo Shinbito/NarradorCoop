@@ -298,6 +298,60 @@ const ok = (c, m) => {
     ok(!m3c.gana || (m3c.own === MEv && m3c.enCiudad === 1), "si se gana, el que más aportó entra en la ciudad y los demás quedan junto a ella");
   }
 
+  /* ---------- 3c. un cerco es de quien lo puso ---------- */
+  console.log("3c. Un cerco es de quien lo puso");
+  const m3d = await corre(`
+    const A = [...Array(NF).keys()].find((f) => f !== ME && alive(f));
+    const libre = (p) => CAM_V8.map(([dx, dy]) => [p.x + dx, p.y + dy]).filter(([x, y]) => MAP.terr[y] && MAP.terr[y][x] && !camEjsEn(x, y).length && !camCiudadEn(x, y));
+    const cs = G.P.filter((p) => p.owner !== ME && p.owner !== A && !p.cap && libre(p).length >= 4 && !camAsedio(p.id));
+    const [q, q3] = cs;
+    const guerra = (a, b) => { if (b < NF) G.st[a][b] = G.st[b][a] = "guerra"; };
+    for (const c of [q, q3]) { guerra(ME, c.owner); guerra(A, c.owner); for (const e of G.cam.ej.slice()) if (camCheb(e.x, e.y, c.x, c.y) <= 2) camQuitar(e); }
+    G.st[ME][A] = G.st[A][ME] = "paz";
+    G.rel[ME][A] = G.rel[A][ME] = -50;
+    q.walls = 1; q.u = cmbNorm({ i: 3 }); q.gen = null;
+    const [a1, a2] = libre(q);
+    const ea = camNuevoEj(A, a1[0], a1[1], { i: 12, c: 3 }, {});
+    const r0 = camAsediar(ea, q);
+    const em = camNuevoEj(ME, a2[0], a2[1], { i: 10, a: 3 }, {});
+    const r1 = await camAplicarOrden(G, { tipo: "asediar", f: ME, ej: em.id, p: q.id });
+    const r2 = await camAplicarOrden(G, { tipo: "asaltar", f: ME, ej: em.id, p: q.id });
+    const g0 = q.u; q.u = cmbVacio();
+    const r3 = await camAplicarOrden(G, { tipo: "asaltar", f: ME, ej: em.id, p: q.id });
+    const dueno0 = q.owner;
+    q.u = g0;
+    const rech = await camPedirCerco(ME, q);
+    /* con buena relación, A acepta: co-sitiador, asalto conjunto, la ciudad es de A y el botín se reparte */
+    G.rel[ME][A] = G.rel[A][ME] = 60;
+    G.cam.as[q.id].no = {};
+    const acep = await camPedirCerco(ME, q);
+    const r4 = await camAplicarOrden(G, { tipo: "asediar", f: ME, ej: em.id, p: q.id });
+    const oro0 = G.F[ME].gold;
+    const r5 = await camAplicarOrden(G, { tipo: "asaltar", f: ME, ej: em.id, p: q.id }, { auto: true });
+    const res = { A, r0: r0.ok, r1: r1.ok, m1: r1.motivo, r2: r2.ok, r3: r3.ok, dueno0, qOwner0: g0 && q.owner, rech, acep, r4: r4.ok, r5ok: r5.ok, gana: r5.gana, n5: (r5.ejs || []).length, dueno: q.owner, botin: G.F[ME].gold - oro0 };
+    /* llegada simultánea de dos bandos que no comparten: el primero que cerca manda */
+    G.rel[ME][A] = G.rel[A][ME] = -50;
+    q3.walls = 1; q3.u = cmbNorm({ i: 6 });
+    const lb = libre(q3);
+    const lejos = (x0, y0) => { for (let r = 3; r <= 4; r++) for (const [dx, dy] of [[-r, 0], [r, 0], [0, -r], [0, r]]) { const x = x0 + dx, y = y0 + dy; if (MAP.terr[y] && MAP.terr[y][x] && MAP.grid[y][x] >= 0 && !camCiudadEn(x, y) && !camEjsEn(x, y).length && camPaso(ME, G.P[MAP.grid[y][x]].owner) && camPaso(A, G.P[MAP.grid[y][x]].owner)) return [x, y]; } return null; };
+    const s1 = lejos(q3.x, q3.y);
+    if (!s1) return { ...res, sinCarrera: true };
+    const m1 = camNuevoEj(ME, s1[0], s1[1], { i: 8 }, {}), m2 = camNuevoEj(A, s1[0], s1[1], { c: 6 }, {});
+    m1.mov = m2.mov = 40;
+    await camResolverSimultaneo(G, [
+      { tipo: "mover", f: ME, ej: m1.id, x: q3.x, y: q3.y, luego: "asediar", p: q3.id },
+      { tipo: "mover", f: A, ej: m2.id, x: q3.x, y: q3.y, luego: "asediar", p: q3.id },
+    ], { auto: true });
+    const as3 = camAsedio(q3.id);
+    return { ...res, cerco3: as3 ? as3.f : null, est1: camEj(m1.id) && camEj(m1.id).est, est2: camEj(m2.id) && camEj(m2.id).est };
+  `);
+  console.log("  " + JSON.stringify(m3d));
+  ok(m3d.r0 && !m3d.r1 && !m3d.r2, "con la ciudad cercada por otro reino, no puedes asediarla ni asaltarla por tu cuenta");
+  ok(!m3d.r3 && m3d.dueno0 !== MEv, "tampoco ocuparla aunque quede vacía");
+  ok(!m3d.rech && m3d.acep && m3d.r4, "el que cerca rechaza o acepta (según la relación) que te sumes; aceptado, cercas por otro flanco");
+  ok(m3d.r5ok && m3d.n5 >= 2 && (!m3d.gana || (m3d.dueno === m3d.A && m3d.botin > 0)), `el asalto del co-sitiador es conjunto y la ciudad es de quien inició el cerco (botín para ti: ${m3d.botin})`);
+  ok(m3d.sinCarrera || (m3d.cerco3 != null && [m3d.est1, m3d.est2].filter((x) => x === "asedio").length === 1), `en la llegada simultánea, el primero que cerca manda (cerco de ${m3d.cerco3})`);
+
   /* ---------- 4. rendición por hambre ---------- */
   console.log("4. Rendición por hambre");
   const m4 = await corre(`
