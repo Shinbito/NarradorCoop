@@ -425,6 +425,33 @@ function camDibujarCerco(c, now) {
       }
     }
   }
+  /* batalla en conjunto que se prepara: flechas de cada ejército participante hacia el punto de choque
+     (color de su pueblo; los candidatos que aún se preguntan, parpadeando) y espadas cruzadas en el centro */
+  if (camBatPrep) {
+    const bp = camBatPrep,
+      punto = { x: bp.x, y: bp.y },
+      on = reduce || Math.floor(now / 250) % 2;
+    if (performance.now() - bp.t0 > 60000) camBatPrep = null;
+    else {
+      const ids = [...bp.lados[0], ...bp.lados[1], ...(bp.cand || [])];
+      for (const id of ids) {
+        const e = camEj(id);
+        if (!e || (e.x === bp.x && e.y === bp.y)) continue;
+        const cand = (bp.cand || []).includes(id) && !bp.lados.flat().includes(id);
+        if (cand && !on) continue;
+        camFlecha(c, e, punto, CIV[e.f].c, now, id * 0.17);
+      }
+      const X = bp.x * T,
+        Y = bp.y * T;
+      c.fillStyle = "#000";
+      c.fillRect(X + 1, Y + 1, 6, 6);
+      c.fillStyle = on ? "#fff3b0" : "#ff7a2a";
+      for (let k = 0; k < 4; k++) {
+        c.fillRect(X + 2 + k, Y + 2 + k, 1, 1);
+        c.fillRect(X + 5 - k, Y + 2 + k, 1, 1);
+      }
+    }
+  }
   /* animación del asalto conjunto: columnas que convergen y un estallido sobre la ciudad */
   if (camAnimAsalto) {
     const k = (performance.now() - camAnimAsalto.t0) / (1300 * camVel()),
@@ -696,6 +723,7 @@ function camPanelEj(dis) {
     }
     h += b(`disolver:${ej.id}`, "Disolver", p && p.owner === ej.f, "Las tropas pasan a la guarnición de la provincia (solo en tierra propia)");
     h += b(`dividir:${ej.id}`, "Dividir", camTot(ej.u) > 1, "Separa la mitad en un destacamento");
+    h += b(`apoyo:${ej.id}:${ej.apoyo === "nunca" ? "siempre" : "nunca"}`, ej.apoyo === "nunca" ? "No acude a batallas vecinas" : "Acude a batallas vecinas", true, "Si chocan a 1-2 casillas tus ejércitos o los de tus aliados, este se suma a la batalla (se pregunta antes)");
     if (otro) h += b(`unir:${ej.id}:${otro.id}`, "Unir", true, "Reúne los dos ejércitos de esta casilla");
     h += `<button data-act="cam-desel">Deseleccionar</button></div>`;
     /* mercenarios del campamento vecino */
@@ -788,6 +816,7 @@ OC.accion("cam", (v) => {
   else if (k === "maq") camOrdenUI({ ...o, tipo: "construir", ej: id, maq: b2 });
   else if (k === "unir") camOrdenUI({ ...o, tipo: "unir", ej: id, con: +b2 });
   else if (k === "salida") camOrdenUI({ ...o, tipo: "salida", p: id });
+  else if (k === "apoyo") camOrdenUI({ ...o, tipo: "apoyo", ej: id, modo: b2 });
   return false;
 });
 /* ---------- pestaña «Campaña» ---------- */

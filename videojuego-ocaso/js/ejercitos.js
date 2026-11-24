@@ -620,6 +620,7 @@ async function camLibrar(ejA, ejD, bctx, o = {}) {
       modo: ch,
       informe: inf,
       campana: o.tipo || "campo",
+      ejercitos: o.ejercitos || null,
     });
   /* un capitán surgido de la victoria (combate, cmbCapitanSurge) manda el ejército que la ganó */
   for (const c of G.C.slice(nC0)) {
@@ -703,11 +704,220 @@ function camDispersar(ej, motivo) {
 }
 
 /* encuentro en campo abierto: A entra en la casilla de D */
+/* ---------- batalla en conjunto (encuentros) ----------
+   Al chocar A con D en la casilla de D, acuden los ejércitos de cada bando (propios y aliados en guerra con
+   el otro bando) que estén a 1 casilla del punto de la batalla, o a 2 si les queda marcha y no asedian.
+   El jugador elige con un modal cuáles de los suyos se suman (marcados por defecto según ej.apoyo); la IA,
+   y el jugador en el online o sin preguntar, deciden solos: la IA se suma salvo que su bando ya tenga la
+   batalla ganada (≥ 85 %); un ejército humano según ej.apoyo ('siempre' por defecto | 'nunca' | id del
+   ejército al que apoya). Cada uno lleva su dirección (dir N/E/S/O) respecto al punto de la batalla. */
+let camBatPrep = null; // {x, y, lados:[[ids],[ids]], t0}: flechas en el mapa mientras se prepara la batalla
+const camDir = (e, x, y) => camFlanco(Math.sign(e.x - x), Math.sign(e.y - y)) || "C";
+function camBandoDe(e, a, d) {
+  /* 0 = del lado de a, 1 = del lado de d, -1 = ninguno o ambiguo */
+  const conA = e.f === a || (camAliado(a, e.f) && camGuerra(e.f, d)),
+    conD = e.f === d || (camAliado(d, e.f) && camGuerra(e.f, a));
+  return conA && !conD ? 0 : conD && !conA ? 1 : -1;
+}
+function camCandidatos(A, D, x, y) {
+  const r = [[], []];
+  for (const e of camS().ej) {
+    if (e === A || e === D || camTot(camUCampo(e.u)) <= 0) continue;
+    const d = camCheb(e.x, e.y, x, y);
+    if (d < 1 || d > 2 || (d === 2 && (e.mov <= 0.5 || e.est === "asedio"))) continue;
+    const b = camBandoDe(e, A.f, D.f);
+    if (b >= 0) r[b].push(e);
+  }
+  return r;
+}
+const camApoya = (e, otros) => e.apoyo == null || e.apoyo === "siempre" || (e.apoyo !== "nunca" && otros.some((x) => x.id === e.apoyo));
+/* decide quiénes se suman de cada lado; el jugador, con un modal */
+async function camReunir(A, D, x, y, o = {}) {
+  const cand = camCandidatos(A, D, x, y),
+    lados = [[A], [D]],
+    bctx0 = { fort: D.est === "campamento" ? CAM_K.fortCampo : 0, terreno: camTerrCasilla(x, y), p: G.P[camPid(x, y)] || null, est: true };
+  for (const s of [0, 1]) {
+    const mios = cand[s].filter((e) => isMe(e.f) && !net.on && !o.auto),
+      solos = cand[s].filter((e) => !mios.includes(e));
+    /* IA y jugador sin modal */
+    for (const e of solos) {
+      if (human(e.f)) {
+        if (camApoya(e, lados[s])) lados[s].push(e);
+        continue;
+      }
+      const yo = camFuerzaConjunta(lados[s], true).ej,
+        el = camFuerzaConjunta(lados[1 - s], true).ej,
+        est = s === 0 ? cmbEstimar(yo, el, bctx0, 3) : 1 - cmbEstimar(el, yo, bctx0, 3);
+      if (est < 0.85) lados[s].push(e);
+    }
+    if (mios.length) {
+      camBatPrep = { x, y, lados: [lados[0].map((e) => e.id), lados[1].map((e) => e.id)], t0: performance.now(), cand: mios.map((e) => e.id) };
+      let elegidos = mios.filter((e) => camApoya(e, lados[s]));
+      await modal(
+        `¿Quién acude a la batalla?`,
+        `<p>${s === 0 ? "Tu ataque" : "La defensa"} en ${bctx0.p ? bctx0.p.name : "campo abierto"}: tus ejércitos vecinos pueden sumarse.</p><div class="cam-el">${mios
+          .map(
+            (e) =>
+              `<label><input type="checkbox" data-cam-ej="${e.id}" ${camApoya(e, lados[s]) ? "checked" : ""}> ${esc(camNombre(e))} · ${camTot(e.u) * SPU} hombres · desde el ${CAM_LADO_N[camDir(e, x, y)] || "centro"}</label>`,
+          )
+          .join("")}</div>`,
+        [
+          {
+            t: "Combatir",
+            cls: "gold",
+            fn: () => {
+              const sel = [...document.querySelectorAll("#modalc [data-cam-ej]")].filter((i) => i.checked).map((i) => +i.dataset.camEj);
+              elegidos = mios.filter((e) => sel.includes(e.id));
+            },
+          },
+          { t: "Solo el que choca", fn: () => (elegidos = []) },
+        ],
+      );
+      lados[s].push(...elegidos);
+    }
+  }
+  for (const s of [0, 1]) for (const e of lados[s]) e.dir = camDir(e, x, y);
+  A.dir = camFlanco(Math.sign(A.x - x), Math.sign(A.y - y)) || "O";
+  D.dir = "C";
+  camBatPrep = { x, y, lados: [lados[0].map((e) => e.id), lados[1].map((e) => e.id)], t0: performance.now() };
+  return lados;
+}
+/* batalla de varios ejércitos por bando: con cmbResolverMulti/cmbTacticaMulti de combate si existen;
+   si no, cada bando se funde en una fuerza (camFuerzaConjunta) y se libra con camLibrar.
+   Devuelve {gana: 0|1, sup: [[u por ejército del lado 0], [u por ejército del lado 1]], rondas}. */
+async function camBatallaLados(lados, bctx, o = {}) {
+  const F = lados.map((l) => camFuerzaConjunta(l, true));
+  if (lados[0].length > 1 || lados[1].length > 1) {
+    const lista = [];
+    lados.forEach((l, s) => l.forEach((e, i) => lista.push({ ...camParaBatalla(e), id: e.id, bando: s, dir: e.dir, u: F[s].aport[i] })));
+    const r = await camMulti(lista, bctx, o, [F[0].ej, F[1].ej]);
+    if (r) return { gana: r.gana, sup: lados.map((l) => l.map((e) => cmbNorm({ ...(r.by.get(e.id) || {}) }))), rondas: r.rondas, informe: r.informe };
+  }
+  /* alternativa (sin batallas de varios bandos en combate): cada bando, una fuerza; los generales de más
+     dan su pequeño bono a cada lado */
+  camBonoAct = [camBonoGen(F[0].ej.f, F[0].extraGen, "atacante"), camBonoGen(F[1].ej.f, F[1].extraGen, "defensor")];
+  let res;
+  try {
+    res = await camLibrar(F[0].ej, F[1].ej, bctx, {
+      ...o,
+      ejs: [lados[0][0], lados[1][0]],
+      ejercitos: lados.map((l) => l.map((e) => ({ id: e.id, f: e.f, dir: e.dir }))),
+    });
+  } finally {
+    camBonoAct = null;
+  }
+  return { gana: res.gana, sup: [camRepartir(res.A, F[0].aport), camRepartir(res.D, F[1].aport)], rondas: res.rondas, informe: res.informe, F };
+}
+/* Batalla de varios ejércitos con el motor de combate (cmbResolverMulti / cmbTacticaMulti), si existe.
+   Contrato propuesto: lista = [{id, f, bando: 0 ataca | 1 defiende, dir: N/E/S/O/C, u, gen, vet, ori, fat,
+   hambre}]; resultado {gana: bando, ejs: [{id, u: supervivientes}], informe}. Devuelve null si no está (o
+   si el resultado no tiene esa forma), y entonces se usa la fusión de cada bando. fz = [fuerza A, fuerza D]
+   fundidas, solo para el modal y el evento. Emite batallaResuelta (con ejercitos y multi: true). */
+async function camMulti(lista, bctx, o, fz) {
+  if (typeof cmbResolverMulti !== "function") return null;
+  const yo = lista.some((e) => isMe(e.f)),
+    modo = yo && !o.auto && !net.on && typeof cmbTacticaMulti === "function" ? await camModoBatalla(fz[0], fz[1], bctx, o) : "auto",
+    soloDef = lista.some((e) => e.bando === 1 && isMe(e.f)) && !lista.some((e) => e.bando === 0 && isMe(e.f)),
+    r = modo !== "auto" ? await cmbTacticaMulti(lista, { ...bctx, jugador: soloDef ? 1 : 0 }, modo) : cmbResolverMulti(lista, bctx);
+  if (!r || !Array.isArray(r.ejs)) return null;
+  const by = new Map(r.ejs.map((x) => [x.id, cmbNorm({ ...(x.u || x.A || {}) })])),
+    inf = r.informe || null,
+    rondas = inf && inf.rondas ? inf.rondas.length : 4,
+    a0 = lista.find((e) => e.bando === 0),
+    d0 = lista.find((e) => e.bando === 1);
+  if (inf && o.factor && Array.isArray(inf.factores)) inf.factores.unshift(o.factor);
+  if (inf && typeof cmbGuardarInf === "function") cmbGuardarInf(inf);
+  OC.emitirSync("batallaResuelta", {
+    p: bctx.p,
+    atacante: a0.f,
+    defensor: d0.f,
+    gana: r.gana === 0,
+    A: by.get(a0.id),
+    D: by.get(d0.id),
+    s0: fz[0].u,
+    d0: fz[1].u,
+    gA: fz[0].gen,
+    gD: fz[1].gen,
+    informe: inf,
+    rondas,
+    campana: o.tipo || "encuentro",
+    ejercitos: [0, 1].map((s) => lista.filter((e) => e.bando === s).map((e) => ({ id: e.id, f: e.f, dir: e.dir }))),
+    multi: true,
+  });
+  camRep({ k: "bat", x: bctx.x, y: bctx.y, fs: [...new Set(lista.map((e) => e.f))], gana: r.gana === 0 ? a0.f : d0.f, lugar: bctx.nombreLugar || "" });
+  return { gana: r.gana, by, rondas, informe: inf };
+}
+/* modo de la batalla de varios ejércitos (táctica o automática) para el jugador */
+async function camModoBatalla(ejA, ejD, bctx, o = {}) {
+  const yoA = isMe(ejA.f),
+    pr = Math.round(cmbEstimar(ejA, ejD, bctx, 12) * 100),
+    mio = yoA ? pr : 100 - pr;
+  return modal(
+    o.titulo || `Batalla en ${bctx.nombreLugar}`,
+    `<p>${camTxtEj(ejA)}<br>contra ${camTxtEj(ejD)}.</p><p class="dim">Tus capitanes ven la batalla ${mio >= 70 ? "favorable" : mio >= 45 ? "incierta" : "desfavorable"} (≈${mio}% de victoria).</p><p>¿Cómo quieres librarla?</p>`,
+    [
+      { t: "Por turnos · 3 acciones", v: "t3", cls: "gold" },
+      { t: "Por turnos · 1 acción", v: "t1", cls: "gold" },
+      { t: "Tiempo real", v: "rt", cls: "gold" },
+      { t: "Resolución automática", v: "auto" },
+    ],
+  );
+}
+/* encuentro con varios ejércitos por bando: reparto de supervivientes, retirada de los vencidos */
+async function camChoqueConjunto(lados, x, y, p, o = {}) {
+  const A = lados[0][0],
+    D = lados[1][0],
+    n = lados[0].length + lados[1].length,
+    bctx = {
+      terreno: camTerrCasilla(x, y),
+      fort: D.est === "campamento" ? CAM_K.fortCampo : 0,
+      p,
+      x,
+      y,
+      nombreLugar: p ? (camCiudadEn(x, y) ? p.name : `los campos de ${p.name}`) : "campo abierto",
+    },
+    u0 = lados.map((l) => l.map((e) => camUCampo(e.u)));
+  camRep({ k: "bat+", x, y, lados: lados.map((l) => l.map((e) => ({ ej: e.id, f: e.f, dir: e.dir }))) });
+  const r = await camBatallaLados(lados, bctx, {
+    tipo: "encuentro",
+    campo: D.est === "campamento",
+    auto: o.auto,
+    titulo: `Batalla de ${n} ejércitos en ${bctx.nombreLugar} (${lados[0].length} contra ${lados[1].length})`,
+    factor: { k: "conjunto", s: 0, txt: `Batalla en conjunto: ${lados[0].length} contra ${lados[1].length} ejércitos` },
+  });
+  const win = r.gana === 0;
+  lados.forEach((l, s) => l.forEach((e, i) => camTrasBatalla(e, u0[s][i], r.sup[s][i] || {}, s === 0 ? win : !win, r.rondas)));
+  A.mov = 0;
+  for (const e of lados[0]) e.mov = Math.min(e.mov, 0);
+  const vence = win ? 0 : 1,
+    pierde = 1 - vence,
+    fv = lados[vence][0].f,
+    fp = lados[pierde][0].f;
+  if (lados.flat().some((e) => isMe(e.f)) || A.f === REB)
+    addLog(
+      `${CIV[fv].s}${lados[vence].some((e) => e.f !== fv) ? " y sus aliados" : ""} vencen a ${CIV[fp].s} en ${bctx.nombreLugar} (${lados[0].length} contra ${lados[1].length} ejércitos).`,
+      lados[vence].some((e) => isMe(e.f)) ? "good" : lados[pierde].some((e) => isMe(e.f)) ? "bad" : "",
+    );
+  lados[pierde].forEach((e, i) => {
+    if (!camEj(e.id)) return;
+    const n0 = camTot(u0[pierde][i]);
+    if (camTot(camUCampo(e.u)) <= 0 || camTot(camUCampo(e.u)) < n0 * 0.12) camDispersar(e, `deshecho en ${bctx.nombreLugar}`);
+    else if (!camRetirar(e, x, y)) camDispersar(e, `cercado y rendido en ${bctx.nombreLugar}`);
+  });
+  for (const e of lados[vence]) if (camEj(e.id) && camTot(camUCampo(e.u)) <= 0) camQuitar(e, "sin hombres");
+  camBatPrep = null;
+  camTocar();
+  return { ok: true, gana: win, lados: lados.map((l) => l.map((e) => e.id)) };
+}
 async function camChoque(A, D, o = {}) {
   const x = D.x,
     y = D.y,
     p = G.P[camPid(x, y)] || null,
-    ejA = camParaBatalla(A),
+    lados = o.solo ? [[A], [D]] : await camReunir(A, D, x, y, o),
+    multi = lados[0].length > 1 || lados[1].length > 1;
+  if (multi) return camChoqueConjunto(lados, x, y, p, o);
+  camBatPrep = null;
+  const ejA = camParaBatalla(A),
     ejD = camParaBatalla(D),
     uA0 = { ...ejA.u },
     uD0 = { ...ejD.u };
@@ -981,7 +1191,12 @@ function camGuarnicion(p) {
    guarnición por flanco (lo aplica batalla.js, marcado CAM). Supervivientes, heridos y botín se reparten
    según lo que aportó cada ejército. */
 let camBonoAct = null;
-OC.mod("bonoBatalla", (v, c) => (camBonoAct && c && c.f === camBonoAct.f && c.lado === "atacante" ? v * camBonoAct.v : undefined));
+OC.mod("bonoBatalla", (v, c) => {
+  const l = !camBonoAct ? [] : Array.isArray(camBonoAct) ? camBonoAct : [camBonoAct],
+    b = c && l.find((x) => x && x.f === c.f && (x.lado || "atacante") === c.lado);
+  return b ? v * b.v : undefined;
+});
+const camBonoGen = (f, n, lado) => (n > 0 ? { f, lado, v: 1 + Math.min(0.09, 0.03 * n) } : null);
 const camFlancoMur = (ctx) => (ctx && ctx.flancos > 1 ? Math.max(0.4, 1 - 0.15 * (ctx.flancos - 1)) : 1);
 const camFlancoMoral = (ctx) => (ctx && ctx.flancos > 1 ? 5 * (ctx.flancos - 1) : 0);
 /* aplica k flancos a un contexto de asalto cualquiera (estimaciones de la IA) */
@@ -989,7 +1204,7 @@ const camCtxFlancos = (ctx, k) =>
   k > 1
     ? { ...ctx, fort: (ctx.fort || 0) * camFlancoMur({ flancos: k }), asedio: (ctx.asedio || 0) + camFlancoMoral({ flancos: k }) / 4, flancos: k, flancosAplicados: true }
     : { ...ctx, flancos: 1 };
-function camFuerzaConjunta(ejs) {
+function camFuerzaConjunta(ejs, campo) {
   const u = cmbVacio(),
     vet = {},
     ori = {},
@@ -1001,7 +1216,7 @@ function camFuerzaConjunta(ejs) {
     const b = camParaBatalla(e),
       m = camMaq(e);
     /* con UN[ari/tor/cat] definidos (combate v2), las máquinas van como unidades en el asalto */
-    for (const k in CAM_MAQ) if (UN[k] && TYP.includes(k) && m[k]) b.u[k] = m[k];
+    if (!campo) for (const k in CAM_MAQ) if (UN[k] && TYP.includes(k) && m[k]) b.u[k] = m[k];
     aport.push(b.u);
     const n0 = camTot(b.u);
     fat += (b.fat || 0) * n0;
@@ -1135,21 +1350,36 @@ async function camAsaltar(ej, o = {}) {
     camAnimAsalto = { p: p.id, t0: performance.now(), ejs: ejs.map((e) => [e.x, e.y, e.f]) };
     if (o.anim && !reduce) await sleep(Math.round(650 * camVel()));
   }
-  camBonoAct = F.extraGen ? { f: ej.f, v: 1 + Math.min(0.09, 0.03 * F.extraGen) } : null;
-  let res;
-  try {
-    res = await camLibrar(F.ej, ejD, bctx, {
-      tipo: "asalto",
-      ejs: [lider, null],
-      auto: o.auto,
-      titulo: ejs.length > 1 ? `Asalto conjunto a ${p.name} (${ejs.length} ejércitos, ${k} ${k > 1 ? "flancos" : "flanco"})` : `Asalto a ${p.name}`,
-      factor: k > 1 ? { k: "flancos", s: 0, txt: `Asalto por ${k} flancos (${CIV[ej.f].s})` } : null,
-    });
-  } finally {
-    camBonoAct = null;
+  const oB = {
+    tipo: "asalto",
+    ejs: [lider, null],
+    auto: o.auto,
+    titulo: ejs.length > 1 ? `Asalto conjunto a ${p.name} (${ejs.length} ejércitos, ${k} ${k > 1 ? "flancos" : "flanco"})` : `Asalto a ${p.name}`,
+    factor: k > 1 ? { k: "flancos", s: 0, txt: `Asalto por ${k} flancos (${CIV[ej.f].s})` } : null,
+    ejercitos: [ejs.map((e) => ({ id: e.id, f: e.f, dir: camFlanco(e.x - p.x, e.y - p.y) })), [{ id: "guarnicion", f: p.owner, dir: "C" }]],
+  };
+  let res,
+    partesM = null;
+  /* con batallas de varios bandos en combate, cada ejército va por separado (su facción, su flanco, su general) */
+  if (ejs.length > 1 && typeof cmbResolverMulti === "function") {
+    const lista = ejs.map((e, i) => ({ ...camParaBatalla(e), id: e.id, bando: 0, dir: camFlanco(e.x - p.x, e.y - p.y), u: F.aport[i] }));
+    lista.push({ ...ejD, id: "guarnicion", bando: 1, dir: "C" });
+    const r = await camMulti(lista, bctx, oB, [F.ej, ejD]);
+    if (r) {
+      partesM = ejs.map((e) => r.by.get(e.id) || cmbVacio());
+      res = { gana: r.gana, D: r.by.get("guarnicion") || cmbVacio(), rondas: r.rondas, informe: r.informe };
+    }
+  }
+  if (!res) {
+    camBonoAct = camBonoGen(ej.f, F.extraGen, "atacante");
+    try {
+      res = await camLibrar(F.ej, ejD, bctx, oB);
+    } finally {
+      camBonoAct = null;
+    }
   }
   const win = res.gana === 0,
-    partes = camRepartir(res.A, F.aport),
+    partes = partesM || camRepartir(res.A, F.aport),
     bajas = [];
   ejs.forEach((e, i) => {
     const n0 = camTot(camUCampo(F.aport[i]));
@@ -1390,7 +1620,7 @@ function camPlanRuta(ej, x, y, o = {}) {
 /* ======================================================================
    ÓRDENES: la API pública. Cada orden es un objeto plano (JSON) con f = bando que la da.
    ====================================================================== */
-const CAM_ORDENES = ["formar", "mover", "acampar", "asediar", "asaltar", "construir", "levantar", "disolver", "dividir", "unir", "general", "salida", "contratar", "licenciar", "renovar"];
+const CAM_ORDENES = ["formar", "mover", "acampar", "asediar", "asaltar", "construir", "levantar", "disolver", "dividir", "unir", "general", "salida", "contratar", "licenciar", "renovar", "apoyo"];
 async function camAplicarOrden(g, o, opc = {}) {
   if (g && g !== G) return { ok: false, motivo: "Estado distinto del de la partida" };
   if (!o || !CAM_ORDENES.includes(o.tipo)) return { ok: false, motivo: "Orden desconocida" };
@@ -1412,6 +1642,11 @@ async function camAplicarOrden(g, o, opc = {}) {
       r = await camMarchar(ej, pr.ruta, pr.plan, opc);
       break;
     }
+    case "apoyo":
+      /* «unirse a la batalla»: si este ejército acude a las batallas vecinas (siempre | nunca | id de un ejército) */
+      ej.apoyo = o.modo === "nunca" ? "nunca" : o.modo == null || o.modo === "siempre" ? "siempre" : +o.modo;
+      r = { ok: true };
+      break;
     case "acampar":
       r = camAcampar(ej);
       break;

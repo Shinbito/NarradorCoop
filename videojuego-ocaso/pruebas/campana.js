@@ -90,7 +90,7 @@ const ok = (c, m) => {
   /* utilidades dentro de la página */
   await page.evaluate(() => {
     window.__ev = { bat: [], conq: [], est: 0 };
-    OC.on("batallaResuelta", (b) => window.__ev.bat.push({ t: b.campana || "settle", a: b.atacante, d: b.defensor, g: b.gana, y: G.year, p: b.p ? b.p.id : null, maq: b.s0 ? (b.s0.ari || 0) + (b.s0.tor || 0) + (b.s0.cat || 0) : 0 }));
+    OC.on("batallaResuelta", (b) => window.__ev.bat.push({ t: b.campana || "settle", a: b.atacante, d: b.defensor, g: b.gana, y: G.year, p: b.p ? b.p.id : null, maq: b.s0 ? (b.s0.ari || 0) + (b.s0.tor || 0) + (b.s0.cat || 0) : 0, ejs: b.ejercitos || null }));
     OC.on("conquista", (c) => window.__ev.conq.push({ p: c.p.id, de: c.de, a: c.a, y: G.year }));
     OC.on("finEstacion", () => window.__ev.est++);
     /* casilla de tierra libre de la provincia pid (lejos de ciudades), opcionalmente junto a (x, y) */
@@ -420,6 +420,69 @@ const ok = (c, m) => {
     "en órdenes simultáneas, el más rápido llega antes y el otro le ataca o se detiene",
   );
 
+  /* ---------- 5b. batalla en conjunto: vecinos propios, aliados y defensores que acuden ---------- */
+  console.log("5b. Batalla en conjunto");
+  const m5c = await corre(`
+    const vivos = [...Array(NF).keys()].filter((f) => f !== ME && alive(f));
+    const E = vivos[0], L = vivos[1];
+    for (const g of [E, L]) for (let h = 0; h < NF; h++) if (h !== g && h !== ME) G.st[g][h] = G.st[h][g] = "paz";
+    G.st[ME][E] = G.st[E][ME] = "guerra";
+    G.st[L][E] = G.st[E][L] = "guerra";
+    G.st[ME][L] = G.st[L][ME] = "alianza";
+    /* punto de batalla en tierra propia con radio 2 libre (tierra, sin ciudades ni ejércitos) */
+    let P = null;
+    for (const p of owned(ME))
+      for (let y = 3; y < H - 3 && !P; y++)
+        for (let x = 3; x < W - 3 && !P; x++) {
+          if (MAP.grid[y][x] !== p.id) continue;
+          let ok = true;
+          for (let dy = -2; dy <= 2 && ok; dy++)
+            for (let dx = -2; dx <= 2 && ok; dx++) {
+              const a = x + dx, b = y + dy, pid = MAP.grid[b][a];
+              if (!MAP.terr[b][a] || pid < 0 || camCiudadEn(a, b) || camEjsEn(a, b).length || G.P.some((q) => camCheb(q.x, q.y, a, b) <= 0) || !camPaso(ME, G.P[pid].owner) || !camPaso(L, G.P[pid].owner) || !camPaso(E, G.P[pid].owner)) ok = false;
+            }
+          if (ok) P = [x, y];
+        }
+    if (!P) return { sin: true };
+    const [x, y] = P;
+    const Aej = camNuevoEj(ME, x - 1, y, { i: 6, a: 2 }, { nom: "Vanguardia" }),
+      A2 = camNuevoEj(ME, x - 1, y - 1, { i: 6, c: 2 }, { nom: "Segunda línea" }),
+      Lej = camNuevoEj(L, x, y - 1, { i: 6, a: 2 }, { nom: "Aliados" }),
+      D = camNuevoEj(E, x, y, { i: 8, a: 2 }, { nom: "Enemigo" }),
+      D2 = camNuevoEj(E, x + 1, y + 1, { i: 6, c: 1 }, { nom: "Refuerzo enemigo" });
+    const ap = await camAplicarOrden(G, JSON.parse(JSON.stringify({ tipo: "apoyo", f: ME, ej: A2.id, modo: "siempre" })));
+    const ids = { A: Aej.id, A2: A2.id, L: Lej.id, D: D.id, D2: D2.id };
+    const n0 = Object.fromEntries(Object.entries(ids).map(([k, id]) => [k, camTot(camUCampo(camEj(id).u))]));
+    /* captura: flechas de la batalla que se prepara */
+    camBatPrep = { x, y, lados: [[Aej.id, A2.id, Lej.id], [D.id, D2.id]], t0: performance.now() };
+    camSel = Aej.id; sel = MAP.grid[y][x]; ui();
+    if (typeof setZoom === "function") setZoom(3);
+    centerOn(MAP.grid[y][x]);
+    return { sin: false, x, y, ids, n0, ap: ap.ok, E, L };
+  `);
+  console.log("  " + JSON.stringify(m5c));
+  if (!m5c.sin) {
+    await page.waitForTimeout(250);
+    await page.screenshot({ path: path.join(capt, "campana-conjunto.png") });
+    const m5d = await corre(`
+      const ids = arg.ids, nb = window.__ev.bat.length;
+      const r = await camAplicarOrden(G, { tipo: "mover", f: ME, ej: ids.A, x: arg.x, y: arg.y });
+      const bats = window.__ev.bat.slice(nb).filter((b) => b.t === "encuentro");
+      const n1 = Object.fromEntries(Object.entries(ids).map(([k, id]) => [k, camEj(id) ? camTot(camUCampo(camEj(id).u)) : 0]));
+      if (typeof setZoom === "function") setZoom(1);
+      return { ok: r.ok, bats: bats.length, lados: bats[0] && bats[0].ejs ? bats[0].ejs.map((l) => l.map((e) => e.id)) : null, fs: bats[0] && bats[0].ejs ? bats[0].ejs.map((l) => [...new Set(l.map((e) => e.f))]) : null, dirs: bats[0] && bats[0].ejs ? bats[0].ejs.map((l) => l.map((e) => e.dir)) : null, n1, multi: typeof cmbResolverMulti === "function" };
+    `, m5c);
+    console.log("  " + JSON.stringify(m5d));
+    const L0 = (m5d.lados || [[], []])[0], L1 = (m5d.lados || [[], []])[1];
+    ok(m5d.bats === 1 && L0.includes(m5c.ids.A) && L0.includes(m5c.ids.A2), "un ejército propio vecino se suma al ataque en UNA batalla");
+    ok(L0.includes(m5c.ids.L) && (m5d.fs[0] || []).includes(m5c.L), "el aliado de otra facción vecino acude con su bandera");
+    ok(L1.includes(m5c.ids.D) && L1.includes(m5c.ids.D2), "los defensores vecinos acuden a la batalla");
+    ok(m5d.dirs && m5d.dirs.flat().every((d) => ["N", "E", "S", "O", "C"].includes(d)), `cada ejército lleva su dirección (${JSON.stringify(m5d.dirs)})`);
+    const perd = (k) => m5c.n0[k] - m5d.n1[k];
+    ok(["A", "A2", "L"].filter((k) => perd(k) > 0).length >= 2 || ["D", "D2"].every((k) => perd(k) > 0), "las bajas se reparten entre los ejércitos de cada bando");
+    ok(m5c.ap, "«acudir a la batalla» (apoyo) es una orden serializable");
+  }
+
   /* ---------- 6. mercenarios: contratar, cobrar cada estación, desertar si no se paga ---------- */
   console.log("6. Mercenarios");
   const m6 = await corre(`
@@ -543,6 +606,15 @@ const ok = (c, m) => {
   /* repetición de la estación (CONTRATO §9): los pasos llevan de own0/ej0 al estado final */
   const rep = await corre(`
     let tot = { est: 0, pasos: 0, ajustes: 0, bien: 0, tipos: {} };
+    /* que haya movimiento: guerras entre vecinos de la IA y una banda de bandidos junto a una ciudad ajena */
+    for (let a = 0; a < NF; a++)
+      for (let b = a + 1; b < NF; b++)
+        if (!human(a) && !human(b) && alive(a) && alive(b) && owned(a).some((p) => MAP.adj[p.id].some((i) => G.P[i].owner === b))) declareWar(a, b);
+    const blanco = G.P.find((p) => p.owner !== ME && p.owner !== REB && !camAsedio(p.id));
+    if (blanco) {
+      const v = CAM_V8.map(([dx, dy]) => [blanco.x + 2 * dx, blanco.y + 2 * dy]).find(([x, y]) => MAP.terr[y] && MAP.terr[y][x] && MAP.grid[y][x] >= 0 && !camCiudadEn(x, y) && !camEjsEn(x, y).length);
+      if (v) camNuevoEj(REB, v[0], v[1], { i: 40, c: 6 }, { nom: "Bandidos" }).vida = 8;
+    }
     for (let k = 0; k < 4; k++) {
       await finEstacion();
       const r = G.cam.rep;
