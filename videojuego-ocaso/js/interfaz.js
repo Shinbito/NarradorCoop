@@ -742,9 +742,10 @@ function ifzPolitico(own) {
     cc.height = ter.height;
   }
   const c = cc.getContext("2d");
+  c.setTransform(IFZ_HD.r || 1, 0, 0, IFZ_HD.r || 1, 0, 0);
   c.imageSmoothingEnabled = false;
   c.globalAlpha = 1;
-  c.drawImage(ter, 0, 0);
+  c.drawImage(ter, 0, 0, W * S, H * S);
   /* color del dueño, suave para que se vea el terreno */
   c.globalAlpha = 0.17;
   inf.provT.forEach((ts, pid) => {
@@ -1259,10 +1260,13 @@ function ifzInsRecurso(ic) {
 const ifzEscIns = () => (zoom >= 1.8 ? 1 : 2);
 /* ---------- dibujo de cada cuadro ---------- */
 function ifzAjustarHD() {
-  if (hd.width !== W * IFZ_S || hd.height !== H * IFZ_S) {
-    hd.width = W * IFZ_S;
-    hd.height = H * IFZ_S;
+  const R = IFZ_HD.r || ifzR();
+  if (hd.width !== W * IFZ_S * R || hd.height !== H * IFZ_S * R) {
+    hd.width = W * IFZ_S * R;
+    hd.height = H * IFZ_S * R;
   }
+  /* se dibuja en coordenadas HD (IFZ_S px por casilla); el lienzo tiene IFZ_R veces más resolución */
+  hctx.setTransform(R, 0, 0, R, 0, 0);
 }
 function drawMap(now) {
   ifzAjustarHD();
@@ -1273,7 +1277,7 @@ function drawMap(now) {
     inf = ifzMapaInfo();
   h.imageSmoothingEnabled = false;
   h.globalAlpha = 1;
-  h.drawImage(ifzPolitico(own), 0, 0);
+  h.drawImage(ifzPolitico(own), 0, 0, W * S, H * S);
   if (!R) {
     /* provincia bajo el ratón y seleccionada */
     for (const [pid, al] of [
@@ -1409,18 +1413,20 @@ function ifzVeloNiebla(c, f, now) {
     k = `${V.k}|${f}|${((camS().exp || {})[f] || "").length}|${G.P.map((p) => p.owner).join(",")}|${IFZ_HD.terK}|${z}`;
   if (IFZ_NIEBLA.k !== k || !IFZ_NIEBLA.cv) {
     const cc = IFZ_NIEBLA.cv || (IFZ_NIEBLA.cv = document.createElement("canvas"));
-    cc.width = W * S;
-    cc.height = H * S;
+    const RR = IFZ_HD.r || 1;
+    cc.width = W * S * RR;
+    cc.height = H * S * RR;
     const x = cc.getContext("2d");
+    x.setTransform(RR, 0, 0, RR, 0, 0);
     x.imageSmoothingEnabled = false;
-    x.clearRect(0, 0, cc.width, cc.height);
+    x.clearRect(0, 0, W * S, H * S);
     /* CAM: niebla en sombra (no en negro): todo el terreno se ve, con el color de quien manda cada
        provincia y un velo; sin ejércitos ajenos ni levas, solo el dueño de cada ciudad */
     for (let i = 0; i < W * H; i++) {
       if (V.vis[i]) continue;
       const X = (i % W) * S,
         Y = Math.floor(i / W) * S;
-      x.drawImage(ter, X, Y, S, S, X, Y, S, S);
+      x.drawImage(ter, X * RR, Y * RR, S * RR, S * RR, X, Y, S, S);
       const pid = MAP.grid[Math.floor(i / W)][i % W],
         mo = pid >= 0 && G.P[pid] ? G.P[pid].owner : null;
       if (mo != null && CIV[mo]) {
@@ -1451,7 +1457,7 @@ function ifzVeloNiebla(c, f, now) {
     }
     IFZ_NIEBLA.k = k;
   }
-  c.drawImage(IFZ_NIEBLA.cv, 0, 0);
+  c.drawImage(IFZ_NIEBLA.cv, 0, 0, W * S, H * S);
 }
 /* CAM: capa de campaña con la lógica de ejercitos.js/campana.js (alcance, rutas, asedios). */
 const IFZ_ALC = { cv: null, k: "" };
@@ -1484,10 +1490,12 @@ function ifzCamDibujar(now) {
       k = `${se.id}|${camVer}|${se.mov}|${se.x},${se.y}|${G.estacion}|${W}x${H}`;
     if (IFZ_ALC.k !== k || !IFZ_ALC.cv) {
       const cc = IFZ_ALC.cv || (IFZ_ALC.cv = document.createElement("canvas"));
-      cc.width = W * S;
-      cc.height = H * S;
+      const RR = IFZ_HD.r || 1;
+      cc.width = W * S * RR;
+      cc.height = H * S * RR;
       const x = cc.getContext("2d"),
         ok = (i) => i >= 0 && i < W * H && D.dist[i] <= se.mov + 1e-9;
+      x.setTransform(RR, 0, 0, RR, 0, 0);
       x.fillStyle = "rgba(255,236,150,.22)";
       for (let i = 0; i < W * H; i++) if (ok(i) && i !== D.s) x.fillRect((i % W) * S, Math.floor(i / W) * S, S, S);
       x.fillStyle = "#ffd75a";
@@ -1504,7 +1512,7 @@ function ifzCamDibujar(now) {
       IFZ_ALC.k = k;
     }
     c.globalAlpha = reduce ? 0.85 : 0.7 + 0.25 * Math.sin(now / 260);
-    c.drawImage(IFZ_ALC.cv, 0, 0);
+    c.drawImage(IFZ_ALC.cv, 0, 0, W * S, H * S);
     c.globalAlpha = 1;
     const tgt = (X, Y) => {
       c.globalAlpha = 0.3;
@@ -1786,7 +1794,7 @@ function ifzRepDibujar(c, now) {
       c.font = '10px "Press Start 2P",monospace';
       c.textBaseline = "top";
       const w = Math.ceil(c.measureText(x.txt).width) + 10,
-        bx = Math.round(clamp(X - w / 2, 2, hd.width - w - 2)),
+        bx = Math.round(clamp(X - w / 2, 2, W * IFZ_S - w - 2)),
         by = Math.round(Math.max(2, Y - 34));
       c.globalAlpha = Math.min(1, (1 - k) * 4);
       c.fillStyle = "rgba(10,12,16,.85)";

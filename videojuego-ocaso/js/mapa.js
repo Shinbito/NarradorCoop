@@ -493,6 +493,13 @@ function mapaInfo(x, y, m = MAP) {
    ====================================================================== */
 const IFZ_S = 16,
   IFZ_K = IFZ_S / T;
+/* resolución real de los lienzos del mapa: IFZ_R píxeles por píxel HD. El dibujo sigue en coordenadas de
+   IFZ_S px por casilla (con setTransform), así que lo procedural se ve igual y los PNG del manifest a
+   escala 2 (p. ej. los de Gemini) se pintan con todo su detalle. 1 en mundos muy grandes o con poca memoria. */
+function ifzR() {
+  const mem = typeof navigator !== "undefined" && navigator.deviceMemory ? navigator.deviceMemory : 8;
+  return W * H <= 64 * 40 * 1.7 && mem >= 4 ? 2 : 1;
+}
 const IFZ_HD = { info: null, infoK: "", ter: null, terK: "", ms: {} };
 const IFZ_TILE = ["mar", "llanura", "bosque", "colina", "montana"];
 /* análisis del mapa (solo depende de la semilla y el tamaño): distancias a la costa, montañas, ríos,
@@ -1209,16 +1216,18 @@ function ifzTerrenoHD() {
     inf = ifzMapaInfo(),
     tr = MAP.terr,
     S = IFZ_S,
+    R = (IFZ_HD.r = ifzR()),
     c0 = IFZ_HD.ter || (IFZ_HD.ter = document.createElement("canvas"));
-  if (c0.width !== W * S || c0.height !== H * S) {
-    c0.width = W * S;
-    c0.height = H * S;
+  if (c0.width !== W * S * R || c0.height !== H * S * R) {
+    c0.width = W * S * R;
+    c0.height = H * S * R;
   }
   const c = c0.getContext("2d"),
     r = mul(MAP.seed + 7),
     /* PNG de suelo por casilla (atlas MAPA.* o TILE.*); null = dibujo procedural */
     pngs = new Array(W * H).fill(null);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) pngs[y * W + x] = ifzSueloPNG(ifzClaveSuelo(x, y, inf), y * W + x);
+  c.setTransform(R, 0, 0, R, 0, 0);
   c.imageSmoothingEnabled = false;
   /* 1. suelo con matices y textura */
   for (let y = 0; y < H; y++)

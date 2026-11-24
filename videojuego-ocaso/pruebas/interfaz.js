@@ -239,7 +239,8 @@ async function recorrido(browser, nom, vp, movil) {
   if (!movil) {
     const pto = await page.evaluate(() => {
       const r = cv.getBoundingClientRect();
-      for (const p of G.P.filter((q) => q.owner < NF)) {
+      /* una provincia que se vea (con la niebla, de las ocultas solo se sabe el dueño) */
+      for (const p of G.P.filter((q) => q.owner < NF && !(typeof camProvOculta === "function" && camProvOculta(q)))) {
         const x = r.left + ((p.x * T + 4) * r.width) / cv.width,
           y = r.top + ((p.y * T + 4) * r.height) / cv.height;
         if (document.elementFromPoint(x, y) === cv) return { x, y, n: ecoNivel(p).nombre };
@@ -383,6 +384,8 @@ function OC_N() {
     tropa.getContext("2d").fillStyle = "#ff00ff";
     tropa.getContext("2d").fillRect(0, 0, 16, 16);
     const icono0 = icon(0, "i");
+    /* la capital del manifest del juego (MAPA.capital) manda sobre SP.castle: fuera para esta prueba */
+    for (const k of Object.keys(IFZ_SPR.img)) if (k.startsWith("MAPA.capital") || k.startsWith("MAPA.muralla_capital")) delete IFZ_SPR.img[k];
     ifzSprAplicar({
       sprites: {
         "SP.castle": { datos: c.toDataURL(), w: 11, h: 11, tinte: true, escala: 2 },
@@ -400,8 +403,9 @@ function OC_N() {
     const p = G.P[G.F[ME].capId],
       x0 = p.x * IFZ_S - 2,
       y0 = p.y * IFZ_S - 8,
-      d = hctx.getImageData(x0 + 2, y0 + 2, 1, 1).data,
-      d2 = hctx.getImageData(x0 + 10, y0 + 10, 1, 1).data,
+      R = IFZ_HD.r || 1 /* el lienzo HD tiene IFZ_R píxeles por píxel HD */,
+      d = hctx.getImageData((x0 + 2) * R, (y0 + 2) * R, 1, 1).data,
+      d2 = hctx.getImageData((x0 + 10) * R, (y0 + 10) * R, 1, 1).data,
       col = ifzRGB(CIV[p.owner].c);
     return {
       n: cat.length,
@@ -450,7 +454,7 @@ function OC_N() {
     return {
       hd: hd.width + "x" + hd.height,
       cv: cv.width + "x" + cv.height,
-      esp: W * IFZ_S + "x" + H * IFZ_S,
+      esp: W * IFZ_S * (IFZ_HD.r || 1) + "x" + H * IFZ_S * (IFZ_HD.r || 1),
       log: W * T + "x" + H * T,
       encima: Math.abs(rh.left - rc.left) < 1 && Math.abs(rh.width - rc.width) < 1 && Math.abs(rh.height - rc.height) < 1,
       terreno: Math.round(IFZ_HD.ms.terreno),
@@ -597,7 +601,7 @@ function OC_N() {
     ];
     const v = ifzRepVisibles(pasos);
     drawMap(performance.now());
-    return { v: v.length, g: ifzRepGrupos(v).length, niebla: ifzNieblaOn(), cv: IFZ_NIEBLA.cv ? IFZ_NIEBLA.cv.width === W * IFZ_S : false };
+    return { v: v.length, g: ifzRepGrupos(v).length, niebla: ifzNieblaOn(), cv: IFZ_NIEBLA.cv ? IFZ_NIEBLA.cv.width === W * IFZ_S * (IFZ_HD.r || 1) : false };
   });
   ok(nb.v === 3 && nb.g === 2, `la repetición solo muestra los pasos que el jugador ve (vh) y los de espías (${nb.v} pasos, ${nb.g} grupos)`);
   ok(!nb.niebla || nb.cv, "la niebla de guerra se dibuja en alta resolución (ifzVeloNiebla)");
@@ -770,7 +774,8 @@ function OC_N() {
       c.width = c.height = 16;
       c.getContext("2d").drawImage(im, 0, 0);
       const a = c.getContext("2d").getImageData(2, 2, 1, 1).data,
-        b = IFZ_HD.ter.getContext("2d").getImageData((i % W) * 16 + 2, ((i / W) | 0) * 16 + 2, 1, 1).data;
+        R = IFZ_HD.r || 1,
+        b = IFZ_HD.ter.getContext("2d").getImageData(((i % W) * 16 + 2) * R, (((i / W) | 0) * 16 + 2) * R, 1, 1).data;
       return { n: Object.keys(IFZ_SPR.img).filter((k) => k.startsWith("MAPA.")).length, png: !!ifzSueloPNG("llanura", i), d: Math.round(Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])) };
     });
     await pj.locator(".board").screenshot({ path: path.join(capt, "interfaz-kit-importado.png") });
