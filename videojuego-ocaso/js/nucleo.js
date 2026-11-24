@@ -628,6 +628,7 @@ const BLD = {
   temple: ["Templo", "+12 orden", 35, 3],
   cuartel: ["Cuartel", "−4% coste de tropa, veteranía", 40, 3],
   establo: ["Establo", "jinetes: −6% coste, +4% ataque", 40, 2],
+  guerreros: ["Casa de guerreros", "a pie: −5% coste, +4% ataque (sin caballos)", 40, 2],
   arqueria: ["Campo de tiro", "arqueros: −6% coste, +4% ataque", 35, 2],
   herreria: ["Herrería", "+4% ataque y vida de las tropas", 50, 2],
   escuela: ["Escuela", "+1,5 investigación", 35, 3],
