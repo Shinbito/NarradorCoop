@@ -400,7 +400,7 @@ function camClic(x, y) {
     }
     const pid = MAP.grid[y][x],
       o = G.P[pid].owner;
-    if (!camPaso(cur.f, o)) {
+    if (!camPaso(cur.f, o, cur)) {
       modal(
         `Tierras de ${CIV[o].s}`,
         `<p>Estás en ${G.st[ME][o]} con ${CIV[o].n} y no tienes derecho de paso. Para entrar en ${G.P[pid].name} hay que declarar la guerra (o pactar el paso en Diplomacia).</p>`,
