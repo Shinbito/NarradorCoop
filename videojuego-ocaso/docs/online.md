@@ -171,16 +171,28 @@ juega en persona contra la IA difícil elige táctica (t3/t1/rt) o automática. 
 detenerse no publica nada; al reanudarla se repite desde el mismo estado y las mismas órdenes, y una
 batalla ya librada se reutiliza (`batallas/<bid>.res`) si las dos tropas coinciden (`s0`, `d0`).
 
-**En vivo** (`onlBatallaVivo`): quien resuelve es la **autoridad**: corre `cmbTactica` con
-`ctx.onl = {ctrl:[…], …}` (`'local' | 'remoto' | 'ia'` por lado del campo) y difunde el campo por una
-sala con nombre (`room.join('b-…')`). El otro abre un **espejo** (`onlEspejoIni`): el mismo campo girado
-para que sus tropas estén a la izquierda, con la interfaz táctica de siempre; planea y pulsa «Ejecutar
-turno»: manda su plan (`plan`), y la autoridad ejecuta el turno cuando tiene los dos (si el rival tarda
-60 s, deciden sus capitanes; tras 3 veces, la IA se queda su lado). Fotos compactas del campo (`est`) cada
-250 ms durante el turno y al acabarlo (con los planes); al final `fin` con el informe, que los dos ven.
-Habilidades, retirada («huir») y delegar en los capitanes (`cap`) también viajan. En tiempo real (`rt`)
-el espejo manda sus órdenes cada 0,4 s y la autoridad envía fotos cada 0,4 s (funciona, pero depende de
-la latencia del room; por turnos es lo más robusto y es el valor por defecto).
+**Batallas de varios ejércitos** (combate v3: `camMulti` → `cmbResolverMulti`/`cmbTacticaMulti`, p. ej.
+dos aliados contra uno o tres bandos): `camMulti` también está envuelta (`onlPrepararMulti`). Si en la
+batalla hay ejércitos de dos o más jugadores, cada ejército tiene su dueño y su mando (`desc = {lista,
+uids, ctrl, dif, multi, bandos}`, una entrada por ejército): se invita a los conectados, los ausentes los
+lleva la IA difícil y los de la IA, la IA normal. El resultado se entrega a `camMulti` con
+`ctx.onlResMulti` (gancho `/* ONL */` en `cmbResolverMulti`). Las batallas conjuntas no detienen la
+estación para esperar a un amigo (solo las de dos ejércitos).
+
+**En vivo** (`onlBatallaVivo`): la **autoridad** (quien resuelve, si participa; si no, el primer
+participante que aceptó, por delegación) corre `cmbTactica` (dos ejércitos) o `cmbTacticaMulti` (varios,
+con `ctx.humanos = [ME]`) con `ctx.onl = {ctrl:[…], …}`: `'local' | 'remoto' | 'ia'` **por ejército del
+campo** (`BT.map`), y difunde el campo por una sala con nombre (`room.join('b-…')`). Cada otro jugador abre
+un **espejo** (`onlEspejoIni`): el mismo campo, con `BT.mios` = sus ejércitos (solo puede mandar esos), y
+la interfaz táctica de siempre; planea y pulsa «Ejecutar turno»: manda su plan (`plan`: `[[id, [{st, o}…]]…]`
+con `o = {x, y} | {tg, dis?, cc?}`, y `hab: [[id, habilidad]]`); la autoridad solo lo aplica a las unidades
+de los ejércitos de ese jugador y ejecuta el turno cuando tiene los de todos (si alguien tarda 60 s, deciden
+sus capitanes; tras 3 veces, la IA se queda sus ejércitos). Fotos compactas del campo (`est`) cada 250 ms
+durante el turno y al acabarlo (con los planes); al final `fin` con el resultado y, para cada jugador, si
+ganó (`gano`) y su ejército (`yoDe`) para su informe. Habilidades, retirada («huir»: gana el bando más
+fuerte de los demás y la batalla termina) y delegar en los capitanes (`cap`) también viajan. En tiempo real
+(`rt`) el espejo manda sus órdenes cada 0,4 s y la autoridad envía fotos cada 0,4 s (depende de la latencia
+del room; por turnos es lo más robusto y es el valor por defecto).
 
 **IA difícil** (`ctx.dificultad = ['normal'|'dificil', …]` por ejA/ejD, lo respeta combate):
 - automática (`cmbDificultadAuto`): +4 % de daño, +5 % de moral y algo más de fortuna (en la prueba, en una
@@ -193,7 +205,7 @@ la latencia del room; por turnos es lo más robusto y es el valor por defecto).
 
 ### Ganchos `/* ONL */` en `js/batalla.js`
 
-`cmbResolverAuto` (resultado precalculado `ctx.onlRes`, dificultad), `cmbDificultadAuto`, `cmbTactica`
+`cmbResolverAuto` (resultado precalculado `ctx.onlRes`, dificultad), `cmbResolverMulti` (`ctx.onlResMulti`), `cmbDificultadAuto`, `cmbTactica`
 (moral de la IA difícil, `ctx.onl.inicio(BT)`), `executeTurn` (espera de planes remotos, IA solo en sus
 lados, foto final, bucle sin lado local), `runPhase` y `realtime` (fotos, IA por lados), `finishBattle`
 (`ctx.onl.fin`), `simStep` (`cmbHabIALado`), `canOrder` (sin lado local no se ordena), `battleAct`
@@ -202,7 +214,7 @@ Sin `ctx.onl` ni `ctx.dificultad` todo se comporta como antes.
 
 ### Envolturas sobre funciones globales de campaña (desde `online.js`, sin tocar sus archivos)
 
-`camLibrar` (batallas entre humanos), `camOrdenUI` (encolar las órdenes de movimiento en online) y, solo
+`camLibrar` (batallas entre humanos), `camMulti` (batallas conjuntas entre humanos), `camOrdenUI` (encolar las órdenes de movimiento en online) y, solo
 durante una resolución, `camResolverSimultaneo` (añadir las órdenes humanas). Fuera del modo online no
 cambian nada. Interfaz llama directamente a `onlDibujarCola(now)` (las órdenes encoladas sobre el mapa) y
 a `onlTextoTurno()` → `{info, boton}` (barra de turno: «Online · correspondencia · listos 1/3 · 5 h»).
@@ -269,6 +281,9 @@ general `G.log`):
   movimiento no tienen ese problema (se resuelven juntas).
 - La crónica `G.log` la escriben los sistemas pensando en `ME`: en online refleja a quien resolvió cada
   estación (por eso existe la crónica personal `G.onl.cron`).
+- Al reanudar una estación detenida por la batalla de un amigo se repiten las mismas órdenes (también las
+  de la IA, guardadas en la batalla pendiente), pero el azar (`R()` = `Math.random`, sin semilla) de lo
+  que pasa antes puede cambiar el encuentro: si no se repite, la estación sigue sin esa batalla.
 - Recargar la página a mitad de turno pierde lo hecho en esa estación (las órdenes ya enviadas no).
 - Partida de 100-150 años: posible, pero el tamaño de `G.C` (ver peticiones) la hará lenta.
 
@@ -281,7 +296,8 @@ entre dos páginas (autoridad + espejo girado, fotos, retirada, informe a los do
 desconocido desconectado sin esperas; batalla pendiente con un amigo desconectado que vuelve, ve
 «Mientras no estabas» y dirige su defensa; tamaño del estado de 50 años con 12 pueblos (20 en `rapida`),
 compresión reversible y trozos < 256 KiB; la IA difícil gana más (automática) y sus órdenes tácticas
-(retirar rotas, flanquear); **quitar «Listo»** (contador al instante, reenvío versionado, bloqueado si ya
+(retirar rotas, flanquear); **batalla conjunta** de tres jugadores (A y C aliados contra B: cada uno manda
+solo sus ejércitos, gana el aliado y pierde B); **quitar «Listo»** (contador al instante, reenvío versionado, bloqueado si ya
 se resuelve); **tres jugadores**: A declara la guerra a B y libran una batalla en vivo mientras C, conectado,
 no ve capa, espejo, fotos (contadas en el doble), modales, avisos ni notificaciones, ni entra en su crónica;
 y cuando resuelve C (que no participa) la batalla se delega en A; repetición pequeña dentro del estado y
@@ -311,8 +327,7 @@ grande en su documento, sin viajar en los envíos, y llamada a `ifzRepetir`. Cap
 7. **Campaña (mercenarios)**: en online, al vencer el contrato de un jugador humano
    (`mercenarios.js`, `if (!isMe(c.f) || net.on) continue;`) no se decide nada y el contrato queda vencido
    para siempre; convendría encolar la decisión para su dueño (buzón) o renovarlo por defecto.
-8. **Combate/Campaña**: si llega `cmbResolverMulti`/`cmbTacticaMulti` (batallas conjuntas), `camMulti` no
-   pasa por `camLibrar`: hará falta un gancho equivalente para que las batallas conjuntas entre jugadores
-   sean en vivo / IA difícil.
+8. **Campaña**: un gancho oficial en `camMulti`/`camLibrar` («antes de librar») para no tener que
+   envolverlas desde online.
 9. **Interfaz/Campaña**: `rep.ej0` (ejércitos al empezar la repetición) no lleva `vh`: con niebla, cada
    jugador vería al principio todos los ejércitos; convendría filtrarlos por visibilidad al grabarlos.

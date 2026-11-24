@@ -1396,9 +1396,10 @@ OC.accion(
 /* «Quitar listo»: mientras la estación no se resuelva, se vuelve a dar órdenes (la copia local sigue ahí) */
 async function onlQuitarListo() {
   const d = ONL.meta;
-  if (!d || !net.on || d.fase !== "ordenes" || !onlListoYo()) return false;
+  if (!d || !net.on || d.fase !== "ordenes") return false;
   const ref = net.db.doc("partidas/" + net.id),
     m = (await ref.get()).data() || {};
+  if ((m.listos || {})[ME] !== m.turno) return false; // no estabas listo (según la db)
   if (m.turno !== d.turno || (m.resolviendo && m.resolviendo.turno === d.turno && onlAhora() - m.resolviendo.ts < 120000) || ONL.resolviendo) {
     modal("La estación ya se está resolviendo", "<p>Ya no puedes cambiar tus órdenes: la estación se está cerrando con las que enviaste.</p>", [{ t: "Vale" }]);
     return false;
@@ -1420,7 +1421,7 @@ function onlRetomar() {
 /* «Terminar mi turno» online = Listo: se envía la diferencia (no el estado entero) */
 async function onlListo() {
   const d = ONL.meta;
-  if (!G || !d || !ONL.base || d.fase !== "ordenes" || onlListoYo()) return;
+  if (!G || !d || !ONL.base || d.fase !== "ordenes") return;
   const env = onlEnvio(ONL.base, G, ME);
   env.turno = d.turno;
   env.uid = net.uid;
@@ -1433,6 +1434,7 @@ async function onlListo() {
   try {
     const v = Date.now() * 100 + Math.floor(Math.random() * 100),
       m0 = (await net.db.doc("partidas/" + net.id).get()).data() || {};
+    if ((m0.listos || {})[ME] === d.turno) return; // ya enviado (según la db, no la copia local)
     if (m0.turno !== d.turno || (m0.resolviendo && m0.resolviendo.turno === d.turno)) {
       modal("La estación ya se está resolviendo", "<p>Llegas tarde: otro jugador ya está cerrando esta estación.</p>", [{ t: "Vale" }]);
       return;
@@ -1786,6 +1788,23 @@ function onlInstalar() {
     w.onl = true;
     camLibrar = w;
   }
+  /* batallas de varios ejércitos (combate v3): cada jugador manda los suyos */
+  if (typeof camMulti === "function" && !camMulti.onl) {
+    const orig = camMulti;
+    const w = async function (lista, bctx, o = {}, fz) {
+      if (net.on && ONL.resolviendo && bctx && !bctx.onlResMulti && typeof cmbResolverMulti === "function") {
+        try {
+          await onlPrepararMulti(lista, bctx, o);
+        } catch (e) {
+          if (e === ONL_SUSP) throw e;
+          console.error("[onl] batalla conjunta", e);
+        }
+      }
+      return orig(lista, bctx, o, fz);
+    };
+    w.onl = true;
+    camMulti = w;
+  }
   if (typeof camOrdenUI === "function" && !camOrdenUI.onl) {
     const orig = camOrdenUI;
     const w = async function (o) {
@@ -1835,6 +1854,72 @@ function onlDibujarCola(now) {
   }
   c.restore();
 }
+/* Una batalla entre jugadores se describe igual con dos ejércitos (camLibrar) que con varios (camMulti,
+   combate v3): desc = {lista: ejércitos, uids: dueño humano de cada uno (o null), ctrl: 'local'|'remoto'|'ia'
+   por ejército, dif: 'normal'|'dificil' por ejército, multi, bandos}. Cada jugador manda SOLO sus ejércitos;
+   los de la IA los lleva la IA (difícil si sustituye a un humano ausente). */
+function onlCtrlInicial(uids) {
+  return uids.map((u) => (!u ? "ia" : u === net.uid ? "local" : onlConectado(u) ? "invitar" : "ausente"));
+}
+/* invitar a los conectados y fijar quién lleva cada ejército */
+async function onlRepartirMando(bid, desc, info, cfg) {
+  const inv = [...new Set(desc.uids.filter((u, i) => u && desc.ctrl[i] === "invitar"))];
+  if (inv.length) {
+    const ok = await onlInvitar(bid, inv, { ...info, limiteMs: cfg.invitSeg * 1000 });
+    desc.ctrl = desc.ctrl.map((c, i) => (c === "invitar" ? (ok[desc.uids[i]] ? "remoto" : "ausente") : c));
+  }
+  desc.ctrl.forEach((c, i) => {
+    if (c === "ausente") {
+      desc.ctrl[i] = "ia";
+      desc.dif[i] = "dificil";
+    }
+  });
+}
+/* elegir modo cuando solo juega quien resuelve contra la IA difícil */
+async function onlModoContraIA(desc, bctx, lugar, cfg) {
+  if (desc.ctrl.includes("remoto")) return cfg.modoBatalla || "t3";
+  const otros = [...new Set(desc.uids.filter((u, i) => u && desc.ctrl[i] === "ia"))];
+  return modal(
+    `Batalla en ${esc(lugar)}`,
+    `<p>${desc.lista.map((e) => esc(CIV[e.f].s) + " · " + tot(e.u) * SPU + " hombres").join("<br>")}</p><p>${otros.length ? esc(otros.map(onlNombre).join(", ")) + " no dirige" + (otros.length > 1 ? "n" : "") + " la batalla: sus capitanes luchan con <b>IA difícil</b>." : ""}</p><p>¿Cómo quieres librarla?</p>`,
+    [
+      { t: "Por turnos · 3 acciones", v: "t3", cls: "gold" },
+      { t: "Por turnos · 1 acción", v: "t1", cls: "gold" },
+      { t: "Tiempo real", v: "rt", cls: "gold" },
+      { t: "Resolución automática", v: "auto" },
+    ],
+  );
+}
+/* libra la batalla según el reparto: delegada, en vivo o automática; devuelve el resultado del motor */
+async function onlLibrar(bid, desc, bctx, lugar, cfg) {
+  let res = null,
+    tact = false;
+  if (!desc.ctrl.includes("local") && desc.ctrl.includes("remoto")) {
+    /* quien resuelve no participa: la dirige uno de los jugadores (nunca se abre en su pantalla) */
+    res = await onlDelegar(bid, desc, bctx, cfg.modoBatalla || "t3");
+    if (res) tact = true;
+    else desc.ctrl.forEach((c, i) => c === "remoto" && ((desc.ctrl[i] = "ia"), (desc.dif[i] = "dificil")));
+  }
+  if (!res && desc.ctrl.includes("local")) {
+    const modo = await onlModoContraIA(desc, bctx, lugar, cfg);
+    if (modo !== "auto") {
+      res = await onlBatallaVivo(bid, desc, bctx, modo);
+      tact = true;
+    }
+  }
+  if (!res)
+    res = desc.multi
+      ? cmbResolverMulti(desc.lista, { ...bctx, dificultad: desc.dif })
+      : cmbResolverAuto(desc.lista[0], desc.lista[1], { ...bctx, dificultad: desc.dif });
+  return { res, tact };
+}
+const onlMandoTxt = (desc) =>
+  desc.lista.map((e, i) => `${CIV[e.f].s}: ${desc.ctrl[i] === "ia" ? (desc.dif[i] === "dificil" ? "IA difícil" : "IA") : "en persona"}`).join(", ");
+async function onlGuardarBatalla(bid, m, datos) {
+  try {
+    await net.db.doc(`partidas/${net.id}/batallas/${bid}`).set({ turno: m.turno, estado: "fin", ts: onlAhora(), ...datos });
+  } catch (e) {}
+}
 async function onlPrepararBatalla(ejA, ejD, bctx, o) {
   const R0 = ONL.resolviendo,
     m = R0.meta,
@@ -1855,81 +1940,51 @@ async function onlPrepararBatalla(ejA, ejD, bctx, o) {
     bctx.onlRes = prev.res;
     return;
   }
-  const lados = [uA, uD],
-    ctrl = lados.map((u) => (u === net.uid ? "local" : onlConectado(u) ? "invitar" : "ausente")),
-    dif = ["normal", "normal"],
+  const desc = { lista: [ejA, ejD], uids: [uA, uD], ctrl: onlCtrlInicial([uA, uD]), dif: ["normal", "normal"], multi: false, bandos: [0, 1] },
     vencida = prev && prev.estado === "pendiente" && (onlAhora() > prev.limite || R0.renuncio);
-  if (R0.renuncio && lados[1] === net.uid) ctrl[1] = "ausente";
+  if (R0.renuncio && uD === net.uid) desc.ctrl[1] = "ausente";
   /* amigo desconectado: detener la estación (una vez por estación) */
-  if (ctrl[1] === "ausente" && !vencida && !prev && cfg.amigoMin > 0 && !((m.susp || {})[m.turno]) && (await onlSonAmigos(uA, uD))) {
+  if (desc.ctrl[1] === "ausente" && !vencida && !prev && cfg.amigoMin > 0 && !((m.susp || {})[m.turno]) && (await onlSonAmigos(uA, uD))) {
     ONL.susp = { bid, clave, a: uA, d: uD, fa: ejA.f, fd: ejD.f, lugar, limite: onlAhora() + cfg.amigoMin * 60000, s0, d0 };
     throw ONL_SUSP;
   }
-  const inv = [0, 1].filter((s) => ctrl[s] === "invitar");
-  if (inv.length) {
-    const ok = await onlInvitar(bid, inv.map((s) => lados[s]), { lugar, fa: ejA.f, fd: ejD.f, lados, limiteMs: cfg.invitSeg * 1000 });
-    for (const s of inv) ctrl[s] = ok[lados[s]] ? "remoto" : "ausente";
-  }
-  for (const s of [0, 1])
-    if (ctrl[s] === "ausente") {
-      ctrl[s] = "ia";
-      dif[s] = "dificil";
-    }
-  let res,
-    tact = false,
-    modo = cfg.modoBatalla || "t3";
-  /* quien resuelve no participa: la batalla la dirige uno de los jugadores (nunca se abre en su pantalla) */
-  if (!ctrl.includes("local") && ctrl.includes("remoto")) {
-    res = await onlDelegar(bid, ejA, ejD, bctx, ctrl, dif, modo, lados);
-    if (res) tact = true;
-    else for (const s of [0, 1]) if (ctrl[s] === "remoto") ((ctrl[s] = "ia"), (dif[s] = "dificil"));
-  }
-  if (!res && ctrl.includes("local")) {
-    if (!ctrl.includes("remoto")) {
-      const yo = ctrl.indexOf("local"),
-        pr = Math.round(cmbEstimar(ejA, ejD, { ...bctx, dificultad: dif }, 10) * 100),
-        mio = yo === 0 ? pr : 100 - pr;
-      modo = await modal(
-        `Batalla en ${esc(lugar)}`,
-        `<p>${camTxtEj(ejA)}<br>contra ${camTxtEj(ejD)}.</p><p>${esc(onlNombre(lados[1 - yo]))} no dirige la batalla: sus capitanes luchan con <b>IA difícil</b>. Tus capitanes la ven ${mio >= 70 ? "favorable" : mio >= 45 ? "incierta" : "desfavorable"} (≈${mio}%).</p>`,
-        [
-          { t: "Por turnos · 3 acciones", v: "t3", cls: "gold" },
-          { t: "Por turnos · 1 acción", v: "t1", cls: "gold" },
-          { t: "Tiempo real", v: "rt", cls: "gold" },
-          { t: "Resolución automática", v: "auto" },
-        ],
-      );
-    }
-    if (modo !== "auto") {
-      res = await onlBatallaVivo(bid, ejA, ejD, bctx, ctrl, dif, modo, lados);
-      tact = true;
-    }
-  }
-  if (!res) res = cmbResolverAuto(ejA, ejD, { ...bctx, dificultad: dif });
+  await onlRepartirMando(bid, desc, { lugar, fa: ejA.f, fd: ejD.f, facs: [ejA.f, ejD.f] }, cfg);
+  const { res, tact } = await onlLibrar(bid, desc, bctx, lugar, cfg);
   if (tact) o.sinInforme = true;
   bctx.onlRes = res;
-  const txt = `${CIV[ejA.f].s} contra ${CIV[ejD.f].s} en ${lugar}: ${res.gana === 0 ? "vence " + CIV[ejA.f].s : "resiste " + CIV[ejD.f].s} (${ctrl.map((c, i) => `${CIV[[ejA.f, ejD.f][i]].s}: ${c === "ia" ? (dif[i] === "dificil" ? "IA difícil" : "IA") : "en persona"}`).join(", ")}).`;
-  onlCron([ejA.f, ejD.f], txt, "");
-  onlTraza("batalla", bid, ctrl.join("/"), dif.join("/"), "gana", res.gana);
-  R0.ultBatalla = { bid, ctrl, dif, gana: res.gana, lugar };
-  try {
-    await net.db.doc(`partidas/${net.id}/batallas/${bid}`).set({
-      turno: m.turno,
-      clave,
-      estado: "fin",
-      a: uA,
-      d: uD,
-      fa: ejA.f,
-      fd: ejD.f,
-      lugar,
-      s0,
-      d0,
-      ctrl,
-      dif,
-      res: onlClon(res),
-      ts: onlAhora(),
-    });
-  } catch (e) {}
+  onlCron([ejA.f, ejD.f], `${CIV[ejA.f].s} contra ${CIV[ejD.f].s} en ${lugar}: ${res.gana === 0 ? "vence " + CIV[ejA.f].s : "resiste " + CIV[ejD.f].s} (${onlMandoTxt(desc)}).`, "");
+  onlTraza("batalla", bid, desc.ctrl.join("/"), desc.dif.join("/"), "gana", res.gana);
+  R0.ultBatalla = { bid, ctrl: desc.ctrl, dif: desc.dif, gana: res.gana, lugar };
+  await onlGuardarBatalla(bid, m, { clave, a: uA, d: uD, fa: ejA.f, fd: ejD.f, lugar, s0, d0, ctrl: desc.ctrl, dif: desc.dif, res: onlClon(res) });
+}
+/* batallas de varios ejércitos (combate v3, camMulti): cada jugador manda solo los suyos */
+async function onlPrepararMulti(lista, bctx, o) {
+  const R0 = ONL.resolviendo,
+    m = R0.meta,
+    cfg = { ...ONL_CFG_DEF, ...(m.cfg || {}) },
+    uids = lista.map((e) => onlUidHumano(m, e.f));
+  if (new Set(uids.filter(Boolean)).size < 2) return; // hace falta más de un jugador humano
+  const clave = `${m.turno}-multi-${lista.map((e) => e.id).join(".")}`,
+    bid = "b" + onlHash(net.id + ":" + clave),
+    comp = JSON.stringify(lista.map((e) => cmbNorm({ ...e.u }))),
+    prev = R0.bats[bid],
+    lugar = bctx.nombreLugar || "campo abierto";
+  onlTraza("prep multi", lista.map((e) => e.f + ":" + (e.bando ?? "?")).join(","));
+  if (prev && prev.res && prev.comp === comp) {
+    bctx.onlResMulti = prev.res;
+    return;
+  }
+  const bandos = lista.map((e, i) => e.bando ?? i),
+    desc = { lista, uids, ctrl: onlCtrlInicial(uids), dif: lista.map(() => "normal"), multi: true, bandos },
+    facs = [...new Set(lista.map((e) => e.f))];
+  await onlRepartirMando(bid, desc, { lugar, fa: lista[0].f, fd: (lista.find((e, i) => bandos[i] !== bandos[0]) || lista[1]).f, facs }, cfg);
+  const { res } = await onlLibrar(bid, desc, bctx, lugar, cfg);
+  bctx.onlResMulti = res;
+  const gan = [...new Set(lista.filter((e, i) => bandos[i] === res.gana).map((e) => CIV[e.f].s))];
+  onlCron(facs, `Batalla en ${lugar} entre ${facs.map((f) => CIV[f].s).join(", ")}: vence${gan.length > 1 ? "n" : ""} ${gan.join(" y ") || "nadie"} (${onlMandoTxt(desc)}).`, "");
+  onlTraza("batalla multi", bid, desc.ctrl.join("/"), desc.dif.join("/"), "gana", res.gana);
+  R0.ultBatalla = { bid, ctrl: desc.ctrl, dif: desc.dif, gana: res.gana, lugar };
+  await onlGuardarBatalla(bid, m, { clave, lugar, comp, uids, ctrl: desc.ctrl, dif: desc.dif, res: onlClon(res) });
 }
 /* invitación en vivo por el vestíbulo; respuesta en cfg.invitSeg o se entiende que no */
 async function onlInvitar(bid, uids, info) {
@@ -1937,7 +1992,7 @@ async function onlInvitar(bid, uids, info) {
   onlTraza("invita", uids.join(","), bid);
   for (const u of uids) {
     delete ONL.resp[bid + u];
-    onlEmitir(ONL.room, "onl.inv", { para: u, bid, partida: net.id, nombre: ONL.meta.name, lugar: info.lugar, fa: info.fa, fd: info.fd, lado: info.lados.indexOf(u), de: net.uid, limite, dur: info.limiteMs });
+    onlEmitir(ONL.room, "onl.inv", { para: u, bid, partida: net.id, nombre: ONL.meta.name, lugar: info.lugar, fa: info.fa, fd: info.fd, de: net.uid, limite, dur: info.limiteMs });
     onlAviso(u, "bat-" + net.id, { tipo: "batalla", partida: net.id, nombre: ONL.meta.name, texto: `Batalla en ${info.lugar}: ¿la diriges en persona?` });
   }
   const ok = {};
@@ -1998,7 +2053,7 @@ async function onlResponderInvitacion(si) {
     const f = g ? onlMiSeat(g.d) : null;
     if (f != null) onlEntrar(d.partida, f);
   }
-  onlEspejoUnir(d.bid, d.lado);
+  onlEspejoUnir(d.bid);
 }
 function onlRecibirRespuesta(m) {
   const d = onlRecomponer(m);
@@ -2016,63 +2071,77 @@ async function onlUnirSala(bid) {
     return null;
   }
 }
-/* ---- autoridad: quien resuelve corre la simulación; los remotos mandan sus planes ---- */
-async function onlBatallaVivo(bid, ejA, ejD, bctx, ctrl, dif, modo, lados) {
-  const remotos = [0, 1].filter((s) => ctrl[s] === "remoto");
+/* orden de ataque: objetivo y modo («a distancia» dis, «cargar» cc) */
+const onlOrdTg = (q) => ({ tg: q.tg, ...(q.dis ? { dis: 1 } : {}), ...(q.cc ? { cc: 1 } : {}) });
+/* ---- autoridad: quien resuelve (y participa) corre la simulación; los remotos mandan sus planes ---- */
+async function onlBatallaVivo(bid, desc, bctx, modo) {
+  const remotos = () => [...new Set(desc.uids.filter((u, i) => u && desc.ctrl[i] === "remoto"))],
+    aIA = (u) =>
+      desc.uids.forEach((x, i) => {
+        if (x === u && desc.ctrl[i] === "remoto") {
+          desc.ctrl[i] = "ia";
+          desc.dif[i] = "dificil";
+        }
+      });
   let sala = null;
-  if (remotos.length) {
+  if (remotos().length) {
     sala = await onlUnirSala(bid);
-    if (!sala) remotos.forEach((s) => ((ctrl[s] = "ia"), (dif[s] = "dificil")));
+    if (!sala) remotos().forEach(aIA);
   }
-  const jugador = ctrl[1] === "local" ? 1 : undefined,
-    map = jugador === 1 ? [1, 0] : [0, 1],
-    cf = [ctrl[map[0]], ctrl[map[1]]],
-    ladoCampo = {};
-  lados.forEach((u, i) => (ladoCampo[u] = map.indexOf(i)));
-  const O = onlAutoridad(bid, sala, cf, ladoCampo, lados, map);
+  const O = onlAutoridad(bid, sala, desc);
   if (sala) {
     /* esperar a que los espejos digan «hola» (máx. 30 s) */
     const t0 = onlAhora();
-    while (onlAhora() - t0 < 30000 && remotos.some((s) => !O.hola[lados[s]])) await new Promise((r) => setTimeout(r, 200));
-    for (const s of remotos)
-      if (!O.hola[lados[s]]) {
-        cf[map.indexOf(s)] = "ia";
-        dif[s] = "dificil";
-      }
+    while (onlAhora() - t0 < 30000 && remotos().some((u) => !O.hola[u])) await new Promise((r) => setTimeout(r, 200));
+    remotos()
+      .filter((u) => !O.hola[u])
+      .forEach(aIA);
   }
-  const ctx = { ...bctx, dificultad: dif, jugador, onl: cf.includes("remoto") || cf[0] !== "local" ? O : null };
+  const yoI = desc.ctrl.indexOf("local"),
+    ctx = { ...bctx, dificultad: desc.dif, onl: remotos().length || yoI < 0 ? O : null };
   delete ctx.onlRes;
+  delete ctx.onlResMulti;
   ONL.batalla = O;
   try {
-    return await cmbTactica(ejA, ejD, ctx, modo);
+    if (desc.multi) return await cmbTacticaMulti(desc.lista, { ...ctx, humanos: [ME] }, modo);
+    return await cmbTactica(desc.lista[0], desc.lista[1], { ...ctx, jugador: yoI === 1 ? 1 : undefined }, modo);
   } finally {
     ONL.batalla = null;
     O.cerrar();
   }
 }
-function onlAutoridad(bid, sala, ctrl, ladoCampo, lados, map) {
+function onlAutoridad(bid, sala, desc) {
+  const part = [...new Set(desc.uids.filter(Boolean))];
   const O = {
     bid,
     sala,
-    ctrl,
-    lados,
-    map,
-    ladoCampo,
-    planes: [null, null],
-    faltas: [0, 0],
+    desc,
+    ctrl: desc.ctrl.slice(), // por lado del campo (se fija en inicio con BT.map)
+    lados: {}, // uid remoto -> lados del campo que manda
+    planes: {},
+    faltas: {},
     hola: {},
     esperaMs: 60000,
     ult: 0,
     unsub: null,
     inicio(B) {
       O.B = B;
+      const map = B.map || [0, 1];
+      O.ctrl = map.map((i) => desc.ctrl[i]);
+      O.lados = {};
+      map.forEach((i, s) => {
+        const u = desc.uids[i];
+        if (u && desc.ctrl[i] === "remoto") (O.lados[u] = O.lados[u] || []).push(s);
+      });
       O.enviarIni();
-      if (ctrl[0] !== "local") {
+      if (!(B.mios || [0]).some((s) => O.ctrl[s] === "local")) {
         deploy(0, true);
         battleAct("go");
         if (B.mode !== "rt") setTimeout(executeTurn, 150);
       }
     },
+    ladosDe: (uid) => O.lados[uid] || [],
+    remotos: () => Object.keys(O.lados).filter((u) => O.ladosDe(u).some((s) => O.ctrl[s] === "remoto")),
     enviarIni() {
       if (!sala || !BT) return;
       const u = BT.units.map((x) => {
@@ -2084,16 +2153,25 @@ function onlAutoridad(bid, sala, ctrl, ladoCampo, lados, map) {
       onlEmitir(sala, "onl.b", {
         k: "ini",
         bid,
-        part: lados,
-        lados: ladoCampo,
+        part,
+        lados: O.lados,
         mode: BT.mode,
         lim: BT.lim,
         place: BT.place,
         env: BT.env,
         fort: BT.fort,
         def: BT.def,
+        defE: BT.muro ? BT.muro.e : BT.def != null && BT.lados && BT.lados[BT.def] === "E" ? 1 : 0,
         fa: BT.fa,
         fd: BT.fd,
+        N: BT.N || 2,
+        map: BT.map,
+        bandos: BT.bandos,
+        ladosC: BT.lados,
+        flancos: BT.flancos,
+        espera: BT.espera || {},
+        lleg: BT.lleg || [],
+        dens: BT.dens,
         terr: BT.terr.map((r) => r.join("")).join("|"),
         units: u,
         gens: BT.gens,
@@ -2103,26 +2181,26 @@ function onlAutoridad(bid, sala, ctrl, ladoCampo, lados, map) {
         muro: BT.muro,
         turn: BT.turn,
         t: BT.t,
-        phase: BT.phase,
         log: BT.log.slice(0, 8),
-        ejf: [BT.ejs[0].f, BT.ejs[1].f],
+        ejf: (BT.ejs || []).map((e) => ({ f: e.f, id: e.id, bando: e.bando, dir: e.dir })),
       });
     },
     listoTurno() {
       const B = BT,
-        falta = [0, 1].filter((s) => ctrl[s] === "remoto" && !(O.planes[s] && O.planes[s].turn === B.turn));
+        falta = O.remotos().filter((u) => !(O.planes[u] && O.planes[u].turn === B.turn));
       if (falta.length) {
-        B.onlMsg = "Esperando las órdenes del rival…";
+        B.onlMsg = "Esperando las órdenes de los demás jugadores…";
         O.esperando = true;
         if (!O.espT)
           O.espT = setTimeout(() => {
             O.espT = null;
             if (!BT || BT !== B) return;
-            for (const s of falta)
-              if (!(O.planes[s] && O.planes[s].turn === B.turn)) {
-                O.planes[s] = { turn: B.turn, ia: true };
-                if (++O.faltas[s] >= 3) ctrl[s] = "ia";
-                bLog("El rival no responde: sus capitanes deciden este turno.");
+            for (const u of falta)
+              if (!(O.planes[u] && O.planes[u].turn === B.turn)) {
+                O.planes[u] = { turn: B.turn, ia: true };
+                O.faltas[u] = (O.faltas[u] || 0) + 1;
+                if (O.faltas[u] >= 3) O.ladosDe(u).forEach((s) => (O.ctrl[s] = "ia"));
+                bLog(`${onlNombre(u)} no responde: sus capitanes deciden este turno.`);
               }
             executeTurn();
           }, O.esperaMs);
@@ -2133,18 +2211,18 @@ function onlAutoridad(bid, sala, ctrl, ladoCampo, lados, map) {
       O.espT = null;
       O.esperando = false;
       B.onlMsg = "";
-      for (const s of [0, 1]) {
-        if (ctrl[s] !== "remoto") continue;
-        const P = O.planes[s];
-        if (!P || P.ia) aiOrders(s);
-        else O.aplicar(s, P);
+      for (const u of O.remotos()) {
+        const P = O.planes[u];
+        if (!P || P.ia) O.ladosDe(u).forEach((s) => aiOrders(s));
+        else O.aplicar(u, P);
       }
       return true;
     },
-    aplicar(s, P) {
+    aplicar(uid, P) {
+      const mis = O.ladosDe(uid);
       for (const [id, plan] of P.u || []) {
         const u = bU(id);
-        if (!u || u.side !== s || !Array.isArray(plan)) continue;
+        if (!u || !mis.includes(u.side) || !Array.isArray(plan)) continue;
         plan.forEach((p, i) => {
           if (!u.plan[i] || !p) return;
           u.plan[i].st = p.st === "def" ? "def" : "agr";
@@ -2154,33 +2232,39 @@ function onlAutoridad(bid, sala, ctrl, ladoCampo, lados, map) {
       }
       for (const [id, h] of P.hab || []) {
         const u = bU(id);
-        if (u && u.side === s && cmbHabPuede(u, h)) cmbHabUsar(u, h, BTB);
+        if (u && mis.includes(u.side) && cmbHabPuede(u, h)) cmbHabUsar(u, h, BTB);
       }
     },
     recibir(msg) {
       const d = onlRecomponer(msg);
       if (!d || d.bid !== bid) return;
-      const uid = msg.by || d.uid,
-        s = ladoCampo[uid];
+      const uid = msg.by || d.uid;
       if (d.k === "hola") {
-        if (!lados.includes(uid)) return; // solo los dos de esta batalla
+        if (!part.includes(uid)) return; // solo los de esta batalla
         O.hola[uid] = true;
         if (BT) O.enviarIni();
         return;
       }
-      if (s == null || ctrl[s] !== "remoto" || !BT) return;
+      if (!O.lados[uid] || !BT) return;
       if (d.k === "plan") {
-        if (BT.mode === "rt") O.aplicar(s, d);
+        if (BT.mode === "rt") O.aplicar(uid, d);
         else {
-          O.planes[s] = { ...d, turn: d.turn };
+          O.planes[uid] = { ...d, turn: d.turn };
           if (O.esperando && !BT.run) executeTurn();
         }
       }
-      if (d.k === "hab") O.aplicar(s, { hab: d.hab });
-      if (d.k === "huir") finishBattle(s === 1, true);
+      if (d.k === "hab") O.aplicar(uid, { hab: d.hab });
+      if (d.k === "huir") {
+        /* se retira: gana el bando más fuerte de los demás */
+        const bR = cmbBnd(O.ladosDe(uid)[0]),
+          w = cmbBandosDe()
+            .filter((b) => b !== bR)
+            .sort((a, b) => cmbRatioB(b) - cmbRatioB(a))[0];
+        finishBattle(w != null ? w : false, true);
+      }
       if (d.k === "cap") {
-        ctrl[s] = d.on ? "ia" : "remoto";
-        bLog(d.on ? "El rival delega en sus capitanes." : "El rival retoma el mando.");
+        O.ladosDe(uid).forEach((s) => (O.ctrl[s] = d.on ? "ia" : "remoto"));
+        bLog(d.on ? `${onlNombre(uid)} delega en sus capitanes.` : `${onlNombre(uid)} retoma el mando.`);
         if (O.esperando && d.on) executeTurn();
       }
     },
@@ -2193,7 +2277,15 @@ function onlAutoridad(bid, sala, ctrl, ladoCampo, lados, map) {
     },
     fin(res) {
       if (!sala) return;
-      onlEmitir(sala, "onl.b", { k: "fin", bid, gana: res.gana, informe: res.informe, res, lados: ladoCampo, map });
+      /* para cada jugador: si ganó y su ejército en la lista (para el informe) */
+      const gano = {},
+        yoDe = {};
+      desc.uids.forEach((u, i) => {
+        if (!u || yoDe[u] != null) return;
+        yoDe[u] = i;
+        gano[u] = desc.multi ? desc.bandos[i] === res.gana : res.gana === i;
+      });
+      onlEmitir(sala, "onl.b", { k: "fin", bid, gana: res.gana, informe: res.informe, res, gano, yoDe });
     },
     cerrar() {
       clearTimeout(O.espT);
@@ -2224,15 +2316,28 @@ function onlFoto(bid, fin) {
       x.desb > 0 ? Math.round(x.desb * 10) : 0,
       (x.hab || []).map((h) => [Math.round((h.t || 0) * 10), Math.round((h.cd || 0) * 10), Math.round((h.b || 0) * 10), h.n || 0]),
     ]),
-    o = { k: "est", bid, turn: B.turn, t: Math.round(B.t * 10), run: !!B.run, phase: B.phase, muro: B.muro ? B.muro.hp : null, rota: B.muro ? !!B.muro.rota : false, gok: B.gens.map((g) => g.ok), log: B.log.slice(0, 6), u };
+    o = {
+      k: "est",
+      bid,
+      turn: B.turn,
+      t: Math.round(B.t * 10),
+      run: !!B.run,
+      phase: B.phase,
+      muro: B.muro ? B.muro.hp : null,
+      rota: B.muro ? !!B.muro.rota : false,
+      gok: B.gens.map((g) => g.ok),
+      espera: B.espera || {},
+      log: B.log.slice(0, 6),
+      u,
+    };
   if (fin) o.planes = B.units.map((x) => [x.id, x.plan.map((p) => ({ st: p.st, o: p.o }))]);
   return o;
 }
-/* ---- espejo: el jugador remoto ve el campo (girado para que sus tropas estén a la izquierda) y manda planes ---- */
-async function onlEspejoUnir(bid, ladoEj) {
+/* ---- espejo: el jugador remoto ve el mismo campo, manda solo sus ejércitos y envía sus planes ---- */
+async function onlEspejoUnir(bid) {
   const sala = await onlUnirSala(bid);
   if (!sala) return;
-  const E = { bid, sala, ladoEj, ok: false, un: null };
+  const E = { bid, sala, ok: false, un: null };
   ONL.espejo = E;
   E.un = sala.on("onl.b", (m) => {
     const d = onlRecomponer(m);
@@ -2250,26 +2355,24 @@ async function onlEspejoUnir(bid, ladoEj) {
   hola();
 }
 /* quien resuelve sin participar pide a un jugador de la batalla que la dirija y espera el resultado */
-async function onlDelegar(bid, ejA, ejD, bctx, ctrl, dif, modo, lados) {
+async function onlDelegar(bid, desc, bctx, modo) {
   const sala = await onlUnirSala(bid);
   if (!sala) return null;
-  const rem = [0, 1].filter((s) => ctrl[s] === "remoto"),
-    aut = lados[rem[0]],
+  const part = [...new Set(desc.uids.filter(Boolean))],
+    aut = desc.uids.find((u, i) => u && desc.ctrl[i] === "remoto"),
     hola = {};
   let res = null;
   const un = sala.on("onl.b", (m) => {
     const d = onlRecomponer(m);
     if (!d || d.bid !== bid) return;
     const uid = m.by || d.uid;
-    if (d.k === "hola" && lados.includes(uid)) hola[uid] = true;
-    if (d.k === "fin" && d.res && lados.includes(uid)) res = d.res;
+    if (d.k === "hola" && part.includes(uid)) hola[uid] = true;
+    if (d.k === "fin" && d.res && part.includes(uid)) res = d.res;
   });
   try {
     let t0 = Date.now();
     while (Date.now() - t0 < 30000 && !hola[aut]) await new Promise((r) => setTimeout(r, 200));
     if (!hola[aut]) return null;
-    const c2 = ctrl.slice();
-    c2[rem[0]] = "local";
     const ctxD = {
       terreno: bctx.terreno,
       fort: bctx.fort || 0,
@@ -2277,12 +2380,29 @@ async function onlDelegar(bid, ejA, ejD, bctx, ctrl, dif, modo, lados) {
       asedio: bctx.asedio,
       murallas: bctx.murallas,
       maquinas: bctx.maquinas,
+      flancos: bctx.flancos,
+      flancosAplicados: bctx.flancosAplicados,
+      refuerzos: bctx.refuerzos,
+      def: bctx.def,
       p: bctx.p ? bctx.p.id : null,
       x: bctx.x,
       y: bctx.y,
     };
     onlTraza("delegar", bid, "en", aut);
-    await onlEmitir(sala, "onl.b", { k: "delegar", bid, para: aut, ejA, ejD, bctx: ctxD, ctrl: c2, dif, modo, lados, uid: net.uid });
+    await onlEmitir(sala, "onl.b", {
+      k: "delegar",
+      bid,
+      para: aut,
+      lista: desc.lista,
+      uids: desc.uids,
+      ctrl: desc.ctrl.map((c, i) => (desc.uids[i] === aut && c === "remoto" ? "local" : c)),
+      dif: desc.dif,
+      multi: desc.multi,
+      bandos: desc.bandos,
+      bctx: ctxD,
+      modo,
+      uid: net.uid,
+    });
     t0 = Date.now();
     let fuera = 0;
     while (!res && Date.now() - t0 < 30 * 60000) {
@@ -2306,57 +2426,58 @@ async function onlDelegado(E, d) {
   const ctx = { ...d.bctx, p: d.bctx.p != null && G ? G.P[d.bctx.p] : null };
   onlTraza("delegado", d.bid);
   try {
-    await onlBatallaVivo(d.bid, d.ejA, d.ejD, ctx, d.ctrl, d.dif, d.modo, d.lados);
+    await onlBatallaVivo(d.bid, { lista: d.lista, uids: d.uids, ctrl: d.ctrl, dif: d.dif, multi: !!d.multi, bandos: d.bandos || [0, 1] }, ctx, d.modo);
   } catch (e) {
     console.error("[onl] delegada", e);
   }
 }
-const onlFx = (E, x) => (E.flip ? BW - x : x);
-/* orden de ataque: objetivo y modo («a distancia» dis, «cargar» cc) */
-const onlOrdTg = (q) => ({ tg: q.tg, ...(q.dis ? { dis: 1 } : {}), ...(q.cc ? { cc: 1 } : {}) });
 function onlEspejoIni(E, d) {
-  const sAut = d.lados[net.uid];
-  if (sAut == null || (d.part && !d.part.includes(net.uid))) return; // no eres de esta batalla
+  const mios = (d.lados || {})[net.uid];
+  if (!mios || !mios.length || (d.part && !d.part.includes(net.uid))) return; // no eres de esta batalla
   E.ok = true;
-  E.sAut = sAut;
-  E.flip = sAut === 1;
-  const fl = (s) => (E.flip ? 1 - s : s),
-    terr0 = d.terr.split("|").map((r) => r.split("").map(Number)),
-    terr = E.flip ? terr0.map((r) => r.slice().reverse()) : terr0,
-    def = fl(d.def),
+  E.mios = mios;
+  const terr = d.terr.split("|").map((r) => r.split("").map(Number)),
     bg = document.createElement("canvas");
   bg.width = BW * TS;
   bg.height = BH * TS;
-  paintField(bg.getContext("2d"), terr, d.fort, def);
-  const units = d.units.map((u) => {
-    const o = { ...u, side: fl(u.side), x: onlFx(E, u.x), face: E.flip ? -u.face : u.face };
-    o.plan = (u.plan || []).map((p) => ({ st: p.st, o: p.o ? (p.o.tg != null ? onlOrdTg(p.o) : { x: onlFx(E, p.o.x), y: p.o.y }) : null }));
-    return o;
-  });
-  const sw = (a) => (E.flip ? [a[1], a[0]] : a);
+  paintField(bg.getContext("2d"), terr, d.fort, d.defE);
+  const units = d.units.map((u) => ({ ...u, plan: (u.plan || []).map((p) => ({ st: p.st, o: p.o ? (p.o.tg != null ? onlOrdTg(p.o) : { x: p.o.x, y: p.o.y }) : null })) })),
+    N = d.N || 2,
+    bandos = d.bandos || [...Array(N).keys()];
   BT = {
     bg,
     dead: [],
-    fa: E.flip ? d.fd : d.fa,
-    fd: E.flip ? d.fa : d.fd,
+    fa: d.fa,
+    fd: d.fd,
     fort: d.fort,
-    def,
-    map: [0, 1],
-    ejs: [{ f: E.flip ? d.fd : d.fa }, { f: E.flip ? d.fa : d.fd }],
+    def: d.def,
+    map: d.map || [...Array(N).keys()],
+    ejs: d.ejf || [],
+    N,
+    bandos,
+    lados: d.ladosC,
+    part: d.part,
+    mios,
+    bandoYo: bandos[mios[0]],
+    emitir: false,
+    flancos: d.flancos || 1,
+    espera: d.espera || {},
+    lleg: d.lleg || [],
+    dens: d.dens || 1,
     env: d.env,
     lim: d.lim,
     place: d.place,
-    ctx: {},
+    ctx: { velocidad: 1 },
     terr,
     units,
     mode: d.mode,
     phase: "plan",
     turn: d.turn,
-    sel: units.find((u) => !u.side)?.id ?? null,
+    sel: units.find((u) => mios.includes(u.side))?.id ?? null,
     slot: 0,
-    log: [{ m: "Diriges a tus tropas en persona. Planea y pulsa «Ejecutar turno»: la batalla avanza cuando los dos estéis listos.", c: "good" }],
+    log: [{ m: "Diriges a tus tropas en persona. Planea y pulsa «Ejecutar turno»: la batalla avanza cuando estéis todos listos.", c: "good" }],
     fx: [],
-    tal: [{}, {}],
+    tal: [...Array(N)].map(() => ({})),
     hitos: [],
     ult: [0, 0],
     dichos: {},
@@ -2365,17 +2486,16 @@ function onlEspejoIni(E, d) {
     run: false,
     paused: false,
     speed: 1,
-    gb: sw(d.gb),
-    gens: sw(d.gens),
-    muro: d.muro ? { ...d.muro, x: onlFx(E, d.muro.x) } : null,
+    gb: d.gb,
+    gens: d.gens,
+    muro: d.muro ? { ...d.muro } : null,
     habT: 0,
-    bono: sw(d.bono),
+    bono: d.bono,
     auto0: false,
-    init: sw(d.init),
+    init: d.init,
     done: () => {},
     aiT: 0,
     espejo: E,
-    sels: [],
     atk: false,
   };
   BT.sels = BT.sel == null ? [] : [BT.sel];
@@ -2385,17 +2505,17 @@ function onlEspejoIni(E, d) {
   music("battle");
   bui();
   if (BT.mode === "rt") E.rtT = setInterval(() => onlEspejoPlanRT(E), 400);
-  onlTraza("espejo ini", E.bid, "flip", E.flip);
+  onlTraza("espejo ini", E.bid, "lados", mios.join(","));
 }
 function onlEspejoPlanes(E) {
-  return BT.units.filter((u) => !u.side).map((u) => [u.id, u.plan.map((p) => ({ st: p.st, o: p.o ? (p.o.tg != null ? onlOrdTg(p.o) : { x: onlFx(E, p.o.x), y: p.o.y }) : null }))]);
+  return BT.units.filter((u) => E.mios.includes(u.side)).map((u) => [u.id, u.plan.map((p) => ({ st: p.st, o: p.o ? (p.o.tg != null ? onlOrdTg(p.o) : { x: p.o.x, y: p.o.y }) : null }))]);
 }
 function onlEspejoEnviar(E) {
   if (!BT || BT.espejo !== E || BT.run) return;
   onlEmitir(E.sala, "onl.b", { k: "plan", bid: E.bid, uid: net.uid, turn: BT.turn, u: onlEspejoPlanes(E), hab: E.habs });
   E.habs = [];
   BT.run = true;
-  BT.onlMsg = "Órdenes enviadas: esperando al rival…";
+  BT.onlMsg = "Órdenes enviadas: esperando a los demás…";
   bui();
 }
 function onlEspejoPlanRT(E) {
@@ -2434,13 +2554,13 @@ function onlEspejoFoto(E, d) {
   for (const r of d.u) {
     const u = bU(r[0]);
     if (!u) continue;
-    const x = onlFx(E, r[1] / 100),
+    const x = r[1] / 100,
       y = r[2] / 100;
     if (Math.abs(x - u.x) > 0.02 || Math.abs(y - u.y) > 0.02) u.mvT = now;
     if (r[4] < u.n) u.fT = now;
     u.x = x;
     u.y = y;
-    u.face = E.flip ? -r[3] : r[3];
+    u.face = r[3];
     u.n = r[4];
     u.her = r[5];
     u.muertos = r[6];
@@ -2466,14 +2586,15 @@ function onlEspejoFoto(E, d) {
     BT.muro.hp = d.muro;
     BT.muro.rota = d.rota;
   }
-  BT.gens.forEach((g, i) => (g.ok = d.gok[E.flip ? 1 - i : i]));
+  (d.gok || []).forEach((ok, i) => BT.gens[i] && (BT.gens[i].ok = ok));
+  BT.espera = d.espera || BT.espera;
   BT.t = d.t / 10;
   const otraTanda = d.turn !== BT.turn;
   BT.turn = d.turn;
   if (d.planes) {
     for (const [id, pl] of d.planes) {
       const u = bU(id);
-      if (u) u.plan = pl.map((p) => ({ st: p.st, o: p.o ? (p.o.tg != null ? onlOrdTg(p.o) : { x: onlFx(E, p.o.x), y: p.o.y }) : null }));
+      if (u) u.plan = pl.map((p) => ({ st: p.st, o: p.o ? (p.o.tg != null ? onlOrdTg(p.o) : { x: p.o.x, y: p.o.y }) : null }));
     }
     BT.run = false;
     BT.onlMsg = "";
@@ -2483,9 +2604,10 @@ function onlEspejoFoto(E, d) {
     BT.onlMsg = "";
   }
   if (otraTanda) BT.slot = 0;
-  const tr = (s) => (E.flip ? s.replace(/\bTus\b/g, "Los").replace(/\btus\b/g, "sus") : s);
+  /* la crónica de la batalla la escribe la autoridad desde su lado: «Tus» no son los tuyos */
+  const tr = (s) => String(s).replace(/\bTus\b/g, "Los").replace(/\btus\b/g, "sus");
   const nuevos = (d.log || []).filter((l) => !BT.log.some((x) => x.m === tr(l.m))).reverse();
-  for (const l of nuevos) bLog(tr(l.m), E.flip ? (l.c === "good" ? "bad" : l.c === "bad" ? "good" : l.c) : l.c);
+  for (const l of nuevos) bLog(tr(l.m), "");
   E.ultFoto = Date.now();
   bui();
 }
@@ -2499,11 +2621,11 @@ function onlEspejoFin(E, d) {
     $("battle").classList.remove("show");
     music("camp");
   }
-  /* lado del espejo en ejA/ejD */
-  const yo = d.map[d.lados[net.uid]];
-  onlTraza("espejo fin", E.bid, "gana", d.gana, "yo", yo);
-  ONL.ultEspejo = { bid: E.bid, gana: d.gana, yo };
-  if (d.informe) modal(d.gana === yo ? `Victoria en ${esc(d.informe.lugar || "")}` : `Derrota en ${esc(d.informe.lugar || "")}`, cmbInfHtml(d.informe, yo), [{ t: "Continuar", cls: "gold" }]);
+  const yo = (d.yoDe || {})[net.uid] ?? 0,
+    gano = !!(d.gano || {})[net.uid];
+  onlTraza("espejo fin", E.bid, "gana", d.gana, "yo", yo, gano ? "victoria" : "derrota");
+  ONL.ultEspejo = { bid: E.bid, gana: d.gana, yo, gano };
+  if (d.informe) modal(`${gano ? "Victoria" : "Derrota"} en ${esc(d.informe.lugar || "")}`, cmbInfHtml(d.informe, yo), [{ t: "Continuar", cls: "gold" }]);
 }
 
 /* ---------- L. crónica personal de la partida (para «mientras no estabas») ---------- */

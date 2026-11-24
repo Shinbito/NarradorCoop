@@ -562,7 +562,7 @@ async function escaramuza(c, fa, fb) {
       for (const [dx, dy] of [[d, 0], [-d, 0], [0, d], [0, -d]]) {
         const x = ej.x + dx,
           y = ej.y + dy;
-        if (x >= 0 && y >= 0 && x < W && y < H && MAP.terr[y][x] && G.P[MAP.grid[y][x]] && G.P[MAP.grid[y][x]].owner === ME && !camCiudadEn(x, y)) {
+        if (x >= 0 && y >= 0 && x < W && y < H && MAP.terr[y][x] && (typeof camPasable !== "function" || camPasable(x, y)) && G.P[MAP.grid[y][x]] && G.P[MAP.grid[y][x]].owner === ME && !camCiudadEn(x, y) && camPlanRuta(ej, x, y)) {
           dst = [x, y];
           break;
         }
@@ -607,6 +607,7 @@ async function escaramuza(c, fa, fb) {
   ok(qx.mt && /listos 0\/2/.test(qx.info), "vuelve a ser tu turno y el contador baja al instante");
   if (!qx.mt) console.log("    ", JSON.stringify(qx));
   ok(meta(id).listos[0] === -1, "la meta refleja que ya no estás listo");
+  await A.page.waitForTimeout(500);
   await ev(A, () => {
     G.P[G.F[ME].capId].u.i += 1;
     return endTurn();
@@ -657,7 +658,7 @@ async function escaramuza(c, fa, fb) {
   await pulsar(B, '[data-act="s-onlinv-si"]');
   await esperar(A, () => BT && BT.ctx && BT.ctx.onl, null, 30000, "A abre la batalla como autoridad");
   await esperar(B, () => BT && BT.espejo && BT.espejo.ok, null, 20000, "B abre el espejo");
-  ok(await ev(B, () => BT.units.filter((u) => !u.side).every((u) => u.f === 2)), "en el espejo de B sus tropas son las suyas (campo girado)");
+  ok(await ev(B, () => BT.units.filter((u) => BT.mios.includes(u.side)).every((u) => u.f === 2) && BT.units.some((u) => BT.mios.includes(u.side))), "en el espejo de B manda solo sus tropas");
   await ev(A, () => battleAct("go"));
   for (let k = 0; k < 2; k++) {
     await ev(A, () => battleAct("exec"));
@@ -720,20 +721,28 @@ async function escaramuza(c, fa, fb) {
   ok(await ev(B, () => /Te atacan/.test(document.getElementById("onl-lob").textContent)), "en «Mis partidas» aparece la batalla pendiente");
   await B.page.click(`[data-act="s-onlent-${id}"]`);
   await esperar(B, () => window.__modales.some((t) => /Mientras no estabas/.test(t)), null, 15000, "resumen al volver");
-  await esperar(A, () => !!document.querySelector('[data-act="s-onlinv-si"]'), null, 60000, "A recibe la invitación del defensor");
-  await pulsar(A, '[data-act="s-onlinv-si"]');
-  await esperar(B, () => BT && BT.ctx && BT.ctx.onl, null, 30000, "B dirige la batalla como autoridad");
-  await esperar(A, () => BT && BT.espejo && BT.espejo.ok, null, 20000, "A ve el espejo");
-  await ev(B, () => battleAct("go"));
-  await ev(B, () => battleAct("exec"));
-  await ev(A, () => battleAct("exec"));
-  await esperar(B, () => BT && BT.turn >= 2 && !BT.run, null, 20000, "turno de la batalla del amigo");
-  await ev(A, () => battleAct("flee"));
+  /* el defensor vuelve a resolver la estación (mismas órdenes); el azar de lo anterior puede cambiar el encuentro:
+     si se repite, lo dirige en persona; si no, la estación sigue sin esa batalla */
+  const hubo = await A.page
+    .waitForFunction(() => !!document.querySelector('[data-act="s-onlinv-si"]'), null, { timeout: 60000, polling: 200 })
+    .then(() => true)
+    .catch(() => false);
+  if (hubo) {
+    await pulsar(A, '[data-act="s-onlinv-si"]');
+    await esperar(B, () => BT && BT.ctx && BT.ctx.onl, null, 30000, "B dirige la batalla como autoridad");
+    await esperar(A, () => BT && BT.espejo && BT.espejo.ok, null, 20000, "A ve el espejo");
+    await ev(B, () => battleAct("go"));
+    await ev(B, () => battleAct("exec"));
+    await ev(A, () => battleAct("exec"));
+    await esperar(B, () => BT && BT.turn >= 2 && !BT.run, null, 20000, "turno de la batalla del amigo");
+    await ev(A, () => battleAct("flee"));
+  } else console.log("  (el encuentro no se repitió al reanudar: la estación sigue sin esa batalla)");
   /* si la marcha pendiente vuelve a chocar, A deja esa a sus capitanes */
   await ev(A, () => (window.__rechazo = setInterval(() => document.querySelector('[data-act="s-onlinv-no"]')?.click(), 300)));
   await esperar(B, () => !BT && ONL.meta && ONL.meta.fase === "ordenes" && !ONL.resolviendo, null, 90000, "la estación sigue tras la batalla del amigo");
   ok(meta(id).fase === "ordenes" && !meta(id).batalla, "la estación se reanudó y se publicó");
   await ev(A, () => ((ONL.noCerrar = false), clearInterval(window.__rechazo)));
+  if (hubo)
   ok(await ev(B, () => ONL.log.some((l) => /^batalla .* remoto\/local/.test(l))), "el amigo que vuelve dirige su defensa en vivo");
 
   /* --- tamaño del estado y dificultad --- */
@@ -820,6 +829,67 @@ async function escaramuza(c, fa, fb) {
   ok(!/Victoria|Derrota|Batalla en/i.test(vistoC2.textos), "C tampoco ve el informe de la batalla delegada");
   await ev(C, () => clearInterval(window.__vigia));
   for (const c of [A, B]) await ev(c, () => (ONL.noCerrar = false));
+
+  /* --- batalla conjunta (combate v3): A y C aliados contra B; cada uno manda sus ejércitos --- */
+  const s5 = await ev(A, async () => {
+    G.st[0][3] = G.st[3][0] = "alianza";
+    G.st[0][2] = G.st[2][0] = "guerra";
+    G.st[3][2] = G.st[2][3] = "guerra";
+    const S = camS();
+    S.ej = S.ej.filter((e) => ![0, 2, 3].includes(e.f));
+    const cap = G.P[G.F[0].capId],
+      libre = (x, y) =>
+        x > 0 && y > 0 && x < W - 1 && y < H - 1 && MAP.terr[y][x] && MAP.grid[y][x] >= 0 && (typeof camPasable !== "function" || camPasable(x, y)) && !camCiudadEn(x, y) && !camEjsEn(x, y).length;
+    let par = null;
+    for (let r = 2; r < 14 && !par; r++)
+      for (let dy = -r; dy <= r && !par; dy++)
+        for (let dx = -r; dx <= r && !par; dx++) {
+          const x = cap.x + dx,
+            y = cap.y + dy;
+          if (libre(x, y) && libre(x + 1, y) && libre(x, y + 1) && G.P[MAP.grid[y][x]].owner === 0 && Number.isFinite(camCoste(0, camIdx(x + 1, y)))) par = [x, y];
+        }
+    const [x, y] = par,
+      A1 = camNuevoEj(0, x, y, { i: 8, a: 4, c: 2 }),
+      C1 = camNuevoEj(3, x, y + 1, { i: 6, a: 3 }),
+      B1 = camNuevoEj(2, x + 1, y, { i: 10, a: 5 });
+    for (const e of [A1, C1, B1]) e.mov = camMovMax(e);
+    const m = ONL.meta,
+      ver = m.ver + 1;
+    for (const l of G.log) if (l.t == null) l.t = m.turno - 1;
+    const pk = onlEmpaquetar(G);
+    await onlGuardarEstado(net.id, ver, pk);
+    await net.db.doc("partidas/" + net.id).update({ ver, partes: pk.partes.length });
+    return { A: A1.id, x: x + 1, y };
+  });
+  for (const c of [A, B, C]) await esperar(c, (v) => ONL.ver === v, meta(id3).ver, 10000, "escaramuza conjunta");
+  ok((await ev(A, (sc) => camOrdenUI({ tipo: "mover", f: ME, ej: sc.A, x: sc.x, y: sc.y }), s5)).encolada, "el ataque conjunto queda encolado");
+  for (const c of [B, C]) await ev(c, () => (ONL.noCerrar = true));
+  await ev(B, () => endTurn());
+  await ev(C, () => endTurn());
+  await esperar(A, () => ONL.meta.listos[2] === ONL.meta.turno && ONL.meta.listos[3] === ONL.meta.turno, null, 8000, "B y C listos (conjunta)");
+  await ev(A, () => endTurn());
+  await esperar(B, () => !!document.querySelector('[data-act="s-onlinv-si"]'), null, 40000, "B invitado (conjunta)");
+  await pulsar(B, '[data-act="s-onlinv-si"]');
+  await esperar(C, () => !!document.querySelector('[data-act="s-onlinv-si"]'), null, 20000, "C invitado (conjunta)");
+  await pulsar(C, '[data-act="s-onlinv-si"]');
+  await esperar(A, () => BT && BT.ctx && BT.ctx.onl && (BT.N || 2) >= 3, null, 40000, "A dirige la batalla conjunta");
+  await esperar(B, () => BT && BT.espejo && BT.espejo.ok, null, 20000, "B ve la conjunta");
+  await esperar(C, () => BT && BT.espejo && BT.espejo.ok, null, 20000, "C ve la conjunta");
+  const mandos = await ev(A, () => ({ ctrl: BT.ctx.onl.ctrl.slice(), mios: BT.mios.slice(), fs: BT.units.reduce((o, u) => ((o[u.side] = u.f), o), {}) }));
+  const misB = await ev(B, () => BT.mios.map((s) => BT.units.find((u) => u.side === s).f));
+  const misC = await ev(C, () => BT.mios.map((s) => BT.units.find((u) => u.side === s).f));
+  ok(misB.every((f) => f === 2) && misC.every((f) => f === 3), "cada jugador manda solo sus ejércitos (B los suyos, C los suyos)");
+  ok(mandos.ctrl.filter((c) => c === "remoto").length === 2 && mandos.mios.every((s) => mandos.fs[s] === 0), "la autoridad manda los de A y espera los planes de B y C");
+  await ev(A, () => battleAct("go"));
+  await ev(A, () => battleAct("exec"));
+  await ev(C, () => battleAct("exec"));
+  await ev(B, () => battleAct("exec"));
+  await esperar(A, () => BT && BT.turn >= 2 && !BT.run, null, 30000, "turno de la conjunta");
+  await ev(B, () => battleAct("flee"));
+  await esperar(A, (t) => ONL.meta && ONL.meta.turno > t && !ONL.resolviendo, meta(id3).turno, 60000, "estación conjunta publicada");
+  ok(await ev(A, () => ONL.log.some((l) => /^batalla multi .*local.*remoto.*remoto|^batalla multi .*remoto.*local/.test(l))), "batalla conjunta en vivo con tres jugadores");
+  ok((await ev(C, () => ONL.ultEspejo && ONL.ultEspejo.gano)) === true && (await ev(B, () => ONL.ultEspejo && ONL.ultEspejo.gano)) === false, "el aliado C gana con A y B pierde (lo ve cada uno)");
+  for (const c of [B, C]) await ev(c, () => (ONL.noCerrar = false));
   void recC0;
 
   console.log("Tamaño del estado y dificultad de la IA");

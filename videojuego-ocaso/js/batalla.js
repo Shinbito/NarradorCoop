@@ -295,6 +295,12 @@ function cmbResolverAuto(ejA, ejD, ctx = {}) {
    Devuelve {gana: bando, ejs: [{id, u (supervivientes; = A), her (heridos; = heridos), f, bando, gana,
    bajas, gen}], informe, gen, brecha}: el contrato de Campaña (id = el del ejército recibido). */
 function cmbResolverMulti(ejs0, ctx = {}) {
+  /* ONL: batalla conjunta ya librada en vivo (o por la IA difícil) entre jugadores online */
+  if (ctx.onlResMulti && !ctx.est) {
+    const r = ctx.onlResMulti;
+    ctx.onlResMulti = null;
+    return r;
+  }
   /* refuerzos: ejércitos que llegan con la batalla empezada (ctx.refuerzos = [{ej, dir, llegada (s)}]);
      van detrás de los demás en ejs y en el resultado. 1 ronda = 10 s. */
   const REF = ctx.refuerzos || [],
