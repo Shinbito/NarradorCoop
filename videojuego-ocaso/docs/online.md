@@ -287,6 +287,17 @@ general `G.log`):
 - Recargar la página a mitad de turno pierde lo hecho en esa estación (las órdenes ya enviadas no).
 - Partida de 100-150 años: posible, pero el tamaño de `G.C` (ver peticiones) la hará lenta.
 
+### Sin Claude: servidor propio del VPS (`js/red.js`)
+Fuera de un artefacto de Claude, `js/red.js` (el primer script de `index.html`) define `window.claude.use('db'|
+'user'|'room')` hablando por WebSocket con el servidor de Ocaso del VPS (`https://ocaso.srv1727399.hstgr.cloud`,
+`/__red/ws`; su lógica es la del doble de `pruebas/online.js`, con datos en disco). Así el online funciona en la
+web, en GitHub Pages y en las apps (APK / iPhone). Si `claude` ya existe (artefacto) no hace nada. Otro servidor:
+`localStorage["ocaso.servidor"] = "http://host:puerto"`. Identidad: un nombre (único) + uid + token guardados en
+el dispositivo; «Ahora no» deja jugar sin conexión. Añade al menú online «Invitar amigos» (enlace `?amigo=<uid>`,
+o pegarlo en la app) y «Conectados ahora». `js/online-ia.js` (tras `online.js`) hace que las batallas de UN
+jugador contra un pueblo de la IA también se repartan con `onlRepartirMando`/`onlLibrar` (en vivo si está
+conectado), en vez de resolverse solas.
+
 ## 8. Pruebas
 
 `node pruebas/online.js [rapida]` (doble de la API en Node, compartido por varias páginas): amigos
