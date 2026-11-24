@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "comentario": "Sprites PNG que sustituyen a los de código. Formato en docs/interfaz.md. Vacío = se usan los sprites de código.",
+  "sprites": {}
+}

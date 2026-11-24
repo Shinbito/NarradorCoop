@@ -7,6 +7,7 @@ function musLabel() {
   const b = $("musb");
   if (b) b.textContent = AU.want ? "♪" : "♪̸";
   b && b.setAttribute("aria-label", AU.want ? "Silenciar música" : "Activar música");
+  b && b.setAttribute("aria-pressed", AU.want ? "true" : "false");
 }
 function audioInit() {
   if (AU.ctx) return;

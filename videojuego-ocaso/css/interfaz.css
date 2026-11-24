@@ -1,1 +1,793 @@
-/* estilos del sistema: interfaz */
+/* estilos del sistema: interfaz (barra superior, pestañas, panel de provincia, potencias, crónica,
+   modales, ayuda y tutorial, minimapa, pantalla de inicio) y retoques de unificación de los demás.
+   Misma voz que css/ocaso.css: noche de piedra #12171c, oro #f2c14e, bordes negros de 3-4 px,
+   Press Start 2P para rótulos cortos y Pixelify Sans para leer. */
+
+/* texto solo para lectores de pantalla */
+.ifz-vh {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.pos {
+  color: #8fd18a;
+}
+.neg {
+  color: #ff7b6b;
+}
+kbd {
+  font:
+    400 10px/1 "Press Start 2P",
+    monospace;
+  background: #0b0f12;
+  border: 2px solid #000;
+  box-shadow: inset 0 -2px 0 var(--edge);
+  padding: 3px 5px;
+  color: var(--gold);
+}
+
+/* ---------- barra superior ---------- */
+header {
+  position: relative;
+}
+.ifz-hb {
+  margin: 0 !important;
+  flex-wrap: nowrap !important;
+}
+.ifz-hb button {
+  min-width: 44px;
+  font-size: 11px;
+}
+#res {
+  position: relative;
+  gap: 6px 16px;
+}
+.ifz-fecha b {
+  color: var(--gold);
+}
+.ifz-r {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  white-space: nowrap;
+}
+.ifz-r i {
+  font-style: normal;
+  color: var(--gold);
+  font-family: "Pixelify Sans", system-ui, sans-serif;
+  font-size: 16px;
+}
+.ifz-com i {
+  color: #9ccc65;
+}
+#res .ifz-r small.pos,
+.ifz-resd .pos {
+  color: #8fd18a;
+}
+#res .ifz-r small:not(.pos):not(.neg) {
+  color: var(--dim);
+}
+.ifz-mas {
+  min-height: 34px;
+  padding: 3px 8px;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 10px;
+  background: #1e262d;
+}
+.ifz-mas i {
+  font-style: normal;
+  margin-right: 2px;
+  font-family: "Pixelify Sans", system-ui, sans-serif;
+  font-size: 15px;
+}
+.ifz-civ {
+  white-space: nowrap;
+}
+.ifz-resd {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  min-width: 260px;
+  max-width: calc(100vw - 20px);
+  background: var(--panel);
+  border: 4px solid #000;
+  box-shadow:
+    inset 0 0 0 3px var(--edge),
+    0 6px 0 #000;
+  padding: 10px 12px;
+  font:
+    15px/1.3 "Pixelify Sans",
+    system-ui,
+    sans-serif;
+}
+.ifz-resd table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.ifz-resd th {
+  font:
+    400 8px/1.6 "Press Start 2P",
+    monospace;
+  color: var(--dim);
+  text-align: left;
+}
+.ifz-resd td,
+.ifz-resd th {
+  padding: 2px 6px;
+}
+.ifz-resd td:nth-child(n + 3),
+.ifz-resd th:nth-child(n + 3) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.ifz-resd td:first-child {
+  color: var(--gold);
+  width: 1.5em;
+}
+.ifz-resd tr.ifz-cero {
+  opacity: 0.5;
+}
+.ifz-resd .stats {
+  margin: 6px 0 0;
+}
+
+/* ---------- mapa: barra de zoom, minimapa ---------- */
+.board {
+  position: relative;
+}
+.ifz-zoom {
+  margin: 0 !important;
+  align-items: center;
+}
+.ifz-zoom .zb {
+  font-size: 14px;
+  min-width: 40px;
+  min-height: 40px;
+}
+#hv {
+  flex: 1 1 200px;
+  text-align: center;
+  color: var(--ink);
+}
+#tinfo {
+  font-size: 14px;
+}
+#ifzmini {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: clamp(96px, 22%, 170px);
+  height: auto;
+  aspect-ratio: auto;
+  border: 3px solid #000;
+  box-shadow: 0 0 0 2px var(--edge);
+  background: #0a0d10;
+  cursor: pointer;
+  z-index: 2;
+  opacity: 0.92;
+  touch-action: none;
+}
+#ifzmini[hidden] {
+  display: none;
+}
+
+/* ---------- tutorial ---------- */
+.ifz-tut {
+  border-color: #000;
+  box-shadow:
+    inset 0 0 0 3px #b8862b,
+    inset 0 0 0 6px #3b2716;
+  background: #2a2118;
+  padding: 12px 14px;
+  font-size: 15px;
+}
+.ifz-tut[hidden] {
+  display: none;
+}
+.ifz-tut-h b {
+  font:
+    400 10px/1.6 "Press Start 2P",
+    monospace;
+  color: var(--gold);
+}
+.ifz-tut p {
+  margin: 6px 0 4px;
+}
+.ifz-tut .btns button:first-child {
+  background: #8a6514;
+  box-shadow:
+    inset -3px -3px 0 #5a3f06,
+    inset 3px 3px 0 #c4962e;
+}
+
+/* ---------- pestañas: icono + rótulo corto, en rejilla que se reparte en dos filas ---------- */
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(var(--ifz-cols, 5), minmax(0, 1fr));
+  gap: 4px;
+}
+.tabs button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 5px 2px 4px;
+  min-height: 52px;
+  font:
+    600 12px/1.1 "Pixelify Sans",
+    system-ui,
+    sans-serif;
+  letter-spacing: 0;
+}
+.tabs button img {
+  width: 18px;
+  height: 18px;
+  image-rendering: pixelated;
+}
+.tabs button span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tabs button.on {
+  color: #fff;
+}
+#panel:focus {
+  outline: none;
+}
+
+/* ---------- panel de provincia ---------- */
+.ifz-pcab h2 {
+  margin-bottom: 2px;
+}
+.ifz-pdue {
+  margin: 0 0 4px;
+  color: var(--dim);
+}
+.ifz-rinde {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+.ifz-rinde span:nth-child(1) {
+  color: var(--gold);
+}
+.ifz-rinde span:nth-child(2) {
+  color: #9ccc65;
+}
+.ifz-rinde span:nth-child(3) {
+  color: var(--dim);
+}
+.ifz-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+.ifz-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  line-height: 1.2;
+  padding: 3px 7px;
+  background: #141a1f;
+  border: 2px solid #000;
+  box-shadow: inset 0 0 0 1px #2b353e;
+  color: var(--ink);
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ifz-chip.ifz-mal {
+  color: #ff8a7a;
+  border-color: #561a10;
+}
+.troops.ifz-tropas {
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 4px;
+}
+.troops.ifz-tropas div {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  column-gap: 6px;
+  row-gap: 1px;
+  align-items: center;
+  text-align: left;
+  padding: 4px 6px;
+}
+.troops.ifz-tropas img {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+}
+.troops.ifz-tropas b {
+  font-size: 12px;
+  line-height: 1.3;
+}
+.troops.ifz-tropas span {
+  grid-column: 1 / 3;
+  font-size: 13px;
+  line-height: 1.15;
+  color: var(--dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ifz-tsum {
+  margin: 4px 0 0;
+}
+.ifz-sin {
+  margin: 8px 0 0;
+  color: var(--dim);
+}
+.ifz-gen {
+  margin: 8px 0 6px;
+}
+/* secciones plegables (las de otros sistemas, sin tocar su HTML) */
+.ifz-sec {
+  margin-top: 8px;
+  border: 2px solid #000;
+  background: #19212700;
+  box-shadow: inset 0 0 0 1px #2b353e;
+}
+.ifz-sec > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 10px 6px 8px;
+  background: #182027;
+}
+.ifz-sec > summary::-webkit-details-marker {
+  display: none;
+}
+.ifz-sec > summary::before {
+  content: "▸";
+  color: var(--gold);
+  font-size: 15px;
+  width: 1em;
+  flex: none;
+}
+.ifz-sec[open] > summary::before {
+  content: "▾";
+}
+.ifz-sec > summary:hover {
+  background: #1f2a33;
+}
+.ifz-sec > summary:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: -3px;
+}
+.ifz-st {
+  font:
+    400 10px/1.5 "Press Start 2P",
+    monospace;
+  color: var(--ink);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ifz-st .stats {
+  font: 13px "Pixelify Sans", sans-serif;
+}
+.ifz-sr {
+  flex: none;
+  max-width: 48%;
+  font-size: 14px;
+  color: var(--dim);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ifz-sb {
+  padding: 4px 10px 10px;
+}
+.ifz-sb > h3:first-child {
+  display: none;
+}
+.ifz-sb > h3 {
+  margin-top: 10px;
+}
+
+/* ---------- potencias ---------- */
+.ifz-pot > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 32px;
+}
+.ifz-pot > summary::-webkit-details-marker {
+  display: none;
+}
+.ifz-pot > summary h2 {
+  margin: 0;
+}
+.ifz-pot > summary h2::before {
+  content: "▸ ";
+  color: var(--gold);
+}
+.ifz-pot[open] > summary h2::before {
+  content: "▾ ";
+}
+.ifz-pot > summary:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+#facs {
+  margin-top: 6px;
+}
+.fac.ifz-fac {
+  display: grid;
+  grid-template-columns: minmax(0, 7.6em) minmax(30px, 1fr) 3.2em minmax(0, 5.6em);
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding: 4px 6px;
+  min-height: 40px;
+  text-align: left;
+  font:
+    15px/1.2 "Pixelify Sans",
+    system-ui,
+    sans-serif;
+  background: transparent;
+  border: 0;
+  border-top: 2px solid #10151a;
+  box-shadow: none;
+}
+.fac.ifz-fac:first-child {
+  border-top: 0;
+}
+.fac.ifz-fac:hover:not(:disabled) {
+  background: #26313a !important;
+}
+.fac.ifz-fac.yo {
+  background: #2a2416;
+}
+.ifz-fn {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ifz-fn small {
+  display: inline-block;
+  min-width: 1.4em;
+  color: var(--dim);
+  font: 400 8px "Press Start 2P", monospace;
+  margin: 0;
+}
+.ifz-fp {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ifz-fp small {
+  display: inline;
+  color: var(--dim);
+  font-size: 12px;
+  margin-left: 2px;
+}
+.ifz-fac .tag {
+  justify-self: end;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ifz-vermas {
+  width: 100%;
+  margin-top: 6px;
+  min-height: 40px;
+  font-size: 9px;
+}
+
+/* ---------- crónica ---------- */
+.ifz-filt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 4px 0 8px;
+}
+.ifz-filt button {
+  min-height: 40px;
+  padding: 4px 8px;
+  font:
+    600 13px/1.1 "Pixelify Sans",
+    system-ui,
+    sans-serif;
+}
+#log {
+  max-height: min(60vh, 560px);
+  overflow: auto;
+  font-size: 15px;
+}
+#log ul {
+  margin: 0;
+  padding: 0 0 4px;
+  list-style: none;
+}
+.ifz-anio > summary {
+  cursor: pointer;
+  font:
+    400 10px/1.6 "Press Start 2P",
+    monospace;
+  color: var(--gold);
+  padding: 8px 0 6px;
+  min-height: 36px;
+  position: sticky;
+  top: 0;
+  background: var(--panel);
+  z-index: 1;
+}
+.ifz-anio > summary .stats {
+  font: 13px "Pixelify Sans", sans-serif;
+}
+
+/* ---------- modales ---------- */
+#modalc {
+  max-height: calc(100vh - 28px);
+  max-height: calc(100dvh - 28px);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+#modalc h2 {
+  font-size: 13px;
+}
+.mbtn button {
+  min-height: 48px;
+}
+.ifz-ayuda h3 {
+  color: var(--gold);
+}
+.ifz-ayuda ul {
+  margin: 0 0 8px;
+  padding-left: 20px;
+}
+.ifz-ayuda li {
+  margin-bottom: 4px;
+}
+
+/* ---------- pantalla de inicio ---------- */
+#start .ifz-hero h2 {
+  margin-bottom: 14px;
+}
+.ifz-lema {
+  font-size: 18px;
+  line-height: 1.5;
+  max-width: 46ch;
+}
+.ifz-menu {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+.ifz-menu button {
+  min-height: 52px;
+  font-size: 11px;
+}
+.ifz-menu button small {
+  color: #f3dca0;
+  font: 14px/1.2 "Pixelify Sans", sans-serif;
+}
+.ifz-nota {
+  margin-top: 12px !important;
+  font-size: 15px;
+}
+.ifz-hero-b {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ifz-hero-b button {
+  min-height: 44px;
+  font-size: 10px;
+}
+#start .civ {
+  border-left: 6px solid var(--civ, #000);
+  transition: transform 0.08s steps(2);
+}
+#start .civ:hover:not(:disabled),
+#start .civ:focus-visible {
+  transform: translateY(-2px);
+  background: #6a4622;
+}
+#start .civ.on {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+.ifz-civt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  align-items: center;
+  margin-top: auto;
+}
+.ifz-civt span {
+  white-space: nowrap;
+}
+.ifz-civt .ifz-uni {
+  flex-basis: 100%;
+  white-space: normal;
+}
+.ifz-civt img {
+  width: 20px;
+  height: 20px;
+  image-rendering: pixelated;
+  vertical-align: middle;
+  margin-right: 3px;
+}
+#startc .mun-modos button {
+  min-height: 92px;
+  border-left: 6px solid #3b2716;
+}
+#startc .mun-modos button.on {
+  border-left-color: var(--gold);
+}
+#startc .civ.mun-civ .dim {
+  font-size: 14px;
+}
+
+/* ---------- batalla táctica: legibilidad del panel lateral (solo estilo; la lógica es de combate) ---------- */
+#bside .bar {
+  height: 12px;
+  margin-bottom: 4px;
+}
+#bside h3 {
+  color: var(--gold);
+  line-height: 1.5;
+}
+#bside .stats {
+  font-size: 15px;
+  color: #b9c1c6;
+}
+#bside .slot > span button {
+  font-size: 9px !important;
+  min-height: 40px !important;
+}
+#bside .slot .btns button {
+  font-size: 10px !important;
+  min-height: 40px !important;
+}
+#bside .ulist button {
+  border-left: 4px solid var(--edge);
+}
+#bside .ulist button.on {
+  border-left-color: var(--gold);
+}
+#bside .ulist .cmb-mb {
+  height: 5px;
+}
+#bside .note {
+  font-size: 14px;
+  color: #e9d59a;
+  border-left: 3px solid var(--gold);
+  padding-left: 8px;
+}
+#blog {
+  font-size: 15px;
+}
+
+/* ---------- unificación con Online (bandeja ✉, Mis partidas, invitaciones) ---------- */
+#onl-bandeja {
+  font:
+    400 12px/1 "Press Start 2P",
+    monospace;
+  min-width: 48px;
+  min-height: 44px;
+  box-shadow:
+    0 0 0 2px var(--edge),
+    0 4px 0 #000;
+}
+button.onl-mini {
+  min-height: 32px;
+  font-size: 9px;
+  padding: 4px 8px;
+}
+.onl-tabs button.on {
+  outline: 0;
+}
+.onl-capa .card {
+  box-shadow:
+    inset 0 0 0 3px var(--edge),
+    0 8px 0 #000;
+}
+#onl-inv .card {
+  box-shadow:
+    inset 0 0 0 3px #b8862b,
+    inset 0 0 0 6px #3b2716,
+    0 8px 0 #000;
+}
+
+/* ---------- móvil ---------- */
+@media (max-width: 1000px) {
+  #ifzmini {
+    top: 8px;
+    right: 8px;
+  }
+  #onl-bandeja {
+    bottom: 64px;
+  }
+  .mbtn {
+    position: sticky;
+    bottom: -14px;
+    background: var(--panel);
+    padding: 8px 0 4px;
+    margin-bottom: -4px;
+  }
+}
+@media (max-width: 640px) {
+  #res {
+    font-size: 9px;
+    gap: 4px 10px;
+    flex: 1 1 100%;
+    order: 3;
+  }
+  .ifz-r i {
+    font-size: 14px;
+  }
+  .ifz-mas {
+    min-height: 32px;
+    font-size: 9px;
+  }
+  .ifz-civ {
+    display: none;
+  }
+  .ifz-resd {
+    position: fixed;
+    top: 56px;
+    left: 8px;
+    right: 8px;
+    min-width: 0;
+  }
+  .ifz-hb button {
+    min-height: 40px;
+    min-width: 40px;
+    padding: 4px 6px;
+    font-size: 10px;
+  }
+  #hover {
+    font-size: 13px;
+  }
+  #hv {
+    order: 3;
+    flex-basis: 100%;
+    text-align: left;
+  }
+  .tabs button {
+    font-size: 11px;
+    min-height: 50px;
+  }
+  .fac.ifz-fac {
+    grid-template-columns: minmax(0, 6.6em) minmax(24px, 1fr) 2.6em minmax(0, 5em);
+    font-size: 14px;
+  }
+  .ifz-fp small {
+    display: none;
+  }
+  .ifz-menu {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ifz-sr {
+    max-width: 40%;
+  }
+  #modalc h2 {
+    font-size: 12px;
+  }
+}

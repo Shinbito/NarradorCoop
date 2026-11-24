@@ -168,15 +168,6 @@ aside {
 p {
   margin: 0 0 8px;
 }
-.tabs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 4px;
-}
-.tabs button {
-  font-size: 9px;
-  padding: 6px 2px;
-}
 .troops {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -234,8 +225,13 @@ button small {
   font-size: 9px;
   margin-top: 3px;
 }
-button:hover:not(:disabled):not(.on):not(.gold):not(.red) {
-  background: #3e505d;
+@media (hover: hover) {
+  button:hover:not(:disabled):not(.on):not(.gold):not(.red):not(.end) {
+    background: #3e505d;
+  }
+  .end:hover:not(:disabled) {
+    background: #9c3a28;
+  }
 }
 button:active:not(:disabled) {
   box-shadow: inset 3px 3px 0 #1c252c;
@@ -292,19 +288,6 @@ input {
   display: block;
   height: 100%;
 }
-.fac {
-  display: grid;
-  grid-template-columns: 110px minmax(0, 1fr) 54px;
-  gap: 8px;
-  align-items: center;
-  font-size: 15px;
-  margin: 5px 0;
-}
-.fac span:last-child {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
 .tag {
   display: inline-block;
   font:
@@ -345,7 +328,7 @@ input {
   margin-top: 6px;
 }
 .btns button {
-  min-height: 38px;
+  min-height: 40px;
   font-size: 9px;
   padding: 6px 7px;
 }
@@ -674,16 +657,14 @@ input {
   .slot {
     grid-template-columns: minmax(0, 1fr);
   }
-  .tabs button {
-    font-size: 8px;
-  }
-  .fac {
-    grid-template-columns: 88px minmax(0, 1fr) 50px;
-    font-size: 14px;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
-  * {
-    scroll-behavior: auto;
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

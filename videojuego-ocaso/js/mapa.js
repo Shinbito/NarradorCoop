@@ -152,36 +152,48 @@ function gen(seed, dim) {
     return { terr, grid, pts, adj: adj.map((s) => [...s]), seed, w: W, h: H };
   }
 }
+/* ---------- dibujo del terreno (sistema Interfaz) ----------
+   Cada casilla se pinta con ifzTileProc (procedural) o, si hay PNG en el manifest de sprites,
+   con TILE.mar / TILE.llanura / TILE.bosque / TILE.colina (T×T, sin tinte). La costa se marca siempre. */
+const IFZ_TILE = ["mar", "llanura", "bosque", "colina"];
+function ifzTileProc(c, t, X, Y, r, solo) {
+  const pk = (a) => a[Math.floor(r() * a.length)];
+  if (!t) {
+    c.fillStyle = "#22517a";
+    c.fillRect(X, Y, T, T);
+    if (r() < 0.3 || solo) {
+      c.fillStyle = "#3b76aa";
+      c.fillRect(X + 1 + Math.floor(r() * 4), Y + 1 + Math.floor(r() * 6), 3, 1);
+    }
+    return;
+  }
+  c.fillStyle = t === 3 ? "#7c8850" : "#5a983f";
+  c.fillRect(X, Y, T, T);
+  for (let k = 0; k < 4; k++) {
+    c.fillStyle = pk(["#6aae49", "#4b8434", "#64a545"]);
+    c.fillRect(X + Math.floor(r() * 8), Y + Math.floor(r() * 8), 1, 1);
+  }
+  if (t === 2) spr(c, SP.tree, X + 1 + Math.floor(r() * 2), Y + 1 + Math.floor(r() * 2), BP);
+  if (t === 3) spr(c, SP.hill, X, Y + 3, BP);
+}
 function drawBase() {
   const r = mul(MAP.seed + 7),
     { terr } = MAP,
-    pk = (a) => a[Math.floor(r() * a.length)];
+    png = typeof IFZ_SPR !== "undefined" && IFZ_SPR.m ? IFZ_TILE.map((n) => IFZ_SPR.img["TILE." + n] || null) : [];
+  if (typeof IFZ !== "undefined") IFZ.baseVer++;
+  bx.imageSmoothingEnabled = false;
   for (let y = 0; y < H; y++)
     for (let x = 0; x < W; x++) {
       const t = terr[y][x],
         X = x * T,
         Y = y * T;
-      if (!t) {
-        bx.fillStyle = "#22517a";
-        bx.fillRect(X, Y, T, T);
-        if (r() < 0.3) {
-          bx.fillStyle = "#3b76aa";
-          bx.fillRect(X + 1 + Math.floor(r() * 4), Y + 1 + Math.floor(r() * 6), 3, 1);
-        }
-        continue;
-      }
-      bx.fillStyle = t === 3 ? "#7c8850" : "#5a983f";
-      bx.fillRect(X, Y, T, T);
-      for (let k = 0; k < 4; k++) {
-        bx.fillStyle = pk(["#6aae49", "#4b8434", "#64a545"]);
-        bx.fillRect(X + Math.floor(r() * 8), Y + Math.floor(r() * 8), 1, 1);
-      }
+      if (png[t]) bx.drawImage(png[t], X, Y, T, T);
+      else ifzTileProc(bx, t, X, Y, r);
+      if (!t) continue;
       bx.fillStyle = "#d9c27c";
       if (!terr[y - 1]?.[x]) bx.fillRect(X, Y, T, 1);
       if (!terr[y + 1]?.[x]) bx.fillRect(X, Y + T - 1, T, 1);
       if (!terr[y][x - 1]) bx.fillRect(X, Y, 1, T);
       if (!terr[y][x + 1]) bx.fillRect(X + T - 1, Y, 1, T);
-      if (t === 2) spr(bx, SP.tree, X + 1 + Math.floor(r() * 2), Y + 1 + Math.floor(r() * 2), BP);
-      if (t === 3) spr(bx, SP.hill, X, Y + 3, BP);
     }
 }

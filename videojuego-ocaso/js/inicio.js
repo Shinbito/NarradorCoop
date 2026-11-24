@@ -13,9 +13,15 @@ function renderStart() {
     try {
       sv = localStorage.getItem("ocaso-save");
     } catch (e) {}
-    h = `<div class="hero"><div><h2>Ocaso del Imperio</h2><p>Año 410 d.C. Roma se desmorona. Gobierna tu dinastía, sella alianzas con bodas, sobrevive a las traiciones y lleva tus legiones a la batalla.</p>
-  <div class="g2" style="margin-top:14px"><button class="gold" data-act="s-new">Nueva campaña</button><button data-act="s-cnt" ${sv ? "" : "disabled"}>Continuar</button><button data-act="s-onl" ${net.db && net.uid ? "" : "disabled"}>Partida online</button>${G ? '<button data-act="s-bk">Volver al juego</button>' : ""}</div>
-  <p class="dim" style="margin-top:10px">${net.db && net.uid ? "Online por estaciones: partidas largas con amigos o desconocidos, por correspondencia o en tiempo real; comparte este enlace (permiso de colaborador). Los pueblos libres los lleva la IA." : "El modo online se activa cuando abres el juego publicado con tu cuenta."}</p></div><div><button class="music" data-act="music">${AU.want ? "♪ Música: sí" : "♪ Música: no"}</button></div></div>`;
+    /* resumen de la partida guardada (para el botón Continuar) */
+    let ifzSv = "";
+    try {
+      const o = sv && JSON.parse(sv);
+      if (o && o.G && CIV[o.ME]) ifzSv = `${CIV[o.ME].s} · ${typeof CAM_EST !== "undefined" && o.G.estacion != null ? CAM_EST[o.G.estacion].toLowerCase() + " de " : ""}${o.G.year}`;
+    } catch (e) {}
+    h = `<div class="hero ifz-hero"><div><h2>Ocaso del Imperio</h2><p class="ifz-lema">Año 410 d.C. Roma se desmorona. Gobierna tu dinastía, sella alianzas con bodas, sobrevive a las traiciones y lleva tus legiones a la batalla.</p>
+  <div class="ifz-menu"><button class="gold" data-act="s-new">Nueva campaña</button><button data-act="s-cnt" ${sv ? "" : "disabled"}>Continuar${ifzSv ? `<small>${esc(ifzSv)}</small>` : ""}</button><button data-act="s-onl" ${net.db && net.uid ? "" : "disabled"}>Partida online</button>${G ? '<button data-act="s-bk">Volver al juego</button>' : ""}</div>
+  <p class="dim ifz-nota">${net.db && net.uid ? "Online por estaciones: partidas largas con amigos o desconocidos, por correspondencia o en tiempo real; comparte este enlace (permiso de colaborador). Los pueblos libres los lleva la IA." : "El modo online se activa cuando abres el juego publicado con tu cuenta."}</p></div><div class="ifz-hero-b"><button data-act="ifzayuda">¿Cómo se juega?</button><button class="music" data-act="music">${AU.want ? "♪ Música: sí" : "♪ Música: no"}</button></div></div>`;
   }
   if (v === "civ") {
     /* MUNDO: dos modos. Histórico = las 7 de siempre; Leyendas = todos los pueblos, rivales a elegir */
@@ -42,11 +48,11 @@ function renderStart() {
 function mundoTarjeta(f, ley) {
   const x = CIV[f];
   if (!ley)
-    return `<button class="civ" data-act="s-civ-${f}"><i style="background:${x.c}"></i><b>${x.n}</b>${x.desc}<span class="dim">Tropas: ${x.un.i}, ${x.un.a}, ${x.un.c}</span></button>`;
+    return `<button class="civ" data-act="s-civ-${f}" style="--civ:${x.c}"><i style="background:${x.c}"></i><b>${x.n}</b>${x.desc}<span class="dim ifz-civt">${["i", "a", "c"].map((t) => `<span><img src="${icon(f, t)}" alt="">${x.un[t]}</span>`).join("")}</span></button>`;
   const sinCab = ["x", "c", "k", "m"].every((t) => x.sinTipos.includes(t)),
     tropas = ["i", "a", sinCab ? "h" : "c"].filter((t) => civPuede(f, t)),
     unicas = x.unicas.filter((k) => UN[k] && !["i", "a", "c"].includes(k)).map((k) => x.un[k] || UN[k].s);
-  return `<button class="civ mun-civ" data-act="s-civ-${f}"><i style="background:${x.c}"></i><b style="color:${x.c}">${x.n}</b>${x.desc}<span class="dim">${tropas.map((t) => `<img src="${icon(f, t)}" alt="" width="10" height="10" style="image-rendering:pixelated;vertical-align:middle"> ${x.un[t]}`).join(" · ")}${unicas.length ? `<br>Únicas: ${unicas.join(", ")}` : ""}</span>${sinCab ? '<span class="mun-sin">Sin caballos</span>' : ""}</button>`;
+  return `<button class="civ mun-civ" data-act="s-civ-${f}" style="--civ:${x.c}"><i style="background:${x.c}"></i><b style="color:${x.c}">${x.n}</b>${x.desc}<span class="dim ifz-civt">${tropas.map((t) => `<span><img src="${icon(f, t)}" alt="">${x.un[t]}</span>`).join("")}${unicas.length ? `<span class="ifz-uni">Únicas: ${unicas.join(", ")}</span>` : ""}</span>${sinCab ? '<span class="mun-sin">Sin caballos</span>' : ""}</button>`;
 }
 /* MUNDO: elección de rivales (modo leyendas) */
 function mundoVistaRivales() {
@@ -269,9 +275,15 @@ function endOnline() {
 
 /* ---------- escena del menú ---------- */
 const scx = $("scene").getContext("2d");
-function drawScene(now) {
-  const c = scx,
-    t = now / 1000;
+/* fondo del menú (cielo, sol, nubes, colinas y fortaleza); sustituible por el PNG «ESCENA.fondo» (200×112).
+   quieto: sin animación (para exportarlo) */
+function ifzEscenaFondo(c, t, quieto) {
+  const im = typeof IFZ_SPR !== "undefined" && IFZ_SPR.img["ESCENA.fondo"];
+  if (im) {
+    c.imageSmoothingEnabled = false;
+    c.drawImage(im, 0, 0, 200, 112);
+    return;
+  }
   const sky = ["#1b1430", "#2a1c44", "#46234f", "#6f2c4f", "#a23e48", "#d0623e", "#ef9a4a"];
   sky.forEach((col, i) => {
     c.fillStyle = col;
@@ -351,6 +363,11 @@ function drawScene(now) {
     c.fillRect(x + 1, y + w, 5, 3);
     c.fillRect(x + 6, y + 1 - w + 1, 2, 2);
   });
+}
+function drawScene(now) {
+  const c = scx,
+    t = reduce ? 0 : now / 1000;
+  ifzEscenaFondo(c, t);
   const off = (t * 8) % 240;
   for (let k = 0; k < 14; k++) {
     const x = Math.round(((k * 13 + off) % 240) - 30),
