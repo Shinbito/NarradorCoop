@@ -85,8 +85,11 @@ function camNombre(ej) {
 /* ---------- relaciones: quién puede pisar qué ---------- */
 const camAliado = (f, o) => f === o || (f < NF && o < NF && G.st[f] && G.st[f][o] === "alianza");
 const camGuerra = (f, o) => f !== o && (f === REB || o === REB || (G.st[f] && G.st[f][o] === "guerra"));
-function camPaso(f, o) {
+function camPaso(f, o, ej) {
   if (f === o || f === REB || o === REB) return true;
+  /* derecho de salida: si un ejército se ha quedado dentro de tierras de alguien con quien está en paz
+     (p.ej. un tercero conquistó la provincia donde estaba), puede cruzarlas para salir */
+  if (ej && MAP.grid[ej.y] && MAP.grid[ej.y][ej.x] >= 0 && G.P[MAP.grid[ej.y][ej.x]].owner === o) return true;
   if (camGuerra(f, o) || camAliado(f, o)) return true;
   return typeof dipTr === "function" && G.dip ? !!dipTr(f, o, "paso") : false;
 }
@@ -245,7 +248,7 @@ function camDijkstra(ej, o = {}) {
     pasa = new Map(),
     cc = { pr: new Map(), cz: null };
   const puede = (pid) => {
-    if (!pasa.has(pid)) pasa.set(pid, camPaso(f, G.P[pid].owner));
+    if (!pasa.has(pid)) pasa.set(pid, camPaso(f, G.P[pid].owner, ej));
     return pasa.get(pid);
   };
   dist[s] = 0;
@@ -626,7 +629,7 @@ function camRetirar(ej, dx, dy) {
         y = ej.y + ry;
       if (x < 0 || y < 0 || x >= W || y >= H || !MAP.terr[y][x] || (rx === 0 && ry === 0)) continue;
       const pid = MAP.grid[y][x];
-      if (pid < 0 || !camPaso(f, G.P[pid].owner) || camEjsEn(x, y, ej.id).some((e) => e.f !== f)) continue;
+      if (pid < 0 || !camPaso(f, G.P[pid].owner, ej) || camEjsEn(x, y, ej.id).some((e) => e.f !== f)) continue;
       const c = camCiudadEn(x, y);
       if (c && c.owner !== f) continue;
       const sc = Math.hypot(x - dx, y - dy) * 2 + (G.P[pid].owner === f ? 3 : 0) - (camZocEn(f, x, y) ? 4 : 0);
@@ -1238,7 +1241,7 @@ async function camDarPaso(ej, j, o = {}) {
     c = camCoste(f, j) * (diag ? CAM_K.diag : 1);
   if (!Number.isFinite(c) || ej.mov + 1e-9 < c) return { ok: false, parar: true, sinMov: true };
   const pid = MAP.grid[y][x];
-  if (pid < 0 || !camPaso(f, G.P[pid].owner)) return { ok: false, parar: true };
+  if (pid < 0 || !camPaso(f, G.P[pid].owner, ej)) return { ok: false, parar: true };
   const otros = camEjsEn(x, y, ej.id);
   const ene = otros.filter((e) => camGuerra(f, e.f)).sort((a, b) => pw(b.u) - pw(a.u))[0];
   if (ene) {
