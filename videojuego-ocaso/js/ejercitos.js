@@ -68,7 +68,8 @@ function camRep(o) {
   /* niebla: vh = jugadores humanos que llegan a ver el paso (la repetición de cada uno solo muestra esos) */
   if (typeof camNieblaOn === "function" && camNieblaOn() && G.human && ["mov", "ej+", "bat", "esp", "esp-"].includes(o.k)) {
     const e = o.ej != null ? camEj(o.ej) : null;
-    o.vh = G.human.filter(
+    /* ONL: en online, durante la resolución G.human son solo los que enviaron órdenes; la vista es de todos los jugadores */
+    o.vh = ((typeof onlHumanosVista === "function" && onlHumanosVista()) || G.human).filter(
       (h) =>
         h < NF &&
         ((o.f != null && camSocio(h, o.f)) ||
