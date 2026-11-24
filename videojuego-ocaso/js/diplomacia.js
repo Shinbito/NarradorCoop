@@ -37,15 +37,30 @@ const DIP_DESC = {
 /* reputación que cuesta romper cada tratado declarando la guerra */
 const DIP_ROMPER = { alianza: 25, tregua: 20, nag: 15, vasallaje: 12, rehenes: 10, comercio: 0, paso: 0 };
 /* personalidad por pueblo: agresividad, honor (cumple su palabra), negociación, codicia */
-const DIP_PERS = [
-  { agr: 0.4, hon: 0.6, neg: 0.6, cod: 0.3 },
-  { agr: 0.3, hon: 0.5, neg: 0.9, cod: 0.4 },
-  { agr: 0.6, hon: 0.5, neg: 0.5, cod: 0.5 },
-  { agr: 0.9, hon: 0.3, neg: 0.3, cod: 0.9 },
-  { agr: 0.75, hon: 0.3, neg: 0.4, cod: 0.65 },
-  { agr: 0.6, hon: 0.6, neg: 0.5, cod: 0.4 },
-  { agr: 0.5, hon: 0.65, neg: 0.7, cod: 0.5 },
-];
+/* por CIV[f].id; los que falten usan la de su pueblo pariente (civBase) */
+const DIP_PERS = {
+  occ: { agr: 0.4, hon: 0.6, neg: 0.6, cod: 0.3 },
+  ori: { agr: 0.3, hon: 0.5, neg: 0.9, cod: 0.4 },
+  vis: { agr: 0.6, hon: 0.5, neg: 0.5, cod: 0.5 },
+  hun: { agr: 0.9, hon: 0.3, neg: 0.3, cod: 0.9 },
+  van: { agr: 0.75, hon: 0.3, neg: 0.4, cod: 0.65 },
+  fra: { agr: 0.6, hon: 0.6, neg: 0.5, cod: 0.4 },
+  per: { agr: 0.5, hon: 0.65, neg: 0.7, cod: 0.5 },
+  ara: { agr: 0.55, hon: 0.5, neg: 0.6, cod: 0.85 },
+  nor: { agr: 0.85, hon: 0.45, neg: 0.3, cod: 0.7 },
+  chi: { agr: 0.35, hon: 0.6, neg: 0.85, cod: 0.45 },
+  inc: { agr: 0.5, hon: 0.7, neg: 0.5, cod: 0.4 },
+  may: { agr: 0.5, hon: 0.5, neg: 0.55, cod: 0.5 },
+  azt: { agr: 0.9, hon: 0.4, neg: 0.3, cod: 0.7 },
+  gri: { agr: 0.4, hon: 0.55, neg: 0.85, cod: 0.5 },
+  egi: { agr: 0.35, hon: 0.6, neg: 0.65, cod: 0.5 },
+  ind: { agr: 0.4, hon: 0.65, neg: 0.65, cod: 0.45 },
+  cel: { agr: 0.7, hon: 0.6, neg: 0.4, cod: 0.45 },
+  esl: { agr: 0.55, hon: 0.55, neg: 0.45, cod: 0.4 },
+  mon: { agr: 0.95, hon: 0.35, neg: 0.25, cod: 0.9 },
+};
+const dipPersBase = (f) =>
+  DIP_PERS[CIV[f] && CIV[f].id] || DIP_PERS[CIV[civBase(f)] && CIV[civBase(f)].id] || DIP_PERS.occ;
 const DIP_RASGO = {
   Ambicioso: { agr: 0.15, hon: -0.2 },
   Cruel: { agr: 0.1, neg: -0.1 },
@@ -172,7 +187,7 @@ function dipTributo(f) {
   const e = inc(f);
   return clamp(Math.round((e.gi ?? e.g) * 0.15), 5, 30);
 }
-const dipNomVas = (lord) => (lord <= 1 ? "federado (foedus)" : "tributario");
+const dipNomVas = (lord) => (["occ", "ori"].includes(CIV[lord].id) ? "federado (foedus)" : "tributario");
 function dipVasallaje(lord, vas) {
   const S = dipS(),
     old = S.tr.find((x) => x.t === "vasallaje" && x.b === vas);
@@ -191,7 +206,15 @@ function dipVasallaje(lord, vas) {
 function dipRehenElegible(f) {
   const F = G.F[f];
   return family(f)
-    .filter((c) => c.age >= 5 && c.age <= 17 && c.id !== F.heir && c.id !== F.ruler && c.dipReh == null)
+    .filter(
+      (c) =>
+        c.age >= 5 &&
+        c.age <= 17 &&
+        c.id !== F.heir &&
+        c.id !== F.ruler &&
+        c.dipReh == null &&
+        c.linaje !== false,
+    )
     .sort((a, b) => b.age - a.age)[0];
 }
 function dipRehenes(a, b) {
@@ -445,7 +468,7 @@ function dipNegarLlamada(z, aliado, enemigo, por) {
 /* ---------- aceptación: probabilidad y motivos ----------
    f propone a g. ext: {sub, contra, exOro, ofOro, exProv, cdProv, exVas, ofVas} */
 function dipPers(f) {
-  const o = { ...(DIP_PERS[f] || DIP_PERS[0]) },
+  const o = { ...dipPersBase(f) },
     r = ruler(f),
     F = G.F[f],
     m = r && DIP_RASGO[r.tr];
@@ -955,6 +978,15 @@ OC.mod("bonoBatalla", (v, c) => {
   return ok ? v * 1.06 : v;
 });
 
+/* apodo del soberano según la crónica (narrativa), si lo hay */
+function dipApodo(f) {
+  try {
+    return typeof narApodoActual === "function" ? narApodoActual(f) || "" : "";
+  } catch (e) {
+    return "";
+  }
+}
+
 /* ---------- bodas y asesinatos ---------- */
 const border = (a, b) => owned(a).some((p) => MAP.adj[p.id].some((i) => G.P[i].owner === b));
 const bachelors = (f) =>
@@ -966,6 +998,7 @@ const bachelors = (f) =>
       c.id !== G.F[f].ruler &&
       c.id !== G.F[f].heir &&
       c.dipReh == null &&
+      c.linaje !== false &&
       !c.dipCort,
   );
 function marryAcross(mine, theirs) {
@@ -1206,7 +1239,8 @@ function dipFila(g, dis) {
     open = !!dipAbiertos[g],
     oc = rl < -20 ? "neg" : rl < 20 ? "mid" : "pos";
   let h = `<details class="dip-r" data-dipg="${g}"${open ? " open" : ""}><summary><b style="color:${CIV[g].c}">${CIV[g].s}</b>${dipTag(ME, g)}<span class="dip-op ${oc}" title="Opinión">${dipSg(rl)}</span></summary>`;
-  h += `<span class="stats">${ttl(rr)} ${rr.n} (${rr.age}) · ${dipPersTxt(g)} · reputación ${S.rep[g]}${hum ? " · jugador" + (net.names[net.seats[g]] ? " " + esc(net.names[net.seats[g]]) : "") : ""}</span>`;
+  const apo = dipApodo(g);
+  h += `<span class="stats">${ttl(rr)} ${esc(rr.n)}${apo ? " " + apo : ""} (${rr.age}) · ${dipPersTxt(g)} · reputación ${S.rep[g]}${hum ? " · jugador" + (net.names[net.seats[g]] ? " " + esc(net.names[net.seats[g]]) : "") : ""}</span>`;
   h += `<div class="bar"><i style="width:${(rl + 100) / 2}%;background:${rl < -20 ? "#e0503f" : rl < 20 ? "#e8b632" : "#4caf50"}"></i></div>`;
   const mot = dipMotivosRel(ME, g).slice(0, 5);
   if (mot.length)

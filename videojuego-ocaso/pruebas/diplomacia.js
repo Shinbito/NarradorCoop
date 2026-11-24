@@ -159,6 +159,100 @@ fs.mkdirSync(capt, { recursive: true });
   ok(man.llamada && man.buzon, "llamada a las armas al jugador en su buzón");
   ok(man.reh, "intercambio de rehenes");
 
+  console.log("Mandos y gobernadores");
+  const gob = await page.evaluate(() => {
+    const r = {},
+      f = ME,
+      p = owned(f).find((q) => !q.cap) || owned(f)[0],
+      c =
+        typeof cmbCapitanSurge === "function"
+          ? cmbCapitanSurge(f, "la prueba")
+          : Object.assign(mkChar(f, "m", 30), { linaje: false, rol: "capitan", xp: 25 });
+    window.__cap = c.id;
+    Object.assign(c, { ge: 8, di: 8, ma: 7, xp: 25, lea: 70, amb: 2 });
+    r.nivelBajo = !!socPuedeGobernar(f, c, p);
+    c.xp = 60;
+    r.nivelOk = !socPuedeGobernar(f, c, p);
+    const y0 = OC.calc("rendimiento", { g: 10, fo: 10 }, { p, f }),
+      o0 = OC.calc("ordenObjetivo", 50, { p, f }),
+      k0 = OC.calc("costeUnidad", 100, { f, t: "i", p });
+    socNombrarGob(p, c);
+    const y1 = OC.calc("rendimiento", { g: 10, fo: 10 }, { p, f }),
+      o1 = OC.calc("ordenObjetivo", 50, { p, f }),
+      k1 = OC.calc("costeUnidad", 100, { f, t: "i", p });
+    r.asignado = socGob(p) === c;
+    r.efectos = y1.g > y0.g && o1 > o0 && k1 < k0;
+    r.noHeredero = !heirCands(f).includes(c) && !bachelors(f).includes(c);
+    tab = "dyn";
+    ui();
+    r.noDinastia = !document.getElementById("panel").innerHTML.includes(`heir-${c.id}"`);
+    tab = "corte";
+    ui();
+    r.enCorte = document.getElementById("panel").innerHTML.includes(`socgobc-${c.id}"`);
+    tab = "prov";
+    sel = p.id;
+    ui();
+    r.seccion = document.getElementById("panel").innerHTML.includes(`socgob-${p.id}"`);
+    /* un general de ejército en campaña no puede gobernar */
+    const S = camS(),
+      fake = { id: -99, f, gen: c.id, u: {}, x: 0, y: 0 };
+    S.ej.push(fake);
+    r.campana = !socGob(p) && /campaña/.test(socPuedeGobernar(f, c, p));
+    S.ej.splice(S.ej.indexOf(fake), 1);
+    socNombrarGob(p, c);
+    return r;
+  });
+  ok(gob.nivelBajo && gob.nivelOk, "un mando gobierna solo desde el nivel 3");
+  ok(gob.asignado && gob.efectos, "el gobernador mejora oro, orden y coste de levas de su ciudad");
+  ok(
+    gob.noHeredero && gob.noDinastia && gob.enCorte,
+    "los mandos sin linaje no heredan ni se casan; salen en la Corte",
+  );
+  ok(gob.seccion, "sección de gobernador en el panel de provincia");
+  ok(gob.campana, "quien manda un ejército en campaña no puede gobernar");
+  /* renombrar desde la interfaz (con limpieza de HTML) a un mando y a un pariente */
+  const ren = async (id, txt) => {
+    await page.evaluate(() => {
+      tab = "corte";
+      ui();
+    });
+    await page.evaluate((id) => {
+      const b = document.createElement("button");
+      b.dataset.act = "renombrar-" + id;
+      document.getElementById("panel").appendChild(b);
+      b.click();
+    }, id);
+    await page.waitForSelector("#cmbnom", { timeout: 3000 });
+    await page.fill("#cmbnom", txt);
+    await page.evaluate(() =>
+      [...document.querySelectorAll("#modalc button")].find((b) => /Aceptar/.test(b.textContent)).click(),
+    );
+    await page.waitForTimeout(100);
+    return page.evaluate((id) => G.C[id].n, id);
+  };
+  const capId = await page.evaluate(() => window.__cap);
+  const n1 = await ren(capId, 'Ataúlfo <b>"el Rojo"</b>');
+  ok(n1 === "Ataúlfo el Rojo", "renombrar un mando limpia el HTML: " + n1);
+  const parId = await page.evaluate(
+    () => family(ME).find((c) => c.linaje !== false && c.id !== G.F[ME].ruler)?.id,
+  );
+  if (parId != null) ok((await ren(parId, "Gesalico")) === "Gesalico", "renombrar a un pariente");
+  const n3 = await ren(capId, "<x>");
+  ok(n3 === "Ataúlfo el Rojo", "un nombre vacío o demasiado corto se ignora");
+  await page.evaluate(() => {
+    tab = "corte";
+    ui();
+    document.querySelector(".soc-mb")?.scrollIntoView();
+  });
+  await page.screenshot({ path: path.join(capt, "dip-mandos.png") });
+  await page.evaluate(() => {
+    sel = owned(ME).find((p) => p.gob != null)?.id ?? sel;
+    tab = "prov";
+    ui();
+    document.querySelector('[data-act^="socgob-"]')?.scrollIntoView({ block: "center" });
+  });
+  await page.screenshot({ path: path.join(capt, "dip-gobernador.png") });
+
   /* capturas de paneles */
   await page.evaluate(() => {
     dipAbiertos = {};
@@ -219,6 +313,7 @@ fs.mkdirSync(capt, { recursive: true });
         .map((f) => Object.keys(socF(f).car).length),
       hist: JSON.parse(JSON.stringify(G.dip.hist)),
       tr: G.dip.tr.length,
+      gobIA: G.P.filter((p) => p.owner !== ME && p.owner < NF && socGob(p)).length,
     }));
   const s0 = await snap();
   console.log(`Jugando ${ANIOS} años`);
@@ -274,6 +369,7 @@ fs.mkdirSync(capt, { recursive: true });
   s1.soc.forEach((l, f) => l.forEach((v, i) => (cambios += Math.abs(v - (s0.soc[f][i] ?? v)) >= 5 ? 1 : 0)));
   ok(cambios >= 8, "las lealtades de los estamentos cambian (" + cambios + " estamentos)");
   ok(s1.car.reduce((a, n) => a + n, 0) >= 2.5 * s1.car.length, "la IA llena su consejo: " + s1.car.join(","));
+  ok(s1.gobIA >= 2, "la IA nombra gobernadores (" + s1.gobIA + " ciudades)");
   ok((H.demandas || 0) >= 3, "los estamentos hacen demandas (" + (H.demandas || 0) + ")");
   console.log(
     "  complots:",
@@ -332,6 +428,75 @@ fs.mkdirSync(capt, { recursive: true });
     ui();
   });
   await page.screenshot({ path: path.join(capt, "dip-corte-final.png") });
+
+  /* Mundo de leyendas: pueblos nuevos con su personalidad, estamentos, fe y sin caballos en América */
+  console.log("Mundo de leyendas");
+  await cerrarModales();
+  const ley = await page.evaluate(async () => {
+    const ids = ["nor", "azt", "inc", "chi", "mon", "ind", "gri", "egi", "ara", "may", "cel", "esl"],
+      act = ids.map(civIdx),
+      me = act[0],
+      r = {};
+    newGame(me, cands(me)[0], { modo: "leyendas", activas: act });
+    drawBase();
+    OC.emitirSync("partidaLista");
+    r.estamentos = act.every((f) => socEstDe(f) === SOC_PUEBLO[CIV[f].id]);
+    r.clero = act.every((f) => SOC_CLE[CIV[f].rel] && SOC_FEN[CIV[f].rel]);
+    r.pers = act.every((f) => DIP_PERS[CIV[f].id]);
+    r.nombres = act
+      .map((f) =>
+        Object.keys(socF(f).e)
+          .map((k) => socNombre(f, k))
+          .join("/"),
+      )
+      .slice(0, 4);
+    const inc = civIdx("inc");
+    r.sinCaballos = civPuede(inc, socTropa(inc, ["c", "x", "m", "p", "i"]));
+    r.levas = Object.keys(socLevantados(inc, { i: 1, a: 1 })).every((t) => civPuede(inc, t) && !UN[t].merc);
+    /* favores y guerra civil en un pueblo sin caballos */
+    const p0 = owned(inc).length;
+    socFavor(inc, "ej");
+    for (const k in socF(inc).e) socFavor(inc, k);
+    r.favorOk = TYP.every((t) => civPuede(inc, t) || !(socCap(inc).u[t] > 0));
+    r.p0 = p0;
+    window.modal = () => Promise.resolve(0);
+    for (let y = 0; y < 8; y++) await yearEnd();
+    for (const t of ["dip", "corte", "dyn"]) {
+      tab = t;
+      ui();
+      r[t] = !/Error al mostrar/.test(document.getElementById("panel").innerHTML);
+    }
+    r.hist = JSON.stringify(G.dip.hist);
+    r.gobs = G.P.filter((p) => p.owner < NF && socGob(p)).length;
+    r.sinJinetes = act
+      .filter((f) => CIV[f].sinTipos)
+      .every((f) => owned(f).every((p) => TYP.every((t) => civPuede(f, t) || !(p.u[t] > 0))));
+    return r;
+  });
+  console.log("  ", ley.nombres.join(" | "), "\n  ", ley.hist);
+  ok(
+    ley.estamentos && ley.clero && ley.pers,
+    "los 12 pueblos nuevos tienen estamentos, clero y personalidad propios",
+  );
+  ok(
+    ley.sinCaballos && ley.levas && ley.favorOk,
+    "favores y alzamientos respetan civPuede y no dan mercenarios",
+  );
+  ok(ley.dip && ley.corte && ley.dyn, "los paneles funcionan en el modo leyendas");
+  ok(ley.gobs >= 2, "la IA nombra gobernadores en leyendas (" + ley.gobs + ")");
+  await page.evaluate(() => {
+    tab = "corte";
+    ui();
+  });
+  await page.screenshot({ path: path.join(capt, "dip-leyendas-corte.png") });
+  await page.evaluate(() => {
+    tab = "dip";
+    for (let g = 0; g < NF; g++) dipAbiertos[g] = false;
+    const g = G.activas.find((g) => g !== ME && alive(g));
+    if (g != null) dipAbiertos[g] = true;
+    ui();
+  });
+  await page.screenshot({ path: path.join(capt, "dip-leyendas-diplomacia.png") });
 
   const todo = [...errores, ...fallos.map((f) => "fallo: " + f)];
   console.log("\n" + (todo.length ? "ERRORES:\n" + todo.join("\n") : "OK sin errores"));

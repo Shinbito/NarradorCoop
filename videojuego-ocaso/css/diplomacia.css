@@ -135,3 +135,11 @@ b.neg {
   padding: 4px 6px;
   flex: none;
 }
+.soc-mb {
+  margin: 0;
+  flex: none;
+  flex-wrap: nowrap;
+}
+.dip-x {
+  margin-left: 4px;
+}
