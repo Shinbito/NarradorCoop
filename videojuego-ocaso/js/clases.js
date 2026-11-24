@@ -451,25 +451,39 @@ OC.accion("cmbins", () => {
 
 /* ---------- informe de batalla (modal y pestaña Ejército) ---------- */
 const cmbH = (n) => Math.round(n).toLocaleString("es");
+/* bando de cada ejército del informe (los antiguos de dos ejércitos: 0 y 1) */
+const cmbInfBando = (inf, s) => (inf.bandos ? inf.bandos[s] : s);
+const cmbInfGano = (inf, s) => s >= 0 && cmbInfBando(inf, s) === inf.gana;
 function cmbInfHtml(inf, yo) {
   if (!inf) return "";
-  const nm = (s) => (yo === s ? "Tus tropas" : CIV[inf.f[s]].s),
+  const N = inf.f.length,
+    ix = [...Array(N).keys()],
+    nm = (s) => (yo === s ? "Tus tropas" : CIV[inf.f[s]].s),
     b = inf.bajas,
-    m = (v, c) => `<b class="cmb-mb"><i style="width:${clamp(v, 0, 100)}%;background:${c}"></i></b>`;
-  let h = `<p class="dim">${inf.lugar ? inf.lugar + " · " : ""}${inf.hora}, ${inf.clima} · ${inf.terreno}${inf.fort ? " · murallas " + inf.fort : ""}${inf.asedio ? " · tras " + inf.asedio + " meses de asedio" : ""}</p>`;
-  h += `<p class="stats"><span style="color:${CIV[inf.f[0]].c}">${nm(0)}: ${cmbH(inf.n0[0])}</span> contra <span style="color:${CIV[inf.f[1]].c}">${nm(1)}: ${cmbH(inf.n0[1])}</span></p>`;
+    m = (v, c) => `<b class="cmb-mb"><i style="width:${clamp(v, 0, 100)}%;background:${c}"></i></b>`,
+    alia = (s) => {
+      const al = ix.filter((o) => o !== s && cmbInfBando(inf, o) === cmbInfBando(inf, s));
+      return al.length ? " (aliados)" : "";
+    };
+  let h = `<p class="dim">${inf.lugar ? inf.lugar + " · " : ""}${inf.hora}, ${inf.clima} · ${inf.terreno}${inf.fort ? " · murallas " + inf.fort : ""}${inf.flancos > 1 ? " · asalto por " + inf.flancos + " flancos" : ""}${inf.asedio ? " · tras " + inf.asedio + " meses de asedio" : ""}</p>`;
+  h += `<p class="stats">${ix
+    .map(
+      (s) =>
+        `<span style="color:${CIV[inf.f[s]].c}">${nm(s)}${N > 2 ? alia(s) : ""}: ${cmbH(inf.n0[s])}</span>`,
+    )
+    .join(N > 2 ? " · " : " contra ")}</p>`;
   if (inf.rondas.length)
-    h += `<ol class="cmb-ron">${inf.rondas
+    h += `<ol class="cmb-ron${N > 2 ? " cmb-ronN" : ""}">${inf.rondas
       .map(
         (r) =>
-          `<li><span class="cmb-f">${r.f}</span><span>${r.t}</span><span class="cmb-b">−${cmbH(r.b[0])} / −${cmbH(r.b[1])}</span>${m(r.m[0], CIV[inf.f[0]].c)}${m(r.m[1], CIV[inf.f[1]].c)}</li>`,
+          `<li><span class="cmb-f">${r.f}</span><span>${r.t}</span><span class="cmb-b">${ix.map((s) => "−" + cmbH(r.b[s] || 0)).join(" / ")}</span>${ix.map((s) => m(r.m[s] || 0, CIV[inf.f[s]].c)).join("")}</li>`,
       )
-      .join("")}</ol><p class="stats">Por ronda: bajas de cada bando y moral (barras).</p>`;
+      .join("")}</ol><p class="stats">Por ronda: bajas de cada ejército y moral (barras).</p>`;
   if (inf.factores.length)
-    h += `<h3>Factores decisivos</h3><ul class="cmb-fx">${inf.factores.map((x) => `<li class="${x.s === inf.gana ? "good" : "bad"}">${x.txt}</li>`).join("")}</ul>`;
+    h += `<h3>Factores decisivos</h3><ul class="cmb-fx">${inf.factores.map((x) => `<li class="${cmbInfGano(inf, x.s) ? "good" : "bad"}">${x.txt}</li>`).join("")}</ul>`;
   const bl = (s) =>
     `${nm(s)}: ${cmbH(b[s].m)} muertos, ${cmbH(b[s].h)} heridos (${cmbH(b[s].r)} vuelven a filas)`;
-  h += `<p class="stats">${bl(0)}<br>${bl(1)}</p>`;
+  h += `<p class="stats">${ix.map(bl).join("<br>")}</p>`;
   return h;
 }
 function cmbGuardarInf(inf) {
@@ -485,7 +499,7 @@ OC.accion(
     if (!inf) return false;
     const s = inf.f.indexOf(ME);
     modal(
-      `${inf.gana === s ? "Victoria" : s < 0 ? "Batalla" : "Derrota"} en ${inf.lugar || "campo abierto"} (${inf.anio})`,
+      `${cmbInfGano(inf, s) ? "Victoria" : s < 0 ? "Batalla" : "Derrota"} en ${inf.lugar || "campo abierto"} (${inf.anio})`,
       cmbInfHtml(inf, s),
       [{ t: "Cerrar", cls: "gold" }],
     );
@@ -594,13 +608,31 @@ OC.on("batallaResuelta", (d) => {
   if (!d || !G) return;
   const S = cmbS(),
     inf = d.informe,
-    n = inf ? inf.n0[0] + inf.n0[1] : (tot(d.s0 || {}) + tot(d.d0 || {})) * SPU,
-    k = clamp(n / 200, 0.5, 2);
+    n = inf ? inf.n0.reduce((a, b) => a + b, 0) : (tot(d.s0 || {}) + tot(d.d0 || {})) * SPU,
+    k = clamp(n / 200, 0.5, 2),
+    /* batallas de varios ejércitos (d.ejs) o de dos (atacante/defensor) */
+    bI = inf && d.multi && inf.f && inf.gens ? inf.bandos || inf.f.map((_, i) => i) : null,
+    lados = d.ejs
+      ? d.ejs.map((e, i) => ({ gid: e.gen, f: e.f, gana: !!e.gana, def: d.defensor === e.f && i > 0 }))
+      : bI /* la emite quien la llama (Campaña) con nuestro informe: un general por ejército */
+        ? inf.f.map((f, i) => ({
+            gid: inf.gens[i],
+            f,
+            gana: bI[i] === inf.gana,
+            def: inf.def != null ? bI[i] === bI[inf.def] : bI[i] !== bI[0],
+          }))
+        : [0, 1].map((l) => ({
+            gid: l ? d.gD : d.gA,
+            f: l ? d.defensor : d.atacante,
+            gana: l ? !d.gana : !!d.gana,
+            def: l === 1,
+          }));
   if (!n) return;
-  for (const lado of [0, 1]) {
-    const gid = lado ? d.gD : d.gA,
-      f = lado ? d.defensor : d.atacante,
-      gana = lado ? !d.gana : !!d.gana,
+  for (const L of lados) {
+    const gid = L.gid,
+      f = L.f,
+      gana = L.gana,
+      lado = L.def ? 1 : 0,
       c = gid != null ? G.C[gid] : null;
     if (c && c.alive !== false) {
       cmbGanarXp(c, (gana ? 22 : 8) * k, gana ? 3 * k : inf && inf.fin === "retirada" ? -3 : -2);
@@ -718,8 +750,11 @@ OC.panel({
         .map((x, i) => {
           if (!x.f.includes(ME)) return "";
           const s = x.f.indexOf(ME),
-            w = x.gana === s;
-          return `<button data-act="cmbinf-${i}" class="${w ? "cmb-w" : "cmb-l"}">${w ? "Victoria" : "Derrota"} · ${x.lugar || "campo abierto"} (${x.anio})<span class="stats">contra ${CIV[x.f[1 - s]].s} · ${x.rondas.length} rondas</span></button>`;
+            w = cmbInfGano(x, s),
+            otros = x.f
+              .filter((f, i) => i !== s && cmbInfBando(x, i) !== cmbInfBando(x, s))
+              .map((f) => CIV[f].s);
+          return `<button data-act="cmbinf-${i}" class="${w ? "cmb-w" : "cmb-l"}">${w ? "Victoria" : "Derrota"} · ${x.lugar || "campo abierto"} (${x.anio})<span class="stats">contra ${otros.join(" y ")} · ${x.rondas.length} rondas</span></button>`;
         })
         .join("")}</div>`;
     const cap = G.P[G.F[ME].capId] || null,
