@@ -13,6 +13,10 @@ const ECO_RES = [
   { id: "sal", nombre: "Sal", icono: "◇", base: 5, lujo: true },
   { id: "vino", nombre: "Vino", icono: "⚱", base: 6, lujo: true },
   { id: "seda", nombre: "Seda", icono: "✦", base: 12, lujo: true },
+  { id: "incienso", nombre: "Incienso", icono: "∴", base: 9, lujo: true },
+  { id: "especias", nombre: "Especias", icono: "✺", base: 10, lujo: true },
+  { id: "ambar", nombre: "Ámbar", icono: "◆", base: 8, lujo: true },
+  { id: "cacao", nombre: "Cacao", icono: "●", base: 7, lujo: true },
 ];
 ECO_RES.forEach((r) => OC.recurso({ id: r.id, nombre: r.nombre, icono: r.icono }));
 
@@ -30,7 +34,113 @@ const ECO_ESP = {
   vino: { n: "Viñedos", d: "+2 vino", y: { vino: 2 }, w: [0, 0.8, 0.2, 0.9] },
   seda: { n: "Talleres de seda", d: "+1 seda, +1 oro", y: { seda: 1, g: 1 }, w: [0, 0.3, 0.1, 0.1] },
   puerto: { n: "Puerto franco", d: "+2 oro, +1 ruta comercial", y: { g: 2 }, w: [0, 0, 0, 0], costa: 1 },
+  /* propias de un pueblo: solo aparecen en su comarca (provincias más cercanas a su capital) */
+  laca: { n: "Talleres de laca", d: "+3 oro", y: { g: 3 }, w: [0, 0.5, 0.7, 0.3], civ: ["chi"] },
+  cacao: {
+    n: "Huertos de cacao",
+    d: "+2 cacao",
+    y: { cacao: 2 },
+    w: [0, 0.7, 1.2, 0.2],
+    civ: ["may", "azt"],
+  },
+  chinampas: { n: "Chinampas", d: "+5 comida", y: { fo: 5 }, w: [0, 1, 0.2, 0], costa: 0.4, civ: ["azt"] },
+  terrazas: { n: "Terrazas de cultivo", d: "+4 comida", y: { fo: 4 }, w: [0, 0.2, 0.3, 2], civ: ["inc"] },
+  llamas: {
+    n: "Rebaños de llamas",
+    d: "+2 comida, +2 oro",
+    y: { fo: 2, g: 2 },
+    w: [0, 0.6, 0, 1.4],
+    civ: ["inc"],
+  },
+  incienso: {
+    n: "Caminos del incienso",
+    d: "+2 incienso",
+    y: { incienso: 2 },
+    w: [0, 1, 0.2, 0.8],
+    civ: ["ara", "egi"],
+  },
+  arabes: { n: "Caballos árabes", d: "+3 caballos", y: { caballos: 3 }, w: [0, 1.5, 0, 0.5], civ: ["ara"] },
+  papiro: { n: "Papiros del delta", d: "+3 oro", y: { g: 3 }, w: [0, 1, 0.3, 0], costa: 0.5, civ: ["egi"] },
+  nilo: { n: "Graneros del Nilo", d: "+6 comida", y: { fo: 6 }, w: [0, 2, 0, 0], civ: ["egi"] },
+  especias: {
+    n: "Especierías",
+    d: "+2 especias",
+    y: { especias: 2 },
+    w: [0, 0.8, 1, 0.3],
+    costa: 0.6,
+    civ: ["ind"],
+  },
+  algodon: {
+    n: "Algodonales",
+    d: "+2 oro, +1 comida",
+    y: { g: 2, fo: 1 },
+    w: [0, 1.5, 0.1, 0.1],
+    civ: ["ind"],
+  },
+  ambar: {
+    n: "Costas del ámbar",
+    d: "+2 ámbar",
+    y: { ambar: 2 },
+    w: [0, 0.2, 0.4, 0],
+    costa: 1.5,
+    civ: ["nor", "esl"],
+  },
+  pieles: {
+    n: "Tramperos",
+    d: "+2 oro, +1 madera",
+    y: { g: 2, madera: 1 },
+    w: [0, 0.1, 2, 0.4],
+    civ: ["nor", "esl"],
+  },
+  estepa: {
+    n: "Pastos de la estepa",
+    d: "+3 caballos",
+    y: { caballos: 3 },
+    w: [0, 2.5, 0, 0.4],
+    civ: ["mon", "hun"],
+  },
+  olivar: {
+    n: "Olivares",
+    d: "+2 oro, +2 comida",
+    y: { g: 2, fo: 2 },
+    w: [0, 0.8, 0.2, 1.2],
+    civ: ["gri", "occ", "ori"],
+  },
+  estano: {
+    n: "Minas de estaño",
+    d: "+1 hierro, +2 oro",
+    y: { hierro: 1, g: 2 },
+    w: [0, 0.1, 0.4, 1.8],
+    civ: ["cel"],
+  },
 };
+/* sabor económico de cada pueblo (por CIV[f].id): esp = multiplicador de peso de cada especialidad en
+   su comarca; ini = existencias iniciales; com = afán comercial de su IA (rutas y compras de lujo) */
+const ECO_CIV = {
+  occ: { esp: { vino: 1.5, olivar: 1, cantera: 1.2 }, ini: {}, com: 1 },
+  ori: { esp: { seda: 2, puerto: 1.5, olivar: 1 }, ini: { seda: 4 }, com: 1.3 },
+  vis: { esp: { trigo: 1.3, caballos: 1.2 }, ini: {}, com: 0.9 },
+  hun: { esp: { caballos: 2, estepa: 1 }, ini: { caballos: 12 }, com: 0.6 },
+  van: { esp: { puerto: 1.6, pesca: 1.3 }, ini: {}, com: 1.2 },
+  fra: { esp: { madera: 1.4, hierro: 1.3, trigo: 1.2 }, ini: {}, com: 0.9 },
+  per: { esp: { seda: 1.5, caballos: 1.5, oro: 1.3 }, ini: { seda: 4 }, com: 1.1 },
+  ara: { esp: { incienso: 1, arabes: 1, puerto: 1.3 }, ini: { incienso: 6, caballos: 8 }, com: 1.4 },
+  nor: { esp: { ambar: 1, pieles: 1, pesca: 1.6, madera: 1.3 }, ini: { ambar: 4 }, com: 0.8 },
+  chi: { esp: { seda: 4, laca: 1, trigo: 1.3 }, ini: { seda: 8 }, com: 1.2 },
+  inc: { esp: { terrazas: 1, llamas: 1, oro: 1.6 }, ini: {}, com: 0.7 },
+  may: { esp: { cacao: 1.2, madera: 1.2 }, ini: { cacao: 6 }, com: 1 },
+  azt: { esp: { cacao: 1, chinampas: 1 }, ini: { cacao: 4 }, com: 1 },
+  gri: { esp: { olivar: 1.2, vino: 2, puerto: 1.6 }, ini: { vino: 6 }, com: 1.4 },
+  egi: { esp: { nilo: 1, papiro: 1, incienso: 0.6 }, ini: { incienso: 2 }, com: 1.2 },
+  ind: { esp: { especias: 1.2, algodon: 1 }, ini: { especias: 6 }, com: 1.2 },
+  cel: { esp: { estano: 1, pesca: 1.2, caballos: 1.1 }, ini: {}, com: 0.8 },
+  esl: { esp: { pieles: 1, ambar: 0.7, madera: 1.5 }, ini: {}, com: 0.8 },
+  mon: { esp: { estepa: 1.2, caballos: 2 }, ini: { caballos: 14 }, com: 0.6 },
+};
+const ecoCiv = (f) => (CIV[f] && ECO_CIV[CIV[f].id]) || { esp: {}, ini: {}, com: 1 };
+/* pueblos sin caballos (América): ni los crían ni los necesitan */
+const ecoSinCaballos = (f) => !!(CIV[f] && (CIV[f].sinTipos || []).includes("caballos"));
+const ECO_CABALLAR = ["caballos", "arabes", "estepa"];
 /* constantes de equilibrio */
 const ECO_IMP = 0.38, // oro de impuesto por millar de almas (impuestos normales)
   ECO_COS = 0.24, // comida por millar de almas
@@ -117,34 +227,74 @@ function ecoCapacidad(p, E = ecoE()) {
 function ecoIniProv(E) {
   E.esp = E.esp && E.esp.length === G.P.length ? E.esp : [];
   E.pob = E.pob && E.pob.length === G.P.length ? E.pob : [];
+  /* comarca cultural: el pueblo cuya capital queda más cerca de la provincia */
+  const caps = ecoCapitales(),
+    rng = [],
+    nuevas = [],
+    pesos = [];
   for (const p of G.P) {
-    const r = mul(((G.seed | 0) + p.id * 9973 + 17) | 0),
+    const r = (rng[p.id] = mul(((G.seed | 0) + p.id * 9973 + 17) | 0)),
       tr = ecoTerreno(p.id);
-    if (!E.esp[p.id]) {
-      const ops = Object.entries(ECO_ESP).map(([k, e]) => [
-        k,
-        e.w[1] * tr.s[1] + e.w[2] * tr.s[2] + e.w[3] * tr.s[3] + (e.costa ? (tr.costa ? e.costa : 0) : 0),
-      ]);
-      let x = r() * ops.reduce((s, o) => s + o[1], 0);
-      E.esp[p.id] = (ops.find((o) => (x -= o[1]) < 0) || ops[0])[0];
+    if (E.esp[p.id]) continue;
+    let cf = -1,
+      bd = 1e9;
+    for (const [f, q] of caps) {
+      const d = (q.x - p.x) ** 2 + (q.y - p.y) ** 2;
+      if (d < bd) {
+        bd = d;
+        cf = f;
+      }
     }
-    if (!(E.pob[p.id] > 0)) E.pob[p.id] = Math.round(ecoCapacidad(p, E) * (0.62 + r() * 0.16) * 10) / 10;
+    const cid = cf >= 0 ? CIV[cf].id : null,
+      sab = cf >= 0 ? ecoCiv(cf).esp : {},
+      sinCab = cf >= 0 && ecoSinCaballos(cf);
+    const ops = Object.entries(ECO_ESP).map(([k, e]) => {
+      if (e.civ && !e.civ.includes(cid)) return [k, 0];
+      if (sinCab && ECO_CABALLAR.includes(k)) return [k, 0];
+      const w =
+        e.w[1] * tr.s[1] + e.w[2] * tr.s[2] + e.w[3] * tr.s[3] + (e.costa ? (tr.costa ? e.costa : 0) : 0);
+      return [k, w * (sab[k] ?? 1) * (e.civ ? 1.6 : 1)];
+    });
+    let x = r() * ops.reduce((s, o) => s + o[1], 0);
+    E.esp[p.id] = (ops.find((o) => (x -= o[1]) < 0) || ops[0])[0];
+    nuevas.push([p, cf]);
+    pesos[p.id] = Object.fromEntries(ops);
   }
+  /* cada pueblo tiene al menos una especialidad «de firma» en su comarca (fuera de la capital) */
+  for (const [f, cap] of caps) {
+    const firma = Object.keys(ecoCiv(f).esp).filter(
+      (k) => ECO_ESP[k] && ((ECO_ESP[k].civ || []).includes(CIV[f].id) || ecoCiv(f).esp[k] >= 2),
+    );
+    const reg = nuevas.filter(([p, cf]) => cf === f && p !== cap).map(([p]) => p);
+    if (!firma.length || !reg.length || reg.some((p) => firma.includes(E.esp[p.id]))) continue;
+    let mejor = null;
+    for (const p of reg)
+      for (const k of firma)
+        if (!mejor || (pesos[p.id][k] || 0) > mejor[2]) mejor = [p, k, pesos[p.id][k] || 0];
+    if (mejor && mejor[2] > 0) E.esp[mejor[0].id] = mejor[1];
+  }
+  for (const p of G.P)
+    if (!(E.pob[p.id] > 0))
+      E.pob[p.id] = Math.round(ecoCapacidad(p, E) * (0.62 + rng[p.id]() * 0.16) * 10) / 10;
   for (let f = 0; f < NF; f++) {
     const F = G.F[f];
     if (!F) continue;
     F.res = F.res || {};
-    const ini = {
-      madera: 10,
-      piedra: 10,
-      hierro: 6,
-      caballos: f === 3 ? 12 : 4,
-      sal: 0,
-      vino: 0,
-      seda: f === 1 || f === 6 ? 4 : 0,
-    };
-    for (const k in ini) if (F.res[k] === undefined) F.res[k] = ini[k];
+    const ini = { madera: 10, piedra: 10, hierro: 6, caballos: ecoSinCaballos(f) ? 0 : 4 };
+    Object.assign(ini, ecoCiv(f).ini);
+    for (const r of ECO_RES) if (F.res[r.id] === undefined) F.res[r.id] = ini[r.id] || 0;
   }
+}
+/* [[f, provincia capital]] de los pueblos que juegan (vacío si aún no hay capitales) */
+function ecoCapitales() {
+  const l = [];
+  for (let f = 0; f < NF; f++) {
+    const F = G.F[f];
+    if (!F || F.ausente || F.capId == null || !G.P[F.capId]) continue;
+    if (typeof civActiva === "function" && !civActiva(f)) continue;
+    l.push([f, G.P[F.capId]]);
+  }
+  return l;
 }
 const ecoPob = (p) => {
   const E = ecoE();
@@ -160,10 +310,15 @@ function ecoRecursoEsp(p) {
   const y = ecoEspecialidad(p).y || {};
   return ECO_RES.map((r) => r.id).find((k) => y[k]) || null;
 }
+/* monturas que gastan caballos (combate marca UN[t].caballo; los camellos y elefantes no) */
 const ecoMontada = (t) => {
   const u = UN[t];
-  return t === "c" || !!(u && (u.montada || u.mont || u.mv >= 4));
+  if (!u) return false;
+  if (u.caballo !== undefined || u.rol) return !!u.caballo;
+  return t === "c" || !!(u.montada || u.mont || u.mv >= 4);
 };
+/* ejércitos de campaña de f (G.cam.ej); vacío si campaña no está */
+const ecoEjercitos = (f) => (G && G.cam && typeof camEjDe === "function" ? camEjDe(f) : []);
 
 /* ---------- rendimiento de una provincia ---------- */
 function ecoDesglose(p) {
@@ -214,7 +369,8 @@ function yields(p) {
 /* ---------- mantenimiento ---------- */
 function ecoMant(f, t) {
   const u = UN[t] || {},
-    base = { comida: u.food ?? 1, oro: (u.cost ?? 10) * ECO_SOLDADA * ecoF(f).infl };
+    /* los mercenarios no cobran soldada: les paga su contrato (mercenarios.js, cada estación) */
+    base = { comida: u.food ?? 1, oro: u.merc ? 0 : (u.cost ?? 10) * ECO_SOLDADA * ecoF(f).infl };
   /* OC 'mantenimientoTropa': {comida, oro} por unidad y año. ctx {f, t} */
   const m = OC.calc("mantenimientoTropa", base, { f, t }) || base;
   return { comida: +m.comida || 0, oro: +m.oro || 0 };
@@ -236,9 +392,10 @@ function ecoBalance(f) {
     ids = ECO_RES.map((r) => r.id),
     b = {
       ing: { imp: 0, mer: 0, cap: 0, esp: 0, rut: 0, otr: 0 },
-      gas: { tro: 0, edi: 0, int: 0 },
+      gas: { tro: 0, edi: 0, int: 0, camp: 0, merc: 0 },
       fo: 0,
       up: 0,
+      upCamp: 0,
       prod: {},
       cons: {},
       res: {},
@@ -275,6 +432,28 @@ function ecoBalance(f) {
     }
     for (const k in BLD) b.gas.edi += (+p[k] || 0) * ECO_EDI * S.infl;
   }
+  /* ejércitos en campaña y contratos mercenarios: los cobra campaña cada estación (aquí, su año entero) */
+  for (const e of ecoEjercitos(f)) {
+    let propia = true;
+    try {
+      const q = camProv(e);
+      propia = !q || camPropia(f, q.owner);
+    } catch (_) {}
+    for (const t in e.u) {
+      const n = +e.u[t] || 0;
+      if (!n || !UN[t]) continue;
+      const m = mant[t] || (mant[t] = ecoMant(f, t));
+      b.gas.camp += n * m.oro;
+      if (propia) b.upCamp += n * m.comida;
+      if (UN[t].asedio) continue;
+      b.tropas += n;
+      if (ecoMontada(t)) b.montadas += n;
+    }
+  }
+  if (G.cam && typeof mercS === "function" && typeof mercPago === "function")
+    for (const c of mercS().con || [])
+      if (c.f === f)
+        b.gas.merc += 4 * mercPago(c.t, typeof mercCuenta === "function" ? mercCuenta(f, c.t) : c.n || 0);
   if (typeof comBalanceRutas === "function") comBalanceRutas(f, b);
   /* "otros" = lo que añaden los modificadores de 'rendimiento'; el redondeo se lo quedan los impuestos */
   b.ing.otr = Math.round(crudo - b.ing.imp - b.ing.mer - b.ing.cap - b.ing.esp);
@@ -283,21 +462,30 @@ function ecoBalance(f) {
   b.gas.tro = Math.round(b.gas.tro);
   b.gas.edi = Math.round(b.gas.edi);
   b.gas.int = Math.ceil(S.deuda * ECO_INT);
+  b.gas.camp = Math.round(b.gas.camp);
+  b.gas.merc = Math.round(b.gas.merc);
   b.gi = Object.values(b.ing).reduce((s, v) => s + v, 0);
-  b.gg = b.gas.tro + b.gas.edi + b.gas.int;
+  b.gg = b.gas.tro + b.gas.edi + b.gas.int + b.gas.camp + b.gas.merc;
   b.g = b.gi - b.gg;
   b.fo = Math.round(b.fo);
-  b.up = Math.round(b.up);
+  b.upCamp = Math.round(b.upCamp);
+  b.up = Math.round(b.up) + b.upCamp;
   b.net = b.fo - b.up;
+  /* lo que cobra la economía al cerrar el año (sin lo que campaña cobra por estación) */
+  b.gAnual = b.g + b.gas.camp + b.gas.merc;
+  b.netAnual = b.net + b.upCamp;
   /* consumos: el ejército gasta hierro y caballos; la corte, bienes de lujo */
   b.cons.hierro += Math.floor(b.tropas / 15);
   b.cons.caballos += Math.floor(b.montadas / 5);
-  const nl = ecoNecLujo(f);
-  for (const r of ECO_RES)
-    if (r.lujo && OC.saldo(f, r.id) + b.prod[r.id] >= nl) {
-      b.cons[r.id] += nl;
-      b.lujo++;
-    }
+  /* la corte disfruta como mucho tres lujos: los más abundantes */
+  const nl = ecoNecLujo(f),
+    hay = (r) => OC.saldo(f, r.id) + b.prod[r.id];
+  for (const r of ECO_RES.filter((x) => x.lujo && hay(x) >= nl)
+    .sort((x, y) => hay(y) - hay(x))
+    .slice(0, 3)) {
+    b.cons[r.id] += nl;
+    b.lujo++;
+  }
   for (const k of ids) b.res[k] = b.prod[k] - Math.min(b.cons[k], OC.saldo(f, k) + b.prod[k]);
   b.granero = ecoGranero(f);
   return b;
@@ -339,9 +527,14 @@ const ecoLevas = (f) => Math.round(owned(f).reduce((s, p) => s + ecoPob(p) * eco
 function ecoPresionLevas(f) {
   const lv = ecoLevas(f);
   if (!lv) return 0;
-  const tr = owned(f).reduce((s, p) => s + Object.values(p.u).reduce((a, v) => a + (+v || 0), 0), 0),
-    x = tr / lv;
+  const x = ecoTropasDe(f) / lv;
   return x > 0.8 ? Math.min(0.8, (x - 0.8) * 1.2) : 0;
+}
+/* hombres en armas de f: guarniciones y ejércitos en campaña (sin máquinas de asedio) */
+function ecoTropasDe(f) {
+  const n = (u) =>
+    Object.entries(u || {}).reduce((s, [t, v]) => s + (UN[t] && UN[t].asedio ? 0 : +v || 0), 0);
+  return owned(f).reduce((s, p) => s + n(p.u), 0) + ecoEjercitos(f).reduce((s, e) => s + n(e.u), 0);
 }
 /* tasa anual de crecimiento (fracción) de una provincia */
 function ecoTasa(p) {
@@ -370,7 +563,7 @@ function ecoCrecer(p) {
 /* pérdida de población por guerra o desastre (fracción) */
 function ecoDiezmar(p, fr) {
   const E = ecoE();
-  E.pob[p.id] = Math.max(1, Math.round(ecoPob(p) * (1 - fr) * 10) / 10);
+  E.pob[p.id] = clamp(Math.round(ecoPob(p) * (1 - fr) * 10) / 10, 1, Math.max(1, ecoCapacidad(p) * 1.15));
 }
 
 /* ---------- orden público y ánimo del pueblo ----------
@@ -504,7 +697,8 @@ function ecoCausasBase(p) {
     "Enemigos en la frontera",
     f < NF && hostile(p, f).some((q) => q.owner !== REB && tot(q.u) >= 4) ? -4 : 0,
   );
-  add("Saqueos y batallas", E.saq[p.id] >= G.year - 1 ? -6 : 0);
+  add("Saqueos y batallas", ecoSaqueada(p) ? -6 : 0);
+  add("Ciudad sitiada", G.cam && G.cam.as && G.cam.as[p.id] ? -5 : 0);
   add("Hacinamiento", ecoPob(p) > ecoCapacidad(p) ? -4 : 0);
   for (const x of ecoEfectos(p)) add(x.t, x.o);
   return c;
@@ -515,6 +709,22 @@ function ordTarget(p) {
   const base = 55 + ecoCausasBase(p).reduce((s, x) => s + x.valor, 0);
   /* OC 'ordenObjetivo': orden hacia el que tiende la provincia. ctx {p, f} */
   return clamp(OC.calc("ordenObjetivo", base, { p, f }), 0, 100);
+}
+/* batalla o saqueo en la provincia este año o el anterior (propio o de los campamentos de campaña) */
+function ecoSaqueada(p) {
+  const E = ecoE(),
+    cs = G.cam && G.cam.saq && G.cam.saq[p.id];
+  return E.saq[p.id] >= G.year - 1 || (cs != null && parseInt(cs, 10) >= G.year - 1);
+}
+/* Saqueo de una comarca (para campaña): población, orden y memoria del ánimo. Devuelve el botín
+   sugerido en oro (2 + 0,45 por millar de almas). */
+function ecoSaqueo(p, fr = 0.02, orden = 6) {
+  if (!G || !p) return 0;
+  const botin = Math.round(2 + ecoPob(p) * 0.45);
+  ecoDiezmar(p, fr);
+  p.order = clamp(p.order - orden, 0, 100);
+  ecoE().saq[p.id] = G.year;
+  return botin;
 }
 /* reparte lo que añaden los modificadores de 'ordenObjetivo' según el sistema que los registró */
 const ECO_ORIGEN = [
@@ -715,14 +925,19 @@ function ecoPenaDeuda(f) {
 /* ---------- pérdidas de tropas (hambre, impagos, bancarrota, licenciamiento) ---------- */
 function ecoDesercion(f, fr) {
   let lost = 0;
-  for (const p of owned(f))
-    for (const t in p.u) {
-      const n = +p.u[t] || 0,
+  const quitar = (u) => {
+    for (const t in u) {
+      if (UN[t] && UN[t].asedio) continue;
+      const n = +u[t] || 0,
         x = n * fr,
         l = Math.min(n, Math.floor(x) + (R() < x % 1 ? 1 : 0));
-      p.u[t] = n - l;
+      u[t] = n - l;
       lost += l;
     }
+  };
+  for (const p of owned(f)) quitar(p.u);
+  /* también desertan de los ejércitos en campaña */
+  for (const e of ecoEjercitos(f)) if (e.u) quitar(e.u);
   return lost;
 }
 function ecoCrisis(f, tipo, extra = {}) {
@@ -740,14 +955,14 @@ function economy(f) {
   S.gi = b.gi;
   S.lujo = b.lujo;
   S.lev = ecoPresionLevas(f);
-  /* oro */
-  F.gold += b.g;
+  /* oro (la soldada de los ejércitos en campaña y los contratos mercenarios ya los cobra campaña) */
+  F.gold += b.gAnual;
   /* recursos, con tope de almacén */
   const tope = ecoTope(f);
   F.res = F.res || {};
   for (const r of ECO_RES) F.res[r.id] = clamp(Math.floor(OC.saldo(f, r.id) + b.res[r.id]), 0, tope);
   /* comida: hambre o grano que se pudre por falta de graneros */
-  F.food += b.net;
+  F.food += b.netAnual;
   if (S.hambre > 0) S.hambre--;
   if (F.food < 0) {
     const lost = ecoDesercion(f, 0.15);
@@ -1104,7 +1319,7 @@ OC.mod(
     let m = S.infl || 1;
     if (ecoMontada(t)) {
       const c = OC.saldo(f, "caballos");
-      m *= c >= 6 ? 0.88 : c <= 0 ? 1.2 : 1;
+      if (!ecoSinCaballos(f)) m *= c >= 6 ? 0.88 : c <= 0 ? 1.2 : 1;
     } else {
       const h = OC.saldo(f, "hierro");
       m *= h >= 10 ? 0.92 : h <= 0 ? 1.12 : 1;
@@ -1270,12 +1485,20 @@ function ecoVistaBalance(b, dis) {
     S = ecoF(ME),
     fila = (t, v, tt = "") => (v ? `<li title="${tt}"><span>${t}</span><b>${v}</b></li>` : "");
   let h = `<div class="eco-bal"><ul><li class="eco-cab"><span>Ingresos</span><b>${b.gi}</b></li>${fila("Impuestos", b.ing.imp, "Según la población y el nivel de impuestos")}${fila("Mercados", b.ing.mer)}${fila("Capital", b.ing.cap)}${fila("Especialidades", b.ing.esp)}${fila("Rutas", b.ing.rut)}${fila("Otros", b.ing.otr, "Técnicas, sucesos y otros")}</ul>`;
-  h += `<ul><li class="eco-cab"><span>Gastos</span><b>${b.gg}</b></li>${fila("Soldada", b.gas.tro, "Mantenimiento en oro de las tropas")}${fila("Edificios", b.gas.edi)}${fila("Intereses", b.gas.int, "8% anual de la deuda")}</ul></div>`;
+  h += `<ul><li class="eco-cab"><span>Gastos</span><b>${b.gg}</b></li>${fila("Soldada", b.gas.tro, "Mantenimiento en oro de las tropas")}${fila("Edificios", b.gas.edi)}${fila("Intereses", b.gas.int, "8% anual de la deuda")}${fila("En campaña", b.gas.camp, "Soldada de los ejércitos en campaña: se paga cada estación")}${fila("Mercenarios", b.gas.merc, "Contratos mercenarios: se pagan cada estación")}</ul></div>`;
   h += `<p class="eco-neto">Saldo anual <b class="${b.g < 0 ? "eco-dn" : "eco-up"}">${ecoSig(b.g)} oro</b> · víveres <b class="${b.net < 0 ? "eco-dn" : "eco-up"}">${ecoSig(b.net)}</b> <span class="stats">(${b.fo} cosecha − ${b.up} raciones)</span></p>`;
-  h += `<h3>Almacenes</h3><div class="eco-res">${ECO_RES.map((r) => {
-    const a = b.res[r.id] || 0;
-    return `<div title="${r.nombre}: producción ${b.prod[r.id]}, consumo ${b.cons[r.id]}"><i>${r.icono}</i><b>${Math.floor(OC.saldo(ME, r.id))}</b><small class="${a < 0 ? "eco-dn" : ""}">${a ? ecoSig(a) : "·"}</small></div>`;
-  }).join("")}</div>`;
+  h += `<h3>Almacenes</h3><div class="eco-res">${ECO_RES.filter(
+    (r) =>
+      OC.saldo(ME, r.id) > 0 ||
+      b.res[r.id] ||
+      b.prod[r.id] ||
+      !(r.lujo || (r.id === "caballos" && ecoSinCaballos(ME))),
+  )
+    .map((r) => {
+      const a = b.res[r.id] || 0;
+      return `<div title="${r.nombre}: producción ${b.prod[r.id]}, consumo ${b.cons[r.id]}"><i>${r.icono}</i><b>${Math.floor(OC.saldo(ME, r.id))}</b><small class="${a < 0 ? "eco-dn" : ""}">${a ? ecoSig(a) : "·"}</small></div>`;
+    })
+    .join("")}</div>`;
   const lv = ecoLevas(ME);
   h += `<p class="stats">${ecoN(b.pob)} mil almas · levas ${b.tropas}/${lv}${b.tropas > lv * 0.8 ? ' <b class="eco-dn">agotadas</b>' : ""} · lujos ${b.lujo}/3${S.hambre ? ' · <b class="eco-dn">hambre</b>' : ""}</p>`;
   h += ecoVistaAnimo();

@@ -220,13 +220,16 @@ OC.on("guerraDeclarada", () => G && comRevisarRutas());
 /* ---------- IA: mercado y rutas ---------- */
 function comIA(f) {
   const F = G.F[f],
-    b = ecoBalance(f);
+    b = ecoBalance(f),
+    sab = ecoCiv(f),
+    sinCab = ecoSinCaballos(f);
   /* hambre a la vista: comprar grano (caro solo si el hambre es inminente) */
   for (let k = 0; k < 4 && F.food + b.net * 2 < 0; k++)
     if ((F.food + b.net >= 0 && comPrecio("comida") > 1.8) || !comComprar(f, "comida")) break;
   /* vender excedentes, sin malvender */
   for (const r of ECO_RES) {
-    const res = r.lujo ? ecoNecLujo(f) * 3 : r.id === "caballos" ? 12 : 25;
+    /* los pueblos sin caballos venden todos los que tengan */
+    const res = r.lujo ? ecoNecLujo(f) * 3 : r.id === "caballos" ? (sinCab ? 0 : 12) : 25;
     for (let k = 0; k < 4 && OC.saldo(f, r.id) - comLote(r.id) >= res && comPrecio(r.id) >= r.base * 0.7; k++)
       if (!comVender(f, r.id)) break;
   }
@@ -234,12 +237,19 @@ function comIA(f) {
     for (let k = 0; k < 3; k++) if (comPrecio("comida") < 0.8 || !comVender(f, "comida")) break;
   /* reponer hierro y caballos si sobra el oro */
   if (OC.saldo(f, "hierro") < 5 && F.gold > 100 && comPrecio("hierro") < 5 * 1.5) comComprar(f, "hierro");
-  if (OC.saldo(f, "caballos") < 3 && F.gold > 120 && comPrecio("caballos") < 8 * 1.5)
+  if (!sinCab && OC.saldo(f, "caballos") < 3 && F.gold > 120 && comPrecio("caballos") < 8 * 1.5)
     comComprar(f, "caballos");
-  /* abrir la mejor ruta si compensa */
-  if (comDe(f).length < comMax(f) && F.gold >= 55) {
+  /* una corte rica compra el lujo que le falta (más cuanto más comerciante es su pueblo) */
+  if (b.lujo < 3 && F.gold > (150 + (b.gi || 30) * 2) / sab.com) {
+    const r = ECO_RES.filter((x) => x.lujo && OC.saldo(f, x.id) < ecoNecLujo(f)).sort(
+      (x, y) => comPrecio(x.id) / x.base - comPrecio(y.id) / y.base,
+    )[0];
+    if (r && comPrecio(r.id) < r.base * 1.4) comComprar(f, r.id);
+  }
+  /* abrir la mejor ruta si compensa (los pueblos mercaderes aceptan rutas más lentas de amortizar) */
+  if (comDe(f).length < comMax(f) && F.gold >= 55 / sab.com) {
     const c = comCandidatas(f, null, 1)[0];
-    if (c && F.gold >= c.coste + 30 && c.v * 5 >= c.coste) comAbrir(f, c.A, c.B);
+    if (c && F.gold >= c.coste + 30 / sab.com && c.v * 5 * sab.com >= c.coste) comAbrir(f, c.A, c.B);
   }
 }
 
