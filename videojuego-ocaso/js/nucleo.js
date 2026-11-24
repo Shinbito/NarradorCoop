@@ -634,6 +634,11 @@ const BLD = {
   escuela: ["Escuela", "+1,5 investigación", 35, 3],
   acueducto: ["Acueducto", "+4 orden, +1 comida", 60, 2],
   puerto: ["Puerto", "+3 oro (solo en la costa)", 45, 2],
+  torre: ["Torre de vigilancia", "amplía la visión sobre la comarca (no ocupa hueco)", 25, 3],
+  mina: ["Mina", "hierro u oro según el yacimiento", 45, 3],
+  cantera: ["Cantera", "piedra según el yacimiento", 35, 3],
+  aserradero: ["Aserradero", "madera según el bosque", 30, 3],
+  salinas: ["Salinas", "sal según el yacimiento", 35, 2],
 };
 const TAX = ["Bajos", "Normales", "Altos"],
   TAXM = [0.6, 1, 1.5],
