@@ -236,6 +236,12 @@ function camMercOrden(o, ej) {
   }
   const c = mercCon(f, o.t);
   if (!c) return { ok: false, motivo: "No hay contrato" };
+  if (o.tipo === "renovar" && o.auto != null) {
+    /* marca para el vencimiento (sin pagar ahora): {tipo:'renovar', f, t, auto: true|false, anos} */
+    c.auto = !!o.auto;
+    c.autoAnos = clamp(+o.anos || 2, 1, 3);
+    return { ok: true };
+  }
   if (o.tipo === "renovar") {
     const n = mercCuenta(f, c.t),
       e = Math.ceil(mercEnganche({ t: c.t, n }) / 2);
@@ -348,7 +354,13 @@ async function camMercNuevaEstacion() {
       continue;
     }
     if (human(c.f)) {
-      if (!isMe(c.f) || net.on) continue;
+      if (!isMe(c.f) || net.on) {
+        /* sin modal (online, o el jugador está en otro cliente): renovar si lo dejó marcado con
+           {tipo:'renovar', auto:true}; si no (o no hay oro), licenciar */
+        const r = c.auto ? camMercOrden({ tipo: "renovar", f: c.f, t: c.t, anos: c.autoAnos || 2 }, null) : null;
+        if (!r || !r.ok) camMercOrden({ tipo: "licenciar", f: c.f, t: c.t }, null);
+        continue;
+      }
       const v = await modal(
         `Termina el contrato de los ${c.nom}`,
         `<p>${n * SPU} ${UN[c.t].s.toLowerCase()} han servido desde ${c.desde}. Su capitán pide ${ren} de oro para seguir dos años más (la paga sigue siendo de ${mercPago(c.t, n)} cada estación).</p>`,
@@ -438,6 +450,7 @@ OC.accion("camm", (v) => {
   if (k === "k") o = { tipo: "contratar", f: ME, ej: +a, camp: +b, cia: +c.split(".")[0], anos: +c.split(".")[1] };
   if (k === "r") o = { tipo: "renovar", f: ME, t: a, anos: 2 };
   if (k === "l") o = { tipo: "licenciar", f: ME, t: a };
+  if (k === "a") o = { tipo: "renovar", f: ME, t: a, auto: b === "1", anos: 2 };
   if (!o) return;
   camAplicarOrden(G, o).then((r) => {
     if (r && !r.ok && r.motivo) addLog(r.motivo, "bad");

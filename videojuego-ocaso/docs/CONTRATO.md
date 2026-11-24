@@ -89,6 +89,8 @@ Secciones de provincia actuales: `reclutar` (20, combate), `edificios` (30, tecn
 | `propuestaHumana` | `{de, a, tipo, ...}` | diplomacia | una propuesta o llamada a las armas queda esperando a un jugador humano |
 | `conquista` | `{p, de, a}` | combate | una provincia cambia de dueño por las armas |
 | `batallaResuelta` | `{p, atacante, defensor, gana, A, D, s0, gA, gD, ...}` | combate | después de cualquier batalla (auto o táctica) |
+| `antesBatalla` | `{tipo: "dos" o "multi", ejA, ejD, lista, bctx, o, resultado, modo}` | campaña (`camLibrar`, `camMulti`) | antes de librar una batalla de campaña: un oyente puede ajustar `bctx`, fijar `modo` o dar `resultado` (y campaña no la libra) |
+| `repeticionLista` | `rep` (`G.cam.rep`) | campaña | al cerrar la repetición de la estación (ver §9) |
 | `revuelta` | `{p, de}` | economía (y sociedad en traiciones/guerra civil) | una provincia se subleva y pasa a `REB` (se emite antes del cambio de dueño) |
 | `tecnologiaInvestigada` | `{f, id}` | tecnología | |
 | `tecnologiaAdoptada` | `{f, p, id}` | tecnología | un descubrimiento se implanta en una ciudad |

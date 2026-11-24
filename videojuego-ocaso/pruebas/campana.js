@@ -700,6 +700,50 @@ const ok = (c, m) => {
   ok(nb.monteInf !== false && nb.rutaRelieve !== false, `relieve: la montaña no se pisa (${nb.monteInf}) y la ruta larga solo pisa casillas transitables sin cortar esquinas (${nb.rutaRelieve})`);
   console.log(`  (comprobado: bosque ${nb.bosqueA2 != null}, torre ${nb.torre != null}, espía ${nb.espiaRevela != null}, IA ${nb.iaOculto != null})`);
 
+  /* ---------- 7c. ganchos para el online: antesBatalla, contratos sin modal, vh en ej0 ---------- */
+  console.log("7c. Ganchos para el online");
+  const g7 = await corre(`
+    const r = {};
+    /* antesBatalla: un oyente puede dar el resultado y campaña sigue con él */
+    let visto = null;
+    OC.on("antesBatalla", (ev) => {
+      if (!window.__fijar) return;
+      visto = ev.tipo;
+      ev.resultado = ev.tipo === "dos" ? { gana: 1, A: cmbVacio(), D: { ...ev.ejD.u } } : null;
+    });
+    const xy = casilla(G.F[ME].capId) || [G.P[G.F[ME].capId].x, G.P[G.F[ME].capId].y];
+    window.__fijar = true;
+    const res = await camLibrar({ f: ME, u: { ...cmbVacio(), i: 20 } }, { f: REB, u: { ...cmbVacio(), i: 1 } }, { terreno: "llanura", fort: 0, x: xy[0], y: xy[1], nombreLugar: "prueba" }, { auto: true, sinInforme: true });
+    window.__fijar = false;
+    r.hook = visto === "dos" && res.gana === 1 && tot(res.A) === 0;
+    /* contrato humano que vence sin poder preguntar (online): licenciar; con la marca «renovar al vencer», renovar */
+    const M = mercS();
+    const cap = G.P[G.F[ME].capId];
+    const t1 = "mhe", t2 = "mgp";
+    for (const t of [t1, t2]) { cap.u[t] = 3; M.con = M.con.filter((c) => !(c.f === ME && c.t === t)); M.con.push({ id: 900 + t.length, f: ME, t, nom: t, noms: [t], n0: 3, hasta: G.year, imp: 0, desde: G.year - 2 }); }
+    await camAplicarOrden(G, { tipo: "renovar", f: ME, t: t2, auto: true, anos: 2 });
+    G.F[ME].gold = 999;
+    const e0 = G.estacion, on0 = net.on;
+    G.estacion = 0; net.on = true;
+    try { await camMercNuevaEstacion(); } finally { net.on = on0; G.estacion = e0; }
+    r.licencia = !mercCon(ME, t1) && !(cap.u[t1] > 0);
+    r.renueva = !!mercCon(ME, t2) && mercCon(ME, t2).hasta > G.year;
+    /* vh en ej0: quién ve cada ejército al empezar la repetición */
+    G.cam.niebla = true;
+    const lejos = camNuevoEj(REB, 1, 1, { i: 2 }, {});
+    const cerca = camNuevoEj(ME, cap.x, cap.y, { i: 2 }, {});
+    camRepIni();
+    const a = G.cam.rep.ej0.find((e) => e.id === lejos.id), b = G.cam.rep.ej0.find((e) => e.id === cerca.id);
+    r.vh = !!(a && Array.isArray(a.vh) && b && b.vh.includes(ME) && (camVeEj(ME, lejos) || !a.vh.includes(ME)));
+    camQuitar(lejos); camQuitar(cerca);
+    delete G.cam.rep;
+    return r;
+  `);
+  console.log("  " + JSON.stringify(g7));
+  ok(g7.hook, "el gancho antesBatalla puede dar el resultado de la batalla");
+  ok(g7.licencia && g7.renueva, "en online, al vencer sin preguntar: se licencia salvo que el jugador marcara «renovar al vencer»");
+  ok(g7.vh, "con niebla, los ejércitos iniciales de la repetición llevan vh");
+
   /* repetición de la estación (CONTRATO §9): los pasos llevan de own0/ej0 al estado final */
   const rep = await corre(`
     let tot = { est: 0, pasos: 0, ajustes: 0, bien: 0, tipos: {} };

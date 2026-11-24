@@ -51,14 +51,25 @@ function camS() {
    G.cam.rep = {v:1, anio, est, own0, ej0, pasos} se abre al empezar la resolución (camEstacion) y se cierra
    al acabar camNuevaEstacion (incluye lo anual: revueltas y conquistas). Pasos: mov, ej+, ej-, bat, ase, con. */
 const CAM_REP_TOPE = 2000;
+/* jugadores humanos para los que se calcula qué ven (en online, todos los de la partida) */
+const camHumanosVista = () => ((typeof onlHumanosVista === "function" && onlHumanosVista()) || G.human || []).filter((h) => h < NF);
 function camRepIni() {
-  const S = camS();
+  const S = camS(),
+    niebla = typeof camNieblaOn === "function" && camNieblaOn(),
+    hs = niebla ? camHumanosVista() : null;
   S.rep = {
     v: 1,
     anio: G.year,
     est: G.estacion,
     own0: G.P.map((p) => p.owner),
-    ej0: S.ej.filter((e) => camTot(e.u) > 0).map((e) => ({ id: e.id, f: e.f, x: e.x, y: e.y, n: camTot(e.u) })),
+    /* con niebla, vh = jugadores que ven a ese ejército al empezar (como en los pasos) */
+    ej0: S.ej
+      .filter((e) => camTot(e.u) > 0)
+      .map((e) => {
+        const r = { id: e.id, f: e.f, x: e.x, y: e.y, n: camTot(e.u) };
+        if (hs) r.vh = hs.filter((h) => camSocio(h, e.f) || camVeEj(h, e));
+        return r;
+      }),
     pasos: [],
   };
 }
@@ -69,7 +80,7 @@ function camRep(o) {
   if (typeof camNieblaOn === "function" && camNieblaOn() && G.human && ["mov", "ej+", "bat", "esp", "esp-"].includes(o.k)) {
     const e = o.ej != null ? camEj(o.ej) : null;
     /* ONL: en online, durante la resolución G.human son solo los que enviaron órdenes; la vista es de todos los jugadores */
-    o.vh = ((typeof onlHumanosVista === "function" && onlHumanosVista()) || G.human).filter(
+    o.vh = camHumanosVista().filter(
       (h) =>
         h < NF &&
         ((o.f != null && camSocio(h, o.f)) ||
@@ -609,11 +620,20 @@ function camParaBatalla(ej) {
 const camTxtEj = (e) =>
   `${CIV[e.f].s}: ${tot(e.u) * SPU} hombres${e.gen != null && G.C[e.gen] ? " al mando de " + G.C[e.gen].n : ""}<br><span class="stats">${cmbComp(e.f, e.u)}</span>`;
 /* libra una batalla: modal táctica/automática si hay un jugador; emite batallaResuelta */
+/* Gancho 'antesBatalla' (async): ev = {tipo: 'dos'|'multi', ejA, ejD, lista, bctx, o, resultado: null, modo: null}.
+   Un oyente (p. ej. online) puede ajustar bctx/o, fijar ev.modo ('auto'|'t3'|'t1'|'rt') o dar ev.resultado:
+   dos → {gana, A, D, heridos, informe, gen}; multi → {gana, ejs: [{id, u}], informe}. Con resultado, campaña
+   no libra la batalla y sigue con él (reparto, evento batallaResuelta, retiradas). */
+async function camAntesBatalla(ev) {
+  await OC.emitir("antesBatalla", ev);
+  return ev;
+}
 async function camLibrar(ejA, ejD, bctx, o = {}) {
   const yoA = isMe(ejA.f),
-    yoD = isMe(ejD.f);
-  let ch = "auto";
-  if ((yoA || yoD) && !o.auto && !net.on) {
+    yoD = isMe(ejD.f),
+    ab = await camAntesBatalla({ tipo: "dos", ejA, ejD, bctx, o, resultado: null, modo: null });
+  let ch = ab.modo || "auto";
+  if ((yoA || yoD) && !o.auto && !net.on && !ab.resultado && !ab.modo) {
     const pr = Math.round(cmbEstimar(ejA, ejD, bctx, 12) * 100),
       mio = yoA ? pr : 100 - pr;
     ch = await modal(
@@ -628,8 +648,9 @@ async function camLibrar(ejA, ejD, bctx, o = {}) {
     );
   }
   if (yoD && !yoA) bctx.jugador = 1;
-  const res =
-    tot(ejD.u) <= 0
+  const res = ab.resultado
+    ? { heridos: { A: 0, D: 0 }, informe: null, gen: [null, null], ...ab.resultado }
+    : tot(ejD.u) <= 0
       ? { gana: 0, A: { ...ejA.u }, D: cmbVacio(), heridos: { A: 0, D: 0 }, informe: null, gen: [null, null] }
       : ch !== "auto"
         ? await cmbTactica(ejA, ejD, bctx, ch)
@@ -877,10 +898,11 @@ async function camBatallaLados(lados, bctx, o = {}) {
    fundidas, solo para el modal y el evento. Emite batallaResuelta (con ejercitos y multi: true). */
 async function camMulti(lista, bctx, o, fz) {
   if (typeof cmbResolverMulti !== "function") return null;
-  const yo = lista.some((e) => isMe(e.f)),
-    modo = yo && !o.auto && !net.on && typeof cmbTacticaMulti === "function" ? await camModoBatalla(fz[0], fz[1], bctx, o) : "auto",
+  const ab = await camAntesBatalla({ tipo: "multi", lista, bctx, o, resultado: null, modo: null }),
+    yo = lista.some((e) => isMe(e.f)),
+    modo = ab.modo || (yo && !o.auto && !net.on && !ab.resultado && typeof cmbTacticaMulti === "function" ? await camModoBatalla(fz[0], fz[1], bctx, o) : "auto"),
     soloDef = lista.some((e) => e.bando === 1 && isMe(e.f)) && !lista.some((e) => e.bando === 0 && isMe(e.f)),
-    r = modo !== "auto" ? await cmbTacticaMulti(lista, { ...bctx, jugador: soloDef ? 1 : 0 }, modo) : cmbResolverMulti(lista, bctx);
+    r = ab.resultado || (modo !== "auto" ? await cmbTacticaMulti(lista, { ...bctx, jugador: soloDef ? 1 : 0 }, modo) : cmbResolverMulti(lista, bctx));
   if (!r || !Array.isArray(r.ejs)) return null;
   const by = new Map(r.ejs.map((x) => [x.id, cmbNorm({ ...(x.u || x.A || {}) })])),
     inf = r.informe || null,
