@@ -27,6 +27,35 @@ monturas con `UN[t].caballo` (camellos y elefantes no). La corte consume `⌈pro
 lujos más abundantes: +2 de orden por lujo (máx. +6). Tener sal amplía el granero un 25 %. En el
 Tesoro solo se muestran los lujos que tienes o produces.
 
+**Tierras: yacimientos, fertilidad y explotaciones** (`G.eco.yac`, `G.eco.fer`, `G.eco.exp`,
+`G.eco.cul` = comarca; deterministas con `G.seed` y el terreno de `MAP`; las partidas antiguas los
+calculan al cargar).
+- *Yacimientos* `{recurso: riqueza 1..3}`: madera (bosque), piedra (colinas), hierro (colinas, con azar),
+  oro (colinas; más en los Andes incas), estaño (colinas; más en tierra celta) y sal (litoral o tierras
+  áridas). Las sierras del relieve (`MAP.mont`, mapas v2) dan más piedra, hierro y oro. La especialidad
+  confirma su yacimiento (riqueza ≥ 2). El río sale del cauce real (`MAP.rio`: +0,2 con 3 casillas o más,
+  +0,12 con menos) o, en mapas viejos, del río por provincia de combate.
+- *Fertilidad* 0..1: `0,3 + 0,4·llanura + 0,1·bosque − 0,2·colina + 0,2 río + 0,05 costa + azar`; árido
+  (árabes, egipcios) −0,35 salvo con río (+0,15, el Nilo); estepa (hunos, mongoles) −0,15; China e India
+  +0,1; Trigales, Nilo y Chinampas ≥ 0,75. Texto: Desierto, Estepa de pastos, Tierras yermas, pobres,
+  corrientes, fértiles, muy fértiles. Efecto: comida por almas ×(0,6 + 0,8·v), granjas ×(0,7 + 0,6·v),
+  capacidad de población + (v − 0,5)·6.
+- *Explotaciones*: Mina (hierro, oro, estaño), Cantera (piedra), Aserradero (madera), Salinas (sal). Las
+  provincias con especialidad de mina/cantera/bosque/salinas, y algunas otras con yacimiento rico (12 %, 50 %
+  en capitales), empiezan con la suya a nivel 1: economía fija `p.mina`/`p.cantera`/`p.aserradero`/
+  `p.salinas` (edificios de tecnología, en `BLD`) y lo anota en `G.eco.exp`. Producción: economía pone lo
+  que da la tierra sola (madera y piedra riqueza − 1; hierro 1 con riqueza 3; sal 1 con riqueza ≥ 2) y
+  **tecnología** lo que sacan los edificios (`tecRenYac` en `rendimiento`: +riqueza por nivel, ×1,25 por
+  nivel lo de la tierra, oro de las vetas al tesoro). Si tecnología no está, economía usa su respaldo
+  (`min(nivel, riqueza)` y 2 oro por nivel en vetas de oro). `ecoNivelExp(p, k)` = max(`p[k]`, inicial).
+- Sección de provincia **«Tierras»** (orden 39, también en provincias ajenas y rebeldes): fertilidad,
+  producción anual con iconos, yacimientos con su riqueza (●●○) y su explotación o «sin explotar».
+  Con la **niebla de guerra** de campaña: lo que se ve ahora (`ecoInfoVisible` → `camInfoVisible`) se muestra
+  entero; lo explorado pero fuera de la vista (`ecoInfoConocida`, `camMemProv`) muestra solo fertilidad y
+  yacimientos («lo que recuerdan tus exploradores», explotaciones «¿?»); lo nunca visto, «Tierra
+  ignota». Las sierras (`MAP.mont`) siempre dejan al menos hierro y piedra 1. En el mapa, al pasar el
+  ratón, se añade el recurso principal (`ecoIconoProv`) de las provincias a la vista.
+
 **Pueblos y comarcas** (`ECO_CIV`, por `CIV[f].id`). Al crear la partida cada provincia pertenece a la
 comarca del pueblo cuya capital queda más cerca; ahí pesan más sus especialidades y aparecen las
 propias (solo en su comarca). Cada pueblo tiene al menos una especialidad «de firma» fuera de su
@@ -86,7 +115,8 @@ Con 3 años seguidos por encima o deuda > 1,6 × límite: *bancarrota* (se repud
 el 20 %, −15 orden, inflación +0,10, 6 años sin crédito). La deuda resta orden (2–12).
 
 **Graneros y hambre.** Granero = `40 + 12·provincias + 10·granjas` (×1,25 con sal); lo que sobra
-se pudre. Comida negativa → hambre: deserta el 15 %, −4 % población, −10 orden 2 años.
+se pudre. Comida negativa → hambre: deserta el 15 %, −4 % población, −10 orden 2 años. No se compra en el
+mercado por encima del granero o del almacén, y al cerrar el año (`finAnio`) se recorta lo que sobre.
 
 **Peste.** 5 %/año de brote en una provincia poblada; dura 2 años, se contagia (15 %) a vecinas;
 inmunidad 12 años. −15 % comida, −20 % oro, −8 orden, −10 % población al año.
@@ -167,6 +197,13 @@ tesoro rebosante, los baja.
 - `ecoSaqueo(p, fracción = 0,02, orden = 6)` → botín sugerido (`2 + 0,45·almas`): resta población y
   orden y deja la marca de «Saqueos y batallas» en el ánimo. `ecoSaqueada(p)` lee también `G.cam.saq`.
 - `ECO_CIV[id]`, `ecoCiv(f)`, `ecoSinCaballos(f)`, `ecoCapitales()`.
+- `ecoYac(p)` → `{madera, piedra, hierro, oro, estano, sal: riqueza 1..3}` (solo los que hay);
+  `ecoFertil(p)` → `{v: 0..1, txt}`; `ecoExplotaciones(p)` → `{mina, cantera, aserradero, salinas: nivel}`;
+  `ecoNivelExp(p, k)`; `ECO_YAC`, `ECO_EXP`.
+- `ecoInfoVisible(p, f)` → propias siempre; ajenas según `camInfoVisible(p, f)` de campaña (niebla, torres,
+  espías; cierto si no hay campaña). `ecoInfoConocida(p, f)` → visibles o exploradas alguna vez.
+- `ecoIconoProv(p)` → `{id, icono, nombre}` del recurso principal (por valor de mercado), «Grano» si las
+  tierras son fértiles y no saca otra cosa, o `null`.
 - `ecoPob(p)`, `ecoEspecialidad(p)` → `{id, n, d, y}`, `ecoCapacidad(p)`, `ecoDiezmar(p, fracción)`.
 - `comPrecio(id)`, `comComprar(f,id)`, `comVender(f,id)`, `comDe(f)` (rutas de f), `G.eco.rutas`.
 - `ecoAnimo(p)` → `{id, nombre, icono, color, orden, objetivo, tendencia, causas:[{texto, valor}]}`;
@@ -226,7 +263,7 @@ iniciales en `F.res` si faltan. Probado con `pruebas/economia.js`.
    el panel la separa leyendo `socFe`/`socF().pol`. Si cambia esa fórmula, conviene exponer
    `socOrdenFe(p)` para no duplicarla. Las guerras civiles pasan provincias a `REB`: pueden emitir
    `revuelta` (economía ya recorta graneros y efectos al recibirla).
-7. **Interfaz**: el hover del mapa podría usar `ecoNivel(p)` directamente en lugar de mi añadido.
+7. **Interfaz**: (hecho por la interfaz: el ánimo del hover ya usa `ecoNivel`; retiré mi añadido del ánimo).
 8. **Combate/asedios**: usar `ecoApoyoAsedio(p, atacante)` para rendiciones o puertas abiertas.
 9. **Campaña** (no hace falta cambiar el cobro: lo sigue haciendo campaña, una sola vez):
    - `camSuministros` ya usa `ecoMant`, que ahora da **0 de oro a los mercenarios** (cobran su contrato
@@ -242,3 +279,11 @@ iniciales en `F.res` si faltan. Probado con `pruebas/economia.js`.
 10. **Mundo**: `pruebas/mundo.js` falla a veces (también sin mis cambios, 1 de cada 3 en la base):
     «se juegan 20 años (año 427-428)» porque un cerco a una ciudad del jugador hace que «Fin» avance
     una sola estación; y «Incas en Cuzco: c2» (jinetes de los incas en 412-413) viene de otro sistema.
+11. **Tecnología** (hecho, coordinado): sus edificios Mina/Cantera/Aserradero/Salinas usan las mismas claves
+    y leen `ecoYac`; economía fija los niveles iniciales y no duplica su producción. Pendiente: el estaño de
+    `ecoYac` (`estano`) no es un recurso: `tecRenYac` podría darlo como oro (1 por nivel y riqueza), como hacía
+    el respaldo de economía.
+12. **Interfaz**: dibujar `ecoIconoProv(p)` como icono pequeño sobre cada provincia del mapa (si
+    `ecoInfoVisible(p, ME)`), y en `ifzResumenSec` para la sección `tierras` mostrar `ecoFertil(p).txt` y el
+    icono. El oyente `document.mousemove` de economía ya no añade el ánimo (lo pone la interfaz): solo el
+    recurso principal; si la interfaz lo pone en `ifzHoverTxt`, se puede retirar.

@@ -21,11 +21,15 @@ function comPrecio(id) {
 const comLote = (id) => (COM_MER[id] ? COM_MER[id].lote : 5);
 const comPCompra = (f, id) => Math.max(1, Math.round(comPrecio(id) * comLote(id) * 1.12 * ecoF(f).infl));
 const comPVenta = (id) => Math.max(1, Math.round(comPrecio(id) * comLote(id) * 0.88));
+/* el almacén (o el granero) no admite otro lote */
+const comLleno = (f, id) =>
+  id === "comida" ? G.F[f].food + comLote(id) > ecoGranero(f) : OC.saldo(f, id) + comLote(id) > ecoTope(f);
 function comComprar(f, id) {
   const E = ecoE(),
     c = comPCompra(f, id),
     n = comLote(id);
-  if (!E.mer[id] || G.F[f].gold < c || E.mer[id].s < n + 1) return false;
+  const lleno = comLleno(f, id);
+  if (!E.mer[id] || lleno || G.F[f].gold < c || E.mer[id].s < n + 1) return false;
   G.F[f].gold -= c;
   OC.sumar(f, id, n);
   E.mer[id].s -= n;
@@ -266,7 +270,7 @@ function comVistaMercado(dis) {
       pc = comPCompra(ME, id),
       pv = comPVenta(id),
       n = comLote(id);
-    h += `<div class="eco-fila"><span title="${r.nombre}">${r.icono} ${r.nombre}</span><b>${Math.floor(OC.saldo(ME, id))}</b><span>${pc}/${pv}${tr}</span><button class="eco-mini" data-act="mer-c:${id}" ${dis || F.gold < pc || m.s <= n ? "disabled" : ""} title="Comprar ${n} por ${pc} oro">+${n}</button><button class="eco-mini" data-act="mer-v:${id}" ${dis || OC.saldo(ME, id) < n ? "disabled" : ""} title="Vender ${n} por ${pv} oro">−${n}</button></div>`;
+    h += `<div class="eco-fila"><span title="${r.nombre}">${r.icono} ${r.nombre}</span><b>${Math.floor(OC.saldo(ME, id))}</b><span>${pc}/${pv}${tr}</span><button class="eco-mini" data-act="mer-c:${id}" ${dis || F.gold < pc || m.s <= n || comLleno(ME, id) ? "disabled" : ""} title="Comprar ${n} por ${pc} oro">+${n}</button><button class="eco-mini" data-act="mer-v:${id}" ${dis || OC.saldo(ME, id) < n ? "disabled" : ""} title="Vender ${n} por ${pv} oro">−${n}</button></div>`;
   }
   h += `</div><p class="note">Precio en oro por lote (compra/venta). Vender mucho hunde el precio; cada año el mercado se recupera.${ev ? "<br>Este año: " + ev.t : ""}</p>`;
   return h;

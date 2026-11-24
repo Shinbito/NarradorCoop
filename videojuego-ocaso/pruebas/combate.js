@@ -509,6 +509,455 @@ fs.mkdirSync(capt, { recursive: true });
     ui();
   });
 
+  /* ---------- 8. V3: varios ejércitos y bandos, flancos, batalla táctica multi y aspecto ---------- */
+  console.log("\n8. Varios bandos: 3 ejércitos, 2 contra 1, flancos y táctica multi");
+  const v3 = await page.evaluate(() => {
+    const E = (f, u, b) => ({ f, u: { ...cmbVacio(), ...u }, bando: b }),
+      n = 400,
+      tasa = (fn) => {
+        let w = 0;
+        for (let k = 0; k < n; k++) if (fn()) w++;
+        return w / n;
+      },
+      tres = (o) =>
+        cmbResolverMulti([E(2, { i: 8, a: 2 }, 0), E(2, { i: 8, a: 2 }, 1), E(2, { i: 8, a: 2 }, 2)], {
+          terreno: "llanura",
+          sinEvento: true,
+          oportunista: o,
+        }),
+      opo = tasa(() => tres(2).gana === 2),
+      sinOpo = tasa(() => tres(false).gana === 2),
+      aliados = tasa(
+        () =>
+          cmbResolverMulti([E(0, { i: 6 }, 0), E(5, { i: 6 }, 0), E(2, { i: 10 }, 1)], {
+            terreno: "llanura",
+            sinEvento: true,
+          }).gana === 0,
+      ),
+      solo0 = tasa(
+        () =>
+          cmbResolverAuto(
+            { f: 0, u: { ...cmbVacio(), i: 6 } },
+            { f: 2, u: { ...cmbVacio(), i: 10 } },
+            { terreno: "llanura" },
+          ).gana === 0,
+      ),
+      solo5 = tasa(
+        () =>
+          cmbResolverAuto(
+            { f: 5, u: { ...cmbVacio(), i: 6 } },
+            { f: 2, u: { ...cmbVacio(), i: 10 } },
+            { terreno: "llanura" },
+          ).gana === 0,
+      ),
+      /* compatibilidad: mismas cifras que la versión de dos ejércitos (medidas en la v2 con 1500 batallas) */
+      llano = tasa(
+        () =>
+          cmbResolverAuto(
+            { f: 0, u: { ...cmbVacio(), i: 10 } },
+            { f: 2, u: { ...cmbVacio(), i: 7 } },
+            { terreno: "llanura" },
+          ).gana === 0,
+      ),
+      igual = tasa(
+        () =>
+          cmbResolverAuto(
+            { f: 0, u: { ...cmbVacio(), i: 8 } },
+            { f: 2, u: { ...cmbVacio(), i: 8 } },
+            { terreno: "llanura" },
+          ).gana === 0,
+      ),
+      asalto = (k) =>
+        tasa(
+          () =>
+            cmbResolverAuto(
+              { f: 0, u: { ...cmbVacio(), i: 12 } },
+              { f: 2, u: { ...cmbVacio(), i: 7 } },
+              { terreno: "llanura", fort: 2, flancos: k },
+            ).gana === 0,
+        ),
+      f1 = asalto(1),
+      f3 = asalto(3),
+      fAp = tasa(
+        () =>
+          cmbResolverAuto(
+            { f: 0, u: { ...cmbVacio(), i: 12 } },
+            { f: 2, u: { ...cmbVacio(), i: 7 } },
+            { terreno: "llanura", fort: 2, flancos: 3, flancosAplicados: true },
+          ).gana === 0,
+      ),
+      inf3 = cmbResolverAuto(
+        { f: 0, u: { ...cmbVacio(), i: 12 } },
+        { f: 2, u: { ...cmbVacio(), i: 7 } },
+        { terreno: "llanura", fort: 2, flancos: 3 },
+      ).informe;
+    /* evento con todos los ejércitos */
+    let ev = null;
+    const oy = (d) => (ev = d);
+    OC.on("batallaResuelta", oy);
+    const rm = cmbResolverMulti([E(ME, { i: 6, a: 2 }, 0), E(5, { i: 6 }, 0), E(2, { i: 10, a: 2 }, 1)], {
+      terreno: "llanura",
+      nombreLugar: "Prueba",
+      emitir: true,
+    });
+    const evOk1 = !!(
+      ev &&
+      ev.multi &&
+      ev.ejs &&
+      ev.ejs.length === 3 &&
+      ev.bandos &&
+      ev.bandos.join() === "0,0,1" &&
+      ev.atacante === ME
+    );
+    /* contrato de Campaña: ids, dir 'C' = la guarnición (con murallas), {id, u, her} y sin evento propio */
+    ev = null;
+    const lc = [
+        { ...E(0, { i: 7 }, 0), id: 11, dir: "O" },
+        { ...E(5, { i: 6 }, 0), id: 12, dir: "N" },
+        { ...E(2, { i: 8 }, 1), id: "guarnicion", dir: "C" },
+      ],
+      rc = cmbResolverMulti(lc, { terreno: "llanura", fort: 2, flancos: 2, flancosAplicados: true }),
+      contrato =
+        !ev &&
+        (rc.gana === 0 || rc.gana === 1) &&
+        rc.ejs.map((x) => x.id).join() === "11,12,guarnicion" &&
+        rc.ejs.every((x) => x.u && typeof x.her === "number") &&
+        rc.informe.def === 2,
+      evOk = evOk1 && contrato;
+    const html = cmbInfHtml(rm.informe, 0);
+    return {
+      opo,
+      sinOpo,
+      aliados,
+      solo0,
+      solo5,
+      llano,
+      igual,
+      f1,
+      f3,
+      fAp,
+      fx3: inf3.factores
+        .map((x) => x.txt)
+        .concat(inf3.rondas.map((r) => r.t))
+        .join(" | "),
+      evOk,
+      html: html.length,
+      ejsRes: rm.ejs.map((e) => [e.f, e.bando, e.gana, tot(e.A)]),
+    };
+  });
+  console.log(
+    `  3 bandos iguales: el tercero que aguarda gana el ${(v3.opo * 100).toFixed(0)}% (sin aguardar ${(v3.sinOpo * 100).toFixed(0)}%; un tercio = 33%)`,
+  );
+  console.log(
+    `  2 contra 1 (6+6 contra 10): los aliados ganan el ${(v3.aliados * 100).toFixed(0)}%; solos, ${(v3.solo0 * 100).toFixed(0)}% y ${(v3.solo5 * 100).toFixed(0)}%`,
+  );
+  console.log(
+    `  compatibilidad (2 ejércitos): 10 contra 7 gana el ${(v3.llano * 100).toFixed(0)}% (v2: 80%), igualados ${(v3.igual * 100).toFixed(0)}% (v2: 38%)`,
+  );
+  console.log(
+    `  asalto a murallas II con 12 contra 7: 1 flanco ${(v3.f1 * 100).toFixed(0)}%, 3 flancos ${(v3.f3 * 100).toFixed(0)}% (ya aplicados por campaña: ${(v3.fAp * 100).toFixed(0)}%)`,
+  );
+  ok(v3.opo > v3.sinOpo + 0.05 && v3.opo > 0.4, "el tercero oportunista sale beneficiado");
+  ok(v3.aliados > Math.max(v3.solo0, v3.solo5) + 0.3, "dos aliados ganan más a menudo que cada uno solo");
+  ok(
+    Math.abs(v3.llano - 0.8) < 0.1 &&
+      Math.abs(v3.igual - 0.38) < 0.12 /* ruido y tecnologías del mundo de prueba */,
+    "con dos ejércitos, mismas cifras que antes (± ruido)",
+  );
+  ok(
+    v3.f3 > v3.f1 + 0.08 && /flancos/.test(v3.fx3),
+    "el asalto por varios flancos debilita la defensa y sale en el informe",
+  );
+  ok(Math.abs(v3.fAp - v3.f1) < 0.1, "no se aplican dos veces los flancos que campaña ya tradujo");
+  ok(
+    v3.evOk,
+    "contrato de Campaña ({id, u, her}, dir 'C') y batallaResuelta con ejs y bandos (con ctx.emitir)",
+  );
+  ok(v3.html > 200 && v3.ejsRes.length === 3, "el informe pinta los tres ejércitos");
+
+  /* táctica multi: 3 bandos en los tres modos, y 2 contra 1 */
+  for (const [nom, modo, bandos] of [
+    ["tres-t3", "t3", [0, 1, 2]],
+    ["tres-t1", "t1", [0, 1, 2]],
+    ["tres-rt", "rt", [0, 1, 2]],
+    ["dos-contra-uno", "rt", [0, 0, 1]],
+  ]) {
+    await page.evaluate(
+      ([modo, bandos]) => {
+        window.__tac = null;
+        window.__ev = null;
+        OC.on("batallaResuelta", (d) => (window.__ev = d));
+        const E = (f, u, b) => ({
+          f,
+          u: { ...cmbVacio(), ...u },
+          bando: b,
+          gen: f === ME ? G.F[ME].ruler : null,
+        });
+        cmbTacticaMulti(
+          [
+            E(ME, { i: 5, l: 2, a: 2, c: 2 }, bandos[0]),
+            E(2, { i: 5, l: 2, a: 2, c: 1 }, bandos[1]),
+            E(3, { c: 3, m: 3, i: 3 }, bandos[2]),
+          ],
+          {
+            auto: true,
+            sinModal: true,
+            velocidad: 16,
+            terreno: "llanura",
+            nombreLugar: "Prueba",
+            emitir: true,
+          },
+          modo,
+        ).then((r) => (window.__tac = r));
+      },
+      [modo, bandos],
+    );
+    let shot = false;
+    for (let k = 0; k < 600; k++) {
+      await page.waitForTimeout(200);
+      if (!shot && k === 6) {
+        await page.screenshot({ path: path.join(capt, `combate-v3-${nom}.png`) });
+        shot = true;
+      }
+      if (await page.evaluate(() => !!window.__tac)) break;
+    }
+    const r = await page.evaluate(() => {
+      const r = window.__tac;
+      return (
+        r && {
+          gana: r.gana,
+          ejs: r.ejs.map((e) => [CIV[e.f].s, e.bando, e.gana, tot(e.A)]),
+          dur: r.informe.dur,
+          n: r.informe.f.length,
+          ev: !!(window.__ev && window.__ev.ejs && window.__ev.ejs.length === 3),
+        }
+      );
+    });
+    console.log(`  táctica ${nom}: ${r ? JSON.stringify(r.ejs) + " · " + r.dur + " s" : "sin terminar"}`);
+    ok(
+      r && r.n === 3 && r.ejs.some((e) => e[2]) && r.ev,
+      `táctica ${nom}: termina, con informe y evento de los tres ejércitos`,
+    );
+  }
+  /* aspecto: rendimiento del dibujo con tres ejércitos grandes */
+  const perf = await page.evaluate(async () => {
+    const E = (f, u, b) => ({ f, u: { ...cmbVacio(), ...u }, bando: b });
+    let fin = false;
+    cmbTacticaMulti(
+      [
+        E(ME, { i: 12, l: 6, a: 6, c: 4 }, 0),
+        E(2, { i: 12, l: 6, a: 6, c: 4 }, 1),
+        E(3, { c: 8, m: 8, i: 8 }, 2),
+      ],
+      { auto: true, sinModal: true, velocidad: 4, terreno: "bosque", nombreLugar: "Prueba" },
+      "rt",
+    ).then(() => (fin = true));
+    await new Promise((r) => setTimeout(r, 2500));
+    if (!BT) return null;
+    /* la mejor de cuatro tandas de 10 fotogramas (la máquina de pruebas puede ir cargada) */
+    let ms = Infinity;
+    for (let q = 0; q < 4; q++) {
+      const t0 = performance.now();
+      for (let k = 0; k < 10; k++) drawBattle(performance.now());
+      ms = Math.min(ms, (performance.now() - t0) / 10);
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    const figs = BT.units.reduce((a, u) => a + cmbSlots(u).nf0, 0);
+    BT.ctx.velocidad = 64;
+    for (let k = 0; k < 400 && !fin; k++) await new Promise((r) => setTimeout(r, 100));
+    return { ms, figs, dens: 0 };
+  });
+  console.log(
+    `  dibujo con 3 ejércitos grandes: ${perf && perf.ms.toFixed(2)} ms por fotograma, ${perf && perf.figs} figuras`,
+  );
+  ok(perf && perf.ms < 16, "el campo con muchas figuras se dibuja con fluidez");
+
+  /* ---------- 9. batalla en conjunto: direcciones, refuerzos, asalto por flancos y datos para el render ---------- */
+  console.log("\n9. Batalla en conjunto: direcciones, refuerzos y asalto por flancos");
+  const cj = await page.evaluate(() => {
+    const E = (f, u, b, dir) => ({ f, u: { ...cmbVacio(), ...u }, bando: b, dir }),
+      n = 300,
+      tasa = (fn) => {
+        let w = 0;
+        for (let k = 0; k < n; k++) if (fn()) w++;
+        return w / n;
+      },
+      solo = tasa(
+        () =>
+          cmbResolverMulti([E(0, { i: 7 }, 0), E(2, { i: 10 }, 1)], { terreno: "llanura", sinEvento: true })
+            .gana === 0,
+      ),
+      conRef = tasa(
+        () =>
+          cmbResolverMulti([E(0, { i: 7 }, 0), E(2, { i: 10 }, 1)], {
+            terreno: "llanura",
+            sinEvento: true,
+            refuerzos: [{ ej: E(5, { i: 6 }, 0), dir: "N", llegada: 20 }],
+          }).gana === 0,
+      ),
+      mismaDir = tasa(
+        () =>
+          cmbResolverMulti([E(0, { i: 6 }, 0, "O"), E(5, { i: 6 }, 0, "O"), E(2, { i: 12 }, 1, "E")], {
+            terreno: "llanura",
+            sinEvento: true,
+          }).gana === 0,
+      ),
+      dosDir = tasa(
+        () =>
+          cmbResolverMulti([E(0, { i: 6 }, 0, "O"), E(5, { i: 6 }, 0, "N"), E(2, { i: 12 }, 1, "E")], {
+            terreno: "llanura",
+            sinEvento: true,
+          }).gana === 0,
+      ),
+      r1 = cmbResolverMulti([E(0, { i: 7 }, 0), E(2, { i: 10 }, 1)], {
+        terreno: "llanura",
+        sinEvento: true,
+        refuerzos: [{ ej: E(5, { i: 6 }, 0), dir: "N", llegada: 20 }],
+      }),
+      /* varias muestras: el hito compite con otros por salir en la crónica de la ronda */
+      r2s = [...Array(8)].map(() =>
+        cmbResolverMulti([E(0, { i: 6 }, 0, "O"), E(5, { i: 6 }, 0, 0), E(2, { i: 12 }, 1, "E")], {
+          terreno: "llanura",
+          sinEvento: true,
+        }),
+      ),
+      txt = (r) =>
+        r.informe.rondas
+          .map((x) => x.t)
+          .concat(r.informe.factores.map((x) => x.txt))
+          .join(" | ");
+    return { solo, conRef, mismaDir, dosDir, t1: txt(r1), n1: r1.ejs.length, t2: r2s.map(txt).join(" || ") };
+  });
+  console.log(
+    `  7 contra 10: solos ${(cj.solo * 100).toFixed(0)}%; con 6 aliados de refuerzo a los 20 s ${(cj.conRef * 100).toFixed(0)}%`,
+  );
+  console.log(
+    `  6+6 contra 12: aliados por el mismo lado ${(cj.mismaDir * 100).toFixed(0)}%, por dos direcciones ${(cj.dosDir * 100).toFixed(0)}%`,
+  );
+  ok(
+    cj.conRef > cj.solo + 0.2 && /Llegan refuerzos/.test(cj.t1) && cj.n1 === 3,
+    "los refuerzos llegan durante la batalla y cuentan (automática)",
+  );
+  ok(
+    cj.dosDir > cj.mismaDir && /atacadas desde/.test(cj.t2),
+    "atacar desde dos direcciones envuelve al enemigo",
+  );
+
+  /* táctica en conjunto: tú por el oeste, un aliado por el norte, el enemigo al este y refuerzos por el sur */
+  await page.evaluate(() => {
+    window.__tac = null;
+    window.__dat = null;
+    const E = (f, u, b, dir) => ({
+      f,
+      u: { ...cmbVacio(), ...u },
+      bando: b,
+      dir,
+      gen: f === ME ? G.F[ME].ruler : null,
+    });
+    cmbTacticaMulti(
+      [
+        E(ME, { i: 5, a: 2, c: 1 }, 0, "O"),
+        E(5, { i: 5, l: 2 }, 0, "N"),
+        E(2, { i: 8, l: 2, a: 2, c: 2 }, 1, "E"),
+      ],
+      {
+        auto: true,
+        sinModal: true,
+        velocidad: 12,
+        terreno: "llanura",
+        nombreLugar: "Prueba",
+        refuerzos: [{ ej: E(3, { c: 3, m: 2 }, 0), dir: "S", llegada: 15 }],
+      },
+      "rt",
+    ).then((r) => (window.__tac = r));
+    setTimeout(() => (window.__dat = cmbRender()), 300);
+  });
+  let shotC = false;
+  for (let k = 0; k < 600; k++) {
+    await page.waitForTimeout(200);
+    if (!shotC && k === 8) {
+      await page.screenshot({ path: path.join(capt, "combate-v3-conjunto.png") });
+      shotC = true;
+    }
+    if (
+      await page.evaluate(() => {
+        if (BT) window.__log = [...new Set([...(window.__log || []), ...BT.log.map((l) => l.m)])];
+        return !!window.__tac;
+      })
+    )
+      break;
+  }
+  const tc = await page.evaluate(() => {
+    const r = window.__tac,
+      d = window.__dat,
+      norte = d && d.unidades.filter((u) => u.lado === 1),
+      log = (window.__log || []).join(" | ");
+    return {
+      fin: !!r,
+      n: r && r.ejs.length,
+      llego: /Llegan refuerzos/.test(log),
+      aliadoN: norte && norte.length && norte.every((u) => u.y < 7),
+      datos:
+        d &&
+        d.unidades[0] &&
+        ["x", "y", "cara", "filas", "columnas", "figuras", "estado", "bando"].every(
+          (k) => k in d.unidades[0],
+        ) &&
+        d.ejercitos.length === 4,
+      ejs: r && r.ejs.map((e) => [CIV[e.f].s, e.bando, e.gana, tot(e.A)]),
+    };
+  });
+  console.log(`  táctica en conjunto: ${JSON.stringify(tc.ejs)}`);
+  ok(tc.fin && tc.n === 4, "táctica en conjunto con cuatro ejércitos (uno de refuerzo) termina");
+  ok(tc.aliadoN, "el aliado que llega del norte despliega por el norte");
+  ok(tc.llego, "los refuerzos entran por su borde a media batalla");
+  ok(tc.datos, "cmbRender da los datos de cada unidad para el render");
+
+  /* asalto por tres flancos: la ciudad al fondo con tres lienzos */
+  await page.evaluate(() => {
+    window.__tac = null;
+    window.__log = [];
+    const E = (f, u, b) => ({ f, u: { ...cmbVacio(), ...u }, bando: b });
+    cmbTacticaMulti(
+      [E(ME, { i: 8, l: 3, a: 2, ari: 1 }, 0), E(2, { i: 6, a: 2 }, 1)],
+      {
+        auto: true,
+        sinModal: true,
+        velocidad: 12,
+        fort: 2,
+        flancos: 3,
+        def: 1,
+        terreno: "llanura",
+        nombreLugar: "Prueba",
+      },
+      "rt",
+    ).then((r) => (window.__tac = r));
+  });
+  let shotA = false,
+    flancoN = false;
+  for (let k = 0; k < 600; k++) {
+    await page.waitForTimeout(200);
+    if (!shotA && k === 3) {
+      flancoN = await page.evaluate(
+        () => BT && BT.units.some((u) => u.side === 0 && u.y < BT.muro.y0 && u.x > BT.muro.x),
+      );
+      await page.screenshot({ path: path.join(capt, "combate-v3-asalto-flancos.png") });
+      shotA = true;
+    }
+    if (
+      await page.evaluate(() => {
+        if (BT) window.__log = [...new Set([...(window.__log || []), ...BT.log.map((l) => l.m)])];
+        return !!window.__tac;
+      })
+    )
+      break;
+  }
+  const fl3 = await page.evaluate(() => ({ fin: !!window.__tac, log: (window.__log || []).join(" | ") }));
+  ok(
+    fl3.fin && flancoN && /flancos/.test(fl3.log),
+    "asalto táctico por tres flancos: atacantes ante el lienzo norte y la guarnición repartida",
+  );
+
   /* ---------- 6. partida guardada antigua ({i,a,c} sin G.cmb) ---------- */
   console.log("\n6. Partida guardada antigua");
   await page.evaluate(() => {

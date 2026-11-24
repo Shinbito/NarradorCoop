@@ -135,6 +135,77 @@ pinta con `cmbInfHtml(informe, ladoDelJugador)`. `settle(p, q, s, g)` es solo un
 entra en provincia enemiga (supervivientes del defensor se repliegan a una provincia vecina propia).
 `autoBattle(...)` y `tactical(...)` siguen existiendo con la firma antigua.
 
+## V3: batallas de varios ejércitos y bandos (batalla en conjunto)
+
+```js
+cmbResolverMulti(lista, ctx)          // síncrona → {gana: bando, ejs:[{id, u, her, f, bando, gana, A, heridos, bajas, gen, llego}], informe, gen, brecha, todos}
+cmbTacticaMulti(lista, ctx, modo)     // Promise del mismo resultado; modo 't3' | 't1' | 'rt'
+// ej  = {id, f, u, gen, vet, ori, fat, hambre?, bando, dir}   id: el de Campaña (vuelve tal cual en ejs; la
+//        guarnición de un asalto, 'guarnicion'); bando: los del mismo bando no se atacan (por defecto uno por
+//        ejército = todos contra todos); dir: procedencia 'N'|'E'|'S'|'O' (o 'W') o ángulo (0 = norte, 90 = este);
+//        'C' = el que está en el sitio (defiende). Varios ejércitos de una o varias facciones por bando.
+// resultado: ejs en el orden recibido (refuerzos detrás); u = supervivientes (igual que A), her = heridos.
+// ctx = lo de siempre (terreno, fort, asedio, p, nombreLugar, clima, hora, est, dificultad[por ejército]) y:
+//   def: índice del ejército que defiende la plaza (todo su bando goza de murallas y terreno); si falta, el de
+//        dir 'C', o con murallas el primero de otro bando que el primero; informe.def lo recoge
+//   flancos: 1-4 lados por los que se asalta (no se aplica si ctx.flancosAplicados)
+//   refuerzos: [{ej, dir, llegada}] ejércitos que llegan con la batalla empezada (llegada en segundos de
+//              batalla: táctica, por su borde; automática, 1 ronda = 10 s); van DETRÁS de ejs en el resultado
+//   oportunista: bando que aguarda (false = nadie; por defecto la IA deja aguardar al bando más débil)
+//   humanos: facciones que se controlan desde este cliente (táctica; por defecto [ME]); auto: la IA manda todos
+//   emitir: emitir 'batallaResuelta' con ejs y bandos (por defecto NO: la emite quien llama, p. ej. camMulti de
+//           Campaña con nuestro informe; los mandos ganan experiencia por ejército leyendo informe.f/gens/bandos)
+```
+- `cmbResolverAuto`/`cmbTactica` son envoltorios de dos ejércitos (bandos 0 y 1, `def` = 1) con el **mismo
+  resultado de siempre** (comprobado con semilla fija: batallas idénticas) y no emiten el evento.
+- Automática: cada ejército reparte golpes entre los enemigos con preferencia por el que le amenaza; el bando
+  que aguarda apenas es blanco y entra cuando los demás flaquean (unas tres rondas). Moral, desbandada y
+  persecución por ejército; la batalla sigue hasta que queda un bando. Atacado a la vez desde dos o más
+  direcciones (`dir` distintos) → más flanqueo y factor «El ataque desde varias direcciones». Las fugas de un
+  aliado pesan a medias en la moral. De noche gana el bando que defiende (o el que tenga más hombres en pie).
+- Asalto por `k` flancos: murallas ×(1 − 0,18·(k−1)), −4·(k−1) de moral a la guarnición y menos frente; factor
+  «El asalto por k flancos» e hito «Asalto por k flancos: la guarnición se reparte…».
+- Táctica: cada ejército despliega por su `dir` (o, si no la trae, el bando del jugador al oeste y los demás al
+  este, norte y sur) como grupo propio con su estandarte, su general (guardia) y su color; los aliados que
+  comparten lado se reparten la mitad cada uno. El jugador manda solo los suyos; los aliados IA cooperan (mismos
+  blancos, no se estorban). Con murallas, la ciudad queda **al fondo (este u oeste) en un recinto de tres
+  lienzos** (frente, norte y sur) con puertas y torres; los arietes van a la puerta del lienzo más cercano. Con
+  `flancos ≥ 2` parte de los atacantes forma ante los lienzos norte y sur (si no llegan ya ejércitos por ahí) y la
+  guarnición se reparte entre los lienzos amenazados. Los refuerzos aparecen por su borde a su hora.
+- `batallaResuelta` de las *Multi con `ctx.emitir`: `{p, atacante, defensor, gana, A, D, s0, d0, gA, gD, ...}` de los dos
+  **principales** (el primero y el primero de otro bando, o `ctx.def`) para compatibilidad, más `multi: true`,
+  `bandos`, `ganaBando` y `ejs: [{f, bando, gen, u0, A, gana, heridos, bajas, general}]`. Experiencia, fama y
+  capitanes se reparten a todos los ejércitos.
+- **Contrato con Campaña** (encuentros y asaltos, ya en uso por `camMulti`): `cmbResolverMulti([{id, f, bando,
+  dir, u, gen, vet, ori, fat, hambre}], {fort, asedio, flancos, flancosAplicados, refuerzos, p, nombreLugar,
+  terreno})` → `{gana: bando, ejs: [{id, u, her}], informe}` con un ejército por ejército del mapa y su
+  dirección de llegada; la guarnición o el ejército alcanzado va con `dir: 'C'`.
+- **Online** (no implementado aquí): `ctx.onl.ctrl` es ya una lista por ejército (`'local'|'remoto'|'ia'`); cada
+  cliente manda los planes de sus unidades como hoy (`[[id, [{st, o}...]]...]`, `o = {tg} | {x, y}`, más
+  `hab: [[id, habilidad]]`); la autoridad los aplica con `u.side` = índice del ejército en el campo.
+
+### Datos para el render (`cmbRender()`, para la Batalla 3D u otras vistas)
+Foto plana en coordenadas de mundo (casillas; campo `BW`×`BH` = 40×24):
+`{t, fase, modo, campo:{w, h, terr[y][x] (0 llano, 1 bosque, 2 colina, 3 río, 4 vado), muro:{hp, hp0, x, y0, y1,
+e (1 = ciudad al este), rota}, lados}, ejercitos:[{lado, f, bando, dir, mio, aguarda, llega, general:{id, ok}}],
+unidades:[...], fx: BT.fx (flechas {arrow, x0, y0, x, y, t0} y textos), muertos: BT.dead ({x, y, f} en píxeles;
+std = estandarte caído)}`. Cada unidad: `id, lado, bando, f, t, clase (inf/dis/cab/asd), x, y` (simulada),
+`vx, vy` (dibujada, con inercia), `eje` ('x' u 'y'), `cara` (±1 en su eje), `volteo`, `filas, columnas,
+figuras` (vivas), `figuras0, caidas` (huecos de la formación ya vacíos), `huecos` ([dx, dy] en casillas de cada
+figura respecto al centro), `estado` ('marcha'|'combate'|'huida'|'disparo'|'quieto'), `obj` (id de su blanco),
+`carga, gen, n, n0, moral, cansancio` (0-1), `postura, habilidad, desbocados, mio`.
+
+### Ritmo y aspecto (vista 2D)
+- Reproducción más pausada: `cmbRitmo()` = `ifzVel()` si existe (por defecto 0,6); no cambia la simulación y no
+  afecta si `ctx.velocidad` está puesto (pruebas) ni a la automática. Formaciones con inercia y giros lentos
+  (solo en el dibujo: `vx, vy, volteo`).
+- Más tropa visible: dos figuras por hombre en infantería y tiradores (una si el campo pasa de ~2400 figuras),
+  en filas y columnas fijas; las bajas dejan huecos; estandartes caídos al romper filas; polvo de la caballería.
+- Campo: hierba con matices, bosques con árboles y sombra, colinas sombreadas, río con orillas y vados,
+  murallas con almenas, puertas y torres y la ciudad al fondo. Sprites nuevos reemplazables por PNG:
+  `MS.bat_arbol`, `bat_pino`, `bat_arbusto`, `bat_roca`, `bat_estandarte`, `bat_torre` (catálogo de la interfaz).
+- Rendimiento medido: 3 ejércitos y ~1400 figuras, ~4 ms por fotograma de dibujo (sprites cacheados).
+
 **Ciudad de origen**: cada clase recuerda dónde se reclutó (`G.cmb.ori[pid] = {f, o:{tipo:pid}}`; la que
 aporta más hombres manda al fusionar). En batalla `statsUnidad` recibe `ctx.p` = ciudad de origen si sigue
 siendo del mismo dueño, si no la provincia del combate. `unidadesDisponibles` se llama siempre con la
@@ -184,6 +255,13 @@ No nombra generales a los rehenes (`c.dipReh`). Impuestos (economía) y edificio
 - `G.cmb` suma `cap` (probabilidad acumulada de capitán por `"f:pid"`) y `capPend`.
 
 ## Peticiones al orquestador
+
+**V3**
+- **Campaña**: `ctx.flancos` ya es nativo: quitar su traducción (murallas ×0,85 por flanco, `flancosAplicados`).
+  Pasar las batallas en conjunto a `cmbResolverMulti`/`cmbTacticaMulti` con un ejército por entrada, su `bando` y
+  su `dir`, y los que llegan tarde en `ctx.refuerzos` (ya lo hace `camMulti` con el contrato `{id, u, her}`).
+- **Online**: sincronizar varios jugadores en la misma batalla con `ctx.onl.ctrl` por ejército (formato arriba).
+- **Batalla 3D**: leer `cmbRender()`; ganchos mínimos en `batalla.js` marcados `/* 3D */`.
 
 **Fase 2**
 - **Campaña**: borrar de `campana.js` la copia antigua del motor (ver API); seguir emitiendo `batallaResuelta`

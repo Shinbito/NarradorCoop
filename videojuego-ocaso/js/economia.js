@@ -120,22 +120,27 @@ const ECO_CIV = {
   occ: { esp: { vino: 1.5, olivar: 1, cantera: 1.2 }, ini: {}, com: 1 },
   ori: { esp: { seda: 2, puerto: 1.5, olivar: 1 }, ini: { seda: 4 }, com: 1.3 },
   vis: { esp: { trigo: 1.3, caballos: 1.2 }, ini: {}, com: 0.9 },
-  hun: { esp: { caballos: 2, estepa: 1 }, ini: { caballos: 12 }, com: 0.6 },
+  hun: { esp: { caballos: 2, estepa: 1 }, ini: { caballos: 12 }, com: 0.6, clima: "estepa" },
   van: { esp: { puerto: 1.6, pesca: 1.3 }, ini: {}, com: 1.2 },
   fra: { esp: { madera: 1.4, hierro: 1.3, trigo: 1.2 }, ini: {}, com: 0.9 },
   per: { esp: { seda: 1.5, caballos: 1.5, oro: 1.3 }, ini: { seda: 4 }, com: 1.1 },
-  ara: { esp: { incienso: 1, arabes: 1, puerto: 1.3 }, ini: { incienso: 6, caballos: 8 }, com: 1.4 },
+  ara: {
+    esp: { incienso: 1, arabes: 1, puerto: 1.3 },
+    ini: { incienso: 6, caballos: 8 },
+    com: 1.4,
+    clima: "arido",
+  },
   nor: { esp: { ambar: 1, pieles: 1, pesca: 1.6, madera: 1.3 }, ini: { ambar: 4 }, com: 0.8 },
-  chi: { esp: { seda: 4, laca: 1, trigo: 1.3 }, ini: { seda: 8 }, com: 1.2 },
-  inc: { esp: { terrazas: 1, llamas: 1, oro: 1.6 }, ini: {}, com: 0.7 },
+  chi: { esp: { seda: 4, laca: 1, trigo: 1.3 }, ini: { seda: 8 }, com: 1.2, clima: "fertil" },
+  inc: { esp: { terrazas: 1, llamas: 1, oro: 1.6 }, ini: {}, com: 0.7, clima: "montes" },
   may: { esp: { cacao: 1.2, madera: 1.2 }, ini: { cacao: 6 }, com: 1 },
   azt: { esp: { cacao: 1, chinampas: 1 }, ini: { cacao: 4 }, com: 1 },
   gri: { esp: { olivar: 1.2, vino: 2, puerto: 1.6 }, ini: { vino: 6 }, com: 1.4 },
-  egi: { esp: { nilo: 1, papiro: 1, incienso: 0.6 }, ini: { incienso: 2 }, com: 1.2 },
-  ind: { esp: { especias: 1.2, algodon: 1 }, ini: { especias: 6 }, com: 1.2 },
-  cel: { esp: { estano: 1, pesca: 1.2, caballos: 1.1 }, ini: {}, com: 0.8 },
+  egi: { esp: { nilo: 1, papiro: 1, incienso: 0.6 }, ini: { incienso: 2 }, com: 1.2, clima: "arido" },
+  ind: { esp: { especias: 1.2, algodon: 1 }, ini: { especias: 6 }, com: 1.2, clima: "fertil" },
+  cel: { esp: { estano: 1, pesca: 1.2, caballos: 1.1 }, ini: {}, com: 0.8, clima: "estano" },
   esl: { esp: { pieles: 1, ambar: 0.7, madera: 1.5 }, ini: {}, com: 0.8 },
-  mon: { esp: { estepa: 1.2, caballos: 2 }, ini: { caballos: 14 }, com: 0.6 },
+  mon: { esp: { estepa: 1.2, caballos: 2 }, ini: { caballos: 14 }, com: 0.6, clima: "estepa" },
 };
 const ecoCiv = (f) => (CIV[f] && ECO_CIV[CIV[f].id]) || { esp: {}, ini: {}, com: 1 };
 /* pueblos sin caballos (América): ni los crían ni los necesitan */
@@ -170,6 +175,7 @@ function ecoE() {
   if (!G) return null;
   const E = OC.estado("eco", () => ({ v: 1 }));
   if (!E.esp || E.esp.length !== G.P.length || !E.pob) ecoIniProv(E);
+  else if (!E.yac || E.yac.length !== G.P.length) ecoIniYac(E);
   if (!E.f) E.f = [];
   if (!E.rutas) E.rutas = [];
   if (!E.peste) E.peste = {};
@@ -193,19 +199,29 @@ let ecoCacheT = null;
 function ecoTerreno(i) {
   if (!MAP) return { n: 40, s: [0, 0.7, 0.15, 0.15], costa: false };
   if (!ecoCacheT || ecoCacheT.seed !== MAP.seed || ecoCacheT.t.length !== MAP.pts.length) {
-    const t = MAP.pts.map(() => ({ n: 0, c: [0, 0, 0, 0], k: 0 }));
+    /* relieve v2 (mundo): casillas de montaña y de río de cada provincia */
+    const t = MAP.pts.map(() => ({ n: 0, c: [0, 0, 0, 0], k: 0, m: 0, r: 0 }));
     for (let y = 0; y < H; y++)
       for (let x = 0; x < W; x++) {
         const j = MAP.grid[y][x];
         if (j < 0) continue;
         t[j].n++;
         t[j].c[MAP.terr[y][x]]++;
+        if (MAP.mont && MAP.mont[y] && MAP.mont[y][x]) t[j].m++;
+        if (MAP.rio && MAP.rio[y] && MAP.rio[y][x]) t[j].r++;
         if ((MAP.terr[y - 1]?.[x] ?? 0) === 0 || (MAP.terr[y + 1]?.[x] ?? 0) === 0) t[j].k++;
         else if ((MAP.terr[y][x - 1] ?? 0) === 0 || (MAP.terr[y][x + 1] ?? 0) === 0) t[j].k++;
       }
     ecoCacheT = {
       seed: MAP.seed,
-      t: t.map((q) => ({ n: q.n, s: q.c.map((v) => v / Math.max(1, q.n)), costa: q.k >= 3 })),
+      relieve: !!(MAP.rios && MAP.rios.length),
+      t: t.map((q) => ({
+        n: q.n,
+        s: q.c.map((v) => v / Math.max(1, q.n)),
+        costa: q.k >= 3,
+        mont: q.m / Math.max(1, q.n),
+        rio: q.r,
+      })),
     };
   }
   return ecoCacheT.t[i] || { n: 40, s: [0, 0.7, 0.15, 0.15], costa: false };
@@ -220,12 +236,14 @@ function ecoCapacidad(p, E = ecoE()) {
     (+p.farm || 0) * 3 +
     (+p.market || 0) * 1.5 +
     (p.cap ? 7 : 0) +
-    (e === "trigo" || e === "pesca" ? 2 : 0)
+    (e === "trigo" || e === "pesca" ? 2 : 0) +
+    ((E.fer && E.fer[p.id] != null ? E.fer[p.id] : 0.5) - 0.5) * 6
   );
 }
 /* especialidades, población y existencias iniciales: deterministas a partir de G.seed */
 function ecoIniProv(E) {
   E.esp = E.esp && E.esp.length === G.P.length ? E.esp : [];
+  E.cul = E.cul && E.cul.length === G.P.length ? E.cul : [];
   E.pob = E.pob && E.pob.length === G.P.length ? E.pob : [];
   /* comarca cultural: el pueblo cuya capital queda más cerca de la provincia */
   const caps = ecoCapitales(),
@@ -258,6 +276,7 @@ function ecoIniProv(E) {
     let x = r() * ops.reduce((s, o) => s + o[1], 0);
     E.esp[p.id] = (ops.find((o) => (x -= o[1]) < 0) || ops[0])[0];
     nuevas.push([p, cf]);
+    E.cul[p.id] = cid;
     pesos[p.id] = Object.fromEntries(ops);
   }
   /* cada pueblo tiene al menos una especialidad «de firma» en su comarca (fuera de la capital) */
@@ -273,6 +292,7 @@ function ecoIniProv(E) {
         if (!mejor || (pesos[p.id][k] || 0) > mejor[2]) mejor = [p, k, pesos[p.id][k] || 0];
     if (mejor && mejor[2] > 0) E.esp[mejor[0].id] = mejor[1];
   }
+  ecoIniYac(E);
   for (const p of G.P)
     if (!(E.pob[p.id] > 0))
       E.pob[p.id] = Math.round(ecoCapacidad(p, E) * (0.62 + rng[p.id]() * 0.16) * 10) / 10;
@@ -320,6 +340,193 @@ const ecoMontada = (t) => {
 /* ejércitos de campaña de f (G.cam.ej); vacío si campaña no está */
 const ecoEjercitos = (f) => (G && G.cam && typeof camEjDe === "function" ? camEjDe(f) : []);
 
+/* ---------- tierras: yacimientos, fertilidad y explotaciones ----------
+   G.eco.yac[i] = {recurso: riqueza 1..3} (madera, piedra, hierro, oro, estano, sal); G.eco.fer[i] = 0..1;
+   G.eco.exp[i] = {mina, cantera, aserradero, salinas}: explotaciones establecidas al empezar (nivel 1).
+   Los edificios que construya tecnología viven en p.mina, p.cantera, p.aserradero, p.salinas; el nivel
+   efectivo es el mayor de los dos (ecoNivelExp). Todo determinista con G.seed y el terreno de MAP. */
+const ECO_YAC = {
+  madera: { n: "Bosques", icono: "♣", exp: "aserradero" },
+  piedra: { n: "Piedra de cantera", icono: "▲", exp: "cantera" },
+  hierro: { n: "Vetas de hierro", icono: "⚒", exp: "mina" },
+  oro: { n: "Vetas de oro", icono: "◉", exp: "mina" },
+  estano: { n: "Estaño", icono: "⊙", exp: "mina" },
+  sal: { n: "Salinas naturales", icono: "◇", exp: "salinas" },
+};
+/* explotación → recurso principal que saca (el oro y el estaño también salen de la mina) */
+const ECO_EXP = {
+  mina: { k: "mina", r: "hierro", n: "Mina" },
+  cantera: { k: "cantera", r: "piedra", n: "Cantera" },
+  aserradero: { k: "aserradero", r: "madera", n: "Aserradero" },
+  salinas: { k: "salinas", r: "sal", n: "Salinas" },
+};
+const ECO_ROM = ["", "I", "II", "III", "IV"];
+function ecoIniYac(E) {
+  if (!E.cul || E.cul.length !== G.P.length) {
+    E.cul = [];
+    const caps = ecoCapitales();
+    for (const p of G.P) {
+      let cf = -1,
+        bd = 1e9;
+      for (const [f, q] of caps) {
+        const d = (q.x - p.x) ** 2 + (q.y - p.y) ** 2;
+        if (d < bd) {
+          bd = d;
+          cf = f;
+        }
+      }
+      E.cul[p.id] = cf >= 0 ? CIV[cf].id : null;
+    }
+  }
+  E.yac = [];
+  E.fer = [];
+  E.exp = E.exp || {};
+  for (const p of G.P) {
+    const r = mul(((G.seed | 0) + p.id * 7919 + 101) | 0),
+      tr = ecoTerreno(p.id),
+      s = tr.s,
+      clima = (ECO_CIV[E.cul[p.id]] || {}).clima,
+      /* río: el cauce real del relieve (mapas v2) o el «río por provincia» de combate (mapas viejos) */
+      rio =
+        ecoCacheT && ecoCacheT.relieve
+          ? tr.rio > 0
+          : typeof cmbTerreno === "function"
+            ? !!cmbTerreno(p).rio
+            : r() < 0.2,
+      mt = tr.mont || 0,
+      esp = E.esp[p.id],
+      Y = {},
+      nivel = (x, a, b, c) => (x >= c ? 3 : x >= b ? 2 : x >= a ? 1 : 0);
+    Y.madera = nivel(s[2] + (r() - 0.5) * 0.1, 0.15, 0.3, 0.45);
+    /* las sierras (montañas del relieve) esconden las mejores vetas */
+    Y.piedra = nivel(s[3] + mt * 0.8 + (r() - 0.5) * 0.15, 0.15, 0.35, 0.6);
+    Y.hierro = nivel(s[3] * 1.1 + mt * 1.5 + r() * 0.45 - 0.25, 0.2, 0.45, 0.75);
+    Y.oro =
+      s[3] >= 0.3 && r() < (clima === "montes" ? 0.4 : 0.14) * (mt > 0 ? 2 : 1)
+        ? r() < 0.3 + mt
+          ? 2
+          : 1
+        : 0;
+    Y.estano =
+      s[3] >= 0.25 && r() < (clima === "estano" ? 0.5 : 0.1) * (mt > 0 ? 1.5 : 1) ? (r() < 0.3 ? 2 : 1) : 0;
+    Y.sal = (tr.costa && r() < 0.35) || (clima === "arido" && r() < 0.3) ? (r() < 0.3 ? 2 : 1) : 0;
+    /* una sierra siempre deja al descubierto alguna veta y piedra */
+    if (mt > 0) {
+      Y.hierro = Math.max(Y.hierro, 1);
+      Y.piedra = Math.max(Y.piedra, 1);
+    }
+    /* la especialidad confirma su yacimiento y lo deja explotado */
+    const ex = {},
+      espYac = {
+        madera: "madera",
+        cantera: "piedra",
+        hierro: "hierro",
+        oro: "oro",
+        sal: "sal",
+        estano: "estano",
+      };
+    if (espYac[esp]) {
+      Y[espYac[esp]] = Math.max(2, Y[espYac[esp]]);
+      ex[ECO_YAC[espYac[esp]].exp] = 1;
+    }
+    /* otras explotaciones antiguas, sobre los mejores yacimientos */
+    for (const k of Object.keys(ECO_YAC))
+      if (Y[k] >= 2 && !ex[ECO_YAC[k].exp] && r() < (p.cap ? 0.5 : 0.12)) ex[ECO_YAC[k].exp] = 1;
+    for (const k in Y) if (!Y[k]) delete Y[k];
+    E.yac[p.id] = Y;
+    if (E.exp[p.id] === undefined) {
+      E.exp[p.id] = ex;
+      /* se levantan como edificios (claves de BLD de tecnología: p.mina, p.cantera...) */
+      for (const k in ex) p[k] = Math.max(+p[k] || 0, ex[k]);
+    }
+    /* fertilidad: llanuras y ríos riegan; colinas y climas secos o de estepa empobrecen */
+    let v =
+      0.3 +
+      s[1] * 0.4 +
+      s[2] * 0.1 -
+      s[3] * 0.2 +
+      (rio ? (tr.rio >= 3 || !(ecoCacheT && ecoCacheT.relieve) ? 0.2 : 0.12) : 0) +
+      (tr.costa ? 0.05 : 0) +
+      r() * 0.15;
+    if (clima === "arido") v += rio ? 0.15 : -0.35;
+    if (clima === "estepa") v -= 0.15;
+    if (clima === "fertil") v += 0.1;
+    if (clima === "montes") v -= 0.05;
+    if (esp === "trigo" || esp === "nilo" || esp === "chinampas") v = Math.max(v, 0.75);
+    E.fer[p.id] = Math.round(clamp(v, 0.05, 1) * 100) / 100;
+  }
+}
+/* Yacimientos de una provincia: {recurso: riqueza 1..3} */
+function ecoYac(p) {
+  const E = ecoE();
+  return (E && E.yac && E.yac[p.id]) || {};
+}
+/* Fertilidad: {v: 0..1, txt} */
+function ecoFertil(p) {
+  const E = ecoE(),
+    v = E && E.fer && E.fer[p.id] != null ? E.fer[p.id] : 0.5,
+    clima = E && E.cul ? (ECO_CIV[E.cul[p.id]] || {}).clima : null;
+  const txt =
+    clima === "arido" && v < 0.3
+      ? "Desierto"
+      : clima === "estepa" && v < 0.5
+        ? "Estepa de pastos"
+        : v >= 0.8
+          ? "Tierras muy fértiles"
+          : v >= 0.6
+            ? "Tierras fértiles"
+            : v >= 0.4
+              ? "Tierras corrientes"
+              : v >= 0.2
+                ? "Tierras pobres"
+                : "Tierras yermas";
+  return { v, txt };
+}
+/* nivel efectivo de una explotación: el edificio de tecnología (p[k]) o la establecida al empezar */
+function ecoNivelExp(p, k) {
+  const E = ecoE(),
+    ini = (E && E.exp && E.exp[p.id] && E.exp[p.id][k]) || 0;
+  return Math.max(+p[k] || 0, ini);
+}
+/* Explotaciones en marcha: {mina: n, cantera: n, aserradero: n, salinas: n} (solo las que hay) */
+function ecoExplotaciones(p) {
+  const o = {};
+  for (const k in ECO_EXP) {
+    const n = ecoNivelExp(p, k);
+    if (n) o[k] = n;
+  }
+  return o;
+}
+/* ¿Ve el reino f las tierras de p? (hoy siempre; con niebla de guerra y espías dependerá de ellos) */
+function ecoInfoVisible(p, f) {
+  if (!p || p.owner === f) return true;
+  /* niebla de guerra de campaña: solo lo que se ve ahora (propias, aliadas, torres, ejércitos, espías) */
+  if (typeof camInfoVisible === "function")
+    try {
+      return !!camInfoVisible(p, f);
+    } catch (_) {}
+  return true;
+}
+/* ¿Se conocen al menos sus tierras (exploradas alguna vez)? La tierra no cambia: yacimientos y
+   fertilidad se recuerdan; producción y explotaciones, solo a la vista. */
+function ecoInfoConocida(p, f) {
+  if (ecoInfoVisible(p, f)) return true;
+  if (typeof camMemProv === "function")
+    try {
+      return !!camMemProv(f, p.id);
+    } catch (_) {}
+  return false;
+}
+/* Recurso principal de una provincia (para el mapa): {id, icono, nombre} o null */
+function ecoIconoProv(p) {
+  if (!G || !p) return null;
+  const y = yields(p),
+    best = ECO_RES.map((r) => ({ r, v: (y[r.id] || 0) * r.base })).sort((a, b) => b.v - a.v)[0];
+  if (best && best.v > 0) return { id: best.r.id, icono: best.r.icono, nombre: best.r.nombre };
+  if (ecoFertil(p).v >= 0.7) return { id: "comida", icono: "❦", nombre: "Grano" };
+  return null;
+}
+
 /* ---------- rendimiento de una provincia ---------- */
 function ecoDesglose(p) {
   const E = ecoE(),
@@ -333,25 +540,46 @@ function ecoDesglose(p) {
     pob = ecoPob(p),
     tr = ecoTerreno(p.id),
     ey = (ECO_ESP[E.esp[p.id]] || {}).y || {};
+  const v = ecoFertil(p).v,
+    Y = ecoYac(p),
+    /* lo que sacan las explotaciones lo suma tecnología (modificador de 'rendimiento', tecRenYac);
+       solo si tecnología no está, lo calcula la economía */
+    sinTec = typeof tecRenYac !== "function",
+    L = (q) => (sinTec ? Math.min(ecoNivelExp(p, q.k), Y[q.r] || 0) : 0);
   let imp = pob * ECO_IMP * (TAXM[p.tax] ?? 1) * k * ecoMultImp(p),
-    fo = (2.5 + pob * ECO_COS + (+p.farm || 0) * 5 + (p.cap ? 4 : 0) + (ey.fo || 0)) * an.fo;
+    fo =
+      (2.5 +
+        pob * ECO_COS * (0.6 + 0.8 * v) +
+        (+p.farm || 0) * 5 * (0.7 + 0.6 * v) +
+        (p.cap ? 4 : 0) +
+        (ey.fo || 0)) *
+      an.fo;
   if (S.diezmo) imp *= 0.9;
   if (S.annona) {
     fo += imp * 0.3;
     imp *= 0.75;
   }
   if (peste) fo *= 0.85;
+  /* recursos: lo que da la tierra sin más (yacimientos ricos, bosque) y la especialidad */
   const s = tr.s,
-    res = {
-      madera: (s[2] >= 0.35 ? 2 : s[2] >= 0.18 ? 1 : 0) + (ey.madera || 0),
-      piedra: (s[3] >= 0.6 ? 2 : s[3] >= 0.3 ? 1 : 0) + (ey.piedra || 0),
-      hierro: (s[3] >= 0.75 ? 1 : 0) + (ey.hierro || 0),
-      caballos: (s[1] >= 0.85 && tr.n >= 40 ? 1 : 0) + (ey.caballos || 0),
-      sal: ey.sal || 0,
-      vino: ey.vino || 0,
-      seda: ey.seda || 0,
-    };
-  return { imp, mer: (+p.market || 0) * 5 * k, cap: p.cap ? 6 * k : 0, esp: (ey.g || 0) * k, fo, res };
+    res = {};
+  for (const r of ECO_RES) res[r.id] = ey[r.id] || 0;
+  res.madera += Math.max(0, (Y.madera || 0) - 1) + L(ECO_EXP.aserradero);
+  res.piedra += Math.max(0, (Y.piedra || 0) - 1) + L(ECO_EXP.cantera);
+  res.hierro += ((Y.hierro || 0) >= 3 ? 1 : 0) + L(ECO_EXP.mina);
+  res.sal += ((Y.sal || 0) >= 2 ? 1 : 0) + L(ECO_EXP.salinas);
+  res.caballos += s[1] >= 0.85 && tr.n >= 40 ? 1 : 0;
+  /* el oro y el estaño de las minas se venden: oro para el tesoro */
+  const mina = sinTec ? ecoNivelExp(p, "mina") : 0,
+    minas = Math.min(mina, Y.oro || 0) * 2 + Math.min(mina, Y.estano || 0);
+  return {
+    imp,
+    mer: (+p.market || 0) * 5 * k,
+    cap: p.cap ? 6 * k : 0,
+    esp: ((ey.g || 0) + minas) * k,
+    fo,
+    res,
+  };
 }
 function ecoRend(p, d, crudo) {
   const y = { g: d.imp + d.mer + d.cap + d.esp, fo: d.fo, ...d.res };
@@ -1251,7 +1479,12 @@ OC.on("conquista", (r) => {
 });
 OC.on("revuelta", (r) => r && ecoPerderAlmacenes(r.de));
 /* al perder una provincia se pierden sus graneros y almacenes: lo que ya no cabe, se pierde */
-function ecoPerderAlmacenes(f) {
+/* al cerrar el año (tras todas las conquistas, cesiones y regalos) nada queda por encima de los almacenes */
+OC.on("finAnio", () => {
+  if (!G) return;
+  for (let f = 0; f < NF; f++) ecoPerderAlmacenes(f, true);
+});
+function ecoPerderAlmacenes(f, callado) {
   if (!G || f == null || f >= REB || !G.F[f] || !alive(f)) return;
   const F = G.F[f],
     gr = ecoGranero(f),
@@ -1260,7 +1493,7 @@ function ecoPerderAlmacenes(f) {
   if (F.food > gr) F.food = gr;
   F.res = F.res || {};
   for (const r of ECO_RES) if (F.res[r.id] > tope) F.res[r.id] = tope;
-  if (isMe(f) && antes - F.food >= 5)
+  if (!callado && isMe(f) && antes - F.food >= 5)
     addLog(`Con la provincia perdida se pierden sus graneros: ${antes - F.food} de comida.`, "bad");
 }
 OC.on("partidaLista", () => {
@@ -1340,17 +1573,47 @@ OC.seccion("prov", {
   render: ({ p, mine }, dis) => {
     const es = ecoEspecialidad(p),
       tasa = ecoTasa(p),
-      y = yields(p),
-      prod = ECO_RES.filter((r) => y[r.id] > 0)
-        .map((r) => `<span title="${r.nombre}">${r.icono}${y[r.id]}</span>`)
-        .join(" "),
       E = ecoE();
-    let h = `<h3>Hacienda</h3><p class="eco-pv"><span title="Población en miles de almas">${ecoN(ecoPob(p))} mil almas <i class="${tasa > 0.004 ? "eco-up" : tasa < -0.004 ? "eco-dn" : ""}">${tasa > 0.004 ? "▲" : tasa < -0.004 ? "▼" : "="}</i></span> · <span title="${esc(es.d)}">${es.n}</span>${E.peste[p.id] ? ' · <b class="eco-dn">peste</b>' : ""}${prod ? `<br><span class="stats">Produce ${prod}</span>` : ""}</p>`;
+    let h = `<h3>Hacienda</h3><p class="eco-pv"><span title="Población en miles de almas">${ecoN(ecoPob(p))} mil almas <i class="${tasa > 0.004 ? "eco-up" : tasa < -0.004 ? "eco-dn" : ""}">${tasa > 0.004 ? "▲" : tasa < -0.004 ? "▼" : "="}</i></span> · <span title="${esc(es.d)}">${es.n}</span>${E.peste[p.id] ? ' · <b class="eco-dn">peste</b>' : ""}</p>`;
     if (mine)
       h += `<div class="g3">${TAX.map((t, i) => `<button data-act="tax-${i}" class="${p.tax === i ? "on" : ""}" ${dis ? "disabled" : ""} title="Impuestos ${t.toLowerCase()}">${t}<small>${Math.round(TAXM[i] * 100)}% · ${ecoSig(TAXO[i])} ord.</small></button>`).join("")}</div>`;
     else if (typeof comBotonHasta === "function") h += comBotonHasta(p, dis);
     return h;
   },
+});
+/* ---------- sección de provincia: tierras (propias y ajenas) ---------- */
+const ecoPuntos = (n) => "●".repeat(n) + "○".repeat(Math.max(0, 3 - n));
+function ecoTierrasHtml(p, vista = true) {
+  const y = vista ? yields(p) : {},
+    fe = ecoFertil(p),
+    Y = ecoYac(p),
+    ex = vista ? ecoExplotaciones(p) : {},
+    prod = [
+      ["oro", "◉", "Oro", y.g],
+      ["comida", "❦", "Comida", y.fo],
+      ...ECO_RES.map((r) => [r.id, r.icono, r.nombre, y[r.id]]),
+    ]
+      .filter((x) => x[3] > 0)
+      .map(([, i, n, v]) => `<span title="${n}">${i}${v}</span>`)
+      .join(" ");
+  let h = `<p class="eco-pv"><span class="eco-fer${fe.v < 0.35 ? " eco-dn" : fe.v < 0.55 ? " eco-med" : ""}" title="Fertilidad ${Math.round(fe.v * 100)}%">❦ ${fe.txt}</span>${prod ? `<br><span class="stats">Al año: ${prod}</span>` : ""}${vista ? "" : '<br><span class="stats">Lo que recuerdan tus exploradores; hoy no la ves.</span>'}</p>`;
+  const yac = Object.keys(ECO_YAC).filter((k) => Y[k]);
+  if (yac.length)
+    h += `<ul class="eco-yac">${yac
+      .map((k) => {
+        const d = ECO_YAC[k],
+          n = ex[d.exp] || 0;
+        return `<li><span>${d.icono} ${d.n}</span><span class="eco-riq" title="Riqueza ${Y[k]} de 3">${ecoPuntos(Y[k])}</span><span class="${n ? "eco-up" : "dim"}">${n ? `${ECO_EXP[d.exp].n} ${ECO_ROM[n] || n}` : vista ? "sin explotar" : "¿?"}</span></li>`;
+      })
+      .join("")}</ul>`;
+  else h += '<p class="stats">Sin yacimientos conocidos.</p>';
+  return h;
+}
+OC.seccion("prov", {
+  id: "tierras",
+  orden: 39,
+  render: ({ p }) =>
+    `<h3>Tierras</h3>${ecoInfoVisible(p, ME) ? ecoTierrasHtml(p) : ecoInfoConocida(p, ME) ? ecoTierrasHtml(p, false) : '<p class="dim">Tierra ignota: nadie sabe qué esconde.</p>'}`,
 });
 OC.accion("tax", (v) => {
   const p = G.P[sel];
@@ -1407,12 +1670,14 @@ OC.seccion("prov", {
   },
 });
 /* el ánimo también en la línea de información del mapa (se añade tras el texto de la interfaz) */
+/* el recurso principal también en la línea de información del mapa (el ánimo ya lo pone la interfaz) */
 document.addEventListener("mousemove", (e) => {
-  if (!G || e.target !== cv || hover == null || !G.P[hover] || G.P[hover].owner === REB) return;
+  if (!G || e.target !== cv || hover == null || !G.P[hover]) return;
   const hv = $("hv"),
-    a = ecoNivel(G.P[hover]);
-  if (hv && hv.textContent && !hv.textContent.includes(" · " + a.nombre))
-    hv.textContent += ` · ${a.icono} ${a.nombre}`;
+    p = G.P[hover],
+    r = ecoInfoVisible(p, ME) ? ecoIconoProv(p) : null;
+  if (hv && r && hv.textContent && !hv.textContent.includes(r.icono + " " + r.nombre))
+    hv.textContent += ` · ${r.icono} ${r.nombre}`;
 });
 OC.accion(
   "ecoir",
