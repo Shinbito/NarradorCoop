@@ -46,6 +46,47 @@ function camS() {
   if (G.estacion == null) G.estacion = 0;
   return S;
 }
+/* ---------- repetición de la estación (CONTRATO §9) ----------
+   G.cam.rep = {v:1, anio, est, own0, ej0, pasos} se abre al empezar la resolución (camEstacion) y se cierra
+   al acabar camNuevaEstacion (incluye lo anual: revueltas y conquistas). Pasos: mov, ej+, ej-, bat, ase, con. */
+const CAM_REP_TOPE = 2000;
+function camRepIni() {
+  const S = camS();
+  S.rep = {
+    v: 1,
+    anio: G.year,
+    est: G.estacion,
+    own0: G.P.map((p) => p.owner),
+    ej0: S.ej.filter((e) => camTot(e.u) > 0).map((e) => ({ id: e.id, f: e.f, x: e.x, y: e.y, n: camTot(e.u) })),
+    pasos: [],
+  };
+}
+function camRep(o) {
+  const r = G && G.cam && G.cam.rep;
+  if (!r || r.fin) return;
+  const P = r.pasos;
+  if (P.length >= CAM_REP_TOPE && o.k === "mov") {
+    /* pasado el tope, los pasos de marcha de un ejército se resumen en uno (su último tramo) */
+    for (let i = P.length - 1; i >= Math.max(0, P.length - 400); i--) {
+      const q = P[i];
+      if (q.k === "mov" && q.ej === o.ej) {
+        q.a = o.a;
+        return;
+      }
+      if (q.ej === o.ej) break;
+    }
+  }
+  P.push(o);
+}
+const camRepMov = (e, x0, y0) => (x0 !== e.x || y0 !== e.y) && camRep({ k: "mov", ej: e.id, f: e.f, de: [x0, y0], a: [e.x, e.y] });
+function camAsedioFin(pid) {
+  const S = camS();
+  if (!S.as[pid]) return;
+  camRep({ k: "ase", p: +pid, f: S.as[pid].f, fase: "fin" });
+  delete S.as[pid];
+}
+OC.on("conquista", ({ p, de, a }) => p && camRep({ k: "con", p: p.id, de, a }));
+OC.on("revuelta", ({ p, de }) => p && camRep({ k: "con", p: p.id, de: de != null ? de : p.owner, a: REB }));
 const camEj = (id) => camS().ej.find((e) => e.id === id) || null;
 const camEjDe = (f) => camS().ej.filter((e) => e.f === f);
 const camIdx = (x, y) => y * W + x;
@@ -405,6 +446,7 @@ function camNuevoEj(f, x, y, u, o = {}) {
     };
   ej.mov = o.mov != null ? o.mov : camMovMax(ej);
   S.ej.push(ej);
+  camRep({ k: "ej+", ej: ej.id, f, x, y, n: camTot(ej.u) });
   camTocar();
   return ej;
 }
@@ -450,8 +492,9 @@ function camDisolver(ej) {
   if (isMe(ej.f)) addLog(`El ${camNombre(ej).toLowerCase()} entra en ${p.name} y se acuartela.`);
   return { ok: true };
 }
-function camQuitar(ej) {
+function camQuitar(ej, motivo) {
   const S = camS();
+  if (S.ej.includes(ej)) camRep({ k: "ej-", ej: ej.id, motivo: motivo || "" });
   S.ej = S.ej.filter((e) => e !== ej);
   if (camSel === ej.id) camSel = null;
   camTocar();
@@ -592,6 +635,7 @@ async function camLibrar(ejA, ejD, bctx, o = {}) {
   const lugar = bctx.nombreLugar;
   if (gm[0] === "muerto" && ejA.gen != null && G.C[ejA.gen]) kill(G.C[ejA.gen], "cae en la batalla de " + lugar);
   if (gm[1] === "muerto" && ejD.gen != null && G.C[ejD.gen]) kill(G.C[ejD.gen], "cae en la batalla de " + lugar);
+  if (d0 > 0) camRep({ k: "bat", x: bctx.x != null ? bctx.x : bctx.p ? bctx.p.x : 0, y: bctx.y != null ? bctx.y : bctx.p ? bctx.p.y : 0, fs: [ejA.f, ejD.f], gana: win ? ejA.f : ejD.f, lugar: bctx.nombreLugar || "" });
   if (bctx.p) flash = { x: bctx.x * T + 4, y: bctx.y * T + 4, t0: performance.now() };
   if (inf && (yoA || yoD) && ch === "auto" && !o.sinInforme) {
     const yo = yoA ? 0 : 1,
@@ -639,8 +683,11 @@ function camRetirar(ej, dx, dy) {
       }
     }
   if (!best) return false;
+  const x0r = ej.x,
+    y0r = ej.y;
   ej.x = best[0];
   ej.y = best[1];
+  camRepMov(ej, x0r, y0r);
   ej.est = "marcha";
   ej.asd = null;
   ej.mov = 0;
@@ -769,7 +816,7 @@ function camConquistar(p, ej, modo, D, ron) {
   cmbVetFijar(p, ej.vet);
   cmbOriFijar(p, ej.ori);
   if (modo === "asalto" && p.walls) p.walls--;
-  delete camS().as[p.id];
+  camAsedioFin(p.id);
   for (const e of camS().ej) if (e.asd === p.id) {
     e.asd = null;
     if (e.est === "asedio") e.est = "marcha";
@@ -792,8 +839,11 @@ function camConquistar(p, ej, modo, D, ron) {
   for (const e of camS().ej) if (e.f === f && e !== ej && camCheb(e.x, e.y, p.x, p.y) <= 1) camSinMaquinas(e);
   if (camTot(ej.u) <= 0) camQuitar(ej);
   else {
+    const x0c = ej.x,
+      y0c = ej.y;
     ej.x = p.x;
     ej.y = p.y;
+    camRepMov(ej, x0c, y0c);
     ej.est = "marcha";
     ej.asd = null;
     ej.obj = null;
@@ -858,7 +908,7 @@ function camCercoReasignar(pid) {
   if (!as) return;
   const sit = camSitiadores(pid);
   if (!sit.length) {
-    delete camS().as[pid];
+    camAsedioFin(pid);
     return;
   }
   if (sit.some((e) => e.f === as.f)) return;
@@ -887,6 +937,7 @@ function camAsediar(ej, p) {
       brecha: 0,
       ini: [G.year, G.estacion],
     };
+    camRep({ k: "ase", p: p.id, f: ej.f, fase: "ini" });
     addLog(`${CIV[ej.f].s} pone cerco a ${p.name}${p.owner !== REB ? ", ciudad de " + CIV[p.owner].s : ""}.`, isMe(ej.f) ? "good" : isMe(p.owner) ? "bad" : "");
   }
   ej.est = "asedio";
@@ -1152,7 +1203,7 @@ function camLevantar(ej) {
   ej.asd = null;
   camSinMaquinas(ej);
   if (pid != null && !camSitiadores(pid).length) {
-    delete camS().as[pid];
+    camAsedioFin(pid);
     const p = G.P[pid];
     if (p) addLog(`${CIV[ej.f].s} levanta el cerco de ${p.name}.`, isMe(p.owner) ? "good" : "");
   } else if (pid != null) camCercoReasignar(pid);
@@ -1190,7 +1241,7 @@ async function camSalida(p, o = {}) {
   if (win) {
     if (camTot(sit.u) < camTot(uD0) * 0.12) camDispersar(sit, `roto ante ${p.name}`);
     else if (!camRetirar(sit, p.x, p.y)) camDispersar(sit, `cercado ante ${p.name}`);
-    if (!camSitiadores(p.id).length) delete camS().as[p.id];
+    if (!camSitiadores(p.id).length) camAsedioFin(p.id);
   }
   void uA0;
   camTocar();
@@ -1257,9 +1308,12 @@ async function camDarPaso(ej, j, o = {}) {
     return { ok: true, c, parar: true };
   }
   /* animación: la interfaz interpola de (x0, y0) a la casilla nueva durante dur ms (solo con o.anim) */
+  const x0r = ej.x,
+    y0r = ej.y;
   ej.anim = o.anim && !reduce ? { x0: ej.x, y0: ej.y, t0: performance.now(), dur: Math.round((o.lento ? 90 : 55) * camVel()) } : null;
   ej.x = x;
   ej.y = y;
+  camRep({ k: "mov", ej: ej.id, f, de: [x0r, y0r], a: [x, y] });
   ej.mov = Math.max(0, Math.round((ej.mov - c) * 100) / 100);
   ej.fat = clamp((ej.fat || 0) + c * CAM_K.fatPaso, 0, 100);
   if (ej.est === "campamento" || ej.est === "asedio") {
@@ -1476,6 +1530,7 @@ async function camResolverSimultaneo(g, ordenes, opc = {}) {
 async function camEstacion() {
   if (!G || G.over) return;
   const S = camS();
+  camRepIni();
   /* 1) la IA da sus órdenes; las marchas de todos se resuelven a la vez */
   const ords = [];
   for (let f = 0; f < NF; f++) {
@@ -1500,6 +1555,7 @@ async function camEstacion() {
 async function camNuevaEstacion() {
   if (!G) return;
   const S = camS();
+  if (!S.rep) camRepIni();
   for (const e of S.ej.slice()) {
     if (e.f < NF && !alive(e.f)) {
       camQuitar(e);
@@ -1524,7 +1580,54 @@ async function camNuevaEstacion() {
       const pl = e.plan;
       await camAplicarOrden(G, { tipo: "mover", f: e.f, ej: e.id, x: pl.x, y: pl.y, luego: pl.luego, p: pl.p, con: pl.con }, {});
     }
+  camRepCerrar();
   camTocar();
+}
+/* estado que resulta de aplicar los pasos de una repetición (hasta el paso n): {own:[], ej: Map id→{f,x,y,n}} */
+function camRepEstado(rep, n) {
+  const own = rep.own0.slice(),
+    ej = new Map(rep.ej0.map((e) => [e.id, { ...e }]));
+  for (const s of rep.pasos.slice(0, n == null ? rep.pasos.length : n)) {
+    if (s.k === "mov" && ej.has(s.ej)) Object.assign(ej.get(s.ej), { x: s.a[0], y: s.a[1] });
+    else if (s.k === "ej+") ej.set(s.ej, { id: s.ej, f: s.f, x: s.x, y: s.y, n: s.n });
+    else if (s.k === "ej-") ej.delete(s.ej);
+    else if (s.k === "con") own[s.p] = s.a;
+  }
+  return { own, ej };
+}
+/* cierra la repetición; si algo cambió sin pasar por los ganchos (sucesos, sociedad…), lo añade al final */
+function camRepCerrar() {
+  const S = camS(),
+    r = S.rep;
+  if (!r || r.fin) return;
+  const st = camRepEstado(r);
+  let aj = 0;
+  G.P.forEach((p, i) => {
+    if (st.own[i] !== p.owner) {
+      r.pasos.push({ k: "con", p: i, de: st.own[i], a: p.owner });
+      aj++;
+    }
+  });
+  const vivos = new Set();
+  for (const e of S.ej) {
+    if (camTot(e.u) <= 0) continue;
+    vivos.add(e.id);
+    const s = st.ej.get(e.id);
+    if (!s) {
+      r.pasos.push({ k: "ej+", ej: e.id, f: e.f, x: e.x, y: e.y, n: camTot(e.u) });
+      aj++;
+    } else if (s.x !== e.x || s.y !== e.y) {
+      r.pasos.push({ k: "mov", ej: e.id, f: e.f, de: [s.x, s.y], a: [e.x, e.y] });
+      aj++;
+    }
+  }
+  for (const id of st.ej.keys())
+    if (!vivos.has(id)) {
+      r.pasos.push({ k: "ej-", ej: id, motivo: "" });
+      aj++;
+    }
+  r.ajustes = aj;
+  r.fin = true;
 }
 async function camAsedios() {
   const S = camS();
@@ -1533,12 +1636,12 @@ async function camAsedios() {
       p = G.P[as.p];
     if (G.over) return;
     if (!p) {
-      delete S.as[k];
+      camAsedioFin(k);
       continue;
     }
     const sit = camSitiadores(p.id).filter((e) => camCheb(e.x, e.y, p.x, p.y) <= 1 && camGuerra(e.f, p.owner));
     if (!sit.length || p.owner === as.f) {
-      delete S.as[k];
+      camAsedioFin(k);
       for (const e of camS().ej) if (e.asd === p.id) {
         e.asd = null;
         if (e.est === "asedio") e.est = "marcha";
@@ -1701,8 +1804,11 @@ OC.on("pazFirmada", ({ a, b }) => {
     if (e.est === "asedio") camLevantar(e);
     const casa = owned(e.f).sort((x, y) => Math.hypot(x.x - e.x, x.y - e.y) - Math.hypot(y.x - e.x, y.y - e.y))[0];
     if (casa) {
+      const x0 = e.x,
+        y0 = e.y;
       e.x = casa.x;
       e.y = casa.y;
+      camRepMov(e, x0, y0);
       e.plan = null;
       e.est = "marcha";
     } else camQuitar(e);

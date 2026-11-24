@@ -180,6 +180,20 @@ aliado), media guarnición sale a la vez y vuelve después. Se emite `batallaRes
   supera 0,6 y mejora en 5 puntos la de uno solo, asalta en conjunto; puede enviar un segundo ejército
   a una ciudad que ya cerca (llega por otro flanco y se suma al cerco).
 
+## Repetición de la estación (CONTRATO §9)
+
+`G.cam.rep = {v:1, anio, est, own0, ej0:[{id, f, x, y, n}], pasos, fin, ajustes}`. Se abre al empezar la
+resolución (`camEstacion` → `camRepIni`, que vacía la anterior) y se cierra al acabar `camNuevaEstacion`
+(`camRepCerrar`), así que incluye la IA, `camResolverSimultaneo` (órdenes online), batallas, asedios, lo
+anual (revueltas, conquistas) y las marchas pendientes del jugador; lo que el jugador mueve en su turno ya
+lo vio animado y no se graba. Pasos: `mov` (cada paso de marcha, retiradas, entrada en una ciudad, vuelta a
+casa tras la paz), `ej+` (`camNuevoEj`: formar, dividir, desertores), `ej-` (`camQuitar(ej, motivo)`),
+`bat` (`camLibrar` y `settle`), `ase` `ini`/`fin` (`camAsedioFin`), `con` (ganchos `conquista` y
+`revuelta`). Tope 2000 pasos: pasado, los pasos de marcha de un ejército se funden en su último tramo. Al
+cerrar, si algo cambió sin pasar por los ganchos (sucesos, sociedad…) se añade al final y se cuenta en
+`ajustes` (0 en la prueba). `camRepEstado(rep, n)` → `{own, ej}` tras aplicar los n primeros pasos (útil
+para `ifzRepetir`).
+
 ## Órdenes (API para el futuro online)
 
 Todo se expresa con objetos planos (JSON) con `f` = bando que da la orden:

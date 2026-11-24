@@ -126,6 +126,7 @@ async function settle(p, q, s, g, xpA, oriA) {
   if (gm[0] === "muerto" && g != null) kill(G.C[g], "cae en la batalla de " + q.name);
   if (gm[1] === "muerto" && gD != null) kill(G.C[gD], "cae en la batalla de " + q.name);
   flash = { x: q.x * T + 4, y: q.y * T + 4, t0: performance.now() };
+  if (d0 > 0 && typeof camRep === "function") camRep({ k: "bat", x: q.x, y: q.y, fs: [f, old], gana: win ? f : old, lugar: q.name });
   const cls = isMe(f) ? "good" : isMe(old) ? "bad" : "",
     bA = inf ? Math.round(inf.bajas[0].m) : (n0 - tot(A)) * SPU,
     bD = inf ? Math.round(inf.bajas[1].m) : d0 * SPU;

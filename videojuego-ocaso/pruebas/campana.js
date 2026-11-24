@@ -540,6 +540,31 @@ const ok = (c, m) => {
   console.log(`  (mercenarios de la IA a la vez: ${ia.merc}; encuentros: ${ia.enc}; campamentos: ${ia.campo})`);
   const sano = await page.evaluate(() => G.P.every((p) => TYP.every((t) => Number.isFinite(p.u[t]))) && G.cam.ej.every((e) => Number.isFinite(e.x) && camTot(e.u) >= 0));
   ok(sano, "sin ejércitos ni guarniciones corruptos");
+  /* repetición de la estación (CONTRATO §9): los pasos llevan de own0/ej0 al estado final */
+  const rep = await corre(`
+    let tot = { est: 0, pasos: 0, ajustes: 0, bien: 0, tipos: {} };
+    for (let k = 0; k < 4; k++) {
+      await finEstacion();
+      const r = G.cam.rep;
+      if (!r || !r.fin) continue;
+      tot.est++;
+      tot.pasos += r.pasos.length;
+      tot.ajustes += r.ajustes || 0;
+      for (const s of r.pasos) tot.tipos[s.k] = (tot.tipos[s.k] || 0) + 1;
+      const st = camRepEstado(r),
+        vivos = G.cam.ej.filter((e) => camTot(e.u) > 0);
+      const ok =
+        JSON.stringify(r).length > 0 &&
+        G.P.every((p, i) => st.own[i] === p.owner) &&
+        vivos.length === st.ej.size &&
+        vivos.every((e) => st.ej.has(e.id) && st.ej.get(e.id).x === e.x && st.ej.get(e.id).y === e.y);
+      if (ok) tot.bien++;
+    }
+    return tot;
+  `);
+  console.log("  repetición: " + JSON.stringify(rep));
+  ok(rep.est >= 3 && rep.bien === rep.est, `la repetición reproduce dueños y posiciones finales (${rep.bien}/${rep.est} estaciones, ${rep.pasos} pasos)`);
+  ok(rep.pasos > 0 && rep.ajustes <= Math.max(2, rep.pasos * 0.05), `casi todo se graba en su momento (ajustes al cerrar: ${rep.ajustes})`);
   /* el turno del jugador: una estación con ejércitos en campaña */
   const turno = await corre(`
     const cap = G.P[G.F[ME].capId] && G.P[G.F[ME].capId].owner === ME ? G.P[G.F[ME].capId] : owned(ME)[0];
