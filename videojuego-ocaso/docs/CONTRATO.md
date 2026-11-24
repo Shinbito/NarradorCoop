@@ -166,3 +166,4 @@ por estación; economía, investigación y eventos siguen siendo anuales (al cer
 - Los generales de ejércitos en campaña están en `G.cam.ej[].gen` (no los devuelve `genOf`).
 - No entregues tropas `UN[t].merc` a otro pueblo por eventos o sobornos; respeta `civPuede(f, t)` al dar tropas.
 - Mundo: `G.modo`, `G.activas`, `G.mapa`; pueblos ausentes con `G.F[f].ausente`. `CIV[f].pueblo` (frase), `CIV[f].base` (pueblo original pariente).
+- Economía cobra en su balance anual solo lo que campaña no cobra por estación (`b.gAnual`, `b.netAnual`); las tropas `merc` no pagan soldada por `ecoMant` (las paga su contrato). `ecoSaqueo(p, fr, orden)` aplica un saqueo y devuelve el botín.

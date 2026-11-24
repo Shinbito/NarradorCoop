@@ -1310,8 +1310,9 @@ function camSuministros() {
       if (F) F.gold += botin;
       if (!ya) {
         S.saq[p.id] = clave;
-        p.order = clamp(p.order - 6, 0, 100);
-        if (typeof ecoDiezmar === "function") ecoDiezmar(p, 0.02);
+        /* OC: el saqueo pasa por economía (población, orden y marca de saqueo para el ánimo) */
+        if (typeof ecoSaqueo === "function") ecoSaqueo(p, 0.02, 6);
+        else p.order = clamp(p.order - 6, 0, 100);
         if (p.owner < NF && e.f < NF) relAdd(e.f, p.owner, -2);
         if (isMe(e.f)) addLog(`Tu ${camNombre(e).toLowerCase()} saquea la comarca de ${p.name}: ${botin} de oro.`, "good");
         else if (isMe(p.owner)) addLog(`${CIV[e.f].s} saquea los campos de ${p.name}.`, "bad");
