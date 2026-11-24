@@ -804,6 +804,8 @@ OC.panel({
    API: camVisible(f, x, y) · camExplorado(f, x, y) · camVeProv(f, pid) · camVeEj(f, ej) · camMemProv(f, pid).
    ====================================================================== */
 const CAM_VIS = { ciudad: 3, torre: 2, ej: 2, cab: 3, colina: 1, espia: 3 };
+/* nivel de la torre de vigilancia de una ciudad (tecnología: tecVision; si no, p.torre) */
+const camTorre = (p) => (typeof tecVision === "function" ? tecVision(p) : Math.max(0, Math.min(3, +p.torre || 0)));
 const camNieblaOn = () => !!(G && G.cam && G.cam.niebla !== false);
 function camB64(bits) {
   const by = new Uint8Array(Math.ceil(bits.length / 8));
@@ -844,7 +846,7 @@ let camVisC = {};
 function camVisMapa(f) {
   const S = camS(),
     esp = S.esp || [],
-    k = `${camVer}|${G.year}|${G.estacion}|${esp.map((s) => s.x * 97 + s.y + (s.mis ? 1 : 0)).join(",")}|${G.P.reduce((s, p, i) => s + (p.owner + 1) * (i + 7) + (p.torre || 0) * 1000, 0)}|${W}x${H}`;
+    k = `${camVer}|${G.year}|${G.estacion}|${esp.map((s) => s.x * 97 + s.y + (s.mis ? 1 : 0)).join(",")}|${G.P.reduce((s, p, i) => s + (p.owner + 1) * (i + 7) + camTorre(p) * 1000, 0)}|${W}x${H}`;
   if (camVisC[f] && camVisC[f].k === k) return camVisC[f];
   const N = W * H,
     vis = new Uint8Array(N),
@@ -865,7 +867,7 @@ function camVisMapa(f) {
   for (const p of G.P) {
     if (!camSocio(f, p.owner)) continue;
     for (const i of cas[p.id] || []) vis[i] = 1;
-    disc(p.x, p.y, CAM_VIS.ciudad + CAM_VIS.torre * (p.torre || 0), 1 + (p.torre || 0));
+    disc(p.x, p.y, CAM_VIS.ciudad + CAM_VIS.torre * camTorre(p), 1 + camTorre(p));
   }
   for (const e of S.ej) {
     if (!camSocio(f, e.f) || camTot(e.u) <= 0) continue;
@@ -1037,7 +1039,7 @@ const camEspCoste = (f) => (camMaestro(f) ? CAM_ESP.costeMaestro : CAM_ESP.coste
 function camContra(o, x, y) {
   if (o == null || o >= NF) return 2;
   let v = camIntriga(o);
-  for (const p of owned(o)) if ((p.torre || 0) > 0 && camCheb(p.x, p.y, x, y) <= 4) v += 1.5 * p.torre;
+  for (const p of owned(o)) if (camTorre(p) > 0 && camCheb(p.x, p.y, x, y) <= 4) v += 1.5 * camTorre(p);
   for (const s of camEspDe(o)) if (s.mis && s.mis.t === "contra" && camCheb(s.x, s.y, x, y) <= 3) v += 2;
   return v;
 }
@@ -1356,6 +1358,6 @@ OC.seccion("prov", {
       c = camEspCoste(ME),
       ma = camMaestro(ME),
       aqui = camEspDe(ME).filter((s) => s.x === p.x && s.y === p.y);
-    return `<h3>Espías <span class="stats">· ${n}/${mx}</span></h3><div class="btns"><button data-act="cam-ecrear:${p.id}" ${dis || n >= mx || G.F[ME].gold < c ? "disabled" : ""} title="Su destreza depende de la intriga de ${ma ? "tu maestro de espías" : "tu soberano (nombra un maestro de espías en la Corte)"}">Reclutar espía<small>${c} oro</small></button>${aqui.map((s) => `<button data-act="cam-esel:${s.id}">${esc(s.nom)}</button>`).join("")}</div>${(p.torre || 0) > 0 ? `<p class="stats">Torre de vigilancia ${p.torre}: ve ${CAM_VIS.ciudad + CAM_VIS.torre * p.torre} casillas y dentro de los bosques cercanos.</p>` : ""}`;
+    return `<h3>Espías <span class="stats">· ${n}/${mx}</span></h3><div class="btns"><button data-act="cam-ecrear:${p.id}" ${dis || n >= mx || G.F[ME].gold < c ? "disabled" : ""} title="Su destreza depende de la intriga de ${ma ? "tu maestro de espías" : "tu soberano (nombra un maestro de espías en la Corte)"}">Reclutar espía<small>${c} oro</small></button>${aqui.map((s) => `<button data-act="cam-esel:${s.id}">${esc(s.nom)}</button>`).join("")}</div>${camTorre(p) > 0 ? `<p class="stats">Torre de vigilancia ${camTorre(p)}: ve ${CAM_VIS.ciudad + CAM_VIS.torre * camTorre(p)} casillas y dentro de los bosques cercanos.</p>` : ""}`;
   },
 });

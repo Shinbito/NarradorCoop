@@ -117,6 +117,9 @@ correspondientes. Los demás solo escuchan.
 | `costeConstruccion` | objeto coste | `{f, p, id, nivel}` | tecnología | economía |
 | `puntosInvestigacion` | número por año | `{f}` | tecnología | economía, social, narrativa |
 | `aceptacionDiplomatica` | probabilidad 0-1 | `{f, g, tipo, ...términos}`; tipo: paz, alianza, nag, comercio, paso, rehenes, vasallaje, tributo, embajada, boda, llamada | diplomacia | social, narrativa |
+| `alcanceEjercito` | puntos de marcha por estación | `{f, ej, est}` | campaña (`camMovMax`) | tecnología (Yam, logística) |
+| `costeMaquina` | objeto coste `{madera, oro, hierro…}` | `{f, k}` (k = `ari`/`tor`/`cat`) | campaña (`camCosteMaq`) | tecnología (Poliorcética, Ingeniería) |
+| `estacionesMaquina` | estaciones de obra | `{f, k, ej}` | campaña (`camConstruir`) | tecnología (Poliorcética, Ingeniería) |
 
 ## 6. Pruebas
 

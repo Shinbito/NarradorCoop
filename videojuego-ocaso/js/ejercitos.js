@@ -240,6 +240,8 @@ function camMovMax(ej, est = G.estacion) {
   if (g) m += g.ma * CAM_K.gen;
   if (est === 3) m *= CAM_K.invierno;
   if ((ej.fat || 0) > 70) m *= 0.8;
+  /* OC alcanceEjercito: puntos de marcha por estación. ctx {f, ej, est} */
+  m = +OC.calc("alcanceEjercito", m, { f: ej.f, ej, est }) || m;
   return Math.round(m * 10) / 10;
 }
 
@@ -1540,7 +1542,8 @@ async function camSalida(p, o = {}) {
 }
 /* máquinas de asedio: se pagan al empezar y se terminan al cabo de sus estaciones */
 function camCosteMaq(f, k) {
-  const c = { ...CAM_MAQ[k].coste };
+  /* OC costeMaquina: coste de una máquina de asedio. ctx {f, k} */
+  const c = { ...(OC.calc("costeMaquina", { ...CAM_MAQ[k].coste }, { f, k }) || CAM_MAQ[k].coste) };
   if (OC.puedePagar(f, c)) return c;
   /* sin madera suficiente: se compra a 3 de oro por unidad que falte */
   const r = { oro: c.oro || 0 };
@@ -1569,8 +1572,10 @@ function camConstruir(ej, k) {
   if (m) return { ok: false, motivo: m };
   OC.pagar(ej.f, camCosteMaq(ej.f, k));
   ej.obra = ej.obra || [];
-  ej.obra.push({ t: k, q: CAM_MAQ[k].est });
-  if (isMe(ej.f)) addLog(`Los carpinteros del ${camNombre(ej).toLowerCase()} empiezan ${k === "ari" ? "un ariete" : k === "tor" ? "una torre de asedio" : "una catapulta"} (${CAM_MAQ[k].est} ${CAM_MAQ[k].est > 1 ? "estaciones" : "estación"}).`);
+  /* OC estacionesMaquina: estaciones de obra. ctx {f, k, ej} */
+  const q = Math.max(1, Math.round(OC.calc("estacionesMaquina", CAM_MAQ[k].est, { f: ej.f, k, ej }) || CAM_MAQ[k].est));
+  ej.obra.push({ t: k, q });
+  if (isMe(ej.f)) addLog(`Los carpinteros del ${camNombre(ej).toLowerCase()} empiezan ${k === "ari" ? "un ariete" : k === "tor" ? "una torre de asedio" : "una catapulta"} (${q} ${q > 1 ? "estaciones" : "estación"}).`);
   return { ok: true };
 }
 
