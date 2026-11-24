@@ -15,7 +15,7 @@
 
 const B3D_EL = (30 * Math.PI) / 180; /* inclinación fija de la cámara (isométrica) */
 const B3D_AZ0 = -Math.PI / 4; /* giro inicial: tu línea abajo a la izquierda */
-const B3D_S = 0.04; /* casillas por vóxel de las figuras */
+const B3D_S = 0.034; /* casillas por vóxel de las figuras (pequeñas frente a árboles y casas: el campo parece grande) */
 const B3D_CAL = {
   baja: { n: "baja", simple: true, px: 3, min: 300, max: 640, sombras: 0, fig: 1800, arboles: 1, lluvia: 0 },
   media: { n: "media", simple: true, px: 2.5, min: 360, max: 820, sombras: 1024, fig: 4000, arboles: 2, lluvia: 260 },
@@ -1143,7 +1143,7 @@ function b3dConstruir() {
         for (let k = 0; k < cal.arboles; k++) {
           const px = x + 0.15 + rnd() * 0.7,
             py = y + 0.15 + rnd() * 0.7;
-          (rnd() < 0.55 ? tA : tB).push([px, py, 0.062 * (0.8 + rnd() * 0.4), rnd() * 6.28, 0.82 + rnd() * 0.3]);
+          (rnd() < 0.55 ? tA : tB).push([px, py, 0.13 * (0.8 + rnd() * 0.4), rnd() * 6.28, 0.82 + rnd() * 0.3]); /* ~3 veces un soldado */
         }
       if (t === 2 && rnd() < 0.3) rocas.push([x + rnd(), y + rnd(), 0.12 + rnd() * 0.16, rnd() * 6.28]);
       if (t === 4) for (let k = 0; k < 2; k++) rocas.push([x + rnd(), y + rnd(), 0.08 + rnd() * 0.08, rnd() * 6.28]);
@@ -1437,13 +1437,14 @@ function b3dMuralla(S, dis, rnd) {
     const casas = [],
       xa = e ? M.x + 1.3 : 0.8,
       xb = e ? BW - 0.8 : M.x - 1.3;
-    for (let zz = y0 + 1.1; zz < y1 - 0.9; zz += 1.35)
-      for (let xx = xa; xx < xb; xx += 1.2) {
+    /* a escala: casas y torres mucho más grandes que los soldados (más separadas, menos) */
+    for (let zz = y0 + 1.3; zz < y1 - 1.1; zz += 1.9)
+      for (let xx = xa + 0.2; xx < xb - 0.2; xx += 1.7) {
         if (rnd() < 0.42) continue;
         const torre = rnd() < 0.1,
-          w = torre ? 0.5 : 0.55 + rnd() * 0.4,
-          d = torre ? 0.5 : 0.55 + rnd() * 0.4,
-          h = torre ? 1.1 + rnd() * 0.4 : 0.35 + rnd() * 0.35,
+          w = torre ? 0.7 : 0.77 + rnd() * 0.56,
+          d = torre ? 0.7 : 0.77 + rnd() * 0.56,
+          h = torre ? 2 + rnd() * 0.6 : 0.55 + rnd() * 0.4, /* las casas, a la altura del adarve; las torres asoman */
           x = xx + (rnd() - 0.5) * 0.3,
           z = zz + (rnd() - 0.5) * 0.3;
         casas.push({ x: x - BW / 2, z: z - BH / 2, y: b3dAlt(x, z), w, d, h, torre, k: rnd() });
@@ -1464,7 +1465,7 @@ function b3dMuralla(S, dis, rnd) {
         M4.setPosition(o.x, o.y + o.h / 2, o.z);
         ic.setMatrixAt(i, M4);
         ic.setColorAt(i, c.set(o.torre ? B3D_TERR_PAL.piedra : paredes[Math.floor(o.k * 4)]));
-        const rh = o.torre ? 0.45 : 0.3;
+        const rh = o.torre ? 0.7 : 0.45;
         M4.makeScale(o.w * 1.05, rh, o.d * 1.05);
         M4.setPosition(o.x, o.y + o.h + rh / 2, o.z);
         it.setMatrixAt(i, M4);

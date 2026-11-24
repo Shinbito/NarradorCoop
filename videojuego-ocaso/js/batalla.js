@@ -2638,17 +2638,26 @@ function battleOver() {
   }
   return -1;
 }
-/* ritmo de reproducción de la táctica: ifzVel() de la interfaz o «lenta» (0,6); las pruebas que fijan
+/* ritmo de reproducción de la táctica: segundos simulados por segundo real. ifzVel() es un multiplicador
+   de TIEMPO de la interfaz (lenta 2,5 · normal 1 · rápida 0,45), así que el ritmo va al revés: lenta 0,35
+   (una batalla típica, 65-100 s simulados, dura unos 3-5 minutos: masas de hombres que tardan en chocar),
+   normal 0,6, rápida 1,2. Sin animaciones (0: pruebas, movimiento reducido) 0,6. Las pruebas que fijan
    ctx.velocidad y la resolución automática no se ralentizan. El resultado no cambia: solo el tiempo real. */
-const cmbRitmo = () =>
-  BT && BT.ctx && BT.ctx.velocidad ? 1 : clamp(typeof ifzVel === "function" ? +ifzVel() || 0.6 : 0.6, 0.2, 3);
+const CMB_RITMOS = { lenta: 0.35, normal: 0.6, rapida: 1.2 };
+function cmbRitmo() {
+  if (BT && BT.ctx && BT.ctx.velocidad) return 1;
+  const v = typeof ifzVel === "function" ? +ifzVel() || 0 : 0;
+  if (!v) return 0.6;
+  return v >= 2 ? CMB_RITMOS.lenta : v >= 0.8 ? CMB_RITMOS.normal : CMB_RITMOS.rapida;
+}
 async function runPhase(slot) {
   const dt = 1 / 30;
   for (let k = 0; k < PH / dt; k++) {
     simStep(dt, slot);
     if (battleOver() >= 0) break;
     if (k % 3 === 2) {
-      await sleep(16 / cmbRitmo());
+      /* 3 pasos = 0,1 s simulados: al mismo ritmo que el tiempo real (antes iba ~6 veces más deprisa) */
+      await sleep(100 / (cmbRitmo() * (BT.speed || 1)));
       if (!BT) return;
       /* ONL */ if (BT.ctx.onl) BT.ctx.onl.estado();
     }
