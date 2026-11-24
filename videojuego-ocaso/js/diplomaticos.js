@@ -362,3 +362,71 @@ if (typeof dipJugadorPropone === "function") {
     return r;
   };
 }
+
+/* ---------- la IA también envía legados ----------
+   Recluta alguno si le sobra oro; cada legado va a la corte del pueblo con el que su diplomacia más ganaría
+   (dipIAPropuesta: alianza, comercio, no agresión, paso…) o, en guerra, a pedir la paz al enemigo; allí
+   propone una vez al año (si el otro es humano, le llega al buzón como cualquier propuesta), abre embajada y
+   se queda (la relación mejora). En guerra y con oro, uno va a un campamento de mercenarios y contrata. */
+function dplJuntoA(d, q) {
+  if (camCheb(q.x, q.y, d.x, d.y) <= 1) return true;
+  const v = CAM_V8.map(([dx, dy]) => [q.x + dx, q.y + dy]).find(([x, y]) => camPasable(x, y));
+  if (v) dplMover(d, v[0], v[1]);
+  return camCheb(q.x, q.y, d.x, d.y) <= 1;
+}
+function dplIA(f) {
+  const F = G.F[f];
+  if (!F || f >= NF || !alive(f) || human(f)) return;
+  const guerras = [...Array(NF).keys()].filter((g) => g !== f && alive(g) && G.st[f][g] === "guerra");
+  /* reclutar */
+  if (dplDe(f).length < dplMax(f) && F.gold > 90 + DPL.coste && R() < 0.25) {
+    const cap = G.P[F.capId];
+    if (cap && cap.owner === f) dplCrear(f, cap);
+  }
+  const legs = dplDe(f);
+  legs.forEach((d, i) => {
+    /* uno de ellos, a los mercenarios si hay guerra y oro */
+    if (i === 0 && guerras.length && F.gold > 160 && typeof mercS === "function") {
+      const c = mercS()
+        .camp.filter((x) => x.cias.length)
+        .sort((a, b) => camCheb(a.x, a.y, d.x, d.y) - camCheb(b.x, b.y, d.x, d.y))[0];
+      if (c && dplJuntoA(d, c)) {
+        const cia = c.cias.find((x) => G.F[f].gold > Math.ceil(mercEnganche(x) * (1 - dplDescuento(d))) + mercPago(x.t, x.n) + 60);
+        if (cia) dplContratar(d, c.id, cia.id, 2);
+        return;
+      }
+      if (c) return;
+    }
+    /* a una corte: paz con un enemigo o la mejor propuesta de su diplomacia */
+    let obj = null;
+    const enemigo = guerras.find((g) => !dplDe(f).some((o) => o !== d && o.obj && o.obj.g === g));
+    if (enemigo != null && R() < 0.5) obj = { g: enemigo, tipo: "paz", ext: typeof dipTerminosIA === "function" ? dipTerminosIA(f, enemigo) : {} };
+    else {
+      const pr = typeof dipIAPropuesta === "function" ? dipIAPropuesta(f) : null;
+      if (pr && !dplDe(f).some((o) => o !== d && o.obj && o.obj.g === pr.g)) obj = { g: pr.g, tipo: pr.tipo, ext: pr.ext || {} };
+    }
+    if (!obj && d.obj && alive(d.obj.g)) obj = d.obj;
+    if (!obj) return;
+    d.obj = obj;
+    const q = owned(obj.g).sort((a, b) => camCheb(a.x, a.y, d.x, d.y) - camCheb(b.x, b.y, d.x, d.y))[0];
+    if (!q || !dplJuntoA(d, q)) return;
+    /* en la corte: una propuesta al año, y embajada */
+    if (d.gestAnio !== G.year && obj.tipo !== "embajada" && typeof dipProponer === "function") {
+      d.gestAnio = G.year;
+      d.gest = dplTurno();
+      dipProponer(f, obj.g, obj.tipo, obj.ext);
+    } else if (G.st[f][obj.g] !== "guerra" && (dipS().emb[f + ">" + obj.g] || 0) < G.year && dplPuedeGestionar(d)) dplEmbajada(d);
+  });
+}
+if (typeof camEspIA === "function") {
+  const dplIA0 = camEspIA;
+  camEspIA = function (f) {
+    const r = dplIA0.apply(this, arguments);
+    try {
+      dplIA(f);
+    } catch (e) {
+      console.error("[dpl] IA", f, e);
+    }
+    return r;
+  };
+}

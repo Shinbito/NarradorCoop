@@ -302,6 +302,8 @@ fs.mkdirSync(capt, { recursive: true });
   await page.evaluate(() => {
     tab = "corte";
     ui();
+    /* los apartados de la pestaña son desplegables (ifzPlegarPanel): se abren como haría el jugador */
+    document.querySelectorAll("#panel details").forEach((d) => (d.open = true));
   });
   const bc = await page.$('[data-act^="soccar-"]:not([disabled])');
   if (bc) {

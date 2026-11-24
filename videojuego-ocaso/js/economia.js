@@ -7,7 +7,7 @@
 /* recursos nuevos (oro y comida ya existen). base = precio de referencia en oro */
 const ECO_RES = [
   { id: "madera", nombre: "Madera", icono: "♣︎", base: 3 },
-  { id: "piedra", nombre: "Piedra", icono: "▲", base: 3 },
+  { id: "piedra", nombre: "Piedra", icono: "\uE010", base: 3 },
   { id: "hierro", nombre: "Hierro", icono: "⚒︎", base: 5 },
   { id: "caballos", nombre: "Caballos", icono: "♞", base: 8 },
   { id: "sal", nombre: "Sal", icono: "◇", base: 5, lujo: true },
@@ -16,7 +16,7 @@ const ECO_RES = [
   { id: "incienso", nombre: "Incienso", icono: "∴", base: 9, lujo: true },
   { id: "especias", nombre: "Especias", icono: "✺", base: 10, lujo: true },
   { id: "ambar", nombre: "Ámbar", icono: "◆", base: 8, lujo: true },
-  { id: "cacao", nombre: "Cacao", icono: "●", base: 7, lujo: true },
+  { id: "cacao", nombre: "Cacao", icono: "\uE011", base: 7, lujo: true },
 ];
 ECO_RES.forEach((r) => OC.recurso({ id: r.id, nombre: r.nombre, icono: r.icono }));
 
@@ -347,7 +347,7 @@ const ecoEjercitos = (f) => (G && G.cam && typeof camEjDe === "function" ? camEj
    efectivo es el mayor de los dos (ecoNivelExp). Todo determinista con G.seed y el terreno de MAP. */
 const ECO_YAC = {
   madera: { n: "Bosques", icono: "♣︎", exp: "aserradero" },
-  piedra: { n: "Piedra de cantera", icono: "▲", exp: "cantera" },
+  piedra: { n: "Piedra de cantera", icono: "\uE010", exp: "cantera" },
   hierro: { n: "Vetas de hierro", icono: "⚒︎", exp: "mina" },
   oro: { n: "Vetas de oro", icono: "◉", exp: "mina" },
   estano: { n: "Estaño", icono: "⊙", exp: "mina" },
@@ -801,7 +801,7 @@ const ECO_ANIMO = [
   {
     id: "furioso",
     nombre: "Furioso",
-    icono: "",
+    icono: "\uE001",
     color: "#e0503f",
     min: 0,
     oro: 0.4,
@@ -813,7 +813,7 @@ const ECO_ANIMO = [
   {
     id: "disgustado",
     nombre: "Disgustado",
-    icono: "",
+    icono: "\uE002",
     color: "#ef7a55",
     min: 15,
     oro: 0.6,
@@ -825,7 +825,7 @@ const ECO_ANIMO = [
   {
     id: "inquieto",
     nombre: "Inquieto",
-    icono: "",
+    icono: "\uE003",
     color: "#e8b632",
     min: 30,
     oro: 0.85,
@@ -837,7 +837,7 @@ const ECO_ANIMO = [
   {
     id: "neutral",
     nombre: "Neutral",
-    icono: "",
+    icono: "\uE004",
     color: "#a2abb0",
     min: 45,
     oro: 1,
@@ -849,7 +849,7 @@ const ECO_ANIMO = [
   {
     id: "contento",
     nombre: "Contento",
-    icono: "",
+    icono: "\uE005",
     color: "#9ccc65",
     min: 60,
     oro: 1.05,
@@ -861,7 +861,7 @@ const ECO_ANIMO = [
   {
     id: "feliz",
     nombre: "Feliz",
-    icono: "",
+    icono: "\uE006",
     color: "#6fcf6a",
     min: 75,
     oro: 1.1,
@@ -873,7 +873,7 @@ const ECO_ANIMO = [
   {
     id: "leal",
     nombre: "Leal",
-    icono: "",
+    icono: "\uE007",
     color: "#f2c14e",
     min: 90,
     oro: 1.15,

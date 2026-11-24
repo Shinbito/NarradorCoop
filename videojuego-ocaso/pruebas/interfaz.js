@@ -231,6 +231,8 @@ async function recorrido(browser, nom, vp, movil) {
   await page.evaluate(() => {
     camSel = null;
     ui();
+    /* «Potencias» empieza recogida (menú más corto): se abre como haría el jugador */
+    document.getElementById("potd").open = true;
   });
   await page.click('[data-act^="ifzfac-"]:not(.yo)');
   ok((await page.evaluate(() => tab)) === "dip", "clic en una potencia lleva a Diplomacia");

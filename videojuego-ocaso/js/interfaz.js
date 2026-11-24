@@ -15,7 +15,7 @@
 
 /* ======================= 1. estado y preferencias ======================= */
 const IFZ = {
-  pref: { sec: { reclutar: true, edificios: true }, pot: true, potTodas: false, log: "todo", tut: 0, vel: "lenta", rep: true, iconos: true },
+  pref: { sec: { reclutar: true, edificios: true }, pot: false, potTodas: false, log: "todo", tut: 0, vel: "lenta", rep: true, iconos: true },
   html: {}, // último HTML escrito en cada contenedor (para no reconstruir lo que no cambia)
   res: false, // desplegable de recursos abierto
   anios: {}, // años plegados/abiertos en la crónica
@@ -41,8 +41,40 @@ function ifzPon(id, html) {
   if (IFZ.html[id] === html && el.isConnected && (html === "" || el.firstChild)) return false;
   IFZ.html[id] = html;
   el.innerHTML = html;
+  if (id === "panel") ifzPlegarPanel(el);
   IFZ.med.escrituras++;
   return true;
+}
+/* menú más corto: en cada pestaña, cada apartado de primer nivel (un <h3> y lo que le sigue hasta el
+   siguiente) pasa a ser un desplegable que recuerda si se dejó abierto (IFZ.pref.sec, clave pestaña:título).
+   Sin recuerdo, solo el primero de la pestaña se abre. Las secciones de la provincia ya vienen plegables. */
+function ifzPlegarPanel(el) {
+  /* las pestañas que ya traen sus desplegables (Provincia) se dejan como están */
+  if (el.querySelector(":scope > details.ifz-sec")) return;
+  /* la pestaña Online es corta y sus botones («Listo», tiempo real) tienen que estar siempre a mano */
+  if (tab === "onl") return;
+  const hs = [...el.children].filter((k) => k.tagName === "H3");
+  if (hs.length < 2) return;
+  hs.forEach((h, i) => {
+    const clave = String(tab) + ":" + h.textContent.split("·")[0].replace(/[\d/()%+−-]+/g, "").trim().toLowerCase().slice(0, 30),
+      d = document.createElement("details"),
+      sm = document.createElement("summary"),
+      cu = document.createElement("div"),
+      ab = IFZ.pref.sec[clave];
+    d.className = "ifz-sec ifz-auto";
+    d.dataset.ifzsec = clave;
+    d.open = ab === undefined ? i === 0 : !!ab;
+    sm.innerHTML = `<span class="ifz-st">${h.innerHTML}</span>`;
+    cu.className = "ifz-sb";
+    let n = h.nextSibling;
+    while (n && !(n.nodeType === 1 && n.tagName === "H3")) {
+      const sig = n.nextSibling;
+      cu.appendChild(n);
+      n = sig;
+    }
+    d.append(sm, cu);
+    h.replaceWith(d);
+  });
 }
 const ifzSig = (v) => (v > 0 ? "+" + v : v < 0 ? "−" + Math.abs(v) : "±0");
 const ifzSPU = () => (typeof SPU === "number" ? SPU : 10);
@@ -927,7 +959,7 @@ function ifzPolitico(own) {
     }
   /* ciudades: casas según la población, murallas según su nivel, castillo o torre en el centro;
      con atlas, MAPA.ciudad.<1-4> / MAPA.capital y MAPA.muralla.<nivel> / MAPA.muralla_capital.<nivel>.
-     IFZ.sinCiudades (mapa 3D, js/mapa3d.js): no se pintan, porque allí son edificios en volumen */
+     IFZ.sinCiudades: no se pintan (otra vista las dibuja a su manera) */
   for (const p of G.P) {
     if (IFZ.sinCiudades) break;
     const o = own[p.id],

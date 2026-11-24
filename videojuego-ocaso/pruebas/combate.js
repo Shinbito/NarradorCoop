@@ -30,6 +30,12 @@ fs.mkdirSync(capt, { recursive: true });
   await page.evaluate(() => localStorage.clear());
   await page.waitForTimeout(300);
   const clic = async (sel) => {
+    /* si el botón está en un apartado recogido del panel (ifzPlegarPanel), se abre como haría el jugador */
+    await page.evaluate((sel) => {
+      const b = document.querySelector(sel),
+        d = b && b.closest("details");
+      if (d) d.open = true;
+    }, sel);
     await page.click(sel, { timeout: 4000 });
     await page.waitForTimeout(80);
   };

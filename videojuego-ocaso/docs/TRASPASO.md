@@ -48,7 +48,7 @@ tiempos agotados bajo carga: repetir antes de investigar. Las capturas van a `pr
    los datos del juego con buscador, «?» de ayuda en cada pestaña y sección, elección al empezar (completo /
    básico / ya sé jugar). Archivos ya preparados: `js/tutorial.js`, `css/tutorial.css` (vacíos). Hacerlo al final
    para que explique el juego terminado. Sustituye el tutorial corto de interfaz (`IFZ_TUT`).
-2. **Mapa de campaña en 3D** (HECHO en versión textura sobre relieve con giro libre: `js/mapa3d.js`, `docs/mapa3d.md`; falta poner en volumen ciudades y ejércitos) con la misma cámara isométrica girable de `batalla3d.js` (`b3dCamara`, `b3dGira`,
+2. **Mapa de campaña en 3D**: se probó (relieve texturizado con giro libre, ciudades, montañas y bosques en volumen) y el usuario prefirió el mapa 2D: retirado. Se quiere, en cambio, ejércitos y personajes en pseudo-3D sobre el mapa 2D con la misma cámara isométrica girable de `batalla3d.js` (`b3dCamara`, `b3dGira`,
    `b3dPan`), usando el relieve de `MAP` (`mapaInfo`, `MAP.alt/mont/rio/puente/vado/camino/bosque`) y
    `ifzMapaInfo()` / `ifzFiguras(u)` de interfaz; el mapa 2D HD queda como vista clásica.
 3. **Paquete de diseños para Gemini**: `node herramientas/exportar-sprites.js` (sprites a PNG ×1 y ×8, hojas por

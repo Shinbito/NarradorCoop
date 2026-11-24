@@ -901,4 +901,94 @@ button.onl-mini {
   .end {
     z-index: 3;
   }
+  /* lo que se trae a la vista (foco, enlaces, scrollIntoView) queda por debajo del mapa fijo, no tapado */
+  html {
+    scroll-padding-top: calc(46vh + 90px);
+  }
+}
+
+/* ---------- en horizontal (móvil o tableta apaisados, como se juega en la app) ----------
+   Mitad de la pantalla para el mapa y la otra mitad para el menú, todo a la vista: la página no se desplaza,
+   el mapa ocupa su columna entera y el menú baja con su propio desplazamiento. */
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 900px) {
+  html {
+    height: 100%;
+    overflow: hidden;
+  }
+  body {
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    flex: none;
+    flex-wrap: nowrap;
+    padding: 3px 8px;
+    gap: 4px 10px;
+    font-size: 12px;
+  }
+  header h1 {
+    display: none;
+  }
+  header #res {
+    flex: 1 1 auto;
+    min-width: 0;
+    order: 0;
+    font-size: 11px;
+    overflow: hidden;
+  }
+  header .ifz-hb button {
+    min-width: 34px;
+    min-height: 30px;
+    padding: 2px 6px;
+  }
+  .wrap {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr); /* la fila mide lo que queda de pantalla, no lo que pide el contenido */
+    gap: 6px;
+    padding: 4px 6px;
+    align-items: stretch;
+  }
+  .board {
+    position: relative;
+    top: auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    align-self: stretch;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 3px;
+    border-width: 3px;
+  }
+  #mapwrap {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+  }
+  .wrap > aside {
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  #ifzmini {
+    display: none;
+  }
+}
+
+/* iconos dibujados de recursos y ánimo (js/iconos.js) */
+img.ico {
+  width: 1.05em;
+  height: 1.05em;
+  vertical-align: -0.15em;
+  image-rendering: pixelated;
+  display: inline-block;
 }
