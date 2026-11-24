@@ -293,6 +293,75 @@ const comprueba = (ok, msg) => {
     ui();
   });
 
+  /* ---------- tierras: yacimientos, fertilidad, explotaciones ---------- */
+  console.log("Tierras y yacimientos");
+  const tie = await page.evaluate(() => {
+    const E = ecoE(),
+      o = {},
+      P = G.P,
+      media = (l) => (l.length ? l.reduce((s, v) => s + v, 0) / l.length : 0);
+    o.estado = E.yac.length === P.length && E.fer.length === P.length && !!E.exp;
+    o.valores = P.every((p) => {
+      const Y = ecoYac(p),
+        fe = ecoFertil(p);
+      return (
+        Object.values(Y).every((v) => v >= 1 && v <= 3) &&
+        fe.v >= 0 &&
+        fe.v <= 1 &&
+        typeof fe.txt === "string"
+      );
+    });
+    const colinas = P.filter((p) => ecoTerreno(p.id).s[3] >= 0.6),
+      bosques = P.filter((p) => ecoTerreno(p.id).s[2] >= 0.45),
+      llanos = P.filter((p) => ecoTerreno(p.id).s[1] >= 0.85);
+    o.piedraEnColinas =
+      !colinas.length || colinas.filter((p) => (ecoYac(p).piedra || 0) >= 2).length >= colinas.length * 0.7;
+    o.maderaEnBosques =
+      !bosques.length || bosques.filter((p) => (ecoYac(p).madera || 0) >= 2).length >= bosques.length * 0.7;
+    o.llanosFertiles =
+      !colinas.length || media(llanos.map((p) => ecoFertil(p).v)) > media(colinas.map((p) => ecoFertil(p).v));
+    o.explotacionesIniciales = P.filter((p) => Object.keys(ecoExplotaciones(p)).length).length;
+    o.especialidadExplotada = P.filter((p) => E.esp[p.id] === "hierro").every(
+      (p) => ecoExplotaciones(p).mina >= 1,
+    );
+    o.reparto = ["madera", "piedra", "hierro", "oro", "estano", "sal"]
+      .map((k) => `${k} ${P.filter((p) => ecoYac(p)[k]).length}`)
+      .join(", ");
+    /* una mina nueva saca más hierro de una veta rica */
+    const q = P.find((p) => (ecoYac(p).hierro || 0) >= 2 && ecoNivelExp(p, "mina") < 2);
+    if (q) {
+      const h0 = yields(q).hierro,
+        m0 = q.mina;
+      q.mina = 2;
+      o.minaProduce = yields(q).hierro > h0;
+      q.mina = m0;
+    } else o.minaProduce = "sin veta libre";
+    /* determinista: se recalcula igual con la misma semilla */
+    const y0 = JSON.stringify(E.yac) + JSON.stringify(E.fer);
+    delete E.yac;
+    ecoE();
+    o.determinista = JSON.stringify(E.yac) + JSON.stringify(E.fer) === y0;
+    o.visible = ecoInfoVisible(P[0], ME) === true;
+    o.iconos = P.filter((p) => ecoIconoProv(p)).length >= P.length * 0.5;
+    const ajena = P.find((p) => p.owner !== ME && p.owner < NF && Object.keys(ecoYac(p)).length);
+    sel = (ajena || P.find((p) => p.owner !== ME)).id;
+    tab = "prov";
+    IFZ.pref.sec.tierras = true;
+    ui();
+    o.seccionAjena =
+      /Tierras/.test($("panel").textContent) && /Al año|Sin yacim/.test($("panel").textContent);
+    return o;
+  });
+  for (const [k, v] of Object.entries(tie))
+    comprueba(v === true || typeof v === "number" || typeof v === "string", `${k}: ${v}`);
+  comprueba(tie.explotacionesIniciales > 0, "algunas provincias empiezan con minas o canteras");
+  await (await page.$("#panel")).screenshot({ path: path.join(capt, "economia-tierras-ajena.png") });
+  await page.evaluate(() => {
+    sel = G.F[ME].capId;
+    ui();
+  });
+  await (await page.$("#panel")).screenshot({ path: path.join(capt, "economia-tierras-propia.png") });
+
   /* ---------- simulación larga del mundo: todas las potencias gestionadas por la IA ----------
      (el reino del jugador también, para que dure; si cae, la prueba sigue con otra potencia) */
   await page.evaluate(() => {
@@ -469,7 +538,10 @@ const comprueba = (ok, msg) => {
     comprueba(!malCom.length, "comida dentro del granero " + JSON.stringify(malCom.slice(0, 3)));
     comprueba(
       todas.every((x) => Object.values(x.res).every((v) => v >= 0 && v <= x.tope)),
-      "recursos dentro del almacén",
+      "recursos dentro del almacén " +
+        JSON.stringify(
+          todas.filter((x) => !Object.values(x.res).every((v) => v >= 0 && v <= x.tope)).slice(0, 2),
+        ),
     );
     comprueba(
       todas.every((x) => x.infl <= 1.6),
