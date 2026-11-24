@@ -46,6 +46,47 @@ function camS() {
   if (G.estacion == null) G.estacion = 0;
   return S;
 }
+/* ---------- repetición de la estación (CONTRATO §9) ----------
+   G.cam.rep = {v:1, anio, est, own0, ej0, pasos} se abre al empezar la resolución (camEstacion) y se cierra
+   al acabar camNuevaEstacion (incluye lo anual: revueltas y conquistas). Pasos: mov, ej+, ej-, bat, ase, con. */
+const CAM_REP_TOPE = 2000;
+function camRepIni() {
+  const S = camS();
+  S.rep = {
+    v: 1,
+    anio: G.year,
+    est: G.estacion,
+    own0: G.P.map((p) => p.owner),
+    ej0: S.ej.filter((e) => camTot(e.u) > 0).map((e) => ({ id: e.id, f: e.f, x: e.x, y: e.y, n: camTot(e.u) })),
+    pasos: [],
+  };
+}
+function camRep(o) {
+  const r = G && G.cam && G.cam.rep;
+  if (!r || r.fin) return;
+  const P = r.pasos;
+  if (P.length >= CAM_REP_TOPE && o.k === "mov") {
+    /* pasado el tope, los pasos de marcha de un ejército se resumen en uno (su último tramo) */
+    for (let i = P.length - 1; i >= Math.max(0, P.length - 400); i--) {
+      const q = P[i];
+      if (q.k === "mov" && q.ej === o.ej) {
+        q.a = o.a;
+        return;
+      }
+      if (q.ej === o.ej) break;
+    }
+  }
+  P.push(o);
+}
+const camRepMov = (e, x0, y0) => (x0 !== e.x || y0 !== e.y) && camRep({ k: "mov", ej: e.id, f: e.f, de: [x0, y0], a: [e.x, e.y] });
+function camAsedioFin(pid) {
+  const S = camS();
+  if (!S.as[pid]) return;
+  camRep({ k: "ase", p: +pid, f: S.as[pid].f, fase: "fin" });
+  delete S.as[pid];
+}
+OC.on("conquista", ({ p, de, a }) => p && camRep({ k: "con", p: p.id, de, a }));
+OC.on("revuelta", ({ p, de }) => p && camRep({ k: "con", p: p.id, de: de != null ? de : p.owner, a: REB }));
 const camEj = (id) => camS().ej.find((e) => e.id === id) || null;
 const camEjDe = (f) => camS().ej.filter((e) => e.f === f);
 const camIdx = (x, y) => y * W + x;
@@ -272,7 +313,7 @@ function camDijkstra(ej, o = {}) {
       const c = ciu.get(j);
       let para = enem[j];
       if (c && c.owner !== f && camGuerra(f, c.owner)) {
-        if (camCiudadCerrada(f, c)) continue;
+        if (camCiudadCerrada(f, c) || camCercoAjeno(f, c)) continue;
         para = 1; // ciudad vacía y sin murallas: se toma al entrar
       }
       const nd = d + camCoste(f, j, cc) * (dx && dy ? CAM_K.diag : 1);
@@ -303,22 +344,79 @@ function camAlcance(ej) {
   return D;
 }
 /* mejor casilla junto a una ciudad para asediarla (la más barata de alcanzar) */
+/* Prefiere un FLANCO libre: un lado de la ciudad que no cubra ya otro ejército del mismo bando (o aliado),
+   si se alcanza esta estación o cuesta poco más que el flanco cubierto más cercano. */
 function camJuntoA(ej, p, D) {
-  let best = -1,
-    bd = Infinity;
+  const cub = camFlancosDe(ej.f, p, ej.id).lados,
+    ops = [];
   for (const [dx, dy] of CAM_V8) {
     const x = p.x + dx,
       y = p.y + dy;
     if (x < 0 || y < 0 || x >= W || y >= H || !MAP.terr[y]?.[x]) continue;
     if (x === ej.x && y === ej.y) return camIdx(x, y);
     const j = camIdx(x, y);
-    if (D.dist[j] < bd) {
-      bd = D.dist[j];
-      best = j;
-    }
+    if (!Number.isFinite(D.dist[j])) continue;
+    const ocup = camEjsEn(x, y, ej.id).length > 0;
+    ops.push({ j, d: D.dist[j], libre: !cub.includes(camFlanco(dx, dy)) && !ocup, ocup });
   }
-  return best;
+  if (!ops.length) return -1;
+  ops.sort((a, b) => a.d - b.d || a.j - b.j);
+  const cerca = ops.find((o) => !o.ocup) || ops[0],
+    libre = ops.find((o) => o.libre && (o.d <= (ej.mov || 0) + 1e-9 || o.d <= cerca.d + Math.max(4, camMovMax(ej) * 0.4)));
+  return (libre || cerca).j;
 }
+
+/* ---------- flancos de una ciudad ----------
+   Las 8 casillas vecinas se agrupan en 4 lados (cada uno, una recta y una diagonal en sentido horario):
+   N = (0,−1)(1,−1) · E = (1,0)(1,1) · S = (0,1)(−1,1) · O = (−1,0)(−1,−1). */
+const CAM_LADOS = ["N", "E", "S", "O"];
+const CAM_LADO_N = { N: "norte", E: "este", S: "sur", O: "oeste" };
+function camFlanco(dx, dy) {
+  if (!dx && !dy) return null;
+  if (dy === -1 && dx >= 0) return "N";
+  if (dx === 1 && dy >= 0) return "E";
+  if (dy === 1 && dx <= 0) return "S";
+  return "O";
+}
+/* ejércitos de f (y de sus aliados en guerra con el dueño) junto a la ciudad y lados que cubren */
+function camFlancosDe(f, p, sin) {
+  const as = camAsedio(p.id);
+  const ejs = camS().ej.filter(
+    (e) =>
+      e.id !== sin &&
+      camTot(camUCampo(e.u)) > 0 &&
+      camCheb(e.x, e.y, p.x, p.y) === 1 &&
+      camGuerra(e.f, p.owner) &&
+      (e.f === f ||
+        (as ? camCoCerco(as, f) && camCoCerco(as, e.f) && (e.est === "asedio" || camAliado(f, e.f)) : camAliado(f, e.f))),
+  );
+  const lados = [...new Set(ejs.map((e) => camFlanco(e.x - p.x, e.y - p.y)))].sort((a, b) => CAM_LADOS.indexOf(a) - CAM_LADOS.indexOf(b));
+  return { ejs, lados };
+}
+/* quiénes atacarían con ej en un asalto conjunto: sus ejércitos (y los de aliados que no lleva una persona)
+   junto a la ciudad que no hayan asaltado ya esta estación; con con = [ids], solo esos */
+const camClaveEst = () => `${G.year}.${G.estacion}`;
+function camParticipantes(ej, p, con) {
+  if (!ej || !p || camCheb(ej.x, ej.y, p.x, p.y) > 1) return [];
+  const clave = camClaveEst(),
+    { ejs } = camFlancosDe(ej.f, p, ej.id),
+    ok = (e) => e.acc !== clave && (e.f === ej.f || !human(e.f)) && (!con || con.includes(e.id));
+  return [ej, ...ejs.filter(ok).sort((a, b) => a.id - b.id)];
+}
+/* ¿cabe la ruta en el movimiento que le queda a la estación? */
+function camRutaCabe(ej, ruta) {
+  let c = 0,
+    x = ej.x,
+    y = ej.y;
+  for (const j of ruta || []) {
+    const [nx, ny] = camXY(j);
+    c += camCoste(ej.f, j) * (nx !== x && ny !== y ? CAM_K.diag : 1);
+    x = nx;
+    y = ny;
+  }
+  return c <= (ej.mov || 0) + 1e-9;
+}
+const camLadosDe = (ejs, p) => [...new Set(ejs.map((e) => camFlanco(e.x - p.x, e.y - p.y)).filter(Boolean))];
 
 /* ---------- formar, disolver, dividir ---------- */
 function camNuevoEj(f, x, y, u, o = {}) {
@@ -348,6 +446,7 @@ function camNuevoEj(f, x, y, u, o = {}) {
     };
   ej.mov = o.mov != null ? o.mov : camMovMax(ej);
   S.ej.push(ej);
+  camRep({ k: "ej+", ej: ej.id, f, x, y, n: camTot(ej.u) });
   camTocar();
   return ej;
 }
@@ -393,8 +492,9 @@ function camDisolver(ej) {
   if (isMe(ej.f)) addLog(`El ${camNombre(ej).toLowerCase()} entra en ${p.name} y se acuartela.`);
   return { ok: true };
 }
-function camQuitar(ej) {
+function camQuitar(ej, motivo) {
   const S = camS();
+  if (S.ej.includes(ej)) camRep({ k: "ej-", ej: ej.id, motivo: motivo || "" });
   S.ej = S.ej.filter((e) => e !== ej);
   if (camSel === ej.id) camSel = null;
   camTocar();
@@ -485,6 +585,8 @@ async function camLibrar(ejA, ejD, bctx, o = {}) {
       : ch !== "auto"
         ? await cmbTactica(ejA, ejD, bctx, ch)
         : cmbResolverAuto(ejA, ejD, bctx);
+  /* factor propio de campaña (p. ej. «asalto por 3 flancos») al frente del informe */
+  if (o.factor && res.informe && Array.isArray(res.informe.factores)) res.informe.factores.unshift(o.factor);
   res.A = cmbNorm(res.A || cmbVacio());
   res.D = cmbNorm(res.D || cmbVacio());
   const inf = res.informe,
@@ -533,6 +635,7 @@ async function camLibrar(ejA, ejD, bctx, o = {}) {
   const lugar = bctx.nombreLugar;
   if (gm[0] === "muerto" && ejA.gen != null && G.C[ejA.gen]) kill(G.C[ejA.gen], "cae en la batalla de " + lugar);
   if (gm[1] === "muerto" && ejD.gen != null && G.C[ejD.gen]) kill(G.C[ejD.gen], "cae en la batalla de " + lugar);
+  if (d0 > 0) camRep({ k: "bat", x: bctx.x != null ? bctx.x : bctx.p ? bctx.p.x : 0, y: bctx.y != null ? bctx.y : bctx.p ? bctx.p.y : 0, fs: [ejA.f, ejD.f], gana: win ? ejA.f : ejD.f, lugar: bctx.nombreLugar || "" });
   if (bctx.p) flash = { x: bctx.x * T + 4, y: bctx.y * T + 4, t0: performance.now() };
   if (inf && (yoA || yoD) && ch === "auto" && !o.sinInforme) {
     const yo = yoA ? 0 : 1,
@@ -580,8 +683,11 @@ function camRetirar(ej, dx, dy) {
       }
     }
   if (!best) return false;
+  const x0r = ej.x,
+    y0r = ej.y;
   ej.x = best[0];
   ej.y = best[1];
+  camRepMov(ej, x0r, y0r);
   ej.est = "marcha";
   ej.asd = null;
   ej.mov = 0;
@@ -710,7 +816,7 @@ function camConquistar(p, ej, modo, D, ron) {
   cmbVetFijar(p, ej.vet);
   cmbOriFijar(p, ej.ori);
   if (modo === "asalto" && p.walls) p.walls--;
-  delete camS().as[p.id];
+  camAsedioFin(p.id);
   for (const e of camS().ej) if (e.asd === p.id) {
     e.asd = null;
     if (e.est === "asedio") e.est = "marcha";
@@ -733,8 +839,11 @@ function camConquistar(p, ej, modo, D, ron) {
   for (const e of camS().ej) if (e.f === f && e !== ej && camCheb(e.x, e.y, p.x, p.y) <= 1) camSinMaquinas(e);
   if (camTot(ej.u) <= 0) camQuitar(ej);
   else {
+    const x0c = ej.x,
+      y0c = ej.y;
     ej.x = p.x;
     ej.y = p.y;
+    camRepMov(ej, x0c, y0c);
     ej.est = "marcha";
     ej.asd = null;
     ej.obj = null;
@@ -747,16 +856,78 @@ function camConquistar(p, ej, modo, D, ron) {
 const camAsedio = (pid) => camS().as[pid] || null;
 const camSitiadores = (pid) =>
   camS().ej.filter((e) => e.asd === pid && e.est === "asedio" && camTot(e.u) > 0);
+/* ---------- un cerco es de quien lo puso ----------
+   Si A cerca una ciudad, otro bando B (aunque esté en guerra con su dueño) no puede asediarla por su
+   cuenta, asaltarla ni ocuparla vacía: o se SUMA al cerco como co-sitiador (aliado de A, o en paz y A lo
+   acepta: la IA según la relación, el jugador con un modal) o declara la guerra a A y lucha contra sus
+   ejércitos. Al caer la ciudad es de quien inició el cerco (as.f); el botín se reparte según lo aportado.
+   as.co = bandos aceptados; as.no = {f: año} rechazados (no se vuelve a pedir ese año). */
+const camSocios = (as) => (as ? [as.f, ...(as.co || [])] : []);
+function camCoCerco(as, f) {
+  if (!as || as.f === f) return true;
+  if ((as.co || []).includes(f)) return true;
+  return f < NF && as.f < NF && camAliado(as.f, f);
+}
+/* cerco ajeno que impide a f tocar la ciudad (null si no lo hay o f puede sumarse ya) */
+function camCercoAjeno(f, p) {
+  const as = p ? camAsedio(p.id) : null;
+  return as && !camCoCerco(as, f) ? as : null;
+}
+/* ¿acepta A que B se sume a su cerco? IA: aliado o relación ≥ 15 en paz; persona: modal (fuera del online) */
+async function camPedirCerco(f, p) {
+  const as = camAsedio(p.id);
+  if (!as || camCoCerco(as, f)) return true;
+  const A = as.f;
+  if (A >= NF || f >= NF || camGuerra(A, f)) return false;
+  as.no = as.no || {};
+  if (as.no[f] === G.year) return false;
+  let si;
+  if (human(A) && isMe(A) && !net.on && !isMe(f)) {
+    si =
+      (await modal(
+        `${CIV[f].s} pide sumarse a tu cerco`,
+        `<p>${CIV[f].n} quiere cercar ${p.name} contigo. Si aceptas, sus ejércitos ocupan otros flancos y pueden entrar en un asalto conjunto; la ciudad será tuya (iniciaste el cerco) y el botín se reparte según lo que aporte cada uno.</p>`,
+        [
+          { t: "Aceptar", v: "si", cls: "gold" },
+          { t: "Rechazar", v: "no" },
+        ],
+      )) === "si";
+  } else si = (G.rel && G.rel[A] ? G.rel[A][f] || 0 : 0) >= 15;
+  if (si) {
+    as.co = [...new Set([...(as.co || []), f])];
+    addLog(`${CIV[f].s} se suma al cerco de ${p.name} junto a ${CIV[A].s}.`, isMe(f) || isMe(A) ? "good" : "");
+  } else {
+    as.no[f] = G.year;
+    if (isMe(f)) addLog(`${CIV[A].s} no quiere compartir el cerco de ${p.name}.`, "bad");
+  }
+  return si;
+}
+/* si el que inició el cerco ya no tiene ejércitos en él, pasa al co-sitiador más fuerte */
+function camCercoReasignar(pid) {
+  const as = camAsedio(pid);
+  if (!as) return;
+  const sit = camSitiadores(pid);
+  if (!sit.length) {
+    camAsedioFin(pid);
+    return;
+  }
+  if (sit.some((e) => e.f === as.f)) return;
+  const nuevo = sit.slice().sort((a, b) => pw(b.u) - pw(a.u) || a.id - b.id)[0].f;
+  as.co = (as.co || []).filter((x) => x !== nuevo);
+  as.f = nuevo;
+}
 function camAsediar(ej, p) {
   if (!p) return { ok: false, motivo: "Sin ciudad" };
   if (camCheb(ej.x, ej.y, p.x, p.y) > 1) return { ok: false, motivo: "Hay que llegar junto a la ciudad" };
   if (p.owner === ej.f || !camGuerra(ej.f, p.owner)) return { ok: false, motivo: "No estáis en guerra" };
-  if (!tot(p.u) && !(p.walls > 0)) {
+  const ajeno = camCercoAjeno(ej.f, p);
+  if (ajeno) return { ok: false, motivo: `${p.name} ya está cercada por ${CIV[ajeno.f].s}: únete a su cerco o declárale la guerra`, ajeno: ajeno.f };
+  if (!tot(p.u) && !(p.walls > 0) && !camAsedio(p.id)) {
     camConquistar(p, ej, "vacia", null, 0);
     return { ok: true, tomada: true };
   }
   const S = camS();
-  if (!S.as[p.id] || S.as[p.id].f !== ej.f) {
+  if (!S.as[p.id]) {
     S.as[p.id] = {
       p: p.id,
       f: ej.f,
@@ -766,6 +937,7 @@ function camAsediar(ej, p) {
       brecha: 0,
       ini: [G.year, G.estacion],
     };
+    camRep({ k: "ase", p: p.id, f: ej.f, fase: "ini" });
     addLog(`${CIV[ej.f].s} pone cerco a ${p.name}${p.owner !== REB ? ", ciudad de " + CIV[p.owner].s : ""}.`, isMe(ej.f) ? "good" : isMe(p.owner) ? "bad" : "");
   }
   ej.est = "asedio";
@@ -802,41 +974,222 @@ function camGuarnicion(p) {
   const as = camAsedio(p.id);
   return { f: p.owner, u: { ...p.u }, gen: p.gen, vet: cmbVetDe(p), ori: cmbOriDe(p), fat: 0, hambre: as ? as.vi < 0 : false };
 }
+/* ---------- asalto (de un ejército o conjunto, por varios flancos) ----------
+   Fuerza conjunta: tropas y máquinas sumadas, veteranía ponderada por hombres, origen de quien más aporta,
+   el mejor general al mando (mando y nivel) y +3 % de daño por cada general más (máx. +9 %, OC 'bonoBatalla').
+   Cada flanco extra (ctx.flancos) reparte a los defensores: −15 % de bono de murallas y −5 de moral de la
+   guarnición por flanco (lo aplica batalla.js, marcado CAM). Supervivientes, heridos y botín se reparten
+   según lo que aportó cada ejército. */
+let camBonoAct = null;
+OC.mod("bonoBatalla", (v, c) => (camBonoAct && c && c.f === camBonoAct.f && c.lado === "atacante" ? v * camBonoAct.v : undefined));
+const camFlancoMur = (ctx) => (ctx && ctx.flancos > 1 ? Math.max(0.4, 1 - 0.15 * (ctx.flancos - 1)) : 1);
+const camFlancoMoral = (ctx) => (ctx && ctx.flancos > 1 ? 5 * (ctx.flancos - 1) : 0);
+/* aplica k flancos a un contexto de asalto cualquiera (estimaciones de la IA) */
+const camCtxFlancos = (ctx, k) =>
+  k > 1
+    ? { ...ctx, fort: (ctx.fort || 0) * camFlancoMur({ flancos: k }), asedio: (ctx.asedio || 0) + camFlancoMoral({ flancos: k }) / 4, flancos: k, flancosAplicados: true }
+    : { ...ctx, flancos: 1 };
+function camFuerzaConjunta(ejs) {
+  const u = cmbVacio(),
+    vet = {},
+    ori = {},
+    mx = {},
+    aport = [];
+  let fat = 0,
+    ham = 0;
+  for (const e of ejs) {
+    const b = camParaBatalla(e),
+      m = camMaq(e);
+    /* con UN[ari/tor/cat] definidos (combate v2), las máquinas van como unidades en el asalto */
+    for (const k in CAM_MAQ) if (UN[k] && TYP.includes(k) && m[k]) b.u[k] = m[k];
+    aport.push(b.u);
+    const n0 = camTot(b.u);
+    fat += (b.fat || 0) * n0;
+    if (b.hambre) ham += n0;
+    for (const t in b.u) {
+      const n = b.u[t] || 0;
+      if (!n) continue;
+      const a = u[t] || 0;
+      vet[t] = ((vet[t] || 0) * a + ((e.vet && e.vet[t]) || 0) * n) / (a + n);
+      if (n > (mx[t] || 0) && e.ori && e.ori[t] != null) {
+        mx[t] = n;
+        ori[t] = e.ori[t];
+      }
+      u[t] = a + n;
+    }
+  }
+  const N = Math.max(1, camTot(u)),
+    gens = ejs
+      .map(camGen)
+      .filter(Boolean)
+      .sort((a, b) => b.ma - a.ma || (b.xp || 0) - (a.xp || 0) || a.id - b.id);
+  return {
+    ej: { f: ejs[0].f, u, gen: gens.length ? gens[0].id : null, vet, ori, fat: Math.round(fat / N), hambre: ham * 2 > N },
+    aport,
+    extraGen: Math.max(0, gens.length - 1),
+    /* desglose por ejército y facción (para batallas de varios bandos aliados: cmbResolverMulti) */
+    por: ejs.map((e, i) => ({ ej: e.id, f: e.f, u: aport[i], gen: e.gen })),
+  };
+}
+/* reparte los supervivientes de cada clase en proporción a lo que aportó cada ejército (restos mayores) */
+function camRepartir(fin, aport) {
+  const r = aport.map(() => ({}));
+  const ts = new Set(aport.flatMap((a) => Object.keys(a)));
+  for (const t of ts) {
+    const tot0 = aport.reduce((s, a) => s + (a[t] || 0), 0),
+      v = Math.min(tot0, Math.max(0, Math.round((fin && fin[t]) || 0)));
+    if (!tot0) continue;
+    const ex = aport.map((a) => ((a[t] || 0) * v) / tot0),
+      base = ex.map(Math.floor);
+    let resto = v - base.reduce((a, b) => a + b, 0);
+    ex.map((x, i) => [x - base[i], i])
+      .sort((a, b) => b[0] - a[0] || a[1] - b[1])
+      .forEach(([, i]) => {
+        if (resto > 0) {
+          base[i]++;
+          resto--;
+        }
+      });
+    base.forEach((n, i) => (r[i][t] = n));
+  }
+  return r;
+}
+/* contexto del asalto: murallas menos la brecha del bombardeo; flancos cubiertos por los participantes */
+function camCtxAsalto(ej, p, ejs) {
+  const as = camAsedio(p.id),
+    l = ejs && ejs.length ? ejs : [ej],
+    m = { ari: 0, tor: 0, cat: 0 };
+  for (const e of l) {
+    const x = camMaq(e);
+    for (const k in m) m[k] += x[k] || 0;
+  }
+  const fz = { u: {}, maq: {} };
+  for (const k in m) {
+    if (UN[k] && TYP.includes(k)) fz.u[k] = m[k];
+    else fz.maq[k] = m[k];
+  }
+  /* flancos: mientras combate no lea ctx.flancos, se traducen aquí a lo que el motor entiende:
+     murallas ×(1 − 0,15 por flanco extra) y +1,25 estaciones de cerco por flanco extra (−5 de moral
+     de la guarnición cada una). ctx.flancosAplicados avisa de que ya van incluidos. */
+  const k = Math.max(1, camLadosDe(l, p).length);
+  return {
+    fort: Math.round(camFortEf(p, fz, as) * camFlancoMur({ flancos: k }) * 100) / 100,
+    murallas: p.walls || 0,
+    asedio: (as ? as.n : 0) + camFlancoMoral({ flancos: k }) / 4,
+    estaciones: as ? as.n : 0,
+    maquinas: m,
+    flancos: k,
+    flancosAplicados: true,
+    p,
+    x: p.x,
+    y: p.y,
+    nombreLugar: p.name,
+    terreno: cmbTerreno(p),
+  };
+}
+/* probabilidad de tomar la ciudad con estos ejércitos (la IA y el panel) */
+function camEstimarAsalto(ejs, p, n = 6) {
+  if (!ejs.length || !tot(p.u)) return 1;
+  const F = camFuerzaConjunta(ejs);
+  camBonoAct = F.extraGen ? { f: ejs[0].f, v: 1 + Math.min(0.09, 0.03 * F.extraGen) } : null;
+  try {
+    return cmbEstimar(F.ej, camGuarnicion(p), camCtxAsalto(ejs[0], p, ejs), n);
+  } finally {
+    camBonoAct = null;
+  }
+}
+let camAnimAsalto = null; // {p, t0, ejs:[[x, y, f]]}: animación breve del asalto conjunto
+/* multiplicador de tiempo de las animaciones de campaña (interfaz: ifzVel, «lenta» ≈ 2,5) */
+const camVel = () => (typeof ifzVel === "function" ? +ifzVel() || 1 : 1);
 async function camAsaltar(ej, o = {}) {
   const p = G.P[ej.asd != null ? ej.asd : -1] || (o.p != null ? G.P[o.p] : null);
   if (!p || camCheb(ej.x, ej.y, p.x, p.y) > 1 || !camGuerra(ej.f, p.owner)) return { ok: false, motivo: "No hay ciudad que asaltar" };
+  const clave = camClaveEst();
+  if (ej.acc === clave) return { ok: false, motivo: "Este ejército ya asaltó esta estación" };
+  const ajeno = camCercoAjeno(ej.f, p),
+    cerco = camAsedio(p.id);
+  if (ajeno) return { ok: false, motivo: `${p.name} está cercada por ${CIV[ajeno.f].s}: únete a su cerco o declárale la guerra`, ajeno: ajeno.f };
+  /* un co-sitiador no asalta por su cuenta: solo junto a los ejércitos de quien inició el cerco */
+  let con = Array.isArray(o.con) && o.con.length ? o.con : null;
+  if (cerco && cerco.f !== ej.f) {
+    const suyos = camParticipantes(ej, p).filter((e) => e.f === cerco.f);
+    if (!suyos.length) return { ok: false, motivo: `Solo puedes asaltar ${p.name} junto a ${CIV[cerco.f].s}, que inició el cerco` };
+    con = [...new Set([...(con || []), ...suyos.map((e) => e.id)])];
+  }
   if (!tot(p.u)) {
-    camConquistar(p, ej, "vacia", null, 0);
+    const dueno = cerco ? camParticipantes(ej, p).find((e) => e.f === cerco.f) || ej : ej;
+    camConquistar(p, dueno, "vacia", null, 0);
     return { ok: true, gana: true };
   }
-  const bctx = camCtxAsalto(ej, p),
-    ejA = camParaBatalla(ej),
+  const ejs = con ? camParticipantes(ej, p, con) : [ej],
+    k = Math.max(1, camLadosDe(ejs, p).length),
+    F = camFuerzaConjunta(ejs),
+    bctx = camCtxAsalto(ej, p, ejs),
     ejD = camGuarnicion(p),
-    u0 = { ...ejA.u },
-    m = camMaq(ej);
-  /* con UN[ari/tor/cat] ya definidos, las máquinas van como unidades en el asalto */
-  for (const k in CAM_MAQ) if (UN[k] && TYP.includes(k) && m[k]) ejA.u[k] = m[k];
-  const res = await camLibrar(ejA, ejD, bctx, {
-    tipo: "asalto",
-    ejs: [ej, null],
-    auto: o.auto,
-    titulo: `Asalto a ${p.name}`,
+    aportPw = F.aport.map((a) => pw(camUCampo(a))),
+    /* entra (y se queda la ciudad) el ejército que más aporta de quien inició el cerco; sin cerco, el que más aporta */
+    li = aportPw.reduce((b, v, i) => ((!cerco || ejs[i].f === cerco.f) && (b < 0 || v > aportPw[b]) ? i : b), -1),
+    lider = ejs[li >= 0 ? li : aportPw.indexOf(Math.max(...aportPw))];
+  for (const e of ejs) e.acc = clave;
+  if (ejs.length > 1) {
+    camAnimAsalto = { p: p.id, t0: performance.now(), ejs: ejs.map((e) => [e.x, e.y, e.f]) };
+    if (o.anim && !reduce) await sleep(Math.round(650 * camVel()));
+  }
+  camBonoAct = F.extraGen ? { f: ej.f, v: 1 + Math.min(0.09, 0.03 * F.extraGen) } : null;
+  let res;
+  try {
+    res = await camLibrar(F.ej, ejD, bctx, {
+      tipo: "asalto",
+      ejs: [lider, null],
+      auto: o.auto,
+      titulo: ejs.length > 1 ? `Asalto conjunto a ${p.name} (${ejs.length} ejércitos, ${k} ${k > 1 ? "flancos" : "flanco"})` : `Asalto a ${p.name}`,
+      factor: k > 1 ? { k: "flancos", s: 0, txt: `Asalto por ${k} flancos (${CIV[ej.f].s})` } : null,
+    });
+  } finally {
+    camBonoAct = null;
+  }
+  const win = res.gana === 0,
+    partes = camRepartir(res.A, F.aport),
+    bajas = [];
+  ejs.forEach((e, i) => {
+    const n0 = camTot(camUCampo(F.aport[i]));
+    camTrasBatalla(e, F.aport[i], partes[i], win, res.rondas);
+    for (const q in CAM_MAQ) if (UN[q] && TYP.includes(q) && e.u[q] != null) e.u[q] = partes[i][q] || 0;
+    e.mov = 0;
+    bajas.push({ ej: e.id, f: e.f, n0, n1: camTot(camUCampo(e.u)) });
   });
-  const win = res.gana === 0;
-  camTrasBatalla(ej, u0, res.A, win, res.rondas);
-  for (const k in CAM_MAQ) if (UN[k] && TYP.includes(k) && ej.u[k] != null) ej.u[k] = res.A[k] || 0;
-  ej.mov = 0;
-  if (win) camConquistar(p, ej, "asalto", res.D, res.rondas);
-  else {
+  if (win) {
+    /* botín de la ciudad tomada, repartido según lo aportado (entre bandos aliados) */
+    if (ejs.length > 1) {
+      const pob = typeof ecoPob === "function" ? ecoPob(p) : 8,
+        botin = Math.round(4 + pob * 0.4),
+        sum = aportPw.reduce((a, b) => a + b, 0) || 1,
+        porF = {};
+      ejs.forEach((e, i) => (porF[e.f] = (porF[e.f] || 0) + Math.round((botin * aportPw[i]) / sum)));
+      for (const f in porF) if (+f < NF && camF(+f)) OC.ganar(+f, { oro: porF[f] });
+      addLog(
+        `Asalto conjunto a ${p.name} por ${k} ${k > 1 ? "flancos" : "flanco"} (${camLadosDe(ejs, p).map((l) => CAM_LADO_N[l]).join(", ")}): ${ejs.length} ejércitos, botín de ${botin} de oro.`,
+        isMe(ej.f) ? "good" : isMe(p.owner) ? "bad" : "",
+      );
+    }
+    camConquistar(p, lider, "asalto", res.D, res.rondas);
+  } else {
     p.u = cmbNorm(res.D);
     const as = camAsedio(p.id);
     if (as) as.mo = clamp(as.mo + 10, 0, 100);
-    addLog(`${CIV[ej.f].s} fracasa en el asalto a ${p.name}.`, isMe(ej.f) ? "bad" : isMe(p.owner) ? "good" : "");
-    if (camTot(ej.u) <= 0) camDispersar(ej, `deshecho al pie de las murallas de ${p.name}`);
-    else if (camTot(ej.u) < tot(p.u) * 0.4 && !isMe(ej.f)) camLevantar(ej);
+    addLog(
+      `${CIV[ej.f].s} fracasa en el ${ejs.length > 1 ? `asalto conjunto (${ejs.length} ejércitos)` : "asalto"} a ${p.name}.`,
+      isMe(ej.f) ? "bad" : isMe(p.owner) ? "good" : "",
+    );
+    const resto = ejs.reduce((s, e) => s + camTot(camUCampo(e.u)), 0);
+    for (const e of ejs) {
+      if (!camEj(e.id)) continue;
+      if (camTot(camUCampo(e.u)) <= 0) camDispersar(e, `deshecho al pie de las murallas de ${p.name}`);
+      else if (resto < tot(p.u) * 0.4 && !human(e.f)) camLevantar(e);
+    }
   }
   camTocar();
-  return { ok: true, gana: win };
+  return { ok: true, gana: win, ejs: ejs.map((e) => e.id), flancos: k, bajas };
 }
 /* las máquinas no se llevan de campaña: se abandonan (o queman) al acabar el cerco */
 function camSinMaquinas(ej) {
@@ -850,10 +1203,10 @@ function camLevantar(ej) {
   ej.asd = null;
   camSinMaquinas(ej);
   if (pid != null && !camSitiadores(pid).length) {
-    delete camS().as[pid];
+    camAsedioFin(pid);
     const p = G.P[pid];
     if (p) addLog(`${CIV[ej.f].s} levanta el cerco de ${p.name}.`, isMe(p.owner) ? "good" : "");
-  }
+  } else if (pid != null) camCercoReasignar(pid);
   camTocar();
   return { ok: true };
 }
@@ -888,7 +1241,7 @@ async function camSalida(p, o = {}) {
   if (win) {
     if (camTot(sit.u) < camTot(uD0) * 0.12) camDispersar(sit, `roto ante ${p.name}`);
     else if (!camRetirar(sit, p.x, p.y)) camDispersar(sit, `cercado ante ${p.name}`);
-    if (!camSitiadores(p.id).length) delete camS().as[p.id];
+    if (!camSitiadores(p.id).length) camAsedioFin(p.id);
   }
   void uA0;
   camTocar();
@@ -949,13 +1302,18 @@ async function camDarPaso(ej, j, o = {}) {
   if (otros.some((e) => e.f !== f)) return { ok: false, parar: true };
   const ciu = camCiudadEn(x, y);
   if (ciu && ciu.owner !== f && camGuerra(f, ciu.owner)) {
-    if (camCiudadCerrada(f, ciu)) return { ok: false, parar: true, ciudad: ciu.id };
+    if (camCiudadCerrada(f, ciu) || camCercoAjeno(f, ciu)) return { ok: false, parar: true, ciudad: ciu.id };
     ej.mov -= c;
     camConquistar(ciu, ej, "vacia", null, 0);
     return { ok: true, c, parar: true };
   }
+  /* animación: la interfaz interpola de (x0, y0) a la casilla nueva durante dur ms (solo con o.anim) */
+  const x0r = ej.x,
+    y0r = ej.y;
+  ej.anim = o.anim && !reduce ? { x0: ej.x, y0: ej.y, t0: performance.now(), dur: Math.round((o.lento ? 90 : 55) * camVel()) } : null;
   ej.x = x;
   ej.y = y;
+  camRep({ k: "mov", ej: ej.id, f, de: [x0r, y0r], a: [x, y] });
   ej.mov = Math.max(0, Math.round((ej.mov - c) * 100) / 100);
   ej.fat = clamp((ej.fat || 0) + c * CAM_K.fatPaso, 0, 100);
   if (ej.est === "campamento" || ej.est === "asedio") {
@@ -964,7 +1322,10 @@ async function camDarPaso(ej, j, o = {}) {
   }
   ej.pas = (ej.pas || []).concat([j]).slice(-24);
   camTocar();
-  if (o.anim && !reduce) await sleep(o.lento ? 90 : 55);
+  if (o.anim && !reduce && ej.anim) {
+    await sleep(ej.anim.dur);
+    ej.anim = null;
+  }
   /* zona de control: se para, salvo que el paso siguiente sea atacar a ese enemigo */
   const sig = o.sig != null ? camXY(o.sig) : null,
     ataca = sig && camEjsEn(sig[0], sig[1], ej.id).some((e) => camGuerra(f, e.f));
@@ -993,7 +1354,7 @@ async function camLuego(ej, plan, o) {
   if (plan.luego === "asediar" && p) camAsediar(ej, p);
   else if (plan.luego === "asaltar" && p) {
     const r = camAsediar(ej, p);
-    if (r.ok && !r.tomada) await camAsaltar(ej, o);
+    if (r.ok && !r.tomada) await camAsaltar(ej, { ...o, con: Array.isArray(plan.con) ? plan.con : null });
   } else if (plan.luego === "acampar") camAcampar(ej);
   else if (plan.luego === "disolver") camDisolver(ej);
   else if (plan.luego === "unir" && plan.con != null) camUnir(camEj(plan.con), ej);
@@ -1009,7 +1370,7 @@ function camAcampar(ej) {
 /* ruta hacia un destino: dentro del alcance o, si no, plan de varias estaciones */
 function camPlanRuta(ej, x, y, o = {}) {
   const pc = camCiudadEn(x, y),
-    asedio = pc && camCiudadCerrada(ej.f, pc);
+    asedio = pc && pc.owner !== ej.f && (camCiudadCerrada(ej.f, pc) || (camAsedio(pc.id) && camGuerra(ej.f, pc.owner)));
   const D = camDijkstra(ej, { sinZoc: !!o.sinZoc });
   let j = camIdx(x, y),
     luego = o.luego || null,
@@ -1058,7 +1419,8 @@ async function camAplicarOrden(g, o, opc = {}) {
       r = camAsediar(ej, G.P[o.p != null ? o.p : -1]);
       break;
     case "asaltar":
-      r = await camAsaltar(ej, { ...opc, p: o.p });
+      /* asalto conjunto: {tipo:'asaltar', f, ej, con:[ids de los demás ejércitos junto a la ciudad]} */
+      r = await camAsaltar(ej, { ...opc, p: o.p, con: Array.isArray(o.con) ? o.con.map(Number) : null });
       break;
     case "construir":
       r = camConstruir(ej, o.maq);
@@ -1168,6 +1530,7 @@ async function camResolverSimultaneo(g, ordenes, opc = {}) {
 async function camEstacion() {
   if (!G || G.over) return;
   const S = camS();
+  camRepIni();
   /* 1) la IA da sus órdenes; las marchas de todos se resuelven a la vez */
   const ords = [];
   for (let f = 0; f < NF; f++) {
@@ -1192,6 +1555,7 @@ async function camEstacion() {
 async function camNuevaEstacion() {
   if (!G) return;
   const S = camS();
+  if (!S.rep) camRepIni();
   for (const e of S.ej.slice()) {
     if (e.f < NF && !alive(e.f)) {
       camQuitar(e);
@@ -1199,6 +1563,14 @@ async function camNuevaEstacion() {
     }
     if (e.gen != null && (!camGen(e) || G.P.some((p) => p.gen === e.gen))) e.gen = null;
     e.mov = camMovMax(e);
+    /* ejército varado en tierra de un reino en paz (derecho de salida): aviso y, si se queda, enfado */
+    const pr = camProv(e);
+    if (pr && e.f < NF && pr.owner < NF && !camPaso(e.f, pr.owner)) {
+      e.intruso = (e.intruso || 0) + 1;
+      if (e.intruso === 1 && (isMe(e.f) || isMe(pr.owner)))
+        addLog(`${camNombre(e)} (${CIV[e.f].s}) está en tierras de ${CIV[pr.owner].s} sin derecho de paso: debe salir.`, isMe(e.f) ? "bad" : "");
+      if (e.intruso >= 3) relAdd(e.f, pr.owner, -2);
+    } else e.intruso = 0;
     e.pas = [];
   }
   G.P.forEach((p) => (p.tired = false));
@@ -1208,7 +1580,54 @@ async function camNuevaEstacion() {
       const pl = e.plan;
       await camAplicarOrden(G, { tipo: "mover", f: e.f, ej: e.id, x: pl.x, y: pl.y, luego: pl.luego, p: pl.p, con: pl.con }, {});
     }
+  camRepCerrar();
   camTocar();
+}
+/* estado que resulta de aplicar los pasos de una repetición (hasta el paso n): {own:[], ej: Map id→{f,x,y,n}} */
+function camRepEstado(rep, n) {
+  const own = rep.own0.slice(),
+    ej = new Map(rep.ej0.map((e) => [e.id, { ...e }]));
+  for (const s of rep.pasos.slice(0, n == null ? rep.pasos.length : n)) {
+    if (s.k === "mov" && ej.has(s.ej)) Object.assign(ej.get(s.ej), { x: s.a[0], y: s.a[1] });
+    else if (s.k === "ej+") ej.set(s.ej, { id: s.ej, f: s.f, x: s.x, y: s.y, n: s.n });
+    else if (s.k === "ej-") ej.delete(s.ej);
+    else if (s.k === "con") own[s.p] = s.a;
+  }
+  return { own, ej };
+}
+/* cierra la repetición; si algo cambió sin pasar por los ganchos (sucesos, sociedad…), lo añade al final */
+function camRepCerrar() {
+  const S = camS(),
+    r = S.rep;
+  if (!r || r.fin) return;
+  const st = camRepEstado(r);
+  let aj = 0;
+  G.P.forEach((p, i) => {
+    if (st.own[i] !== p.owner) {
+      r.pasos.push({ k: "con", p: i, de: st.own[i], a: p.owner });
+      aj++;
+    }
+  });
+  const vivos = new Set();
+  for (const e of S.ej) {
+    if (camTot(e.u) <= 0) continue;
+    vivos.add(e.id);
+    const s = st.ej.get(e.id);
+    if (!s) {
+      r.pasos.push({ k: "ej+", ej: e.id, f: e.f, x: e.x, y: e.y, n: camTot(e.u) });
+      aj++;
+    } else if (s.x !== e.x || s.y !== e.y) {
+      r.pasos.push({ k: "mov", ej: e.id, f: e.f, de: [s.x, s.y], a: [e.x, e.y] });
+      aj++;
+    }
+  }
+  for (const id of st.ej.keys())
+    if (!vivos.has(id)) {
+      r.pasos.push({ k: "ej-", ej: id, motivo: "" });
+      aj++;
+    }
+  r.ajustes = aj;
+  r.fin = true;
 }
 async function camAsedios() {
   const S = camS();
@@ -1217,18 +1636,19 @@ async function camAsedios() {
       p = G.P[as.p];
     if (G.over) return;
     if (!p) {
-      delete S.as[k];
+      camAsedioFin(k);
       continue;
     }
     const sit = camSitiadores(p.id).filter((e) => camCheb(e.x, e.y, p.x, p.y) <= 1 && camGuerra(e.f, p.owner));
     if (!sit.length || p.owner === as.f) {
-      delete S.as[k];
+      camAsedioFin(k);
       for (const e of camS().ej) if (e.asd === p.id) {
         e.asd = null;
         if (e.est === "asedio") e.est = "marcha";
       }
       continue;
     }
+    if (!sit.some((e) => e.f === as.f)) camCercoReasignar(p.id);
     as.n++;
     as.vi--;
     const cat = sit.reduce((s, e) => s + camMaq(e).cat, 0);
@@ -1251,7 +1671,7 @@ async function camAsedios() {
       pr = clamp(0.03 * as.n + (as.vi < 0 ? 0.22 : 0) + (100 - as.mo) / 300 - ap * 0.2 + (ratio > 3 ? 0.08 : 0) - (p.cap ? 0.05 : 0), 0, 0.85),
       traicion = ap < -0.4 && R() < -ap * 0.25;
     if (!tot(p.u) || traicion || R() < pr) {
-      const e = sit.sort((a, b) => pw(b.u) - pw(a.u))[0];
+      const e = sit.filter((x) => x.f === as.f).sort((a, b) => pw(b.u) - pw(a.u))[0] || sit.sort((a, b) => pw(b.u) - pw(a.u))[0];
       if (traicion && tot(p.u)) addLog(`Traición en ${p.name}: los vecinos abren de noche una poterna.`, isMe(p.owner) ? "bad" : "good");
       camConquistar(p, e, "rendicion", null, 0);
       continue;
@@ -1384,8 +1804,11 @@ OC.on("pazFirmada", ({ a, b }) => {
     if (e.est === "asedio") camLevantar(e);
     const casa = owned(e.f).sort((x, y) => Math.hypot(x.x - e.x, x.y - e.y) - Math.hypot(y.x - e.x, y.y - e.y))[0];
     if (casa) {
+      const x0 = e.x,
+        y0 = e.y;
       e.x = casa.x;
       e.y = casa.y;
+      camRepMov(e, x0, y0);
       e.plan = null;
       e.est = "marcha";
     } else camQuitar(e);

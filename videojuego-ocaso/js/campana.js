@@ -27,7 +27,7 @@ async function march(from, to, frac, fast) {
       x1: q.x * T + 4,
       y1: q.y * T + 4,
       t0: performance.now(),
-      dur: reduce ? 1 : fast ? 110 : 480,
+      dur: reduce ? 1 : fast ? 110 : Math.round(480 * (typeof camVel === "function" ? camVel() : 1)),
       res,
     };
   });
@@ -126,6 +126,7 @@ async function settle(p, q, s, g, xpA, oriA) {
   if (gm[0] === "muerto" && g != null) kill(G.C[g], "cae en la batalla de " + q.name);
   if (gm[1] === "muerto" && gD != null) kill(G.C[gD], "cae en la batalla de " + q.name);
   flash = { x: q.x * T + 4, y: q.y * T + 4, t0: performance.now() };
+  if (d0 > 0 && typeof camRep === "function") camRep({ k: "bat", x: q.x, y: q.y, fs: [f, old], gana: win ? f : old, lugar: q.name });
   const cls = isMe(f) ? "good" : isMe(old) ? "bad" : "",
     bA = inf ? Math.round(inf.bajas[0].m) : (n0 - tot(A)) * SPU,
     bD = inf ? Math.round(inf.bajas[1].m) : d0 * SPU;
@@ -314,6 +315,7 @@ function camDibujar(now) {
       c.fillRect(X + 3, Y - 7, 2, 2);
     }
   }
+  camDibujarCerco(c, now);
   /* ejércitos */
   const ciu = camCiudades();
   for (const e of S.ej) {
@@ -339,6 +341,116 @@ function camDibujar(now) {
   if (eb && !busy && myTurn() && !G.over && !net.on) {
     const t = camTextoFin();
     if (eb.textContent !== t) eb.textContent = t;
+  }
+}
+/* ---------- cercos por flancos (capa que también llama interfaz.js, marcada CAM) ----------
+   Marca de color del sitiador en cada lado ocupado de la ciudad, flechas de cada ejército hacia ella,
+   los compañeros de un asalto conjunto resaltados al seleccionar a uno y la animación del asalto. */
+const CAM_LADO_XY = { N: [0, -1], E: [1, 0], S: [0, 1], O: [-1, 0] };
+function camMarcaLado(c, p, l, col) {
+  const X = p.x * T,
+    Y = p.y * T;
+  c.fillStyle = "#000";
+  if (l === "N") c.fillRect(X - 2, Y - 3, T + 4, 3);
+  if (l === "S") c.fillRect(X - 2, Y + T, T + 4, 3);
+  if (l === "E") c.fillRect(X + T, Y - 2, 3, T + 4);
+  if (l === "O") c.fillRect(X - 3, Y - 2, 3, T + 4);
+  c.fillStyle = col;
+  if (l === "N") c.fillRect(X - 1, Y - 2, T + 2, 1);
+  if (l === "S") c.fillRect(X - 1, Y + T + 1, T + 2, 1);
+  if (l === "E") c.fillRect(X + T + 1, Y - 1, 1, T + 2);
+  if (l === "O") c.fillRect(X - 2, Y - 1, 1, T + 2);
+}
+function camFlecha(c, e, p, col, now, fase) {
+  const ax = e.x * T + 4,
+    ay = e.y * T + 4,
+    bx = p.x * T + 4,
+    by = p.y * T + 4,
+    mv = reduce ? 0 : ((now / 420 + (fase || 0)) % 1) * 0.25;
+  for (const k of [0.3, 0.5, 0.7]) {
+    const t = k + mv,
+      x = Math.round(ax + (bx - ax) * t),
+      y = Math.round(ay + (by - ay) * t);
+    c.fillStyle = "#000";
+    c.fillRect(x - 1, y - 1, 3, 3);
+    c.fillStyle = col;
+    c.fillRect(x, y, 1, 1);
+  }
+}
+function camDibujarCerco(c, now) {
+  if (!G || !MAP) return;
+  const S = camS(),
+    vistos = new Set();
+  /* ciudades cercadas (o con ejércitos enemigos en cerco a su lado) */
+  for (const a of Object.values(S.as)) {
+    const p = G.P[a.p];
+    if (!p) continue;
+    vistos.add(p.id);
+    const ejs = S.ej.filter((e) => e.asd === p.id && camCheb(e.x, e.y, p.x, p.y) === 1 && camTot(e.u) > 0);
+    for (const e of ejs) {
+      const l = camFlanco(e.x - p.x, e.y - p.y);
+      if (l) camMarcaLado(c, p, l, CIV[e.f].c);
+      camFlecha(c, e, p, CIV[e.f].c, now, e.id * 0.13);
+    }
+  }
+  /* compañeros de un asalto conjunto del ejército seleccionado */
+  const se = camSel != null ? camEj(camSel) : null;
+  if (se && isMe(se.f)) {
+    const p = G.P.find((q) => camCiudadCerrada(se.f, q) && camCheb(q.x, q.y, se.x, se.y) === 1);
+    if (p) {
+      const part = camParticipantes(se, p);
+      if (part.length > 1) {
+        const on = reduce || Math.floor(now / 300) % 2;
+        for (const e of part) {
+          const X = e.x * T,
+            Y = e.y * T;
+          c.fillStyle = on ? "#f2c14e" : "#fff3b0";
+          for (const [a, b, w, h] of [
+            [-1, -1, 3, 1],
+            [-1, -1, 1, 3],
+            [T - 2, -1, 3, 1],
+            [T, -1, 1, 3],
+            [-1, T, 3, 1],
+            [-1, T - 2, 1, 3],
+            [T - 2, T, 3, 1],
+            [T, T - 2, 1, 3],
+          ])
+            c.fillRect(X + a, Y + b, w, h);
+          if (!vistos.has(p.id)) {
+            const l = camFlanco(e.x - p.x, e.y - p.y);
+            if (l) camMarcaLado(c, p, l, CIV[e.f].c);
+            camFlecha(c, e, p, "#f2c14e", now, e.id * 0.13);
+          }
+        }
+      }
+    }
+  }
+  /* animación del asalto conjunto: columnas que convergen y un estallido sobre la ciudad */
+  if (camAnimAsalto) {
+    const k = (performance.now() - camAnimAsalto.t0) / (1300 * camVel()),
+      p = G.P[camAnimAsalto.p];
+    if (k > 1 || !p) camAnimAsalto = null;
+    else {
+      const bx = p.x * T + 4,
+        by = p.y * T + 4;
+      for (const [x, y, f] of camAnimAsalto.ejs) {
+        const t = Math.min(1, k * 1.6),
+          px = Math.round(x * T + 4 + (bx - x * T - 4) * t),
+          py = Math.round(y * T + 4 + (by - y * T - 4) * t);
+        c.fillStyle = "#000";
+        c.fillRect(px - 2, py - 2, 5, 5);
+        c.fillStyle = CIV[f] ? CIV[f].c : "#fff";
+        c.fillRect(px - 1, py - 1, 3, 3);
+      }
+      if (k > 0.55) {
+        const r = Math.round(3 + (k - 0.55) * 22);
+        c.fillStyle = Math.floor(k * 12) % 2 ? "#fff3b0" : "#ff7a2a";
+        for (let a = 0; a < 12; a++) {
+          const an = (a * Math.PI) / 6;
+          c.fillRect(Math.round(bx + Math.cos(an) * r) - 1, Math.round(by + Math.sin(an) * r) - 1, 2, 2);
+        }
+      }
+    }
   }
 }
 /* casilla del mapa bajo el puntero */
@@ -438,19 +550,69 @@ function camClic(x, y) {
       return true;
     }
     /* ciudad rival en guerra (o rebelde): ¿asediar o atacar? */
+    /* ciudad cercada por otro bando: unirse a su cerco (si lo acepta) o declararle la guerra; la ciudad no se toca */
+    const ajeno = ciu && ciu.owner !== ME && camGuerra(ME, ciu.owner) ? camCercoAjeno(ME, ciu) : null;
+    if (ajeno) {
+      const A = ajeno.f,
+        guerraA = camGuerra(ME, A),
+        btns = [];
+      if (!guerraA && A < NF)
+        btns.push({
+          t: "Unirse al asedio",
+          cls: "gold",
+          fn: () =>
+            setTimeout(async () => {
+              if (await camPedirCerco(ME, ciu)) camOrdenUI({ tipo: "mover", f: ME, ej: cur.id, x, y, luego: "asediar", p: ciu.id });
+              else ui();
+            }, 0),
+        });
+      if (!guerraA && A < NF)
+        btns.push({
+          t: `Declarar la guerra a ${CIV[A].s}`,
+          cls: "red",
+          fn: () =>
+            setTimeout(() => {
+              if (typeof dipModalGuerra === "function") dipModalGuerra(A);
+              else declareWar(ME, A);
+            }, 0),
+        });
+      btns.push({ t: "Cancelar" });
+      modal(
+        `${ciu.name}`,
+        `<p>Asediada por <b style="color:${CIV[A].c}">${CIV[A].s}</b> (${camSitiadores(ciu.id).length} ${camSitiadores(ciu.id).length === 1 ? "ejército" : "ejércitos"}, ${ajeno.n} ${ajeno.n === 1 ? "estación" : "estaciones"} de cerco).</p><p class="dim">Quien cerca una ciudad manda en ella: no puedes asaltarla ni ocuparla por tu cuenta. ${guerraA ? `Estás en guerra con ${CIV[A].s}: ataca a sus ejércitos sitiadores (clic sobre ellos) para romper su cerco.` : `Puedes pedir unirte al asedio (cubrirías otro flanco y entrarías en un asalto conjunto; la ciudad sería de ${CIV[A].s}, el botín se reparte) o declararle la guerra y luchar contra su ejército.`}</p>`,
+        btns,
+      );
+      return true;
+    }
     if (ciu && ciu.owner !== ME && camGuerra(ME, ciu.owner)) {
       const gu = tot(ciu.u) * SPU,
         mu = ciu.walls || 0,
         mios = camTot(cur.u) * SPU,
-        maq = Object.values(camMaq(cur)).reduce((a, b) => a + b, 0);
+        maq = Object.values(camMaq(cur)).reduce((a, b) => a + b, 0),
+        /* flancos: tus ejércitos (y aliados) ya junto a la ciudad, y los que se sumarían a un asalto conjunto */
+        fl = camFlancosDe(ME, ciu),
+        yaJunto = camCheb(cur.x, cur.y, ciu.x, ciu.y) === 1,
+        otros = fl.ejs.filter((e) => e.id !== cur.id && e.acc !== camClaveEst() && (e.f === ME || !human(e.f))),
+        destino = yaJunto ? null : camPlanRuta(cur, x, y, {}),
+        llega = yaJunto || (destino && camRutaCabe(cur, destino.ruta)),
+        lados = [...new Set([...fl.lados, ...(yaJunto ? [] : destino && destino.ruta.length ? [camFlanco((destino.ruta[destino.ruta.length - 1] % W) - ciu.x, Math.floor(destino.ruta[destino.ruta.length - 1] / W) - ciu.y)] : [])])].filter(Boolean),
+        nConj = otros.length + 1,
+        con = otros.map((e) => e.id);
+      const btns = [
+        { t: "Asediar", cls: "gold", fn: () => camOrdenUI({ tipo: "mover", f: ME, ej: cur.id, x, y, luego: "asediar", p: ciu.id }) },
+        { t: "¡Atacar!", cls: "red", fn: () => camOrdenUI({ tipo: "mover", f: ME, ej: cur.id, x, y, luego: "asaltar", p: ciu.id }) },
+      ];
+      if (otros.length && llega)
+        btns.push({
+          t: `Asalto conjunto (${nConj} ejércitos, ${lados.length} ${lados.length === 1 ? "flanco" : "flancos"})`,
+          cls: "red",
+          fn: () => camOrdenUI({ tipo: "mover", f: ME, ej: cur.id, x, y, luego: "asaltar", p: ciu.id, con }),
+        });
+      btns.push({ t: "Cancelar" });
       modal(
         `${ciu.name}`,
-        `<p>${esc(camNombre(cur))} (${mios} hombres${maq ? `, ${maq} máquinas` : ""}) contra ${ciu.name}: ${gu ? gu + " defensores" : "sin guarnición"}${mu ? ` tras murallas de nivel ${mu}` : ", sin murallas"}.</p><p class="dim">Asediar: cercas la ciudad varias estaciones, sus víveres y su moral caen y puedes construir arietes, torres y catapultas. Atacar: asalto inmediato al llegar${mu ? "; contra murallas sin máquinas es muy costoso" : ""}. Si no llega esta estación, seguirá la marcha y lo hará al llegar.</p>`,
-        [
-          { t: "Asediar", cls: "gold", fn: () => camOrdenUI({ tipo: "mover", f: ME, ej: cur.id, x, y, luego: "asediar", p: ciu.id }) },
-          { t: "¡Atacar!", cls: "red", fn: () => camOrdenUI({ tipo: "mover", f: ME, ej: cur.id, x, y, luego: "asaltar", p: ciu.id }) },
-          { t: "Cancelar" },
-        ],
+        `<p>${esc(camNombre(cur))} (${mios} hombres${maq ? `, ${maq} máquinas` : ""}) contra ${ciu.name}: ${gu ? gu + " defensores" : "sin guarnición"}${mu ? ` tras murallas de nivel ${mu}` : ", sin murallas"}.</p><p>Tus ejércitos junto a la ciudad: <b>${fl.ejs.length}</b> · flancos cubiertos <b>${fl.lados.length}/4</b>${fl.lados.length ? ` (${fl.lados.map((l) => CAM_LADO_N[l]).join(", ")})` : ""}.</p><p class="dim">Asediar: cercas la ciudad varias estaciones (desde un flanco libre si lo hay), sus víveres y su moral caen y puedes construir arietes, torres y catapultas. Atacar: asalto inmediato al llegar${mu ? "; contra murallas sin máquinas es muy costoso" : ""}.${otros.length ? " Asalto conjunto: todos atacan a la vez; cada flanco más reparte a los defensores (menos murallas y moral)." : ""} Si no llega esta estación, seguirá la marcha y lo hará al llegar.</p>`,
+        btns,
       );
       return true;
     }
@@ -503,19 +665,35 @@ function camPanelEj(dis) {
       pr = mio ? Math.round(cmbEstimar(camParaBatalla(ej), camGuarnicion(q), camCtxAsalto(ej, q), 6) * 100) : null;
     h += `<h3>Asedio de ${q.name}</h3><p class="stats">${as.n} ${as.n === 1 ? "estación" : "estaciones"} de cerco · víveres de la guarnición: ${as.vi >= 0 ? as.vi + " estaciones" : "¡hambre!"} · moral ${Math.round(as.mo)} · el pueblo ${ap > 0.3 ? "resiste" : ap < -0.3 ? "quiere abrir las puertas" : "duda"}<br>Murallas ${q.walls || 0} → ${camFortEf(q, ej, as)} con tus máquinas${as.brecha ? ` (brecha ${Math.round(as.brecha * 100) / 100})` : ""} · guarnición ${tot(q.u) * SPU} hombres${pr != null ? ` · asalto ≈${pr}%` : ""}</p>`;
   }
+  /* flancos: ejércitos junto a la ciudad y asalto conjunto */
+  const qc = q || G.P.find((c) => camCiudadCerrada(ej.f, c) && camCheb(c.x, c.y, ej.x, ej.y) === 1),
+    part = qc && mio ? camParticipantes(ej, qc) : [];
+  if (qc && mio) {
+    const fl = camFlancosDe(ej.f, qc);
+    h += `<p class="stats">Junto a ${qc.name}: ${fl.ejs.length} ${fl.ejs.length === 1 ? "ejército" : "ejércitos"} · flancos cubiertos ${fl.lados.length}/4${fl.lados.length ? ` (${fl.lados.map((l) => CAM_LADO_N[l]).join(", ")})` : ""}${part.length > 1 ? ` · asalto conjunto ≈${Math.round(camEstimarAsalto(part, qc, 6) * 100)}%` : ""}</p>`;
+  }
   if (mio) {
     const ady = G.P.filter((c) => camCiudadCerrada(ej.f, c) && camCheb(c.x, c.y, ej.x, ej.y) <= 1),
       otro = camEjsEn(ej.x, ej.y, ej.id).find((e) => e.f === ej.f);
     h += `<div class="btns">`;
     h += b(`acampar:${ej.id}`, "Acampar", ej.est !== "asedio" && ej.est !== "campamento", "Campamento fortificado: descansa, cura heridos y, en tierra ajena, saquea la comarca");
     if (ej.est === "asedio") {
-      h += b(`asaltar:${ej.id}`, "Asaltar", true, "Asalto a las murallas con las máquinas que tengas");
+      h += b(`asaltar:${ej.id}`, "Asaltar", ej.acc !== camClaveEst(), ej.acc === camClaveEst() ? "Ya asaltó esta estación" : "Asalto a las murallas con las máquinas que tengas");
       for (const k in CAM_MAQ) {
         const mo = camPuedeMaq(ej, k);
         h += b(`maq:${ej.id}:${k}`, `${CAM_MAQ[k].n}<small>${OC.textoCoste(camCosteMaq(ME, k))} · ${CAM_MAQ[k].est} est.</small>`, !mo, mo || `Se termina en ${CAM_MAQ[k].est} ${CAM_MAQ[k].est > 1 ? "estaciones" : "estación"}`);
       }
       h += b(`levantar:${ej.id}`, "Levantar el cerco", true);
     } else for (const c of ady) h += b(`asediar:${ej.id}:${c.id}`, `Asediar ${c.name}`, true, "Rodear la ciudad: sus víveres y su moral irán cayendo");
+    if (part.length > 1) {
+      const k = camLadosDe(part, qc).length;
+      h += b(
+        `conj:${ej.id}:${qc.id}:${part.slice(1).map((e) => e.id).join(".")}`,
+        `Asalto conjunto<small>${part.length} ejércitos · ${k} ${k === 1 ? "flanco" : "flancos"}</small>`,
+        ej.acc !== camClaveEst(),
+        "Todos los ejércitos junto a la ciudad atacan a la vez; cada flanco más resta murallas y moral a los defensores",
+      );
+    }
     h += b(`disolver:${ej.id}`, "Disolver", p && p.owner === ej.f, "Las tropas pasan a la guarnición de la provincia (solo en tierra propia)");
     h += b(`dividir:${ej.id}`, "Dividir", camTot(ej.u) > 1, "Separa la mitad en un destacamento");
     if (otro) h += b(`unir:${ej.id}:${otro.id}`, "Unir", true, "Reúne los dos ejércitos de esta casilla");
@@ -606,6 +784,7 @@ OC.accion("cam", (v) => {
   const map = { acampar: "acampar", asaltar: "asaltar", levantar: "levantar", disolver: "disolver", dividir: "dividir" };
   if (map[k]) camOrdenUI({ ...o, tipo: map[k], ej: id });
   else if (k === "asediar") camOrdenUI({ ...o, tipo: "asediar", ej: id, p: +b2 });
+  else if (k === "conj") camOrdenUI({ ...o, tipo: "asaltar", ej: id, p: +b2, con: String(v.split(":")[3] || "").split(".").filter(Boolean).map(Number) });
   else if (k === "maq") camOrdenUI({ ...o, tipo: "construir", ej: id, maq: b2 });
   else if (k === "unir") camOrdenUI({ ...o, tipo: "unir", ej: id, con: +b2 });
   else if (k === "salida") camOrdenUI({ ...o, tipo: "salida", p: id });

@@ -57,6 +57,13 @@ montañas: las colinas hacen ese papel. Caminos con Dijkstra determinista (`camD
 índice de casilla).
 - **Zona de control**: entrar junto a un ejército enemigo (en guerra) detiene la marcha; desde ahí solo
   se puede atacarle. Las casillas de ejércitos de reinos en paz no se pisan.
+- **Animación**: solo con `opc.anim` (órdenes del jugador): pausa por paso de 55 ms × `ifzVel()` (la
+  interfaz, «lenta» ≈ 2,5) y `ej.anim = {x0, y0, t0, dur}` para que la interfaz interpole entre casillas
+  (se borra al acabar el paso). La IA, las pruebas y el online resuelven sin pausas.
+- **Derecho de salida** (orquestador, `camPaso(f, o, ej)`): un ejército que queda en tierra de un reino
+  en paz (un tercero conquistó la provincia) puede cruzarla para salir. Cada estación que siga allí
+  suma `ej.intruso` (aviso en la crónica la primera vez; desde la tercera, −2 de relación con el
+  dueño) y la IA lo saca antes que nada.
 - **Fronteras**: no se entra en tierra de un reino en paz sin derecho de paso (`dipTr(f, dueño, "paso")`)
   o alianza; el jugador recibe la opción de declarar la guerra (`dipModalGuerra`). Rebeldes: siempre.
 - Ciudades hostiles con defensores o murallas no se cruzan: se **asedian** desde una casilla vecina.
@@ -123,6 +130,69 @@ aliado), media guarnición sale a la vez y vuelve después. Se emite `batallaRes
   desde la ciudad. Si pierde: la IA levanta el cerco si quedó muy débil.
 - **Capitanes**: si de una victoria de un ejército sin general surge un capitán (combate,
   `cmbCapitanSurge`), campaña le da el mando de ese ejército (en vez de la provincia).
+- Cada ejército asalta como mucho **una vez por estación** (`ej.acc = "año.estación"`).
+
+### Cerco por flancos y asalto conjunto
+
+- **Flancos**: las 8 casillas vecinas de una ciudad forman 4 lados, cada uno una recta y una diagonal
+  en sentido horario: N = (0,−1)(1,−1), E = (1,0)(1,1), S = (0,1)(−1,1), O = (−1,0)(−1,−1)
+  (`camFlanco(dx, dy)`). `camFlancosDe(f, p)` → `{ejs, lados}`: ejércitos de f (y de sus aliados en
+  guerra con el dueño) junto a la ciudad y lados que cubren.
+- Al asediar con un segundo ejército, `camJuntoA` busca un **flanco libre** (sin ejército propio ni
+  casilla ocupada) si se alcanza esta estación o cuesta poco más (≤ 4 puntos o 40 % del alcance) que el
+  lado cubierto más cercano.
+- **Asalto conjunto**: `{tipo:'asaltar', f, ej, p?, con:[ids]}` (o `mover` con `luego:'asaltar'` y
+  `con`). Atacan en **una** batalla `ej` y los de `con` que sigan junto a la ciudad y no hayan asaltado
+  esta estación (`camParticipantes`; los aliados solo si no los lleva una persona). Fuerza conjunta
+  (`camFuerzaConjunta`): tropas y máquinas sumadas, veteranía ponderada por hombres, origen de quien
+  más aporta, al mando el mejor general (mando, luego experiencia) y +3 % de daño por cada general más
+  (máx. +9 %, `OC.mod('bonoBatalla')` solo durante ese asalto). `F.por` guarda el desglose por ejército
+  y facción para cuando combate tenga batallas de varios bandos (`cmbResolverMulti`).
+- **Ventaja por flancos** (k lados): `ctx.flancos = k`. Mientras combate no lo lea de forma nativa,
+  campaña lo traduce (`ctx.flancosAplicados = true`): murallas ×(1 − 0,15·(k−1)) (mín. ×0,4) y
+  `ctx.asedio` +1,25 por flanco extra (= −5 de moral de la guarnición por flanco; `ctx.estaciones`
+  guarda las de cerco reales). El informe lleva al frente el factor «Asalto por k flancos».
+- **Reparto**: supervivientes de cada clase en proporción a lo aportado (restos mayores,
+  `camRepartir`), heridos y veteranía por ejército; botín de la ciudad (`4 + 0,4·población` de oro)
+  repartido por bandos según fuerza aportada. Si se gana entra en la ciudad el que más aportó y los
+  demás quedan junto a ella; si se pierde, cada uno sigue (la IA levanta el cerco si quedan débiles).
+- **Interfaz**: el modal de la ciudad rival muestra «Tus ejércitos junto a la ciudad: N · flancos
+  cubiertos k/4» y ofrece «Asalto conjunto (N ejércitos, k flancos)»; el panel del ejército, la
+  estimación conjunta y el botón. En el mapa (`camDibujarCerco`, llamado desde `ifzCamDibujar`, marcado
+  CAM): marca del color del sitiador en cada lado ocupado, flechas de cada ejército hacia la ciudad,
+  esquinas doradas en los ejércitos que participarían al seleccionar uno y una animación breve del
+  asalto conjunto (columnas que convergen y estallido).
+- **Táctica**: el asalto conjunto se libra con la fuerza sumada en un solo bando; desplegar a los
+  atacantes por varios lados del campo táctico queda para combate (no se toca `batalla.js`).
+- **Un cerco es de quien lo puso** (regla del usuario): si A cerca una ciudad, otro bando B —aunque esté
+  en guerra con su dueño— no puede asediarla por su cuenta, asaltarla ni ocuparla vacía
+  (`camCercoAjeno(f, p)`; también la evita el Dijkstra). Opciones de B: (a) **sumarse al cerco** como
+  co-sitiador: automático si es aliado de A; en paz, A decide (`camPedirCerco(B, p)`: la IA acepta con
+  relación ≥ 15; el jugador A recibe un modal; fuera de eso, una negativa vale para todo el año,
+  `as.no`); los aceptados van en `as.co`, ocupan otro flanco y cuentan para el asalto conjunto. Un
+  co-sitiador no asalta solo: su asalto arrastra siempre a los ejércitos de A. **La ciudad es de quien
+  inició el cerco** (entra su ejército que más aportó) y el botín se reparte por fuerza aportada.
+  (b) Si no, declarar la guerra a A (`dipModalGuerra`) y luchar contra sus ejércitos sitiadores. El modal
+  de la ciudad lo dice: «Asediada por X: Unirse al asedio / Declarar la guerra a X». Si A se va y queda un
+  co-sitiador, el cerco pasa a él (`camCercoReasignar`). En la resolución simultánea, el primero que
+  cerca manda (el segundo queda fuera o se suma si puede). La IA (y las bandas rebeldes) respetan la regla.
+- **IA**: si tiene varios ejércitos junto a una ciudad y la estimación conjunta (`camEstimarAsalto`)
+  supera 0,6 y mejora en 5 puntos la de uno solo, asalta en conjunto; puede enviar un segundo ejército
+  a una ciudad que ya cerca (llega por otro flanco y se suma al cerco).
+
+## Repetición de la estación (CONTRATO §9)
+
+`G.cam.rep = {v:1, anio, est, own0, ej0:[{id, f, x, y, n}], pasos, fin, ajustes}`. Se abre al empezar la
+resolución (`camEstacion` → `camRepIni`, que vacía la anterior) y se cierra al acabar `camNuevaEstacion`
+(`camRepCerrar`), así que incluye la IA, `camResolverSimultaneo` (órdenes online), batallas, asedios, lo
+anual (revueltas, conquistas) y las marchas pendientes del jugador; lo que el jugador mueve en su turno ya
+lo vio animado y no se graba. Pasos: `mov` (cada paso de marcha, retiradas, entrada en una ciudad, vuelta a
+casa tras la paz), `ej+` (`camNuevoEj`: formar, dividir, desertores), `ej-` (`camQuitar(ej, motivo)`),
+`bat` (`camLibrar` y `settle`), `ase` `ini`/`fin` (`camAsedioFin`), `con` (ganchos `conquista` y
+`revuelta`). Tope 2000 pasos: pasado, los pasos de marcha de un ejército se funden en su último tramo. Al
+cerrar, si algo cambió sin pasar por los ganchos (sucesos, sociedad…) se añade al final y se cuenta en
+`ajustes` (0 en la prueba). `camRepEstado(rep, n)` → `{own, ej}` tras aplicar los n primeros pasos (útil
+para `ifzRepetir`).
 
 ## Órdenes (API para el futuro online)
 
@@ -134,7 +204,7 @@ Todo se expresa con objetos planos (JSON) con `f` = bando que da la orden:
 | `mover` | `ej`, `x`, `y`, `luego?` (`asediar`/`asaltar`/`acampar`/`disolver`/`unir`), `p?`, `con?` | marcha por la ruta más barata hasta agotar el alcance; lo que falte queda en `plan` |
 | `acampar` / `levantar` / `disolver` / `dividir` (`frac`) / `unir` (`con`) | `ej` | |
 | `asediar` | `ej`, `p` | cerco desde una casilla vecina |
-| `asaltar` | `ej` | asalto a la ciudad sitiada |
+| `asaltar` | `ej`, `p?`, `con?:[ids]` | asalto a la ciudad sitiada (o vecina); con `con`, asalto conjunto por varios flancos |
 | `construir` | `ej`, `maq` (`ari`/`tor`/`cat`) | encarga una máquina |
 | `general` | `ej`, `c` (id o null) | da o quita el mando |
 | `salida` | `p` | la guarnición sitiada ataca |
